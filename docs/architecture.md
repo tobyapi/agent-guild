@@ -132,6 +132,7 @@ src/
 
 - `contracts/ipc/*.json`: コマンドの戻り値・入力・イベント・エラーの実例。Rust（guild-domain のテスト）は「読み込んで書き戻すと一致する」ことを、TS（vitest）は `satisfies` で型に合うことを検査する。
 - `contracts/runner/*.jsonl`: ランナープロトコルの要求・イベントの実例。runner-client と agent-runner の両方のテストが同じファイルを読む。
+- `contracts/behavior/*.json`: Rust と TS の両方に実装がある規則（メンション解析・tasks ブロックの読み取り・お知らせの文面）の実例。入力と期待する結果を並べ、Rust（guild-domain の `tests/domain/behavior.rs`）と TS（`*.behavior.test.ts`・`mock/notices.test.ts`）が同じファイルで同じ結果になることを検査する。正は Rust で、画面の `shared/lib` とブラウザ用のモックがずれたらテストが落ちる。
 
 ## 拡張のしかた（足すだけで済むこと）
 

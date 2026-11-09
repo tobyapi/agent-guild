@@ -1,0 +1,83 @@
+[
+  {
+    "name": "呼ばれた相手を、本文に現れた順に返す",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "sora", "name": "ソラ" }
+    ],
+    "content": "@ソラ と @ハル で進めて",
+    "mentions": ["sora", "hal"]
+  },
+  {
+    "name": "長い名前から探すので、@ハルカ は @ハル に誤爆しない",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "haruka", "name": "ハルカ" }
+    ],
+    "content": "@ハルカ お願い",
+    "mentions": ["haruka"]
+  },
+  {
+    "name": "似た名前の2人を両方呼べる",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "haruka", "name": "ハルカ" }
+    ],
+    "content": "@ハル と @ハルカ で分担して",
+    "mentions": ["hal", "haruka"]
+  },
+  {
+    "name": "全角の ＠・全角と半角・大文字と小文字の違いを許す",
+    "agents": [
+      { "id": "gia", "name": "Gia" },
+      { "id": "hal", "name": "ハル" }
+    ],
+    "content": "＠ＧＩＡ 設計を見て。@ﾊﾙ も",
+    "mentions": ["gia", "hal"]
+  },
+  {
+    "name": "コードブロックの中は無視する",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "sora", "name": "ソラ" }
+    ],
+    "content": "例:\n```\n@ハル これは例\n```\n@ソラ 見て",
+    "mentions": ["sora"]
+  },
+  {
+    "name": "閉じていないコードブロックは最後までコードとみなす",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "sora", "name": "ソラ" }
+    ],
+    "content": "@ソラ これを見て\n```\n@ハル",
+    "mentions": ["sora"]
+  },
+  {
+    "name": "削除済みのエージェントは呼べない",
+    "agents": [
+      { "id": "hal", "name": "ハル" },
+      { "id": "sora", "name": "ソラ", "deleted": true }
+    ],
+    "content": "@ソラ と @ハル",
+    "mentions": ["hal"]
+  },
+  {
+    "name": "同じ相手を何度呼んでも1回だけ",
+    "agents": [{ "id": "hal", "name": "ハル" }],
+    "content": "@ハル これと、@ハル あれも",
+    "mentions": ["hal"]
+  },
+  {
+    "name": "名前のあとに文字が続いていても呼べる",
+    "agents": [{ "id": "hal", "name": "ハル" }],
+    "content": "@ハルさん、お願いします",
+    "mentions": ["hal"]
+  },
+  {
+    "name": "メンションがなければ空",
+    "agents": [{ "id": "hal", "name": "ハル" }],
+    "content": "ハル に頼みたいけど、まだ呼ばない",
+    "mentions": []
+  }
+]

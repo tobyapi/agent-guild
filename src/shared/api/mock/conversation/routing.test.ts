@@ -5,7 +5,8 @@ import { MOCK_BACKENDS } from '../seedCatalog';
 import { createSeedState } from '../seed';
 import { SEED_IDS } from '../seedIds';
 import { mergeJobs, pushJob } from './lanes';
-import { defaultResponders, NO_RESPONDER_NOTICE, routeAgentReply, routeHumanMessage } from './routing';
+import { NO_RESPONDER } from '../notices';
+import { defaultResponders, routeAgentReply, routeHumanMessage } from './routing';
 import type { MockJob, RoutingContext } from './routing';
 
 const state = createSeedState(0, null);
@@ -68,7 +69,7 @@ describe('routing', () => {
   it('答えられる人がいなければシステム発言', () => {
     const empty = { ...lobby, memberIds: [HUMAN_ID] };
     expect(routeHumanMessage(message({}), context({ channel: empty }))).toEqual([
-      { type: 'notice', content: NO_RESPONDER_NOTICE },
+      { type: 'notice', content: NO_RESPONDER },
     ]);
   });
 

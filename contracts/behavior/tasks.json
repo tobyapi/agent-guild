@@ -1,0 +1,160 @@
+[
+  {
+    "name": "「@名前: 指示」を読み、@ で始まらない行は直前の指示につなぎ、空行は無視する",
+    "agents": "team",
+    "content": "分けて進めます。\n\n```tasks\n@ハル: 調べて\n\n@ソラ: 作って\n  （手順は README に）\n```\n以上です。",
+    "plan": {
+      "tasks": [
+        { "assignee": "hal", "instruction": "調べて" },
+        { "assignee": "sora", "instruction": "作って\n（手順は README に）" }
+      ],
+      "unassignable": [],
+      "overflow": []
+    }
+  },
+  {
+    "name": "全角の ＠・： と、全角と半角の違いを許し、長い名前を優先する",
+    "agents": "team",
+    "content": "```tasks\n＠ハルカ：まとめて\n@ﾊﾙ : 調べて\n```",
+    "plan": {
+      "tasks": [
+        { "assignee": "haruka", "instruction": "まとめて" },
+        { "assignee": "hal", "instruction": "調べて" }
+      ],
+      "unassignable": [],
+      "overflow": []
+    }
+  },
+  {
+    "name": "見つからない名前と自分自身は名前を控えて飛ばし、同じ担当者の行は1つにまとめる",
+    "agents": "team",
+    "content": "```tasks\n@ミライ: a\n@カナメ: b\n@ハル: c\n@ハル: d\n@ミライ: e\n```",
+    "plan": {
+      "tasks": [{ "assignee": "hal", "instruction": "c\nd" }],
+      "unassignable": ["ミライ", "カナメ"],
+      "overflow": []
+    }
+  },
+  {
+    "name": "コロンがなくても、空白で区切れば読む",
+    "agents": "team",
+    "content": "```tasks\n@ハル 競合を調べて\n@ソラ　試作を作って\n@ハルカ まとめて\n```",
+    "plan": {
+      "tasks": [
+        { "assignee": "hal", "instruction": "競合を調べて" },
+        { "assignee": "sora", "instruction": "試作を作って" },
+        { "assignee": "haruka", "instruction": "まとめて" }
+      ],
+      "unassignable": [],
+      "overflow": []
+    }
+  },
+  {
+    "name": "指示が空の行は捨てる。続きの行があれば、それが指示になる",
+    "agents": "team",
+    "content": "```tasks\n@ハル:\n@ソラ:\n  あとで決める\n```",
+    "plan": {
+      "tasks": [{ "assignee": "sora", "instruction": "あとで決める" }],
+      "unassignable": [],
+      "overflow": []
+    }
+  },
+  {
+    "name": "割り振れなかった行の続きは捨てる",
+    "agents": "team",
+    "content": "```tasks\n@ミライ: a\n  続きの行\n@ハル: b\n```",
+    "plan": {
+      "tasks": [{ "assignee": "hal", "instruction": "b" }],
+      "unassignable": ["ミライ"],
+      "overflow": []
+    }
+  },
+  {
+    "name": "名前のない行は「（名前なし）」として控える",
+    "agents": "team",
+    "content": "```tasks\n@: 何か\n@ハル: y\n```",
+    "plan": {
+      "tasks": [{ "assignee": "hal", "instruction": "y" }],
+      "unassignable": ["（名前なし）"],
+      "overflow": []
+    }
+  },
+  {
+    "name": "削除済みのエージェントには割り振れない",
+    "agents": "teamWithoutSora",
+    "content": "```tasks\n@ソラ: x\n@ハル: y\n```",
+    "plan": {
+      "tasks": [{ "assignee": "hal", "instruction": "y" }],
+      "unassignable": ["ソラ"],
+      "overflow": []
+    }
+  },
+  {
+    "name": "開始行の tasks は大文字と小文字を区別せず、前後の空白も許す",
+    "agents": "team",
+    "content": "``` Tasks  \n@ハル: x\n```",
+    "plan": { "tasks": [{ "assignee": "hal", "instruction": "x" }], "unassignable": [], "overflow": [] }
+  },
+  {
+    "name": "最初の tasks ブロックだけを読む",
+    "agents": "team",
+    "content": "```tasks\n@ハル: 一つ目\n```\n\n```tasks\n@ソラ: 二つ目\n```",
+    "plan": { "tasks": [{ "assignee": "hal", "instruction": "一つ目" }], "unassignable": [], "overflow": [] }
+  },
+  {
+    "name": "閉じていないブロックは最後まで読む",
+    "agents": "team",
+    "content": "```tasks\n@ハル: 最後まで\n@ソラ: 読む",
+    "plan": {
+      "tasks": [
+        { "assignee": "hal", "instruction": "最後まで" },
+        { "assignee": "sora", "instruction": "読む" }
+      ],
+      "unassignable": [],
+      "overflow": []
+    }
+  },
+  {
+    "name": "ほかのコードブロックの中の tasks は読まない",
+    "agents": "team",
+    "content": "書き方の例です。\n\n```md\n```tasks\n@ハル: 例\n```\n",
+    "plan": null
+  },
+  {
+    "name": "例のコードブロックのあとにある本物のブロックを読む",
+    "agents": "team",
+    "content": "```md\n```tasks\n@ハル: 例\n```\n\n```tasks\n@ソラ: 本物\n```",
+    "plan": { "tasks": [{ "assignee": "sora", "instruction": "本物" }], "unassignable": [], "overflow": [] }
+  },
+  {
+    "name": "バッククォートが4つ以上の囲みは tasks ブロックではない",
+    "agents": "team",
+    "content": "````tasks\n@ハル: a\n````",
+    "plan": null
+  },
+  {
+    "name": "tasks ブロックがなければ null",
+    "agents": "team",
+    "content": "ブロックなしで書きます。\n@ハル: これは普通の文",
+    "plan": null
+  },
+  {
+    "name": "サブタスクは8件まで。超えた担当者の名前を控える",
+    "agents": "crowd",
+    "content": "```tasks\n@イチ: 1\n@ニ: 2\n@サン: 3\n@ヨン: 4\n@ゴ: 5\n@ロク: 6\n@ナナ: 7\n@ハチ: 8\n@キュウ: 9\n@ジュウ: 10\n```",
+    "plan": {
+      "tasks": [
+        { "assignee": "a1", "instruction": "1" },
+        { "assignee": "a2", "instruction": "2" },
+        { "assignee": "a3", "instruction": "3" },
+        { "assignee": "a4", "instruction": "4" },
+        { "assignee": "a5", "instruction": "5" },
+        { "assignee": "a6", "instruction": "6" },
+        { "assignee": "a7", "instruction": "7" },
+        { "assignee": "a8", "instruction": "8" }
+      ],
+      "unassignable": [],
+      "overflow": ["キュウ", "ジュウ"]
+    }
+  }
+]

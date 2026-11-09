@@ -4,6 +4,7 @@ import { SYSTEM_ID } from '@/shared/types/domain';
 import type { Agent, Channel, ErrorCode, Message } from '@/shared/types/domain';
 import { ApiError } from '../errors';
 import type { MockEventBus } from './bus';
+import { joined } from './notices';
 import type { MockState } from './state';
 
 export type Cancel = () => void;
@@ -99,5 +100,5 @@ export function postSystem(core: MockCore, channelId: string, content: string, r
 /** チャンネルに参加させ、システム発言で知らせる */
 export function joinChannel(core: MockCore, channel: Channel, agent: Agent, rootId?: string): void {
   channel.memberIds.push(agent.id);
-  postSystem(core, channel.id, `${agent.name} がチャンネルに参加しました`, rootId);
+  postSystem(core, channel.id, joined(agent.name), rootId);
 }

@@ -3,15 +3,15 @@
 import type { ActivityState, Channel, Message } from '@/shared/types/domain';
 import { createDelegations } from '../delegation/engine';
 import type { MockDelegations } from '../delegation/engine';
+import { DEPTH_LIMIT, STOPPED } from '../notices';
 import { activeAgents, emitStateChanged, joinChannel, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import type { JobOutcome } from './executor';
-import { DEPTH_LIMIT_NOTICE, MAX_DEPTH, routeAgentReply, routeHumanMessage, routeMissingReply } from './routing';
+import { MAX_DEPTH, routeAgentReply, routeHumanMessage, routeMissingReply } from './routing';
 import type { MockJob, RoutingContext, RoutingEffect } from './routing';
 import { createScheduler } from './scheduler';
 import type { Scheduler } from './scheduler';
 
-export const STOPPED_NOTICE = '停止しました';
 const MANAGER_GONE = 'マネージャーが外れました';
 
 export interface MockConversation {
@@ -33,8 +33,8 @@ function cancellations(core: MockCore, scheduler: Scheduler, delegations: MockDe
   return {
     stop(channelId) {
       scheduler.discard((job) => job.channelId === channelId);
-      delegations.cancel((delegation) => delegation.channelId === channelId, STOPPED_NOTICE);
-      postSystem(core, channelId, STOPPED_NOTICE);
+      delegations.cancel((delegation) => delegation.channelId === channelId, STOPPED);
+      postSystem(core, channelId, STOPPED);
     },
     dropChannel(channelId) {
       scheduler.discard((job) => job.channelId === channelId);
@@ -107,7 +107,7 @@ export function createConversation(core: MockCore): MockConversation {
     }
     const reply = outcome.message;
     if (outcome.tasks) delegations.create(reply, outcome.tasks, channel);
-    if (reply.depth >= MAX_DEPTH) return noticeOnce(channel.id, reply.rootId, DEPTH_LIMIT_NOTICE);
+    if (reply.depth >= MAX_DEPTH) return noticeOnce(channel.id, reply.rootId, DEPTH_LIMIT);
     apply(routeAgentReply(reply, job, contextOf(channel)), channel, reply.rootId);
   }
 

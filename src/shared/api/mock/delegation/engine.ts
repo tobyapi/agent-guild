@@ -7,7 +7,7 @@ import { activeAgents, emitStateChanged, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import { allSettled, cancelDelegation, isOpen, isUnsettled, reportLines, settleSubtask, startSubtask } from './model';
 import type { SubtaskResult } from './model';
-import { MAX_SUBTASKS } from './tasks';
+import { SUBTASK_NOTES, tooManyTasks, unassignable } from '../notices';
 import type { ParsedTasks } from './tasks';
 
 export interface DelegationDeps {
@@ -30,26 +30,15 @@ export interface MockDelegations {
 
 function outcomeResult(outcome: JobOutcome): SubtaskResult {
   if (outcome.type === 'reply') return { status: 'done', resultMessageId: outcome.message.id, note: null };
-  if (outcome.type === 'failed') return { status: 'failed', resultMessageId: outcome.message.id, note: '失敗しました' };
-  return { status: 'failed', resultMessageId: null, note: '回答がありませんでした' };
+  if (outcome.type === 'failed')
+    return { status: 'failed', resultMessageId: outcome.message.id, note: SUBTASK_NOTES.runFailed };
+  return { status: 'failed', resultMessageId: null, note: SUBTASK_NOTES.noAnswer };
 }
 
 /** 割り振れなかった名前と、上限を超えて飛ばした担当者を知らせる */
 function notice(core: MockCore, reply: Message, tasks: ParsedTasks): void {
-  if (tasks.skipped.length > 0) {
-    const names = tasks.skipped.join('、');
-    postSystem(
-      core,
-      reply.channelId,
-      `${names} には割り振れませんでした（見つからないか、自分自身です）`,
-      reply.rootId,
-    );
-  }
-  if (tasks.overflow.length > 0) {
-    const names = tasks.overflow.join('、');
-    const text = `サブタスクは${MAX_SUBTASKS}件までなので、${names} には割り振りませんでした`;
-    postSystem(core, reply.channelId, text, reply.rootId);
-  }
+  if (tasks.skipped.length > 0) postSystem(core, reply.channelId, unassignable(tasks.skipped), reply.rootId);
+  if (tasks.overflow.length > 0) postSystem(core, reply.channelId, tooManyTasks(tasks.overflow), reply.rootId);
 }
 
 /** マネージャーの返答 reply の tasks ブロックから作る割り振り（サブタスクはすべて pending） */
@@ -103,6 +92,13 @@ function reportJob(delegation: Delegation, plan: Message, results: Message[], li
     delegation: { delegationId: delegation.id, subtaskId: null },
   };
 }
+
+/** 担当者が外れたサブタスクの決着 */
+const ASSIGNEE_DROPPED: SubtaskResult = {
+  status: 'failed',
+  resultMessageId: null,
+  note: SUBTASK_NOTES.assigneeRemoved,
+};
 
 export function createDelegations(core: MockCore, deps: DelegationDeps): MockDelegations {
   const now = () => core.env.now();
@@ -176,12 +172,11 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
       }
     },
     dropAssignee(agentId, channelId) {
-      for (const delegation of core.state.delegations.filter(
-        (candidate) => candidate.status === 'running' && (channelId === null || candidate.channelId === channelId),
-      )) {
+      const here = (candidate: Delegation) => channelId === null || candidate.channelId === channelId;
+      const running = core.state.delegations.filter((candidate) => candidate.status === 'running' && here(candidate));
+      for (const delegation of running) {
         const mine = delegation.subtasks.filter((subtask) => subtask.assigneeId === agentId && isUnsettled(subtask));
-        for (const subtask of mine)
-          settle(delegation.id, subtask.id, { status: 'failed', resultMessageId: null, note: '担当者が外れました' });
+        for (const subtask of mine) settle(delegation.id, subtask.id, ASSIGNEE_DROPPED);
       }
     },
   };

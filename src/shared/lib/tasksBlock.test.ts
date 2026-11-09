@@ -24,10 +24,10 @@ describe('findTasksBlock', () => {
 
   it('ほかの言語のコードブロックは対象外。閉じがなければ本文の終わりまで', () => {
     expect(findTasksBlock('```ts\nconst a = 1;\n```')).toBeNull();
-    expect(findTasksBlock('````tasks\n@ハル: a\n```\n@ソラ: b')).toEqual({
-      lines: ['@ハル: a', '```', '@ソラ: b'],
+    expect(findTasksBlock('```tasks\n@ハル: a\n@ソラ: b')).toEqual({
+      lines: ['@ハル: a', '@ソラ: b'],
       start: 0,
-      end: 4,
+      end: 3,
     });
     expect(findTasksBlock('前置き\r\n```tasks\r\n@ハル: a\r\n```')?.lines).toEqual(['@ハル: a']);
   });

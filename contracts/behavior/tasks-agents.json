@@ -1,0 +1,29 @@
+{
+  "author": "kaname",
+  "teams": {
+    "team": [
+      { "id": "kaname", "name": "カナメ" },
+      { "id": "hal", "name": "ハル" },
+      { "id": "haruka", "name": "ハルカ" },
+      { "id": "sora", "name": "ソラ" }
+    ],
+    "teamWithoutSora": [
+      { "id": "kaname", "name": "カナメ" },
+      { "id": "hal", "name": "ハル" },
+      { "id": "sora", "name": "ソラ", "deleted": true }
+    ],
+    "crowd": [
+      { "id": "kaname", "name": "カナメ" },
+      { "id": "a1", "name": "イチ" },
+      { "id": "a2", "name": "ニ" },
+      { "id": "a3", "name": "サン" },
+      { "id": "a4", "name": "ヨン" },
+      { "id": "a5", "name": "ゴ" },
+      { "id": "a6", "name": "ロク" },
+      { "id": "a7", "name": "ナナ" },
+      { "id": "a8", "name": "ハチ" },
+      { "id": "a9", "name": "キュウ" },
+      { "id": "a10", "name": "ジュウ" }
+    ]
+  }
+}

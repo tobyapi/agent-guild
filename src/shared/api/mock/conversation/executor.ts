@@ -3,6 +3,7 @@
 import type { Agent, Message, MessageKind } from '@/shared/types/domain';
 import { parseTasks } from '../delegation/tasks';
 import type { ParsedTasks } from '../delegation/tasks';
+import { didNotAnswer, failed } from '../notices';
 import { activeAgents, postMessage } from '../runtime';
 import type { Cancel, MockCore } from '../runtime';
 import { planReply } from './replies';
@@ -58,7 +59,7 @@ function post(
 }
 
 function finish(core: MockCore, job: MockJob, agent: Agent, plan: ReplyPlan): JobOutcome {
-  if (plan.content.trim() === '[PASS]') return { type: 'pass', note: `${agent.name} は回答しませんでした` };
+  if (plan.content.trim() === '[PASS]') return { type: 'pass', note: didNotAnswer(agent.name) };
   const tasks = agent.canDelegate ? parseTasks(plan.content, activeAgents(core), agent.id) : null;
   const delegationId = tasks && tasks.entries.length > 0 ? core.env.newId() : null;
   return { type: 'reply', message: post(core, job, plan.content, plan.kind, delegationId), tasks };
@@ -103,7 +104,7 @@ export function runJob(core: MockCore, job: MockJob, agent: Agent, callbacks: Jo
         return;
       }
       const message = post(core, job, reason ?? '', 'error');
-      callbacks.onDone({ type: 'failed', note: `${agent.name} は失敗しました`, message });
+      callbacks.onDone({ type: 'failed', note: failed(agent.name), message });
     }),
   );
   return () => cancels.forEach((cancel) => cancel());

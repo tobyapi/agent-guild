@@ -1,11 +1,9 @@
 // 会話の振り分け（docs/design.md §7）をモック用に再現する純粋な関数。結果は「起こすこと」の一覧で返す。
 import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, BackendInfo, Channel, Message, UnmentionedPolicy } from '@/shared/types/domain';
+import { NO_RESPONDER, undeliverable } from '../notices';
 
 export const MAX_DEPTH = 10;
-export const DEPTH_LIMIT_NOTICE = 'AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。';
-export const NO_RESPONDER_NOTICE =
-  'いま返答できるエージェントがいません（バックエンドの準備ができていないか、答える設定のメンバーがいません）';
 
 /** task: 割り振られたサブタスク（レーンの外で並行に動く）/ report: マネージャーのまとめ（レーンに積む） */
 export type JobMode = 'reply' | 'return' | 'autonomous' | 'task' | 'report';
@@ -85,7 +83,7 @@ export function routeHumanMessage(message: Message, ctx: RoutingContext): Routin
     ]);
   }
   const responders = defaultResponders(ctx);
-  if (responders.length === 0) return [{ type: 'notice', content: NO_RESPONDER_NOTICE }];
+  if (responders.length === 0) return [{ type: 'notice', content: NO_RESPONDER }];
   return responders.map((agent) => enqueue(jobFrom(message, agent.id, 'reply', [])));
 }
 
@@ -101,7 +99,7 @@ function consult(agentId: string, reply: Message, ctx: RoutingContext): RoutingE
   const job = enqueue(jobFrom(reply, agentId, 'reply', [reply.authorId]));
   if (isMember(ctx, agentId)) return [job];
   if (agent.consultable) return [{ type: 'join', agentId }, job];
-  return [{ type: 'notice', content: `${agent.name} はこのチャンネルにいないため、メッセージは届きませんでした` }];
+  return [{ type: 'notice', content: undeliverable(agent.name) }];
 }
 
 /** エージェントの返答（§7-2）: 呼び出し元へ必ず戻し、新しくメンションした相手に相談する。depth の上限は呼び出し側で確かめる */
