@@ -18,7 +18,9 @@ function readStored(): string | null {
 }
 
 function systemPrefersLight(): boolean {
-  return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(LIGHT_QUERY).matches;
+  return (
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(LIGHT_QUERY).matches
+  );
 }
 
 function apply(preference: ThemePreference): void {

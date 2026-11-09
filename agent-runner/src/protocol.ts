@@ -18,13 +18,7 @@
 export const PROTOCOL_VERSION = 1;
 
 export type PermissionKey =
-  | 'webSearch'
-  | 'webFetch'
-  | 'readFiles'
-  | 'writeFiles'
-  | 'writeAnywhere'
-  | 'runCommands'
-  | 'skills';
+  'webSearch' | 'webFetch' | 'readFiles' | 'writeFiles' | 'writeAnywhere' | 'runCommands' | 'skills';
 export type Permissions = Record<PermissionKey, boolean>;
 
 /**

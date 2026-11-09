@@ -8,12 +8,29 @@ import { decodeRequest } from './request-decoder.ts';
 
 const { manage } = vi.hoisted(() => ({ manage: vi.fn() }));
 vi.mock('./credentials/store.ts', () => ({
-  isKeyBackend: (value: unknown) => value === 'grok' || value === 'muse', manageApiKey: manage,
+  isKeyBackend: (value: unknown) => value === 'grok' || value === 'muse',
+  manageApiKey: manage,
 }));
 
 const adapter = (id: string): BackendAdapter => ({
-  info: () => ({ id, label: id, canLogin: false, midRunPost: 'text', options: [], permissionRules: [], leakRisks: [],
-    capabilities: { webSearch: false, webFetch: false, readFiles: false, writeFiles: false, writeAnywhere: false, runCommands: false, skills: false } }),
+  info: () => ({
+    id,
+    label: id,
+    canLogin: false,
+    midRunPost: 'text',
+    options: [],
+    permissionRules: [],
+    leakRisks: [],
+    capabilities: {
+      webSearch: false,
+      webFetch: false,
+      readFiles: false,
+      writeFiles: false,
+      writeAnywhere: false,
+      runCommands: false,
+      skills: false,
+    },
+  }),
   probe: () => Promise.resolve({ status: 'ready', statusMessage: '' }),
   run: () => Promise.resolve('unused'),
 });
@@ -27,16 +44,24 @@ describe('credential IPC', () => {
     expect(decodeRequest({ type: 'apiKey', id: 'key', backend: 'grok', action: 'get' }).ok).toBe(false);
     expect(decodeRequest({ type: 'apiKey', id: 'key', backend: 'muse', action: 'set', key: 1 }).ok).toBe(false);
     for (const action of ['status', 'delete']) {
-      expect(decodeRequest({ type: 'apiKey', id: 'key', backend: 'muse', action, key: 'unwanted' }))
-        .toEqual({ ok: true, request: { type: 'apiKey', id: 'key', backend: 'muse', action } });
+      expect(decodeRequest({ type: 'apiKey', id: 'key', backend: 'muse', action, key: 'unwanted' })).toEqual({
+        ok: true,
+        request: { type: 'apiKey', id: 'key', backend: 'muse', action },
+      });
     }
   });
   it('routes mutations and refreshes status without returning secrets', async () => {
     const events: RunnerEvent[] = [];
     manage.mockResolvedValue('{"source":"saved","supported":true}');
-    const dispatcher = new Dispatcher({ registry: new BackendRegistry([adapter('grok'), adapter('muse')]),
-      runnerVersion: 'test', send: (event) => events.push(event), exit: vi.fn() });
-    dispatcher.receive(parseLine(JSON.stringify({ type: 'apiKey', id: 'key', backend: 'muse', action: 'set', key: 'dummy-secret' })));
+    const dispatcher = new Dispatcher({
+      registry: new BackendRegistry([adapter('grok'), adapter('muse')]),
+      runnerVersion: 'test',
+      send: (event) => events.push(event),
+      exit: vi.fn(),
+    });
+    dispatcher.receive(
+      parseLine(JSON.stringify({ type: 'apiKey', id: 'key', backend: 'muse', action: 'set', key: 'dummy-secret' })),
+    );
     await settle();
     expect(manage).toHaveBeenLastCalledWith('muse', 'set', 'dummy-secret');
     expect(events.map((event) => event.type)).toEqual(['backends', 'result']);

@@ -17,7 +17,13 @@ impl Actor {
     /// 返答 reply（ジョブ job の結果）から作った割り振りを記録する
     pub(super) fn track(&mut self, delegation: Delegation, reply: &Message, job: &JobSpec) {
         let parent = job.subtask.clone().filter(|target| target.assignee_id == job.agent_id);
-        let tracked = Tracked { delegation, root_id: reply.root_id.clone(), depth: reply.depth, parent, messages: HashMap::new() };
+        let tracked = Tracked {
+            delegation,
+            root_id: reply.root_id.clone(),
+            depth: reply.depth,
+            parent,
+            messages: HashMap::new(),
+        };
         self.state.delegations.insert(tracked.delegation.id.clone(), tracked);
     }
 

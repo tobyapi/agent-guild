@@ -67,7 +67,13 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset }: T
       </div>
       {replaced && <p className={styles.help}>入力した内容は、選んだテンプレートの値に置き換わります</p>}
       {presets.length > 0 && (
-        <SelectField label="人格の例" optional value="" onChange={pickPreset} hint="名前や担当などの書き出し例を流し込みます。">
+        <SelectField
+          label="人格の例"
+          optional
+          value=""
+          onChange={pickPreset}
+          hint="名前や担当などの書き出し例を流し込みます。"
+        >
           <option value="">人格の例を選ぶ…</option>
           {presets.map((preset) => (
             <option key={preset.id} value={preset.id}>

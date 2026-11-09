@@ -30,7 +30,12 @@ async fn progress_posts_are_saved_before_the_reply_and_never_routed() {
 
     assert_eq!(
         app.transcript(&lobby),
-        vec!["人間: @ハル 調べて", "ハル: 進捗: 半分まで調べました", "ハル: @ロジカ ここで迷っています", "ハル: まとめました。"],
+        vec![
+            "人間: @ハル 調べて",
+            "ハル: 進捗: 半分まで調べました",
+            "ハル: @ロジカ ここで迷っています",
+            "ハル: まとめました。"
+        ],
         "空の投稿と [PASS] は捨て、名前の接頭辞は外す"
     );
     let messages = app.messages(&lobby);

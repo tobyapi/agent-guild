@@ -7,11 +7,8 @@ pub(super) fn section(skills: &[Skill], permissions: &Permissions) -> String {
     if !permissions.skills || skills.is_empty() {
         return String::new();
     }
-    let list = skills
-        .iter()
-        .map(|skill| format!("- {}: {}", skill.name, skill.description))
-        .collect::<Vec<_>>()
-        .join("\n");
+    let list =
+        skills.iter().map(|skill| format!("- {}: {}", skill.name, skill.description)).collect::<Vec<_>>().join("\n");
     format!(
         "## あなたのスキル（専門知識の手引き）
 {list}

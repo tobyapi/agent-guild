@@ -18,7 +18,12 @@ export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
         autoComplete="off"
         data-autofocus
       />
-      <TagField tags={draft.tags} onChange={(tags) => update('tags', tags)} error={errors.tags} onBlur={() => touch('tags')} />
+      <TagField
+        tags={draft.tags}
+        onChange={(tags) => update('tags', tags)}
+        error={errors.tags}
+        onBlur={() => touch('tags')}
+      />
       <AvatarInput value={draft.avatar} onChange={(value) => update('avatar', value)} error={errors.avatar} />
       <ColorInput value={draft.color} onChange={(value) => update('color', value)} />
     </EditorSection>

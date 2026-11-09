@@ -53,7 +53,10 @@ fn ensure_permission_rules(input: &AgentInput, info: &BackendInfo) -> Result<(),
         let message = if available {
             format!("{head}。{names}を許可してください")
         } else {
-            format!("{head}。{}では{names}を使えないので、「{when}」を外すか別のバックエンドを選んでください", info.label)
+            format!(
+                "{head}。{}では{names}を使えないので、「{when}」を外すか別のバックエンドを選んでください",
+                info.label
+            )
         };
         return Err(ValidationError::on("permissions", message));
     }

@@ -24,7 +24,11 @@ pub(super) struct Actor {
 }
 
 impl Actor {
-    pub fn new(ports: Ports, sender: mpsc::UnboundedSender<Command>, activity_tx: watch::Sender<ActivityState>) -> Self {
+    pub fn new(
+        ports: Ports,
+        sender: mpsc::UnboundedSender<Command>,
+        activity_tx: watch::Sender<ActivityState>,
+    ) -> Self {
         let recorded = interrupted::EMPTY.to_owned();
         Self { ports, sender, activity_tx, state: DispatchState::default(), waiters: Vec::new(), recorded }
     }

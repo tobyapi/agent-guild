@@ -53,16 +53,11 @@ impl AutonomyService {
 
     /// 自発活動を今すぐ1回積む（待機中のジョブがあれば合流する）
     pub fn run_now(&self, agent_id: &AgentId) -> AppResult<()> {
-        let agent = self
-            .ports
-            .agents
-            .get(agent_id)?
-            .filter(Agent::is_active)
-            .ok_or(AppError::NotFound("エージェント"))?;
+        let agent =
+            self.ports.agents.get(agent_id)?.filter(Agent::is_active).ok_or(AppError::NotFound("エージェント"))?;
         let channels = self.ports.channels.list()?;
-        let channel = autonomy_channel(&agent, &channels).ok_or_else(|| {
-            AppError::validation(format!("{} はどのチャンネルにも参加していません", agent.name))
-        })?;
+        let channel = autonomy_channel(&agent, &channels)
+            .ok_or_else(|| AppError::validation(format!("{} はどのチャンネルにも参加していません", agent.name)))?;
         self.conversation.enqueue(vec![JobSpec::autonomous(agent.id.clone(), channel.id.clone())]);
         self.mark_run(agent, self.ports.clock.now_ms())?;
         self.ports.events.state_changed();

@@ -47,7 +47,10 @@ async fn runner_errors_keep_their_codes() {
 }
 
 /// hang などを別タスクで走らせ、ランナーが受け取った（activity が届いた）ところで返す
-async fn start_waiting_job(client: &Arc<RunnerClient>, prompt: &str) -> tokio::task::JoinHandle<Result<String, RunnerError>> {
+async fn start_waiting_job(
+    client: &Arc<RunnerClient>,
+    prompt: &str,
+) -> tokio::task::JoinHandle<Result<String, RunnerError>> {
     let (on_update, mut updates) = updates();
     let running = tokio::spawn({
         let client = Arc::clone(client);
@@ -97,10 +100,7 @@ async fn result_arriving_after_cancel_is_reported_as_cancelled() {
 async fn concurrent_runs_are_routed_by_job_id() {
     let client = ready_client("ok.mjs").await;
     let (a, b) = within(async {
-        tokio::join!(
-            client.run("a", request("echo:A"), no_updates()),
-            client.run("b", request("echo:B"), no_updates())
-        )
+        tokio::join!(client.run("a", request("echo:A"), no_updates()), client.run("b", request("echo:B"), no_updates()))
     })
     .await;
     assert_eq!((a.expect("a").as_str(), b.expect("b").as_str()), ("A", "B"));

@@ -96,7 +96,8 @@ impl StorageService {
     async fn copy_to(&self, target: &Path) -> AppResult<()> {
         let Some(copier) = &self.copier else {
             return Err(AppError::Unavailable(
-                "いまのデータを読み込めないため、コピーできません。「その場所のデータを開く」を選んでください".to_owned(),
+                "いまのデータを読み込めないため、コピーできません。「その場所のデータを開く」を選んでください"
+                    .to_owned(),
             ));
         };
         copier.maintenance.begin();

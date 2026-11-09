@@ -82,4 +82,3 @@ fn storage_ports(app: &AppHandle, paths: &AppPaths) -> StoragePorts {
 fn display(path: &Path) -> String {
     path.display().to_string()
 }
-

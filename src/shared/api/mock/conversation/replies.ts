@@ -27,7 +27,10 @@ const MOCK_NOTE = '（ブラウザ用のモックの返答です）';
 
 /** 発言からメンションを除いた要約（24文字まで） */
 export function topicOf(trigger: Message | undefined): string {
-  const text = (trigger?.content ?? '').replace(/[@＠]\S+/g, '').replace(/\s+/g, ' ').trim();
+  const text = (trigger?.content ?? '')
+    .replace(/[@＠]\S+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (text === '') return 'この件';
   return text.length > 24 ? `${text.slice(0, 24)}…` : text;
 }
@@ -43,7 +46,14 @@ function reviewerFor(ctx: ReplyContext, trigger: Message | undefined): Agent | n
 
 function workerReply(agent: Agent, topic: string): string {
   if (isCasual(agent)) {
-    return [`確認した。「${topic}」の要点:`, '', '- 先に目的と制約を決める', '- 小さく作って検証する', '', MOCK_NOTE].join('\n');
+    return [
+      `確認した。「${topic}」の要点:`,
+      '',
+      '- 先に目的と制約を決める',
+      '- 小さく作って検証する',
+      '',
+      MOCK_NOTE,
+    ].join('\n');
   }
   return [
     `了解です！「${topic}」について調べてみました。`,

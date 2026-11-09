@@ -1,6 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { CSSProperties, KeyboardEvent, PointerEvent, RefObject } from 'react';
-import { CROP_FRAME_SIZE, cropKeyAction, panView, wheelZoomFactor, zoomView, zoomViewCentered } from '@/shared/lib/crop';
+import {
+  CROP_FRAME_SIZE,
+  cropKeyAction,
+  panView,
+  wheelZoomFactor,
+  zoomView,
+  zoomViewCentered,
+} from '@/shared/lib/crop';
 import type { ImageSize } from '@/shared/lib/crop';
 import type { CropViewUpdate } from './useCropImage';
 import styles from './AvatarCrop.module.css';

@@ -58,11 +58,7 @@ impl AgentService {
 
     /// 削除されていないエージェント
     fn require(&self, id: &AgentId) -> AppResult<Agent> {
-        self.ports
-            .agents
-            .get(id)?
-            .filter(Agent::is_active)
-            .ok_or(AppError::NotFound("エージェント"))
+        self.ports.agents.get(id)?.filter(Agent::is_active).ok_or(AppError::NotFound("エージェント"))
     }
 
     /// 入力規則（バックエンドの OptionSpec を含む）と、名前の一意性（エージェントと人間の間）

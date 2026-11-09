@@ -34,7 +34,12 @@ export function ModelFields({ backend, model, effort, effortError, onModel, onEf
   const listed = model === '' || spec !== undefined;
   return (
     <>
-      <SelectField label="モデル" value={model} onChange={onModel} hint={spec && spec.description !== '' ? spec.description : undefined}>
+      <SelectField
+        label="モデル"
+        value={model}
+        onChange={onModel}
+        hint={spec && spec.description !== '' ? spec.description : undefined}
+      >
         <option value="">{defaultModelLabel(backend)}</option>
         {backend.models.map((candidate) => (
           <option key={candidate.id} value={candidate.id}>

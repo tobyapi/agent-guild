@@ -18,8 +18,13 @@ const EXTRA_PACKAGES = ['@openai/codex'];
 const SPECIFIER = /\bfrom\s+['"]([^'"]+)['"]|\bimport\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 /** 'zod/v4' → 'zod'、'@scope/name/sub' → '@scope/name' */
-const packageOf = (specifier) => specifier.split('/').slice(0, specifier.startsWith('@') ? 2 : 1).join('/');
-const isBare = (specifier) => !specifier.startsWith('.') && !specifier.startsWith('/') && !specifier.startsWith('node:');
+const packageOf = (specifier) =>
+  specifier
+    .split('/')
+    .slice(0, specifier.startsWith('@') ? 2 : 1)
+    .join('/');
+const isBare = (specifier) =>
+  !specifier.startsWith('.') && !specifier.startsWith('/') && !specifier.startsWith('node:');
 
 function jsFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

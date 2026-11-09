@@ -22,7 +22,11 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
     <Field
       label="タグ"
       optional
-      hint={full ? `タグは ${TAG_COUNT_MAX} 個までです` : '先頭のタグがサイドバーの区分になります。Enter・読点・カンマで札にし、札を押すと先頭にできます。'}
+      hint={
+        full
+          ? `タグは ${TAG_COUNT_MAX} 個までです`
+          : '先頭のタグがサイドバーの区分になります。Enter・読点・カンマで札にし、札を押すと先頭にできます。'
+      }
       error={input.problem ?? error}
     >
       {(control) => (
@@ -64,11 +68,21 @@ function TagChips({ tags, onChange }: Pick<TagFieldProps, 'tags' | 'onChange'>) 
             {index === 0 ? (
               <span title="先頭のタグ（サイドバーの区分と札）">{tag}</span>
             ) : (
-              <button type="button" className={styles.promote} title="先頭にする" onClick={() => onChange(promoteTag(tags, index))}>
+              <button
+                type="button"
+                className={styles.promote}
+                title="先頭にする"
+                onClick={() => onChange(promoteTag(tags, index))}
+              >
                 {tag}
               </button>
             )}
-            <button type="button" className={styles.remove} aria-label={`タグ「${tag}」を外す`} onClick={() => onChange(removeTag(tags, index))}>
+            <button
+              type="button"
+              className={styles.remove}
+              aria-label={`タグ「${tag}」を外す`}
+              onClick={() => onChange(removeTag(tags, index))}
+            >
               <Icon name="close" />
             </button>
           </Badge>

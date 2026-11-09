@@ -21,9 +21,8 @@ const BUNDLED_SCRIPT: [&str; 3] = ["agent-runner", "src", "main.js"];
 /// 起動方法: 環境変数 GUILD_RUNNER_SCRIPT があれば開発用。なければ、リソースに同梱の runner があればそれ、なければ開発用
 pub fn runner_config(resource_dir: Option<&Path>) -> RunnerConfig {
     let explicit = std::env::var_os("GUILD_RUNNER_SCRIPT").is_some_and(|value| !value.is_empty());
-    let bundled = resource_dir
-        .map(|dir| dir.join(BUNDLED_DIR))
-        .filter(|root| !explicit && bundled_script(root).is_file());
+    let bundled =
+        resource_dir.map(|dir| dir.join(BUNDLED_DIR)).filter(|root| !explicit && bundled_script(root).is_file());
     match bundled {
         Some(root) => bundled_config(&root),
         None => development_config(),

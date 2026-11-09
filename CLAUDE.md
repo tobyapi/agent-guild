@@ -11,7 +11,8 @@
 - `npm run app` … Tauri アプリを開発モードで起動
 - `npm run dev` … フロントだけ起動（ブラウザではモックのバックエンドで動く）
 - `npm run bundle` … 配布用のアプリとインストーラーを作る（agent-runner を同梱。Claude Code・Codex CLI・Node.js は利用者の環境のものを使う）。CI は `.github/workflows/build.yml`
-- `npm run check` … 型チェック・lint・ハーネス・テスト・clippy・Rust テストを全部実行。**作業の最後に必ず通す**。CI（`.github/workflows/check.yml`）でも、main への push とプルリクエストで同じものが走る
+- `npm run format` … コードを整形する（TS・CSS は Prettier、Rust は cargo fmt。どちらも幅120）
+- `npm run check` … 整形の確認・型チェック・lint・ハーネス・テスト・clippy・Rust テストを全部実行。**作業の最後に必ず通す**。CI（`.github/workflows/check.yml`）でも、main への push とプルリクエストで同じものが走る
 
 ## 開発方針
 
@@ -22,7 +23,8 @@
 ## 保守性ハーネス（`npm run check` で自動検査）
 
 ### 共通
-- **1ファイルの空行を除いた行数は150行未満**（.ts / .tsx / .css / .mjs / .rs）。超えそうなら責務で分割する。対象は src/・agent-runner/src/・scripts/・src-tauri/src/・src-tauri/crates/*/（src・tests）。.old/・node_modules・target・dist は対象外。
+- **コードは整形済みであること**（`npm run format`。設定は `.prettierrc.json` と `src-tauri/rustfmt.toml`）。行を手で詰めて行数を減らさない。
+- **1ファイルの空行を除いた行数は200行未満**（.ts / .tsx / .css / .mjs / .rs）。超えそうなら責務で分割する。対象は src/・agent-runner/src/・scripts/・src-tauri/src/・src-tauri/crates/*/（src・tests）。.old/・node_modules・target・dist は対象外。
 - 1ファイル・1モジュールは1つの責務。名前を見れば中身が分かるようにする。
 
 ### React（`src/`）: feature-based

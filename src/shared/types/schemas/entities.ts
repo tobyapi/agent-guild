@@ -97,7 +97,12 @@ export const channelSchema = {
   createdAt: number,
 } satisfies Schema<Channel>;
 
-export const attachmentSchema = { id: string, name: string, mediaType: string, size: number } satisfies Schema<Attachment>;
+export const attachmentSchema = {
+  id: string,
+  name: string,
+  mediaType: string,
+  size: number,
+} satisfies Schema<Attachment>;
 
 export const messageSchema = {
   id: string,

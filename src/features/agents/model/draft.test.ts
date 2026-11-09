@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { autonomyChannelChoices, checkIntervalMin } from './autonomy';
-import { applyPreset, applyTemplate, changeBackend, changeModel, draftFromAgent, newDraft, putHeadTag, setPermission } from './draft';
+import {
+  applyPreset,
+  applyTemplate,
+  changeBackend,
+  changeModel,
+  draftFromAgent,
+  newDraft,
+  putHeadTag,
+  setPermission,
+} from './draft';
 import { agentFixture, BACKENDS, TEMPLATES } from './fixtures.test-support';
 import { PERSONALITIES } from './personas/personalities';
 import { findPreset } from './personas/presetText';
@@ -14,7 +23,12 @@ describe('newDraft / draftFromAgent', () => {
   it('新規は準備のできている最初のバックエンドを選び、テンプレートの既定値を入れる', () => {
     const draft = newDraft(expert, BACKENDS, 0);
     expect(draft.backend).toBe('codex');
-    expect(draft).toMatchObject({ tags: ['専門家'], unmentioned: 'fallback', consultable: true, autonomyEnabled: false });
+    expect(draft).toMatchObject({
+      tags: ['専門家'],
+      unmentioned: 'fallback',
+      consultable: true,
+      autonomyEnabled: false,
+    });
     expect(draft.permissions).toEqual(expert?.defaults.permissions);
     expect(newDraft(worker, [], 0).backend).toBe('');
   });
@@ -41,7 +55,12 @@ describe('変更', () => {
 
   it('テンプレートを選ぶと、タグ・担当・得意分野・権限・振る舞い・自発活動を一括で入れ替える（入力済みでも上書き）', () => {
     const changed = applyTemplate({ ...draft, role: '実装', expertise: 'Rust', personality: '寡黙' }, expert);
-    expect(changed).toMatchObject({ role: '専門分野の相談とレビューに答える', expertise: '', tags: ['専門家'], unmentioned: 'fallback' });
+    expect(changed).toMatchObject({
+      role: '専門分野の相談とレビューに答える',
+      expertise: '',
+      tags: ['専門家'],
+      unmentioned: 'fallback',
+    });
     expect(changed).toMatchObject({ consultable: true, canDelegate: false, personality: '寡黙', name: draft.name });
     expect(changed.permissions.writeFiles).toBe(false);
     changed.tags.push('変更');
@@ -52,7 +71,11 @@ describe('変更', () => {
 
   it('割り振れる（canDelegate）テンプレートなら、その設定も入る', () => {
     if (!expert) throw new Error('テンプレートがありません');
-    const manager = { ...expert, id: 'manager', defaults: { ...expert.defaults, unmentioned: 'lead' as const, canDelegate: true, role: '割り振る' } };
+    const manager = {
+      ...expert,
+      id: 'manager',
+      defaults: { ...expert.defaults, unmentioned: 'lead' as const, canDelegate: true, role: '割り振る' },
+    };
     expect(applyTemplate(draft, manager)).toMatchObject({ unmentioned: 'lead', canDelegate: true, role: '割り振る' });
   });
 

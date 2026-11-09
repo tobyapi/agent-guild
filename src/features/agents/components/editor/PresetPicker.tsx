@@ -24,7 +24,13 @@ export function PresetPicker<T extends AnyPreset>({ label, presets, onReplace, o
   };
   return (
     <span ref={anchorRef} className={styles.anchor}>
-      <button type="button" className={styles.trigger} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((value) => !value)}>
+      <button
+        type="button"
+        className={styles.trigger}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        onClick={() => setOpen((value) => !value)}
+      >
         プリセット
       </button>
       {open && (
@@ -101,7 +107,14 @@ function PresetPopover<T extends AnyPreset>({ title, presets, anchorRef, onChoos
       {items.length === 0 ? (
         <p className={styles.empty}>『{query.trim()}』に一致するプリセットはありません</p>
       ) : (
-        <PresetOptions id={listId} title={title} items={items} activeIndex={activeIndex} onHover={setActive} onChoose={onChoose} />
+        <PresetOptions
+          id={listId}
+          title={title}
+          items={items}
+          activeIndex={activeIndex}
+          onHover={setActive}
+          onChoose={onChoose}
+        />
       )}
       <p className={styles.hints}>
         <kbd>↑</kbd>

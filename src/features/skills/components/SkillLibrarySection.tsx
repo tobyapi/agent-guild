@@ -8,7 +8,9 @@ import styles from './SkillLibrarySection.module.css';
 
 /** 設定の「スキルのフォルダ」: 指定済みのフォルダ（見つかった数・問題）・追加・外す・並べ替え・再読み込み */
 export function SkillLibrarySection() {
-  const { library, loading } = useLibraryStore(useShallow((state) => ({ library: state.library, loading: state.loading })));
+  const { library, loading } = useLibraryStore(
+    useShallow((state) => ({ library: state.library, loading: state.loading })),
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -35,7 +37,8 @@ export function SkillLibrarySection() {
   return (
     <>
       <p className={styles.help}>
-        Agent Skills のフォルダ（<code>名前/SKILL.md</code> が入ったフォルダ）を指定すると、エージェントのスキルに「ライブラリから追加」ですぐ付けられます。フォルダの中身を変えたら「再読み込み」を押してください。
+        Agent Skills のフォルダ（<code>名前/SKILL.md</code>{' '}
+        が入ったフォルダ）を指定すると、エージェントのスキルに「ライブラリから追加」ですぐ付けられます。フォルダの中身を変えたら「再読み込み」を押してください。
       </p>
       {dirs.length === 0 ? (
         <p className={styles.empty}>まだフォルダを指定していません。</p>
@@ -104,7 +107,11 @@ function DirRow({ dir, count, problem, first, last, busy, onMove, onRemove }: Di
         <IconButton label={`${dir} を下へ`} onClick={() => onMove(1)} disabled={busy || last}>
           <Icon name="arrowDown" />
         </IconButton>
-        <IconButton label={`${dir} を開く`} onClick={() => void revealSkillFolder(dir).catch(reportError)} disabled={problem !== null}>
+        <IconButton
+          label={`${dir} を開く`}
+          onClick={() => void revealSkillFolder(dir).catch(reportError)}
+          disabled={problem !== null}
+        >
           <Icon name="folder" />
         </IconButton>
         <IconButton label={`${dir} を外す`} onClick={onRemove} disabled={busy}>

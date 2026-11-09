@@ -47,7 +47,10 @@ fn reply_job(agent_id: &str, trigger: &Message, return_to: &[&str]) -> JobSpec {
 fn shows_an_empty_history_and_the_autonomous_instruction() {
     let job = JobSpec::autonomous(AgentId::new("haru"), ChannelId::new("c1"));
     let prompt = prompt_for("haru", &[], &job, &[]);
-    assert!(prompt.contains("# チャンネル #ロビー の最近の発言\n（まだ会話はありません）"), "自発活動はチャンネルの発言");
+    assert!(
+        prompt.contains("# チャンネル #ロビー の最近の発言\n（まだ会話はありません）"),
+        "自発活動はチャンネルの発言"
+    );
     assert!(!prompt.contains("あなた宛ての未対応の発言"));
     assert!(prompt.contains("# 自由時間の過ごし方\nいまは自由時間です"));
     assert!(prompt.contains("作業場所にメモや下書きを作り"));
@@ -61,13 +64,15 @@ fn tells_which_messages_the_attached_images_and_files_belong_to() {
     let images_only = prompt_for("haru", std::slice::from_ref(&human), &reply_job("haru", &human, &[]), &[]);
     assert!(images_only.contains("（画像 2 枚）:\nこのエラーを見て"), "{images_only}");
     assert!(!images_only.contains("# 添付ファイル"));
-    let pdf = NewAttachment { name: "仕様.pdf".to_owned(), media_type: "application/pdf".to_owned(), bytes: vec![1; 2048] };
+    let pdf =
+        NewAttachment { name: "仕様.pdf".to_owned(), media_type: "application/pdf".to_owned(), bytes: vec![1; 2048] };
     human.attachments.push(pdf.describe(AttachmentId::new("f1")));
     let prompt = prompt_for("haru", std::slice::from_ref(&human), &reply_job("haru", &human, &[]), &[]);
     assert!(prompt.contains("（画像 2 枚・ファイル 1 個）:\nこのエラーを見て"), "{prompt}");
     assert!(prompt.contains("# 添付画像\nこの依頼には、次の発言に貼られた画像を添えています（添えた順）。"));
     assert!(prompt.contains("の発言: 2 枚"), "画像の枚数にファイルは数えない");
-    assert!(prompt.contains("# 添付ファイル\n次の発言にファイルが添えられています。内容が必要なら、このパスから読んでください"));
+    assert!(prompt
+        .contains("# 添付ファイル\n次の発言にファイルが添えられています。内容が必要なら、このパスから読んでください"));
     assert!(prompt.contains("の発言: 仕様.pdf（2.0 KB）\n  /guild/attachments/c1/f1.pdf"), "{prompt}");
     let plain = message(2, Author::Human, "こんにちは");
     let prompt = prompt_for("haru", std::slice::from_ref(&plain), &reply_job("haru", &plain, &[]), &[]);

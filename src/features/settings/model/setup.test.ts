@@ -4,11 +4,17 @@ import { runSetup, setupPlan } from './setup';
 describe('setupPlan', () => {
   it('変えた名前と保存先だけを保存する', () => {
     expect(setupPlan(' リサ ', 'ユーザー', null, 'copy')).toEqual({ name: 'リサ', dataDir: null });
-    expect(setupPlan('ユーザー', 'ユーザー', 'D:/Guild', 'copy')).toEqual({ name: null, dataDir: { path: 'D:/Guild', mode: 'copy' } });
+    expect(setupPlan('ユーザー', 'ユーザー', 'D:/Guild', 'copy')).toEqual({
+      name: null,
+      dataDir: { path: 'D:/Guild', mode: 'copy' },
+    });
   });
 
   it('その場所のデータを開くなら、名前はそのデータのものなので保存しない', () => {
-    expect(setupPlan('リサ', 'ユーザー', 'D:/Guild', 'open')).toEqual({ name: null, dataDir: { path: 'D:/Guild', mode: 'open' } });
+    expect(setupPlan('リサ', 'ユーザー', 'D:/Guild', 'open')).toEqual({
+      name: null,
+      dataDir: { path: 'D:/Guild', mode: 'open' },
+    });
   });
 });
 

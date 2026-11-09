@@ -47,11 +47,13 @@ interface OptionFieldProps {
 }
 
 /** 選択肢が 4 つ以下で、どれも短ければセグメントにする */
-const fitsSegment = (spec: OptionSpec) => spec.choices.length <= 4 && spec.choices.every((choice) => choice.length <= 12);
+const fitsSegment = (spec: OptionSpec) =>
+  spec.choices.length <= 4 && spec.choices.every((choice) => choice.length <= 12);
 
 function OptionField(props: OptionFieldProps) {
   if (props.spec.type === 'boolean') return <BooleanOption {...props} />;
-  if (props.spec.type === 'select') return fitsSegment(props.spec) ? <SegmentOption {...props} /> : <SelectOption {...props} />;
+  if (props.spec.type === 'select')
+    return fitsSegment(props.spec) ? <SegmentOption {...props} /> : <SelectOption {...props} />;
   return <TextOption {...props} />;
 }
 
@@ -90,7 +92,8 @@ function TextOption(props: OptionFieldProps) {
 const currentChoice = (spec: OptionSpec, value: OptionValue | undefined) =>
   typeof value === 'string' && value !== '' ? value : defaultLabel(spec);
 
-const choiceLabel = (spec: OptionSpec, choice: string) => (choice === defaultLabel(spec) ? `${choice}（既定）` : choice);
+const choiceLabel = (spec: OptionSpec, choice: string) =>
+  choice === defaultLabel(spec) ? `${choice}（既定）` : choice;
 
 function SelectOption(props: OptionFieldProps) {
   const { spec, value, error, onChange } = props;

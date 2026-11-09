@@ -103,7 +103,7 @@ fn token_literals(tokens: TokenStream) -> Vec<LitStr> {
 }
 
 fn has_cfg_test(attrs: &[Attribute]) -> bool {
-    attrs.iter().any(|attr| {
-        attr.path().is_ident("cfg") && attr.parse_args::<syn::Ident>().is_ok_and(|ident| ident == "test")
-    })
+    attrs
+        .iter()
+        .any(|attr| attr.path().is_ident("cfg") && attr.parse_args::<syn::Ident>().is_ok_and(|ident| ident == "test"))
 }

@@ -16,6 +16,7 @@ export async function probeCodex(): Promise<BackendProbe> {
   if (await fileExists(join(codexHome, 'auth.json'))) return { status: 'ready', statusMessage: '' };
   return {
     status: 'needs_auth',
-    statusMessage: 'Codex にログインしていません。ターミナルで `codex login` を実行するか、環境変数 OPENAI_API_KEY を設定してください。',
+    statusMessage:
+      'Codex にログインしていません。ターミナルで `codex login` を実行するか、環境変数 OPENAI_API_KEY を設定してください。',
   };
 }

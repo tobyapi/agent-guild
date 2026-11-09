@@ -13,10 +13,7 @@ pub const MAX_IMAGES_PER_RUN: usize = 8;
 
 /// 添付のある発言（seq の順・重複なし）
 fn attachment_messages<'a>(job: &'a JobSpec, history: &'a [Message]) -> Vec<&'a Message> {
-    let root = job
-        .root_id
-        .as_ref()
-        .and_then(|id| job.triggers.iter().chain(history).find(|message| &message.id == id));
+    let root = job.root_id.as_ref().and_then(|id| job.triggers.iter().chain(history).find(|message| &message.id == id));
     let mut messages: Vec<&Message> =
         root.into_iter().chain(&job.triggers).filter(|message| !message.attachments.is_empty()).collect();
     messages.sort_by_key(|message| message.seq);
@@ -50,7 +47,11 @@ pub fn file_attachments<'a>(job: &'a JobSpec, history: &'a [Message]) -> Vec<(&'
     attachment_messages(job, history)
         .into_iter()
         .flat_map(|message| {
-            message.attachments.iter().filter(|attachment| !attachment.is_image()).map(move |attachment| (message, attachment))
+            message
+                .attachments
+                .iter()
+                .filter(|attachment| !attachment.is_image())
+                .map(move |attachment| (message, attachment))
         })
         .collect()
 }

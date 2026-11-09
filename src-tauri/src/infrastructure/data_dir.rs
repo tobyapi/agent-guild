@@ -92,12 +92,8 @@ pub enum LockError {
 
 /// .lock を取る。再起動の重なりに備えて wait まで再試行する
 pub fn acquire_lock(dir: &Path, wait: Duration) -> Result<DataDirLock, LockError> {
-    let file = OpenOptions::new()
-        .create(true)
-        .truncate(false)
-        .write(true)
-        .open(dir.join(LOCK_FILE))
-        .map_err(LockError::Io)?;
+    let file =
+        OpenOptions::new().create(true).truncate(false).write(true).open(dir.join(LOCK_FILE)).map_err(LockError::Io)?;
     let deadline = Instant::now() + wait;
     loop {
         match file.try_lock() {

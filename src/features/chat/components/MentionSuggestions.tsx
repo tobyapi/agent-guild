@@ -23,7 +23,9 @@ export function MentionSuggestions({ id, query, options, activeIndex, onPick, on
     <div className={styles.popover}>
       <p className={styles.heading}>呼びかける相手</p>
       {options.length === 0 ? (
-        <p className={styles.empty}>{query ? `『${query}』に一致するエージェントはいません` : 'エージェントはまだいません'}</p>
+        <p className={styles.empty}>
+          {query ? `『${query}』に一致するエージェントはいません` : 'エージェントはまだいません'}
+        </p>
       ) : (
         <ul id={id} role="listbox" aria-label="呼びかける相手" className={styles.list}>
           {options.map((option, index) => (

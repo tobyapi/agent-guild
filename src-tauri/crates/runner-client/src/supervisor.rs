@@ -37,7 +37,9 @@ pub(crate) async fn supervise(shared: Arc<Shared>) {
             break;
         }
         log::warn!("{reason}。{} ミリ秒後に起動し直します", backoff.as_millis());
-        shared.status.send_replace(RunnerStatus::Unavailable { message: format!("{reason}（自動で起動し直します）") });
+        shared.status.send_replace(RunnerStatus::Unavailable {
+            message: format!("{reason}（自動で起動し直します）")
+        });
         tokio::select! {
             () = tokio::time::sleep(backoff) => {}
             _ = closing.wait_for(|closing| *closing) => {}

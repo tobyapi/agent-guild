@@ -143,9 +143,6 @@ pub struct RuntimeStatus {
 
 impl RuntimeStatus {
     pub fn starting() -> Self {
-        Self {
-            state: RuntimeState::Starting,
-            message: String::new(),
-        }
+        Self { state: RuntimeState::Starting, message: String::new() }
     }
 }

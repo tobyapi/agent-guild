@@ -16,7 +16,9 @@ async fn tick() {
 }
 
 fn notice(names: &str) -> String {
-    format!("システム: 前回アプリが終了したときに、{names}の返答が中断されました。続けるには、もう一度話しかけてください。")
+    format!(
+        "システム: 前回アプリが終了したときに、{names}の返答が中断されました。続けるには、もう一度話しかけてください。"
+    )
 }
 
 fn recorded(app: &TestApp) -> Option<String> {

@@ -12,7 +12,8 @@ export interface ReadyImage {
   size: ImageSize;
 }
 
-export type CropImageState = { status: 'loading' } | { status: 'ready'; image: ReadyImage; view: CropView } | { status: 'error'; message: string };
+export type CropImageState =
+  { status: 'loading' } | { status: 'ready'; image: ReadyImage; view: CropView } | { status: 'error'; message: string };
 
 /** 切り抜きの状態を更新する（連続するドラッグで値を取りこぼさないよう、いまの値から次の値を作る関数を渡す） */
 export type CropViewUpdate = (next: (view: CropView) => CropView) => void;

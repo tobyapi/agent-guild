@@ -21,9 +21,20 @@ describe('使う Claude Code を探す', () => {
     const root = tree(['bin/claude.exe', 'home/.local/bin/claude.exe', 'custom/claude.exe']);
     const home = join(root, 'home');
     const custom = join(root, 'custom', 'claude.exe');
-    expect(findClaude({ env: { PATH: join(root, 'bin') }, platform: 'win32', home, bundled: none })).toBe(join(root, 'bin', 'claude.exe'));
-    expect(findClaude({ env: { PATH: join(root, 'bin'), GUILD_CLAUDE_PATH: custom }, platform: 'win32', home, bundled: none })).toBe(custom);
-    expect(findClaude({ env: {}, platform: 'win32', home, bundled: none })).toBe(join(home, '.local', 'bin', 'claude.exe'));
+    expect(findClaude({ env: { PATH: join(root, 'bin') }, platform: 'win32', home, bundled: none })).toBe(
+      join(root, 'bin', 'claude.exe'),
+    );
+    expect(
+      findClaude({
+        env: { PATH: join(root, 'bin'), GUILD_CLAUDE_PATH: custom },
+        platform: 'win32',
+        home,
+        bundled: none,
+      }),
+    ).toBe(custom);
+    expect(findClaude({ env: {}, platform: 'win32', home, bundled: none })).toBe(
+      join(home, '.local', 'bin', 'claude.exe'),
+    );
     expect(findClaude({ env: {}, platform: 'win32', home: join(root, 'nowhere'), bundled: () => 'SDK' })).toBe('SDK');
     expect(findClaude({ env: {}, platform: 'win32', home: join(root, 'nowhere'), bundled: none })).toBeNull();
   });
@@ -43,8 +54,12 @@ describe('使う Claude Code を探す', () => {
   it('macOS は拡張子のない claude を PATH と ~/.local/bin で探す', () => {
     const root = tree(['bin/claude', 'home/.local/bin/claude']);
     const home = join(root, 'home');
-    expect(findClaude({ env: { PATH: join(root, 'bin') }, platform: 'darwin', home, bundled: none })).toBe(join(root, 'bin', 'claude'));
-    expect(findClaude({ env: {}, platform: 'darwin', home, bundled: none })).toBe(join(home, '.local', 'bin', 'claude'));
+    expect(findClaude({ env: { PATH: join(root, 'bin') }, platform: 'darwin', home, bundled: none })).toBe(
+      join(root, 'bin', 'claude'),
+    );
+    expect(findClaude({ env: {}, platform: 'darwin', home, bundled: none })).toBe(
+      join(home, '.local', 'bin', 'claude'),
+    );
   });
 
   it('開発中は SDK の OS ごとのパッケージに同梱された実行ファイルがある', () => {

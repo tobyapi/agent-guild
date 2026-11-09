@@ -10,12 +10,14 @@
     "bundle": "tauri build --config src-tauri/tauri.bundle.conf.json",
     "runner": "node agent-runner/src/main.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p agent-runner/tsconfig.json",
+    "format": "prettier --write . && cargo fmt --manifest-path src-tauri/Cargo.toml --all",
+    "format:check": "prettier --check . && cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check",
     "lint": "eslint .",
     "test": "vitest run",
     "harness": "node --test \"scripts/harness/**/*.test.mjs\" && node scripts/harness/check-ts.mjs",
     "rust:clippy": "cargo clippy --manifest-path src-tauri/Cargo.toml --workspace --all-targets -- -D warnings",
     "rust:test": "cargo test --manifest-path src-tauri/Cargo.toml --workspace",
-    "check": "npm run typecheck && npm run lint && npm run harness && npm run test && npm run rust:clippy && npm run rust:test"
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run harness && npm run test && npm run rust:clippy && npm run rust:test"
   },
   "type": "module",
   "dependencies": {
@@ -36,6 +38,7 @@
     "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.14.0",
+    "prettier": "3.9.10",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": ">=5.8 <6.1",

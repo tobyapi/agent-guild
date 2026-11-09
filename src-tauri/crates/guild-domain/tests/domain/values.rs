@@ -15,7 +15,8 @@ fn skill_names_follow_the_agent_skills_standard_without_conversion() {
         assert!(validate_skill_name(valid).is_ok(), "{valid}");
     }
     let too_long = "a".repeat(65);
-    for invalid in ["", "Code-Review", "code review", "-code", "code-", "code--review", "レビュー", too_long.as_str()] {
+    for invalid in ["", "Code-Review", "code review", "-code", "code-", "code--review", "レビュー", too_long.as_str()]
+    {
         let error = validate_skill_name(invalid).expect_err(invalid);
         assert_eq!(error.field(), Some("name"), "{invalid}");
     }
@@ -73,7 +74,15 @@ fn profile_names_follow_the_agent_name_rules() {
 fn only_http_and_https_links_are_opened() {
     assert_eq!(external_url(" https://example.com/?a=1&b=2 "), Ok("https://example.com/?a=1&b=2".to_owned()));
     assert!(external_url("HTTP://Example.com").is_ok());
-    for bad in ["javascript:alert(1)", "file:///C:/Windows", "mailto:a@b.c", "https://", "https:///path", "https://a b", "ftp://x"] {
+    for bad in [
+        "javascript:alert(1)",
+        "file:///C:/Windows",
+        "mailto:a@b.c",
+        "https://",
+        "https:///path",
+        "https://a b",
+        "ftp://x",
+    ] {
         let error = external_url(bad).expect_err(bad);
         assert_eq!(error.field(), Some("url"), "{bad}");
     }

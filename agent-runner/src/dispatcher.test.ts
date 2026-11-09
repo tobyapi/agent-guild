@@ -5,7 +5,15 @@ import { Dispatcher } from './dispatcher.ts';
 import { parseLine } from './line-parser.ts';
 import { PROTOCOL_VERSION, type RunnerEvent } from './protocol.ts';
 
-const PERMISSIONS = { webSearch: true, webFetch: true, readFiles: true, writeFiles: false, writeAnywhere: false, runCommands: false, skills: false };
+const PERMISSIONS = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: false,
+  writeAnywhere: false,
+  runCommands: false,
+  skills: false,
+};
 const INFO: BackendDescriptor = {
   id: 'fake',
   label: 'Fake',
@@ -34,12 +42,30 @@ const fakeAdapter: BackendAdapter = {
     return Promise.resolve(`echo: ${request.prompt}`);
   },
 };
-const FAKE_INFO = { ...INFO, status: 'needs_auth', statusMessage: 'ログインしてください', models: [], defaultModel: '' };
+const FAKE_INFO = {
+  ...INFO,
+  status: 'needs_auth',
+  statusMessage: 'ログインしてください',
+  models: [],
+  defaultModel: '',
+};
 
 const runLine = (id: string, prompt: string, backend = 'fake'): string =>
   JSON.stringify({
-    type: 'run', id, backend, workspace: '/ws', stateDir: '/state', readableDirs: [], systemPrompt: '', prompt,
-    intent: '', model: '', permissions: PERMISSIONS, skills: [], images: [], options: {},
+    type: 'run',
+    id,
+    backend,
+    workspace: '/ws',
+    stateDir: '/state',
+    readableDirs: [],
+    systemPrompt: '',
+    prompt,
+    intent: '',
+    model: '',
+    permissions: PERMISSIONS,
+    skills: [],
+    images: [],
+    options: {},
   });
 
 const settle = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));
@@ -70,7 +96,9 @@ describe('Dispatcher', () => {
   it('announce は版と状態つきのバックエンド一覧を ready で送る', async () => {
     const { events, dispatcher } = setup();
     await dispatcher.announce();
-    expect(events).toEqual([{ type: 'ready', protocolVersion: PROTOCOL_VERSION, runnerVersion: '9.9.9', backends: [FAKE_INFO] }]);
+    expect(events).toEqual([
+      { type: 'ready', protocolVersion: PROTOCOL_VERSION, runnerVersion: '9.9.9', backends: [FAKE_INFO] },
+    ]);
   });
 
   it('probe は状態を確かめ直して backends を送る', async () => {
@@ -115,7 +143,9 @@ describe('Dispatcher', () => {
   it('未知のバックエンドは unknown_backend', () => {
     const { events, receive } = setup();
     receive(runLine('j1', 'x', 'gemini'));
-    expect(events).toEqual([{ type: 'error', id: 'j1', code: 'unknown_backend', message: '未知のバックエンドです: gemini' }]);
+    expect(events).toEqual([
+      { type: 'error', id: 'j1', code: 'unknown_backend', message: '未知のバックエンドです: gemini' },
+    ]);
   });
 
   it('未知の type は id があれば bad_request、なければ記録だけ。壊れた行は id: null、空行は無視', () => {

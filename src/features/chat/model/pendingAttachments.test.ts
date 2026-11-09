@@ -59,7 +59,14 @@ describe('送信前の添付', () => {
 
   it('大きさは B・KB・MB で出し、送るのは名前・種類・base64 だけ', () => {
     expect([820, 12_800, 3_355_443].map(sizeLabel)).toEqual(['820 B', '12.5 KB', '3.2 MB']);
-    const file = { key: 'pending-1', name: '仕様.pdf', mediaType: 'application/pdf', data: 'JVBERg==', preview: null, size: 4 };
+    const file = {
+      key: 'pending-1',
+      name: '仕様.pdf',
+      mediaType: 'application/pdf',
+      data: 'JVBERg==',
+      preview: null,
+      size: 4,
+    };
     expect(toAttachmentInput(file)).toEqual({ name: '仕様.pdf', mediaType: 'application/pdf', data: 'JVBERg==' });
   });
 });

@@ -44,7 +44,10 @@ export function useAgentSave(agent: Agent | null, draft: AgentDraft) {
   const [serverError, setServerError] = useState<ServerError | null>(null);
   const [saving, setSaving] = useState(false);
   const takenNames = useMemo(
-    () => [...agents.filter((other) => other.deletedAt === null && other.id !== agent?.id).map((other) => other.name), me.name],
+    () => [
+      ...agents.filter((other) => other.deletedAt === null && other.id !== agent?.id).map((other) => other.name),
+      me.name,
+    ],
     [agents, agent, me.name],
   );
   const result = validateAgentDraft(draft, { backends, takenNames });

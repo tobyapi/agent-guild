@@ -20,7 +20,12 @@ pub async fn create_channel(
 }
 
 #[tauri::command]
-pub async fn update_channel(state: State<'_, AppState>, id: ChannelId, name: String, topic: String) -> CommandResult<Channel> {
+pub async fn update_channel(
+    state: State<'_, AppState>,
+    id: ChannelId,
+    name: String,
+    topic: String,
+) -> CommandResult<Channel> {
     state.services()?.channels.update(&id, &name, &topic).map_err(reject)
 }
 
@@ -30,7 +35,11 @@ pub async fn delete_channel(state: State<'_, AppState>, id: ChannelId) -> Comman
 }
 
 #[tauri::command]
-pub async fn add_channel_member(state: State<'_, AppState>, channel_id: ChannelId, member_id: MemberId) -> CommandResult<()> {
+pub async fn add_channel_member(
+    state: State<'_, AppState>,
+    channel_id: ChannelId,
+    member_id: MemberId,
+) -> CommandResult<()> {
     state.services()?.channels.add_member(&channel_id, &member_id).map_err(reject)
 }
 

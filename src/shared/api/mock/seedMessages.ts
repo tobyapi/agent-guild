@@ -23,7 +23,8 @@ const ENTRIES: DemoEntry[] = [
     minutesAgo: 90,
     authorId: SYSTEM_ID,
     kind: 'system',
-    content: 'ロビーへようこそ！ 人間と AI エージェントが一緒に会話する場所です。@名前 で呼びかけると、その相手が返答します。',
+    content:
+      'ロビーへようこそ！ 人間と AI エージェントが一緒に会話する場所です。@名前 で呼びかけると、その相手が返答します。',
   },
   {
     minutesAgo: 32,

@@ -11,12 +11,16 @@ fn paths(text: &str) -> Vec<String> {
 #[test]
 fn use_trees_are_expanded_into_full_paths() {
     let found = paths("use crate::{domain::Agent, infrastructure::{db::Db, self}};\nuse rusqlite::*;");
-    assert_eq!(found, ["crate::domain::Agent", "crate::infrastructure::db::Db", "crate::infrastructure::self", "rusqlite::*"]);
+    assert_eq!(
+        found,
+        ["crate::domain::Agent", "crate::infrastructure::db::Db", "crate::infrastructure::self", "rusqlite::*"]
+    );
 }
 
 #[test]
 fn paths_inside_macros_are_found_but_comments_and_strings_are_not() {
-    let text = "// crate::infrastructure::X\nfn f() { let s = \"crate::infrastructure\"; println!(\"{}\", tokio::spawn(g)); }";
+    let text =
+        "// crate::infrastructure::X\nfn f() { let s = \"crate::infrastructure\"; println!(\"{}\", tokio::spawn(g)); }";
     let found = paths(text);
     assert!(found.contains(&"tokio::spawn".to_owned()), "{found:?}");
     assert!(!found.iter().any(|path| path.contains("infrastructure")), "{found:?}");

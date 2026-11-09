@@ -7,7 +7,9 @@ describe('accentVars / accentStyleText', () => {
       '--tag-fg': 'var(--kind-manager, var(--kind-neutral))',
       '--tag-bg': 'var(--kind-manager-soft, var(--kind-neutral-soft))',
     });
-    expect(accentStyleText('enduser')).toBe('--tag-fg: var(--kind-enduser, var(--kind-neutral)); --tag-bg: var(--kind-enduser-soft, var(--kind-neutral-soft))');
+    expect(accentStyleText('enduser')).toBe(
+      '--tag-fg: var(--kind-enduser, var(--kind-neutral)); --tag-bg: var(--kind-enduser-soft, var(--kind-neutral-soft))',
+    );
   });
 
   it('null やトークン名に使えない値には何も渡さない（中立）', () => {

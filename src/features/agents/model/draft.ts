@@ -84,7 +84,11 @@ export function applyTemplate(draft: AgentDraft, template: AgentTemplate | undef
   return { ...draft, ...fromDefaults(template?.defaults ?? BLANK_DEFAULTS) };
 }
 
-export function newDraft(template: AgentTemplate | undefined, backends: readonly BackendInfo[], colorIndex: number): AgentDraft {
+export function newDraft(
+  template: AgentTemplate | undefined,
+  backends: readonly BackendInfo[],
+  colorIndex: number,
+): AgentDraft {
   const blank: AgentDraft = {
     name: '',
     avatar: '🤖',

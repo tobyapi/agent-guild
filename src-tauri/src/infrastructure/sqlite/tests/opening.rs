@@ -8,7 +8,9 @@ use rusqlite::Connection;
 
 use super::{saved_agent, temp_dir};
 use crate::infrastructure::sqlite::migrations::{self, APPLICATION_ID};
-use crate::infrastructure::sqlite::{inspect_database, Database, OpenError, SqliteAgentRepository, SqliteMetaRepository};
+use crate::infrastructure::sqlite::{
+    inspect_database, Database, OpenError, SqliteAgentRepository, SqliteMetaRepository,
+};
 
 fn header(path: &std::path::Path) -> (i32, usize) {
     let conn = Connection::open(path).unwrap();
@@ -68,7 +70,8 @@ fn a_changed_schema_moves_the_old_database_aside_in_debug_builds() {
 
     let reopened = Arc::new(Database::open(&path).unwrap());
     assert!(SqliteAgentRepository::new(reopened).list().unwrap().is_empty(), "作り直された");
-    let names: Vec<String> = fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
+    let names: Vec<String> =
+        fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
     assert!(names.iter().any(|name| name.starts_with("guild.db.bak-")), "{names:?}");
     fs::remove_dir_all(dir).unwrap();
 }

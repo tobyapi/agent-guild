@@ -6,7 +6,10 @@ export type OptionValue = string | boolean;
 export type OptionValues = Readonly<Record<string, OptionValue>>;
 
 /** 保存されている backendOptions を入力値にする（スキーマにないキー・型の合わない値は捨てる） */
-export function optionValuesFrom(specs: readonly OptionSpec[], stored: Readonly<Record<string, unknown>>): OptionValues {
+export function optionValuesFrom(
+  specs: readonly OptionSpec[],
+  stored: Readonly<Record<string, unknown>>,
+): OptionValues {
   const entries = specs.flatMap((spec): Array<[string, OptionValue]> => {
     const value = stored[spec.key];
     if (spec.type === 'boolean') return typeof value === 'boolean' ? [[spec.key, value]] : [];

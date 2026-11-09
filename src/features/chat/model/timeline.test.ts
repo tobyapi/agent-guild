@@ -25,7 +25,9 @@ function message(authorId: string, offsetMs: number, kind: MessageKind = 'chat')
 }
 
 const shape = (messages: Message[]) =>
-  buildTimeline(messages).map((item) => (item.type === 'group' ? `${item.authorId}×${item.messages.length}` : item.type));
+  buildTimeline(messages).map((item) =>
+    item.type === 'group' ? `${item.authorId}×${item.messages.length}` : item.type,
+  );
 
 describe('buildTimeline', () => {
   it('先頭に日付の区切りを入れ、同じ人の連続投稿をまとめる', () => {
@@ -58,7 +60,12 @@ describe('buildTimeline', () => {
   });
 
   it('途中経過は途中経過同士でまとめ、そのあとの返答は新しいまとまりにする', () => {
-    const messages = [message('a', 0, 'progress'), message('a', 60_000, 'progress'), message('a', 120_000), message('a', 130_000)];
+    const messages = [
+      message('a', 0, 'progress'),
+      message('a', 60_000, 'progress'),
+      message('a', 120_000),
+      message('a', 130_000),
+    ];
     expect(shape(messages)).toEqual(['day', 'a×2', 'a×2']);
     expect(shape([message('a', 0), message('a', 1000, 'progress')])).toEqual(['day', 'a×1', 'a×1']);
   });

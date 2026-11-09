@@ -33,7 +33,10 @@ export function currentActivityRevision(): number {
  * スナップショットを反映する。取得を始めた時点（activityRevision）より後に activity-changed が届いていれば、
  * activity はそちらを残す。止まっていた実行環境が戻ったらトーストで知らせる。
  */
-export function applyRuntimeSnapshot(snapshot: Pick<Snapshot, 'runtime' | 'backends' | 'activity'>, activityRevision: number): void {
+export function applyRuntimeSnapshot(
+  snapshot: Pick<Snapshot, 'runtime' | 'backends' | 'activity'>,
+  activityRevision: number,
+): void {
   const previous = useRuntimeStore.getState();
   useRuntimeStore.setState({
     runtime: snapshot.runtime,

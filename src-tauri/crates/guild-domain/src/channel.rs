@@ -2,9 +2,9 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::author::MemberId;
 use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, ChannelId};
-use super::author::MemberId;
 
 /// チャンネル名の最大文字数
 pub const CHANNEL_NAME_MAX_CHARS: usize = 40;

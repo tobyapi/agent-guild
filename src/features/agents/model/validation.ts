@@ -10,9 +10,18 @@ import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
 import { permissionRuleProblem } from './permissions';
 
-export type AgentField = 'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
+export type AgentField =
+  'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
 
-const AGENT_FIELDS: readonly AgentField[] = ['name', 'avatar', 'color', 'tags', 'backend', 'permissions', 'autonomyIntervalMin'];
+const AGENT_FIELDS: readonly AgentField[] = [
+  'name',
+  'avatar',
+  'color',
+  'tags',
+  'backend',
+  'permissions',
+  'autonomyIntervalMin',
+];
 export type AgentErrors = Partial<Record<AgentField, string>>;
 
 export interface ValidationContext {
@@ -22,8 +31,7 @@ export interface ValidationContext {
 }
 
 export type DraftResult =
-  | { ok: true; input: AgentInput }
-  | { ok: false; errors: AgentErrors; optionErrors: Record<string, string> };
+  { ok: true; input: AgentInput } | { ok: false; errors: AgentErrors; optionErrors: Record<string, string> };
 
 function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
@@ -33,7 +41,10 @@ function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
     ['avatar', checkAvatar(draft.avatar)],
     ['color', isHexColor(draft.color) ? null : '色を選んでください'],
     ['tags', checkTags(draft.tags)],
-    ['backend', draft.backend === '' ? 'バックエンドを選んでください' : rule?.field === 'backend' ? rule.message : null],
+    [
+      'backend',
+      draft.backend === '' ? 'バックエンドを選んでください' : rule?.field === 'backend' ? rule.message : null,
+    ],
     ['effort', checkEffort(backend, draft.model.trim(), draft.effort)],
     ['permissions', rule?.field === 'permissions' ? rule.message : null],
     ['autonomyIntervalMin', checkIntervalMin(draft.autonomyIntervalMin)],
@@ -71,7 +82,8 @@ export function validateAgentDraft(draft: AgentDraft, ctx: ValidationContext): D
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
   const parsed = backend ? parseOptionValues(backend.options, draft.optionValues) : null;
   const optionErrors = parsed?.errors ?? {};
-  if (Object.keys(errors).length > 0 || Object.keys(optionErrors).length > 0) return { ok: false, errors, optionErrors };
+  if (Object.keys(errors).length > 0 || Object.keys(optionErrors).length > 0)
+    return { ok: false, errors, optionErrors };
   // バックエンドの一覧が届いていなければ、保存されていた設定をそのまま保つ
   return { ok: true, input: toInput(draft, parsed?.options ?? draft.storedOptions) };
 }

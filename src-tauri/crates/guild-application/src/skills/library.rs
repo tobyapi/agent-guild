@@ -14,7 +14,7 @@ use guild_domain::skill::{
 use super::linked::folder_name;
 use super::{ensure_name_free, require_agent};
 use crate::error::{AppError, AppResult};
-use crate::ports::{FoundSkill, Folders, SettingsStore, SkillFileError, SkillLibraryScanner};
+use crate::ports::{Folders, FoundSkill, SettingsStore, SkillFileError, SkillLibraryScanner};
 use crate::services::Ports;
 
 #[derive(Clone)]
@@ -54,12 +54,16 @@ impl SkillLibraryService {
             return Err(ValidationError::on("path", "スキルのフォルダは絶対パスで指定してください").into());
         }
         let text = self.ports.library.read_skill_file(folder).map_err(|error| match error {
-            SkillFileError::FolderMissing | SkillFileError::FileMissing => AppError::NotFound("SKILL.md のあるフォルダ"),
+            SkillFileError::FolderMissing | SkillFileError::FileMissing => {
+                AppError::NotFound("SKILL.md のあるフォルダ")
+            }
             SkillFileError::Unreadable(_) => AppError::validation(error.to_string()),
         })?;
         let file = parse_skill_file(&text, &folder_name(folder));
         if let Some(problem) = file.problem {
-            return Err(AppError::validation(format!("このスキルは Agent Skills の形式に合わないため追加できません: {problem}")));
+            return Err(AppError::validation(format!(
+                "このスキルは Agent Skills の形式に合わないため追加できません: {problem}"
+            )));
         }
         ensure_name_free(&self.ports, agent_id, &file.name, None)?;
         let source = match mode {

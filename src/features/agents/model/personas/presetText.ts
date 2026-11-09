@@ -9,7 +9,9 @@ export const PRESET_GROUP_LABELS: Record<PresetGroup, string> = {
 
 /** 検索: 空白で区切った語をすべて label・text・sample のどれかに含むもの（NFKC＋大文字小文字無視） */
 export function searchPresets<T extends AnyPreset>(presets: readonly T[], query: string): T[] {
-  const words = normalizeName(query).split(/\s+/).filter((word) => word !== '');
+  const words = normalizeName(query)
+    .split(/\s+/)
+    .filter((word) => word !== '');
   if (words.length === 0) return [...presets];
   return presets.filter((preset) => {
     const haystack = normalizeName(`${preset.label} ${preset.text} ${preset.sample ?? ''}`);

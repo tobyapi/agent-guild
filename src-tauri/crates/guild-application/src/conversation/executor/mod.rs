@@ -49,10 +49,7 @@ impl JobReporter {
         update: impl Fn(RunUpdate) + Send + Sync + 'static,
         finished: impl FnOnce(RunOutcome) + Send + 'static,
     ) -> Self {
-        Self {
-            update: Arc::new(update),
-            finished: Some(Box::new(finished)),
-        }
+        Self { update: Arc::new(update), finished: Some(Box::new(finished)) }
     }
 
     fn finish(mut self, outcome: RunOutcome) {

@@ -29,7 +29,14 @@ const handlers: MockHandlers = {
 };
 
 type BootFailure = Exclude<BootReason, 'none'>;
-const BOOT_FAILURES: readonly BootFailure[] = ['missing', 'locked', 'newer_version', 'foreign', 'corrupt', 'not_writable'];
+const BOOT_FAILURES: readonly BootFailure[] = [
+  'missing',
+  'locked',
+  'newer_version',
+  'foreign',
+  'corrupt',
+  'not_writable',
+];
 
 export interface MockTransportOptions {
   /** 応答までの擬似的な遅延（ms）。テストでは 0 */
@@ -62,7 +69,9 @@ export function mockOptionsFromLocation(): MockTransportOptions {
     emptySkillLibrary: params.get('mockLibrary') === 'empty',
     firstRun: params.get('mockSetup') === '1',
     ...(runtime === 'slow' ? { runtimeStartupMs: 8000 } : {}),
-    ...(runtime === 'unavailable' ? { runtimeFailure: 'ランナーを起動できませんでした（モック）: node が見つかりません' } : {}),
+    ...(runtime === 'unavailable'
+      ? { runtimeFailure: 'ランナーを起動できませんでした（モック）: node が見つかりません' }
+      : {}),
   };
 }
 
@@ -74,7 +83,8 @@ function isRecoveryCommand(command: CommandName): boolean {
 /** ランナーの起動（starting → ready、または unavailable のまま）を再現する */
 function startRunner(runtime: MockRuntime, startupMs: number, failure: string | null): void {
   const ready = () => {
-    runtime.state.runtime = failure === null ? { state: 'ready', message: '' } : { state: 'unavailable', message: failure };
+    runtime.state.runtime =
+      failure === null ? { state: 'ready', message: '' } : { state: 'unavailable', message: failure };
   };
   if (startupMs <= 0) return ready();
   runtime.env.schedule(startupMs, () => {

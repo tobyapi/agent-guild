@@ -3,9 +3,9 @@
 use std::fs;
 use std::sync::Arc;
 
+use guild_application::ports::FolderState;
 use guild_application::ports::{DataExporter, Folders};
 use guild_application::AppError;
-use guild_application::ports::FolderState;
 
 use super::TempDir;
 use crate::infrastructure::data_dir::{read_marker, MarkerState};

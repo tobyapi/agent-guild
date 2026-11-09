@@ -14,7 +14,12 @@ interface SettingsStoreState {
   setupOpen: boolean;
 }
 
-export const useSettingsStore = create<SettingsStoreState>()(() => ({ open: false, focus: null, storage: null, setupOpen: false }));
+export const useSettingsStore = create<SettingsStoreState>()(() => ({
+  open: false,
+  focus: null,
+  storage: null,
+  setupOpen: false,
+}));
 
 export function openSettings(focus: SettingsSection | null = null): void {
   useSettingsStore.setState({ open: true, focus });

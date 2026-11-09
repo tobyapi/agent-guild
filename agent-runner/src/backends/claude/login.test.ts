@@ -9,7 +9,9 @@ describe('Claude のログイン', () => {
   });
 
   it('実行ファイルはそのまま、npm の cli.js は node で動かす', () => {
-    expect(loginCommand('C:\\Users\\me\\.local\\bin\\claude.exe', 'C:\\node\\node.exe')).toEqual(['C:\\Users\\me\\.local\\bin\\claude.exe']);
+    expect(loginCommand('C:\\Users\\me\\.local\\bin\\claude.exe', 'C:\\node\\node.exe')).toEqual([
+      'C:\\Users\\me\\.local\\bin\\claude.exe',
+    ]);
     expect(loginCommand('C:\\npm\\node_modules\\@anthropic-ai\\claude-code\\cli.js', 'C:\\node\\node.exe')).toEqual([
       'C:\\node\\node.exe',
       'C:\\npm\\node_modules\\@anthropic-ai\\claude-code\\cli.js',

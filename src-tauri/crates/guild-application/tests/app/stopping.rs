@@ -71,7 +71,13 @@ async fn deleting_an_agent_discards_its_work_and_soft_deletes_it() {
     let app = TestApp::new();
     let haru = app.agent("worker", "ハル");
     let lobby = app.channel("ロビー", &[&haru]);
-    let skill = SkillInput { id: None, agent_id: haru.id.clone(), name: "notes".to_owned(), description: "メモ".to_owned(), body: String::new() };
+    let skill = SkillInput {
+        id: None,
+        agent_id: haru.id.clone(),
+        name: "notes".to_owned(),
+        description: "メモ".to_owned(),
+        body: String::new(),
+    };
     app.services.skills.save(skill).unwrap();
     let late = Arc::new(Notify::new());
     app.runtime.script(haru.id.as_str(), Script::Stubborn(late.clone(), "消えたはずの返答".to_owned()));

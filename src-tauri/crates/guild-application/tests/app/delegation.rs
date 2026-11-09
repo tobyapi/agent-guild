@@ -49,10 +49,16 @@ async fn the_lead_splits_the_work_subtasks_run_together_and_the_report_comes_onc
 
     app.services.conversation.send_human_message(&lobby.id, "新しいアプリの下調べと試作をお願い", &[]).unwrap();
     tick().await;
-    let running: Vec<String> = app.services.conversation.activity().activities.iter().map(|a| a.agent_id.to_string()).collect();
-    assert!(running.contains(&haru.id.to_string()) && running.contains(&sora.id.to_string()), "2人が同時に動く: {running:?}");
+    let running: Vec<String> =
+        app.services.conversation.activity().activities.iter().map(|a| a.agent_id.to_string()).collect();
+    assert!(
+        running.contains(&haru.id.to_string()) && running.contains(&sora.id.to_string()),
+        "2人が同時に動く: {running:?}"
+    );
     assert_eq!(statuses(&only_delegation(&app)), [SubtaskStatus::Running, SubtaskStatus::Running]);
-    assert!(app.runtime.requests_for(haru.id.as_str())[0].prompt.contains("カナメ から割り振られたタスクです:\n> 競合を調べて"));
+    assert!(app.runtime.requests_for(haru.id.as_str())[0]
+        .prompt
+        .contains("カナメ から割り振られたタスクです:\n> 競合を調べて"));
     second.notify_one();
     first.notify_one();
     app.settle().await;
@@ -66,8 +72,15 @@ async fn the_lead_splits_the_work_subtasks_run_together_and_the_report_comes_onc
     let manager_runs = app.runtime.requests_for(kaname.id.as_str());
     assert_eq!(manager_runs.len(), 2, "受け付けとまとめの2回だけ（まとめは1回）");
     let report = &manager_runs[1].prompt;
-    assert!(report.contains("# 割り振ったタスクの結果がそろいました") && report.contains("競合は3つです") && report.contains("試作のビルドが通りました"));
-    assert!(app.runtime.requests_for(haru.id.as_str()).len() == 1, "lead がいれば answer の人はメンションなしの発言に答えない");
+    assert!(
+        report.contains("# 割り振ったタスクの結果がそろいました")
+            && report.contains("競合は3つです")
+            && report.contains("試作のビルドが通りました")
+    );
+    assert!(
+        app.runtime.requests_for(haru.id.as_str()).len() == 1,
+        "lead がいれば answer の人はメンションなしの発言に答えない"
+    );
     let last = app.events.delegations.lock().last().cloned();
     assert_eq!(last.map(|d| d.status), Some(DelegationStatus::Done), "最後の delegation-changed は done");
 }
@@ -89,10 +102,17 @@ async fn a_consulting_assignee_stays_running_until_the_answer_comes_back() {
     app.settle().await;
 
     let delegation = only_delegation(&app);
-    assert_eq!(delegation.subtasks[0].result_message_id, Some(message_with(&app, "確認済みの企画書です").id), "戻りで done");
+    assert_eq!(
+        delegation.subtasks[0].result_message_id,
+        Some(message_with(&app, "確認済みの企画書です").id),
+        "戻りで done"
+    );
     let changes = app.events.delegations.lock().clone();
     let consulted = message_with(&app, "直しました。@ロジカ 論理を確認して").id;
-    assert!(changes.iter().all(|d| d.subtasks[0].result_message_id.as_ref() != Some(&consulted)), "相談した返答では決着しない");
+    assert!(
+        changes.iter().all(|d| d.subtasks[0].result_message_id.as_ref() != Some(&consulted)),
+        "相談した返答では決着しない"
+    );
     assert_eq!(delegation.status, DelegationStatus::Done);
     assert_eq!(app.runtime.requests_for(kaname.id.as_str()).len(), 2);
     assert!(app.runtime.requests_for(logica.id.as_str())[0].prompt.contains("これは ハル からの相談です"));
@@ -118,7 +138,11 @@ async fn failures_settle_subtasks_and_the_report_still_comes_once() {
     assert_eq!(delegation.subtasks[0].note.as_deref(), Some(NO_ANSWER));
     assert_eq!(delegation.subtasks[1].note.as_deref(), Some(RUN_FAILED));
     assert_eq!(delegation.subtasks[1].result_message_id, Some(message_with(&app, "認証がありません").id));
-    assert_eq!((delegation.status, delegation.summary_message_id), (DelegationStatus::Done, None), "まとめが [PASS] でも done");
+    assert_eq!(
+        (delegation.status, delegation.summary_message_id),
+        (DelegationStatus::Done, None),
+        "まとめが [PASS] でも done"
+    );
     let manager_runs = app.runtime.requests_for(kaname.id.as_str());
     assert_eq!(manager_runs.len(), 2);
     assert!(manager_runs[1].prompt.contains("理由: 回答がありませんでした"));
@@ -130,7 +154,8 @@ async fn unassignable_names_are_reported_and_outsiders_join_to_work() {
     let kaname = app.agent("manager", "カナメ");
     let logica = app.agent("expert", "ロジカ");
     let lobby = app.channel("ロビー", &[&kaname]);
-    app.runtime.script(kaname.id.as_str(), reply("```tasks\n@だれか: 何か\n@カナメ: 自分で\n@ロジカ: レビューして\n```"));
+    app.runtime
+        .script(kaname.id.as_str(), reply("```tasks\n@だれか: 何か\n@カナメ: 自分で\n@ロジカ: レビューして\n```"));
     app.runtime.script(logica.id.as_str(), reply("レビューしました"));
     app.runtime.script(kaname.id.as_str(), reply("まとめ"));
 
@@ -138,7 +163,8 @@ async fn unassignable_names_are_reported_and_outsiders_join_to_work() {
     app.settle().await;
 
     let transcript = app.transcript(&lobby);
-    assert!(transcript.contains(&"システム: だれか・カナメ には割り振れませんでした（見つからないか、自分自身です）".to_owned()));
+    assert!(transcript
+        .contains(&"システム: だれか・カナメ には割り振れませんでした（見つからないか、自分自身です）".to_owned()));
     assert!(transcript.contains(&"システム: ロジカ がチャンネルに参加しました".to_owned()));
     assert!(transcript.contains(&"ロジカ: レビューしました".to_owned()));
     assert_eq!(only_delegation(&app).subtasks.len(), 1);

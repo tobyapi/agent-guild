@@ -15,7 +15,13 @@ fn agents() -> Vec<Agent> {
     sora.permissions.run_commands = true;
     sora.permissions.write_anywhere = true;
     sora.tags.push("実装".to_owned());
-    vec![agent("haru", "worker", "ハル"), sora, agent("logica", "expert", "ロジカ"), agent("gear", "expert", "ギア"), ghost]
+    vec![
+        agent("haru", "worker", "ハル"),
+        sora,
+        agent("logica", "expert", "ロジカ"),
+        agent("gear", "expert", "ギア"),
+        ghost,
+    ]
 }
 
 fn skill(name: &str) -> Skill {
@@ -104,7 +110,10 @@ fn a_consultable_reader_answers_consultations_and_keeps_memory_md_only() {
     assert!(prompt.contains("ファイルの読み取り"));
     assert!(prompt.contains("ファイルの作成・編集はできません"));
     assert!(prompt.contains("作業場所の MEMORY.md だけは例外として、いつでも読み書きしてかまいません"));
-    assert!(prompt.contains("MEMORY.md 以外のファイルは、「できること」にあるとおりにしてください"), "ほかは設定に従う");
+    assert!(
+        prompt.contains("MEMORY.md 以外のファイルは、「できること」にあるとおりにしてください"),
+        "ほかは設定に従う"
+    );
     assert!(prompt.contains("### MEMORY.md の現在の内容（末尾）\n前回のメモ"), "書けなくても前回のメモは届く");
     assert!(!prompt.contains("自由にファイルを置けます"), "作業場所に自由に置けるのは書き込める人だけ");
     assert!(prompt.contains("- @ギア: ギアの専門") && !prompt.contains("- @ロジカ: "), "自分以外の相談相手だけ");

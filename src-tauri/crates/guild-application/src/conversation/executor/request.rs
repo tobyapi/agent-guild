@@ -7,8 +7,10 @@ use guild_domain::attachment::Attachment;
 use guild_domain::channel::Channel;
 use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
-use guild_domain::prompt::{build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext};
 use guild_domain::message::Message;
+use guild_domain::prompt::{
+    build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext,
+};
 use guild_domain::skill::Skill;
 
 use super::history::history;
@@ -41,8 +43,9 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     let now_label = ports.clock.local_label(ports.clock.now_ms());
     let clock = ports.clock.clone();
     let time_label = move |ms: i64| clock.local_label(ms);
-    let attachment_path =
-        |message: &Message, attachment: &Attachment| ports.attachments.path(&message.channel_id, attachment).display().to_string();
+    let attachment_path = |message: &Message, attachment: &Attachment| {
+        ports.attachments.path(&message.channel_id, attachment).display().to_string()
+    };
     let ctx = PromptContext {
         agent: &agent,
         permissions,

@@ -20,7 +20,9 @@ describe('モックのスキルライブラリ', () => {
       'api-design',
       'incident-report',
     ]);
-    expect(library.skills[0]?.problem).toBe('name が Agent Skills の形式（英小文字・数字・ハイフン）ではありません。description がありません。');
+    expect(library.skills[0]?.problem).toBe(
+      'name が Agent Skills の形式（英小文字・数字・ハイフン）ではありません。description がありません。',
+    );
     expect(library.dirProblems).toEqual({ 'F:\\usb-skills': 'フォルダが見つかりません' });
   });
 
@@ -51,7 +53,8 @@ describe('モックのスキルライブラリ', () => {
 
   it('add_library_skill（copy）: ふつうのスキルとして取り込む。同じ name は conflict、問題のあるものは validation', async () => {
     const mock = await createHarness();
-    const add = (path: string, mode: 'link' | 'copy') => mock.transport.invoke('add_library_skill', { agentId: SEED_IDS.hal, path, mode });
+    const add = (path: string, mode: 'link' | 'copy') =>
+      mock.transport.invoke('add_library_skill', { agentId: SEED_IDS.hal, path, mode });
     const copied = await add('E:\\team-skills\\incident-report', 'copy');
     expect(copied).toMatchObject({ source: null, body: expect.stringContaining('障害報告書') as unknown });
     await expect(add('E:\\team-skills\\incident-report', 'link')).rejects.toMatchObject({ code: 'conflict' });
@@ -62,7 +65,10 @@ describe('モックのスキルライブラリ', () => {
   it('list_skills: リンクしたスキルは元のフォルダから読み直し、読めなければ problem に理由を出す', async () => {
     const mock = await createHarness();
     const logica = await mock.transport.invoke('list_skills', { agentId: SEED_IDS.logica });
-    expect(logica.find((skill) => skill.name === 'writing-style')).toMatchObject({ problem: null, body: expect.stringContaining('表記のルール') as unknown });
+    expect(logica.find((skill) => skill.name === 'writing-style')).toMatchObject({
+      problem: null,
+      body: expect.stringContaining('表記のルール') as unknown,
+    });
     const gear = await mock.transport.invoke('list_skills', { agentId: SEED_IDS.gear });
     expect(gear.find((skill) => skill.name === 'legacy-lint')?.problem).toContain('リンク先のフォルダが見つかりません');
   });
@@ -70,6 +76,8 @@ describe('モックのスキルライブラリ', () => {
   it('reveal_skill_folder: あるフォルダは開き、ないフォルダは not_found', async () => {
     const mock = await createHarness();
     await expect(mock.transport.invoke('reveal_skill_folder', { path: 'D:\\skills' })).resolves.toBeNull();
-    await expect(mock.transport.invoke('reveal_skill_folder', { path: 'D:\\skills\\legacy-lint' })).rejects.toMatchObject({ code: 'not_found' });
+    await expect(
+      mock.transport.invoke('reveal_skill_folder', { path: 'D:\\skills\\legacy-lint' }),
+    ).rejects.toMatchObject({ code: 'not_found' });
   });
 });

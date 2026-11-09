@@ -47,7 +47,10 @@ export interface ClaudeRun {
   executable: string;
 }
 
-export function claudeOptions(request: RunRequest, { abortController, pluginDir, onPost, executable }: ClaudeRun): Options {
+export function claudeOptions(
+  request: RunRequest,
+  { abortController, pluginDir, onPost, executable }: ClaudeRun,
+): Options {
   const { permissions } = request;
   const tools = toolsFor(permissions);
   // 操作の確認をするなら、コマンドと Web ページを開くことも canUseTool を通す（judge.ts のモデルに確かめる）

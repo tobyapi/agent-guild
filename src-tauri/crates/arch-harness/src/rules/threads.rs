@@ -24,7 +24,8 @@ pub fn check(root: &Path) -> Vec<Violation> {
     let dirs: Vec<String> = SCOPES.iter().map(|scope| (*scope).to_owned()).collect();
     let (parsed, mut violations) = files::parse_rust(root, &dirs);
     for (file, found) in &parsed {
-        for reference in found.references.iter().filter(|reference| !reference.in_test && is_spawn(&reference.segments)) {
+        for reference in found.references.iter().filter(|reference| !reference.in_test && is_spawn(&reference.segments))
+        {
             let advice = format!(
                 "{} を直接呼ばない。タスクの生成は guild-application のポートの Spawner 経由にする（実装は infrastructure）",
                 reference.segments.join("::")

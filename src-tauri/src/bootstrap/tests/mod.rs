@@ -42,7 +42,12 @@ impl AgentRuntime for NoRuntime {
     fn backends(&self) -> Vec<BackendInfo> {
         Vec::new()
     }
-    async fn run(&self, _job_id: &str, _request: RuntimeRequest, _on_update: UpdateSink) -> Result<String, RuntimeError> {
+    async fn run(
+        &self,
+        _job_id: &str,
+        _request: RuntimeRequest,
+        _on_update: UpdateSink,
+    ) -> Result<String, RuntimeError> {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }
     async fn cancel(&self, _job_id: &str) {}

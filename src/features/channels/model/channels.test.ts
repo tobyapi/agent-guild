@@ -10,9 +10,16 @@ import {
   workingSummary,
 } from './channels';
 
-const channel = (id: string, memberIds: string[] = ['me']): Channel => ({ id, name: id, topic: '', memberIds, createdAt: 0 });
+const channel = (id: string, memberIds: string[] = ['me']): Channel => ({
+  id,
+  name: id,
+  topic: '',
+  memberIds,
+  createdAt: 0,
+});
 
-const agent = (id: string, tags: string[], deletedAt: number | null = null) => ({ id, tags, name: id, deletedAt }) as Agent;
+const agent = (id: string, tags: string[], deletedAt: number | null = null) =>
+  ({ id, tags, name: id, deletedAt }) as Agent;
 
 const template = (id: string, tag: string, accent: AgentTemplate['accent']) =>
   ({ id, label: tag, accent, defaults: { tags: [tag] } }) as AgentTemplate;
@@ -66,7 +73,9 @@ describe('workingSummary', () => {
 describe('validateChannelDraft', () => {
   it('名前は必須（先頭の # は外して数える）', () => {
     expect(cleanChannelName('  #企画 ')).toBe('企画');
-    expect(validateChannelDraft({ name: '#', topic: '', memberIds: [] })).toEqual({ name: 'チャンネル名を入力してください' });
+    expect(validateChannelDraft({ name: '#', topic: '', memberIds: [] })).toEqual({
+      name: 'チャンネル名を入力してください',
+    });
     expect(validateChannelDraft({ name: '企画', topic: '新しい企画', memberIds: [] })).toEqual({});
     expect(cleanChannelName('＃企画')).toBe('企画');
   });

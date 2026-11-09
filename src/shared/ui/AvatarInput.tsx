@@ -33,7 +33,11 @@ export function AvatarInput({ value, onChange, error, human = false }: AvatarInp
   };
 
   return (
-    <Field label="アバター" hint={`絵文字を 1 つ入力するか、画像を選んで範囲を切り抜けます（${AVATAR_IMAGE_SIZE}px で保存します）`} error={error}>
+    <Field
+      label="アバター"
+      hint={`絵文字を 1 つ入力するか、画像を選んで範囲を切り抜けます（${AVATAR_IMAGE_SIZE}px で保存します）`}
+      error={error}
+    >
       {(control) => (
         <div className={styles.row}>
           <input

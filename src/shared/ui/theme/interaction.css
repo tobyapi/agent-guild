@@ -12,11 +12,7 @@
 }
 
 /* 文字入力欄は輪ではなく金の枠と淡いにじみで示す（クリックでも出る）。枠のない入力欄は親の :focus-within で示す */
-:where(
-    input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
-    textarea,
-    select
-  ):focus-visible {
+:where(input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']), textarea, select):focus-visible {
   outline: none;
   border-color: var(--focus-color);
   box-shadow: 0 0 0 2px var(--focus-glow);

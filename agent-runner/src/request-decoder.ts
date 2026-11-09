@@ -6,9 +6,7 @@ import type { RunRequest } from './backends/types.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
 import type { ImagePayload, PermissionKey, Permissions, RunnerRequest, SkillPayload } from './protocol.ts';
 
-export type DecodeResult =
-  | { ok: true; request: RunnerRequest }
-  | { ok: false; id: string | null; message: string };
+export type DecodeResult = { ok: true; request: RunnerRequest } | { ok: false; id: string | null; message: string };
 
 const RUN_STRING_FIELDS = ['backend', 'workspace', 'stateDir', 'systemPrompt', 'prompt', 'intent', 'model'] as const;
 const PERMISSION_KEYS = [
@@ -46,7 +44,9 @@ export function decodeRequest(value: JsonObject): DecodeResult {
     case 'login':
       return decodeLogin(value, id);
     case 'cancel':
-      return id === null ? reject(null, 'cancel には id（文字列）が必要です') : { ok: true, request: { type: 'cancel', id } };
+      return id === null
+        ? reject(null, 'cancel には id（文字列）が必要です')
+        : { ok: true, request: { type: 'cancel', id } };
     case 'probe':
       return { ok: true, request: { type: 'probe' } };
     case 'shutdown':
@@ -72,11 +72,16 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
   const skills = decodeSkills(value.skills);
   const images = decodeImages(value.images);
   const readableDirs = decodeStrings(value.readableDirs);
-  if (permissions === null) return reject(id, `run の permissions には真偽値の ${PERMISSION_KEYS.join('・')} が必要です`);
+  if (permissions === null)
+    return reject(id, `run の permissions には真偽値の ${PERMISSION_KEYS.join('・')} が必要です`);
   if (skills === null) {
-    return reject(id, 'run の skills は name・description・body（文字列）と dir（文字列か null）を持つ要素の配列である必要があります');
+    return reject(
+      id,
+      'run の skills は name・description・body（文字列）と dir（文字列か null）を持つ要素の配列である必要があります',
+    );
   }
-  if (images === null) return reject(id, 'run の images は path・mediaType（文字列）を持つ要素の配列である必要があります');
+  if (images === null)
+    return reject(id, 'run の images は path・mediaType（文字列）を持つ要素の配列である必要があります');
   if (readableDirs === null) return reject(id, 'run の readableDirs は文字列の配列である必要があります');
   if (!isJsonObject(value.options)) return reject(id, 'run の options はオブジェクトである必要があります');
   const request: RunRequest = {
@@ -136,8 +141,21 @@ function decodeStrings(value: unknown): string[] | null {
 }
 
 function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
-      if (id === null || !isKeyBackend(value.backend) || (value.action !== 'status' && value.action !== 'set' && value.action !== 'delete')
-        || (value.action === 'set' && typeof value.key !== 'string')) return reject(id, 'Invalid API key request');
-      return { ok: true, request: { type: 'apiKey', id, backend: value.backend,
-        action: value.action, ...(value.action === 'set' ? { key: value.key as string } : {}) } };
+  if (
+    id === null ||
+    !isKeyBackend(value.backend) ||
+    (value.action !== 'status' && value.action !== 'set' && value.action !== 'delete') ||
+    (value.action === 'set' && typeof value.key !== 'string')
+  )
+    return reject(id, 'Invalid API key request');
+  return {
+    ok: true,
+    request: {
+      type: 'apiKey',
+      id,
+      backend: value.backend,
+      action: value.action,
+      ...(value.action === 'set' ? { key: value.key as string } : {}),
+    },
+  };
 }

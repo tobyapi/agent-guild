@@ -14,12 +14,24 @@ interface ValueProps {
 
 type Omitted = 'value' | 'onChange' | 'id' | 'className';
 
-export type TextFieldProps = FieldFrame & ValueProps & Omit<InputHTMLAttributes<HTMLInputElement>, Omitted> & {
-  /** 数値の入力（幅を詰め、数字を等幅にする） */
-  numeric?: boolean;
-};
+export type TextFieldProps = FieldFrame &
+  ValueProps &
+  Omit<InputHTMLAttributes<HTMLInputElement>, Omitted> & {
+    /** 数値の入力（幅を詰め、数字を等幅にする） */
+    numeric?: boolean;
+  };
 
-export function TextField({ label, hint, error, optional, labelAction, value, onChange, numeric, ...rest }: TextFieldProps) {
+export function TextField({
+  label,
+  hint,
+  error,
+  optional,
+  labelAction,
+  value,
+  onChange,
+  numeric,
+  ...rest
+}: TextFieldProps) {
   return (
     <Field label={label} hint={hint} error={error} optional={optional} labelAction={labelAction}>
       {(control) => (
@@ -39,7 +51,17 @@ export type TextAreaFieldProps = FieldFrame &
   ValueProps &
   Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, Omitted> & { mono?: boolean };
 
-export function TextAreaField({ label, hint, error, optional, labelAction, value, onChange, mono, ...rest }: TextAreaFieldProps) {
+export function TextAreaField({
+  label,
+  hint,
+  error,
+  optional,
+  labelAction,
+  value,
+  onChange,
+  mono,
+  ...rest
+}: TextAreaFieldProps) {
   return (
     <Field label={label} hint={hint} error={error} optional={optional} labelAction={labelAction}>
       {(control) => (
@@ -59,7 +81,17 @@ export type SelectFieldProps = FieldFrame &
   ValueProps &
   Omit<SelectHTMLAttributes<HTMLSelectElement>, Omitted> & { children: ReactNode };
 
-export function SelectField({ label, hint, error, optional, labelAction, value, onChange, children, ...rest }: SelectFieldProps) {
+export function SelectField({
+  label,
+  hint,
+  error,
+  optional,
+  labelAction,
+  value,
+  onChange,
+  children,
+  ...rest
+}: SelectFieldProps) {
   return (
     <Field label={label} hint={hint} error={error} optional={optional} labelAction={labelAction}>
       {(control) => (

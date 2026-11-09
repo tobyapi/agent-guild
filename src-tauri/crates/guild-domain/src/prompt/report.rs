@@ -12,12 +12,8 @@ pub(super) fn results(ctx: &PromptContext<'_>, job: &JobSpec) -> String {
     let Some(delegation) = ctx.delegation.filter(|delegation| job.report.as_ref() == Some(&delegation.id)) else {
         return String::new();
     };
-    let entries: Vec<String> = delegation
-        .subtasks
-        .iter()
-        .enumerate()
-        .map(|(index, subtask)| entry(ctx, job, index + 1, subtask))
-        .collect();
+    let entries: Vec<String> =
+        delegation.subtasks.iter().enumerate().map(|(index, subtask)| entry(ctx, job, index + 1, subtask)).collect();
     format!("# 割り振ったタスクの結果がそろいました\n{}\n\n", entries.join("\n\n"))
 }
 

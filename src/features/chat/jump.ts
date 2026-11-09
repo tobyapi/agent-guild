@@ -23,7 +23,8 @@ export function messageElementId(messageId: string): string {
   return `message-${messageId}`;
 }
 
-const prefersReducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = () =>
+  typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** その発言までスクロールして光らせる。まだ読み込んでいない発言なら、その旨を知らせる */
 export function jumpToMessage(messageId: string): void {

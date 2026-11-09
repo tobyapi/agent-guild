@@ -43,8 +43,7 @@ pub async fn get_attachment(
     message_id: MessageId,
     attachment_id: AttachmentId,
 ) -> CommandResult<String> {
-    let (attachment, bytes) =
-        state.services()?.conversation.attachment(&message_id, &attachment_id).map_err(reject)?;
+    let (attachment, bytes) = state.services()?.conversation.attachment(&message_id, &attachment_id).map_err(reject)?;
     Ok(format!("data:{};base64,{}", attachment.media_type, STANDARD.encode(bytes)))
 }
 

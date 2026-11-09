@@ -36,6 +36,27 @@ interface Running {
   cancel: Cancel;
 }
 
+/** 実行中のジョブと待機（レーンと割り振りの枠）から、画面に流す ActivityState を組み立てる */
+function buildActivityState(entries: Running[], lanes: Map<string, MockJob[]>, side: MockJob[]): ActivityState {
+  const pendingIn = (channelId: string) =>
+    (lanes.get(channelId)?.length ?? 0) + side.filter((job) => job.channelId === channelId).length;
+  const channelIds = new Set([
+    ...entries.map((entry) => entry.job.channelId),
+    ...lanes.keys(),
+    ...side.map((job) => job.channelId),
+  ]);
+  return {
+    activities: entries.map(({ job, detail }) => ({ agentId: job.agentId, channelId: job.channelId, detail })),
+    queues: [...channelIds]
+      .map((channelId) => ({
+        channelId,
+        running: entries.filter((entry) => entry.job.channelId === channelId).length,
+        pending: pendingIn(channelId),
+      }))
+      .filter((queue) => queue.running + queue.pending > 0),
+  };
+}
+
 export function createScheduler(core: MockCore, hooks: SchedulerHooks): Scheduler {
   const lanes = new Map<string, MockJob[]>();
   /** 割り振りの枠: チャンネルのレーンの順番を待たずに並行して動く task ジョブ（レーンの待機とは合流しない） */
@@ -46,22 +67,7 @@ export function createScheduler(core: MockCore, hooks: SchedulerHooks): Schedule
   const entries = () => [...running.values()];
   const laneBusy = (channelId: string) => entries().some((entry) => entry.lane && entry.job.channelId === channelId);
   const isRunning = (agentId: string) => entries().some((entry) => entry.job.agentId === agentId);
-  const pendingIn = (channelId: string) =>
-    (lanes.get(channelId)?.length ?? 0) + side.filter((job) => job.channelId === channelId).length;
-
-  const activityState = (): ActivityState => {
-    const channelIds = new Set([...entries().map((entry) => entry.job.channelId), ...lanes.keys(), ...side.map((job) => job.channelId)]);
-    return {
-      activities: entries().map(({ job, detail }) => ({ agentId: job.agentId, channelId: job.channelId, detail })),
-      queues: [...channelIds]
-        .map((channelId) => ({
-          channelId,
-          running: entries().filter((entry) => entry.job.channelId === channelId).length,
-          pending: pendingIn(channelId),
-        }))
-        .filter((queue) => queue.running + queue.pending > 0),
-    };
-  };
+  const activityState = () => buildActivityState(entries(), lanes, side);
   const publish = () => core.bus.emit('activity-changed', activityState());
 
   function start(job: MockJob, lane: boolean): void {
@@ -109,7 +115,11 @@ export function createScheduler(core: MockCore, hooks: SchedulerHooks): Schedule
       pump();
     },
     discard(matches) {
-      for (const [channelId, queue] of lanes) lanes.set(channelId, queue.filter((job) => !matches(job)));
+      for (const [channelId, queue] of lanes)
+        lanes.set(
+          channelId,
+          queue.filter((job) => !matches(job)),
+        );
       side = side.filter((job) => !matches(job));
       for (const [key, entry] of [...running]) {
         if (!matches(entry.job)) continue;
@@ -119,7 +129,9 @@ export function createScheduler(core: MockCore, hooks: SchedulerHooks): Schedule
       pump();
     },
     isBusy: (agentId) =>
-      isRunning(agentId) || side.some((job) => job.agentId === agentId) || [...lanes.values()].some((queue) => queue.some((job) => job.agentId === agentId)),
+      isRunning(agentId) ||
+      side.some((job) => job.agentId === agentId) ||
+      [...lanes.values()].some((queue) => queue.some((job) => job.agentId === agentId)),
     activityState,
   };
 }

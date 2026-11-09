@@ -7,7 +7,15 @@
 import type { CodexOptions, Input, ThreadOptions } from '@openai/codex-sdk';
 import { SECRET_ENV_GLOBS } from '../agent-env.ts';
 import { EFFORT_OPTION, type PermissionKey, type PermissionRule, type Permissions } from '../../protocol.ts';
-import { brokenRule, declaredRules, EMPTY_CATALOG, optionChoice, type ExplainedRule, type ModelCatalog, type RunRequest } from '../types.ts';
+import {
+  brokenRule,
+  declaredRules,
+  EMPTY_CATALOG,
+  optionChoice,
+  type ExplainedRule,
+  type ModelCatalog,
+  type RunRequest,
+} from '../types.ts';
 import { CODEX_EFFORTS, defaultEffortOf } from './models.ts';
 
 /** developer_instructions はコマンドライン引数で渡るので、Windows のコマンドラインの上限（32767 文字）に収める */
@@ -45,7 +53,8 @@ export function threadOptions(request: RunRequest, catalog: ModelCatalog = EMPTY
     networkAccessEnabled: permissions.webFetch,
     model: model || undefined,
     modelReasoningEffort:
-      optionChoice(request.options, EFFORT_OPTION, CODEX_EFFORTS) ?? optionChoice(fallbackEffort, EFFORT_OPTION, CODEX_EFFORTS),
+      optionChoice(request.options, EFFORT_OPTION, CODEX_EFFORTS) ??
+      optionChoice(fallbackEffort, EFFORT_OPTION, CODEX_EFFORTS),
   };
 }
 
@@ -73,7 +82,8 @@ const RULES: readonly ExplainedRule[] = [
   {
     when: 'writeFiles',
     requires: ['runCommands'],
-    reason: '書き込みを許すと、作業場所の中でのコマンド（プログラム）の実行を止められません。runCommands も許可してください',
+    reason:
+      '書き込みを許すと、作業場所の中でのコマンド（プログラム）の実行を止められません。runCommands も許可してください',
   },
   {
     when: 'writeAnywhere',

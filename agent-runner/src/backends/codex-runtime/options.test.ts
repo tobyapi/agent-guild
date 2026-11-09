@@ -3,13 +3,32 @@ import type { Permissions } from '../../protocol.ts';
 import type { RunRequest } from '../types.ts';
 import { codexConfig, threadInput, threadOptions, unenforceableReason } from './options.ts';
 
-const WORKER: Permissions = { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: false, runCommands: true, skills: true };
+const WORKER: Permissions = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: true,
+  writeAnywhere: false,
+  runCommands: true,
+  skills: true,
+};
 const EXPERT: Permissions = { ...WORKER, writeFiles: false, runCommands: false };
 
 const request = (permissions: Permissions, options: Record<string, unknown> = {}, model = ''): RunRequest => ({
-  type: 'run', id: 'j1', backend: 'codex', workspace: '/data/a1/work', stateDir: '/data/a1/state/codex',
-  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはソラだ', prompt: '実装して', intent: '', model, permissions,
-  skills: [], images: [], options,
+  type: 'run',
+  id: 'j1',
+  backend: 'codex',
+  workspace: '/data/a1/work',
+  stateDir: '/data/a1/state/codex',
+  readableDirs: ['/data/a0/work'],
+  systemPrompt: 'あなたはソラだ',
+  prompt: '実装して',
+  intent: '',
+  model,
+  permissions,
+  skills: [],
+  images: [],
+  options,
 });
 
 describe('threadOptions', () => {
@@ -27,8 +46,15 @@ describe('threadOptions', () => {
   });
 
   it('専門家も MEMORY.md のために workspace-write。Web の権限がなければ検索もネットワークも閉じる。readableDirs は渡さない', () => {
-    const options = threadOptions(request({ ...EXPERT, webSearch: false, webFetch: false }, { effort: 'deepest' }, 'gpt-x'));
-    expect(options).toMatchObject({ sandboxMode: 'workspace-write', webSearchMode: 'disabled', networkAccessEnabled: false, model: 'gpt-x' });
+    const options = threadOptions(
+      request({ ...EXPERT, webSearch: false, webFetch: false }, { effort: 'deepest' }, 'gpt-x'),
+    );
+    expect(options).toMatchObject({
+      sandboxMode: 'workspace-write',
+      webSearchMode: 'disabled',
+      networkAccessEnabled: false,
+      model: 'gpt-x',
+    });
     expect(options.modelReasoningEffort, 'SDK が受け付けない深さは渡さない').toBeUndefined();
     expect(options).not.toHaveProperty('additionalDirectories');
   });
@@ -42,17 +68,30 @@ describe('threadOptions', () => {
       ],
     };
     expect(threadOptions(request(WORKER), catalog)).toMatchObject({ model: 'gpt-a', modelReasoningEffort: 'low' });
-    expect(threadOptions(request(WORKER, {}, 'gpt-b'), catalog)).toMatchObject({ model: 'gpt-b', modelReasoningEffort: 'medium' });
-    expect(threadOptions(request(WORKER, { effort: 'high' }, 'gpt-a'), catalog)).toMatchObject({ modelReasoningEffort: 'high' });
-    expect(threadOptions(request(WORKER, {}, 'custom'), catalog)).toMatchObject({ model: 'custom', modelReasoningEffort: undefined });
+    expect(threadOptions(request(WORKER, {}, 'gpt-b'), catalog)).toMatchObject({
+      model: 'gpt-b',
+      modelReasoningEffort: 'medium',
+    });
+    expect(threadOptions(request(WORKER, { effort: 'high' }, 'gpt-a'), catalog)).toMatchObject({
+      modelReasoningEffort: 'high',
+    });
+    expect(threadOptions(request(WORKER, {}, 'custom'), catalog)).toMatchObject({
+      model: 'custom',
+      modelReasoningEffort: undefined,
+    });
   });
 });
 
 describe('threadOptions の sandbox', () => {
   it('作業場所の外にも書くなら sandbox を外す。書き込みがなければ外さない', () => {
     const anywhere = { ...WORKER, writeAnywhere: true };
-    expect(threadOptions(request(anywhere))).toMatchObject({ sandboxMode: 'danger-full-access', networkAccessEnabled: true });
-    expect(threadOptions(request({ ...EXPERT, writeAnywhere: true }))).toMatchObject({ sandboxMode: 'workspace-write' });
+    expect(threadOptions(request(anywhere))).toMatchObject({
+      sandboxMode: 'danger-full-access',
+      networkAccessEnabled: true,
+    });
+    expect(threadOptions(request({ ...EXPERT, writeAnywhere: true }))).toMatchObject({
+      sandboxMode: 'workspace-write',
+    });
   });
 });
 
@@ -81,7 +120,9 @@ describe('codexConfig', () => {
   });
 
   it('コマンドには秘密らしい環境変数を渡さない（Codex の既定の除外には頼らない）', () => {
-    const { shell_environment_policy: policy } = codexConfig(request(WORKER)) as { shell_environment_policy: { exclude: string[] } };
+    const { shell_environment_policy: policy } = codexConfig(request(WORKER)) as {
+      shell_environment_policy: { exclude: string[] };
+    };
     expect(policy.exclude).toEqual(expect.arrayContaining(['*PASSWORD*', '*CREDENTIAL*', 'AUTH', '*_AUTH_*', '*_PAT']));
   });
 });

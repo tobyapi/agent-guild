@@ -72,12 +72,18 @@ function plain(path: string): CodexExecutable {
 }
 
 /** npm の @openai/codex パッケージ（のフォルダ）から、OS ごとのパッケージの中の実行ファイルを探す（SDK と同じ並び） */
-export function nativeCodex(packageDir: string, platform: string = process.platform, arch: string = process.arch): CodexExecutable | null {
+export function nativeCodex(
+  packageDir: string,
+  platform: string = process.platform,
+  arch: string = process.arch,
+): CodexExecutable | null {
   const triple = TRIPLES[`${platform}-${arch}`];
   if (triple === undefined) return null;
   let vendor: string;
   try {
-    const manifest = createRequire(join(packageDir, 'package.json')).resolve(`@openai/codex-${platform}-${arch}/package.json`);
+    const manifest = createRequire(join(packageDir, 'package.json')).resolve(
+      `@openai/codex-${platform}-${arch}/package.json`,
+    );
     vendor = join(dirname(manifest), 'vendor', triple);
   } catch {
     return null;

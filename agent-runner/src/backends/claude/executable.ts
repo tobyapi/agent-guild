@@ -45,13 +45,17 @@ function npmCli(env: NodeJS.ProcessEnv, platform: NodeJS.Platform): string | nul
 /** PATH になくても見る、Claude Code をよく入れる場所 */
 function commonDirs(platform: NodeJS.Platform, home: string): string[] {
   const local = join(home, '.local', 'bin');
-  return platform === 'win32' ? [local] : [local, join(home, '.claude', 'local'), '/opt/homebrew/bin', '/usr/local/bin'];
+  return platform === 'win32'
+    ? [local]
+    : [local, join(home, '.claude', 'local'), '/opt/homebrew/bin', '/usr/local/bin'];
 }
 
 /** SDK の OS ごとのパッケージに同梱された Claude Code（開発中に node_modules にあるときだけ） */
 export function bundledClaude(platform: string = process.platform, arch: string = process.arch): string | null {
   try {
-    const manifest = createRequire(import.meta.url).resolve(`@anthropic-ai/claude-agent-sdk-${platform}-${arch}/package.json`);
+    const manifest = createRequire(import.meta.url).resolve(
+      `@anthropic-ai/claude-agent-sdk-${platform}-${arch}/package.json`,
+    );
     const path = join(dirname(manifest), platform === 'win32' ? 'claude.exe' : 'claude');
     return isFile(path) ? path : null;
   } catch {

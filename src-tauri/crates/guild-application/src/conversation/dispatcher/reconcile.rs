@@ -18,9 +18,11 @@ impl Actor {
             if self.change(&id, |delegation, now| delegation.begin_report(now)) {
                 self.enqueue_report(&id);
             }
-            let reporting = self.state.delegations.get(&id).is_some_and(|tracked| {
-                tracked.delegation.status == DelegationStatus::Reporting
-            });
+            let reporting = self
+                .state
+                .delegations
+                .get(&id)
+                .is_some_and(|tracked| tracked.delegation.status == DelegationStatus::Reporting);
             if reporting && !self.state.jobs().any(|job| job.report.as_ref() == Some(&id)) {
                 self.change(&id, |delegation, now| delegation.finish(None, now));
             }

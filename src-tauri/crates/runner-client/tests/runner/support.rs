@@ -48,7 +48,10 @@ pub fn request(prompt: &str) -> RunRequest {
             run_commands: false,
             skills: true,
         },
-        images: vec![ImagePayload { path: r"C:\data\attachments\c1\f3a1.png".into(), media_type: "image/png".to_owned() }],
+        images: vec![ImagePayload {
+            path: r"C:\data\attachments\c1\f3a1.png".into(),
+            media_type: "image/png".to_owned(),
+        }],
         skills: vec![SkillPayload {
             name: "review-checklist".to_owned(),
             description: "レビューのチェックリスト".to_owned(),

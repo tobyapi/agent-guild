@@ -7,9 +7,7 @@ export type JsonObject = Record<string, unknown>;
 
 /** 受信した1行の解釈結果 */
 export type ParsedLine =
-  | { kind: 'empty' }
-  | { kind: 'malformed'; reason: string }
-  | { kind: 'message'; value: JsonObject };
+  { kind: 'empty' } | { kind: 'malformed'; reason: string } | { kind: 'message'; value: JsonObject };
 
 /** 届いた文字列のかたまりを行に分ける。行の途中で切れたかたまりは次のかたまりとつなぐ */
 export class LineSplitter {

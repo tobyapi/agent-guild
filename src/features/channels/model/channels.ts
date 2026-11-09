@@ -11,7 +11,11 @@ export function resolveActiveChannel(channels: readonly Channel[], currentId: st
 }
 
 /** メンバーの区画（サイドバーと同じ先頭のタグの区分。メンバーのいない区分は出さない。エージェントは作成順） */
-export function memberGroups(channel: Channel, agents: readonly Agent[], templates: readonly AgentTemplate[]): TagGroup[] {
+export function memberGroups(
+  channel: Channel,
+  agents: readonly Agent[],
+  templates: readonly AgentTemplate[],
+): TagGroup[] {
   const members = agents.filter((agent) => agent.deletedAt === null && channel.memberIds.includes(agent.id));
   return groupByPrimaryTag(members, templates);
 }

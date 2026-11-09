@@ -4,7 +4,8 @@ import type { Agent, AgentInput, AgentTemplate } from '@/shared/types/domain';
 import { agentsApi } from './api';
 
 /** 作成はテンプレートを選んだ状態で始める（null は白紙）。headTag はサイドバーの区画の「＋」から来たとき先頭に入れるタグ */
-export type EditorTarget = { mode: 'create'; templateId: string | null; headTag: string | null } | { mode: 'edit'; agentId: string };
+export type EditorTarget =
+  { mode: 'create'; templateId: string | null; headTag: string | null } | { mode: 'edit'; agentId: string };
 
 interface AgentsStoreState {
   /** 削除済み（deletedAt あり）も含む。過去の発言の作者表示に使う */
@@ -22,7 +23,11 @@ function isEditable(editor: EditorTarget | null, agents: readonly Agent[]): bool
 
 /** スナップショットを反映する。編集中のエージェントが消えていたらダイアログを閉じる */
 export function applyAgentsSnapshot(agents: Agent[], templates: AgentTemplate[]): void {
-  useAgentsStore.setState((state) => ({ agents, templates, editor: isEditable(state.editor, agents) ? state.editor : null }));
+  useAgentsStore.setState((state) => ({
+    agents,
+    templates,
+    editor: isEditable(state.editor, agents) ? state.editor : null,
+  }));
 }
 
 export function openAgentCreator(templateId: string | null, headTag: string | null = null): void {

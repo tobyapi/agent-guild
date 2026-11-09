@@ -11,9 +11,17 @@ export interface BehaviorFieldsProps {
 
 /** メンションのない発言への振る舞い（docs/ui-design.md §6.3 の表。上の段に該当者がいれば下の段は答えない） */
 const UNMENTIONED_OPTIONS: ReadonlyArray<RadioOption<UnmentionedPolicy>> = [
-  { value: 'lead', label: '最初に受ける', description: 'メンションのない依頼は、まず自分が受けます。いるあいだ、ほかのメンバーは答えません。' },
+  {
+    value: 'lead',
+    label: '最初に受ける',
+    description: 'メンションのない依頼は、まず自分が受けます。いるあいだ、ほかのメンバーは答えません。',
+  },
   { value: 'answer', label: '答える', description: 'メンションがなくても答えます。' },
-  { value: 'fallback', label: '他にいなければ答える', description: '最初に受ける人も答える人もいないときだけ答えます。' },
+  {
+    value: 'fallback',
+    label: '他にいなければ答える',
+    description: '最初に受ける人も答える人もいないときだけ答えます。',
+  },
   { value: 'ignore', label: '答えない', description: '呼ばれたときと、割り振られたときだけ話します。' },
 ];
 

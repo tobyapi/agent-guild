@@ -56,9 +56,7 @@ fn accepts(spec: &OptionSpec, value: &Value) -> bool {
         OptionType::String => value.is_string(),
         OptionType::Number => value.is_number(),
         OptionType::Boolean => value.is_boolean(),
-        OptionType::Select => value
-            .as_str()
-            .is_some_and(|choice| spec.choices.iter().any(|c| c == choice)),
+        OptionType::Select => value.as_str().is_some_and(|choice| spec.choices.iter().any(|c| c == choice)),
     }
 }
 

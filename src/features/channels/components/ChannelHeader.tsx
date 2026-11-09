@@ -28,7 +28,12 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
         <IconButton label="チャンネルを編集" onClick={() => openChannelEditor(channel.id)}>
           <Icon name="edit" />
         </IconButton>
-        <IconButton label="メンバー" aria-pressed={membersOpen} aria-controls={MEMBER_PANEL_ID} onClick={toggleMemberPanel}>
+        <IconButton
+          label="メンバー"
+          aria-pressed={membersOpen}
+          aria-controls={MEMBER_PANEL_ID}
+          onClick={toggleMemberPanel}
+        >
           <Icon name="users" />
         </IconButton>
       </div>

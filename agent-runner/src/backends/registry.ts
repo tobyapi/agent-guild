@@ -9,12 +9,7 @@ import { grokAdapter } from './grok.ts';
 import { museAdapter } from './muse.ts';
 import { EMPTY_CATALOG, type BackendAdapter, type BackendProbe, type ModelCatalog } from './types.ts';
 
-const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
-  claudeAdapter,
-  codexAdapter,
-  grokAdapter,
-  museAdapter,
-];
+const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [claudeAdapter, codexAdapter, grokAdapter, museAdapter];
 
 export class BackendRegistry {
   readonly #adapters = new Map<string, BackendAdapter>();

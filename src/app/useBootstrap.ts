@@ -34,7 +34,11 @@ export function useBootstrap() {
 
   useEffect(() => {
     let active = true;
-    const sync = createSnapshotSync({ fetch: () => invoke('get_snapshot'), mark: currentActivityRevision, apply: applySnapshot });
+    const sync = createSnapshotSync({
+      fetch: () => invoke('get_snapshot'),
+      mark: currentActivityRevision,
+      apply: applySnapshot,
+    });
     const events = subscribeBackendEvents({
       'message-created': receiveMessage,
       'activity-changed': setActivity,

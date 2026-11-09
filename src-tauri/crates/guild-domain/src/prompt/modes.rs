@@ -17,10 +17,8 @@ pub(super) fn instruction(ctx: &PromptContext<'_>, job: &JobSpec, sources: &[Con
 }
 
 fn reply(ctx: &PromptContext<'_>, job: &JobSpec, sources: &[ConsultSource]) -> String {
-    let mut text = format!(
-        "# あなたの番です\n上の「あなた宛ての未対応の発言」に、{} として返答してください。",
-        ctx.agent.name
-    );
+    let mut text =
+        format!("# あなたの番です\n上の「あなた宛ての未対応の発言」に、{} として返答してください。", ctx.agent.name);
     if job.return_to.is_empty() {
         return text;
     }

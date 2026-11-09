@@ -15,7 +15,12 @@ export const isUnsettled = (subtask: Subtask) => subtask.status === 'pending' ||
 /** まだ決着していない割り振り（打ち切りの対象） */
 export const isOpen = (delegation: Delegation) => delegation.status === 'running' || delegation.status === 'reporting';
 
-function updateSubtask(delegation: Delegation, subtaskId: string, change: (subtask: Subtask) => Subtask, now: number): Delegation {
+function updateSubtask(
+  delegation: Delegation,
+  subtaskId: string,
+  change: (subtask: Subtask) => Subtask,
+  now: number,
+): Delegation {
   return {
     ...delegation,
     subtasks: delegation.subtasks.map((subtask) => (subtask.id === subtaskId ? change(subtask) : subtask)),
@@ -25,12 +30,27 @@ function updateSubtask(delegation: Delegation, subtaskId: string, change: (subta
 
 /** ジョブの実行が始まった: pending → running */
 export function startSubtask(delegation: Delegation, subtaskId: string, now: number): Delegation {
-  return updateSubtask(delegation, subtaskId, (subtask) => (subtask.status === 'pending' ? { ...subtask, status: 'running' } : subtask), now);
+  return updateSubtask(
+    delegation,
+    subtaskId,
+    (subtask) => (subtask.status === 'pending' ? { ...subtask, status: 'running' } : subtask),
+    now,
+  );
 }
 
 /** サブタスクの決着（決着済みなら変えない） */
-export function settleSubtask(delegation: Delegation, subtaskId: string, result: SubtaskResult, now: number): Delegation {
-  return updateSubtask(delegation, subtaskId, (subtask) => (isUnsettled(subtask) ? { ...subtask, ...result } : subtask), now);
+export function settleSubtask(
+  delegation: Delegation,
+  subtaskId: string,
+  result: SubtaskResult,
+  now: number,
+): Delegation {
+  return updateSubtask(
+    delegation,
+    subtaskId,
+    (subtask) => (isUnsettled(subtask) ? { ...subtask, ...result } : subtask),
+    now,
+  );
 }
 
 /** すべてのサブタスクが決着したか（待ち合わせ） */
@@ -43,7 +63,9 @@ export function cancelDelegation(delegation: Delegation, note: string, now: numb
   return {
     ...delegation,
     status: 'cancelled',
-    subtasks: delegation.subtasks.map((subtask) => (isUnsettled(subtask) ? { ...subtask, status: 'cancelled', note } : subtask)),
+    subtasks: delegation.subtasks.map((subtask) =>
+      isUnsettled(subtask) ? { ...subtask, status: 'cancelled', note } : subtask,
+    ),
     updatedAt: now,
   };
 }
@@ -60,7 +82,11 @@ const STATUS_TEXT: Readonly<Record<SubtaskStatus, string>> = {
  * まとめのジョブに渡すサブタスクごとの行（担当者・指示・状態・結果か理由）。
  * resultOf はサブタスクの結果の発言の本文（なければ null）
  */
-export function reportLines(delegation: Delegation, nameOf: (agentId: string) => string, resultOf: (subtask: Subtask) => string | null): string[] {
+export function reportLines(
+  delegation: Delegation,
+  nameOf: (agentId: string) => string,
+  resultOf: (subtask: Subtask) => string | null,
+): string[] {
   return delegation.subtasks.map((subtask) => {
     const result = resultOf(subtask)?.slice(0, REPORT_RESULT_MAX) ?? subtask.note ?? '';
     return `${nameOf(subtask.assigneeId)}｜${subtask.instruction}｜${STATUS_TEXT[subtask.status]}｜${result}`;

@@ -21,10 +21,7 @@ pub fn is_autonomy_due(agent: &Agent, now_ms: i64, app_started_at: i64) -> bool 
 
 /// エージェント ID から決まる 0〜59 秒の揺らぎ（同じ間隔のエージェントが一斉に動かないように）
 pub fn jitter_ms(id: &AgentId) -> i64 {
-    let hash = id
-        .as_str()
-        .bytes()
-        .fold(0_u32, |hash, byte| hash.wrapping_mul(31).wrapping_add(u32::from(byte)));
+    let hash = id.as_str().bytes().fold(0_u32, |hash, byte| hash.wrapping_mul(31).wrapping_add(u32::from(byte)));
     i64::from(hash % JITTER_SECONDS) * 1000
 }
 

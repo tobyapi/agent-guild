@@ -44,7 +44,8 @@ export function useChannelForm(channel: Channel | null) {
     try {
       await persist(channel, draft);
     } catch (error) {
-      if (errorCode(error) === 'validation') setServerError({ field: channelErrorField(errorField(error)), message: errorMessage(error) });
+      if (errorCode(error) === 'validation')
+        setServerError({ field: channelErrorField(errorField(error)), message: errorMessage(error) });
       else reportError(error);
     } finally {
       setSaving(false);

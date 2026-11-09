@@ -36,7 +36,10 @@ function addAction(group: TagGroup, fallbackTemplateId: string | null): { run: (
   const { template } = group;
   if (template) return { run: () => openAgentCreator(template.id), label: `${template.label}を作成` };
   if (group.key === null) return undefined;
-  return { run: () => openAgentCreator(fallbackTemplateId, group.label), label: `タグ「${group.label}」のエージェントを作成` };
+  return {
+    run: () => openAgentCreator(fallbackTemplateId, group.label),
+    label: `タグ「${group.label}」のエージェントを作成`,
+  };
 }
 
 function AgentSection({ group, fallbackTemplateId }: { group: TagGroup; fallbackTemplateId: string | null }) {
@@ -64,7 +67,9 @@ function AgentRow({ agent }: { agent: Agent }) {
   return (
     <li>
       <SideRow
-        leading={<Avatar avatar={agent.avatar} name={agent.name} color={agent.color} size="sm" busy={activity !== undefined} />}
+        leading={
+          <Avatar avatar={agent.avatar} name={agent.name} color={agent.color} size="sm" busy={activity !== undefined} />
+        }
         label={
           <>
             {agent.name}

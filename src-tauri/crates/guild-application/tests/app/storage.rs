@@ -26,7 +26,10 @@ async fn copy_exports_writes_settings_and_restarts() {
     let app = TestApp::new();
     app.services.storage.change_data_dir(TARGET, DataDirMode::Copy).await.unwrap();
     assert_eq!(*app.exporter.exported.lock(), vec![PathBuf::from(TARGET)]);
-    assert_eq!(*app.settings.saved.lock(), vec![LaunchSettings { data_dir: Some(PathBuf::from(TARGET)), ..LaunchSettings::default() }]);
+    assert_eq!(
+        *app.settings.saved.lock(),
+        vec![LaunchSettings { data_dir: Some(PathBuf::from(TARGET)), ..LaunchSettings::default() }]
+    );
     assert_eq!(restarts(&app), 1);
 }
 

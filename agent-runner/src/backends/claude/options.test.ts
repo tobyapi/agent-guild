@@ -4,13 +4,32 @@ import type { RunRequest } from '../types.ts';
 import { claudeOptions, toolsFor, type ClaudeRun } from './options.ts';
 import { POST_TOOL } from './post.ts';
 
-const WORKER: Permissions = { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: false, runCommands: false, skills: true };
+const WORKER: Permissions = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: true,
+  writeAnywhere: false,
+  runCommands: false,
+  skills: true,
+};
 const EXPERT: Permissions = { ...WORKER, writeFiles: false };
 
 const request = (permissions: Permissions, options: Record<string, unknown> = {}, model = ''): RunRequest => ({
-  type: 'run', id: 'j1', backend: 'claude', workspace: '/data/a1/work', stateDir: '/data/a1/state/claude',
-  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはハルです', prompt: 'こんにちは', intent: '', model, permissions,
-  skills: [], images: [], options,
+  type: 'run',
+  id: 'j1',
+  backend: 'claude',
+  workspace: '/data/a1/work',
+  stateDir: '/data/a1/state/claude',
+  readableDirs: ['/data/a0/work'],
+  systemPrompt: 'あなたはハルです',
+  prompt: 'こんにちは',
+  intent: '',
+  model,
+  permissions,
+  skills: [],
+  images: [],
+  options,
 });
 
 const run = (pluginDir: string | null = null): ClaudeRun => ({

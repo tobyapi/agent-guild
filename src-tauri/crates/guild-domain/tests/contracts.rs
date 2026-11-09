@@ -25,8 +25,8 @@ fn fixture(name: &str) -> Value {
 
 fn assert_round_trip<T: DeserializeOwned + Serialize>(name: &str) {
     let original = fixture(name);
-    let typed: T = serde_json::from_value(original.clone())
-        .unwrap_or_else(|e| panic!("{name} を型に読み込めません: {e}"));
+    let typed: T =
+        serde_json::from_value(original.clone()).unwrap_or_else(|e| panic!("{name} を型に読み込めません: {e}"));
     let written = serde_json::to_value(&typed).unwrap_or_else(|e| panic!("{name} を書き戻せません: {e}"));
     assert_eq!(written, original, "{name} の書き戻しが元と一致しません");
 }
@@ -93,5 +93,9 @@ fn command_error() {
 #[test]
 fn templates_in_the_snapshot_match_the_template_table() {
     let snapshot: Snapshot = serde_json::from_value(fixture("snapshot.json")).expect("Snapshot");
-    assert_eq!(snapshot.templates, templates(), "フィクスチャの templates は guild-domain のテンプレート表と完全に一致すること");
+    assert_eq!(
+        snapshot.templates,
+        templates(),
+        "フィクスチャの templates は guild-domain のテンプレート表と完全に一致すること"
+    );
 }

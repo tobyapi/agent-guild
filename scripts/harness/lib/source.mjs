@@ -105,7 +105,8 @@ function importedStream(node) {
   if (!ts.isImportDeclaration(node) || !ts.isStringLiteral(node.moduleSpecifier)) return null;
   if (!['process', 'node:process'].includes(node.moduleSpecifier.text)) return null;
   const bindings = node.importClause?.namedBindings;
-  const names = bindings && ts.isNamedImports(bindings) ? bindings.elements.map((e) => (e.propertyName ?? e.name).text) : [];
+  const names =
+    bindings && ts.isNamedImports(bindings) ? bindings.elements.map((e) => (e.propertyName ?? e.name).text) : [];
   const stream = names.find((name) => STDIO_STREAMS.has(name));
   return stream ? `process.${stream}` : null;
 }

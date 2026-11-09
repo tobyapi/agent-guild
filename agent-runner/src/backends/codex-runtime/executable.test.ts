@@ -20,7 +20,11 @@ function tree(files: readonly string[]): string {
 
 const none = (): null => null;
 const VENDOR = 'npm/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc';
-const NPM_PACKAGES = ['npm/codex.cmd', 'npm/node_modules/@openai/codex/package.json', 'npm/node_modules/@openai/codex-win32-x64/package.json'];
+const NPM_PACKAGES = [
+  'npm/codex.cmd',
+  'npm/node_modules/@openai/codex/package.json',
+  'npm/node_modules/@openai/codex-win32-x64/package.json',
+];
 
 describe('使う Codex CLI を探す', () => {
   it('PATH の codex.exe はそのまま、指定があればそれを使い、なければ見つからない', () => {
@@ -35,8 +39,15 @@ describe('使う Codex CLI を探す', () => {
   });
 
   it('Windows の npm の codex.cmd なら、パッケージの中の codex.exe と、PATH に足す ripgrep のフォルダ', () => {
-    const root = tree([...NPM_PACKAGES, `${VENDOR}/bin/codex.exe`, `${VENDOR}/codex-package.json`, `${VENDOR}/codex-path/`]);
-    expect(findCodex({ env: { PATH: join(root, 'npm') }, platform: 'win32', arch: 'x64', home: root, bundled: none })).toEqual({
+    const root = tree([
+      ...NPM_PACKAGES,
+      `${VENDOR}/bin/codex.exe`,
+      `${VENDOR}/codex-package.json`,
+      `${VENDOR}/codex-path/`,
+    ]);
+    expect(
+      findCodex({ env: { PATH: join(root, 'npm') }, platform: 'win32', arch: 'x64', home: root, bundled: none }),
+    ).toEqual({
       path: join(root, VENDOR, 'bin', 'codex.exe'),
       pathDirs: [join(root, VENDOR, 'codex-path')],
     });
@@ -44,7 +55,9 @@ describe('使う Codex CLI を探す', () => {
 
   it('古い並び（vendor/<triple>/codex/codex.exe と path）にも対応する', () => {
     const root = tree([...NPM_PACKAGES, `${VENDOR}/codex/codex.exe`, `${VENDOR}/path/`]);
-    expect(findCodex({ env: { PATH: join(root, 'npm') }, platform: 'win32', arch: 'x64', home: root, bundled: none })).toEqual({
+    expect(
+      findCodex({ env: { PATH: join(root, 'npm') }, platform: 'win32', arch: 'x64', home: root, bundled: none }),
+    ).toEqual({
       path: join(root, VENDOR, 'codex', 'codex.exe'),
       pathDirs: [join(root, VENDOR, 'path')],
     });
@@ -53,9 +66,15 @@ describe('使う Codex CLI を探す', () => {
   it('macOS は拡張子のない codex を PATH とよく入れる場所で探し、どこにもなければ SDK の同梱', () => {
     const root = tree(['bin/codex', 'home/.local/bin/codex']);
     const home = join(root, 'home');
-    expect(findCodex({ env: { PATH: join(root, 'bin') }, platform: 'darwin', arch: 'arm64', home, bundled: none })?.path).toBe(join(root, 'bin', 'codex'));
-    expect(findCodex({ env: {}, platform: 'darwin', arch: 'arm64', home, bundled: none })?.path).toBe(join(home, '.local', 'bin', 'codex'));
+    expect(
+      findCodex({ env: { PATH: join(root, 'bin') }, platform: 'darwin', arch: 'arm64', home, bundled: none })?.path,
+    ).toBe(join(root, 'bin', 'codex'));
+    expect(findCodex({ env: {}, platform: 'darwin', arch: 'arm64', home, bundled: none })?.path).toBe(
+      join(home, '.local', 'bin', 'codex'),
+    );
     const sdk = { path: 'SDK', pathDirs: [] };
-    expect(findCodex({ env: {}, platform: 'darwin', arch: 'arm64', home: join(root, 'nowhere'), bundled: () => sdk })).toBe(sdk);
+    expect(
+      findCodex({ env: {}, platform: 'darwin', arch: 'arm64', home: join(root, 'nowhere'), bundled: () => sdk }),
+    ).toBe(sdk);
   });
 });

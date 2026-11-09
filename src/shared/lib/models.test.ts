@@ -2,14 +2,28 @@ import { describe, expect, it } from 'vitest';
 import type { BackendInfo, ModelSpec } from '@/shared/types/domain';
 import { checkEffort, effortFrom, modelSpecOf, withEffort } from './models';
 
-const model = (id: string, efforts: string[]): ModelSpec => ({ id, label: `${id}の名前`, description: '', efforts, defaultEffort: null });
+const model = (id: string, efforts: string[]): ModelSpec => ({
+  id,
+  label: `${id}の名前`,
+  description: '',
+  efforts,
+  defaultEffort: null,
+});
 
 const backend: BackendInfo = {
   id: 'claude',
   label: 'Claude',
   models: [model('opus', ['low', 'max']), model('haiku', [])],
   defaultModel: 'opus',
-  capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
+  capabilities: {
+    webSearch: true,
+    webFetch: true,
+    readFiles: true,
+    writeFiles: true,
+    writeAnywhere: true,
+    runCommands: true,
+    skills: true,
+  },
   status: 'ready',
   statusMessage: '',
   options: [],

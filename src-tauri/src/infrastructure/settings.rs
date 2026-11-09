@@ -67,9 +67,7 @@ impl SettingsStore for SettingsFile {
         let mut object = self.read().map_err(AppError::Storage)?;
         let version = object.get("version").and_then(Value::as_u64).unwrap_or(VERSION);
         if version > VERSION {
-            return Err(AppError::Storage(
-                "新しい版のアプリの設定ファイルなので、書き換えません".to_owned(),
-            ));
+            return Err(AppError::Storage("新しい版のアプリの設定ファイルなので、書き換えません".to_owned()));
         }
         object.insert("version".to_owned(), Value::from(VERSION));
         let data_dir = settings.data_dir.as_ref().map(|dir| Value::String(dir.display().to_string()));

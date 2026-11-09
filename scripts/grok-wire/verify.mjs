@@ -26,11 +26,16 @@ for (const { url, body } of requests) {
   assert.ok(body.include.includes('reasoning.encrypted_content'));
 }
 const input = requests[1].body.input;
-assert.ok(input.some(i => i.type === 'reasoning' && i.encrypted_content === 'local-ciphertext'));
-assert.ok(input.some(i => i.type === 'function_call' && i.call_id === 'call_test'));
-assert.ok(input.some(i => i.type === 'function_call_output' && i.call_id === 'call_test' && typeof i.output === 'string'));
-const events = (await readFile(resolve(root, 'cli-events.jsonl'), 'utf8')).trim().split(/\r?\n/).map(line => JSON.parse(line));
-assert.ok(events.some(e => e.type === 'turn.completed'));
-assert.ok(events.some(e => e.item?.type === 'agent_message' && e.item.text === 'local test complete'));
-assert.ok(!events.some(e => e.type === 'turn.failed'));
+assert.ok(input.some((i) => i.type === 'reasoning' && i.encrypted_content === 'local-ciphertext'));
+assert.ok(input.some((i) => i.type === 'function_call' && i.call_id === 'call_test'));
+assert.ok(
+  input.some((i) => i.type === 'function_call_output' && i.call_id === 'call_test' && typeof i.output === 'string'),
+);
+const events = (await readFile(resolve(root, 'cli-events.jsonl'), 'utf8'))
+  .trim()
+  .split(/\r?\n/)
+  .map((line) => JSON.parse(line));
+assert.ok(events.some((e) => e.type === 'turn.completed'));
+assert.ok(events.some((e) => e.item?.type === 'agent_message' && e.item.text === 'local test complete'));
+assert.ok(!events.some((e) => e.type === 'turn.failed'));
 console.log('Local CLI wire assertions passed (not an upstream API compatibility test).');

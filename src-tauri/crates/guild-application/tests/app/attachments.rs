@@ -36,7 +36,11 @@ async fn files_are_passed_by_path_with_read_access_and_can_be_revealed() {
     let app = TestApp::new();
     let haru = app.agent("worker", "ハル");
     let lobby = app.channel("ロビー", &[&haru]);
-    let pdf = NewAttachment { name: "仕様.pdf".to_owned(), media_type: "application/pdf".to_owned(), bytes: vec![37, 80, 68, 70] };
+    let pdf = NewAttachment {
+        name: "仕様.pdf".to_owned(),
+        media_type: "application/pdf".to_owned(),
+        bytes: vec![37, 80, 68, 70],
+    };
     let sent = app.services.conversation.send_human_message(&lobby.id, "読んで", &[pdf, png("a.png")]).unwrap();
     app.settle().await;
     let file = sent.attachments[0].clone();

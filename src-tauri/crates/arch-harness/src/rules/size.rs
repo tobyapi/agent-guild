@@ -1,4 +1,4 @@
-//! 1ファイルの空行を除いた行数は 150 行未満。対象は src-tauri/src と crates/*/src・crates/*/tests の
+//! 1ファイルの空行を除いた行数は 200 行未満。対象は src-tauri/src と crates/*/src・crates/*/tests の
 //! .rs / .ts / .tsx / .css / .mjs（テスト用の偽ランナーなども含む）。
 
 use std::path::Path;
@@ -6,8 +6,8 @@ use std::path::Path;
 use crate::files;
 use crate::report::Violation;
 
-/// 空行を除いた行数がこの値に達したら違反（= 149 行まで）
-pub const LINE_LIMIT: usize = 150;
+/// 空行を除いた行数がこの値に達したら違反（= 199 行まで）
+pub const LINE_LIMIT: usize = 200;
 const EXTENSIONS: [&str; 5] = [".rs", ".ts", ".tsx", ".css", ".mjs"];
 
 pub fn check(root: &Path) -> Vec<Violation> {
@@ -20,7 +20,8 @@ pub fn check(root: &Path) -> Vec<Violation> {
         .iter()
         .filter_map(|file| {
             let (count, overflow_line) = count_lines(&file.text);
-            let advice = format!("空行を除いて {count} 行（上限 {} 行）。責務ごとにモジュールを分割する", LINE_LIMIT - 1);
+            let advice =
+                format!("空行を除いて {count} 行（上限 {} 行）。責務ごとにモジュールを分割する", LINE_LIMIT - 1);
             overflow_line.map(|line| Violation::new(&file.path, line, "max-lines", advice))
         })
         .collect()

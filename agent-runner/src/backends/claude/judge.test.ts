@@ -9,11 +9,17 @@ describe('parseVerdict', () => {
   it('最初の ALLOW / DENY を読み、DENY なら理由を取る', () => {
     expect(parseVerdict('ALLOW')).toEqual({ allow: true, reason: '' });
     expect(parseVerdict('DENY: 依頼にない送り先です')).toEqual({ allow: false, reason: '依頼にない送り先です' });
-    expect(parseVerdict('判定: DENY：秘密を送ろうとしています')).toEqual({ allow: false, reason: '秘密を送ろうとしています' });
+    expect(parseVerdict('判定: DENY：秘密を送ろうとしています')).toEqual({
+      allow: false,
+      reason: '秘密を送ろうとしています',
+    });
   });
 
   it('どちらもなければ止める', () => {
-    expect(parseVerdict('たぶん大丈夫です')).toEqual({ allow: false, reason: '判定の返事を読めませんでした（たぶん大丈夫です）' });
+    expect(parseVerdict('たぶん大丈夫です')).toEqual({
+      allow: false,
+      reason: '判定の返事を読めませんでした（たぶん大丈夫です）',
+    });
   });
 });
 

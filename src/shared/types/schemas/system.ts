@@ -22,7 +22,14 @@ import type {
 } from '../domain';
 import { anyOf, arrayOf, boolean, nullable, number, objectOf, oneOf, string } from '../schema';
 import type { Schema } from '../schema';
-import { agentSchema, agentTemplateSchema, channelSchema, permissionKey, permissionsSchema, profileSchema } from './entities';
+import {
+  agentSchema,
+  agentTemplateSchema,
+  channelSchema,
+  permissionKey,
+  permissionsSchema,
+  profileSchema,
+} from './entities';
 
 export const optionSpecSchema = {
   key: string,
@@ -33,7 +40,10 @@ export const optionSpecSchema = {
   default: nullable(anyOf(string, number, boolean)),
 } satisfies Schema<OptionSpec>;
 
-export const permissionRuleSchema = { when: permissionKey, requires: arrayOf(permissionKey) } satisfies Schema<PermissionRule>;
+export const permissionRuleSchema = {
+  when: permissionKey,
+  requires: arrayOf(permissionKey),
+} satisfies Schema<PermissionRule>;
 
 export const modelSpecSchema = {
   id: string,
@@ -63,9 +73,17 @@ export const runtimeStatusSchema = {
   message: string,
 } satisfies Schema<RuntimeStatus>;
 
-export const agentActivitySchema = { agentId: string, channelId: string, detail: string } satisfies Schema<AgentActivity>;
+export const agentActivitySchema = {
+  agentId: string,
+  channelId: string,
+  detail: string,
+} satisfies Schema<AgentActivity>;
 
-export const channelQueueSchema = { channelId: string, running: number, pending: number } satisfies Schema<ChannelQueue>;
+export const channelQueueSchema = {
+  channelId: string,
+  running: number,
+  pending: number,
+} satisfies Schema<ChannelQueue>;
 
 export const activityStateSchema = {
   activities: arrayOf(objectOf(agentActivitySchema)),

@@ -55,7 +55,8 @@ describe('React の import 境界', () => {
   it('@tauri-apps/* は shared/api だけ、@/shared/api は features/*/api.ts と app/ だけ（テストは可）', () => {
     const root = makeProject({
       ...FEATURES,
-      'src/features/chat/components/Send.tsx': "import { invoke } from '@/shared/api';\nimport { open } from '@tauri-apps/plugin-dialog';",
+      'src/features/chat/components/Send.tsx':
+        "import { invoke } from '@/shared/api';\nimport { open } from '@tauri-apps/plugin-dialog';",
       'src/shared/ui/Thing.tsx': "import { invoke } from '../api';",
       'src/features/chat/store.test.ts': "import { createMock } from '@/shared/api/mock/runtime';",
     });

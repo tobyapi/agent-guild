@@ -5,11 +5,7 @@ use crate::backend::MidRunPost;
 
 pub(super) fn section(ctx: &PromptContext<'_>) -> String {
     let topic = ctx.channel.topic.trim();
-    let topic = if topic.is_empty() {
-        String::new()
-    } else {
-        format!("\nチャンネルの話題: {topic}")
-    };
+    let topic = if topic.is_empty() { String::new() } else { format!("\nチャンネルの話題: {topic}") };
     format!(
         "## 場所
 あなたは「AIギルド」というチャットアプリのチャンネル #{channel} にいます。{topic}
@@ -39,11 +35,8 @@ pub(super) fn section(ctx: &PromptContext<'_>) -> String {
 
 /// 作業中の投稿のルールと投稿のしかた。バックエンドが作業の途中で投稿できないなら空（守れないルールは書かない）
 fn posting(ctx: &PromptContext<'_>) -> String {
-    let method = ctx
-        .backends
-        .iter()
-        .find(|backend| backend.id == ctx.agent.backend)
-        .and_then(|backend| backend.mid_run_post);
+    let method =
+        ctx.backends.iter().find(|backend| backend.id == ctx.agent.backend).and_then(|backend| backend.mid_run_post);
     let how = match method {
         Some(MidRunPost::Tool) => "途中で投稿するには post ツールを使ってください。投稿しても作業は続きます。",
         Some(MidRunPost::Text) => {

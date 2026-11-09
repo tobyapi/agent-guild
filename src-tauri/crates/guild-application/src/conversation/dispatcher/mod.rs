@@ -30,19 +30,44 @@ const STOP_WAIT: Duration = Duration::from_secs(30);
 
 pub(super) enum Command {
     /// 振り分けの結果を反映する（参加・お知らせ・ジョブ）
-    Dispatch { routing: Routing, origin: Origin },
+    Dispatch {
+        routing: Routing,
+        origin: Origin,
+    },
     Enqueue(Vec<JobSpec>),
     /// そのエージェントがどこかで待機・実行中なら積まない
-    EnqueueAutonomous { job: JobSpec, reply: oneshot::Sender<bool> },
-    Activity { job_id: String, detail: String },
+    EnqueueAutonomous {
+        job: JobSpec,
+        reply: oneshot::Sender<bool>,
+    },
+    Activity {
+        job_id: String,
+        detail: String,
+    },
     /// 作業の途中の投稿（振り分けはしない）
-    Post { job_id: String, text: String },
-    Finished { job_id: String, outcome: RunOutcome },
+    Post {
+        job_id: String,
+        text: String,
+    },
+    Finished {
+        job_id: String,
+        outcome: RunOutcome,
+    },
     /// announce = 終端を待ってから「停止しました」を出す
-    Stop { channel: ChannelId, announce: bool, done: oneshot::Sender<()> },
-    StopAll { done: oneshot::Sender<()> },
+    Stop {
+        channel: ChannelId,
+        announce: bool,
+        done: oneshot::Sender<()>,
+    },
+    StopAll {
+        done: oneshot::Sender<()>,
+    },
     /// channel が None なら全チャンネルから（エージェントの削除）
-    RemoveAgent { agent: AgentId, channel: Option<ChannelId>, done: oneshot::Sender<()> },
+    RemoveAgent {
+        agent: AgentId,
+        channel: Option<ChannelId>,
+        done: oneshot::Sender<()>,
+    },
 }
 
 /// アクターへの入口

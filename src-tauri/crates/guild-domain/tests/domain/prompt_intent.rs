@@ -64,10 +64,12 @@ fn without_a_human_request_it_says_so() {
 
 #[test]
 fn keeps_only_the_latest_human_messages() {
-    let history: Vec<Message> =
-        (1..=8).map(|seq| in_conversation(seq, Author::Human, &format!("依頼{seq}"))).collect();
+    let history: Vec<Message> = (1..=8).map(|seq| in_conversation(seq, Author::Human, &format!("依頼{seq}"))).collect();
     let job = JobSpec::respond(AgentId::new("haru"), &history[7], JobMode::Reply, Vec::new());
     let text = intent(&history, &job);
     let first_kept = 8 - INTENT_MESSAGE_LIMIT as i64 + 1;
-    assert!(!text.contains(&format!("依頼{}", first_kept - 1)) && text.contains(&format!("依頼{first_kept}")), "{text}");
+    assert!(
+        !text.contains(&format!("依頼{}", first_kept - 1)) && text.contains(&format!("依頼{first_kept}")),
+        "{text}"
+    );
 }

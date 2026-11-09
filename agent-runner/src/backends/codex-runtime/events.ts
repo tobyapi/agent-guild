@@ -6,7 +6,8 @@ import { activity } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
 
 /** Windows で CLI のパスが MAX_PATH（260 文字）を超えると、存在していても spawn が ENOENT になる */
-const LONG_PATH_HINT = 'Windows ではパスが 260 文字を超えると Codex CLI を起動できません。プロジェクトを短いパスに置いてください。';
+const LONG_PATH_HINT =
+  'Windows ではパスが 260 文字を超えると Codex CLI を起動できません。プロジェクトを短いパスに置いてください。';
 
 type ItemPhase = Extract<ThreadEvent, { item: ThreadItem }>['type'];
 

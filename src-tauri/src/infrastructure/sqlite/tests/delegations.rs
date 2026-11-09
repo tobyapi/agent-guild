@@ -10,7 +10,13 @@ use super::memory;
 use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteDelegationRepository};
 
 fn channel(id: &str) -> Channel {
-    Channel { id: ChannelId::new(id), name: id.to_owned(), topic: String::new(), member_ids: vec![MemberId::Human], created_at: 1 }
+    Channel {
+        id: ChannelId::new(id),
+        name: id.to_owned(),
+        topic: String::new(),
+        member_ids: vec![MemberId::Human],
+        created_at: 1,
+    }
 }
 
 fn delegation(id: &str, channel: &str, created_at: i64) -> Delegation {
@@ -67,7 +73,8 @@ fn listing_returns_the_newest_in_creation_order_and_unfinished_ones_are_cancelle
     let mut finished = delegation("d4", "c2", 40);
     finished.cancel(41);
     repository.insert(&finished).unwrap();
-    let listed: Vec<String> = repository.list(&ChannelId::new("c1"), 2).unwrap().iter().map(|d| d.id.to_string()).collect();
+    let listed: Vec<String> =
+        repository.list(&ChannelId::new("c1"), 2).unwrap().iter().map(|d| d.id.to_string()).collect();
     assert_eq!(listed, ["d2", "d3"], "新しい方から2件を、作成順に");
 
     assert_eq!(repository.cancel_unfinished(99).unwrap(), 3, "終わっていない3件だけ");

@@ -22,7 +22,13 @@ export function SubtaskRow({ subtask, assignee }: { subtask: Subtask; assignee: 
   return (
     <li className={styles.row} data-status={subtask.status}>
       <span className={styles.mark}>{STATUS_MARKS[subtask.status]}</span>
-      <Avatar avatar={assignee.avatar} name={assignee.name} color={assignee.color} size="xs" deleted={assignee.deleted} />
+      <Avatar
+        avatar={assignee.avatar}
+        name={assignee.name}
+        color={assignee.color}
+        size="xs"
+        deleted={assignee.deleted}
+      />
       <span className={styles.name}>{assignee.name}</span>
       <span className={styles.state}>
         <b className={styles.word}>{SUBTASK_STATUS_TEXT[subtask.status]}</b>

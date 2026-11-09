@@ -15,7 +15,9 @@ describe('tagAccent / agentAccent', () => {
   it('accent が null のテンプレートや、先頭以外のタグの一致は中立', () => {
     const base = TEMPLATES[0];
     if (!base) throw new Error('テンプレートがありません');
-    const neutral: AgentTemplate[] = [{ ...base, accent: null, defaults: { ...base.defaults, tags: ['Draft', '作業者'] } }];
+    const neutral: AgentTemplate[] = [
+      { ...base, accent: null, defaults: { ...base.defaults, tags: ['Draft', '作業者'] } },
+    ];
     expect(tagAccent(neutral, 'draft')).toBeNull();
     expect(tagAccent(neutral, '作業者')).toBeNull();
   });
@@ -54,7 +56,13 @@ describe('groupByPrimaryTag', () => {
   });
 
   it('テンプレートの区分は「＋」で作るテンプレートを持ち、ほかのタグとタグなしは持たない', () => {
-    expect(groupByPrimaryTag(agents, TEMPLATES).map((group) => group.template?.id ?? null)).toEqual(['expert', null, null, null, null]);
+    expect(groupByPrimaryTag(agents, TEMPLATES).map((group) => group.template?.id ?? null)).toEqual([
+      'expert',
+      null,
+      null,
+      null,
+      null,
+    ]);
     expect(groupByPrimaryTag([], TEMPLATES)).toEqual([]);
   });
 });

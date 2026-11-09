@@ -28,7 +28,8 @@ fn task(assignee: &str, instruction: &str) -> PlannedTask {
 
 #[test]
 fn reads_each_line_with_half_and_full_width_marks() {
-    let content = "2つに分けます。\n\n```tasks\n@ハル: 競合アプリを3つ調べて\n＠ｓｏｒａ：試作を作って\n```\nよろしく。";
+    let content =
+        "2つに分けます。\n\n```tasks\n@ハル: 競合アプリを3つ調べて\n＠ｓｏｒａ：試作を作って\n```\nよろしく。";
     let plan = plan(content).expect("tasks ブロックがある");
     assert_eq!(plan.tasks, vec![task("haru", "競合アプリを3つ調べて"), task("sora", "試作を作って")]);
     assert!(plan.unassignable.is_empty() && plan.overflow.is_empty());
@@ -43,7 +44,8 @@ fn continuation_lines_and_repeated_assignees_join_with_newlines() {
 
 #[test]
 fn prefers_the_longest_matching_name() {
-    let plan = plan("```tasks\n@ハルカ: 下書きを読んで\n@ハル 区切りが空白でもよい\n```").expect("tasks ブロックがある");
+    let plan =
+        plan("```tasks\n@ハルカ: 下書きを読んで\n@ハル 区切りが空白でもよい\n```").expect("tasks ブロックがある");
     assert_eq!(plan.tasks, vec![task("haruka", "下書きを読んで"), task("haru", "区切りが空白でもよい")]);
 }
 

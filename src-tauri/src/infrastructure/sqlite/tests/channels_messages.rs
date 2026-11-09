@@ -96,7 +96,8 @@ fn messages_of_conversations_are_the_latest_within_the_limit() {
     let a2 = repository.insert(in_root("a2", "a1")).unwrap();
     let a3 = repository.insert(in_root("a3", "a1")).unwrap();
     let channel = ChannelId::new("c1");
-    let list = |roots: &[MessageId], limit| repository.list_in_conversations(&channel, roots, MessageFilter::All, limit);
+    let list =
+        |roots: &[MessageId], limit| repository.list_in_conversations(&channel, roots, MessageFilter::All, limit);
     assert_eq!(list(&[MessageId::new("a1")], 2).unwrap(), vec![a2.clone(), a3.clone()]);
     assert_eq!(list(&[MessageId::new("a1"), MessageId::new("b1")], 10).unwrap(), vec![a1, b1, a2, a3]);
     assert!(list(&[], 10).unwrap().is_empty());

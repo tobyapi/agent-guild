@@ -31,7 +31,11 @@ describe('サブタスクの移り変わり', () => {
   it('すべてが pending / running でなくなったら待ち合わせが終わる', () => {
     const one = settleSubtask(delegation, 's1', { status: 'done', resultMessageId: 'r1', note: null }, 1);
     expect(allSettled(one)).toBe(false);
-    expect(allSettled(settleSubtask(one, 's2', { status: 'failed', resultMessageId: null, note: '回答がありませんでした' }, 2))).toBe(true);
+    expect(
+      allSettled(
+        settleSubtask(one, 's2', { status: 'failed', resultMessageId: null, note: '回答がありませんでした' }, 2),
+      ),
+    ).toBe(true);
   });
 
   it('打ち切りでは未決着のサブタスクだけを理由つきで cancelled にする', () => {
@@ -56,9 +60,12 @@ describe('reportLines', () => {
       2,
     );
     const names: Record<string, string> = { hal: 'ハル', sora: 'ソラ' };
-    expect(reportLines(settled, (id) => names[id] ?? id, (subtask) => (subtask.resultMessageId ? '表にしました' : null))).toEqual([
-      'ハル｜調べて｜完了｜表にしました',
-      'ソラ｜作って｜失敗｜回答がありませんでした',
-    ]);
+    expect(
+      reportLines(
+        settled,
+        (id) => names[id] ?? id,
+        (subtask) => (subtask.resultMessageId ? '表にしました' : null),
+      ),
+    ).toEqual(['ハル｜調べて｜完了｜表にしました', 'ソラ｜作って｜失敗｜回答がありませんでした']);
   });
 });

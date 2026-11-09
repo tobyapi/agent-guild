@@ -53,7 +53,10 @@ function isSkipped(entry: Dirent, relativeDir: string): boolean {
 async function assertDirectory(sourceDir: string, skillName: string): Promise<void> {
   const info = isAbsolute(sourceDir) ? await stat(sourceDir).catch(() => null) : null;
   if (!info?.isDirectory()) {
-    throw new BackendError('bad_request', `スキル ${skillName} のフォルダを読めません（絶対パスのフォルダが必要です）: ${sourceDir}`);
+    throw new BackendError(
+      'bad_request',
+      `スキル ${skillName} のフォルダを読めません（絶対パスのフォルダが必要です）: ${sourceDir}`,
+    );
   }
 }
 

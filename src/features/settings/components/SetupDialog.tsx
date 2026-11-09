@@ -18,14 +18,19 @@ export function SetupDialog() {
 function SetupForm() {
   const setup = useSetup();
   const opening = setup.dataDir !== null && setup.mode === 'open';
-  const label = setup.busy && setup.dataDir !== null ? changingLabel(setup.mode) : opening ? 'そのデータではじめる' : 'はじめる';
+  const label =
+    setup.busy && setup.dataDir !== null ? changingLabel(setup.mode) : opening ? 'そのデータではじめる' : 'はじめる';
   const footer = (
     <Button variant="primary" onClick={() => void setup.submit()} disabled={setup.busy}>
       {label}
     </Button>
   );
   return (
-    <Dialog title="AIギルドへようこそ" description="はじめに3つ決めてください。どれもあとから設定で変えられます。" footer={footer}>
+    <Dialog
+      title="AIギルドへようこそ"
+      description="はじめに3つ決めてください。どれもあとから設定で変えられます。"
+      footer={footer}
+    >
       {setup.error && <FormAlert>{setup.error}</FormAlert>}
       <SettingsSection title="あなたの名前">
         <TextField

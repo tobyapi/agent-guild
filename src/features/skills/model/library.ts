@@ -14,7 +14,8 @@ export type LibraryEntryState =
   | { kind: 'problem'; reason: string };
 
 export function libraryEntryState(entry: LibrarySkill, agentSkills: readonly Skill[]): LibraryEntryState {
-  if (agentSkills.some((skill) => skill.source !== null && isSamePath(skill.source.path, entry.path))) return { kind: 'added' };
+  if (agentSkills.some((skill) => skill.source !== null && isSamePath(skill.source.path, entry.path)))
+    return { kind: 'added' };
   if (entry.problem !== null) return { kind: 'problem', reason: entry.problem };
   if (agentSkills.some((skill) => skill.name === entry.name)) return { kind: 'nameTaken' };
   return { kind: 'available' };
@@ -22,7 +23,9 @@ export function libraryEntryState(entry: LibrarySkill, agentSkills: readonly Ski
 
 /** 検索: 空白で区切った語をすべて name・description・パスのどれかに含むもの（NFKC＋大文字小文字無視） */
 export function searchLibrary(skills: readonly LibrarySkill[], query: string): LibrarySkill[] {
-  const words = normalizeName(query).split(/\s+/).filter((word) => word !== '');
+  const words = normalizeName(query)
+    .split(/\s+/)
+    .filter((word) => word !== '');
   if (words.length === 0) return [...skills];
   return skills.filter((skill) => {
     const haystack = normalizeName(`${skill.name} ${skill.description} ${skill.path}`);

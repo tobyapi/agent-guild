@@ -15,7 +15,10 @@ import { TaskCard } from './TaskCard';
 import styles from './Message.module.css';
 import markdownStyles from './Markdown.module.css';
 
-const TASK_LINK_TEXT: Readonly<Record<TaskLink['kind'], string>> = { result: '割り振りの結果', summary: '割り振りのまとめ' };
+const TASK_LINK_TEXT: Readonly<Record<TaskLink['kind'], string>> = {
+  result: '割り振りの結果',
+  summary: '割り振りのまとめ',
+};
 
 export interface MessageItemProps {
   message: Message;
@@ -49,7 +52,14 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
       data-highlight={highlight}
     >
       {head ? (
-        <Avatar avatar={author.avatar} name={author.name} color={author.color} human={author.human} deleted={author.deleted} className={styles.avatar} />
+        <Avatar
+          avatar={author.avatar}
+          name={author.name}
+          color={author.color}
+          human={author.human}
+          deleted={author.deleted}
+          className={styles.avatar}
+        />
       ) : (
         <time className={styles.gutter} dateTime={isoTime(message.createdAt)} title={formatDateTime(message.createdAt)}>
           {formatTime(message.createdAt)}
@@ -69,12 +79,25 @@ function MessageContent({ message, renderBody, delegation }: MessageItemProps) {
       {message.kind === 'error' && <ErrorBody content={message.content} />}
       {message.kind !== 'error' && content !== '' && <MessageBody content={content} render={renderBody} />}
       <MessageAttachments message={message} />
-      {message.delegationId !== null && (delegation ? <TaskCard delegation={delegation} /> : <p className={styles.taskLoading}>タスクを読み込んでいます…</p>)}
+      {message.delegationId !== null &&
+        (delegation ? (
+          <TaskCard delegation={delegation} />
+        ) : (
+          <p className={styles.taskLoading}>タスクを読み込んでいます…</p>
+        ))}
     </>
   );
 }
 
-function MessageHeader({ message, author, taskLink }: { message: Message; author: AuthorView; taskLink: TaskLink | undefined }) {
+function MessageHeader({
+  message,
+  author,
+  taskLink,
+}: {
+  message: Message;
+  author: AuthorView;
+  taskLink: TaskLink | undefined;
+}) {
   return (
     <header className={styles.header}>
       <span className={styles.name}>{author.name}</span>

@@ -30,7 +30,9 @@ export function useAnyoneWorking(): boolean {
 }
 
 export function useChannelActivities(channelId: string): AgentActivity[] {
-  return useRuntimeStore(useShallow((state) => state.activity.activities.filter((item) => item.channelId === channelId)));
+  return useRuntimeStore(
+    useShallow((state) => state.activity.activities.filter((item) => item.channelId === channelId)),
+  );
 }
 
 export function useChannelQueue(channelId: string): ChannelQueue | undefined {

@@ -25,8 +25,8 @@ use std::time::Duration;
 pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
-    BackendInfo, BackendStatus, ImagePayload, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule,
-    Permissions, RunRequest, SkillPayload,
+    BackendInfo, BackendStatus, ImagePayload, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey,
+    PermissionRule, Permissions, RunRequest, SkillPayload,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
@@ -61,7 +61,9 @@ pub enum RunnerStatus {
     Starting,
     Ready,
     /// 使えない（起動失敗・版の不一致・異常終了後の再起動待ち・停止済み）。理由は日本語
-    Unavailable { message: String },
+    Unavailable {
+        message: String,
+    },
 }
 
 /// 実行中（終端イベントより前）に届く知らせ

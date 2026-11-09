@@ -38,7 +38,8 @@ export function openLoginWindow({ signal }: LoginContext): Promise<void> {
     });
     const close = (): void => {
       // start で開いた claude の窓ごと閉じる
-      if (child.pid !== undefined) spawn('taskkill', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore', windowsHide: true });
+      if (child.pid !== undefined)
+        spawn('taskkill', ['/pid', String(child.pid), '/t', '/f'], { stdio: 'ignore', windowsHide: true });
     };
     signal.addEventListener('abort', close, { once: true });
     child.once('error', (error) => {

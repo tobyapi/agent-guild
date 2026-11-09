@@ -14,10 +14,18 @@ export function isKeyBackend(value: unknown): value is KeyBackend {
 }
 
 // No plaintext fallback. A failed read must never silently select a different credential.
-export function credentialStore(backend: KeyBackend, action: 'get' | 'set' | 'delete', key?: string): Promise<string | null> {
-  const operation = (pending.get(backend) ?? Promise.resolve()).catch(() => {}).then(() => operate(backend, action, key));
+export function credentialStore(
+  backend: KeyBackend,
+  action: 'get' | 'set' | 'delete',
+  key?: string,
+): Promise<string | null> {
+  const operation = (pending.get(backend) ?? Promise.resolve())
+    .catch(() => {})
+    .then(() => operate(backend, action, key));
   pending.set(backend, operation);
-  const clear = (): void => { if (pending.get(backend) === operation) pending.delete(backend); };
+  const clear = (): void => {
+    if (pending.get(backend) === operation) pending.delete(backend);
+  };
   void operation.then(clear, clear);
   return operation;
 }
@@ -29,34 +37,60 @@ async function operate(backend: KeyBackend, action: 'get' | 'set' | 'delete', ke
   }
   return new Promise<string | null>((resolve, reject) => {
     const fail = (): void => reject(new BackendError('auth', STORE_FAILURE));
-    const executable = join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+    const executable = join(
+      process.env.SystemRoot ?? 'C:\\Windows',
+      'System32',
+      'WindowsPowerShell',
+      'v1.0',
+      'powershell.exe',
+    );
     const child = spawn(executable, ['-NoProfile', '-NonInteractive', '-Command', WINDOWS_CREDENTIAL_SCRIPT], {
-      windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'],
+      windowsHide: true,
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
     let output = '';
-    const timer = setTimeout(() => { child.kill(); fail(); }, 15000);
+    const timer = setTimeout(() => {
+      child.kill();
+      fail();
+    }, 15000);
     child.on('error', fail);
     child.stdin.on('error', fail);
     child.stderr.resume(); // Never log helper output: failures may contain input.
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk: string) => {
       output += chunk;
-      if (output.length > 16000) { child.kill(); fail(); }
+      if (output.length > 16000) {
+        child.kill();
+        fail();
+      }
     });
     child.on('close', (code) => {
       clearTimeout(timer);
-      if (code !== 0) { fail(); return; }
+      if (code !== 0) {
+        fail();
+        return;
+      }
       try {
         const value: unknown = JSON.parse(output.replace(/^\uFEFF/, ''));
-        if (value !== null && typeof value !== 'string') { fail(); return; }
+        if (value !== null && typeof value !== 'string') {
+          fail();
+          return;
+        }
         resolve(value);
-      } catch { fail(); }
+      } catch {
+        fail();
+      }
     });
     child.stdin.end(JSON.stringify({ backend, action, key }));
-  }).catch(() => { throw new BackendError('auth', STORE_FAILURE); });
+  }).catch(() => {
+    throw new BackendError('auth', STORE_FAILURE);
+  });
 }
 
-export async function apiKeyEnvironment(backend: KeyBackend, env: NodeJS.ProcessEnv = process.env): Promise<NodeJS.ProcessEnv> {
+export async function apiKeyEnvironment(
+  backend: KeyBackend,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<NodeJS.ProcessEnv> {
   const saved = await credentialStore(backend, 'get');
   return { ...env, [KEY_ENV[backend]]: saved ?? env[KEY_ENV[backend]] };
 }

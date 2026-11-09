@@ -3,7 +3,16 @@ import type { Skill } from '@/shared/types/domain';
 import { skillErrorField, validateSkillDraft } from './validation';
 
 const existing: Skill[] = [
-  { id: 's1', agentId: 'a', name: 'code-review', description: '説明', body: '', source: null, problem: null, updatedAt: 0 },
+  {
+    id: 's1',
+    agentId: 'a',
+    name: 'code-review',
+    description: '説明',
+    body: '',
+    source: null,
+    problem: null,
+    updatedAt: 0,
+  },
 ];
 
 describe('validateSkillDraft', () => {

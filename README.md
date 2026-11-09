@@ -48,7 +48,8 @@ npm run app
 | `npm run app` | アプリを開発モードで起動する |
 | `npm run dev` | 画面だけをブラウザで起動する（バックエンドはモック。`?mockSetup=1` で初回起動のダイアログ、`?mockBoot=missing` で復旧画面を確かめられる） |
 | `npm run bundle` | 配布用のアプリとインストーラーを作る |
-| `npm run check` | 型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
+| `npm run format` | コードを整形する（TS・CSS は Prettier、Rust は cargo fmt） |
+| `npm run check` | 整形の確認・型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
 
 GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
 

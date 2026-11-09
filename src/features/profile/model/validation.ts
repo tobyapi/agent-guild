@@ -9,7 +9,10 @@ export type ProfileField = keyof Profile;
  * プロフィールの検証。名前の規則はエージェント名と同じ（design.md §2）。
  * takenNames は削除されていないエージェントの名前。
  */
-export function validateProfile(profile: Profile, takenNames: readonly string[]): Partial<Record<ProfileField, string>> {
+export function validateProfile(
+  profile: Profile,
+  takenNames: readonly string[],
+): Partial<Record<ProfileField, string>> {
   const entries: Array<[ProfileField, string | null]> = [
     ['name', checkMemberName(profile.name, takenNames)],
     ['avatar', checkAvatar(profile.avatar)],

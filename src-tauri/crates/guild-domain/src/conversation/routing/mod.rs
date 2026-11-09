@@ -138,10 +138,7 @@ pub fn route_no_answer(job: &JobSpec, author: &Agent, reason: NoAnswer, ctx: &Ro
 /// depth が上限に達していたら振り分けず、上限のお知らせだけにする（振り分けるものがなければ何もしない）
 fn limit_depth(routing: Routing, depth: u32) -> Routing {
     if depth >= MAX_DEPTH && !routing.jobs.is_empty() {
-        Routing {
-            notices: vec![Notice::DepthLimit],
-            ..Routing::default()
-        }
+        Routing { notices: vec![Notice::DepthLimit], ..Routing::default() }
     } else {
         routing
     }

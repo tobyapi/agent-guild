@@ -63,7 +63,12 @@ export function useComposer(
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    const key = { key: event.key, shiftKey: event.shiftKey, isComposing: event.nativeEvent.isComposing, keyCode: event.nativeEvent.keyCode };
+    const key = {
+      key: event.key,
+      shiftKey: event.shiftKey,
+      isComposing: event.nativeEvent.isComposing,
+      keyCode: event.nativeEvent.keyCode,
+    };
     if (!isImeComposing(key) && completion.open && handleCompletionKey(event)) return;
     if (!shouldSubmit(key)) return;
     event.preventDefault();

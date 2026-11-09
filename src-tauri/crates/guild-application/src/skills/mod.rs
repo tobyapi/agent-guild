@@ -75,12 +75,14 @@ impl SkillService {
 }
 
 /// 同じエージェントに同じ name のスキル（except 以外）があれば Conflict
-pub(crate) fn ensure_name_free(ports: &Ports, agent_id: &AgentId, name: &str, except: Option<&SkillId>) -> AppResult<()> {
-    let taken = ports
-        .skills
-        .list_for_agent(agent_id)?
-        .into_iter()
-        .any(|skill| skill.name == name && Some(&skill.id) != except);
+pub(crate) fn ensure_name_free(
+    ports: &Ports,
+    agent_id: &AgentId,
+    name: &str,
+    except: Option<&SkillId>,
+) -> AppResult<()> {
+    let taken =
+        ports.skills.list_for_agent(agent_id)?.into_iter().any(|skill| skill.name == name && Some(&skill.id) != except);
     if taken {
         return Err(AppError::Conflict(format!("「{name}」という名前のスキルはすでにあります")));
     }

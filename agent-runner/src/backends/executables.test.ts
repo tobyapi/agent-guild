@@ -26,7 +26,10 @@ describe('PATH から実行ファイルを探す部品', () => {
   });
 
   it('子に渡す PATH の先頭にフォルダを足す（名前は元のまま。足すものがなければ親の環境をそのまま使う）', () => {
-    expect(withPathDirs(['x', 'y'], { Path: 'base', HOME: 'h' })).toEqual({ Path: ['x', 'y', 'base'].join(delimiter), HOME: 'h' });
+    expect(withPathDirs(['x', 'y'], { Path: 'base', HOME: 'h' })).toEqual({
+      Path: ['x', 'y', 'base'].join(delimiter),
+      HOME: 'h',
+    });
     expect(withPathDirs(['x'], {})).toEqual({ PATH: 'x' });
     expect(withPathDirs([], { PATH: 'base' })).toBeUndefined();
   });

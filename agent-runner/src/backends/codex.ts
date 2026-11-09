@@ -8,7 +8,15 @@ import type { BackendAdapter, BackendDescriptor } from './types.ts';
 const INFO: BackendDescriptor = {
   id: 'codex',
   label: 'Codex',
-  capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
+  capabilities: {
+    webSearch: true,
+    webFetch: true,
+    readFiles: true,
+    writeFiles: true,
+    writeAnywhere: true,
+    runCommands: true,
+    skills: true,
+  },
   // 推論の深さはモデルごとに選ぶ（models.ts の一覧。backendOptions の effort）
   options: [],
   permissionRules: [...PERMISSION_RULES],
@@ -16,7 +24,6 @@ const INFO: BackendDescriptor = {
   canLogin: false,
   midRunPost: 'text',
 };
-
 
 export const codexAdapter: BackendAdapter = {
   info: () => INFO,

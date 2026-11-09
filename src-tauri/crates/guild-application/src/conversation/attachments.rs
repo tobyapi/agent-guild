@@ -20,7 +20,11 @@ pub(super) fn store(ports: &Ports, channel_id: &ChannelId, items: &[NewAttachmen
 }
 
 /// 発言に添えたもののメタデータと中身
-pub(super) fn read(ports: &Ports, message_id: &MessageId, attachment_id: &AttachmentId) -> AppResult<(Attachment, Vec<u8>)> {
+pub(super) fn read(
+    ports: &Ports,
+    message_id: &MessageId,
+    attachment_id: &AttachmentId,
+) -> AppResult<(Attachment, Vec<u8>)> {
     let (channel_id, attachment) = find(ports, message_id, attachment_id)?;
     let bytes = ports.attachments.read(&channel_id, &attachment)?;
     Ok((attachment, bytes))

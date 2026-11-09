@@ -32,12 +32,33 @@ export function AgentEditorDialog({ channels, onOpenSkillLibrarySettings }: Agen
   const target = useEditorTarget();
   if (!target) return null;
   const key = target.mode === 'edit' ? target.agentId : `new-${target.templateId ?? ''}-${target.headTag ?? ''}`;
-  return <AgentEditor key={key} target={target} channels={channels} onOpenSkillLibrarySettings={onOpenSkillLibrarySettings} />;
+  return (
+    <AgentEditor
+      key={key}
+      target={target}
+      channels={channels}
+      onOpenSkillLibrarySettings={onOpenSkillLibrarySettings}
+    />
+  );
 }
 
-function AgentEditor({ target, channels, onOpenSkillLibrarySettings }: AgentEditorDialogProps & { target: EditorTarget }) {
-  const { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset, togglePermission } =
-    useAgentDraft(target);
+function AgentEditor({
+  target,
+  channels,
+  onOpenSkillLibrarySettings,
+}: AgentEditorDialogProps & { target: EditorTarget }) {
+  const {
+    agent,
+    draft,
+    templateId,
+    replaced,
+    update,
+    setBackend,
+    setModel,
+    chooseTemplate,
+    choosePreset,
+    togglePermission,
+  } = useAgentDraft(target);
   const save = useAgentSave(agent, draft);
   const formId = useId();
   const sectionProps = { draft, update, errors: save.errors, touch: save.touch };
@@ -54,7 +75,14 @@ function AgentEditor({ target, channels, onOpenSkillLibrarySettings }: AgentEdit
         <div className={styles.main}>
           <form id={formId} className={styles.form} onSubmit={save.onSubmit} noValidate>
             {save.formError && <FormAlert>{save.formError}</FormAlert>}
-            {!agent && <TemplatePicker templateId={templateId} replaced={replaced} onTemplate={chooseTemplate} onPreset={choosePreset} />}
+            {!agent && (
+              <TemplatePicker
+                templateId={templateId}
+                replaced={replaced}
+                onTemplate={chooseTemplate}
+                onPreset={choosePreset}
+              />
+            )}
             <BasicsFields {...sectionProps} />
             <PersonaFields draft={draft} update={update} />
             <BehaviorFields draft={draft} update={update} />
@@ -76,7 +104,11 @@ function AgentEditor({ target, channels, onOpenSkillLibrarySettings }: AgentEdit
           </form>
           {/* 相談相手になる人は知識（スキル）が要なので、スキルの区画を開いておく */}
           {agent && (
-            <SkillManager agentId={agent.id} defaultOpen={agent.consultable} onOpenLibrarySettings={onOpenSkillLibrarySettings} />
+            <SkillManager
+              agentId={agent.id}
+              defaultOpen={agent.consultable}
+              onOpenLibrarySettings={onOpenSkillLibrarySettings}
+            />
           )}
         </div>
       </div>

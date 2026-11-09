@@ -105,12 +105,21 @@ fn templates_match_the_design_table() {
     assert!(!expert.permissions.write_files && expert.permissions.read_files && expert.permissions.skills);
     assert_eq!((worker.unmentioned, worker.consultable), (UnmentionedPolicy::Answer, false));
     assert_eq!((expert.unmentioned, expert.consultable), (UnmentionedPolicy::Fallback, true));
-    assert_eq!((manager.unmentioned, manager.can_delegate, manager.consultable), (UnmentionedPolicy::Lead, true, false));
+    assert_eq!(
+        (manager.unmentioned, manager.can_delegate, manager.consultable),
+        (UnmentionedPolicy::Lead, true, false)
+    );
     assert_eq!(templates().iter().filter(|t| t.defaults.can_delegate).count(), 1, "割り振れるのはマネージャーだけ");
     let researcher = defaults("researcher").permissions;
-    assert!(researcher.web_fetch && !researcher.write_files && !researcher.run_commands, "調査係は Web を読むが書かない");
+    assert!(
+        researcher.web_fetch && !researcher.write_files && !researcher.run_commands,
+        "調査係は Web を読むが書かない"
+    );
     let scribe = defaults("scribe");
-    assert!(!scribe.permissions.web_search && !scribe.permissions.web_fetch && scribe.autonomy_enabled, "書記は Web を見ない");
+    assert!(
+        !scribe.permissions.web_search && !scribe.permissions.web_fetch && scribe.autonomy_enabled,
+        "書記は Web を見ない"
+    );
     for template in templates() {
         assert!(!template.defaults.permissions.write_anywhere, "作業フォルダの外への書き込みは既定では許さない");
         assert_eq!(template.accent.as_deref(), Some(template.id.as_str()), "accent はテンプレート ID と同じ名前");

@@ -19,7 +19,8 @@ export function SkillViewer({ skill, onClose }: { skill: Skill; onClose: () => v
       <p className={details.viewerDescription}>{skill.description}</p>
       {path && (
         <p className={details.viewerNote}>
-          元のフォルダ <code>{path}</code> を参照しています。実行のたびに読み直すので、内容を変えるときは元の SKILL.md を編集してください。
+          元のフォルダ <code>{path}</code> を参照しています。実行のたびに読み直すので、内容を変えるときは元の SKILL.md
+          を編集してください。
         </p>
       )}
       {skill.problem && (

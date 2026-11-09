@@ -12,9 +12,24 @@ describe('Codex のモデルの一覧（models_cache.json）', () => {
     const cache = {
       fetched_at: '2026-11-09T00:00:00Z',
       models: [
-        { slug: 'gpt-b', display_name: 'GPT-B', priority: 2, visibility: 'list', default_reasoning_level: 'medium', supported_reasoning_levels: [level('medium')] },
+        {
+          slug: 'gpt-b',
+          display_name: 'GPT-B',
+          priority: 2,
+          visibility: 'list',
+          default_reasoning_level: 'medium',
+          supported_reasoning_levels: [level('medium')],
+        },
         { slug: 'gpt-hidden', display_name: 'Hidden', priority: 0, visibility: 'hide' },
-        { slug: 'gpt-a', display_name: 'GPT-A', description: '速い', priority: 1, visibility: 'list', default_reasoning_level: 'low', supported_reasoning_levels: [level('low'), level('high')] },
+        {
+          slug: 'gpt-a',
+          display_name: 'GPT-A',
+          description: '速い',
+          priority: 1,
+          visibility: 'list',
+          default_reasoning_level: 'low',
+          supported_reasoning_levels: [level('low'), level('high')],
+        },
       ],
     };
     writeFileSync(join(home, 'models_cache.json'), JSON.stringify(cache));

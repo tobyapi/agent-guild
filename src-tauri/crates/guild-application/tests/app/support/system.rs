@@ -4,8 +4,8 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicI64, AtomicUsize, Ordering};
 
 use guild_application::ports::{
-    AppControl, BoxTask, Clock, DataExporter, FolderState, Folders, IdGenerator,
-    LaunchSettings, SettingsStore, Spawner, TargetFolder, Workspace, WorkspacePaths,
+    AppControl, BoxTask, Clock, DataExporter, FolderState, Folders, IdGenerator, LaunchSettings, SettingsStore,
+    Spawner, TargetFolder, Workspace, WorkspacePaths,
 };
 use guild_application::{AppError, AppResult};
 use guild_domain::ids::AgentId;
@@ -27,7 +27,8 @@ impl Workspace for FakeWorkspace {
     }
     fn read_memory(&self, _agent: &AgentId) -> AppResult<String> {
         Ok(self.memory.lock().clone())
-    }    fn remove(&self, agent: &AgentId) -> AppResult<()> {
+    }
+    fn remove(&self, agent: &AgentId) -> AppResult<()> {
         self.removed.lock().push(agent.clone());
         Ok(())
     }

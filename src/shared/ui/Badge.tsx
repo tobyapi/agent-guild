@@ -18,7 +18,11 @@ export interface BadgeProps {
 export function Badge({ children, tone = 'neutral', accent, title }: BadgeProps) {
   const vars = accentVars(accent);
   return (
-    <span className={cx(styles.badge, styles[vars ? 'tinted' : tone])} style={vars as CSSProperties | undefined} title={title}>
+    <span
+      className={cx(styles.badge, styles[vars ? 'tinted' : tone])}
+      style={vars as CSSProperties | undefined}
+      title={title}
+    >
       {children}
     </span>
   );

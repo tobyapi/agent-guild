@@ -18,7 +18,11 @@ export interface SegmentProps<T extends string> {
 const STEPS: Readonly<Record<string, number>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
 
 /** 矢印キーで隣の選択肢へ移り、選ぶ（ラジオグループのキーボード操作） */
-function handleArrows<T extends string>(event: KeyboardEvent<HTMLButtonElement>, index: number, props: SegmentProps<T>) {
+function handleArrows<T extends string>(
+  event: KeyboardEvent<HTMLButtonElement>,
+  index: number,
+  props: SegmentProps<T>,
+) {
   const step = STEPS[event.key];
   if (step === undefined) return;
   event.preventDefault();

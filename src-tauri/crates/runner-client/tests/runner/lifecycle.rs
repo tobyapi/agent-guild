@@ -2,7 +2,9 @@
 
 use std::time::Duration;
 
-use runner_client::{BackendStatus, Launch, MidRunPost, OptionKind, PermissionKey, RunnerClient, RunnerError, RunnerStatus};
+use runner_client::{
+    BackendStatus, Launch, MidRunPost, OptionKind, PermissionKey, RunnerClient, RunnerError, RunnerStatus,
+};
 
 use crate::support::{config, fixture, is_unavailable, no_updates, ready_client, request, wait_status, within};
 
@@ -42,7 +44,10 @@ async fn passes_args_env_and_cwd_to_the_runner() {
 async fn version_mismatch_makes_runner_unavailable() {
     let client = RunnerClient::new(config("version-999.mjs"));
     let status = wait_status(&client, is_unavailable).await;
-    assert!(matches!(&status, RunnerStatus::Unavailable { message } if message.contains("期待 1、実際 999")), "{status:?}");
+    assert!(
+        matches!(&status, RunnerStatus::Unavailable { message } if message.contains("期待 1、実際 999")),
+        "{status:?}"
+    );
     let error = within(client.run("j1", request("echo:x"), no_updates())).await.expect_err("使えないはず");
     assert!(matches!(error, RunnerError::Unavailable(_)), "{error:?}");
     client.shutdown().await;
@@ -64,7 +69,10 @@ async fn missing_executable_is_unavailable() {
     config.launch = Launch::Binary { path: fixture("no-such-runner.exe") };
     let client = RunnerClient::new(config);
     let status = wait_status(&client, is_unavailable).await;
-    assert!(matches!(&status, RunnerStatus::Unavailable { message } if message.contains("起動できませんでした")), "{status:?}");
+    assert!(
+        matches!(&status, RunnerStatus::Unavailable { message } if message.contains("起動できませんでした")),
+        "{status:?}"
+    );
     client.shutdown().await;
 }
 

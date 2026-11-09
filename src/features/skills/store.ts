@@ -48,5 +48,8 @@ export async function revealSkillFolder(path: string): Promise<void> {
 export async function deleteSkill(skill: Skill): Promise<void> {
   await skillsApi.remove(skill.id);
   const current = useSkillsStore.getState().byAgent[skill.agentId] ?? [];
-  put(skill.agentId, current.filter((candidate) => candidate.id !== skill.id));
+  put(
+    skill.agentId,
+    current.filter((candidate) => candidate.id !== skill.id),
+  );
 }

@@ -4,7 +4,13 @@ import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
 import { CODEX_NOT_FOUND, findCodex } from './codex-runtime/executable.ts';
 import { codexCatalog } from './codex-runtime/models.ts';
-import { codexConfig, MAX_SYSTEM_PROMPT_LENGTH, threadInput, threadOptions, unenforceableReason } from './codex-runtime/options.ts';
+import {
+  codexConfig,
+  MAX_SYSTEM_PROMPT_LENGTH,
+  threadInput,
+  threadOptions,
+  unenforceableReason,
+} from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
 import { writeSkills } from './skill-files.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
@@ -18,11 +24,17 @@ export interface CodexProvider {
 }
 
 function defaultProvider(): CodexProvider {
-  const env = Object.fromEntries(Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined));
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
+  );
   return { label: 'Codex', config: {}, catalog: codexCatalog(), env, failure: codexError };
 }
 
-export async function runCodex(request: RunRequest, { signal, onActivity, onPost }: RunContext, provider = defaultProvider()): Promise<string> {
+export async function runCodex(
+  request: RunRequest,
+  { signal, onActivity, onPost }: RunContext,
+  provider = defaultProvider(),
+): Promise<string> {
   rejectUnenforceable(provider.label, unenforceableReason(request.permissions));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
     throw new BackendError('bad_request', `Codex に渡すシステムプロンプトは ${MAX_SYSTEM_PROMPT_LENGTH} 文字までです`);
@@ -47,4 +59,3 @@ export async function runCodex(request: RunRequest, { signal, onActivity, onPost
     throw provider.failure(errorMessage(error));
   }
 }
-

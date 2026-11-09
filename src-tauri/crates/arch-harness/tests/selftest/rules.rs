@@ -12,54 +12,78 @@ fn interface_and_infrastructure_must_not_reference_each_other_or_bootstrap() {
         ("src/interface/state.rs", "fn g() { let _ = format!(\"{}\", crate::infrastructure::clock::now()); }"),
         ("src/infrastructure/events.rs", "use crate::interface::commands;\nuse guild_application::ports::EventPublisher;"),
     ]);
-    assert_eq!(summary(&layers::check(&workspace.root)), [
-        "src/infrastructure/events.rs:1 layer-dependency",
-        "src/interface/commands/agents.rs:2 layer-dependency",
-        "src/interface/commands/agents.rs:3 layer-dependency",
-        "src/interface/state.rs:1 layer-dependency",
-    ]);
+    assert_eq!(
+        summary(&layers::check(&workspace.root)),
+        [
+            "src/infrastructure/events.rs:1 layer-dependency",
+            "src/interface/commands/agents.rs:2 layer-dependency",
+            "src/interface/commands/agents.rs:3 layer-dependency",
+            "src/interface/state.rs:1 layer-dependency",
+        ]
+    );
 }
 
 #[test]
 fn tauri_rusqlite_and_runner_client_stay_in_their_directories() {
-    let workspace = Workspace::new("placement", &[
-        ("src/interface/commands/agents.rs", "#[tauri::command]\npub async fn list() {}"),
-        ("src/infrastructure/sqlite/repo.rs", "use rusqlite::Connection;"),
-        ("src/infrastructure/runtime/mod.rs", "use runner_client::RunnerClient;"),
-        ("src/infrastructure/workspace.rs", "fn f(c: &rusqlite::Connection) {}"),
-        ("src/bootstrap/mod.rs", "use runner_client::{Launch, RunnerConfig};"),
-        ("src/lib.rs", "#[tauri::command]\nasync fn stray() {}"),
-    ]);
-    assert_eq!(summary(&placement::check(&workspace.root)), [
-        "src/bootstrap/mod.rs:1 runner-client-placement",
-        "src/bootstrap/mod.rs:1 runner-client-placement",
-        "src/infrastructure/workspace.rs:1 rusqlite-placement",
-        "src/lib.rs:1 tauri-command-placement",
-    ]);
+    let workspace = Workspace::new(
+        "placement",
+        &[
+            ("src/interface/commands/agents.rs", "#[tauri::command]\npub async fn list() {}"),
+            ("src/infrastructure/sqlite/repo.rs", "use rusqlite::Connection;"),
+            ("src/infrastructure/runtime/mod.rs", "use runner_client::RunnerClient;"),
+            ("src/infrastructure/workspace.rs", "fn f(c: &rusqlite::Connection) {}"),
+            ("src/bootstrap/mod.rs", "use runner_client::{Launch, RunnerConfig};"),
+            ("src/lib.rs", "#[tauri::command]\nasync fn stray() {}"),
+        ],
+    );
+    assert_eq!(
+        summary(&placement::check(&workspace.root)),
+        [
+            "src/bootstrap/mod.rs:1 runner-client-placement",
+            "src/bootstrap/mod.rs:1 runner-client-placement",
+            "src/infrastructure/workspace.rs:1 rusqlite-placement",
+            "src/lib.rs:1 tauri-command-placement",
+        ]
+    );
 }
 
 #[test]
 fn tauri_commands_must_be_async() {
-    let workspace = Workspace::new("async", &[(
-        "src/interface/commands/channels.rs",
-        "#[tauri::command]\npub async fn ok() {}\n\n#[tauri::command]\npub fn blocking() {}",
-    )]);
-    assert_eq!(summary(&placement::check_async_commands(&workspace.root)), ["src/interface/commands/channels.rs:5 tauri-command-async"]);
+    let workspace = Workspace::new(
+        "async",
+        &[(
+            "src/interface/commands/channels.rs",
+            "#[tauri::command]\npub async fn ok() {}\n\n#[tauri::command]\npub fn blocking() {}",
+        )],
+    );
+    assert_eq!(
+        summary(&placement::check_async_commands(&workspace.root)),
+        ["src/interface/commands/channels.rs:5 tauri-command-async"]
+    );
 }
 
 #[test]
 fn tasks_are_spawned_only_through_the_port() {
-    let workspace = Workspace::new("threads", &[
-        ("crates/guild-application/src/conversation/dispatcher.rs", "fn f() { tokio::spawn(run()); }\n#[cfg(test)]\nmod tests { fn t() { tokio::spawn(x()); } }"),
-        ("crates/guild-domain/src/lib.rs", "use std::thread;\nfn g() { thread::spawn(|| {}); }"),
-        ("src/interface/commands/x.rs", "use tokio::task::spawn_blocking;"),
-        ("src/infrastructure/spawner.rs", "fn s() { tauri::async_runtime::spawn(f()); }"),
-    ]);
-    assert_eq!(summary(&threads::check(&workspace.root)), [
-        "crates/guild-application/src/conversation/dispatcher.rs:1 spawn-through-port",
-        "crates/guild-domain/src/lib.rs:2 spawn-through-port",
-        "src/interface/commands/x.rs:1 spawn-through-port",
-    ]);
+    let workspace = Workspace::new(
+        "threads",
+        &[
+            (
+                "crates/guild-application/src/conversation/dispatcher.rs",
+                "fn f() { tokio::spawn(run()); }\n#[cfg(test)]\nmod tests { fn t() { tokio::spawn(x()); } }",
+            ),
+            ("crates/guild-domain/src/lib.rs", "use std::thread;\nfn g() { thread::spawn(|| {}); }"),
+            ("src/interface/commands/x.rs", "use tokio::task::spawn_blocking;"),
+            ("src/infrastructure/spawner.rs", "fn s() { tauri::async_runtime::spawn(f()); }"),
+        ],
+    );
+    assert_eq!(
+        summary(&threads::check(&workspace.root)),
+        [
+            "crates/guild-application/src/conversation/dispatcher.rs:1 spawn-through-port",
+            "crates/guild-domain/src/lib.rs:2 spawn-through-port",
+            "src/interface/commands/x.rs:1 spawn-through-port",
+        ]
+    );
 }
 
 #[test]

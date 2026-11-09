@@ -41,9 +41,7 @@ export interface RoutingContext {
 }
 
 export type RoutingEffect =
-  | { type: 'join'; agentId: string }
-  | { type: 'enqueue'; job: MockJob }
-  | { type: 'notice'; content: string };
+  { type: 'join'; agentId: string } | { type: 'enqueue'; job: MockJob } | { type: 'notice'; content: string };
 
 function jobFrom(trigger: Message, agentId: string, mode: JobMode, returnTo: string[], notes: string[] = []): MockJob {
   return {
@@ -93,9 +91,7 @@ export function routeHumanMessage(message: Message, ctx: RoutingContext): Routin
 
 /** 戻す相手: 呼び出し元のうち、自分以外で削除されておらずチャンネルにいる人 */
 function returnTargets(job: MockJob, selfId: string, ctx: RoutingContext): string[] {
-  return job.returnTo.filter(
-    (id) => id !== selfId && isMember(ctx, id) && ctx.agents.some((agent) => agent.id === id),
-  );
+  return job.returnTo.filter((id) => id !== selfId && isMember(ctx, id) && ctx.agents.some((agent) => agent.id === id));
 }
 
 /** 新しい相談: メンバーなら返答を頼む。いなければ相談相手になる設定（consultable）の人だけ参加させる */

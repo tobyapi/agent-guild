@@ -55,7 +55,11 @@ impl Connection {
         tokio::spawn(reader::log_stderr(stderr));
         let closed_rx = closed.subscribe();
         tokio::spawn(watch_process(child, kill_rx, closed));
-        let connection = Arc::new(Self { stdin: Mutex::new(stdin), closed: closed_rx, kill: parking_lot::Mutex::new(Some(kill_tx)) });
+        let connection = Arc::new(Self {
+            stdin: Mutex::new(stdin),
+            closed: closed_rx,
+            kill: parking_lot::Mutex::new(Some(kill_tx)),
+        });
         // 失敗したら connection が捨てられ、子プロセスは kill される
         let backends = handshake(ready_rx, shared.config.ready_timeout).await?;
         Ok((connection, backends))

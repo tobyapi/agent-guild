@@ -66,7 +66,8 @@ fn conversations(saved: &str) -> Vec<(Origin, Vec<AgentId>)> {
         let (Some(channel), Some(root), Some(agent)) = (text("channelId"), text("rootId"), text("agentId")) else {
             continue;
         };
-        let depth = entry.get("depth").and_then(Value::as_u64).map_or(0, |depth| u32::try_from(depth).unwrap_or(u32::MAX));
+        let depth =
+            entry.get("depth").and_then(Value::as_u64).map_or(0, |depth| u32::try_from(depth).unwrap_or(u32::MAX));
         let agent = AgentId::new(agent);
         let same = |origin: &Origin| origin.channel_id.as_str() == channel && origin.root_id.as_str() == root;
         match groups.iter_mut().find(|(origin, _)| same(origin)) {

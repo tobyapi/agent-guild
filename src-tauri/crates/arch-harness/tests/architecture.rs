@@ -6,12 +6,7 @@ use arch_harness::rules::{dependencies, layers, placement, size, template_ids, t
 use arch_harness::workspace_root;
 
 fn assert_clean(violations: &[Violation]) {
-    assert!(
-        violations.is_empty(),
-        "保守性ハーネスの違反 {} 件:\n{}",
-        violations.len(),
-        report::format(violations)
-    );
+    assert!(violations.is_empty(), "保守性ハーネスの違反 {} 件:\n{}", violations.len(), report::format(violations));
 }
 
 #[test]

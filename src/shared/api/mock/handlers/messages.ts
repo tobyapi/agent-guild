@@ -6,12 +6,7 @@ import { fail, postMessage, requireChannel } from '../runtime';
 import type { HandlerGroup } from './types';
 
 type MessageCommands =
-  | 'list_messages'
-  | 'send_message'
-  | 'get_attachment'
-  | 'reveal_attachment'
-  | 'stop_channel'
-  | 'list_delegations';
+  'list_messages' | 'send_message' | 'get_attachment' | 'reveal_attachment' | 'stop_channel' | 'list_delegations';
 
 export const messageHandlers: HandlerGroup<MessageCommands> = {
   /** beforeSeq より前の発言を新しいほうから limit 件、seq の昇順で返す */

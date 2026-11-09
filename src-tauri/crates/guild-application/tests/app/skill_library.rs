@@ -76,13 +76,25 @@ async fn linked_and_copied_skills_are_added_once_per_name() {
     let linked = add(&abs("skills/unity"), LibraryAddMode::Link).unwrap();
     assert_eq!(linked.source, Some(SkillSource::Linked { path: abs("skills/unity") }));
     assert_eq!((linked.description.as_str(), linked.body.as_str()), ("Unity の手順", "# unity の手順\n"));
-    let edit = SkillInput { id: Some(linked.id.clone()), agent_id: logica.id.clone(), name: "unity".to_owned(), description: "x".to_owned(), body: String::new() };
+    let edit = SkillInput {
+        id: Some(linked.id.clone()),
+        agent_id: logica.id.clone(),
+        name: "unity".to_owned(),
+        description: "x".to_owned(),
+        body: String::new(),
+    };
     assert!(matches!(app.services.skills.save(edit), Err(AppError::Validation(_))), "linked は編集できない");
     assert!(matches!(add(&abs("skills/unity"), LibraryAddMode::Copy), Err(AppError::Conflict(_))));
 
     let copied = add(&abs("skills/review"), LibraryAddMode::Copy).unwrap();
     assert_eq!(copied.source, None);
-    let edit = SkillInput { id: Some(copied.id.clone()), agent_id: logica.id.clone(), name: "review".to_owned(), description: "新しい説明".to_owned(), body: String::new() };
+    let edit = SkillInput {
+        id: Some(copied.id.clone()),
+        agent_id: logica.id.clone(),
+        name: "review".to_owned(),
+        description: "新しい説明".to_owned(),
+        body: String::new(),
+    };
     assert_eq!(app.services.skills.save(edit).unwrap().description, "新しい説明", "copy はふつうのスキル");
     assert_eq!(app.events.skills_changed.lock().len(), 3);
 }
@@ -129,7 +141,13 @@ async fn runs_reread_linked_skills_pass_their_folder_and_skip_unreadable_ones() 
     for folder in ["skills/unity", "skills/broken"] {
         app.services.library.add(&haru.id, &abs(folder), LibraryAddMode::Link).unwrap();
     }
-    let notes = SkillInput { id: None, agent_id: haru.id.clone(), name: "notes".to_owned(), description: "メモ".to_owned(), body: "# メモ\n".to_owned() };
+    let notes = SkillInput {
+        id: None,
+        agent_id: haru.id.clone(),
+        name: "notes".to_owned(),
+        description: "メモ".to_owned(),
+        body: "# メモ\n".to_owned(),
+    };
     app.services.skills.save(notes).unwrap();
     app.library.write(&abs("skills/unity"), &skill_md("unity", "最新の説明"));
     app.library.write(&abs("skills/broken"), "frontmatter なし");

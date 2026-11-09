@@ -110,7 +110,12 @@ async fn a_job_times_out_after_fifteen_minutes() {
     app.settle().await;
     assert_eq!(
         app.transcript(&lobby),
-        vec!["人間: お願い", "ハル: @ロジカ 見て", "ロジカ: 時間切れで中断しました（15分）", "ハル: 待ちきれませんでした"]
+        vec![
+            "人間: お願い",
+            "ハル: @ロジカ 見て",
+            "ロジカ: 時間切れで中断しました（15分）",
+            "ハル: 待ちきれませんでした"
+        ]
     );
     assert_eq!(app.runtime.cancelled.lock().len(), 1, "時間切れのジョブは中断を送る");
     assert!(app.runtime.requests_for(haru.id.as_str())[1].prompt.contains("ロジカ は失敗しました"));

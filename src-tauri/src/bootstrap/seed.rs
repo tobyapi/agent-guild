@@ -18,7 +18,8 @@ const SKILL_BODIES: [(&str, &str); 2] = [
 ];
 const LOBBY_NAME: &str = "ロビー";
 const LOBBY_TOPIC: &str = "みんなの雑談と相談の場";
-const WELCOME: &str = "AIギルドへようこそ。マネージャーのカナメ、作業者のハル・ソラ、専門家のロジカ・ギアが参加しています。\
+const WELCOME: &str =
+    "AIギルドへようこそ。マネージャーのカナメ、作業者のハル・ソラ、専門家のロジカ・ギアが参加しています。\
 メンションなしで話しかけるとカナメが受けて、内容に合うメンバーに割り振ります。「@名前」で特定のメンバーを呼べます。";
 
 #[derive(Deserialize)]

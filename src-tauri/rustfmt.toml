@@ -1,0 +1,5 @@
+# Rust の整形（cargo fmt）。npm run format で整形し、npm run check（format:check）で整形済みかを確かめる。
+# 幅は TS 側の Prettier（.prettierrc.json）と同じ 120。Prettier と同じように、幅に収まるかぎり1行にまとめる
+# （既定では、幅に収まっていてもメソッドの連鎖や引数を細かく折り返す）。
+max_width = 120
+use_small_heuristics = "Max"

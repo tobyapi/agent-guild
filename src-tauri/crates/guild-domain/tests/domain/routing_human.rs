@@ -130,7 +130,10 @@ fn leads_take_unmentioned_messages_before_everyone_else() {
     let ctx = RoutingContext { channel: &lobby, agents: &agents, ready_backends: &ready };
     assert_eq!(targets(&route_human_message(&hello, &ctx)), ids(&["mio", "kaname"]), "lead の全員（作成順）だけ");
 
-    agents.iter_mut().filter(|a| a.id.as_str() == "mio" || a.id.as_str() == "kaname").for_each(|a| a.backend = "codex".to_owned());
+    agents
+        .iter_mut()
+        .filter(|a| a.id.as_str() == "mio" || a.id.as_str() == "kaname")
+        .for_each(|a| a.backend = "codex".to_owned());
     let ctx = RoutingContext { channel: &lobby, agents: &agents, ready_backends: &ready };
     assert_eq!(targets(&route_human_message(&hello, &ctx)), ids(&["haru"]), "ready な lead がいなければ answer の段");
 }

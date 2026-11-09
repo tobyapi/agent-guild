@@ -43,10 +43,16 @@ function localViolation(file, imported) {
   const from = areaOf(file);
   const to = areaOf(imported.target.path);
   if (from.area === 'shared' && (to.area === 'features' || to.area === 'app')) {
-    return { rule: 'shared-imports-upper', advice: 'shared/ は features/・app/ を import しない。共通に使うものなら shared/ へ移す' };
+    return {
+      rule: 'shared-imports-upper',
+      advice: 'shared/ は features/・app/ を import しない。共通に使うものなら shared/ へ移す',
+    };
   }
   if (from.area === 'features' && to.area === 'app') {
-    return { rule: 'features-imports-app', advice: 'features/ は app/ を import しない。必要なものは app/ から渡すか shared/ へ移す' };
+    return {
+      rule: 'features-imports-app',
+      advice: 'features/ は app/ を import しない。必要なものは app/ から渡すか shared/ へ移す',
+    };
   }
   if (to.area === 'features' && from.feature !== to.feature && !isFeatureIndex(imported.target.path, to.feature)) {
     return {
@@ -70,7 +76,8 @@ function localViolation(file, imported) {
 export function checkReactImports(file, imports) {
   if (!file.startsWith('src/')) return [];
   return imports.flatMap((imported) => {
-    const found = imported.target.kind === 'package' ? packageViolation(file, imported) : localViolation(file, imported);
+    const found =
+      imported.target.kind === 'package' ? packageViolation(file, imported) : localViolation(file, imported);
     return found ? [{ file, line: imported.line, ...found }] : [];
   });
 }

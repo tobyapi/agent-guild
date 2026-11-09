@@ -1,5 +1,5 @@
 // Claude Code の PostToolUse フック（matcher: Edit|Write|MultiEdit）。
-// 編集されたファイルが行数の規約の対象（CLAUDE.md）で、空行を除いて150行以上なら、理由を stderr に出して exit 2 で差し戻す。
+// 編集されたファイルが行数の規約の対象（CLAUDE.md）で、空行を除いて200行以上なら、理由を stderr に出して exit 2 で差し戻す。
 // 対象外のファイルは見ない。フック自体の不調（入力が読めないなど）では作業を止めない（exit 0）。
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -32,7 +32,7 @@ try {
   if (count >= LINE_LIMIT) {
     process.stderr.write(
       `${target.projectPath} は空行を除いて ${count} 行あります（上限 ${LINE_LIMIT - 1} 行）。\n` +
-        'CLAUDE.md の保守性ハーネスの規約（1ファイル150行未満）に違反しています。' +
+        `CLAUDE.md の保守性ハーネスの規約（1ファイル${LINE_LIMIT}行未満）に違反しています。` +
         '1ファイル1責務になるようにモジュールを分割してから続けてください。\n',
     );
     process.exitCode = 2;

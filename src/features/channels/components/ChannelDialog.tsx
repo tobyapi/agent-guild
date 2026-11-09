@@ -34,7 +34,12 @@ function ChannelForm({ channel }: { channel: Channel | null }) {
     </>
   );
   return (
-    <Dialog size="sm" title={channel ? `#${channel.name} を編集` : 'チャンネルを作成'} onClose={closeChannelDialog} footer={footer}>
+    <Dialog
+      size="sm"
+      title={channel ? `#${channel.name} を編集` : 'チャンネルを作成'}
+      onClose={closeChannelDialog}
+      footer={footer}
+    >
       <form id={formId} className={styles.form} onSubmit={form.onSubmit} noValidate>
         {form.formError && <FormAlert>{form.formError}</FormAlert>}
         <TextField

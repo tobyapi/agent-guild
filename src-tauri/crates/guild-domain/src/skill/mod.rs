@@ -101,10 +101,7 @@ pub fn validate_skill_name(name: &str) -> Result<(), ValidationError> {
 pub fn normalize_skill_description(description: &str) -> Result<String, ValidationError> {
     let description = description.trim();
     if description.is_empty() {
-        return Err(ValidationError::on(
-            "description",
-            "スキルの説明を入力してください（いつ使うスキルかを書きます）",
-        ));
+        return Err(ValidationError::on("description", "スキルの説明を入力してください（いつ使うスキルかを書きます）"));
     }
     ensure_max_chars(
         description,

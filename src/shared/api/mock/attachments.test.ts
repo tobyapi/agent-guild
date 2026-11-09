@@ -13,7 +13,11 @@ const pdf = (name = '仕様.pdf'): AttachmentInput => ({ name, mediaType: 'appli
 describe('モックの画像・ファイルつきの発言', () => {
   it('添付だけでも送れて、画像は data URL で取り出せ、ファイルはフォルダで表示できる', async () => {
     const mock = await createHarness();
-    const sent = await mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content: ' ', attachments: [png(), pdf()] });
+    const sent = await mock.transport.invoke('send_message', {
+      channelId: SEED_IDS.lobby,
+      content: ' ',
+      attachments: [png(), pdf()],
+    });
     expect(sent.content).toBe('');
     expect(sent.attachments.map(({ name, mediaType, size }) => [name, mediaType, size])).toEqual([
       ['screen.png', 'image/png', 8],
@@ -24,8 +28,12 @@ describe('モックの画像・ファイルつきの発言', () => {
     await expect(mock.transport.invoke('get_attachment', { messageId: sent.id, attachmentId: image.id })).resolves.toBe(
       'data:image/png;base64,iVBORw0KGgo=',
     );
-    await expect(mock.transport.invoke('reveal_attachment', { messageId: sent.id, attachmentId: file.id })).resolves.toBeNull();
-    await expect(mock.transport.invoke('reveal_attachment', { messageId: sent.id, attachmentId: 'nope' })).rejects.toMatchObject({
+    await expect(
+      mock.transport.invoke('reveal_attachment', { messageId: sent.id, attachmentId: file.id }),
+    ).resolves.toBeNull();
+    await expect(
+      mock.transport.invoke('reveal_attachment', { messageId: sent.id, attachmentId: 'nope' }),
+    ).rejects.toMatchObject({
       code: 'not_found',
     });
   });
@@ -35,9 +43,16 @@ describe('モックの画像・ファイルつきの発言', () => {
     const send = (content: string, attachments: AttachmentInput[]) =>
       mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content, attachments });
     await expect(send('  ', [])).rejects.toMatchObject({ code: 'validation', field: 'content' });
-    await expect(send('見て', Array.from({ length: 11 }, () => pdf()))).rejects.toMatchObject({ field: 'attachments' });
+    await expect(
+      send(
+        '見て',
+        Array.from({ length: 11 }, () => pdf()),
+      ),
+    ).rejects.toMatchObject({ field: 'attachments' });
     await expect(send('見て', [{ ...pdf(), mediaType: 'PDF' }])).rejects.toMatchObject({ field: 'attachments' });
-    await expect(send('見て', [{ ...png('a.bmp'), mediaType: 'image/bmp' }])).resolves.toMatchObject({ content: '見て' });
+    await expect(send('見て', [{ ...png('a.bmp'), mediaType: 'image/bmp' }])).resolves.toMatchObject({
+      content: '見て',
+    });
   });
 
   it('base64 の長さから中身の大きさを出す', () => {
@@ -54,8 +69,12 @@ describe('モックのログイン', () => {
       ['claude', true],
       ['codex', false],
     ]);
-    await expect(mock.transport.invoke('login_backend', { backendId: 'codex' })).rejects.toMatchObject({ code: 'validation' });
-    await expect(mock.transport.invoke('login_backend', { backendId: 'nope' })).rejects.toMatchObject({ code: 'not_found' });
+    await expect(mock.transport.invoke('login_backend', { backendId: 'codex' })).rejects.toMatchObject({
+      code: 'validation',
+    });
+    await expect(mock.transport.invoke('login_backend', { backendId: 'nope' })).rejects.toMatchObject({
+      code: 'not_found',
+    });
     const before = mock.stateChanges.length;
     await expect(mock.transport.invoke('login_backend', { backendId: 'claude' })).resolves.toBeNull();
     await mock.settle();

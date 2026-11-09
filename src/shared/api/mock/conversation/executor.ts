@@ -38,7 +38,13 @@ function unavailableReason(core: MockCore, agent: Agent): string | null {
   return null;
 }
 
-function post(core: MockCore, job: MockJob, content: string, kind: MessageKind, delegationId: string | null = null): Message {
+function post(
+  core: MockCore,
+  job: MockJob,
+  content: string,
+  kind: MessageKind,
+  delegationId: string | null = null,
+): Message {
   return postMessage(core, {
     channelId: job.channelId,
     authorId: job.agentId,
@@ -77,10 +83,18 @@ export function runJob(core: MockCore, job: MockJob, agent: Agent, callbacks: Jo
   const reason = unavailableReason(core, agent);
   const plan =
     reason === null
-      ? planReply({ job, agent, agents: activeAgents(core), members: membersOf(core, job.channelId), skills: core.state.skills })
+      ? planReply({
+          job,
+          agent,
+          agents: activeAgents(core),
+          members: membersOf(core, job.channelId),
+          skills: core.state.skills,
+        })
       : null;
   const details = plan?.steps ?? ['考え中…'];
-  const cancels = details.map((detail, index) => core.env.schedule(index * STEP_MS, () => callbacks.onActivity(detail)));
+  const cancels = details.map((detail, index) =>
+    core.env.schedule(index * STEP_MS, () => callbacks.onActivity(detail)),
+  );
   cancels.push(...scheduleProgress(core, job, plan, details.length * STEP_MS));
   cancels.push(
     core.env.schedule(details.length * STEP_MS, () => {

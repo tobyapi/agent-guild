@@ -16,7 +16,8 @@ fn item(name: &str, media_type: &str, size: usize) -> NewAttachment {
 fn with_attachments(seq: i64, images: usize, files: usize) -> Message {
     let mut message = message(seq, Author::Human, "見て");
     let png = (0..images).map(|i| item("a.png", "image/png", 3).describe(AttachmentId::new(format!("m{seq}-i{i}"))));
-    let pdf = (0..files).map(|i| item("b.pdf", "application/pdf", 3).describe(AttachmentId::new(format!("m{seq}-f{i}"))));
+    let pdf =
+        (0..files).map(|i| item("b.pdf", "application/pdf", 3).describe(AttachmentId::new(format!("m{seq}-f{i}"))));
     message.attachments = png.chain(pdf).collect();
     message
 }
@@ -28,7 +29,10 @@ fn up_to_ten_attachments_images_of_5mb_files_of_10mb_and_30mb_in_total() {
     assert_eq!(validate_attachments(&eleven).map_err(|error| error.field()), Err(Some("attachments")));
     assert!(validate_attachments(&[item("a.webp", "image/webp", MAX_IMAGE_BYTES)]).is_ok());
     assert!(validate_attachments(&[item("a.gif", "image/gif", MAX_IMAGE_BYTES + 1)]).is_err(), "画像は 5MB まで");
-    assert!(validate_attachments(&[item("a.bmp", "image/bmp", MAX_IMAGE_BYTES + 1)]).is_ok(), "BMP はファイルとして 10MB まで");
+    assert!(
+        validate_attachments(&[item("a.bmp", "image/bmp", MAX_IMAGE_BYTES + 1)]).is_ok(),
+        "BMP はファイルとして 10MB まで"
+    );
     assert!(validate_attachments(&[item("a.zip", "application/zip", MAX_FILE_BYTES + 1)]).is_err());
     let four = vec![item("a.bin", "application/octet-stream", MAX_FILE_BYTES); 4];
     assert!(validate_attachments(&four).is_err(), "合計 30MB まで");
@@ -39,7 +43,12 @@ fn up_to_ten_attachments_images_of_5mb_files_of_10mb_and_30mb_in_total() {
 #[test]
 fn names_are_tidied_for_display_and_files_keep_their_extension() {
     let image = item("C:\\Users\\me\\Pictures\\画面 1.png", "image/png", 10).describe(AttachmentId::new("a1"));
-    let expected = Attachment { id: AttachmentId::new("a1"), name: "画面 1.png".to_owned(), media_type: "image/png".to_owned(), size: 10 };
+    let expected = Attachment {
+        id: AttachmentId::new("a1"),
+        name: "画面 1.png".to_owned(),
+        media_type: "image/png".to_owned(),
+        size: 10,
+    };
     assert_eq!((image.clone(), image.file_name(), image.is_image()), (expected, "a1.png".to_owned(), true));
     let pdf = item("Report.PDF", "application/pdf", 1).describe(AttachmentId::new("a2"));
     assert_eq!((pdf.file_name(), pdf.is_image()), ("a2.pdf".to_owned(), false));

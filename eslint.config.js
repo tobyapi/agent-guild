@@ -17,7 +17,7 @@ export default defineConfig([
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     extends: [js.configs.recommended],
     rules: {
-      'max-lines': ['error', { max: 149, skipBlankLines: true, skipComments: false }],
+      'max-lines': ['error', { max: 199, skipBlankLines: true, skipComments: false }],
       'max-lines-per-function': ['error', { max: 80, skipBlankLines: true, skipComments: true }],
       complexity: ['error', 12],
     },

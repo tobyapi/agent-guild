@@ -13,7 +13,8 @@ export const CODEX_EFFORTS = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'
 
 type Json = Record<string, unknown>;
 
-const isObject = (value: unknown): value is Json => typeof value === 'object' && value !== null && !Array.isArray(value);
+const isObject = (value: unknown): value is Json =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string => (typeof value === 'string' ? value : '');
 
 /** Codex のホーム（環境変数 CODEX_HOME、なければ ~/.codex） */
@@ -55,7 +56,10 @@ function priority(model: Json): number {
 
 function efforts(levels: unknown): string[] {
   if (!Array.isArray(levels)) return [];
-  return levels.filter(isObject).map((level) => text(level.effort)).filter((effort) => effort !== '');
+  return levels
+    .filter(isObject)
+    .map((level) => text(level.effort))
+    .filter((effort) => effort !== '');
 }
 
 /** モデルの既定の深さ（一覧にないモデルなら undefined） */

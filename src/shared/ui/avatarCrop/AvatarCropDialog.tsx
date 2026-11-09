@@ -1,6 +1,13 @@
 import { useId } from 'react';
 import type { CSSProperties } from 'react';
-import { CROP_ZOOM_MAX, CROP_ZOOM_MIN, imagePlacement, initialView, sourceRect, zoomViewCentered } from '@/shared/lib/crop';
+import {
+  CROP_ZOOM_MAX,
+  CROP_ZOOM_MIN,
+  imagePlacement,
+  initialView,
+  sourceRect,
+  zoomViewCentered,
+} from '@/shared/lib/crop';
 import type { CropView } from '@/shared/lib/crop';
 import { renderAvatarImage } from '@/shared/lib/image';
 import { Button } from '../Button';

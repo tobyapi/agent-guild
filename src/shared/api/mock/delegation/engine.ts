@@ -34,6 +34,76 @@ function outcomeResult(outcome: JobOutcome): SubtaskResult {
   return { status: 'failed', resultMessageId: null, note: '回答がありませんでした' };
 }
 
+/** 割り振れなかった名前と、上限を超えて飛ばした担当者を知らせる */
+function notice(core: MockCore, reply: Message, tasks: ParsedTasks): void {
+  if (tasks.skipped.length > 0) {
+    const names = tasks.skipped.join('、');
+    postSystem(
+      core,
+      reply.channelId,
+      `${names} には割り振れませんでした（見つからないか、自分自身です）`,
+      reply.rootId,
+    );
+  }
+  if (tasks.overflow.length > 0) {
+    const names = tasks.overflow.join('、');
+    const text = `サブタスクは${MAX_SUBTASKS}件までなので、${names} には割り振りませんでした`;
+    postSystem(core, reply.channelId, text, reply.rootId);
+  }
+}
+
+/** マネージャーの返答 reply の tasks ブロックから作る割り振り（サブタスクはすべて pending） */
+function newDelegation(core: MockCore, id: string, reply: Message, tasks: ParsedTasks): Delegation {
+  const now = core.env.now();
+  return {
+    id,
+    channelId: reply.channelId,
+    managerId: reply.authorId,
+    messageId: reply.id,
+    status: 'running',
+    subtasks: tasks.entries.map((entry) => ({
+      id: core.env.newId(),
+      ...entry,
+      status: 'pending' as const,
+      resultMessageId: null,
+      note: null,
+    })),
+    summaryMessageId: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+/** サブタスクの担当者の task ジョブ（きっかけはマネージャーの返答、注記は指示） */
+function taskJob(reply: Message, delegationId: string, subtask: Delegation['subtasks'][number]): MockJob {
+  return {
+    agentId: subtask.assigneeId,
+    channelId: reply.channelId,
+    mode: 'task',
+    triggers: [reply],
+    returnTo: [],
+    depth: reply.depth + 1,
+    rootId: reply.rootId,
+    notes: [subtask.instruction],
+    delegation: { delegationId, subtaskId: subtask.id },
+  };
+}
+
+/** マネージャーのまとめのジョブ（きっかけは各サブタスクの結果の発言。なければ割り振った返答 plan） */
+function reportJob(delegation: Delegation, plan: Message, results: Message[], lines: string[]): MockJob {
+  return {
+    agentId: delegation.managerId,
+    channelId: delegation.channelId,
+    mode: 'report',
+    triggers: results.length > 0 ? results : [plan],
+    returnTo: [],
+    depth: Math.max(plan.depth, ...results.map((message) => message.depth)) + 1,
+    rootId: plan.rootId,
+    notes: lines,
+    delegation: { delegationId: delegation.id, subtaskId: null },
+  };
+}
+
 export function createDelegations(core: MockCore, deps: DelegationDeps): MockDelegations {
   const now = () => core.env.now();
   const find = (id: string) => core.state.delegations.find((delegation) => delegation.id === id);
@@ -41,7 +111,9 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
   const nameOf = (agentId: string) => core.state.agents.find((agent) => agent.id === agentId)?.name ?? agentId;
 
   function save(next: Delegation): void {
-    core.state.delegations = core.state.delegations.map((delegation) => (delegation.id === next.id ? next : delegation));
+    core.state.delegations = core.state.delegations.map((delegation) =>
+      delegation.id === next.id ? next : delegation,
+    );
     core.bus.emit('delegation-changed', next);
   }
 
@@ -49,14 +121,14 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
   function report(delegation: Delegation): void {
     const plan = messageOf(delegation.messageId);
     const channel = core.state.channels.find((candidate) => candidate.id === delegation.channelId);
-    const managerHere = activeAgents(core).some((agent) => agent.id === delegation.managerId) && channel?.memberIds.includes(delegation.managerId);
+    const managerHere =
+      activeAgents(core).some((agent) => agent.id === delegation.managerId) &&
+      channel?.memberIds.includes(delegation.managerId);
     if (!plan || !managerHere) return save(cancelDelegation(delegation, 'マネージャーが外れました', now()));
     save({ ...delegation, status: 'reporting', updatedAt: now() });
     const results = delegation.subtasks.flatMap((subtask) => messageOf(subtask.resultMessageId) ?? []);
     const lines = reportLines(delegation, nameOf, (subtask) => messageOf(subtask.resultMessageId)?.content ?? null);
-    const depth = Math.max(plan.depth, ...results.map((message) => message.depth)) + 1;
-    const job: MockJob = { agentId: delegation.managerId, channelId: delegation.channelId, mode: 'report', triggers: results.length > 0 ? results : [plan], returnTo: [], depth, rootId: plan.rootId, notes: lines, delegation: { delegationId: delegation.id, subtaskId: null } };
-    deps.enqueue(job);
+    deps.enqueue(reportJob(delegation, plan, results, lines));
   }
 
   function settle(delegationId: string, subtaskId: string, result: SubtaskResult): void {
@@ -67,38 +139,36 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
     report(next);
   }
 
-  function notice(reply: Message, tasks: ParsedTasks): void {
-    if (tasks.skipped.length > 0) postSystem(core, reply.channelId, `${tasks.skipped.join('、')} には割り振れませんでした（見つからないか、自分自身です）`, reply.rootId);
-    if (tasks.overflow.length > 0) {
-      postSystem(core, reply.channelId, `サブタスクは${MAX_SUBTASKS}件までなので、${tasks.overflow.join('、')} には割り振りませんでした`, reply.rootId);
-    }
-  }
-
   return {
     create(reply, tasks, channel) {
-      notice(reply, tasks);
+      notice(core, reply, tasks);
       if (reply.delegationId === null || tasks.entries.length === 0) return;
-      const subtasks = tasks.entries.map((entry) => ({ id: core.env.newId(), ...entry, status: 'pending' as const, resultMessageId: null, note: null }));
-      const delegation: Delegation = { id: reply.delegationId, channelId: channel.id, managerId: reply.authorId, messageId: reply.id, status: 'running', subtasks, summaryMessageId: null, createdAt: now(), updatedAt: now() };
+      const delegation = newDelegation(core, reply.delegationId, reply, tasks);
       core.state.delegations.push(delegation);
       core.bus.emit('delegation-changed', delegation);
-      const joined = subtasks.map((subtask) => deps.join(channel, subtask.assigneeId, reply.rootId)).some(Boolean);
+      const assignees = delegation.subtasks.map((subtask) => subtask.assigneeId);
+      const joined = assignees.map((assigneeId) => deps.join(channel, assigneeId, reply.rootId)).some(Boolean);
       if (joined) emitStateChanged(core);
-      for (const subtask of subtasks) {
-        const job: MockJob = { agentId: subtask.assigneeId, channelId: channel.id, mode: 'task', triggers: [reply], returnTo: [], depth: reply.depth + 1, rootId: reply.rootId, notes: [subtask.instruction], delegation: { delegationId: delegation.id, subtaskId: subtask.id } };
-        deps.enqueue(job);
-      }
+      for (const subtask of delegation.subtasks) deps.enqueue(taskJob(reply, delegation.id, subtask));
     },
     started(job) {
-      const delegation = job.mode === 'task' && job.delegation?.subtaskId ? find(job.delegation.delegationId) : undefined;
-      if (delegation?.status === 'running' && job.delegation?.subtaskId) save(startSubtask(delegation, job.delegation.subtaskId, now()));
+      const delegation =
+        job.mode === 'task' && job.delegation?.subtaskId ? find(job.delegation.delegationId) : undefined;
+      if (delegation?.status === 'running' && job.delegation?.subtaskId)
+        save(startSubtask(delegation, job.delegation.subtaskId, now()));
     },
     finished(job, outcome) {
       if (!job.delegation) return;
-      if (job.mode === 'task' && job.delegation.subtaskId) return settle(job.delegation.delegationId, job.delegation.subtaskId, outcomeResult(outcome));
+      if (job.mode === 'task' && job.delegation.subtaskId)
+        return settle(job.delegation.delegationId, job.delegation.subtaskId, outcomeResult(outcome));
       const delegation = find(job.delegation.delegationId);
       if (job.mode !== 'report' || delegation?.status !== 'reporting') return;
-      save({ ...delegation, status: 'done', summaryMessageId: outcome.type === 'reply' ? outcome.message.id : null, updatedAt: now() });
+      save({
+        ...delegation,
+        status: 'done',
+        summaryMessageId: outcome.type === 'reply' ? outcome.message.id : null,
+        updatedAt: now(),
+      });
     },
     cancel(matches, note) {
       for (const delegation of core.state.delegations.filter((candidate) => isOpen(candidate) && matches(candidate))) {
@@ -106,9 +176,12 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
       }
     },
     dropAssignee(agentId, channelId) {
-      for (const delegation of core.state.delegations.filter((candidate) => candidate.status === 'running' && (channelId === null || candidate.channelId === channelId))) {
+      for (const delegation of core.state.delegations.filter(
+        (candidate) => candidate.status === 'running' && (channelId === null || candidate.channelId === channelId),
+      )) {
         const mine = delegation.subtasks.filter((subtask) => subtask.assigneeId === agentId && isUnsettled(subtask));
-        for (const subtask of mine) settle(delegation.id, subtask.id, { status: 'failed', resultMessageId: null, note: '担当者が外れました' });
+        for (const subtask of mine)
+          settle(delegation.id, subtask.id, { status: 'failed', resultMessageId: null, note: '担当者が外れました' });
       }
     },
   };

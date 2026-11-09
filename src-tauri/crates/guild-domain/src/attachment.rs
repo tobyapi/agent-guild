@@ -19,7 +19,8 @@ pub const MAX_TOTAL_BYTES: usize = 30 * 1024 * 1024;
 const MAX_NAME_CHARS: usize = 100;
 const MAX_EXTENSION_CHARS: usize = 10;
 /// 画像として渡す形式と、保存するときの拡張子
-const IMAGE_TYPES: [(&str, &str); 4] = [("image/png", "png"), ("image/jpeg", "jpg"), ("image/gif", "gif"), ("image/webp", "webp")];
+const IMAGE_TYPES: [(&str, &str); 4] =
+    [("image/png", "png"), ("image/jpeg", "jpg"), ("image/gif", "gif"), ("image/webp", "webp")];
 
 /// 添付（TS の Attachment）
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -115,7 +116,8 @@ fn invalid(message: impl Into<String>) -> ValidationError {
 
 /// MIME の形（type/subtype。RFC 6838 の名前に使える文字だけ）か
 fn is_media_type(value: &str) -> bool {
-    let token = |part: &str| !part.is_empty() && part.chars().all(|c| c.is_ascii_alphanumeric() || "!#$&^_.+-".contains(c));
+    let token =
+        |part: &str| !part.is_empty() && part.chars().all(|c| c.is_ascii_alphanumeric() || "!#$&^_.+-".contains(c));
     value.len() <= 100 && value.split_once('/').is_some_and(|(kind, subtype)| token(kind) && token(subtype))
 }
 
@@ -129,7 +131,8 @@ fn extension(name: &str, media_type: &str) -> String {
 
 fn name_extension(name: &str) -> Option<String> {
     let (_, ext) = name.rsplit_once('.')?;
-    let valid = !ext.is_empty() && ext.chars().count() <= MAX_EXTENSION_CHARS && ext.chars().all(|c| c.is_ascii_alphanumeric());
+    let valid =
+        !ext.is_empty() && ext.chars().count() <= MAX_EXTENSION_CHARS && ext.chars().all(|c| c.is_ascii_alphanumeric());
     valid.then(|| ext.to_ascii_lowercase())
 }
 

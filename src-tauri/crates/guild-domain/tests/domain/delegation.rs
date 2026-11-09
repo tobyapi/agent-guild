@@ -2,8 +2,8 @@
 
 use guild_domain::conversation::{JobMode, JobSpec, Routing};
 use guild_domain::delegation::{
-    carry_subtask, judge, Delegation, DelegationStatus, Settlement, Subtask, SubtaskRef, SubtaskStatus, Turn,
-    Verdict, ASSIGNEE_REMOVED, NO_ANSWER, RUN_FAILED, TIMED_OUT,
+    carry_subtask, judge, Delegation, DelegationStatus, Settlement, Subtask, SubtaskRef, SubtaskStatus, Turn, Verdict,
+    ASSIGNEE_REMOVED, NO_ANSWER, RUN_FAILED, TIMED_OUT,
 };
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SubtaskId};
 
@@ -43,7 +43,10 @@ fn target(subtask: &str, assignee: &str) -> SubtaskRef {
 fn judging_waits_while_consulting_and_settles_otherwise() {
     let reply = MessageId::new("r1");
     assert_eq!(judge(Turn::Replied { message: &reply, continues: true }), Verdict::Waiting, "相談中は running のまま");
-    assert_eq!(judge(Turn::Replied { message: &reply, continues: false }), Verdict::Settle(Settlement::Done(reply.clone())));
+    assert_eq!(
+        judge(Turn::Replied { message: &reply, continues: false }),
+        Verdict::Settle(Settlement::Done(reply.clone()))
+    );
     assert_eq!(judge(Turn::Passed), Verdict::Settle(Settlement::Failed { note: NO_ANSWER, message: None }));
     let error = MessageId::new("e1");
     let failed = Settlement::Failed { note: RUN_FAILED, message: Some(error.clone()) };

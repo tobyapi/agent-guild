@@ -69,7 +69,9 @@ describe('collectStdioUses', () => {
 
 describe('collectConsoleUses', () => {
   it('stdout・stderr を問わず console のメンバーへの接触を拾う', () => {
-    const found = consoles("console.log(1);\nconsole.error(2);\nconst w = console.warn;\nglobalThis.console.info(3);\nconsole['debug'](4);");
+    const found = consoles(
+      "console.log(1);\nconsole.error(2);\nconst w = console.warn;\nglobalThis.console.info(3);\nconsole['debug'](4);",
+    );
     assert.deepEqual(found, ['console.log', 'console.error', 'console.warn', 'console.info', "console.'debug'"]);
   });
 
@@ -79,9 +81,9 @@ describe('collectConsoleUses', () => {
 });
 
 describe('countLines', () => {
-  it('空行と空白だけの行を除いて数え、150 行目に達した行を返す', () => {
+  it('空行と空白だけの行を除いて数え、200 行目に達した行を返す', () => {
     assert.deepEqual(countLines('a\n\n  \nb\r\nc'), { count: 3, overflowLine: null });
-    const text = ['x', ...Array.from({ length: 149 }, () => '\ny')].join('\n');
-    assert.deepEqual(countLines(text), { count: 150, overflowLine: 299 });
+    const text = ['x', ...Array.from({ length: 199 }, () => '\ny')].join('\n');
+    assert.deepEqual(countLines(text), { count: 200, overflowLine: 399 });
   });
 });

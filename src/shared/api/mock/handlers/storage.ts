@@ -15,7 +15,8 @@ export const storageHandlers: HandlerGroup<StorageCommands> = {
 
   change_data_dir({ path, mode }, runtime) {
     const { storage } = runtime.state;
-    if (storage.source === 'env') fail('validation', '環境変数 GUILD_DATA_DIR で保存先が固定されているため変更できません');
+    if (storage.source === 'env')
+      fail('validation', '環境変数 GUILD_DATA_DIR で保存先が固定されているため変更できません');
     if (!ABSOLUTE_PATH.test(path)) fail('validation', '絶対パスのフォルダを選んでください', 'path');
     if (path === storage.dataDir) fail('validation', 'いまの保存先と同じフォルダです', 'path');
     // モックの choose_folder が返すフォルダには「ギルドのデータがある」想定

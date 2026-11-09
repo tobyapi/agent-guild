@@ -19,8 +19,8 @@ mod safeguards;
 mod skills;
 
 pub use conversation::{
-    build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, PROGRESS_LIMIT,
-    RECENT_CHANNEL_LIMIT, TRIGGER_CHAR_LIMIT,
+    build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, PROGRESS_LIMIT, RECENT_CHANNEL_LIMIT,
+    TRIGGER_CHAR_LIMIT,
 };
 pub use intent::{build_intent, INTENT_CHAR_LIMIT, INTENT_MESSAGE_LIMIT};
 
@@ -75,9 +75,5 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
         safeguards::section(ctx),
         rules::section(ctx),
     ];
-    sections
-        .into_iter()
-        .filter(|section| !section.is_empty())
-        .collect::<Vec<_>>()
-        .join("\n")
+    sections.into_iter().filter(|section| !section.is_empty()).collect::<Vec<_>>().join("\n")
 }

@@ -76,7 +76,8 @@ fn check_dependency(
         return Some(Violation::new(file, line, "inner-crate-dependency", advice));
     }
     let (_, allowed) = allowlist.features.iter().find(|(krate, _)| *krate == name)?;
-    let extra: Vec<String> = features_of(key, spec, workspace).into_iter().filter(|f| !allowed.contains(&f.as_str())).collect();
+    let extra: Vec<String> =
+        features_of(key, spec, workspace).into_iter().filter(|f| !allowed.contains(&f.as_str())).collect();
     let advice = format!("{name} の機能 {} は使わない（許可: {}）", extra.join(", "), allowed.join(", "));
     (!extra.is_empty()).then(|| Violation::new(file, line, "inner-crate-feature", advice))
 }
@@ -96,6 +97,7 @@ fn features_of(key: &str, spec: &Value, workspace: Option<&Table>) -> Vec<String
 
 /// key = … が書かれた行（見つからなければ 1）
 fn line_of(text: &str, key: &str) -> usize {
-    let starts_entry = |line: &str| line.trim_start().strip_prefix(key).is_some_and(|rest| rest.trim_start().starts_with(['=', '.']));
+    let starts_entry =
+        |line: &str| line.trim_start().strip_prefix(key).is_some_and(|rest| rest.trim_start().starts_with(['=', '.']));
     text.lines().position(starts_entry).map_or(1, |index| index + 1)
 }

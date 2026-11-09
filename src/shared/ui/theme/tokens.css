@@ -88,11 +88,11 @@
   --avatar-tint-base: var(--bg-elevated);
 
   /* 文字組み（外部フォントは読まない。Windows は Segoe UI Variable + Noto Sans JP / 游ゴシック UI） */
-  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
-    'Yu Gothic UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', Meiryo, system-ui,
-    sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
-  --font-mono: 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'BIZ UDGothic', 'Noto Sans JP', 'Yu Gothic UI',
-    monospace;
+  --font-sans:
+    'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans JP', 'Yu Gothic UI',
+    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', Meiryo, system-ui, sans-serif, 'Segoe UI Emoji',
+    'Apple Color Emoji', 'Noto Color Emoji';
+  --font-mono: 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'BIZ UDGothic', 'Noto Sans JP', 'Yu Gothic UI', monospace;
   --text-xs: 11px; /* 英数字だけ（時刻・バックエンド名）。日本語は 12px 以上 */
   --text-sm: 12px;
   --text-md: 14px; /* UI の標準 */

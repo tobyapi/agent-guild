@@ -26,16 +26,12 @@ impl SqliteSkillRepository {
 impl SkillRepository for SqliteSkillRepository {
     fn list_for_agent(&self, agent: &AgentId) -> AppResult<Vec<Skill>> {
         let sql = format!("SELECT {COLUMNS} FROM skills WHERE agent_id = ?1 ORDER BY name");
-        self.db
-            .with(|conn| conn.prepare(&sql)?.query_map([agent.as_str()], read_skill)?.collect())
-            .map_err(storage)
+        self.db.with(|conn| conn.prepare(&sql)?.query_map([agent.as_str()], read_skill)?.collect()).map_err(storage)
     }
 
     fn get(&self, id: &SkillId) -> AppResult<Option<Skill>> {
         let sql = format!("SELECT {COLUMNS} FROM skills WHERE id = ?1");
-        self.db
-            .with(|conn| conn.query_row(&sql, [id.as_str()], read_skill).optional())
-            .map_err(storage)
+        self.db.with(|conn| conn.query_row(&sql, [id.as_str()], read_skill).optional()).map_err(storage)
     }
 
     fn upsert(&self, skill: &Skill) -> AppResult<()> {
@@ -58,10 +54,9 @@ impl SkillRepository for SqliteSkillRepository {
         });
         match result {
             Ok(_) => Ok(()),
-            Err(error) if is_unique_violation(&error) => Err(AppError::Conflict(format!(
-                "「{}」という名前のスキルはすでにあります",
-                skill.name
-            ))),
+            Err(error) if is_unique_violation(&error) => {
+                Err(AppError::Conflict(format!("「{}」という名前のスキルはすでにあります", skill.name)))
+            }
             Err(error) => Err(storage(error)),
         }
     }

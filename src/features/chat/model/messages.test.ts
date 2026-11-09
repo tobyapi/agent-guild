@@ -26,7 +26,9 @@ describe('mergeMessages', () => {
   });
 
   it('過去のページを前に足す', () => {
-    expect(mergeMessages([message(5), message(6)], [message(3), message(4)]).map((item) => item.seq)).toEqual([3, 4, 5, 6]);
+    expect(mergeMessages([message(5), message(6)], [message(3), message(4)]).map((item) => item.seq)).toEqual([
+      3, 4, 5, 6,
+    ]);
   });
 
   it('最新の1件は末尾に足す（すでにあれば足さない）', () => {

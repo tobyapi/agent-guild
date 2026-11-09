@@ -68,7 +68,10 @@ fn jobs_share_a_conversation_through_their_roots_or_triggers() {
     merged.merge(reply_to(3, 0, &[]));
     assert!(!first.shares_conversation(&merged), "起点が違えば別の会話");
     merged.merge(reply_to(1, 0, &[]));
-    assert!(first.shares_conversation(&merged) && merged.shares_conversation(&first), "合流したきっかけの会話にも関わる");
+    assert!(
+        first.shares_conversation(&merged) && merged.shares_conversation(&first),
+        "合流したきっかけの会話にも関わる"
+    );
     let idle = JobSpec::autonomous(AgentId::new("haru"), ChannelId::new("c1"));
     assert_eq!(idle.conversations().count(), 0, "自発活動は会話を持たない");
     assert!(!idle.shares_conversation(&first));

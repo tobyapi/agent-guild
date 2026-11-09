@@ -65,7 +65,10 @@ async fn a_reply_to_a_human_also_sees_the_recent_flow_of_the_channel() {
     app.settle().await;
     let history = history_sent_to(&app, &haru);
     assert!(history.starts_with("# この会話と、チャンネル #ロビー の最近の発言"));
-    assert!(history.contains("上限ってなに？") && history.contains("返答回数の上限です"), "直前の流れは別の会話でも送る");
+    assert!(
+        history.contains("上限ってなに？") && history.contains("返答回数の上限です"),
+        "直前の流れは別の会話でも送る"
+    );
 }
 
 #[tokio::test]
@@ -93,7 +96,8 @@ async fn the_first_message_of_a_long_conversation_is_always_sent() {
     let lobby = app.channel("ロビー", &[&haru]);
     put(&app, &lobby, "r", "r", "最初の依頼");
     let total = HISTORY_LIMIT + 5;
-    let replies: Vec<Message> = (1..=total).map(|n| put(&app, &lobby, &format!("r{n}"), "r", &format!("返事{n}番"))).collect();
+    let replies: Vec<Message> =
+        (1..=total).map(|n| put(&app, &lobby, &format!("r{n}"), "r", &format!("返事{n}番"))).collect();
     let last = replies.last().unwrap();
     app.services.conversation.enqueue(vec![JobSpec::respond(haru.id.clone(), last, JobMode::Reply, Vec::new())]);
     app.settle().await;
@@ -136,7 +140,9 @@ async fn progress_posts_do_not_push_the_replies_out_of_the_history() {
     let history = history_sent_to(&app, &haru);
     assert!(history.contains("大事な返事"), "途中の投稿は発言の件数に数えない");
     let oldest_kept = total - PROGRESS_LIMIT + 1;
-    assert!(history.contains(&format!("（途中経過）:\n経過{total}番")) && history.contains(&format!("経過{oldest_kept}番")));
+    assert!(
+        history.contains(&format!("（途中経過）:\n経過{total}番")) && history.contains(&format!("経過{oldest_kept}番"))
+    );
     assert!(!history.contains(&format!("経過{}番", oldest_kept - 1)), "途中の投稿は新しい方から10件まで");
 }
 

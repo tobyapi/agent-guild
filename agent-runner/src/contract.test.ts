@@ -41,8 +41,7 @@ describe('contracts/runner', () => {
 
   it('アダプタが申告する BackendInfo は実例と同じフィールドを持つ', () => {
     const ready = fixture('events.jsonl').find((event) => event.type === 'ready') as unknown as
-      | Extract<RunnerEvent, { type: 'ready' }>
-      | undefined;
+      Extract<RunnerEvent, { type: 'ready' }> | undefined;
     const example = ready?.backends[0];
     expect(example).toBeDefined();
     if (!example) return;

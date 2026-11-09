@@ -46,7 +46,10 @@ fn prompts(mid_run_post: Option<MidRunPost>, history: &[Message]) -> (String, St
 #[test]
 fn tool_backends_are_told_to_use_the_post_tool() {
     let (system, _) = prompts(Some(MidRunPost::Tool), &[]);
-    assert!(system.contains(&format!("## 作業中の投稿\n- {RULE}\n- 途中で投稿するには post ツールを使ってください。")), "{system}");
+    assert!(
+        system.contains(&format!("## 作業中の投稿\n- {RULE}\n- 途中で投稿するには post ツールを使ってください。")),
+        "{system}"
+    );
     assert!(system.contains("途中の投稿でメンションしても相手には通知されない"));
 }
 
@@ -70,7 +73,8 @@ fn backends_that_cannot_post_mid_run_get_no_posting_rule() {
 fn progress_posts_are_marked_in_the_history() {
     let mut progress = message(2, by("logica"), "進捗: 半分まで読みました");
     progress.kind = MessageKind::Progress;
-    let history = [message(1, Author::Human, "@ロジカ @ハル 見て"), progress, message(3, by("logica"), "@ハル 終わりました")];
+    let history =
+        [message(1, Author::Human, "@ロジカ @ハル 見て"), progress, message(3, by("logica"), "@ハル 終わりました")];
     let (_, conversation) = prompts(Some(MidRunPost::Tool), &history);
     assert!(conversation.contains("[t0] ロジカ（途中経過）:\n進捗: 半分まで読みました"), "{conversation}");
     assert!(conversation.contains("[t0] ロジカ:\n@ハル 終わりました"));

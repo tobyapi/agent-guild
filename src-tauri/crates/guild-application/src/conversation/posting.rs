@@ -19,11 +19,7 @@ pub(crate) struct Origin {
 
 impl Origin {
     pub fn of(message: &Message) -> Self {
-        Self {
-            channel_id: message.channel_id.clone(),
-            root_id: message.root_id.clone(),
-            depth: message.depth,
-        }
+        Self { channel_id: message.channel_id.clone(), root_id: message.root_id.clone(), depth: message.depth }
     }
 }
 
@@ -62,7 +58,8 @@ pub(crate) fn new_root(
 
 /// 会話の中のお知らせ（起点と depth を引き継ぐシステム発言）
 pub(crate) fn post_notice(ports: &Ports, origin: &Origin, content: &str) -> AppResult<Message> {
-    let mut message = new_root(ports, &origin.channel_id, Author::System, content.to_owned(), MessageKind::System, Vec::new());
+    let mut message =
+        new_root(ports, &origin.channel_id, Author::System, content.to_owned(), MessageKind::System, Vec::new());
     message.root_id = origin.root_id.clone();
     message.depth = origin.depth;
     publish(ports, message)
@@ -96,11 +93,5 @@ pub(crate) fn require_channel(ports: &Ports, id: &ChannelId) -> AppResult<Channe
 
 /// status が ready のバックエンドの ID
 pub(crate) fn ready_backends(ports: &Ports) -> Vec<String> {
-    ports
-        .runtime
-        .backends()
-        .into_iter()
-        .filter(|backend| backend.is_ready())
-        .map(|backend| backend.id)
-        .collect()
+    ports.runtime.backends().into_iter().filter(|backend| backend.is_ready()).map(|backend| backend.id).collect()
 }

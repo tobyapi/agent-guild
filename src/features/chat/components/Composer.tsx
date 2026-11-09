@@ -93,7 +93,11 @@ function AttachButton({ onFiles }: { onFiles: (files: readonly File[]) => void }
   };
   return (
     <>
-      <IconButton label="ファイルを添付（ドロップ・貼り付けでも添付できます）" className={styles.attach} onClick={() => inputRef.current?.click()}>
+      <IconButton
+        label="ファイルを添付（ドロップ・貼り付けでも添付できます）"
+        className={styles.attach}
+        onClick={() => inputRef.current?.click()}
+      >
         <Icon name="paperclip" />
       </IconButton>
       <input ref={inputRef} type="file" multiple hidden onChange={onChange} />

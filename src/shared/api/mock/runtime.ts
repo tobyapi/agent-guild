@@ -78,7 +78,8 @@ export function postMessage(core: MockCore, draft: MessageDraft): Message {
     attachments: draft.attachments ?? [],
     kind: draft.kind,
     // 途中の投稿のメンションは記録しない（通知しない）
-    mentions: draft.kind === 'system' || draft.kind === 'progress' ? [] : parseMentions(draft.content, activeAgents(core)),
+    mentions:
+      draft.kind === 'system' || draft.kind === 'progress' ? [] : parseMentions(draft.content, activeAgents(core)),
     replyToId: draft.replyToId ?? null,
     rootId: draft.rootId ?? id,
     depth: draft.depth ?? 0,

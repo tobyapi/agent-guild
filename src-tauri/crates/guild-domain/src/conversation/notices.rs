@@ -4,8 +4,7 @@
 pub const STOPPED: &str = "停止しました";
 
 /// depth が上限に達して振り分けを止めたとき（起点ごとに1回）
-pub const DEPTH_LIMIT: &str =
-    "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。";
+pub const DEPTH_LIMIT: &str = "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。";
 
 /// メンションなしの人間の発言に答えられるエージェントがいないとき
 pub const NO_RESPONDER: &str =

@@ -27,7 +27,11 @@ function dataUrlOf(blob: Blob): Promise<string> {
 
 function encode(canvas: HTMLCanvasElement, mediaType: string, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('画像を縮められませんでした'))), mediaType, quality);
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('画像を縮められませんでした'))),
+      mediaType,
+      quality,
+    );
   });
 }
 
@@ -67,5 +71,11 @@ export async function readAttachment(file: File): Promise<ReadAttachment> {
   const mediaType = mediaTypeOf(file);
   if (isImageType(mediaType)) return readImage(file);
   const dataUrl = await dataUrlOf(file);
-  return { name: file.name || 'file', mediaType, data: dataUrl.slice(dataUrl.indexOf(',') + 1), preview: null, size: file.size };
+  return {
+    name: file.name || 'file',
+    mediaType,
+    data: dataUrl.slice(dataUrl.indexOf(',') + 1),
+    preview: null,
+    size: file.size,
+  };
 }

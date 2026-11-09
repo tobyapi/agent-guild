@@ -17,7 +17,8 @@ const RULES: [LayerRule; 2] = [
     LayerRule {
         layer: "interface",
         forbidden: &["infrastructure", "bootstrap"],
-        advice: "interface は guild-application のサービス（AppServices）経由で処理を呼び、組み立ては bootstrap に任せる",
+        advice:
+            "interface は guild-application のサービス（AppServices）経由で処理を呼び、組み立ては bootstrap に任せる",
     },
     LayerRule {
         layer: "infrastructure",
@@ -29,7 +30,8 @@ const RULES: [LayerRule; 2] = [
 pub fn check(root: &Path) -> Vec<Violation> {
     let (parsed, mut violations) = super::main_crate(root);
     for (file, found) in &parsed {
-        let Some(rule) = RULES.iter().find(|rule| super::is_under(&file.path, &[&format!("src/{}", rule.layer)])) else {
+        let Some(rule) = RULES.iter().find(|rule| super::is_under(&file.path, &[&format!("src/{}", rule.layer)]))
+        else {
             continue;
         };
         let module = super::module_of(file);

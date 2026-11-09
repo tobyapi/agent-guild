@@ -1,13 +1,19 @@
 // 保守性ハーネスの設定値（CLAUDE.md の規約と対応）。規約を変えるときはここと CLAUDE.md を同時に直す。
 
-/** 空行を除いた行数がこの値に達したら違反（= 149 行まで） */
-export const LINE_LIMIT = 150;
+/** 空行を除いた行数がこの値に達したら違反（= 199 行まで） */
+export const LINE_LIMIT = 200;
 
 /** 行数を数える拡張子 */
 export const SIZE_CHECKED_EXTENSIONS = ['.ts', '.tsx', '.css', '.mjs', '.rs'];
 
 /** 行数の規約の対象（CLAUDE.md）。プロジェクト相対・区切り / のパスで判定する。src-tauri/crates/* は src と tests */
-const SIZE_SCOPE = [/^src\//, /^agent-runner\/src\//, /^scripts\//, /^src-tauri\/src\//, /^src-tauri\/crates\/[^/]+\/(src|tests)\//];
+const SIZE_SCOPE = [
+  /^src\//,
+  /^agent-runner\/src\//,
+  /^scripts\//,
+  /^src-tauri\/src\//,
+  /^src-tauri\/crates\/[^/]+\/(src|tests)\//,
+];
 
 export function isSizeChecked(projectPath) {
   const parts = projectPath.split('/');
@@ -33,7 +39,15 @@ export const RESOLVE_INDEXES = ['index.ts', 'index.tsx'];
  * agent-runner/src/backends/ 直下の単位（拡張子を除いた名前）のうち、アダプタが import してよい共通部品。
  * これと登録表以外はアダプタ（claude.ts と claude/ は同じアダプタ「claude」とみなす）。
  */
-export const RUNNER_BACKEND_COMMON_MODULES = new Set(['types', 'describe', 'environment', 'executables', 'skill-files', 'agent-env', 'codex-runtime']);
+export const RUNNER_BACKEND_COMMON_MODULES = new Set([
+  'types',
+  'describe',
+  'environment',
+  'executables',
+  'skill-files',
+  'agent-env',
+  'codex-runtime',
+]);
 /** アダプタを束ねる登録表（アダプタではないが、アダプタから import してもいけない） */
 export const RUNNER_BACKEND_REGISTRY = 'registry';
 /** agent-runner で console に触れてよいファイル（stderr 用ロガーと、起動時に console を stderr に向ける main.ts） */

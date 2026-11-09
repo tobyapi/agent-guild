@@ -61,11 +61,21 @@ export function panView(view: CropView, dx: number, dy: number, image: ImageSize
 }
 
 /** 倍率を変える。point（枠の px）の下にある画像の点が、変えたあとも同じ場所に残るようにする */
-export function zoomView(view: CropView, zoom: number, point: Point, image: ImageSize, frame = CROP_FRAME_SIZE): CropView {
+export function zoomView(
+  view: CropView,
+  zoom: number,
+  point: Point,
+  image: ImageSize,
+  frame = CROP_FRAME_SIZE,
+): CropView {
   const before = cropScale(image, view.zoom, frame);
   const after = cropScale(image, clamp(zoom, CROP_ZOOM_MIN, CROP_ZOOM_MAX), frame);
   const ratio = after / before;
-  return clampView({ zoom, x: point.x - (point.x - view.x) * ratio, y: point.y - (point.y - view.y) * ratio }, image, frame);
+  return clampView(
+    { zoom, x: point.x - (point.x - view.x) * ratio, y: point.y - (point.y - view.y) * ratio },
+    image,
+    frame,
+  );
 }
 
 /** 枠の中央を中心に倍率を変える（スライダー・キーボード） */
@@ -88,7 +98,12 @@ export function sourceRect(view: CropView, image: ImageSize, frame = CROP_FRAME_
 export function imagePlacement(view: CropView, image: ImageSize, frame = CROP_FRAME_SIZE) {
   const scale = cropScale(image, view.zoom, frame);
   const percent = (value: number) => `${(value / frame) * 100}%`;
-  return { left: percent(view.x), top: percent(view.y), width: percent(image.width * scale), height: percent(image.height * scale) };
+  return {
+    left: percent(view.x),
+    top: percent(view.y),
+    width: percent(image.width * scale),
+    height: percent(image.height * scale),
+  };
 }
 
 /** キー操作: 矢印で動かす（Shift で大きく）、+ / − で拡大・縮小。関係のないキーは null */
@@ -100,7 +115,12 @@ export const ZOOM_STEP = 1.1;
 
 export function cropKeyAction(key: string, shiftKey: boolean): CropKeyAction | null {
   const step = shiftKey ? PAN_STEP_LARGE : PAN_STEP;
-  const pans: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+  const pans: Record<string, [number, number]> = {
+    ArrowLeft: [-step, 0],
+    ArrowRight: [step, 0],
+    ArrowUp: [0, -step],
+    ArrowDown: [0, step],
+  };
   const pan = pans[key];
   if (pan) return { type: 'pan', dx: pan[0], dy: pan[1] };
   if (key === '+' || key === '=' || key === 'Add') return { type: 'zoom', factor: ZOOM_STEP };

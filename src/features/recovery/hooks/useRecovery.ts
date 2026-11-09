@@ -52,7 +52,11 @@ export function useRecovery(boot: BootStatus) {
   };
 
   const run = (action: RecoveryAction) => {
-    const tasks: Record<RecoveryAction, () => Promise<boolean>> = { retry: restart, choose: chooseAndOpen, useDefault: openDefault };
+    const tasks: Record<RecoveryAction, () => Promise<boolean>> = {
+      retry: restart,
+      choose: chooseAndOpen,
+      useDefault: openDefault,
+    };
     void attempt(tasks[action]);
   };
 

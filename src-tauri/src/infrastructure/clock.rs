@@ -22,8 +22,7 @@ impl Clock for SystemClock {
     fn now_ms(&self) -> i64 {
         let now = Utc::now().timestamp_millis();
         let (Ok(previous) | Err(previous)) =
-            self.last_ms
-                .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |last| Some(now.max(last + 1)));
+            self.last_ms.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |last| Some(now.max(last + 1)));
         now.max(previous + 1)
     }
 
@@ -32,10 +31,7 @@ impl Clock for SystemClock {
         let Some(time) = Local.timestamp_millis_opt(ms).single() else {
             return String::new();
         };
-        let weekday = WEEKDAYS
-            .get(time.weekday().num_days_from_monday() as usize)
-            .copied()
-            .unwrap_or_default();
+        let weekday = WEEKDAYS.get(time.weekday().num_days_from_monday() as usize).copied().unwrap_or_default();
         format!("{}({weekday}) {}", time.format("%Y年%-m月%-d日"), time.format("%H:%M"))
     }
 }

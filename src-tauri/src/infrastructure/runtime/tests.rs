@@ -45,7 +45,10 @@ fn the_login_shell_path_is_read_after_the_marker_and_common_dirs_are_added() {
     assert_eq!(parse_marked("印のない出力"), None);
     assert_eq!(parse_marked("__GUILD_PATH__  "), None);
     let extra = ["/usr/bin".to_owned(), "/Users/me/.local/bin".to_owned()];
-    assert_eq!(merge_paths("/opt/homebrew/bin::/usr/bin", &extra, ':'), "/opt/homebrew/bin:/usr/bin:/Users/me/.local/bin");
+    assert_eq!(
+        merge_paths("/opt/homebrew/bin::/usr/bin", &extra, ':'),
+        "/opt/homebrew/bin:/usr/bin:/Users/me/.local/bin"
+    );
 }
 
 #[test]

@@ -46,7 +46,11 @@ describe('モックのコマンド', () => {
     const snapshot = await mock.transport.invoke('get_snapshot', {});
     expect(objectOf(snapshotSchema)(snapshot, 'snapshot')).toEqual([]);
     expect(snapshot.agents.map((agent) => agent.name)).toEqual(['ハル', 'ソラ', 'ロジカ', 'ギア', 'カナメ']);
-    expect(snapshot.agents.find((agent) => agent.name === 'カナメ')).toMatchObject({ unmentioned: 'lead', canDelegate: true, backend: 'codex' });
+    expect(snapshot.agents.find((agent) => agent.name === 'カナメ')).toMatchObject({
+      unmentioned: 'lead',
+      canDelegate: true,
+      backend: 'codex',
+    });
     expect(snapshot.templates).toHaveLength(7);
     expect(snapshot.channels.map((channel) => channel.name)).toEqual(['ロビー']);
     expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
@@ -54,7 +58,11 @@ describe('モックのコマンド', () => {
 
   it('list_messages は beforeSeq で古いほうへページングし、seq の昇順で返す', async () => {
     const mock = await createHarness();
-    const latest = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 3 });
+    const latest = await mock.transport.invoke('list_messages', {
+      channelId: SEED_IDS.lobby,
+      beforeSeq: null,
+      limit: 3,
+    });
     expect(latest.map((message) => message.seq)).toEqual([10, 11, 12]);
     const older = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: 10, limit: 3 });
     expect(older.map((message) => message.seq)).toEqual([7, 8, 9]);
@@ -78,14 +86,20 @@ describe('モックのコマンド', () => {
     const chosen = agentInput({ model: 'opus', backendOptions: { effort: 'max' } });
     expect((await mock.transport.invoke('create_agent', { input: chosen })).backendOptions).toEqual({ effort: 'max' });
     const haiku = agentInput({ name: 'ミナ', model: 'claude-haiku-4-5-20251001', backendOptions: { effort: 'max' } });
-    await expect(mock.transport.invoke('create_agent', { input: haiku })).rejects.toMatchObject({ field: 'backendOptions' });
+    await expect(mock.transport.invoke('create_agent', { input: haiku })).rejects.toMatchObject({
+      field: 'backendOptions',
+    });
   });
 
   it('create_agent: タグの規則と権限の規則（permissionRules）の違反は、その field の validation', async () => {
     const mock = await createHarness();
     const badTag = agentInput({ tags: ['#設計'] });
     await expect(mock.transport.invoke('create_agent', { input: badTag })).rejects.toMatchObject({ field: 'tags' });
-    const codex = agentInput({ backend: 'codex', backendOptions: {}, permissions: { ...allowAll, webFetch: false, runCommands: false } });
+    const codex = agentInput({
+      backend: 'codex',
+      backendOptions: {},
+      permissions: { ...allowAll, webFetch: false, runCommands: false },
+    });
     await expect(mock.transport.invoke('create_agent', { input: codex })).rejects.toMatchObject({
       code: 'validation',
       field: 'permissions',
@@ -126,14 +140,20 @@ describe('モックのコマンド', () => {
 
   it('初回起動なら needsSetup。complete_setup で終える', async () => {
     const mock = await createHarness({ firstRun: true });
-    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ state: 'ok', needsSetup: true });
+    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({
+      state: 'ok',
+      needsSetup: true,
+    });
     await mock.transport.invoke('complete_setup', {});
     await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ needsSetup: false });
   });
 
   it('復旧モードでは許されたコマンドだけが動き、ほかは unavailable', async () => {
     const mock = await createHarness({ bootFailure: 'missing' });
-    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ state: 'recovery', reason: 'missing' });
+    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({
+      state: 'recovery',
+      reason: 'missing',
+    });
     await expect(mock.transport.invoke('get_snapshot', {})).rejects.toMatchObject({ code: 'unavailable' });
     await expect(mock.transport.invoke('get_storage_info', {})).resolves.toMatchObject({ source: 'settings' });
   });

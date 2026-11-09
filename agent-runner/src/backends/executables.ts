@@ -8,7 +8,14 @@ import { delimiter, join } from 'node:path';
 export function pathDirs(env: NodeJS.ProcessEnv = process.env): string[] {
   const key = pathKey(env);
   const value = key === undefined ? '' : (env[key] ?? '');
-  return [...new Set(value.split(delimiter).map((dir) => dir.trim()).filter((dir) => dir !== ''))];
+  return [
+    ...new Set(
+      value
+        .split(delimiter)
+        .map((dir) => dir.trim())
+        .filter((dir) => dir !== ''),
+    ),
+  ];
 }
 
 /** ファイルとして存在するか（シンボリックリンクはたどる） */
@@ -48,7 +55,10 @@ export function findInDirs(dirs: readonly string[], names: readonly string[]): s
 }
 
 /** PATH の先頭に dirs を足した環境変数（dirs が空なら undefined = 親の環境をそのまま使う） */
-export function withPathDirs(dirs: readonly string[], env: NodeJS.ProcessEnv = process.env): Record<string, string> | undefined {
+export function withPathDirs(
+  dirs: readonly string[],
+  env: NodeJS.ProcessEnv = process.env,
+): Record<string, string> | undefined {
   if (dirs.length === 0) return undefined;
   const copied: Record<string, string> = {};
   for (const [name, value] of Object.entries(env)) {

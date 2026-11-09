@@ -79,7 +79,8 @@ async fn seeds_the_lobby_five_agents_and_their_skills_once() {
     let colors: Vec<&str> = snapshot.agents.iter().map(|a| a.color.as_str()).collect();
     assert_eq!(colors, vec!["#cb9d2a", "#22b5e1", "#7ca2f6", "#e28d4f", "#d285cb"]);
     let tags: Vec<Vec<String>> = snapshot.agents.iter().map(|a| a.tags.clone()).collect();
-    let expected: [&[&str]; 5] = [&["作業者", "リサーチ"], &["作業者", "実装"], &["専門家", "レビュー"], &["専門家", "設計"], &["マネージャー"]];
+    let expected: [&[&str]; 5] =
+        [&["作業者", "リサーチ"], &["作業者", "実装"], &["専門家", "レビュー"], &["専門家", "設計"], &["マネージャー"]];
     assert_eq!(tags, expected.map(|tags| tags.iter().map(|tag| (*tag).to_owned()).collect::<Vec<_>>()));
     let (haru, sora, logica) = (&snapshot.agents[0], &snapshot.agents[1], &snapshot.agents[2]);
     assert_eq!(sora.backend, "codex");
@@ -90,7 +91,11 @@ async fn seeds_the_lobby_five_agents_and_their_skills_once() {
     assert!(!logica.permissions.write_files);
     let kaname = &snapshot.agents[4];
     assert_eq!((kaname.backend.as_str(), kaname.avatar.as_str()), ("codex", "🧭"));
-    assert_eq!((kaname.unmentioned, kaname.can_delegate), (UnmentionedPolicy::Lead, true), "マネージャーのテンプレート");
+    assert_eq!(
+        (kaname.unmentioned, kaname.can_delegate),
+        (UnmentionedPolicy::Lead, true),
+        "マネージャーのテンプレート"
+    );
     assert_eq!(kaname.expertise, "段取りと進行管理", "省いた得意分野はテンプレートの書き出し");
     assert_eq!(snapshot.me.color, "#f0ba5f");
 

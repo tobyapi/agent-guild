@@ -49,7 +49,8 @@ fn prepare_folder(dir: &Path, source: StorageSource) -> Result<(), BootStatus> {
         return Ok(());
     }
     if source != StorageSource::Default {
-        let message = format!("データフォルダ {} が見つかりません。ドライブが接続されているか確認してください。", dir.display());
+        let message =
+            format!("データフォルダ {} が見つかりません。ドライブが接続されているか確認してください。", dir.display());
         return Err(recovery(BootReason::Missing, dir, message));
     }
     fs::create_dir_all(dir).map_err(|error| recovery(BootReason::NotWritable, dir, error.to_string()))

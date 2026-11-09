@@ -92,7 +92,8 @@ impl<'ast> Visit<'ast> for Collector {
     fn visit_item_fn(&mut self, item: &'ast syn::ItemFn) {
         if item.attrs.iter().any(is_tauri_command) {
             let name = item.sig.ident.to_string();
-            let command = CommandFn { name, line: item.sig.ident.span().start().line, is_async: item.sig.asyncness.is_some() };
+            let command =
+                CommandFn { name, line: item.sig.ident.span().start().line, is_async: item.sig.asyncness.is_some() };
             self.found.commands.push(command);
         }
         let is_test = item.attrs.iter().any(|attr| attr.path().segments.last().is_some_and(|s| s.ident == "test"));
@@ -146,9 +147,9 @@ fn path_separator_then(trees: &[TokenTree], index: usize) -> Option<&TokenTree> 
 }
 
 fn has_cfg_test(attrs: &[Attribute]) -> bool {
-    attrs.iter().any(|attr| {
-        attr.path().is_ident("cfg") && attr.parse_args::<syn::Ident>().is_ok_and(|ident| ident == "test")
-    })
+    attrs
+        .iter()
+        .any(|attr| attr.path().is_ident("cfg") && attr.parse_args::<syn::Ident>().is_ok_and(|ident| ident == "test"))
 }
 
 /// #[tauri::command] または（tauri::command を use した上での）#[command]

@@ -17,8 +17,20 @@ describe('Claude Code のモデルの一覧', () => {
       info('claude-haiku-4-5-20251001', 'Haiku 4.5'),
     ];
     expect(toModelSpecs(models)).toEqual([
-      { id: 'opus', label: 'Opus 5.5', description: 'Opus 5.5 の説明', efforts: ['low', 'medium', 'high', 'xhigh', 'max'], defaultEffort: null },
-      { id: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5', description: 'Haiku 4.5 の説明', efforts: [], defaultEffort: null },
+      {
+        id: 'opus',
+        label: 'Opus 5.5',
+        description: 'Opus 5.5 の説明',
+        efforts: ['low', 'medium', 'high', 'xhigh', 'max'],
+        defaultEffort: null,
+      },
+      {
+        id: 'claude-haiku-4-5-20251001',
+        label: 'Haiku 4.5',
+        description: 'Haiku 4.5 の説明',
+        efforts: [],
+        defaultEffort: null,
+      },
     ]);
   });
 });

@@ -58,8 +58,12 @@ impl MessageRepository for SqliteMessageRepository {
     fn get(&self, id: &MessageId) -> AppResult<Option<Message>> {
         self.db
             .with(|conn| {
-                conn.query_row(&format!("SELECT {COLUMNS} FROM messages WHERE id = ?1"), params![id.as_str()], read_message)
-                    .optional()
+                conn.query_row(
+                    &format!("SELECT {COLUMNS} FROM messages WHERE id = ?1"),
+                    params![id.as_str()],
+                    read_message,
+                )
+                .optional()
             })
             .map_err(storage)
     }

@@ -8,10 +8,10 @@ import { makeProject, nonBlankLines } from './testSupport.mjs';
 const HOOK = fileURLToPath(new URL('./hook-file-size.mjs', import.meta.url));
 
 const root = makeProject({
-  'src/short.ts': nonBlankLines(149),
-  'src/long.tsx': nonBlankLines(150),
-  'src-tauri/src/long.rs': nonBlankLines(200),
-  'src-tauri/crates/runner-client/tests/fixtures/long.mjs': nonBlankLines(150),
+  'src/short.ts': nonBlankLines(199),
+  'src/long.tsx': nonBlankLines(200),
+  'src-tauri/src/long.rs': nonBlankLines(250),
+  'src-tauri/crates/runner-client/tests/fixtures/long.mjs': nonBlankLines(200),
   'docs/long.md': nonBlankLines(500),
   'vite.config.ts': nonBlankLines(500),
   'src-tauri/target/debug/long.rs': nonBlankLines(500),
@@ -36,14 +36,14 @@ const edited = (filePath, toolName = 'Edit') => ({
 });
 
 describe('hook-file-size', () => {
-  it('149 行までは通す', () => {
+  it('199 行までは通す', () => {
     assert.equal(runHook(edited(join(root, 'src/short.ts'))).status, 0);
   });
 
-  it('対象の 150 行以上のファイルは理由を stderr に出して exit 2（相対パスも cwd から解決）', () => {
+  it('対象の 200 行以上のファイルは理由を stderr に出して exit 2（相対パスも cwd から解決）', () => {
     const tsx = runHook(edited(join(root, 'src/long.tsx'), 'Write'));
     assert.equal(tsx.status, 2);
-    assert.match(tsx.stderr, /src\/long\.tsx は空行を除いて 150 行/);
+    assert.match(tsx.stderr, /src\/long\.tsx は空行を除いて 200 行/);
     assert.match(tsx.stderr, /分割/);
     assert.equal(runHook(edited('src-tauri/src/long.rs', 'MultiEdit')).status, 2);
     assert.equal(runHook(edited(join(root, 'src-tauri/crates/runner-client/tests/fixtures/long.mjs'))).status, 2);

@@ -23,20 +23,43 @@ export function checksOperations(request: RunRequest): boolean {
 
 /** 確かめる操作。確かめないもの（読み取り・作業フォルダの中への書き込みなど）は null */
 export function operationOf(toolName: string, input: Record<string, unknown>, workspace: string): Operation | null {
-  if (toolName === 'Bash') return { label: 'コマンドの実行', detail: lines([['コマンド', input.command], ['説明', input.description]]) };
-  if (toolName === 'WebFetch') return { label: 'Web ページを開く', detail: lines([['URL', input.url], ['ページに聞くこと', input.prompt]]) };
+  if (toolName === 'Bash')
+    return {
+      label: 'コマンドの実行',
+      detail: lines([
+        ['コマンド', input.command],
+        ['説明', input.description],
+      ]),
+    };
+  if (toolName === 'WebFetch')
+    return {
+      label: 'Web ページを開く',
+      detail: lines([
+        ['URL', input.url],
+        ['ページに聞くこと', input.prompt],
+      ]),
+    };
   if (!WRITE_TOOLS.has(toolName)) return null;
   const target = targetOf(input, workspace);
   if (isInside(target, workspace)) return null;
-  const content = Object.fromEntries(Object.entries(input).filter(([key]) => key !== 'file_path' && key !== 'notebook_path'));
-  return { label: '作業フォルダの外への書き込み', detail: lines([['書き込み先', target], ['内容', JSON.stringify(content)]]) };
+  const content = Object.fromEntries(
+    Object.entries(input).filter(([key]) => key !== 'file_path' && key !== 'notebook_path'),
+  );
+  return {
+    label: '作業フォルダの外への書き込み',
+    detail: lines([
+      ['書き込み先', target],
+      ['内容', JSON.stringify(content)],
+    ]),
+  };
 }
 
 /** パスの判定のあと、外に影響する操作を judge に確かめる canUseTool。止めたら onBlocked でチャットに知らせる */
 export function checkedPolicy(request: RunRequest, judge: Judge, onBlocked: (notice: string) => void): CanUseTool {
   const files = fileAccessPolicy(request);
   return async (toolName, input, options) => {
-    const decided = toolName in CHECKED_TOOLS ? pathless(request, toolName, input) : await files(toolName, input, options);
+    const decided =
+      toolName in CHECKED_TOOLS ? pathless(request, toolName, input) : await files(toolName, input, options);
     if (decided?.behavior !== 'allow') return decided;
     const operation = operationOf(toolName, input, request.workspace);
     if (operation === null) return decided;

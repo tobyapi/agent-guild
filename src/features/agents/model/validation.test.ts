@@ -18,7 +18,12 @@ describe('validateAgentDraft', () => {
     const result = validateAgentDraft(draft({ name: ' ミライ ', role: ' 調査 ', tags }), ctx);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.input).toMatchObject({ name: 'ミライ', role: '調査', autonomyIntervalMin: 60, unmentioned: 'answer' });
+      expect(result.input).toMatchObject({
+        name: 'ミライ',
+        role: '調査',
+        autonomyIntervalMin: 60,
+        unmentioned: 'answer',
+      });
       expect(result.input.tags).toEqual(['作業者', '調査', 'ちょうさ']);
     }
   });

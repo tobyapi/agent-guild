@@ -163,4 +163,3 @@ export class Dispatcher {
     this.#options.send({ type: 'error', id, code, message });
   }
 }
-

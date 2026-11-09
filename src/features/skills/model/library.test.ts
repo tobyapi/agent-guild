@@ -25,7 +25,9 @@ const skill = (name: string, linkedPath: string | null = null): Skill => ({
 
 describe('libraryEntryState', () => {
   it('同じフォルダのリンクは追加済み（大文字小文字・区切りの違いは同じとみなす）', () => {
-    expect(libraryEntryState(entry('api-design'), [skill('api-design', 'd:/skills/api-design')])).toEqual({ kind: 'added' });
+    expect(libraryEntryState(entry('api-design'), [skill('api-design', 'd:/skills/api-design')])).toEqual({
+      kind: 'added',
+    });
   });
 
   it('問題があれば理由を返し、同じ名前のスキルがあれば追加できない', () => {
@@ -34,13 +36,18 @@ describe('libraryEntryState', () => {
       reason: 'description がありません。',
     });
     expect(libraryEntryState(entry('api-design'), [skill('api-design')])).toEqual({ kind: 'nameTaken' });
-    expect(libraryEntryState(entry('api-design'), [skill('api-design', 'E:\\other\\api-design')])).toEqual({ kind: 'nameTaken' });
+    expect(libraryEntryState(entry('api-design'), [skill('api-design', 'E:\\other\\api-design')])).toEqual({
+      kind: 'nameTaken',
+    });
     expect(libraryEntryState(entry('api-design'), [skill('other')])).toEqual({ kind: 'available' });
   });
 });
 
 describe('searchLibrary', () => {
-  const skills = [entry('api-design', { description: 'REST API の設計' }), entry('incident-report', { description: '障害報告書' })];
+  const skills = [
+    entry('api-design', { description: 'REST API の設計' }),
+    entry('incident-report', { description: '障害報告書' }),
+  ];
 
   it('空白で区切った語をすべて含むものを、大文字小文字や全角半角を無視して探す', () => {
     expect(searchLibrary(skills, 'ＲＥＳＴ 設計').map((found) => found.name)).toEqual(['api-design']);

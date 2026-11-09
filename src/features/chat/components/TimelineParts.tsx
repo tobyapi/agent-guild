@@ -6,7 +6,12 @@ import { noticeIcon, splitLeadingName } from '../model/systemNotice';
 import type { NoticeIcon } from '../model/systemNotice';
 import styles from './MessageList.module.css';
 
-const NOTICE_ICONS: Readonly<Record<NoticeIcon, IconName>> = { join: 'join', stop: 'stop', limit: 'alert', other: 'diamond' };
+const NOTICE_ICONS: Readonly<Record<NoticeIcon, IconName>> = {
+  join: 'join',
+  stop: 'stop',
+  limit: 'alert',
+  other: 'diamond',
+};
 
 /** 話題と案内の間の全角スペース（docs/ui-design.md §7 の文例どおり） */
 const IDEOGRAPHIC_SPACE = String.fromCharCode(0x3000);
@@ -35,7 +40,11 @@ export function SystemNotice({ message, names }: { message: Message; names: read
         ) : (
           message.content
         )}
-        <time className={styles.systemTime} dateTime={isoTime(message.createdAt)} title={formatDateTime(message.createdAt)}>
+        <time
+          className={styles.systemTime}
+          dateTime={isoTime(message.createdAt)}
+          title={formatDateTime(message.createdAt)}
+        >
           {formatTime(message.createdAt)}
         </time>
       </p>

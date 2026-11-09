@@ -7,11 +7,7 @@ import { activeAgents, emitStateChanged, fail, joinChannel, requireAgent, requir
 import type { HandlerGroup } from './types';
 
 type ChannelCommands =
-  | 'create_channel'
-  | 'update_channel'
-  | 'delete_channel'
-  | 'add_channel_member'
-  | 'remove_channel_member';
+  'create_channel' | 'update_channel' | 'delete_channel' | 'add_channel_member' | 'remove_channel_member';
 
 /** 名前（先頭の # は除く）と話題を検証して整える */
 function cleanFields(name: string, topic: string): Pick<Channel, 'name' | 'topic'> {

@@ -6,13 +6,7 @@ import type { MockDelegations } from '../delegation/engine';
 import { activeAgents, emitStateChanged, joinChannel, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import type { JobOutcome } from './executor';
-import {
-  DEPTH_LIMIT_NOTICE,
-  MAX_DEPTH,
-  routeAgentReply,
-  routeHumanMessage,
-  routeMissingReply,
-} from './routing';
+import { DEPTH_LIMIT_NOTICE, MAX_DEPTH, routeAgentReply, routeHumanMessage, routeMissingReply } from './routing';
 import type { MockJob, RoutingContext, RoutingEffect } from './routing';
 import { createScheduler } from './scheduler';
 import type { Scheduler } from './scheduler';
@@ -53,7 +47,10 @@ function cancellations(core: MockCore, scheduler: Scheduler, delegations: MockDe
     },
     dropMember(channelId, agentId) {
       scheduler.discard((job) => job.channelId === channelId && job.agentId === agentId);
-      delegations.cancel((delegation) => delegation.channelId === channelId && delegation.managerId === agentId, MANAGER_GONE);
+      delegations.cancel(
+        (delegation) => delegation.channelId === channelId && delegation.managerId === agentId,
+        MANAGER_GONE,
+      );
       delegations.dropAssignee(agentId, channelId);
     },
   };
@@ -119,7 +116,17 @@ export function createConversation(core: MockCore): MockConversation {
     onHumanMessage: (message, channel) => apply(routeHumanMessage(message, contextOf(channel)), channel, message.id),
     queueAutonomous(agentId, channelId) {
       if (scheduler.isBusy(agentId)) return;
-      enqueue({ agentId, channelId, mode: 'autonomous', triggers: [], returnTo: [], depth: 1, rootId: null, notes: [], delegation: null });
+      enqueue({
+        agentId,
+        channelId,
+        mode: 'autonomous',
+        triggers: [],
+        returnTo: [],
+        depth: 1,
+        rootId: null,
+        notes: [],
+        delegation: null,
+      });
     },
     ...cancellations(core, scheduler, delegations),
   };

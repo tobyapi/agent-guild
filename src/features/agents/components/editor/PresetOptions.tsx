@@ -19,7 +19,14 @@ export interface PresetOptionsProps<T extends AnyPreset> {
  * マウスは動かしたときだけ選択を移す。onMouseEnter だと、↑↓ で一覧がスクロールして止まっているマウスの下に
  * 来た行にも選択が移り、キーボードで選んだ項目が奪われる（スクロールでは mousemove は起きない）
  */
-export function PresetOptions<T extends AnyPreset>({ id, title, items, activeIndex, onHover, onChoose }: PresetOptionsProps<T>) {
+export function PresetOptions<T extends AnyPreset>({
+  id,
+  title,
+  items,
+  activeIndex,
+  onHover,
+  onChoose,
+}: PresetOptionsProps<T>) {
   return (
     <ul id={id} role="listbox" aria-label={title} className={styles.list}>
       {items.map((preset, index) => {
@@ -41,10 +48,15 @@ export function PresetOptions<T extends AnyPreset>({ id, title, items, activeInd
               onClick={() => onChoose(preset, 'replace')}
             >
               <span className={styles.label}>{preset.label}</span>
-              <button type="button" className={styles.append} tabIndex={-1} onClick={(event) => {
-                event.stopPropagation();
-                onChoose(preset, 'append');
-              }}>
+              <button
+                type="button"
+                className={styles.append}
+                tabIndex={-1}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onChoose(preset, 'append');
+                }}
+              >
                 追記
               </button>
               <span className={styles.text}>{preset.text}</span>

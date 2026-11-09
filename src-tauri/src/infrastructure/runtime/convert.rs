@@ -3,7 +3,8 @@
 use guild_application::ports::{ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
-    BackendInfo, BackendStatus, MidRunPost, ModelSpec, OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus,
+    BackendInfo, BackendStatus, MidRunPost, ModelSpec, OptionSpec, OptionType, PermissionRule, RuntimeState,
+    RuntimeStatus,
 };
 use runner_client as runner;
 

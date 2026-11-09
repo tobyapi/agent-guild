@@ -24,5 +24,8 @@ export const CHANNEL_TOPIC_MAX = 200;
 
 /** チャンネル名の正規化: 前後の空白と先頭の #（全角の ＃ を含む）を除く（サーバと同じ） */
 export function cleanChannelName(name: string): string {
-  return name.trim().replace(/^[#＃]+/, '').trim();
+  return name
+    .trim()
+    .replace(/^[#＃]+/, '')
+    .trim();
 }

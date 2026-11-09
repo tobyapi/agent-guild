@@ -2,7 +2,13 @@
 import { PERMISSION_LABELS, PERMISSION_ORDER } from '@/shared/lib/permissions';
 import type { PermissionKey, Permissions } from '@/shared/types/domain';
 
-export { effectivePermissions, leakRisk, PERMISSION_LABELS, PERMISSION_ORDER, permissionRuleProblem } from '@/shared/lib/permissions';
+export {
+  effectivePermissions,
+  leakRisk,
+  PERMISSION_LABELS,
+  PERMISSION_ORDER,
+  permissionRuleProblem,
+} from '@/shared/lib/permissions';
 export type { RuleProblem } from '@/shared/lib/permissions';
 
 export interface PermissionText {

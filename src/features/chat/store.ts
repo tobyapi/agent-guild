@@ -101,7 +101,10 @@ export async function sendMessage(
     receiveMessage(message);
     return true;
   } catch (error) {
-    notifyError(sendFailureMessage(error), { label: '再送信', run: () => void sendMessage(channelId, content, attachments) });
+    notifyError(sendFailureMessage(error), {
+      label: '再送信',
+      run: () => void sendMessage(channelId, content, attachments),
+    });
     return false;
   }
 }

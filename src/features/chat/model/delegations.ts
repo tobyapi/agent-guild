@@ -50,9 +50,11 @@ export function taskLinkIndex(delegations: readonly Delegation[]): Map<string, T
   const index = new Map<string, TaskLink>();
   for (const delegation of delegations) {
     for (const subtask of delegation.subtasks) {
-      if (subtask.resultMessageId !== null) index.set(subtask.resultMessageId, { kind: 'result', planMessageId: delegation.messageId });
+      if (subtask.resultMessageId !== null)
+        index.set(subtask.resultMessageId, { kind: 'result', planMessageId: delegation.messageId });
     }
-    if (delegation.summaryMessageId !== null) index.set(delegation.summaryMessageId, { kind: 'summary', planMessageId: delegation.messageId });
+    if (delegation.summaryMessageId !== null)
+      index.set(delegation.summaryMessageId, { kind: 'summary', planMessageId: delegation.messageId });
   }
   return index;
 }

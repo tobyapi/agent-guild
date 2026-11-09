@@ -28,7 +28,15 @@ import {
 const INFO: BackendDescriptor = {
   id: 'claude',
   label: 'Claude',
-  capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
+  capabilities: {
+    webSearch: true,
+    webFetch: true,
+    readFiles: true,
+    writeFiles: true,
+    writeAnywhere: true,
+    runCommands: true,
+    skills: true,
+  },
   options: [
     {
       key: 'maxTurns',
@@ -79,7 +87,10 @@ async function login(context: LoginContext): Promise<void> {
   if (context.signal.aborted) return;
   const { status } = await probeClaude();
   if (status !== 'ready') {
-    throw new BackendError('auth', 'Claude のログインが完了しませんでした。開いた窓とブラウザで、ログインを最後まで進めてください');
+    throw new BackendError(
+      'auth',
+      'Claude のログインが完了しませんでした。開いた窓とブラウザで、ログインを最後まで進めてください',
+    );
   }
 }
 

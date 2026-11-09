@@ -49,7 +49,15 @@ describe('noticeIcon / splitLeadingName', () => {
 
 describe('createAuthorResolver', () => {
   const agents = [
-    { id: 'hal', name: 'ハル', avatar: '🌱', color: '#cb9d2a', tags: ['作業者', 'リサーチ'], backend: 'claude', deletedAt: null },
+    {
+      id: 'hal',
+      name: 'ハル',
+      avatar: '🌱',
+      color: '#cb9d2a',
+      tags: ['作業者', 'リサーチ'],
+      backend: 'claude',
+      deletedAt: null,
+    },
     { id: 'sora', name: 'ソラ', avatar: '🛠️', color: '#22b5e1', tags: ['作業者'], backend: 'codex', deletedAt: 1 },
   ] as Agent[];
   const resolve = createAuthorResolver(agents, { name: 'あなた', avatar: '🙂', color: '#f0ba5f' });

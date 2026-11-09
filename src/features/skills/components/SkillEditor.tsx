@@ -16,7 +16,12 @@ export function SkillEditor({ agentId, skill, existing, onDone }: SkillEditorPro
   const form = useSkillForm({ agentId, skill, existing, onDone });
   const { draft, errors } = form;
   return (
-    <form className={styles.editor} onSubmit={form.onSubmit} noValidate aria-label={skill ? `${skill.name} を編集` : '新しいスキル'}>
+    <form
+      className={styles.editor}
+      onSubmit={form.onSubmit}
+      noValidate
+      aria-label={skill ? `${skill.name} を編集` : '新しいスキル'}
+    >
       {form.formError && <FormAlert>{form.formError}</FormAlert>}
       <TextField
         label="名前"

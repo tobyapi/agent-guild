@@ -12,7 +12,10 @@ describe('commitTagText', () => {
   });
 
   it('規則に反するタグがあれば何も足さずに理由を返す', () => {
-    expect(commitTagText([], '設計 #レビュー')).toEqual({ ok: false, error: '「#レビュー」: タグに空白・#・,・@ は使えません' });
+    expect(commitTagText([], '設計 #レビュー')).toEqual({
+      ok: false,
+      error: '「#レビュー」: タグに空白・#・,・@ は使えません',
+    });
     expect(commitTagText([], 'あ'.repeat(17))).toMatchObject({ ok: false });
   });
 

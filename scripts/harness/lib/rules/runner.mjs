@@ -10,10 +10,14 @@ const isTest = (file) => /\.test\.tsx?$/.test(file);
 /** backends/ 直下の単位（拡張子を除いた名前。claude.ts と claude/ は同じ「claude」）。backends/ の外なら null */
 function backendUnit(path) {
   if (!path.startsWith(BACKENDS)) return null;
-  return path.slice(BACKENDS.length).split('/')[0].replace(/\.(tsx?|mjs|js)$/, '');
+  return path
+    .slice(BACKENDS.length)
+    .split('/')[0]
+    .replace(/\.(tsx?|mjs|js)$/, '');
 }
 
-const isAdapter = (unit) => unit !== null && unit !== RUNNER_BACKEND_REGISTRY && !RUNNER_BACKEND_COMMON_MODULES.has(unit);
+const isAdapter = (unit) =>
+  unit !== null && unit !== RUNNER_BACKEND_REGISTRY && !RUNNER_BACKEND_COMMON_MODULES.has(unit);
 
 /**
  * アダプタが import してよい backends/ のものは、自分自身と共通部品だけ。

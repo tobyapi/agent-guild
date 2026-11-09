@@ -120,11 +120,7 @@ impl Agent {
     /// 編集できる項目を入力で置き換える（id・作成日時・最後の自発活動・削除状態は保つ）
     pub fn apply(&mut self, input: AgentInput) {
         let (last_autonomous_at, deleted_at) = (self.last_autonomous_at, self.deleted_at);
-        *self = Self {
-            last_autonomous_at,
-            deleted_at,
-            ..Self::new(self.id.clone(), input, self.created_at)
-        };
+        *self = Self { last_autonomous_at, deleted_at, ..Self::new(self.id.clone(), input, self.created_at) };
     }
 
     /// 削除されていない

@@ -43,7 +43,12 @@ pub(super) fn files_section(ctx: &PromptContext<'_>, files: &[(&Message, &Attach
         .iter()
         .map(|(message, attachment)| {
             let path = (ctx.attachment_path)(message, attachment);
-            format!("- {} の発言: {}（{}）\n  {path}", speaker(ctx, message), attachment.name, size_label(attachment.size))
+            format!(
+                "- {} の発言: {}（{}）\n  {path}",
+                speaker(ctx, message),
+                attachment.name,
+                size_label(attachment.size)
+            )
         })
         .collect();
     let how = if ctx.permissions.read_files {

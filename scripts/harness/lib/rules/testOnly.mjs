@@ -18,7 +18,8 @@ export function checkTestOnlyImports(file, imports) {
   return imports.flatMap((imported) => {
     const { target } = imported;
     if (target.kind === 'package' && target.name === 'vitest') {
-      const advice = 'vitest を import できるのはテストとテスト用の部品だけ。テストの組み立ては <名前>.test-support.ts に置く';
+      const advice =
+        'vitest を import できるのはテストとテスト用の部品だけ。テストの組み立ては <名前>.test-support.ts に置く';
       return [{ file, line: imported.line, rule: 'vitest-outside-tests', advice }];
     }
     if (target.kind === 'file' && isTestSupportFile(target.path)) {

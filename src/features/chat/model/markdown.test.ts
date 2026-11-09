@@ -23,11 +23,15 @@ describe('createMarkdownRenderer: メンション', () => {
     expect(render('@ハル お願い')).toContain(
       '<span class="mention" data-kind="agent" data-mention-id="hal" style="--tag-fg: var(--kind-manager, var(--kind-neutral)); --tag-bg: var(--kind-manager-soft, var(--kind-neutral-soft))">@ハル</span>',
     );
-    expect(render('@ユーザー')).toContain('data-kind="human" data-mention-id="me" style="--tag-fg: var(--kind-human, var(--kind-neutral));');
+    expect(render('@ユーザー')).toContain(
+      'data-kind="human" data-mention-id="me" style="--tag-fg: var(--kind-human, var(--kind-neutral));',
+    );
   });
 
   it('色の決まらない相手は style を付けず、既定のチップの色にする', () => {
-    expect(render('@ハルカ')).toContain('<span class="mention" data-kind="agent" data-mention-id="haruka">@ハルカ</span>');
+    expect(render('@ハルカ')).toContain(
+      '<span class="mention" data-kind="agent" data-mention-id="haruka">@ハルカ</span>',
+    );
   });
 
   it('長い名前を優先し、全角の＠と大文字小文字の違いも認識する', () => {

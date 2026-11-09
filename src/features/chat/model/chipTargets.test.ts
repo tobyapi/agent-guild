@@ -31,10 +31,12 @@ describe('mentionChipTargets', () => {
 
   it('削除済みは既定の色。同じ名前の現役か自分がいれば、削除済みはチップにしない', () => {
     const agents = [agent('old', 'ソラ', ['作業者'], 1), agent('new', 'ｿﾗ', ['専門家']), agent('gone', 'ギア', [], 2)];
-    expect(mentionChipTargets(agents, templates, { name: 'ギア' }).map((target) => [target.id, target.accent])).toEqual([
-      ['new', 'expert'],
-      [HUMAN_ID, 'human'],
-    ]);
+    expect(mentionChipTargets(agents, templates, { name: 'ギア' }).map((target) => [target.id, target.accent])).toEqual(
+      [
+        ['new', 'expert'],
+        [HUMAN_ID, 'human'],
+      ],
+    );
     expect(mentionChipTargets([agent('gone', 'ギア', [], 2)], templates, { name: 'ユーザー' })).toContainEqual({
       id: 'gone',
       name: 'ギア',

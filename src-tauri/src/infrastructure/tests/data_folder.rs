@@ -6,7 +6,9 @@ use std::time::Duration;
 use guild_application::ports::{FolderState, Folders};
 
 use super::TempDir;
-use crate::infrastructure::data_dir::{acquire_lock, is_empty_folder, read_marker, write_marker, LockError, MarkerState, LOCK_FILE};
+use crate::infrastructure::data_dir::{
+    acquire_lock, is_empty_folder, read_marker, write_marker, LockError, MarkerState, LOCK_FILE,
+};
 use crate::infrastructure::folders::FsFolders;
 use crate::infrastructure::sqlite::Database;
 

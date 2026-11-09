@@ -14,7 +14,8 @@ function checkDirs(dirs: readonly string[]): void {
   for (const [index, dir] of dirs.entries()) {
     if (!ABSOLUTE_PATH.test(dir)) fail('validation', `絶対パスのフォルダを指定してください（${dir}）`, 'dirs');
     const others = dirs.filter((_, position) => position !== index);
-    if (others.some((other) => isSamePath(other, dir))) fail('validation', `同じフォルダが2回指定されています（${dir}）`, 'dirs');
+    if (others.some((other) => isSamePath(other, dir)))
+      fail('validation', `同じフォルダが2回指定されています（${dir}）`, 'dirs');
     const parent = others.find((other) => isInsidePath(dir, other));
     if (parent) fail('validation', `${dir} は ${parent} の中にあります。どちらか一方だけを指定してください`, 'dirs');
   }

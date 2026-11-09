@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { PERSONALITIES } from './personalities';
-import { appendPresetText, findPreset, groupHeadingAt, matchingPreset, PRESET_GROUP_LABELS, searchPresets } from './presetText';
+import {
+  appendPresetText,
+  findPreset,
+  groupHeadingAt,
+  matchingPreset,
+  PRESET_GROUP_LABELS,
+  searchPresets,
+} from './presetText';
 import { TONES } from './tones';
 import type { AnyPreset, PresetGroup, TonePreset } from './types';
 
@@ -15,7 +22,13 @@ function tableRows(heading: string): string[][] {
   return lines
     .slice(start, end < 0 ? undefined : end)
     .slice(2)
-    .map((line) => line.trim().replace(/^\||\|$/g, '').split('|').map((cell) => cell.trim()));
+    .map((line) =>
+      line
+        .trim()
+        .replace(/^\||\|$/g, '')
+        .split('|')
+        .map((cell) => cell.trim()),
+    );
 }
 
 /** 組で絞る（undefined は定番） */
@@ -57,7 +70,9 @@ describe('プリセットの表', () => {
     ['性格', PERSONALITIES],
     ['話し方', TONES],
   ] as const)('%s: 同じ組は続けて並ぶ（見出しは組ごとに一度だけ）', (_name, presets) => {
-    const headings = presets.map((_preset, index) => groupHeadingAt(presets, index)).filter((heading) => heading !== null);
+    const headings = presets
+      .map((_preset, index) => groupHeadingAt(presets, index))
+      .filter((heading) => heading !== null);
     expect(headings).toEqual([PRESET_GROUP_LABELS.character]);
   });
 
@@ -93,7 +108,11 @@ describe('groupHeadingAt', () => {
   ];
 
   it('組が変わる行だけ見出しを返す（定番には見出しを出さない）', () => {
-    expect(items.map((_item, index) => groupHeadingAt(items, index))).toEqual([null, PRESET_GROUP_LABELS.character, null]);
+    expect(items.map((_item, index) => groupHeadingAt(items, index))).toEqual([
+      null,
+      PRESET_GROUP_LABELS.character,
+      null,
+    ]);
   });
 
   it('検索で定番が消えてキャラクターから始まるときは、先頭に見出しを出す', () => {

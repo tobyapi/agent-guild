@@ -26,7 +26,12 @@ export function ProfileForm({ takenNames }: ProfileFormProps) {
             autoComplete="off"
             data-autofocus
           />
-          <AvatarInput value={draft.avatar} onChange={(value) => form.update('avatar', value)} error={errors.avatar} human />
+          <AvatarInput
+            value={draft.avatar}
+            onChange={(value) => form.update('avatar', value)}
+            error={errors.avatar}
+            human
+          />
         </div>
       </div>
       <ColorInput value={draft.color} onChange={(value) => form.update('color', value)} human />

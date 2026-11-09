@@ -34,10 +34,18 @@ function readLine(line: string, targets: readonly MentionTarget[]): TaskLine {
   const target = matchMentionAt(line, targets);
   const separator = target ? SEPARATOR.exec(line.slice(1 + target.name.length)) : null;
   if (target && separator) {
-    return { name: target.name, targetId: target.id, instruction: line.slice(1 + target.name.length + separator[0].length).trim() };
+    return {
+      name: target.name,
+      targetId: target.id,
+      instruction: line.slice(1 + target.name.length + separator[0].length).trim(),
+    };
   }
   const colon = line.search(/[:：]/);
-  return { name: (colon < 0 ? line.slice(1) : line.slice(1, colon)).trim(), targetId: null, instruction: colon < 0 ? '' : line.slice(colon + 1).trim() };
+  return {
+    name: (colon < 0 ? line.slice(1) : line.slice(1, colon)).trim(),
+    targetId: null,
+    instruction: colon < 0 ? '' : line.slice(colon + 1).trim(),
+  };
 }
 
 function readLines(lines: readonly string[], targets: readonly MentionTarget[]): TaskLine[] {
@@ -63,7 +71,10 @@ export function parseTasks(content: string, agents: readonly Agent[], selfId: st
     if (line.targetId === null || line.targetId === selfId) skipped.push(line.name);
     else byAssignee.set(line.targetId, [...(byAssignee.get(line.targetId) ?? []), line.instruction]);
   }
-  const all = [...byAssignee].map(([assigneeId, parts]) => ({ assigneeId, instruction: parts.filter((part) => part !== '').join('\n') }));
+  const all = [...byAssignee].map(([assigneeId, parts]) => ({
+    assigneeId,
+    instruction: parts.filter((part) => part !== '').join('\n'),
+  }));
   const nameOf = (id: string) => agents.find((agent) => agent.id === id)?.name ?? id;
   return {
     entries: all.slice(0, MAX_SUBTASKS),

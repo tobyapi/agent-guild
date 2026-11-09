@@ -97,7 +97,9 @@ pub fn inspect_database(path: &Path) -> Result<(), OpenError> {
     match identify(&conn).map_err(corrupt)? {
         Identity::Foreign => Err(OpenError::Foreign),
         Identity::Newer(version) => Err(OpenError::Newer(version)),
-        Identity::Outdated if !cfg!(debug_assertions) => Err(OpenError::Corrupt("スキーマの指紋が一致しません".to_owned())),
+        Identity::Outdated if !cfg!(debug_assertions) => {
+            Err(OpenError::Corrupt("スキーマの指紋が一致しません".to_owned()))
+        }
         _ => Ok(()),
     }
 }
@@ -106,11 +108,8 @@ fn identify(conn: &Connection) -> rusqlite::Result<Identity> {
     let application_id = migrations::application_id(conn)?;
     let version = migrations::applied_version(conn)?;
     if application_id == 0 && version == 0 {
-        let has_tables: bool = conn.query_row(
-            "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table')",
-            [],
-            |row| row.get(0),
-        )?;
+        let has_tables: bool =
+            conn.query_row("SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table')", [], |row| row.get(0))?;
         return Ok(if has_tables { Identity::Foreign } else { Identity::Fresh });
     }
     if application_id != APPLICATION_ID {

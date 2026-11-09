@@ -19,7 +19,8 @@ const RUNNER = {
     "import { o } from './claude/options.ts';",
     "import { l } from '../log.ts';",
   ].join('\n'),
-  'agent-runner/src/backends/claude/options.ts': "import { p } from './permissions.ts';\nimport type { R } from '../types.ts';",
+  'agent-runner/src/backends/claude/options.ts':
+    "import { p } from './permissions.ts';\nimport type { R } from '../types.ts';",
   'agent-runner/src/backends/claude/permissions.ts': '',
   'agent-runner/src/backends/codex.ts': "import type { X } from './types.ts';",
 };
@@ -47,7 +48,8 @@ describe('agent-runner の規約', () => {
   it('stdin・stdout は main.ts だけ、console は log.ts と main.ts だけ（テストは可）', () => {
     const root = makeProject({
       ...RUNNER,
-      'agent-runner/src/dispatcher.ts': "const x = 1;\nprocess.stdout.write('x');\nconsole.log('debug');\nconsole.error('e');",
+      'agent-runner/src/dispatcher.ts':
+        "const x = 1;\nprocess.stdout.write('x');\nconsole.log('debug');\nconsole.error('e');",
       'agent-runner/src/dispatcher.test.ts': "vi.spyOn(process.stdout, 'write');\nconsole.log('test');",
     });
     assert.deepEqual(summarize(root), [
@@ -59,23 +61,26 @@ describe('agent-runner の規約', () => {
 });
 
 describe('行数', () => {
-  it('src・agent-runner/src・scripts の .ts/.tsx/.css/.mjs が空行を除いて 150 行以上なら違反', () => {
+  it('src・agent-runner/src・scripts の .ts/.tsx/.css/.mjs が空行を除いて 200 行以上なら違反', () => {
     const root = makeProject({
-      'src/ok.ts': nonBlankLines(149),
-      'src/big.css': nonBlankLines(150),
-      'scripts/big.mjs': `${'\n'.repeat(10)}${nonBlankLines(200)}`,
-      'agent-runner/src/big.ts': nonBlankLines(151),
+      'src/ok.ts': nonBlankLines(199),
+      'src/big.css': nonBlankLines(200),
+      'scripts/big.mjs': `${'\n'.repeat(10)}${nonBlankLines(250)}`,
+      'agent-runner/src/big.ts': nonBlankLines(201),
       'src-tauri/big.ts': nonBlankLines(300),
     });
     assert.deepEqual(summarize(root), [
-      'agent-runner/src/big.ts:150 max-lines',
-      'scripts/big.mjs:160 max-lines',
-      'src/big.css:150 max-lines',
+      'agent-runner/src/big.ts:200 max-lines',
+      'scripts/big.mjs:210 max-lines',
+      'src/big.css:200 max-lines',
     ]);
   });
 
   it('違反は「ファイル:行 規則名 — 直し方」で出す', () => {
-    const [violation] = checkProject(makeProject({ 'src/big.ts': nonBlankLines(160) }));
-    assert.equal(formatViolation(violation), 'src/big.ts:150 max-lines — 空行を除いて 160 行（上限 149 行）。責務ごとにファイルを分割する');
+    const [violation] = checkProject(makeProject({ 'src/big.ts': nonBlankLines(210) }));
+    assert.equal(
+      formatViolation(violation),
+      'src/big.ts:200 max-lines — 空行を除いて 210 行（上限 199 行）。責務ごとにファイルを分割する',
+    );
   });
 });

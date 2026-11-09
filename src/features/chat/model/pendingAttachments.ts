@@ -82,4 +82,8 @@ export function sizeLabel(size: number): string {
 }
 
 /** send_message に渡す形 */
-export const toAttachmentInput = ({ name, mediaType, data }: PendingAttachment): AttachmentInput => ({ name, mediaType, data });
+export const toAttachmentInput = ({ name, mediaType, data }: PendingAttachment): AttachmentInput => ({
+  name,
+  mediaType,
+  data,
+});

@@ -9,7 +9,8 @@ use crate::conversation::interrupted;
 impl Actor {
     /// 待機と実行中（停止・取り消しで結果を捨てるものは除く）のジョブを積んだ順に要約し、変わっていれば保存する
     pub(super) fn record_inflight(&mut self) {
-        let waiting = self.state.lanes.values().flat_map(|lane| lane.waiting().map(|pending| (pending.ticket, &pending.job)));
+        let waiting =
+            self.state.lanes.values().flat_map(|lane| lane.waiting().map(|pending| (pending.ticket, &pending.job)));
         let running = self
             .state
             .running

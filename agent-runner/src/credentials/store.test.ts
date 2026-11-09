@@ -4,34 +4,52 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiKeyEnvironment, credentialStore, manageApiKey } from './store.ts';
 
 const { spawn, saved, requests, control } = vi.hoisted(() => ({
-  spawn: vi.fn(), saved: new Map<string, string>(), requests: [] as Record<string, string>[], control: { fail: false },
+  spawn: vi.fn(),
+  saved: new Map<string, string>(),
+  requests: [] as Record<string, string>[],
+  control: { fail: false },
 }));
 vi.mock('node:child_process', () => ({ spawn }));
 
 beforeEach(() => {
-  vi.stubGlobal('process', Object.defineProperty(Object.create(process) as NodeJS.Process, 'platform', { value: 'win32' }));
-  saved.clear(); requests.length = 0; control.fail = false;
+  vi.stubGlobal(
+    'process',
+    Object.defineProperty(Object.create(process) as NodeJS.Process, 'platform', { value: 'win32' }),
+  );
+  saved.clear();
+  requests.length = 0;
+  control.fail = false;
   spawn.mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
-      stdout: new PassThrough(), stderr: new PassThrough(), kill: vi.fn(),
-      stdin: new Writable({ write(chunk, _encoding, callback) {
-        const request = JSON.parse(String(chunk)) as { backend: string; action: string; key: string };
-        requests.push(request);
-        queueMicrotask(() => {
-          if (!control.fail) {
-            if (request.action === 'set') saved.set(request.backend, request.key);
-            if (request.action === 'delete') saved.delete(request.backend);
-            child.stdout.write(JSON.stringify(request.action === 'get' ? saved.get(request.backend) ?? null : null));
-          } else child.stderr.write(`sensitive error: ${request.key ?? 'hidden'}`);
-          child.emit('close', control.fail ? 1 : 0);
-        });
-        callback();
-      } }),
+      stdout: new PassThrough(),
+      stderr: new PassThrough(),
+      kill: vi.fn(),
+      stdin: new Writable({
+        write(chunk, _encoding, callback) {
+          const request = JSON.parse(String(chunk)) as { backend: string; action: string; key: string };
+          requests.push(request);
+          queueMicrotask(() => {
+            if (!control.fail) {
+              if (request.action === 'set') saved.set(request.backend, request.key);
+              if (request.action === 'delete') saved.delete(request.backend);
+              child.stdout.write(
+                JSON.stringify(request.action === 'get' ? (saved.get(request.backend) ?? null) : null),
+              );
+            } else child.stderr.write(`sensitive error: ${request.key ?? 'hidden'}`);
+            child.emit('close', control.fail ? 1 : 0);
+          });
+          callback();
+        },
+      }),
     });
     return child;
   });
 });
-afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.clearAllMocks(); });
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+  vi.clearAllMocks();
+});
 
 describe('OS credential settings', () => {
   it('saves, replaces and deletes independently; status never returns a key', async () => {
@@ -79,7 +97,10 @@ describe('OS credential settings', () => {
     expect(spawn).not.toHaveBeenCalled();
   });
   it('retains environment auth on other OSes and refuses insecure persistence', async () => {
-    vi.stubGlobal('process', Object.defineProperty(Object.create(process) as NodeJS.Process, 'platform', { value: 'linux' }));
+    vi.stubGlobal(
+      'process',
+      Object.defineProperty(Object.create(process) as NodeJS.Process, 'platform', { value: 'linux' }),
+    );
     expect(await apiKeyEnvironment('muse', { MODEL_API_KEY: 'env-muse' })).toHaveProperty('MODEL_API_KEY', 'env-muse');
     expect(await manageApiKey('muse', 'status')).toContain('"supported":false');
     await expect(manageApiKey('muse', 'set', 'dummy')).rejects.toThrow('Windows');

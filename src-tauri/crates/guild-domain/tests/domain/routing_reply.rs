@@ -79,10 +79,7 @@ fn other_mentions_in_an_answer_become_new_consultations() {
     let (message, job) = reply("logica", 2, &["sora"], &["haru"]);
     assert_eq!(
         summary(&route(&message, &job)),
-        vec![
-            ("haru".to_owned(), JobMode::Return, vec![]),
-            ("sora".to_owned(), JobMode::Reply, ids(&["logica"])),
-        ]
+        vec![("haru".to_owned(), JobMode::Return, vec![]), ("sora".to_owned(), JobMode::Reply, ids(&["logica"])),]
     );
 }
 

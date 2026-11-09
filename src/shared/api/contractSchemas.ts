@@ -5,7 +5,12 @@ import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { agentSchema, channelSchema, messageSchema, profileSchema } from '@/shared/types/schemas/entities';
 import { skillLibrarySchema, skillSchema, skillsChangedSchema } from '@/shared/types/schemas/skills';
-import { activityStateSchema, bootStatusSchema, snapshotSchema, storageInfoSchema } from '@/shared/types/schemas/system';
+import {
+  activityStateSchema,
+  bootStatusSchema,
+  snapshotSchema,
+  storageInfoSchema,
+} from '@/shared/types/schemas/system';
 import type { CommandName, EventName } from './contract';
 
 const agent = objectOf(agentSchema);

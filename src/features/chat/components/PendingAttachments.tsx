@@ -23,7 +23,11 @@ export function PendingAttachments({ attachments, onRemove }: PendingAttachments
           ) : (
             <img className={styles.thumb} src={attachment.preview} alt={attachment.name} title={attachment.name} />
           )}
-          <IconButton label={`${attachment.name} を外す`} className={styles.remove} onClick={() => onRemove(attachment.key)}>
+          <IconButton
+            label={`${attachment.name} を外す`}
+            className={styles.remove}
+            onClick={() => onRemove(attachment.key)}
+          >
             <Icon name="close" />
           </IconButton>
         </li>

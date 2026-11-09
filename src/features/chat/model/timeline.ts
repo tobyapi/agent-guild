@@ -19,12 +19,16 @@ type GroupItem = Extract<TimelineItem, { type: 'group' }>;
 
 function continuesGroup(group: GroupItem, message: Message): boolean {
   const tail = group.messages.at(-1);
-  if (!tail || group.kind !== message.kind || !GROUPABLE.has(message.kind) || group.authorId !== message.authorId) return false;
+  if (!tail || group.kind !== message.kind || !GROUPABLE.has(message.kind) || group.authorId !== message.authorId)
+    return false;
   return isSameDay(tail.createdAt, message.createdAt) && message.createdAt - tail.createdAt <= GROUP_WINDOW_MS;
 }
 
 /** messages は表示順（seq の昇順）で渡す。breaksGroup が真の発言は、見出しを出すために必ず新しいまとまりを始める */
-export function buildTimeline(messages: readonly Message[], breaksGroup: (message: Message) => boolean = () => false): TimelineItem[] {
+export function buildTimeline(
+  messages: readonly Message[],
+  breaksGroup: (message: Message) => boolean = () => false,
+): TimelineItem[] {
   const items: TimelineItem[] = [];
   let previous: Message | undefined;
   for (const message of messages) {
@@ -37,7 +41,13 @@ export function buildTimeline(messages: readonly Message[], breaksGroup: (messag
     } else if (last?.type === 'group' && continuesGroup(last, message) && !breaksGroup(message)) {
       last.messages.push(message);
     } else {
-      items.push({ type: 'group', key: message.id, authorId: message.authorId, kind: message.kind, messages: [message] });
+      items.push({
+        type: 'group',
+        key: message.id,
+        authorId: message.authorId,
+        kind: message.kind,
+        messages: [message],
+      });
     }
     previous = message;
   }

@@ -53,7 +53,12 @@ describe('writeSkills', () => {
       'scripts/profile.py': 'print("profile")',
       'references/gc.md': '# GC',
     });
-    const linked: SkillPayload = { name: 'unity-performance', description: 'Unity', body: '# 新しい本文', dir: library };
+    const linked: SkillPayload = {
+      name: 'unity-performance',
+      description: 'Unity',
+      body: '# 新しい本文',
+      dir: library,
+    };
     const dir = join(tempDir(), 'skills');
     await writeSkills(dir, [REVIEW, linked]);
     const skillDir = join(dir, 'unity-performance');
@@ -74,15 +79,20 @@ describe('writeSkills', () => {
     expect(existsSync(join(dir, 'big'))).toBe(false);
   });
 
-  it.each(['../escape', 'Upper', '-edge', 'a--b', 'a/b', ''])('標準に合わない name（%s）は bad_request で何も書かない', async (name) => {
-    const dir = join(tempDir(), 'skills');
-    const failure = writeSkills(dir, [{ ...REVIEW, name }]);
-    await expect(failure).rejects.toBeInstanceOf(BackendError);
-    await expect(failure).rejects.toMatchObject({ code: 'bad_request' });
-    expect(existsSync(dir)).toBe(false);
-  });
+  it.each(['../escape', 'Upper', '-edge', 'a--b', 'a/b', ''])(
+    '標準に合わない name（%s）は bad_request で何も書かない',
+    async (name) => {
+      const dir = join(tempDir(), 'skills');
+      const failure = writeSkills(dir, [{ ...REVIEW, name }]);
+      await expect(failure).rejects.toBeInstanceOf(BackendError);
+      await expect(failure).rejects.toMatchObject({ code: 'bad_request' });
+      expect(existsSync(dir)).toBe(false);
+    },
+  );
 
   it('同じ name のスキルが2つあれば bad_request', async () => {
-    await expect(writeSkills(join(tempDir(), 'skills'), [REVIEW, REVIEW])).rejects.toMatchObject({ code: 'bad_request' });
+    await expect(writeSkills(join(tempDir(), 'skills'), [REVIEW, REVIEW])).rejects.toMatchObject({
+      code: 'bad_request',
+    });
   });
 });

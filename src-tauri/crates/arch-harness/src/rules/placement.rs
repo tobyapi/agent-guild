@@ -62,7 +62,10 @@ pub fn check_async_commands(root: &Path) -> Vec<Violation> {
     let (parsed, mut violations) = super::main_crate(root);
     for (file, found) in &parsed {
         for command in found.commands.iter().filter(|command| !command.is_async) {
-            let advice = format!("コマンド {} を async fn にする（同期コマンドはメインスレッドで動き、UI を止める）", command.name);
+            let advice = format!(
+                "コマンド {} を async fn にする（同期コマンドはメインスレッドで動き、UI を止める）",
+                command.name
+            );
             violations.push(Violation::new(&file.path, command.line, "tauri-command-async", advice));
         }
     }

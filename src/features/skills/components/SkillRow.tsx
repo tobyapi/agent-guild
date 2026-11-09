@@ -45,7 +45,10 @@ export function SkillRow({ skill, onEdit, onView, onDelete }: SkillRowProps) {
           <IconButton label={`${skill.name} の本文を見る`} onClick={onView}>
             <Icon name="eye" />
           </IconButton>
-          <IconButton label={`${skill.name} のフォルダを開く`} onClick={() => void revealSkillFolder(source.path).catch(reportError)}>
+          <IconButton
+            label={`${skill.name} のフォルダを開く`}
+            onClick={() => void revealSkillFolder(source.path).catch(reportError)}
+          >
             <Icon name="folder" />
           </IconButton>
           <IconButton label={`${skill.name} を外す`} onClick={onDelete}>

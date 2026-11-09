@@ -10,7 +10,8 @@ import { runSetup, setupPlan } from '../model/setup';
 import { changeDataDir, chooseFolder, closeSetup, completeSetup, loadStorageInfo, useSettingsStore } from '../store';
 
 /** 失敗をどこに出すか: 名前の問題は名前の欄、保存先の問題はダイアログの帯、それ以外（null）はトースト */
-type SetupFailure = { field: 'name'; message: string } | { field: 'dataDir'; message: string; conflict: boolean } | null;
+type SetupFailure =
+  { field: 'name'; message: string } | { field: 'dataDir'; message: string; conflict: boolean } | null;
 
 function failureOf(reason: unknown): SetupFailure {
   const code = errorCode(reason);
@@ -41,7 +42,10 @@ export function useSetup() {
     loadStorageInfo().catch(reportError);
   }, []);
 
-  const nameProblem = checkMemberName(name, agents.map((agent) => agent.name));
+  const nameProblem = checkMemberName(
+    name,
+    agents.map((agent) => agent.name),
+  );
   const pickDataDir = (path: string | null) => {
     setDataDir(path !== null && storage && isSamePath(path, storage.dataDir) ? null : path);
     setMode('copy');
@@ -71,7 +75,11 @@ export function useSetup() {
     setBusy(true);
     setError(null);
     try {
-      const steps = { saveName: (value: string) => saveProfile({ ...me, name: value }), complete: completeSetup, changeDataDir };
+      const steps = {
+        saveName: (value: string) => saveProfile({ ...me, name: value }),
+        complete: completeSetup,
+        changeDataDir,
+      };
       await runSetup(setupPlan(name, me.name, dataDir, mode), steps);
       if (dataDir === null) closeSetup();
       else notifyInfo('保存先を変えました。アプリを再起動します…');

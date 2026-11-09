@@ -19,10 +19,18 @@ export function LibraryEntry({ agentId, entry, existing }: LibraryEntryProps) {
   const add = (mode: LibraryAddMode) => {
     setBusy(true);
     void addLibrarySkill(agentId, entry.path, mode)
-      .then(() => notifyInfo(mode === 'link' ? `${entry.name} を追加しました` : `${entry.name} をコピーして追加しました`), reportError)
+      .then(
+        () => notifyInfo(mode === 'link' ? `${entry.name} を追加しました` : `${entry.name} をコピーして追加しました`),
+        reportError,
+      )
       .finally(() => setBusy(false));
   };
-  const reason = state.kind === 'problem' ? state.reason : state.kind === 'nameTaken' ? `同じ名前のスキル「${entry.name}」がすでにあります。` : null;
+  const reason =
+    state.kind === 'problem'
+      ? state.reason
+      : state.kind === 'nameTaken'
+        ? `同じ名前のスキル「${entry.name}」がすでにあります。`
+        : null;
   const extras = entry.fileCount > 0 ? `付属ファイル ${entry.fileCount} 個` : '付属ファイルなし';
   return (
     <li className={styles.entry} data-disabled={state.kind === 'available' ? undefined : ''}>
@@ -57,7 +65,11 @@ export function LibraryEntry({ agentId, entry, existing }: LibraryEntryProps) {
               variant="ghost"
               onClick={() => add('copy')}
               disabled={busy || reason !== null}
-              title={entry.fileCount > 0 ? `SKILL.md の本文だけを取り込みます（付属ファイル ${entry.fileCount} 個は持ち込みません）` : 'SKILL.md の本文を取り込みます'}
+              title={
+                entry.fileCount > 0
+                  ? `SKILL.md の本文だけを取り込みます（付属ファイル ${entry.fileCount} 個は持ち込みません）`
+                  : 'SKILL.md の本文を取り込みます'
+              }
             >
               コピーして追加
             </Button>

@@ -1,0 +1,14 @@
+# Prettier が整形するのはコード（ts・tsx・css・mjs・js）だけ。.gitignore にあるものは最初から対象外。
+# 文書と設定・フィクスチャは手で整えた形のまま保つ（contracts/ は Rust と TS の両方が読む実例なので書き換えない）。
+*.md
+*.json
+*.jsonl
+*.yml
+*.yaml
+*.html
+.old/
+.claude/
+contracts/
+docs/
+# Rust は cargo fmt（src-tauri/rustfmt.toml）が整形する
+src-tauri/

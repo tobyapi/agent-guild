@@ -72,13 +72,8 @@ impl Actor {
 
     /// 条件に合う実行中のジョブを中断する。中断を依頼した数を返す
     fn cancel_running(&mut self, matches: impl Fn(&JobSpec) -> bool) -> usize {
-        let targets: Vec<String> = self
-            .state
-            .running
-            .iter()
-            .filter(|(_, running)| matches(&running.job))
-            .map(|(id, _)| id.clone())
-            .collect();
+        let targets: Vec<String> =
+            self.state.running.iter().filter(|(_, running)| matches(&running.job)).map(|(id, _)| id.clone()).collect();
         let count = targets.len();
         for job_id in targets {
             self.cancel_job(job_id);

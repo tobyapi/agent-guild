@@ -19,7 +19,14 @@ export interface PersonaPresetFieldProps<T extends AnyPreset> {
  * 性格・口調の入力欄と［プリセット］（docs/persona-presets.md）。選ぶと文面を置き換え、別の文面があったときは
  * 「置き換えました」と［元に戻す］を出す。［追記］は句点でつないで足す。文面がプリセットと同じならその名前を小さく出す
  */
-export function PersonaPresetField<T extends AnyPreset>({ label, value, onChange, presets, placeholder, multiline }: PersonaPresetFieldProps<T>) {
+export function PersonaPresetField<T extends AnyPreset>({
+  label,
+  value,
+  onChange,
+  presets,
+  placeholder,
+  multiline,
+}: PersonaPresetFieldProps<T>) {
   /** 置き換える前の文面（［元に戻す］で戻す） */
   const [previous, setPrevious] = useState<string | null>(null);
   const matched = matchingPreset(presets, value);
@@ -27,11 +34,17 @@ export function PersonaPresetField<T extends AnyPreset>({ label, value, onChange
     setPrevious(undoTo);
     onChange(next);
   };
-  const replace = (preset: T) => change(preset.text, value.trim() !== '' && value.trim() !== preset.text ? value : null);
+  const replace = (preset: T) =>
+    change(preset.text, value.trim() !== '' && value.trim() !== preset.text ? value : null);
   const action = (
     <span className={styles.action}>
       {matched && <span className={styles.matched}>{matched.label}</span>}
-      <PresetPicker label={label} presets={presets} onReplace={replace} onAppend={(preset) => change(appendPresetText(value, preset.text))} />
+      <PresetPicker
+        label={label}
+        presets={presets}
+        onReplace={replace}
+        onAppend={(preset) => change(appendPresetText(value, preset.text))}
+      />
     </span>
   );
   const hint =
@@ -43,6 +56,14 @@ export function PersonaPresetField<T extends AnyPreset>({ label, value, onChange
         </button>
       </>
     );
-  const shared = { label, optional: true, value, onChange: (next: string) => change(next), labelAction: action, hint, placeholder };
+  const shared = {
+    label,
+    optional: true,
+    value,
+    onChange: (next: string) => change(next),
+    labelAction: action,
+    hint,
+    placeholder,
+  };
   return multiline ? <TextAreaField {...shared} rows={2} /> : <TextField {...shared} />;
 }

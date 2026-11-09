@@ -5,7 +5,15 @@ import { Dispatcher } from './dispatcher.ts';
 import { parseLine } from './line-parser.ts';
 import type { RunnerEvent } from './protocol.ts';
 
-const PERMISSIONS = { webSearch: true, webFetch: true, readFiles: true, writeFiles: false, writeAnywhere: false, runCommands: false, skills: false };
+const PERMISSIONS = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: false,
+  writeAnywhere: false,
+  runCommands: false,
+  skills: false,
+};
 const INFO: BackendDescriptor = {
   id: 'fake',
   label: 'Fake',
@@ -23,7 +31,11 @@ function loginAdapter(outcome: (context: LoginContext) => Promise<void>, canLogi
   return {
     info: () => ({ ...INFO, canLogin }),
     probe: () =>
-      Promise.resolve(loggedIn ? { status: 'ready', statusMessage: '' } : { status: 'needs_auth', statusMessage: 'ログインしてください' }),
+      Promise.resolve(
+        loggedIn
+          ? { status: 'ready', statusMessage: '' }
+          : { status: 'needs_auth', statusMessage: 'ログインしてください' },
+      ),
     run: () => Promise.resolve(''),
     login: async (context) => {
       await outcome(context);
@@ -60,7 +72,9 @@ describe('Dispatcher の login', () => {
   });
 
   it('完了しなければ、状態を確かめ直してから error（BackendError の code）で終える', async () => {
-    const { events, receive } = setup(loginAdapter(() => Promise.reject(new BackendError('auth', '完了しませんでした'))));
+    const { events, receive } = setup(
+      loginAdapter(() => Promise.reject(new BackendError('auth', '完了しませんでした'))),
+    );
     receive(LOGIN);
     await flush();
     expect(events.map((event) => event.type)).toEqual(['backends', 'error']);

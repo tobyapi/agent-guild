@@ -48,7 +48,8 @@ export const agentHandlers: HandlerGroup<AgentCommands> = {
 
   run_autonomous({ agentId }, runtime) {
     const agent = requireAgent(runtime, agentId);
-    const channel = autonomyChannel(runtime, agent) ?? fail('validation', `${agent.name} はどのチャンネルにも参加していません`);
+    const channel =
+      autonomyChannel(runtime, agent) ?? fail('validation', `${agent.name} はどのチャンネルにも参加していません`);
     agent.lastAutonomousAt = runtime.env.now();
     runtime.conversation.queueAutonomous(agent.id, channel.id);
     return null;

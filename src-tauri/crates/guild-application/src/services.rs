@@ -11,9 +11,9 @@ use crate::channels::ChannelService;
 use crate::conversation::ConversationService;
 use crate::maintenance::Maintenance;
 use crate::ports::{
-    AgentRepository, AgentRuntime, AppControl, AttachmentStore, ChannelRepository, Clock, DataExporter, DelegationRepository,
-    EventPublisher, Folders, IdGenerator, MessageRepository, MetaRepository, ProfileRepository, SettingsStore,
-    SkillLibraryScanner, SkillRepository, Spawner, Workspace,
+    AgentRepository, AgentRuntime, AppControl, AttachmentStore, ChannelRepository, Clock, DataExporter,
+    DelegationRepository, EventPublisher, Folders, IdGenerator, MessageRepository, MetaRepository, ProfileRepository,
+    SettingsStore, SkillLibraryScanner, SkillRepository, Spawner, Workspace,
 };
 use crate::profile::ProfileService;
 use crate::skills::library::SkillLibraryService;
@@ -74,11 +74,7 @@ impl AppServices {
         let started_at = ports.clock.now_ms();
         let maintenance = Maintenance::default();
         let conversation = ConversationService::new(ports.clone(), maintenance.clone());
-        let copier = Copier {
-            exporter,
-            conversation: conversation.clone(),
-            maintenance: maintenance.clone(),
-        };
+        let copier = Copier { exporter, conversation: conversation.clone(), maintenance: maintenance.clone() };
         Self {
             agents: AgentService::new(ports.clone(), conversation.clone()),
             channels: ChannelService::new(ports.clone(), conversation.clone()),

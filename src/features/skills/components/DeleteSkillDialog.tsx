@@ -19,7 +19,11 @@ export function DeleteSkillDialog({ skill, onClose }: { skill: Skill; onClose: (
   return (
     <ConfirmDialog
       title={linked ? `${skill.name} を外しますか？` : `${skill.name} を削除しますか？`}
-      message={linked ? 'このエージェントからリンクを外します。元のフォルダと SKILL.md は消えません。' : 'スキルの内容は消え、元に戻せません。'}
+      message={
+        linked
+          ? 'このエージェントからリンクを外します。元のフォルダと SKILL.md は消えません。'
+          : 'スキルの内容は消え、元に戻せません。'
+      }
       confirmLabel={linked ? '外す' : '削除する'}
       danger={!linked}
       busy={busy}

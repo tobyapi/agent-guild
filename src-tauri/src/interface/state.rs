@@ -21,10 +21,9 @@ impl AppState {
     pub fn services(&self) -> Result<&AppServices, CommandError> {
         match self {
             Self::Ready { services, .. } => Ok(services),
-            Self::Recovery { .. } => Err(CommandError::new(
-                ErrorCode::Unavailable,
-                "データフォルダを開けなかったため、いまは使えません",
-            )),
+            Self::Recovery { .. } => {
+                Err(CommandError::new(ErrorCode::Unavailable, "データフォルダを開けなかったため、いまは使えません"))
+            }
         }
     }
 

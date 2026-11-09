@@ -64,7 +64,9 @@ pub fn validate_library_dirs(dirs: &[String]) -> Result<Vec<String>, ValidationE
                 return invalid(format!("「{dir}」が重複しています"));
             }
             if key.starts_with(&other_key) || other_key.starts_with(&key) {
-                return invalid(format!("「{dir}」と「{other}」は入れ子になっています（どちらか一方だけを指定してください）"));
+                return invalid(format!(
+                    "「{dir}」と「{other}」は入れ子になっています（どちらか一方だけを指定してください）"
+                ));
             }
         }
     }

@@ -34,7 +34,8 @@ describe('permissionRuleProblem', () => {
   it('作業フォルダの外への書き込み: 書き込みが前提。Claude のコマンドの実行に要り、Codex では Web ページを読む権限が要る', () => {
     expect(permissionRuleProblem(claude, { ...writerOnly, writeFiles: false, writeAnywhere: true })).toEqual({
       field: 'permissions',
-      message: 'Claudeで「作業フォルダの外にも書く」を使うには「ファイルを書く」も必要です。「ファイルを書く」を許可してください',
+      message:
+        'Claudeで「作業フォルダの外にも書く」を使うには「ファイルを書く」も必要です。「ファイルを書く」を許可してください',
     });
     expect(permissionRuleProblem(claude, { ...writerOnly, runCommands: true })).toEqual({
       field: 'permissions',
@@ -43,7 +44,8 @@ describe('permissionRuleProblem', () => {
     });
     expect(permissionRuleProblem(codex, { ...allCapabilities, webFetch: false })).toEqual({
       field: 'permissions',
-      message: 'Codexで「作業フォルダの外にも書く」を使うには「Web ページを読む」も必要です。「Web ページを読む」を許可してください',
+      message:
+        'Codexで「作業フォルダの外にも書く」を使うには「Web ページを読む」も必要です。「Web ページを読む」を許可してください',
     });
     expect(permissionRuleProblem(claude, { ...writerOnly, writeAnywhere: true })).toBeNull();
   });

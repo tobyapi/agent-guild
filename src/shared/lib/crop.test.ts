@@ -64,7 +64,12 @@ describe('sourceRect / imagePlacement', () => {
   });
 
   it('画像の置き場所を枠に対するパーセントにする', () => {
-    expect(imagePlacement(initialView(wide, FRAME), wide, FRAME)).toEqual({ left: '-50%', top: '0%', width: '200%', height: '100%' });
+    expect(imagePlacement(initialView(wide, FRAME), wide, FRAME)).toEqual({
+      left: '-50%',
+      top: '0%',
+      width: '200%',
+      height: '100%',
+    });
   });
 });
 

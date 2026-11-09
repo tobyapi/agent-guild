@@ -81,11 +81,13 @@ impl Workspace for FsWorkspace {
 
 /// バックエンド ID をフォルダ名に使える形にする（英数字・ハイフン・アンダースコア以外は "_"）
 fn safe_component(backend: &str) -> String {
-    let name: String = backend
-        .chars()
-        .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
-        .collect();
-    if name.is_empty() { "_".to_owned() } else { name }
+    let name: String =
+        backend.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' }).collect();
+    if name.is_empty() {
+        "_".to_owned()
+    } else {
+        name
+    }
 }
 
 fn storage(error: io::Error) -> AppError {

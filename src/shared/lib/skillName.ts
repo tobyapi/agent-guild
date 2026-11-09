@@ -5,7 +5,8 @@ export const SKILL_NAME_MAX = 64;
 export const SKILL_DESCRIPTION_MAX = 1024;
 
 /** 規則の説明（「スキル名は…」に続ける） */
-export const SKILL_NAME_RULE = '英小文字・数字・ハイフンで 64 文字以内（先頭と末尾にハイフンは使えず、ハイフンを続けることもできません）';
+export const SKILL_NAME_RULE =
+  '英小文字・数字・ハイフンで 64 文字以内（先頭と末尾にハイフンは使えず、ハイフンを続けることもできません）';
 
 /** 英小文字・数字・ハイフン。先頭と末尾にハイフンは置けず、ハイフンは連続させない */
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

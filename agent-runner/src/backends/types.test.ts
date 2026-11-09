@@ -33,11 +33,22 @@ describe('options の読み取り', () => {
 });
 
 describe('brokenRule', () => {
-  const ALL: Permissions = { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true };
+  const ALL: Permissions = {
+    webSearch: true,
+    webFetch: true,
+    readFiles: true,
+    writeFiles: true,
+    writeAnywhere: true,
+    runCommands: true,
+    skills: true,
+  };
   const rules: PermissionRule[] = [{ when: 'writeFiles', requires: ['runCommands'] }];
 
   it('when が許されていて requires が欠けている規則を返す', () => {
-    expect(brokenRule(rules, { ...ALL, runCommands: false })).toEqual({ when: 'writeFiles', requires: ['runCommands'] });
+    expect(brokenRule(rules, { ...ALL, runCommands: false })).toEqual({
+      when: 'writeFiles',
+      requires: ['runCommands'],
+    });
   });
 
   it('when が許されていなければ、または requires がそろっていれば破っていない', () => {

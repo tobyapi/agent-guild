@@ -26,12 +26,16 @@ export function useComposerAttachments() {
     (files: readonly File[]) => {
       const fitting = files.filter((file) => !isTooLargeFile(file));
       const accepted = fitting.slice(0, remainingSlots(attachments.length));
-      const rejection = rejectionMessage({ tooLarge: files.length - fitting.length, overflow: fitting.length - accepted.length });
+      const rejection = rejectionMessage({
+        tooLarge: files.length - fitting.length,
+        overflow: fitting.length - accepted.length,
+      });
       if (rejection) notifyError(rejection);
       void Promise.allSettled(accepted.map(readAttachment)).then((results) => {
         const read: PendingAttachment[] = [];
         results.forEach((result, index) => {
-          if (result.status === 'rejected') notifyError(`${accepted[index]?.name || 'ファイル'} を読み込めませんでした`);
+          if (result.status === 'rejected')
+            notifyError(`${accepted[index]?.name || 'ファイル'} を読み込めませんでした`);
           else read.push({ ...result.value, key: `pending-${(counter.current += 1)}` });
         });
         if (exceedsTotal(attachments, read)) {
@@ -44,7 +48,10 @@ export function useComposerAttachments() {
     [attachments],
   );
 
-  const remove = useCallback((key: string) => setAttachments((current) => current.filter((item) => item.key !== key)), []);
+  const remove = useCallback(
+    (key: string) => setAttachments((current) => current.filter((item) => item.key !== key)),
+    [],
+  );
   const clear = useCallback(() => setAttachments([]), []);
 
   /** ファイルを含む貼り付けだけ横取りする（文字の貼り付けはそのまま） */

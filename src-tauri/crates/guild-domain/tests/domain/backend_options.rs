@@ -37,7 +37,8 @@ fn options_follow_the_option_specs() {
         default: Value::Null,
     };
     let mut info = backend("codex");
-    info.options = vec![spec("maxTurns", OptionType::Number, &[]), spec("sandbox", OptionType::Select, &["read", "write"])];
+    info.options =
+        vec![spec("maxTurns", OptionType::Number, &[]), spec("sandbox", OptionType::Select, &["read", "write"])];
     let raw = json!({ "maxTurns": 5, "sandbox": "write", "unknown": 1, "x": null });
     assert_eq!(saved(&info, "", raw), Ok(json!({ "maxTurns": 5, "sandbox": "write" })));
     assert!(saved(&info, "", json!({ "sandbox": "all" })).is_err());
@@ -50,7 +51,11 @@ fn effort_must_be_one_the_model_offers() {
     info.models = vec![model("opus", &["low", "max"]), model("haiku", &[])];
     info.default_model = "opus".to_owned();
     assert_eq!(saved(&info, "opus", json!({ "effort": "max" })), Ok(json!({ "effort": "max" })));
-    assert_eq!(saved(&info, "", json!({ "effort": "low" })), Ok(json!({ "effort": "low" })), "空なら既定のモデルで確かめる");
+    assert_eq!(
+        saved(&info, "", json!({ "effort": "low" })),
+        Ok(json!({ "effort": "low" })),
+        "空なら既定のモデルで確かめる"
+    );
     let unknown = saved(&info, "opus", json!({ "effort": "ultra" }));
     assert_eq!(unknown, Err("「opusの名前」では推論の深さ「ultra」を選べません".to_owned()));
     let none = saved(&info, "haiku", json!({ "effort": "low" }));
@@ -63,7 +68,11 @@ fn effort_must_be_one_the_model_offers() {
 fn effort_for_an_unlisted_model_is_kept() {
     let mut info = backend("codex");
     info.models = vec![model("gpt", &["low"])];
-    assert_eq!(saved(&info, "my-model", json!({ "effort": "high" })), Ok(json!({ "effort": "high" })), "自由入力のモデル");
+    assert_eq!(
+        saved(&info, "my-model", json!({ "effort": "high" })),
+        Ok(json!({ "effort": "high" })),
+        "自由入力のモデル"
+    );
     let unknown_catalog = saved(&backend("codex"), "", json!({ "effort": "high" }));
     assert_eq!(unknown_catalog, Ok(json!({ "effort": "high" })), "モデルの一覧が分からない");
 }

@@ -14,7 +14,12 @@ use super::support::{agent, backend, by, channel, message};
 fn agents() -> Vec<Agent> {
     let mut sora = agent("sora", "worker", "ソラ");
     sora.backend = "codex".to_owned();
-    vec![agent("kaname", "manager", "カナメ"), agent("haru", "worker", "ハル"), sora, agent("logica", "expert", "ロジカ")]
+    vec![
+        agent("kaname", "manager", "カナメ"),
+        agent("haru", "worker", "ハル"),
+        sora,
+        agent("logica", "expert", "ロジカ"),
+    ]
 }
 
 fn backends() -> Vec<BackendInfo> {
@@ -71,7 +76,11 @@ fn prompts(subject: &str, job: &JobSpec, delegation: Option<&Delegation>) -> (St
 }
 
 fn target(subtask: &str, assignee: &str) -> SubtaskRef {
-    SubtaskRef { delegation_id: DelegationId::new("d1"), subtask_id: SubtaskId::new(subtask), assignee_id: AgentId::new(assignee) }
+    SubtaskRef {
+        delegation_id: DelegationId::new("d1"),
+        subtask_id: SubtaskId::new(subtask),
+        assignee_id: AgentId::new(assignee),
+    }
 }
 
 #[test]
@@ -91,12 +100,20 @@ fn a_task_job_quotes_the_instruction_from_the_manager() {
     let job = JobSpec::task(&message(1, by("kaname"), "割り振ります"), target("s1", "haru"));
     let (_, prompt) = prompts("haru", &job, Some(&delegation));
     assert!(prompt.contains("# あなた宛ての未対応の発言\n[t0] カナメ:\n割り振ります"));
-    assert!(prompt.contains("# あなたの番です（割り振られたタスク）\nカナメ から割り振られたタスクです:\n> haruへの指示\n> 2行目"));
+    assert!(prompt.contains(
+        "# あなたの番です（割り振られたタスク）\nカナメ から割り振られたタスクです:\n> haruへの指示\n> 2行目"
+    ));
     assert!(prompt.contains("ファイル名と場所") && prompt.contains("その旨と理由"));
 
-    let back = JobSpec { subtask: Some(target("s1", "haru")), ..JobSpec::respond(AgentId::new("haru"), &message(2, by("logica"), "OK"), JobMode::Return, Vec::new()) };
+    let back = JobSpec {
+        subtask: Some(target("s1", "haru")),
+        ..JobSpec::respond(AgentId::new("haru"), &message(2, by("logica"), "OK"), JobMode::Return, Vec::new())
+    };
     let (_, returned) = prompts("haru", &back, Some(&delegation));
-    assert!(returned.contains("# 相談の結果が届きました") && returned.contains("カナメ から割り振られた次のタスクの続きです"));
+    assert!(
+        returned.contains("# 相談の結果が届きました")
+            && returned.contains("カナメ から割り振られた次のタスクの続きです")
+    );
 }
 
 #[test]

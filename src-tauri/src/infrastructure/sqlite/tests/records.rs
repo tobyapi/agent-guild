@@ -68,14 +68,16 @@ fn skills_are_unique_per_agent_and_follow_their_agent() {
     };
     repository.upsert(&skill("s2", "review")).unwrap();
     repository.upsert(&skill("s1", "checklist")).unwrap();
-    let names: Vec<String> = repository.list_for_agent(&AgentId::new("a1")).unwrap().into_iter().map(|s| s.name).collect();
+    let names: Vec<String> =
+        repository.list_for_agent(&AgentId::new("a1")).unwrap().into_iter().map(|s| s.name).collect();
     assert_eq!(names, vec!["checklist", "review"], "名前順");
     assert!(matches!(repository.upsert(&skill("s3", "review")), Err(AppError::Conflict(_))));
     let mut edited = skill("s1", "checklist-v2");
     edited.updated_at = 2;
     repository.upsert(&edited).unwrap();
     assert_eq!(repository.get(&SkillId::new("s1")).unwrap(), Some(edited));
-    let linked = Skill { source: Some(SkillSource::Linked { path: "D:/skills/unity".to_owned() }), ..skill("s4", "unity") };
+    let linked =
+        Skill { source: Some(SkillSource::Linked { path: "D:/skills/unity".to_owned() }), ..skill("s4", "unity") };
     repository.upsert(&linked).unwrap();
     assert_eq!(repository.get(&SkillId::new("s4")).unwrap(), Some(linked), "参照先は source_path に入る");
     repository.delete(&SkillId::new("s1")).unwrap();

@@ -51,7 +51,13 @@ export const BACKENDS: BackendInfo[] = [
     id: 'claude',
     label: 'Claude',
     models: [
-      { id: 'sonnet', label: 'Sonnet', description: '日々の作業向け', efforts: ['low', 'high', 'max'], defaultEffort: null },
+      {
+        id: 'sonnet',
+        label: 'Sonnet',
+        description: '日々の作業向け',
+        efforts: ['low', 'high', 'max'],
+        defaultEffort: null,
+      },
       { id: 'haiku', label: 'Haiku', description: '', efforts: [], defaultEffort: null },
     ],
     defaultModel: 'sonnet',

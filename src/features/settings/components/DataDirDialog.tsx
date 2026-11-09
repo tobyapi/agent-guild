@@ -34,7 +34,12 @@ export function DataDirDialog({ path, onClose }: DataDirDialogProps) {
         <code className={styles.path}>{path}</code>
       </div>
       {change.error && <FormAlert>{change.error}</FormAlert>}
-      <RadioGroup legend="今のデータをどうしますか" value={change.mode} options={DATA_DIR_MODE_OPTIONS} onChange={change.choose} />
+      <RadioGroup
+        legend="今のデータをどうしますか"
+        value={change.mode}
+        options={DATA_DIR_MODE_OPTIONS}
+        onChange={change.choose}
+      />
     </Dialog>
   );
 }

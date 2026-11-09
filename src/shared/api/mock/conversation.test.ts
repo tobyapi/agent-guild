@@ -12,7 +12,11 @@ const authorsAfter = (messages: { authorId: string; seq: number }[], seq: number
 describe('モックの会話', () => {
   it('人間の発言も message-created で届き、メンションなしならバックエンドが ready の作業者だけが返答する', async () => {
     const mock = await createHarness();
-    const sent = await mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content: 'こんにちは', attachments: [] });
+    const sent = await mock.transport.invoke('send_message', {
+      channelId: SEED_IDS.lobby,
+      content: 'こんにちは',
+      attachments: [],
+    });
     await mock.settle();
     expect(mock.messages[0]).toEqual(sent);
     expect(authorsAfter(mock.messages, 0)).toEqual([HUMAN_ID, SEED_IDS.hal]);
@@ -23,7 +27,11 @@ describe('モックの会話', () => {
   it('メンションした相手がチャンネル外なら参加させてから返答する', async () => {
     const mock = await createHarness();
     const channel = await mock.transport.invoke('create_channel', { name: '企画', topic: '', memberIds: [] });
-    await mock.transport.invoke('send_message', { channelId: channel.id, content: '@ロジカ 見てください', attachments: [] });
+    await mock.transport.invoke('send_message', {
+      channelId: channel.id,
+      content: '@ロジカ 見てください',
+      attachments: [],
+    });
     await mock.settle();
     const notices = mock.messages.filter((message) => message.authorId === SYSTEM_ID).map((message) => message.content);
     expect(notices).toEqual(['ロジカ がチャンネルに参加しました']);
@@ -46,7 +54,11 @@ describe('モックの会話', () => {
 
   it('バックエンドの準備ができていないエージェントは失敗の発言（error）を出す', async () => {
     const mock = await createHarness();
-    await mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content: '@ソラ ビルドして', attachments: [] });
+    await mock.transport.invoke('send_message', {
+      channelId: SEED_IDS.lobby,
+      content: '@ソラ ビルドして',
+      attachments: [],
+    });
     await mock.settle();
     const reply = mock.messages.at(-1);
     expect(reply).toMatchObject({ authorId: SEED_IDS.sora, kind: 'error' });
@@ -64,7 +76,11 @@ describe('モックの会話', () => {
 
   it('stop_channel で待機を捨てて実行中を中断し、「停止しました」を出す', async () => {
     const mock = await createHarness();
-    await mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content: '@ハル @ロジカ よろしく', attachments: [] });
+    await mock.transport.invoke('send_message', {
+      channelId: SEED_IDS.lobby,
+      content: '@ハル @ロジカ よろしく',
+      attachments: [],
+    });
     await vi.advanceTimersByTimeAsync(100);
     await mock.transport.invoke('stop_channel', { channelId: SEED_IDS.lobby });
     await mock.settle();

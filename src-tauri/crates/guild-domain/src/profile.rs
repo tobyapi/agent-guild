@@ -16,11 +16,7 @@ pub struct Profile {
 
 impl Default for Profile {
     fn default() -> Self {
-        Self {
-            name: "ユーザー".to_owned(),
-            avatar: "🙂".to_owned(),
-            color: "#f0ba5f".to_owned(),
-        }
+        Self { name: "ユーザー".to_owned(), avatar: "🙂".to_owned(), color: "#f0ba5f".to_owned() }
     }
 }
 

@@ -46,7 +46,8 @@ fn agent_lines(ctx: &PromptContext<'_>) -> String {
     let agent = ctx.agent;
     let fields = [("役割", agent.role.trim()), ("得意分野", agent.expertise.trim())];
     let mut lines = vec![format!("名前: {}", agent.name)];
-    lines.extend(fields.iter().filter(|(_, value)| !value.is_empty()).map(|(label, value)| format!("{label}: {value}")));
+    lines
+        .extend(fields.iter().filter(|(_, value)| !value.is_empty()).map(|(label, value)| format!("{label}: {value}")));
     lines.push(capabilities::describe(&ctx.permissions));
     lines.join("\n")
 }

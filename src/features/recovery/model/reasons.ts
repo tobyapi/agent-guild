@@ -13,7 +13,8 @@ interface ReasonCopy {
 const COPIES: Readonly<Record<FailureReason, ReasonCopy>> = {
   missing: {
     title: 'データフォルダが見つかりません',
-    description: '設定されている場所にアクセスできません。外付けドライブやネットワーク上の場所なら、つないでから再試行してください。',
+    description:
+      '設定されている場所にアクセスできません。外付けドライブやネットワーク上の場所なら、つないでから再試行してください。',
     recommended: 'retry',
   },
   locked: {
@@ -29,7 +30,8 @@ const COPIES: Readonly<Record<FailureReason, ReasonCopy>> = {
   },
   foreign: {
     title: 'AIギルドのデータフォルダではありません',
-    description: 'このフォルダには AIギルド以外のファイルがあります。大事なファイルを守るため、このフォルダは使いません。',
+    description:
+      'このフォルダには AIギルド以外のファイルがあります。大事なファイルを守るため、このフォルダは使いません。',
     recommended: 'choose',
   },
   corrupt: {

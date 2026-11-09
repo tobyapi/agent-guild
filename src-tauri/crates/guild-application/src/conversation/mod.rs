@@ -88,7 +88,12 @@ impl ConversationService {
     }
 
     /// seq の昇順。limit の既定は50、上限は200
-    pub fn list_messages(&self, channel_id: &ChannelId, before_seq: Option<i64>, limit: Option<u32>) -> AppResult<Vec<Message>> {
+    pub fn list_messages(
+        &self,
+        channel_id: &ChannelId,
+        before_seq: Option<i64>,
+        limit: Option<u32>,
+    ) -> AppResult<Vec<Message>> {
         posting::require_channel(&self.ports, channel_id)?;
         let limit = limit.unwrap_or(MESSAGE_PAGE_DEFAULT).clamp(1, MESSAGE_PAGE_MAX);
         self.ports.messages.list(channel_id, MessageFilter::All, before_seq, limit as usize)

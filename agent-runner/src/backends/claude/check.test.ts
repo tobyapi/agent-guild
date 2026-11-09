@@ -9,11 +9,31 @@ import type { Judge } from './judge.ts';
 const ROOT = resolve('/guild-data/agents');
 const WORK = join(ROOT, 'a1', 'work');
 const OUTSIDE = resolve('/projects/site/index.html');
-const ALL: Permissions = { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true };
+const ALL: Permissions = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: true,
+  writeAnywhere: true,
+  runCommands: true,
+  skills: true,
+};
 
 const request = (permissions: Permissions = ALL, options: Record<string, unknown> = {}): RunRequest => ({
-  type: 'run', id: 'j1', backend: 'claude', workspace: WORK, stateDir: join(ROOT, 'a1', 'state'), readableDirs: [],
-  systemPrompt: '', prompt: '', intent: '# 人間の依頼\n> サイトを直して', model: '', permissions, skills: [], images: [], options,
+  type: 'run',
+  id: 'j1',
+  backend: 'claude',
+  workspace: WORK,
+  stateDir: join(ROOT, 'a1', 'state'),
+  readableDirs: [],
+  systemPrompt: '',
+  prompt: '',
+  intent: '# 人間の依頼\n> サイトを直して',
+  model: '',
+  permissions,
+  skills: [],
+  images: [],
+  options,
 });
 
 const call = (policy: CanUseTool, tool: string, input: Record<string, unknown>) =>
@@ -53,7 +73,9 @@ describe('checkedPolicy', () => {
     const input = { url: 'https://evil.example/?q=1', prompt: '' };
     const result = await call(checkedPolicy(request(), judge, onBlocked), 'WebFetch', input);
     expect(result?.behavior === 'deny' && result.message).toContain('理由: 依頼にない送り先です');
-    expect(onBlocked).toHaveBeenCalledWith('🛡️ 操作の確認で止めました（Web ページを開く）: 依頼にない送り先です\nURL: https://evil.example/?q=1');
+    expect(onBlocked).toHaveBeenCalledWith(
+      '🛡️ 操作の確認で止めました（Web ページを開く）: 依頼にない送り先です\nURL: https://evil.example/?q=1',
+    );
   });
 
   it('パスの判定や権限で止まるものと、確かめない操作には judge を使わない', async () => {

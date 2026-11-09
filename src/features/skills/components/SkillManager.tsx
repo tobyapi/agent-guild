@@ -64,7 +64,13 @@ export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: Sk
               </Button>
             </div>
           ) : (
-            <PanelView panel={panel} agentId={agentId} skills={list} onClose={close} onOpenLibrarySettings={onOpenLibrarySettings} />
+            <PanelView
+              panel={panel}
+              agentId={agentId}
+              skills={list}
+              onClose={close}
+              onOpenLibrarySettings={onOpenLibrarySettings}
+            />
           )}
         </div>
       </details>
@@ -83,13 +89,23 @@ interface PanelViewProps extends Pick<SkillManagerProps, 'agentId' | 'onOpenLibr
 function PanelView({ panel, agentId, skills, onClose, onOpenLibrarySettings }: PanelViewProps) {
   switch (panel.type) {
     case 'edit':
-      return <SkillEditor key={panel.skill?.id ?? 'new'} agentId={agentId} skill={panel.skill} existing={skills} onDone={onClose} />;
+      return (
+        <SkillEditor
+          key={panel.skill?.id ?? 'new'}
+          agentId={agentId}
+          skill={panel.skill}
+          existing={skills}
+          onDone={onClose}
+        />
+      );
     case 'view': {
       // 一覧が取り直されたら新しい内容を見せる
       const current = skills.find((skill) => skill.id === panel.skill.id) ?? panel.skill;
       return <SkillViewer key={current.id} skill={current} onClose={onClose} />;
     }
     case 'library':
-      return <LibraryPicker agentId={agentId} existing={skills} onClose={onClose} onOpenSettings={onOpenLibrarySettings} />;
+      return (
+        <LibraryPicker agentId={agentId} existing={skills} onClose={onClose} onOpenSettings={onOpenLibrarySettings} />
+      );
   }
 }

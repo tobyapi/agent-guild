@@ -130,8 +130,6 @@ impl DispatchState {
 
     /// そのチャンネル（None なら全体）で実行中のジョブがあるか（割り振りの枠を含む）
     pub fn has_running_in(&self, channel: Option<&ChannelId>) -> bool {
-        self.running
-            .values()
-            .any(|running| channel.is_none_or(|id| &running.job.channel_id == id))
+        self.running.values().any(|running| channel.is_none_or(|id| &running.job.channel_id == id))
     }
 }

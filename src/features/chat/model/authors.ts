@@ -29,7 +29,15 @@ export function createAuthorResolver(agents: readonly Agent[], me: Profile): (au
   const byId = new Map(agents.map((agent) => [agent.id, agent]));
   return (authorId) => {
     if (authorId === HUMAN_ID) {
-      return { name: me.name, avatar: me.avatar, color: me.color, tag: null, backend: null, human: true, deleted: false };
+      return {
+        name: me.name,
+        avatar: me.avatar,
+        color: me.color,
+        tag: null,
+        backend: null,
+        human: true,
+        deleted: false,
+      };
     }
     const agent = byId.get(authorId);
     if (!agent) return UNKNOWN;

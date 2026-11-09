@@ -6,7 +6,13 @@ import type { Validator } from './schema';
 import { delegationSchema } from './schemas/delegation';
 import { agentInputSchema, messageSchema } from './schemas/entities';
 import { skillInputSchema, skillLibrarySchema, skillSchema, skillsChangedSchema } from './schemas/skills';
-import { activityStateSchema, bootStatusSchema, commandErrorSchema, snapshotSchema, storageInfoSchema } from './schemas/system';
+import {
+  activityStateSchema,
+  bootStatusSchema,
+  commandErrorSchema,
+  snapshotSchema,
+  storageInfoSchema,
+} from './schemas/system';
 
 const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: true, import: 'default' });
 

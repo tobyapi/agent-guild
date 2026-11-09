@@ -37,7 +37,11 @@ export const skillHandlers: HandlerGroup<SkillCommands> = {
     validateSkill(runtime, input);
     const current = runtime.state.skills.find((skill) => skill.id === input.id);
     if (input.id !== null && !current) fail('not_found', 'スキルが見つかりません');
-    if (current?.source) fail('validation', 'ライブラリにリンクしたスキルはアプリ内では編集できません。元のフォルダの SKILL.md を直してください');
+    if (current?.source)
+      fail(
+        'validation',
+        'ライブラリにリンクしたスキルはアプリ内では編集できません。元のフォルダの SKILL.md を直してください',
+      );
     const saved: Skill = {
       id: input.id ?? runtime.env.newId(),
       agentId: input.agentId,
@@ -54,7 +58,8 @@ export const skillHandlers: HandlerGroup<SkillCommands> = {
   },
 
   delete_skill({ id }, runtime) {
-    const skill = runtime.state.skills.find((candidate) => candidate.id === id) ?? fail('not_found', 'スキルが見つかりません');
+    const skill =
+      runtime.state.skills.find((candidate) => candidate.id === id) ?? fail('not_found', 'スキルが見つかりません');
     runtime.state.skills = runtime.state.skills.filter((candidate) => candidate.id !== id);
     runtime.bus.emit('skills-changed', { agentId: skill.agentId });
     return null;

@@ -57,7 +57,11 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
   refresh_backends(_args, runtime) {
     if (runtime.state.runtime.state !== 'ready') fail('unavailable', 'エージェントの実行環境が起動していません');
     runtime.env.schedule(PROBE_MS, () => {
-      runtime.state.backends = runtime.state.backends.map((backend) => ({ ...backend, status: 'ready', statusMessage: '' }));
+      runtime.state.backends = runtime.state.backends.map((backend) => ({
+        ...backend,
+        status: 'ready',
+        statusMessage: '',
+      }));
       emitStateChanged(runtime);
     });
     return null;

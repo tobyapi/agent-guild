@@ -19,10 +19,10 @@ use guild_domain::message::Message;
 use guild_domain::storage::{StorageInfo, StorageSource};
 
 use attachments::FakeAttachments;
+use events::FakeEvents;
 use library::FakeLibrary;
 use runtime::FakeRuntime;
 use store::MemoryStore;
-use events::FakeEvents;
 use system::{FakeClock, FakeControl, FakeExporter, FakeFolders, FakeIds, FakeSettings, FakeWorkspace, TokioSpawner};
 
 pub const STARTED_AT: i64 = 1_000_000;
@@ -79,12 +79,27 @@ impl TestApp {
             ids: ids.clone(),
             spawner: Arc::new(TokioSpawner),
         };
-        let (folders, settings, control) = (Arc::new(FakeFolders::default()), Arc::new(FakeSettings::default()), Arc::new(FakeControl::default()));
+        let (folders, settings, control) =
+            (Arc::new(FakeFolders::default()), Arc::new(FakeSettings::default()), Arc::new(FakeControl::default()));
         let info = StorageInfo { data_dir: "C:\\guild".to_owned(), default_data_dir: "C:\\guild".to_owned(), source };
-        let storage = StoragePorts { info, folders: folders.clone(), settings: settings.clone(), control: control.clone() };
+        let storage =
+            StoragePorts { info, folders: folders.clone(), settings: settings.clone(), control: control.clone() };
         let exporter = Arc::new(FakeExporter::default());
         let services = AppServices::new(ports, storage, exporter.clone());
-        Self { services, store, ids, attachments, runtime, events, workspace, library, folders, exporter, settings, control }
+        Self {
+            services,
+            store,
+            ids,
+            attachments,
+            runtime,
+            events,
+            workspace,
+            library,
+            folders,
+            exporter,
+            settings,
+            control,
+        }
     }
 
     /// エージェントを作る（template はテンプレート ID、ID は作成後に決まる）

@@ -4,8 +4,7 @@
 use guild_domain::agent::Agent;
 use guild_domain::author::Author;
 use guild_domain::conversation::{
-    format_reply, notices, parse_mentions, route_no_answer, route_reply, JobMode, JobSpec, NoAnswer,
-    RoutingContext,
+    format_reply, notices, parse_mentions, route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, RoutingContext,
 };
 use guild_domain::delegation::{carry_subtask, parse_tasks, starts_consultation};
 use guild_domain::ids::{AgentId, DelegationId, MessageId};
@@ -44,9 +43,16 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
 }
 
 /// 返答を投稿して振り分ける。canDelegate のエージェントの tasks ブロックは割り振りにする
-fn replied(ports: &Ports, job: &JobSpec, agent: &Agent, content: String, ctx: &RoutingContext<'_>) -> AppResult<Committed> {
+fn replied(
+    ports: &Ports,
+    job: &JobSpec,
+    agent: &Agent,
+    content: String,
+    ctx: &RoutingContext<'_>,
+) -> AppResult<Committed> {
     let plan = if agent.behavior().can_delegate { parse_tasks(&content, &agent.id, ctx.agents) } else { None };
-    let delegation_id = plan.as_ref().filter(|plan| !plan.tasks.is_empty()).map(|_| DelegationId::new(ports.ids.new_id()));
+    let delegation_id =
+        plan.as_ref().filter(|plan| !plan.tasks.is_empty()).map(|_| DelegationId::new(ports.ids.new_id()));
     let reply = post_reply(ports, job, agent, content, ctx.agents, delegation_id.clone())?;
     let mut routing = route_reply(&reply, job, ctx);
     carry_subtask(job, &mut routing);
@@ -57,7 +63,11 @@ fn replied(ports: &Ports, job: &JobSpec, agent: &Agent, content: String, ctx: &R
     };
     let continues = consulted || delegation.is_some();
     let origin = Origin::of(&reply);
-    Ok(Committed { routing: Some((routing, origin)), ending: Ending::Replied { message: reply, continues }, delegation })
+    Ok(Committed {
+        routing: Some((routing, origin)),
+        ending: Ending::Replied { message: reply, continues },
+        delegation,
+    })
 }
 
 /// 返答がなかった（[PASS]・空・失敗・時間切れ）ので、呼び出し元に注記つきで戻す
@@ -78,10 +88,7 @@ fn post_reply(
     agents: &[Agent],
     delegation_id: Option<DelegationId>,
 ) -> AppResult<Message> {
-    let mentions: Vec<AgentId> = parse_mentions(&content, agents)
-        .into_iter()
-        .filter(|id| id != &agent.id)
-        .collect();
+    let mentions: Vec<AgentId> = parse_mentions(&content, agents).into_iter().filter(|id| id != &agent.id).collect();
     let kind = if job.mode == JobMode::Autonomous { MessageKind::Autonomous } else { MessageKind::Chat };
     let message = NewMessage { delegation_id, ..from_job(ports, job, agent, content, kind, mentions) };
     posting::publish(ports, message)

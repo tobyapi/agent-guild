@@ -24,9 +24,7 @@ impl Maintenance {
     /// メンテナンス中なら Unavailable
     pub fn ensure_available(&self) -> AppResult<()> {
         if self.is_active() {
-            Err(AppError::Unavailable(
-                "保存先を変更しているため、いまは送信できません".to_owned(),
-            ))
+            Err(AppError::Unavailable("保存先を変更しているため、いまは送信できません".to_owned()))
         } else {
             Ok(())
         }

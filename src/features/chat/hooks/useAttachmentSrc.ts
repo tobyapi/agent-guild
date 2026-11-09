@@ -9,7 +9,10 @@ export interface AttachmentSrc {
 
 /** 発言に貼られた画像の data URL。取得済みならすぐ返し、なければ取りに行く */
 export function useAttachmentSrc(messageId: string, attachmentId: string): AttachmentSrc {
-  const [state, setState] = useState<AttachmentSrc>(() => ({ src: cachedAttachment(attachmentId) ?? null, failed: false }));
+  const [state, setState] = useState<AttachmentSrc>(() => ({
+    src: cachedAttachment(attachmentId) ?? null,
+    failed: false,
+  }));
   const needsLoad = state.src === null && !state.failed;
 
   useEffect(() => {
