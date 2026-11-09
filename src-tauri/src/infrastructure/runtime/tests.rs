@@ -6,7 +6,7 @@ use std::path::Path;
 
 use runner_client::Launch;
 
-use super::launch::{runner_config, BUNDLED_DIR};
+use super::launch::{plain_path, runner_config, BUNDLED_DIR};
 use super::user_path::{find_program, merge_paths, parse_marked};
 use crate::infrastructure::tests::TempDir;
 
@@ -19,6 +19,14 @@ fn the_bundled_runner_is_used_when_the_resources_have_it() {
     let config = runner_config(Some(&resources.0));
     assert!(matches!(&config.launch, Launch::Node { script: used, .. } if used == &script));
     assert_eq!(config.cwd, Some(resources.0.join(BUNDLED_DIR)));
+}
+
+#[test]
+fn verbatim_windows_paths_become_plain_for_node() {
+    assert_eq!(plain_path(Path::new(r"\\?\C:\Apps\agent-guild\runner")), Path::new(r"C:\Apps\agent-guild\runner"));
+    assert_eq!(plain_path(Path::new(r"\\?\UNC\server\share\runner")), Path::new(r"\\server\share\runner"));
+    assert_eq!(plain_path(Path::new(r"C:\Apps\runner")), Path::new(r"C:\Apps\runner"));
+    assert_eq!(plain_path(Path::new("/Applications/agent-guild.app")), Path::new("/Applications/agent-guild.app"));
 }
 
 #[test]

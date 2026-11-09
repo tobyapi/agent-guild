@@ -30,8 +30,11 @@ pub fn runner_config(resource_dir: Option<&Path>) -> RunnerConfig {
     }
 }
 
-/// 同梱の runner を、利用者の環境の node で動かす（macOS ではログインシェルの PATH を渡す）
+/// 同梱の runner を、利用者の環境の node で動かす（macOS ではログインシェルの PATH を渡す）。
+/// Windows ではリソースのフォルダが `\\?\C:\...`（verbatim）で届くことがあり、Node はそれを扱えない（lstat 'C:' で落ちる）ので直す
 fn bundled_config(root: &Path) -> RunnerConfig {
+    let root = plain_path(root);
+    let root = root.as_path();
     let path = user_path::search_path();
     let node = user_path::find_program("node", path.as_deref()).unwrap_or_else(|| PathBuf::from("node"));
     RunnerConfig {
@@ -42,6 +45,17 @@ fn bundled_config(root: &Path) -> RunnerConfig {
         ready_timeout: READY_TIMEOUT,
         cancel_grace: CANCEL_GRACE,
     }
+}
+
+/// `\\?\C:\a` → `C:\a`、`\\?\UNC\server\share\a` → `\\server\share\a`。それ以外（文字列にできないものを含む）はそのまま
+pub fn plain_path(path: &Path) -> PathBuf {
+    let Some(text) = path.to_str() else {
+        return path.to_path_buf();
+    };
+    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
+        return PathBuf::from(format!(r"\\{rest}"));
+    }
+    text.strip_prefix(r"\\?\").map_or_else(|| path.to_path_buf(), PathBuf::from)
 }
 
 fn bundled_script(root: &Path) -> PathBuf {

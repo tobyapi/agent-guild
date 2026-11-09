@@ -16,6 +16,7 @@ use std::time::Duration;
 
 use tauri::{AppHandle, Manager};
 
+use crate::infrastructure::logging;
 use crate::infrastructure::runtime::RunnerRuntime;
 
 /// 終了時にランナーへ shutdown を送って待つ上限
@@ -24,6 +25,9 @@ const SHUTDOWN_WAIT: Duration = Duration::from_secs(5);
 /// Tauri の setup から呼ぶ。通常時か復旧モードの AppState を State に入れる
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn Error>> {
     let handle = app.handle().clone();
+    if let Some(file) = logging::init(handle.path().app_log_dir().ok().as_deref()) {
+        log::info!("ログ: {}", file.display());
+    }
     let paths = paths::resolve(&handle)?;
     log::info!("データフォルダ: {}（{:?}）", paths.data_dir.display(), paths.source);
     let state = match boot::open(&paths) {
