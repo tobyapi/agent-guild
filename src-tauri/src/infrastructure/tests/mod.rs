@@ -1,5 +1,6 @@
-//! ファイルシステムのアダプタのテスト（一時フォルダを使い、最後に消す）。
+//! アダプタのテスト（ファイルシステムを使うものは一時フォルダを使い、最後に消す）。
 
+mod clock;
 mod data_folder;
 mod export;
 mod settings_workspace;

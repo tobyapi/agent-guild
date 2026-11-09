@@ -21,9 +21,16 @@ impl SystemClock {
 impl Clock for SystemClock {
     fn now_ms(&self) -> i64 {
         let now = Utc::now().timestamp_millis();
-        let (Ok(previous) | Err(previous)) =
-            self.last_ms.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |last| Some(now.max(last + 1)));
-        now.max(previous + 1)
+        // fetch_update は新しい Rust で非推奨になり、置き換えの try_update は 1.95 以降でしか使えない
+        // （rust-version は 1.89）。どちらも使わず、値が入れ替わるまで compare_exchange を繰り返す
+        let mut last = self.last_ms.load(Ordering::SeqCst);
+        loop {
+            let next = now.max(last + 1);
+            match self.last_ms.compare_exchange_weak(last, next, Ordering::SeqCst, Ordering::SeqCst) {
+                Ok(_) => return next,
+                Err(current) => last = current,
+            }
+        }
     }
 
     /// 例: "2026年11月8日(日) 15:30"
