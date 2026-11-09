@@ -50,7 +50,7 @@ npm run app
 | `npm run bundle` | 配布用のアプリとインストーラーを作る |
 | `npm run check` | 型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
 
-GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。
+GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
 
 ## 安全について
 

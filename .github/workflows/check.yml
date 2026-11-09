@@ -1,0 +1,47 @@
+# 型チェック・lint・ハーネス・テスト・clippy・Rust のテスト（npm run check）を走らせる。
+# 動くのは、main への push・プルリクエスト・Actions の画面からの手動実行（Run workflow）のとき。
+# 開発している環境と同じ Windows で、同じ改行（LF）のまま動かす。
+
+name: check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      # Windows の runner の git は、取り出すときに改行を CRLF に変える。手元と同じ LF のままにする
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check
+        run: npm run check

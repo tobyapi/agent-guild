@@ -138,6 +138,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
   - **Claude Code と Codex CLI は同梱しない**（OS ごとの実行ファイルのパッケージは入れない）。アダプタが利用者の環境のものを探す: 環境変数 `GUILD_CLAUDE_PATH`・`GUILD_CODEX_PATH` > PATH（Windows の npm の `.cmd` は起動できないので、Claude は隣の `cli.js`、Codex は隣のパッケージの中の `codex.exe` とその ripgrep のフォルダ）> よく入れる場所（`~/.local/bin`・`/opt/homebrew/bin` など）> SDK の同梱（開発中に node_modules にあるときだけ）。見つからなければ、そのバックエンドは `unavailable` で、入れ方を `statusMessage` で伝える。
 - **配布の名前とログ**: インストール先のフォルダ名・実行ファイル・macOS の .app は製品名の `agent-guild`（英数字だけにする）。ウィンドウのタイトルは「AIギルド」。配布版のログは `<app_log_dir>/agent-guild.log`（Windows は `%LOCALAPPDATA%\com.agentguild.app\logs`、起動のたびに前回のものを `agent-guild.old.log` に回す）で、ランナーの stderr もここに入る。Windows ではリソースのフォルダが `\\?\C:\...` の形で届くことがあり、Node はそれを扱えないので、ランナーに渡す前にふつうのパスに直す。
 - **配布のビルド**: `.github/workflows/build.yml` が、手動実行か `v*` のタグの push で、Windows（x64、NSIS のインストーラー）と macOS（Apple Silicon、.app と .dmg）を作る。署名はしない（macOS はアドホック署名）。
+- **CI の確認**: `.github/workflows/check.yml` が、main への push・プルリクエスト・手動実行で `npm run check` を走らせる。開発している環境に合わせて Windows で動かし、改行は LF のまま取り出す（Windows の runner の git は既定で CRLF に変えるため、取り出す前に `core.autocrlf` を false にする）。
 
 - **ライフサイクル**: runner-client は生成に失敗しない。内部の監視タスクが起動・ready 待ち・版の確認・異常終了時の再起動（バックオフ付き、同時に1つ）を行い、状態 `starting / ready / unavailable(理由)` を公開する。Rust はこれを `Snapshot.runtime` に載せ、変化したら state-changed を出す。ランナーが使えない間の実行は `runtime` エラーで即座に失敗する。
 - アプリ終了時は shutdown を送り、猶予を過ぎたら kill。Windows ではジョブオブジェクト（KILL_ON_JOB_CLOSE）に入れて孤児プロセスを残さない。ランナーは stdin の EOF でも終了する。子の stderr は常に読み取って log に流す。
