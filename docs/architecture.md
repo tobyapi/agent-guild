@@ -57,7 +57,7 @@ src-tauri/
   AgentRepository / ChannelRepository / MessageRepository / SkillRepository / ProfileRepository / MetaRepository
   #[async_trait] AgentRuntime { status() -> RuntimeStatus; backends() -> Vec<BackendInfo>;
       async run(job_id, RuntimeRequest, ActivitySink) -> Result<String, RuntimeError>;   // RuntimeError::Cancelled を独立に持つ
-      async cancel(job_id); async probe(); }
+      async cancel(job_id); async probe() -> Result<(), RuntimeError>; }
   EventPublisher { message_created / activity_changed / state_changed / skills_changed }
   Workspace { prepare(agent, backend) -> WorkspacePaths{work, state}; work_dir(agent); read_memory; remove; reveal }
   Folders { inspect(dir) -> 空・ギルドのフォルダ・その他; reveal(dir) }   // 保存先の検証とファイラ
@@ -85,7 +85,7 @@ impl RunnerClient {
     pub fn watch_backends(&self) -> tokio::sync::watch::Receiver<Vec<BackendInfo>>;
     pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError>; // 途中経過と途中の投稿は RunUpdate で届く
     pub async fn cancel(&self, job_id: &str);
-    pub async fn probe(&self);
+    pub async fn probe(&self) -> Result<(), RunnerError>; // 確認結果を待つ。30秒で応答待ち超過
     pub async fn login(&self, job_id: &str, backend: &str) -> Result<(), RunnerError>; // 窓が閉じるまで待つ。終わると backends が届く
     pub async fn shutdown(&self);
 }

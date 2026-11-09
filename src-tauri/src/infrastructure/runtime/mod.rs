@@ -79,8 +79,8 @@ impl AgentRuntime for RunnerRuntime {
         self.client.cancel(job_id).await;
     }
 
-    async fn probe(&self) {
-        self.client.probe().await;
+    async fn probe(&self) -> Result<(), RuntimeError> {
+        self.client.probe().await.map_err(convert::error)
     }
 
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {

@@ -53,21 +53,46 @@ function startJob(request, waiting) {
 
 function cancelJob(id, waiting) {
   const mode = waiting.get(id);
+  if (mode === 'probe') return;
   waiting.delete(id);
   if (mode === 'hang') send({ type: 'error', id, code: 'cancelled', message: '実行を中断しました' });
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
 }
 
-export function startFakeRunner({ protocolVersion = 1, sendReady = true } = {}) {
+export function startFakeRunner({ protocolVersion = 1, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
   const handlers = {
-    run: (request) => startJob(request, waiting),
+    run: (request) => {
+      if (request.prompt === 'finish-probes') {
+        for (const [id, mode] of waiting) {
+          if (mode === 'probe') send({ type: 'result', id, text: '' });
+        }
+        waiting.clear();
+        return send({ type: 'result', id: request.id, text: '' });
+      }
+      return startJob(request, waiting);
+    },
     cancel: ({ id }) => cancelJob(id, waiting),
     login: ({ id }) => {
       send({ type: 'backends', backends: [{ ...BACKEND, status: 'ready' }] });
       send({ type: 'result', id, text: '' });
     },
-    probe: () => send({ type: 'backends', backends: [{ ...BACKEND, status: 'needs_auth', statusMessage: 'ログインしてください' }] }),
+    probe: ({ id }) => {
+      if (probeMode === 'exit') process.exit(3);
+      if (probeMode === 'silent') return;
+      if (probeMode === 'fail') return send({ type: 'error', id, code: 'internal', message: 'probe failed' });
+      if (probeMode === 'late') {
+        for (const [oldId, mode] of waiting) {
+          if (mode === 'probe') send({ type: 'result', id: oldId, text: 'late result' });
+        }
+        waiting.clear();
+        waiting.set(id, 'probe');
+        send({ type: 'backends', backends: [BACKEND] });
+        return;
+      }
+      send({ type: 'backends', backends: [{ ...BACKEND, status: 'needs_auth', statusMessage: 'ログインしてください' }] });
+      send({ type: 'result', id, text: '' });
+    },
     shutdown: () => process.exit(0),
   };
   process.stderr.write(`fake-runner: pid ${process.pid}\n`);

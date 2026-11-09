@@ -7,7 +7,10 @@ export interface MockRuntime extends MockCore {
 }
 
 /** コマンド1つ分の処理。失敗は fail()（CommandError で reject）で表す */
-export type MockHandler<C extends CommandName> = (args: CommandArgs<C>, runtime: MockRuntime) => CommandResult<C>;
+export type MockHandler<C extends CommandName> = (
+  args: CommandArgs<C>,
+  runtime: MockRuntime,
+) => CommandResult<C> | Promise<CommandResult<C>>;
 
 /** 全コマンドの処理表（コマンドを足して実装を忘れるとコンパイルエラーになる） */
 export type MockHandlers = { [C in CommandName]: MockHandler<C> };

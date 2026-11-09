@@ -94,7 +94,7 @@ async fn probe_refreshes_backends() {
     let client = ready_client("ok.mjs").await;
     let mut backends = client.watch_backends();
     backends.mark_unchanged();
-    client.probe().await;
+    client.probe().await.expect("probe succeeds");
     within(backends.changed()).await.expect("backends が届く");
     let refreshed = client.backends();
     assert_eq!(refreshed[0].status, BackendStatus::NeedsAuth);
@@ -103,12 +103,34 @@ async fn probe_refreshes_backends() {
 }
 
 #[tokio::test]
+async fn probe_reports_disconnection() {
+    let client = ready_client("probe-exit.mjs").await;
+    assert!(matches!(within(client.probe()).await, Err(RunnerError::Disconnected)));
+    client.shutdown().await;
+}
+
+#[tokio::test]
+async fn probe_reports_timeout() {
+    let client = ready_client("probe-silent.mjs").await;
+    let error = tokio::time::timeout(Duration::from_secs(35), client.probe()).await.unwrap().unwrap_err();
+    assert!(matches!(error, RunnerError::Unavailable(message) if message.contains("タイムアウト")));
+    client.shutdown().await;
+}
+
+#[tokio::test]
+async fn probe_reports_stopped_runner() {
+    let client = ready_client("ok.mjs").await;
+    client.shutdown().await;
+    assert!(client.probe().await.is_err());
+}
+
+#[tokio::test]
 async fn login_waits_for_the_runner_and_the_refreshed_backends_arrive_first() {
     let client = ready_client("ok.mjs").await;
     assert!(client.backends()[0].can_login);
     let mut backends = client.watch_backends();
     backends.mark_unchanged();
-    client.probe().await;
+    client.probe().await.expect("probe succeeds");
     within(backends.changed()).await.expect("backends が届く");
     assert_eq!(client.backends()[0].status, BackendStatus::NeedsAuth);
     within(client.login("login-1", "fake")).await.expect("ログインが終わる");
@@ -125,4 +147,43 @@ async fn shutdown_stops_the_runner_for_good() {
     assert!(client.backends().is_empty());
     let error = within(client.run("j1", request("echo:x"), no_updates())).await.expect_err("停止後は使えない");
     assert!(matches!(error, RunnerError::Unavailable(_)), "{error:?}");
+}
+
+#[tokio::test]
+async fn unrelated_login_notification_does_not_complete_probe() {
+    let client = ready_client("probe-silent.mjs").await;
+    let probe = client.probe();
+    tokio::pin!(probe);
+    assert!(tokio::time::timeout(Duration::from_millis(100), &mut probe).await.is_err());
+    within(client.login("unrelated-login", "fake")).await.unwrap();
+    assert!(tokio::time::timeout(Duration::from_millis(100), &mut probe).await.is_err());
+    client.shutdown().await;
+    assert!(matches!(probe.await, Err(RunnerError::Disconnected)));
+}
+
+#[tokio::test]
+async fn timed_out_probe_response_does_not_complete_retry() {
+    let client = ready_client("probe-late.mjs").await;
+    assert!(matches!(client.probe().await, Err(RunnerError::Unavailable(_))));
+    let mut backends = client.watch_backends();
+    backends.mark_unchanged();
+    let retry = client.probe();
+    tokio::pin!(retry);
+    tokio::select! {
+        result = &mut retry => panic!("retry completed before its own response: {result:?}"),
+        result = backends.changed() => result.unwrap(),
+    }
+    assert!(tokio::time::timeout(Duration::from_millis(100), &mut retry).await.is_err());
+    within(client.run("release-probe", request("finish-probes"), no_updates())).await.unwrap();
+    within(retry).await.expect("matching response completes retry");
+    client.shutdown().await;
+}
+
+#[tokio::test]
+async fn probe_propagates_matching_error() {
+    let client = ready_client("probe-fail.mjs").await;
+    assert!(
+        matches!(within(client.probe()).await, Err(RunnerError::Backend { message, .. }) if message == "probe failed")
+    );
+    client.shutdown().await;
 }

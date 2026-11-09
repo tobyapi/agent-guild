@@ -48,7 +48,7 @@ export function decodeRequest(value: JsonObject): DecodeResult {
         ? reject(null, 'cancel には id（文字列）が必要です')
         : { ok: true, request: { type: 'cancel', id } };
     case 'probe':
-      return { ok: true, request: { type: 'probe' } };
+      return id === null ? reject(null, 'probe requires an id') : { ok: true, request: { type: 'probe', id } };
     case 'shutdown':
       return { ok: true, request: { type: 'shutdown' } };
     default:

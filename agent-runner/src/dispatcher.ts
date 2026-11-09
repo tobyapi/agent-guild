@@ -75,18 +75,30 @@ export class Dispatcher {
       });
     } else if (request.type === 'login') this.#login(request);
     else if (request.type === 'cancel') this.cancel(request.id);
-    else if (request.type === 'probe') void this.#probe();
-    else this.shutdown();
+    else if (request.type === 'probe') {
+      if (this.#jobs.has(request.id)) {
+        this.#fail(request.id, 'bad_request', 'Duplicate probe id');
+        return;
+      }
+      this.#track(request.id, async () => {
+        await this.#refreshBackends();
+        return '';
+      });
+    } else this.shutdown();
   }
 
   /** 状態を確かめ直して backends を送る（失敗しても記録だけ） */
   async #probe(): Promise<void> {
     try {
-      const backends = await this.#options.registry.describe();
-      if (!this.#closed) this.#options.send({ type: 'backends', backends });
+      await this.#refreshBackends();
     } catch (error) {
       logError('バックエンドの状態を確認できませんでした', error);
     }
+  }
+
+  async #refreshBackends(): Promise<void> {
+    const backends = await this.#options.registry.describe();
+    if (!this.#closed) this.#options.send({ type: 'backends', backends });
   }
 
   #run(request: RunRequest): void {

@@ -71,11 +71,15 @@ impl RunnerClient {
         }
     }
 
-    /// バックエンドの状態（認証など）を確認し直させる。結果は `watch_backends` に届く
-    pub async fn probe(&self) {
-        if let Some(connection) = self.shared.current() {
-            let _ = connection.send(&Request::Probe).await;
-        }
+    /// バックエンドの状態を確認し直し、結果を待つ。送信失敗・切断・30秒の応答待ち超過はエラー。
+    pub async fn probe(&self) -> Result<(), RunnerError> {
+        static NEXT_PROBE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+        let id = format!("runner-probe-{}", NEXT_PROBE.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
+        let refresh = run::run(&self.shared, &id, run::Work::Probe, Box::new(|_| {}));
+        tokio::time::timeout(std::time::Duration::from_secs(30), refresh)
+            .await
+            .map_err(|_| RunnerError::Unavailable("バックエンドの再確認がタイムアウトしました".to_owned()))?
+            .map(|_| ())
     }
 
     /// `shutdown` を送って子プロセスを終了させ（猶予を過ぎたら kill）、以後は再起動しない

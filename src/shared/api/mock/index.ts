@@ -108,7 +108,7 @@ export function createMockTransport(options: MockTransportOptions = {}): Transpo
       if (state.boot.state === 'recovery' && !isRecoveryCommand(command)) {
         fail('unavailable', 'データフォルダを開けないため、この操作はできません');
       }
-      return structuredClone(handlers[command](structuredClone(args), runtime));
+      return structuredClone(await handlers[command](structuredClone(args), runtime));
     },
     listen: (event, handler) => Promise.resolve(runtime.bus.on(event, handler)),
   };

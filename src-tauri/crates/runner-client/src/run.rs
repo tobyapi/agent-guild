@@ -24,6 +24,7 @@ pub(crate) enum Work<'a> {
     },
     /// バックエンドのログイン（値はバックエンドの ID）
     Login(&'a str),
+    Probe,
 }
 
 fn request<'a>(work: Work<'a>, id: &'a str) -> Request<'a> {
@@ -31,6 +32,7 @@ fn request<'a>(work: Work<'a>, id: &'a str) -> Request<'a> {
         Work::ApiKey { backend, action, key } => Request::ApiKey { id, backend, action, key },
         Work::Run(request) => Request::Run { id, request },
         Work::Login(backend) => Request::Login { id, backend },
+        Work::Probe => Request::Probe { id },
     }
 }
 

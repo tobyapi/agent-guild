@@ -81,7 +81,8 @@ describe('decodeRequest', () => {
       ok: true,
       request: { type: 'cancel', id: 'job-1' },
     });
-    expect(decodeRequest({ type: 'probe' })).toEqual({ ok: true, request: { type: 'probe' } });
+    expect(decodeRequest({ type: 'probe', id: 'p1' })).toEqual({ ok: true, request: { type: 'probe', id: 'p1' } });
+    expect(decodeRequest({ type: 'probe' }).ok).toBe(false);
     expect(decodeRequest({ type: 'shutdown' })).toEqual({ ok: true, request: { type: 'shutdown' } });
   });
 

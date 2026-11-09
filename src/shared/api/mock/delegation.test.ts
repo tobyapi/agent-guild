@@ -10,8 +10,9 @@ afterEach(() => vi.useRealTimers());
 /** モックの Codex を使えるようにして（カナメが lead として受けられるように）から始める */
 async function readyHarness(): Promise<MockHarness> {
   const mock = await createHarness();
-  await mock.transport.invoke('refresh_backends', {});
+  const refresh = mock.transport.invoke('refresh_backends', {});
   await vi.advanceTimersByTimeAsync(1000);
+  await refresh;
   return mock;
 }
 

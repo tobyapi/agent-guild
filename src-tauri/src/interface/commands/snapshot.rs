@@ -21,11 +21,10 @@ pub async fn get_snapshot(state: State<'_, AppState>) -> CommandResult<Snapshot>
     state.services()?.snapshot.get().map_err(reject)
 }
 
-/// ランナーに probe を送る（結果は state-changed で届く）
+/// ランナーの確認結果を待つ。失敗・応答待ち超過は呼び出し元へ返す。
 #[tauri::command]
 pub async fn refresh_backends(state: State<'_, AppState>) -> CommandResult<()> {
-    state.services()?.backends.refresh().await;
-    Ok(())
+    state.services()?.backends.refresh().await.map_err(reject)
 }
 
 /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く

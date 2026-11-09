@@ -5,6 +5,7 @@
 // 規則:
 // - run ごとに終端イベント（result か error）を必ずちょうど1回返す。
 //   cancel されたら error{code:'cancelled'} を返す（中断が間に合わず完了したなら result でよい）。
+// - probe は id を必須とし、backends の更新後に同じ id の result（text は空）か error を返す。
 // - run は終端イベントの前に post（作業の途中の投稿）を 0 回以上返してよい。終端イベントのあとは送らない。
 // - 未知の type の要求: id があれば error{code:'bad_request'} を返し、なければ stderr に記録して無視する。
 // - 受け手は未知のフィールドを無視する。Rust は未知のイベントを無視し、id が null の error はログに残すだけ。
@@ -140,7 +141,7 @@ export type RunnerRequest =
   | { type: 'cancel'; id: string }
   /** バックエンドの状態（認証など）を確認し直して backends を送る */
   | { type: 'apiKey'; id: string; backend: 'grok' | 'muse'; action: 'status' | 'set' | 'delete'; key?: string }
-  | { type: 'probe' }
+  | { type: 'probe'; id: string }
   /** ログインを始める（canLogin のものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
   | { type: 'login'; id: string; backend: string }
   | { type: 'shutdown' };

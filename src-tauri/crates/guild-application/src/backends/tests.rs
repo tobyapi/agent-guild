@@ -10,6 +10,7 @@ use crate::ports::{AgentRuntime, RuntimeError, RuntimeRequest, UpdateSink};
 #[derive(Default)]
 struct Runtime {
     calls: Mutex<Vec<(String, String, Option<String>)>>,
+    probe_failure: bool,
 }
 
 #[async_trait]
@@ -24,7 +25,12 @@ impl AgentRuntime for Runtime {
         panic!("unused")
     }
     async fn cancel(&self, _: &str) {}
-    async fn probe(&self) {}
+    async fn probe(&self) -> Result<(), RuntimeError> {
+        if self.probe_failure {
+            return Err(RuntimeError::Failed("バックエンドの再確認がタイムアウトしました".to_owned()));
+        }
+        Ok(())
+    }
     async fn login(&self, _: &str) -> Result<(), RuntimeError> {
         panic!("unused")
     }
@@ -63,4 +69,11 @@ async fn redacts_runtime_failures() {
     let error = service.api_key("grok", "set", Some("fail-dummy")).await.unwrap_err().to_string();
     assert!(!error.contains("private-dummy-error"));
     assert!(!error.contains("fail-dummy"));
+}
+
+#[tokio::test]
+async fn refresh_returns_probe_failures_to_the_caller() {
+    let service = BackendService::new(Arc::new(Runtime { probe_failure: true, ..Runtime::default() }));
+    let error = service.refresh().await.unwrap_err();
+    assert!(matches!(error, crate::error::AppError::Runtime(message) if message.contains("タイムアウト")));
 }

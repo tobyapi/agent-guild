@@ -39,8 +39,8 @@ impl BackendService {
         })
     }
 
-    pub async fn refresh(&self) {
-        self.runtime.probe().await;
+    pub async fn refresh(&self) -> AppResult<()> {
+        self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
     }
 
     /// ログインを始め、利用者が終える（窓が閉じる）まで待つ。ログインできなければ runtime エラー

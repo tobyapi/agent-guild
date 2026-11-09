@@ -103,9 +103,12 @@ describe('Dispatcher', () => {
 
   it('probe は状態を確かめ直して backends を送る', async () => {
     const { events, receive } = setup();
-    receive(JSON.stringify({ type: 'probe' }));
+    receive(JSON.stringify({ type: 'probe', id: 'p1' }));
     await settle();
-    expect(events).toEqual([{ type: 'backends', backends: [FAKE_INFO] }]);
+    expect(events).toEqual([
+      { type: 'backends', backends: [FAKE_INFO] },
+      { type: 'result', id: 'p1', text: '' },
+    ]);
   });
 
   it('run は activity を中継してから result を返す', async () => {
@@ -188,5 +191,22 @@ describe('Dispatcher', () => {
     await settle();
     expect(exit).toHaveBeenCalledOnce();
     expect(events.slice(1)).toEqual([{ type: 'error', id: 'j1', code: 'cancelled', message: '実行を中断しました' }]);
+  });
+});
+
+describe('probe responses', () => {
+  it('returns an error with the request id when refresh fails', async () => {
+    const registry = new BackendRegistry([fakeAdapter]);
+    vi.spyOn(registry, 'describe').mockRejectedValue(new Error('refresh failed'));
+    const events: RunnerEvent[] = [];
+    const dispatcher = new Dispatcher({
+      registry,
+      runnerVersion: 'test',
+      send: (event) => events.push(event),
+      exit: vi.fn(),
+    });
+    dispatcher.receive(parseLine(JSON.stringify({ type: 'probe', id: 'failed-probe' })));
+    await settle();
+    expect(events).toEqual([{ type: 'error', id: 'failed-probe', code: 'internal', message: 'refresh failed' }]);
   });
 });

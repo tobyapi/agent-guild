@@ -114,6 +114,6 @@ async fn messages_are_paged_by_seq() {
 #[tokio::test]
 async fn refreshing_backends_probes_the_runner() {
     let app = TestApp::new();
-    app.services.backends.refresh().await;
+    app.services.backends.refresh().await.unwrap();
     assert_eq!(app.runtime.probes.load(Ordering::SeqCst), 1);
 }

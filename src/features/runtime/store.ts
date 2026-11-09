@@ -10,7 +10,7 @@ interface RuntimeStoreState {
   activity: ActivityState;
   /** activity-changed を受け取るたびに増える（取得中に届いた新しい状態を古いスナップショットで上書きしないため） */
   activityRevision: number;
-  /** 「再確認」を押してから、次のスナップショットが届くまで */
+  /** 「再確認」の結果を取得するまで */
   checkingBackends: boolean;
   /** ログイン中のバックエンド（［ログイン］を押してから、窓が閉じるまで） */
   loggingIn: string | null;
@@ -42,7 +42,6 @@ export function applyRuntimeSnapshot(
     runtime: snapshot.runtime,
     backends: snapshot.backends,
     activity: previous.activityRevision === activityRevision ? snapshot.activity : previous.activity,
-    checkingBackends: false,
   });
   if (previous.runtime.state === 'unavailable' && snapshot.runtime.state === 'ready') {
     notifyInfo('実行環境の準備ができました');
@@ -54,12 +53,16 @@ export function setActivity(activity: ActivityState): void {
 }
 
 export async function refreshBackends(): Promise<void> {
+  if (useRuntimeStore.getState().checkingBackends) return;
   useRuntimeStore.setState({ checkingBackends: true });
   try {
     await runtimeApi.refreshBackends();
-  } catch (error) {
+    const revision = currentActivityRevision();
+    const snapshot = await runtimeApi.snapshot();
+    applyRuntimeSnapshot(snapshot, revision);
+    notifyInfo('バックエンドの再確認が完了しました。各バックエンドの状態を確認してください。');
+  } finally {
     useRuntimeStore.setState({ checkingBackends: false });
-    throw error;
   }
 }
 

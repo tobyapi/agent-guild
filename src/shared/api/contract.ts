@@ -60,7 +60,7 @@ export interface CommandMap {
   /** そのチャンネルの割り振り（createdAt の昇順、新しい方から最大200件） */
   list_delegations: { args: { channelId: string }; result: Delegation[] };
   update_profile: { args: { profile: Profile }; result: Profile };
-  /** ランナーに probe を送る。結果は state-changed で届く */
+  /** ランナーの probe 結果を待つ。失敗・応答待ち超過は reject。結果は get_snapshot で取得できる */
   backend_api_key: { args: { backendId: string; action: 'status' | 'set' | 'delete'; key?: string }; result: string };
   refresh_backends: { args: NoArgs; result: null };
   /** ログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く */

@@ -28,7 +28,9 @@ pub(crate) enum Request<'a> {
         #[serde(skip_serializing_if = "Option::is_none")]
         key: Option<&'a str>,
     },
-    Probe,
+    Probe {
+        id: &'a str,
+    },
     Shutdown,
 }
 

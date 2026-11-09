@@ -81,7 +81,7 @@ pub trait AgentRuntime: Send + Sync {
     /// 実行中のジョブを中断する（なければ何もしない）
     async fn cancel(&self, job_id: &str);
     /// バックエンドの状態（認証など）を確認し直す。結果は状態の変化として届く
-    async fn probe(&self);
+    async fn probe(&self) -> Result<(), RuntimeError>;
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わると状態の確認し直しが届く。
     /// ログインできなければ Failed
     async fn login(&self, backend: &str) -> Result<(), RuntimeError>;

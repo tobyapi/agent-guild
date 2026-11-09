@@ -152,8 +152,9 @@ impl AgentRuntime for FakeRuntime {
         self.cancel_signal.notify_waiters();
     }
 
-    async fn probe(&self) {
+    async fn probe(&self) -> Result<(), RuntimeError> {
         self.probes.fetch_add(1, Ordering::SeqCst);
+        Ok(())
     }
 
     async fn login(&self, backend: &str) -> Result<(), RuntimeError> {

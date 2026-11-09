@@ -101,7 +101,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `stop_channel` | `{ channelId }` | `null`（実行中の割り振りも打ち切る） | activity-changed, message-created, delegation-changed | not_found |
 | `list_delegations` | `{ channelId }` | `Delegation[]`（そのチャンネルの割り振り。createdAt の昇順、新しい方から最大200件） | – | not_found |
 | `update_profile` | `{ profile: Profile }` | `Profile` | state-changed | validation |
-| `refresh_backends` | – | `null`（ランナーに probe を送る。結果は state-changed で届く） | state-changed | unavailable |
+| `refresh_backends` | – | `null`（probe の結果を待つ。完了後は get_snapshot で取得可能。30秒の応答待ち超過・送信失敗・切断は reject） | state-changed | runtime |
 | `login_backend` | `{ backendId }` | `null`（ランナーに login を送り、利用者がログインを終える＝窓が閉じるまで待つ。終わったときの状態は state-changed で届く） | state-changed | not_found, validation（canLogin でない）, runtime（ログインが完了しなかった・中断した） |
 | `get_storage_info` | – | `StorageInfo` | – | – |
 | `choose_folder` | – | `string \| null`（OS のフォルダ選択） | – | – |

@@ -67,8 +67,9 @@ describe('モックの会話', () => {
 
   it('refresh_backends でバックエンドが ready になり、state-changed が届く', async () => {
     const mock = await createHarness();
-    await mock.transport.invoke('refresh_backends', {});
+    const refresh = mock.transport.invoke('refresh_backends', {});
     await mock.settle();
+    await refresh;
     const snapshot = await mock.transport.invoke('get_snapshot', {});
     expect(snapshot.backends.every((backend) => backend.status === 'ready')).toBe(true);
     expect(mock.stateChanges.length).toBeGreaterThan(0);

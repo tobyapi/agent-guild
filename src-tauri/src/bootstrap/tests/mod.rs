@@ -51,7 +51,9 @@ impl AgentRuntime for NoRuntime {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }
     async fn cancel(&self, _job_id: &str) {}
-    async fn probe(&self) {}
+    async fn probe(&self) -> Result<(), RuntimeError> {
+        Ok(())
+    }
     async fn login(&self, _backend: &str) -> Result<(), RuntimeError> {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }

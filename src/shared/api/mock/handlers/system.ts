@@ -56,15 +56,17 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
   /** モックでは、ログインを済ませた想定で全バックエンドを ready にする */
   refresh_backends(_args, runtime) {
     if (runtime.state.runtime.state !== 'ready') fail('unavailable', 'エージェントの実行環境が起動していません');
-    runtime.env.schedule(PROBE_MS, () => {
-      runtime.state.backends = runtime.state.backends.map((backend) => ({
-        ...backend,
-        status: 'ready',
-        statusMessage: '',
-      }));
-      emitStateChanged(runtime);
+    return new Promise<null>((resolve) => {
+      runtime.env.schedule(PROBE_MS, () => {
+        runtime.state.backends = runtime.state.backends.map((backend) => ({
+          ...backend,
+          status: 'ready',
+          statusMessage: '',
+        }));
+        emitStateChanged(runtime);
+        resolve(null);
+      });
     });
-    return null;
   },
 
   /** Rust はログインの窓が閉じるまで待つが、モックはすぐ返して少し後に ready にする */
