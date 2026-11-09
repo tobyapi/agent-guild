@@ -1,0 +1,43 @@
+// @vitest-environment jsdom
+// 画面の振る舞い（エージェントの作成）: 名前の検証で作成が止まることと、作成するとサイドバーに出ること。
+// アプリ全体をモックのバックエンドで動かす。テストは同じ起動の続きとして順に動く（appFlow.test-support.tsx）。
+import { fireEvent, screen, within } from '@testing-library/react';
+import { afterAll, beforeAll, expect, it } from 'vitest';
+import { advance, bootApp, closeApp, openDialog } from './appFlow.test-support';
+
+beforeAll(bootApp);
+afterAll(closeApp);
+
+const sidebarText = () => screen.getByRole('navigation', { name: 'チャンネルとエージェント' }).textContent ?? '';
+const nameField = () => within(openDialog()).getByLabelText<HTMLInputElement>('名前');
+/** 名前の欄に出ているエラーの文面（出ていなければ空） */
+const nameError = () => openDialog().querySelector(`[id="${nameField().id}-error"]`)?.textContent ?? '';
+
+/** 名前を入れて「作成」を押す */
+async function submitName(name: string): Promise<void> {
+  fireEvent.change(nameField(), { target: { value: name } });
+  fireEvent.click(within(openDialog()).getByRole('button', { name: '作成' }));
+  await advance(1000);
+}
+
+it('名前が空か、ほかのエージェントと同じなら、作成せずに名前の欄で知らせる', async () => {
+  fireEvent.click(screen.getByRole('button', { name: 'エージェントを追加' }));
+  await advance(500);
+  expect(within(openDialog()).getByRole('heading', { name: '新しいエージェント' })).toBeTruthy();
+
+  await submitName('');
+  expect(nameField().getAttribute('aria-invalid')).toBe('true');
+  expect(nameError()).not.toBe('');
+
+  await submitName('ハル');
+  expect(nameField().getAttribute('aria-invalid')).toBe('true');
+  expect(nameError()).not.toBe('');
+  expect(within(openDialog()).getByRole('heading', { name: '新しいエージェント' })).toBeTruthy();
+});
+
+it('使える名前なら作成され、サイドバーに出る', async () => {
+  expect(sidebarText()).not.toContain('ミナ');
+  await submitName('ミナ');
+  expect(sidebarText()).toContain('ミナ');
+  expect(nameField().hasAttribute('aria-invalid')).toBe(false);
+});
