@@ -1,0 +1,420 @@
+{
+  "me": {
+    "name": "ユーザー",
+    "avatar": "🙂",
+    "color": "#f0ba5f"
+  },
+  "agents": [
+    {
+      "id": "a0000000-0000-4000-8000-000000000001",
+      "name": "ハル",
+      "avatar": "🌱",
+      "color": "#67dab2",
+      "tags": [
+        "作業者",
+        "リサーチ"
+      ],
+      "role": "リサーチと企画の担当",
+      "personality": "好奇心旺盛で前向き",
+      "tone": "フランクな丁寧語",
+      "expertise": "",
+      "backend": "claude",
+      "model": "sonnet",
+      "backendOptions": {},
+      "permissions": {
+        "webSearch": true,
+        "webFetch": true,
+        "readFiles": true,
+        "writeFiles": true,
+        "writeAnywhere": false,
+        "runCommands": false,
+        "skills": true
+      },
+      "unmentioned": "answer",
+      "consultable": false,
+      "canDelegate": false,
+      "autonomyEnabled": false,
+      "autonomyIntervalMin": 60,
+      "autonomyChannelId": null,
+      "lastAutonomousAt": null,
+      "createdAt": 1793320000000,
+      "deletedAt": null
+    },
+    {
+      "id": "a0000000-0000-4000-8000-000000000002",
+      "name": "ロジカ",
+      "avatar": "🧐",
+      "color": "#c6aafa",
+      "tags": [
+        "専門家",
+        "レビュー"
+      ],
+      "role": "文章と企画のレビュー担当",
+      "personality": "辛口だが公平",
+      "tone": "落ち着いた敬語",
+      "expertise": "文章・企画の論理チェックとレビュー",
+      "backend": "claude",
+      "model": "sonnet",
+      "backendOptions": {},
+      "permissions": {
+        "webSearch": true,
+        "webFetch": true,
+        "readFiles": true,
+        "writeFiles": false,
+        "writeAnywhere": false,
+        "runCommands": false,
+        "skills": true
+      },
+      "unmentioned": "fallback",
+      "consultable": true,
+      "canDelegate": false,
+      "autonomyEnabled": false,
+      "autonomyIntervalMin": 60,
+      "autonomyChannelId": null,
+      "lastAutonomousAt": null,
+      "createdAt": 1793320001000,
+      "deletedAt": null
+    },
+    {
+      "id": "a0000000-0000-4000-8000-000000000003",
+      "name": "ソラ",
+      "avatar": "🛠️",
+      "color": "#8cc3fc",
+      "tags": [
+        "作業者",
+        "実装"
+      ],
+      "role": "実装と検証の担当",
+      "personality": "寡黙で職人肌",
+      "tone": "簡潔な常体",
+      "expertise": "",
+      "backend": "codex",
+      "model": "",
+      "backendOptions": {
+        "reasoningEffort": "medium"
+      },
+      "permissions": {
+        "webSearch": true,
+        "webFetch": true,
+        "readFiles": true,
+        "writeFiles": true,
+        "writeAnywhere": false,
+        "runCommands": true,
+        "skills": true
+      },
+      "unmentioned": "answer",
+      "consultable": false,
+      "canDelegate": false,
+      "autonomyEnabled": false,
+      "autonomyIntervalMin": 60,
+      "autonomyChannelId": null,
+      "lastAutonomousAt": null,
+      "createdAt": 1793320002000,
+      "deletedAt": 1793325000000
+    }
+  ],
+  "channels": [
+    {
+      "id": "c0000000-0000-4000-8000-000000000001",
+      "name": "ロビー",
+      "topic": "みんなの雑談と相談の場",
+      "memberIds": [
+        "me",
+        "a0000000-0000-4000-8000-000000000001",
+        "a0000000-0000-4000-8000-000000000002"
+      ],
+      "createdAt": 1793320000000
+    }
+  ],
+  "backends": [
+    {
+      "id": "claude",
+      "label": "Claude",
+      "modelSuggestions": [
+        "sonnet",
+        "opus",
+        "haiku"
+      ],
+      "defaultModel": "sonnet",
+      "capabilities": {
+        "webSearch": true,
+        "webFetch": true,
+        "readFiles": true,
+        "writeFiles": true,
+        "writeAnywhere": true,
+        "runCommands": true,
+        "skills": true
+      },
+      "status": "ready",
+      "statusMessage": "",
+      "options": [
+        {
+          "key": "maxTurns",
+          "label": "最大ターン数",
+          "description": "1回の返答で使うツール呼び出しの上限",
+          "type": "number",
+          "choices": [],
+          "default": 30
+        }
+      ],
+      "permissionRules": [
+        {
+          "when": "writeAnywhere",
+          "requires": [
+            "writeFiles"
+          ]
+        },
+        {
+          "when": "runCommands",
+          "requires": [
+            "readFiles",
+            "writeFiles",
+            "writeAnywhere",
+            "webFetch",
+            "webSearch"
+          ]
+        }
+      ],
+      "canLogin": true
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "modelSuggestions": [],
+      "defaultModel": "",
+      "capabilities": {
+        "webSearch": true,
+        "webFetch": false,
+        "readFiles": true,
+        "writeFiles": true,
+        "writeAnywhere": true,
+        "runCommands": true,
+        "skills": true
+      },
+      "status": "needs_auth",
+      "statusMessage": "ターミナルで codex login を実行してから「再確認」を押してください。",
+      "options": [
+        {
+          "key": "reasoningEffort",
+          "label": "推論の深さ",
+          "description": "",
+          "type": "select",
+          "choices": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "default": "medium"
+        }
+      ],
+      "permissionRules": [
+        {
+          "when": "writeFiles",
+          "requires": [
+            "runCommands"
+          ]
+        },
+        {
+          "when": "writeAnywhere",
+          "requires": [
+            "writeFiles",
+            "webFetch"
+          ]
+        }
+      ],
+      "canLogin": false
+    }
+  ],
+  "templates": [
+    {
+      "id": "worker",
+      "label": "作業者",
+      "description": "頼まれた作業を、手を動かして進めます。メンションがなくても答えます。",
+      "accent": "worker",
+      "defaults": {
+        "tags": [
+          "作業者"
+        ],
+        "role": "頼まれた作業を手を動かして進める",
+        "expertise": "",
+        "permissions": {
+          "webSearch": true,
+          "webFetch": true,
+          "readFiles": true,
+          "writeFiles": true,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "answer",
+        "consultable": false,
+        "canDelegate": false,
+        "autonomyEnabled": false
+      }
+    },
+    {
+      "id": "expert",
+      "label": "専門家",
+      "description": "得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。",
+      "accent": "expert",
+      "defaults": {
+        "tags": [
+          "専門家"
+        ],
+        "role": "専門分野の相談とレビューに答える",
+        "expertise": "",
+        "permissions": {
+          "webSearch": true,
+          "webFetch": true,
+          "readFiles": true,
+          "writeFiles": false,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "fallback",
+        "consultable": true,
+        "canDelegate": false,
+        "autonomyEnabled": false
+      }
+    },
+    {
+      "id": "manager",
+      "label": "マネージャー",
+      "description": "依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。",
+      "accent": "manager",
+      "defaults": {
+        "tags": [
+          "マネージャー"
+        ],
+        "role": "依頼を分解して適任者に割り振り、結果をまとめて報告する",
+        "expertise": "段取りと進行管理",
+        "permissions": {
+          "webSearch": true,
+          "webFetch": false,
+          "readFiles": true,
+          "writeFiles": false,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "lead",
+        "consultable": false,
+        "canDelegate": true,
+        "autonomyEnabled": false
+      }
+    },
+    {
+      "id": "researcher",
+      "label": "調査係",
+      "description": "Web で調べて、出典つきで要点をまとめます。ファイルは書かず、コマンドも使いません。",
+      "accent": "researcher",
+      "defaults": {
+        "tags": [
+          "調査係"
+        ],
+        "role": "Web で調べて、出典つきで要点をまとめる",
+        "expertise": "Web 調査と情報の整理",
+        "permissions": {
+          "webSearch": true,
+          "webFetch": true,
+          "readFiles": true,
+          "writeFiles": false,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "ignore",
+        "consultable": true,
+        "canDelegate": false,
+        "autonomyEnabled": false
+      }
+    },
+    {
+      "id": "scribe",
+      "label": "書記",
+      "description": "議論をときどき要約して、決まったことと残った論点を書き残します。",
+      "accent": "scribe",
+      "defaults": {
+        "tags": [
+          "書記"
+        ],
+        "role": "チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す",
+        "expertise": "議事の要約と記録",
+        "permissions": {
+          "webSearch": false,
+          "webFetch": false,
+          "readFiles": true,
+          "writeFiles": true,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "ignore",
+        "consultable": false,
+        "canDelegate": false,
+        "autonomyEnabled": true
+      }
+    },
+    {
+      "id": "critic",
+      "label": "批判役",
+      "description": "案の弱点やリスクを、あえて率直に指摘します。呼ばれたときだけ話します。",
+      "accent": "critic",
+      "defaults": {
+        "tags": [
+          "批判役"
+        ],
+        "role": "案の弱点・リスク・反対意見をあえて率直に出す",
+        "expertise": "リスクの洗い出しと反論",
+        "permissions": {
+          "webSearch": true,
+          "webFetch": false,
+          "readFiles": true,
+          "writeFiles": false,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": true
+        },
+        "unmentioned": "ignore",
+        "consultable": true,
+        "canDelegate": false,
+        "autonomyEnabled": false
+      }
+    },
+    {
+      "id": "enduser",
+      "label": "エンドユーザー役",
+      "description": "初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。",
+      "accent": "enduser",
+      "defaults": {
+        "tags": [
+          "エンドユーザー役"
+        ],
+        "role": "想定ユーザーとして、初めて見る立場で感想と困りごとを伝える",
+        "expertise": "初めて使う人の目線",
+        "permissions": {
+          "webSearch": false,
+          "webFetch": false,
+          "readFiles": true,
+          "writeFiles": false,
+          "writeAnywhere": false,
+          "runCommands": false,
+          "skills": false
+        },
+        "unmentioned": "ignore",
+        "consultable": true,
+        "canDelegate": false,
+        "autonomyEnabled": false
+      }
+    }
+  ],
+  "runtime": {
+    "state": "ready",
+    "message": ""
+  },
+  "activity": {
+    "activities": [],
+    "queues": []
+  }
+}

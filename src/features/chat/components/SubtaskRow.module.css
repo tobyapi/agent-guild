@@ -1,0 +1,116 @@
+/* サブタスクの行（docs/ui-design.md §5.13）: [印 16px][アバター 20px][名前][状態の言葉]、その下に指示と理由。状態は data-status */
+.row {
+  display: grid;
+  grid-template-columns: var(--space-4) var(--avatar-xs) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-0-5) var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  inline-size: var(--space-4);
+  block-size: var(--space-4);
+  color: var(--text-muted);
+  transition: color var(--duration-normal) var(--ease-standard);
+}
+
+.row[data-status='done'] .mark {
+  color: var(--success);
+}
+
+.row[data-status='failed'] .mark {
+  color: var(--danger);
+}
+
+.name {
+  min-inline-size: 0;
+  overflow: hidden;
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.word {
+  font-weight: var(--weight-medium);
+  transition: color var(--duration-normal) var(--ease-standard);
+}
+
+.row[data-status='running'] .word {
+  color: var(--accent-text);
+}
+
+.row[data-status='done'] .word {
+  color: var(--success);
+}
+
+.row[data-status='failed'] .word {
+  color: var(--danger);
+}
+
+/* 発言へ移る導線（リンクの姿の小さなボタン） */
+.jump {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+
+.jump:hover {
+  color: var(--text-primary);
+  text-decoration-color: currentColor;
+}
+
+/* 指示は 3 行まで（全文はツールチップ） */
+.text {
+  display: -webkit-box;
+  grid-column: 3 / -1;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  cursor: auto;
+}
+
+.row[data-status='cancelled'] .text {
+  color: var(--text-muted);
+}
+
+.note {
+  grid-column: 3 / -1;
+  color: var(--danger);
+  font-size: var(--text-sm);
+}
+
+.row[data-status='cancelled'] .note {
+  color: var(--text-muted);
+}
+
+/* 狭いときは状態の言葉を指示の下に回す */
+@container (max-width: 420px) {
+  .state {
+    grid-column: 3 / -1;
+    justify-self: start;
+  }
+}

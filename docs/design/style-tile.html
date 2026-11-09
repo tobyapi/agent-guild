@@ -1,0 +1,1681 @@
+<!doctype html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIギルド スタイルタイル</title>
+<!--
+  AIギルド スタイルタイル（デザインの方向性の見本）
+  - 外部リソースなし。トークンと土台の CSS は src/shared/ui/theme/*.css をそのまま書き写してある
+  - 右上の切り替えでダーク / ライト。?theme=light で最初からライト
+  - 部品の CSS は「実装の参考」。B の CSS Modules はこの見た目と状態を目標にする（値は必ずトークンで）
+-->
+<style>
+/* ── tokens.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * デザイントークン「夜更けのギルドホール」— 墨の面に、働く仲間のところだけ灯（あかり）がともる
+ * - コンポーネントは色・余白・文字サイズ・角丸・影・動きを必ずこの変数で指定する（生の値を書かない）
+ * - 名前は契約。足すのは自由（docs/ui-design.md に追記）。消す・改名するときは使っている箇所を同時に直す
+ * - 既定はダーク。ライトは <html data-theme="light">（tokens-light.css が色だけ上書きする）
+ * - 寸法と重なり順は tokens-layout.css。どちらもここから読み込むので、使う側は tokens.css だけ import する
+ * 使い分けは docs/ui-design.md、見本は docs/design/style-tile.html
+ */
+
+
+:root {
+  color-scheme: dark;
+
+  /* 面（藍墨。奥ほど暗く、手前ほど明るい） */
+  --bg-sunken: #101317; /* コードブロックなど一段沈んだ面 */
+  --bg-sidebar: #121418;
+  --bg-panel: #15171c;
+  --bg-app: #191c21;
+  --bg-input: #202329;
+  --bg-elevated: #24262c; /* ダイアログ・ポップオーバー・メニュー */
+  --bg-hover: rgba(200, 210, 255, 0.05);
+  --bg-active: rgba(200, 210, 255, 0.09); /* 選択中の行・押下中 */
+  --bg-overlay: rgba(6, 8, 12, 0.64);
+  --surface: var(--bg-app); /* いま乗っている面。面を持つ容器が上書きし、灯の縁取りなどが使う */
+  --border-subtle: rgba(200, 210, 255, 0.08);
+  --border-strong: rgba(200, 210, 255, 0.15);
+  --border-hover: rgba(200, 210, 255, 0.24);
+  --border-focus: rgba(240, 186, 95, 0.5); /* 静かなフォーカス枠（常にフォーカスがある入力欄の枠） */
+  --scrollbar-thumb: rgba(200, 210, 255, 0.14);
+  --scrollbar-thumb-hover: rgba(200, 210, 255, 0.26);
+
+  /* 文字（すべて AA 以上。muted も 4.5:1 を確保） */
+  --text-primary: #e4e6ea; /* 真っ白にしない（長文のにじみを抑える） */
+  --text-secondary: #babec6;
+  --text-muted: #9a9ea7;
+  --text-on-accent: #20160b;
+  --text-on-danger: #2b1213;
+  --text-link: #dbe1ef; /* リンクは色ではなく下線で示す（青は役割の色に使う） */
+
+  /* アクセント = 灯の金。操作の主役・フォーカス・選択の印にだけ使う */
+  --accent: #f0ba5f;
+  --accent-hover: #facd78;
+  --accent-soft: rgba(240, 186, 95, 0.14);
+  --accent-text: #f0ba5f; /* 面の上に金で文字を書くとき（ライトでは暗い金になる） */
+  --danger: #ff868d;
+  --danger-hover: #ff9da0;
+  --danger-soft: rgba(255, 134, 141, 0.12);
+  --warning: #fca864;
+  --warning-soft: rgba(252, 168, 100, 0.14);
+  --success: #72d48a;
+  --success-soft: rgba(114, 212, 138, 0.14);
+  --selection-bg: rgba(240, 186, 95, 0.3);
+  --focus-color: #f0ba5f;
+  --focus-glow: rgba(240, 186, 95, 0.22); /* 入力欄のフォーカスのにじみ（枠は --focus-color） */
+  --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--focus-color);
+
+  /* 役割の色 --kind-<テンプレートの accent>。暖色側（赤〜金）は人と状態に取っておき、役割は寒色側に
+     金（あなた）に近い順に並べる: 若葉 → 若竹 → 青磁 → 露草 → 群青 → 藤 → 牡丹。文字にも点にも使える明度 */
+  --kind-enduser: #bfdc73; /* 若葉: エンドユーザー役 */
+  --kind-enduser-soft: rgba(191, 220, 115, 0.14);
+  --kind-worker: #67dab2; /* 若竹: 作業者 */
+  --kind-worker-soft: rgba(103, 218, 178, 0.14);
+  --kind-scribe: #92d1d8; /* 青磁: 書記（控えめな彩度） */
+  --kind-scribe-soft: rgba(146, 209, 216, 0.14);
+  --kind-researcher: #74c8fc; /* 露草: 調査係 */
+  --kind-researcher-soft: rgba(116, 200, 252, 0.14);
+  --kind-manager: #98afff; /* 群青: マネージャー */
+  --kind-manager-soft: rgba(152, 175, 255, 0.14);
+  --kind-expert: #c6aafa; /* 藤: 専門家 */
+  --kind-expert-soft: rgba(198, 170, 250, 0.14);
+  --kind-critic: #f195cd; /* 牡丹: 批判役 */
+  --kind-critic-soft: rgba(241, 149, 205, 0.14);
+  --kind-neutral: var(--text-secondary); /* テンプレートに無いタグ・タグなし */
+  --kind-neutral-soft: var(--bg-active);
+  --kind-human: #f0ba5f; /* 金（あなた） */
+  --kind-human-soft: rgba(240, 186, 95, 0.14);
+  --mention-bg: var(--kind-neutral-soft); /* 色の決まらない相手（タグがテンプレートに無い・削除済み） */
+  --mention-text: var(--text-primary);
+  --mention-self-bg: rgba(240, 186, 95, 0.07); /* 自分が呼ばれた発言の行 */
+  --activity: #f0ba5f; /* 灯：動作中 */
+  --activity-glow: rgba(240, 186, 95, 0.45);
+  --autonomous: #f3d268; /* 山吹：💡 自発 */
+  --autonomous-soft: rgba(243, 210, 104, 0.14);
+
+  /* アバター（タイル = 個人色を面に溶かす） */
+  --avatar-tint: 30%;
+  --avatar-tint-base: var(--bg-elevated);
+
+  /* 文字組み（外部フォントは読まない。Windows は Segoe UI Variable + Noto Sans JP / 游ゴシック UI） */
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
+    'Yu Gothic UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', Meiryo, system-ui,
+    sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
+  --font-mono: 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'BIZ UDGothic', 'Noto Sans JP', 'Yu Gothic UI',
+    monospace;
+  --text-xs: 11px; /* 英数字だけ（時刻・バックエンド名）。日本語は 12px 以上 */
+  --text-sm: 12px;
+  --text-md: 14px; /* UI の標準 */
+  --text-body: 15px; /* メッセージ本文・入力欄 */
+  --text-code: 13px; /* コードブロック（等幅は小さめでも読める） */
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --leading-tight: 1.35;
+  --leading-snug: 1.5;
+  --leading-normal: 1.7;
+  --tracking-normal: 0.02em;
+  --tracking-wide: 0.08em; /* 小見出しのラベル */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* 余白（4px 単位） */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* 角丸・影・動き */
+  --radius-sm: 4px; /* バッジ・チップ */
+  --radius-md: 8px; /* ボタン・入力・行 */
+  --radius-lg: 12px; /* 入力欄の枠・カード */
+  --radius-xl: 16px; /* ダイアログ */
+  --radius-full: 999px;
+  --radius-avatar: 30%; /* エージェント（角丸）。人間は --radius-full */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.25), 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 16px -8px rgba(0, 0, 0, 0.45), 0 28px 56px -12px rgba(0, 0, 0, 0.65);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 現れるとき */
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 320ms;
+  --duration-lamp: 2000ms; /* 灯の呼吸 1 周期 */
+  --animation-lamp: guild-lamp var(--duration-lamp) ease-in-out infinite; /* キーフレームは motion.css */
+  --animation-glow: guild-glow var(--duration-lamp) ease-in-out infinite;
+  --animation-rise: guild-rise var(--duration-slow) var(--ease-out);
+  --animation-fade: guild-fade var(--duration-normal) var(--ease-standard);
+
+  /* レイアウト（寸法・重なり順）は tokens-layout.css */
+}
+
+/* ── tokens-layout.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * レイアウトのトークン: 骨組みの幅・行と部品の高さ・アバター・ダイアログ・重なり順（tokens.css から読み込む）
+ * テーマで変わらない値だけを置く。名前は契約（足すのは自由。docs/ui-design.md に追記）
+ */
+:root {
+  /* 骨組み */
+  --sidebar-width: 260px;
+  --member-panel-width: 248px;
+  --header-height: 52px;
+  --banner-height: 36px; /* 画面上部の帯（ランナーの状態） */
+  --row-height: 32px; /* サイドバーの行 */
+  --measure: 46em; /* 本文の最大行長（約 46 字） */
+
+  /* 部品の高さ */
+  --control-sm: 28px;
+  --control-md: 32px;
+  --control-lg: 40px;
+  --badge-height: 18px; /* 札（種別・バックエンド・自発） */
+  --switch-width: 34px;
+  --switch-height: 20px;
+  --switch-knob: 14px;
+  --composer-max-height: 40vh; /* 入力欄はここまで伸びて、あとはスクロール */
+
+  /* アバター */
+  --avatar-xs: 20px; /* メンション候補・動作中表示 */
+  --avatar-sm: 24px; /* サイドバー */
+  --avatar-row: 32px; /* 2 行の行（メンバー一覧・プロフィール） */
+  --avatar-md: 40px; /* メッセージ */
+  --avatar-lg: 64px; /* 編集画面のプレビュー */
+
+  /* 紋（菱に灯） */
+  --crest-sm: 20px; /* サイドバーの紋の行 */
+  --crest-md: 44px; /* 空の状態 */
+  --crest-lg: 48px; /* 復旧画面・起動画面 */
+
+  /* ダイアログ・トースト */
+  --dialog-width-sm: 440px; /* 確認・チャンネル作成 */
+  --dialog-width-md: 560px; /* 設定・復旧画面のカード */
+  --dialog-width-lg: 760px; /* エージェント編集（プレビュー + 入力） */
+  --toast-width: 360px;
+  --preview-width: 220px; /* エージェント編集の左のプレビュー */
+  --popover-width: 340px; /* メンション候補などのポップオーバー（狭ければ親の幅まで） */
+
+  /* 重なり順 */
+  --z-banner: 10;
+  --z-popover: 30;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+}
+
+/* ── tokens-light.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * ライトテーマ「生成りの紙に墨」— tokens.css の色だけを上書きする（寸法・文字・動きは共通）
+ * 有効化: document.documentElement.dataset.theme = 'light'（未指定はダーク）
+ * ここに無い名前はダークと同じ値を使う。足すときは tokens.css にダークの値を先に書く
+ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* 面（生成り。紙の上に白いカードが浮く） */
+  --bg-sunken: #f1efeb;
+  --bg-sidebar: #f3f1ed;
+  --bg-panel: #f7f6f2;
+  --bg-app: #fcfbf8;
+  --bg-input: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: rgba(40, 36, 20, 0.05);
+  --bg-active: rgba(40, 36, 20, 0.08);
+  --bg-overlay: rgba(28, 24, 14, 0.32);
+  --border-subtle: rgba(40, 36, 20, 0.09);
+  --border-strong: rgba(40, 36, 20, 0.18);
+  --border-hover: rgba(40, 36, 20, 0.28);
+  --border-focus: rgba(173, 104, 0, 0.6);
+  --scrollbar-thumb: rgba(40, 36, 20, 0.18);
+  --scrollbar-thumb-hover: rgba(40, 36, 20, 0.32);
+
+  /* 文字 */
+  --text-primary: #1e222a;
+  --text-secondary: #494d56;
+  --text-muted: #5f636c;
+  --text-on-accent: #20160b;
+  --text-on-danger: #ffffff;
+  --text-link: #2a354d;
+
+  /* アクセント（金の塗りは明るいまま、金の文字と輪郭は暗い金で） */
+  --accent: #f1b047;
+  --accent-hover: #e89c33;
+  --accent-soft: rgba(241, 176, 71, 0.18);
+  --accent-text: #845001;
+  --danger: #b32130;
+  --danger-hover: #9b0d23;
+  --danger-soft: rgba(179, 33, 48, 0.1);
+  --warning: #964609;
+  --warning-soft: rgba(150, 70, 9, 0.1);
+  --success: #1d6835;
+  --success-soft: rgba(29, 104, 53, 0.1);
+  --selection-bg: rgba(241, 176, 71, 0.35);
+  --focus-color: #ad6800;
+  --focus-glow: rgba(173, 104, 0, 0.16);
+
+  /* 意味づけ */
+  --kind-enduser: #496009;
+  --kind-enduser-soft: rgba(73, 96, 9, 0.1);
+  --kind-worker: #136a55;
+  --kind-worker-soft: rgba(19, 106, 85, 0.1);
+  --kind-scribe: #2a6274;
+  --kind-scribe-soft: rgba(42, 98, 116, 0.1);
+  --kind-researcher: #125f94;
+  --kind-researcher-soft: rgba(18, 95, 148, 0.1);
+  --kind-manager: #4650a8;
+  --kind-manager-soft: rgba(70, 80, 168, 0.1);
+  --kind-expert: #6c44a4;
+  --kind-expert-soft: rgba(108, 68, 164, 0.1);
+  --kind-critic: #9d2f70;
+  --kind-critic-soft: rgba(157, 47, 112, 0.1);
+  --kind-human: #845001;
+  --kind-human-soft: rgba(241, 176, 71, 0.2);
+  --mention-self-bg: rgba(241, 176, 71, 0.12);
+  --activity: #c26300;
+  --activity-glow: rgba(232, 140, 30, 0.35);
+  --autonomous: #7c5a03;
+  --autonomous-soft: rgba(232, 190, 60, 0.22);
+
+  /* アバター */
+  --avatar-tint: 22%;
+  --avatar-tint-base: #ffffff;
+
+  /* 影（紙の上なので薄く、広く） */
+  --shadow-sm: 0 1px 2px rgba(40, 32, 10, 0.08);
+  --shadow-md: 0 1px 3px rgba(40, 32, 10, 0.06), 0 8px 20px -6px rgba(40, 32, 10, 0.16);
+  --shadow-lg: 0 4px 12px -4px rgba(40, 32, 10, 0.1), 0 28px 56px -12px rgba(40, 32, 10, 0.24);
+}
+
+/* ── global.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * 全体の土台: リセット・日本語の文字組み（ここ）、フォーカス・選択色・スクロールバー（interaction.css）、
+ * キーフレームと動きの抑制（motion.css）
+ * - 要素への指定は :where() で詳細度 0。CSS Modules のクラス 1 つで必ず上書きできる
+ * - 前提: tokens.css を先に読み込む（main.tsx で tokens.css → global.css の順に import）
+ */
+
+
+/* ── リセット ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+:where(body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, pre, hr) {
+  margin: 0;
+}
+:where(button, input, select, textarea) {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+:where(button) {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  user-select: none;
+}
+:where(button:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+}
+:where(img, video, canvas) {
+  display: block;
+  max-width: 100%;
+}
+:where(img, a) {
+  -webkit-user-drag: none; /* デスクトップアプリなので画像やリンクを窓の外へ引きずらせない */
+}
+:where(svg) {
+  flex-shrink: 0;
+}
+:where(table) {
+  border-collapse: collapse;
+}
+[hidden] {
+  display: none !important;
+}
+
+/* ── アプリの器: 窓いっぱい・ページ自体はスクロールしない（各ペインがスクロールする） ── */
+html,
+body,
+#root {
+  height: 100%;
+}
+#root {
+  isolation: isolate;
+}
+
+/* ── 日本語の文字組み ── */
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  font-kerning: normal;
+  line-break: strict; /* 禁則: 行頭に「ゃ」「ー」「、」を置かない */
+  overflow-wrap: break-word;
+  text-autospace: normal; /* 和文と英数字のあいだに 1/8 字の空き（対応ブラウザのみ） */
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  cursor: default; /* 画面の枠は矢印。本文と入力欄だけ I ビーム */
+}
+:where(p, li, dd, dt, blockquote, td, th, pre, figcaption) {
+  cursor: auto;
+  text-wrap: pretty; /* 最終行に 1 字だけ残る「泣き別れ」を避ける */
+}
+:where(input, textarea, [contenteditable='true']) {
+  cursor: text;
+}
+:where(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.01em;
+  font-feature-settings: 'palt'; /* 見出しだけかなを詰めて締める */
+  text-wrap: balance;
+  word-break: auto-phrase; /* 文節で折り返す */
+}
+:where(strong, b) {
+  font-weight: var(--weight-bold);
+}
+:where(em, i, cite) {
+  font-style: normal; /* 和文の偽斜体は読みにくいので、強調は太さで */
+  font-weight: var(--weight-semibold);
+}
+:where(a) {
+  color: var(--text-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); /* 色ではなく下線で示す */
+}
+:where(a:hover) {
+  text-decoration-color: currentColor;
+}
+:where(code, kbd, samp, pre) {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+  tab-size: 2;
+}
+:where(kbd) {
+  display: inline-block;
+  padding: 1px var(--space-1);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: 1.3;
+}
+:where(input, textarea)::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+:where(hr) {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ── interaction.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * 操作の手ざわり: フォーカスリング・入力欄のフォーカス・選択色・スクロールバー（global.css から読み込む）
+ * - キーボード操作のときだけ金の輪を出す。輪を消すなら、必ず同じくらい目立つ代わりの印を用意する
+ * - スクロール容器の中の行は輪が切れるので、行側で outline-offset: -2px にする
+ */
+:where(:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+:where(:focus:not(:focus-visible)) {
+  outline: none;
+}
+
+/* 文字入力欄は輪ではなく金の枠と淡いにじみで示す（クリックでも出る）。枠のない入力欄は親の :focus-within で示す */
+:where(
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
+    textarea,
+    select
+  ):focus-visible {
+  outline: none;
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px var(--focus-glow);
+}
+
+::selection {
+  background-color: var(--selection-bg);
+}
+
+/* スクロールバー: 細く、角丸、矢印なし。つまみは面になじむ半透明 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 3px solid transparent;
+  border-radius: var(--radius-full);
+  background: var(--scrollbar-thumb) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* ── motion.css（src/shared/ui/theme から書き写し） ── */
+/*
+ * 動き: 共通のキーフレームと「視差効果を減らす」設定への対応（global.css から読み込む）
+ * - CSS Modules からは名前ではなくトークンで参照する（名前がモジュールごとに書き換わらないように）
+ *     animation: var(--animation-lamp);  … 灯の呼吸（動作中の印）
+ *     animation: var(--animation-glow);  … 形を変えない呼吸（進み具合の棒の作業中の区切り）
+ *     animation: var(--animation-rise);  … ポップオーバー・ダイアログ・トーストが現れる
+ *     animation: var(--animation-fade);  … 背景の幕・新着の行
+ * - どのキーフレームも「終わりの姿 = 要素の素の姿」。動きを止めても正しい見た目のまま残る
+ */
+@keyframes guild-lamp {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+/* 灯の呼吸の、形を変えない版（進み具合の棒など、縮むと困るもの） */
+@keyframes guild-glow {
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes guild-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes guild-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ═══════════════════ スタイルタイルの紙面（アプリには持ち込まない） ═══════════════════ */
+html, body { height: auto; }
+body { overflow: auto; background: var(--bg-sidebar); }
+.page { max-width: 1240px; margin: 0 auto; padding: var(--space-10) var(--space-8) var(--space-16); }
+@media (max-width: 640px) { .page { padding: var(--space-6) var(--space-4) var(--space-12); } }
+.masthead-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.lockup { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-lg); font-weight: var(--weight-bold); letter-spacing: 0.06em; }
+.lockup .crest { width: 26px; height: 26px; }
+.eyebrow { margin-top: var(--space-10); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); }
+.masthead h1 { margin-top: var(--space-3); font-size: clamp(28px, 5vw, 44px); letter-spacing: 0.04em; }
+.masthead-lead { word-break: auto-phrase; margin-top: var(--space-4); max-width: 40em; color: var(--text-secondary); font-size: var(--text-body); line-height: var(--leading-normal); }
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: var(--space-3); margin-top: var(--space-10); }
+.principle { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.principle h2 { font-size: var(--text-md); }
+.principle p { color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-normal); }
+.p-num { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent-text); letter-spacing: 0.08em; }
+.p-visual { display: flex; align-items: center; gap: var(--space-2); height: 40px; margin-top: auto; padding-top: var(--space-3); }
+.p-quote { font-size: var(--text-sm); color: var(--text-primary); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--bg-hover); }
+.p-lines { display: grid; gap: 5px; width: 100%; }
+.p-lines i { display: block; height: 4px; border-radius: 2px; background: var(--border-strong); }
+.sec { margin-top: var(--space-16); }
+.sec-head { margin-bottom: var(--space-6); }
+.sec-num { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent-text); letter-spacing: 0.08em; }
+.sec-title { margin-top: var(--space-1); font-size: var(--text-xl); }
+.sec-lead { margin-top: var(--space-2); max-width: 46em; color: var(--text-secondary); line-height: var(--leading-normal); }
+.board { --surface: var(--bg-app); padding: var(--space-6); background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); min-width: 0; }
+.board + .board, .grid + .board, .board + .grid { margin-top: var(--space-4); }
+.board-title { margin-bottom: var(--space-4); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: var(--space-4); }
+.note { margin-top: var(--space-3); color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.code-note { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0; }
+.cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); }
+.stack { display: grid; gap: var(--space-4); }
+.specimen-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: var(--space-4); align-items: center; padding: var(--space-3) 0; border-top: 1px solid var(--border-subtle); }
+.specimen-row:first-of-type { border-top: 0; }
+.specimen-label { color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-snug); }
+@media (max-width: 640px) { .specimen-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); } }
+
+/* 色見本 */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+.chip { display: grid; gap: 2px; padding: var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-app); }
+.chip-color { height: 56px; margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) var(--space-2); border-radius: var(--radius-md) var(--radius-md) 0 0; border-bottom: 1px solid var(--border-subtle); }
+.chip-name { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.chip-meta { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0; overflow-wrap: anywhere; }
+.depth { display: flex; align-items: flex-end; gap: 0; height: 168px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-subtle); }
+.depth > div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 100%; padding: var(--space-3); }
+.depth b { font-size: var(--text-sm); }
+.persona-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: var(--space-3); }
+.persona { display: grid; justify-items: center; gap: var(--space-1); text-align: center; }
+.persona b { font-size: var(--text-sm); }
+
+/* 文字見本 */
+.type-row { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: var(--space-4); align-items: baseline; padding: var(--space-3) 0; border-top: 1px solid var(--border-subtle); }
+.type-row:first-child { border-top: 0; }
+.type-row .meta { color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-snug); }
+@media (max-width: 640px) { .type-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); } }
+
+/* 状態表 */
+.states { width: 100%; border-collapse: separate; border-spacing: 0; }
+.states th { padding: 0 var(--space-3) var(--space-3); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); text-align: left; white-space: nowrap; }
+.states td { padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border-subtle); vertical-align: middle; }
+.states td:first-child { color: var(--text-secondary); font-size: var(--text-sm); white-space: nowrap; }
+.states-wrap { overflow-x: auto; }
+
+/* 言葉 */
+.copy-table { width: 100%; border-collapse: collapse; font-size: var(--text-md); }
+.copy-table th { padding: var(--space-2) var(--space-3); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); text-align: left; border-bottom: 1px solid var(--border-strong); }
+.copy-table td { padding: var(--space-3); border-bottom: 1px solid var(--border-subtle); vertical-align: top; line-height: var(--leading-snug); }
+.copy-table td:first-child { color: var(--text-secondary); white-space: nowrap; }
+.copy-table .ng { color: var(--text-muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--danger) 70%, transparent); }
+.copy-wrap { overflow-x: auto; }
+
+/* ═══════════════════ 部品（実装の参考。値はすべてトークン） ═══════════════════ */
+.i { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.i.fill { fill: currentColor; stroke: none; }
+
+/* 紋（菱に灯）: ギルドのどこかで誰かが動いていれば灯がともる */
+.crest { width: var(--crest-sm); height: var(--crest-sm); flex: none; color: var(--text-primary); }
+.crest .core { fill: var(--border-strong); transform-box: fill-box; transform-origin: center; }
+.crest.is-lit .core { fill: var(--activity); filter: drop-shadow(0 0 3px var(--activity-glow)); animation: var(--animation-lamp); }
+
+/* 灯（動作中の印） */
+.lamp { flex: none; width: 8px; height: 8px; border-radius: var(--radius-full); background: var(--activity); box-shadow: 0 0 0 2px var(--surface), 0 0 10px 1px var(--activity-glow); animation: var(--animation-lamp); }
+.lamp.solo { width: 7px; height: 7px; box-shadow: 0 0 8px 1px var(--activity-glow); }
+.lamp.still { animation: none; }
+
+/* 菱の印（役割の色）。人間だけ円 */
+.mark { flex: none; width: 7px; height: 7px; border-radius: 1.5px; transform: rotate(45deg); background: var(--text-muted); }
+.mark[data-accent] { background: var(--tag-fg); }
+.mark[data-accent='human'] { border-radius: var(--radius-full); transform: none; }
+/* 役割の色: data-accent（実装では style 属性で --tag-fg / --tag-bg を渡す。無ければ中立） */
+[data-accent] { --tag-fg: var(--kind-neutral); --tag-bg: var(--kind-neutral-soft); }
+[data-accent='enduser'] { --tag-fg: var(--kind-enduser); --tag-bg: var(--kind-enduser-soft); }
+[data-accent='worker'] { --tag-fg: var(--kind-worker); --tag-bg: var(--kind-worker-soft); }
+[data-accent='scribe'] { --tag-fg: var(--kind-scribe); --tag-bg: var(--kind-scribe-soft); }
+[data-accent='researcher'] { --tag-fg: var(--kind-researcher); --tag-bg: var(--kind-researcher-soft); }
+[data-accent='manager'] { --tag-fg: var(--kind-manager); --tag-bg: var(--kind-manager-soft); }
+[data-accent='expert'] { --tag-fg: var(--kind-expert); --tag-bg: var(--kind-expert-soft); }
+[data-accent='critic'] { --tag-fg: var(--kind-critic); --tag-bg: var(--kind-critic-soft); }
+[data-accent='human'] { --tag-fg: var(--kind-human); --tag-bg: var(--kind-human-soft); }
+
+/* アバター: 丸は人、角は AI。個人色はタイルに溶かす */
+.av { --size: var(--avatar-md); --c: #9199a5; position: relative; flex: none; display: inline-grid; place-items: center; width: var(--size); height: var(--size); border-radius: var(--radius-avatar); background: color-mix(in oklab, var(--c) var(--avatar-tint), var(--avatar-tint-base)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--c) 38%, transparent); font-size: calc(var(--size) * 0.56); line-height: 1; letter-spacing: 0; user-select: none; }
+.av[data-human] { border-radius: var(--radius-full); }
+.av.xs { --size: var(--avatar-xs); }
+.av.sm { --size: var(--avatar-sm); }
+.av.row { --size: var(--avatar-row); }
+.av.lg { --size: var(--avatar-lg); }
+.av > .lamp { position: absolute; right: -3px; bottom: -3px; }
+.av.lg > .lamp { width: 12px; height: 12px; right: -1px; bottom: -1px; box-shadow: 0 0 0 3px var(--surface), 0 0 14px 2px var(--activity-glow); }
+
+/* 札 */
+.badge { display: inline-flex; align-items: center; gap: var(--space-1); height: var(--badge-height); padding: 0 6px; border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: var(--weight-medium); line-height: 1; letter-spacing: 0.04em; white-space: nowrap; }
+.badge[data-accent] { color: var(--tag-fg); background: var(--tag-bg); }
+.badge .x { margin-inline: 2px -2px; opacity: 0.7; font-size: var(--text-xs); }
+.badge.line { border: 1px solid var(--border-strong); background: none; color: var(--text-muted); }
+.badge.auto { color: var(--autonomous); background: var(--autonomous-soft); }
+.badge .emoji { font-size: 11px; }
+.tag { display: inline-flex; align-items: center; gap: var(--space-1); flex: none; height: var(--badge-height); padding: 0 5px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--weight-medium); line-height: 1; letter-spacing: 0; white-space: nowrap; }
+.tag[data-status='needs_auth'] { color: var(--warning); background: var(--warning-soft); border-color: color-mix(in srgb, var(--warning) 40%, transparent); }
+.tag[data-status='unavailable'] { color: var(--danger); background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+.tag .word { font-family: var(--font-sans); font-size: var(--text-sm); letter-spacing: 0.02em; }
+.count { color: var(--text-muted); font-weight: var(--weight-regular); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+
+/* メンションのチップ（相手の先頭タグの色。決まらなければ中立） */
+.mention { padding: 0.08em 0.32em; border-radius: var(--radius-sm); background: var(--mention-bg); color: var(--mention-text); font-weight: var(--weight-medium); white-space: nowrap; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.mention[data-accent] { background: var(--tag-bg); color: var(--tag-fg); }
+
+/* ボタン */
+.btn { --h: var(--control-md); display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: var(--h); padding: 0 var(--space-4); border: 1px solid transparent; border-radius: var(--radius-md); font-size: var(--text-md); font-weight: var(--weight-medium); line-height: 1; white-space: nowrap; transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.btn.sm { --h: var(--control-sm); padding: 0 var(--space-3); }
+.btn:active:not(:disabled), .btn.is-active { transform: translateY(1px); }
+.btn:disabled, .btn.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.is-focus { outline: 2px solid var(--focus-color); outline-offset: 2px; }
+.btn.primary { background: var(--accent); color: var(--text-on-accent); font-weight: var(--weight-semibold); }
+.btn.primary:hover:not(:disabled), .btn.primary.is-hover { background: var(--accent-hover); }
+.btn.secondary { background: var(--bg-hover); border-color: var(--border-strong); color: var(--text-primary); }
+.btn.secondary:hover:not(:disabled), .btn.secondary.is-hover { background: var(--bg-active); border-color: var(--border-hover); }
+.btn.ghost { color: var(--text-secondary); }
+.btn.ghost:hover:not(:disabled), .btn.ghost.is-hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn.danger { background: var(--danger-soft); color: var(--danger); }
+.btn.danger:hover:not(:disabled), .btn.danger.is-hover { background: var(--danger); color: var(--text-on-danger); }
+.btn.danger-solid { background: var(--danger); color: var(--text-on-danger); font-weight: var(--weight-semibold); }
+.btn.danger-solid:hover:not(:disabled), .btn.danger-solid.is-hover { background: var(--danger-hover); }
+.icon-btn { display: inline-grid; place-items: center; flex: none; width: var(--control-sm); height: var(--control-sm); border-radius: var(--radius-md); color: var(--text-muted); transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.icon-btn:hover, .icon-btn.is-hover { background: var(--bg-hover); color: var(--text-primary); }
+.icon-btn[aria-pressed='true'] { background: var(--bg-active); color: var(--text-primary); }
+.icon-btn.is-focus { outline: 2px solid var(--focus-color); outline-offset: 2px; }
+.stop { display: inline-flex; flex: none; align-items: center; gap: 6px; white-space: nowrap; height: var(--control-sm); padding: 0 var(--space-3) 0 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); font-size: var(--text-sm); font-weight: var(--weight-medium); transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.stop .sq { width: 9px; height: 9px; border-radius: 2px; background: var(--danger); }
+.stop:hover, .stop.is-hover { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: var(--danger); }
+
+/* 入力部品 */
+.field { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.label { display: flex; align-items: baseline; gap: var(--space-2); color: var(--text-primary); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.label .label-note { color: var(--text-muted); font-weight: var(--weight-regular); }
+.input { width: 100%; height: var(--control-md); padding: 0 var(--space-3); background: var(--bg-input); border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); font-size: var(--text-md); transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard); }
+.input:hover:not(:disabled), .input.is-hover { border-color: var(--border-hover); }
+.input.is-focus, .input:focus-visible:not(:disabled) { outline: none; border-color: var(--focus-color); box-shadow: 0 0 0 2px var(--focus-glow); }
+.input[aria-invalid='true'] { border-color: var(--danger); }
+.input[aria-invalid='true']:focus-visible { border-color: var(--danger); box-shadow: 0 0 0 2px var(--danger-soft); }
+.input:disabled { opacity: 0.5; cursor: not-allowed; }
+textarea.input { height: auto; min-height: 76px; padding: var(--space-2) var(--space-3); line-height: var(--leading-snug); resize: vertical; }
+.select { position: relative; }
+.select select { appearance: none; padding-right: var(--space-8); cursor: pointer; }
+.select .i { position: absolute; right: var(--space-2); top: 50%; translate: 0 -50%; color: var(--text-muted); pointer-events: none; }
+.help { color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.field-error { display: flex; align-items: center; gap: var(--space-1); color: var(--danger); font-size: var(--text-sm); }
+.field-error .i { width: 14px; height: 14px; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.switch { position: relative; flex: none; width: var(--switch-width); height: var(--switch-height); border: 1px solid var(--border-strong); border-radius: var(--radius-full); background: var(--bg-active); transition: background-color var(--duration-normal) var(--ease-standard), border-color var(--duration-normal) var(--ease-standard); }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: var(--switch-knob); height: var(--switch-knob); border-radius: var(--radius-full); background: var(--text-secondary); transition: transform var(--duration-normal) var(--ease-standard), background-color var(--duration-normal) var(--ease-standard); }
+.switch[aria-checked='true'] { background: var(--accent); border-color: transparent; }
+.switch[aria-checked='true']::after { transform: translateX(14px); background: var(--text-on-accent); }
+.seg { display: inline-flex; justify-self: start; gap: 2px; padding: 2px; background: var(--bg-sunken); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.seg button { display: inline-flex; align-items: center; gap: var(--space-2); height: 26px; padding: 0 var(--space-3); border-radius: calc(var(--radius-md) - 2px); color: var(--text-secondary); font-size: var(--text-md); font-weight: var(--weight-medium); transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.seg button:hover { color: var(--text-primary); }
+.seg button[aria-checked='true'] { background: var(--bg-elevated); color: var(--text-primary); box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border-subtle); }
+.swatches { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.swatch { width: 24px; height: 24px; border-radius: var(--radius-avatar); background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+.swatch[aria-checked='true'] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text-primary); }
+.choice-group { display: grid; gap: var(--space-2); }
+.choice { display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: start; gap: 2px var(--space-3); padding: var(--space-3) var(--space-4); border: 1px solid var(--border-strong); border-radius: var(--radius-md); text-align: left; transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.choice:hover { border-color: var(--border-hover); }
+.choice[aria-checked='true'] { border-color: var(--accent); background: var(--accent-soft); }
+.radio { grid-row: span 2; width: 16px; height: 16px; margin-top: 3px; border: 1.5px solid var(--border-hover); border-radius: var(--radius-full); }
+.choice[aria-checked='true'] .radio { border: 5px solid var(--accent); }
+.choice b { font-size: var(--text-md); font-weight: var(--weight-semibold); }
+.choice span:last-child { color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); }
+
+/* ダイアログ */
+.dialog { --surface: var(--bg-elevated); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); overflow: hidden; }
+.dialog-head { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-6) var(--space-5) var(--space-4) var(--space-6); }
+.dialog-head > div { flex: 1; min-width: 0; }
+.dialog-title { font-size: var(--text-lg); }
+.dialog-desc { margin-top: var(--space-1); color: var(--text-secondary); line-height: var(--leading-snug); }
+.dialog-body { display: grid; grid-template-columns: var(--preview-width) minmax(0, 1fr); gap: var(--space-6); padding: var(--space-1) var(--space-6) var(--space-2); }
+.dialog-fields { display: grid; gap: var(--space-5); align-content: start; }
+.dialog-foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); padding: var(--space-5) var(--space-6) var(--space-6); }
+.dialog-foot .btn.ghost { margin-right: auto; }
+@media (max-width: 720px) { .dialog-body { grid-template-columns: minmax(0, 1fr); } }
+.card-preview { --surface: var(--bg-app); display: grid; justify-items: center; align-content: start; gap: var(--space-2); padding: var(--space-6) var(--space-4) var(--space-5); background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); text-align: center; }
+.card-preview .eyebrow-sm { justify-self: start; margin: calc(var(--space-2) * -1) 0 var(--space-2); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); }
+.card-preview h4 { margin-top: var(--space-2); font-size: var(--text-xl); }
+.card-preview .role { color: var(--text-secondary); font-size: var(--text-sm); }
+.card-preview .hello { margin-top: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--bg-hover); color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); text-align: left; }
+
+/* 空の状態・トースト・ツールチップ・ポップオーバー */
+.empty { display: grid; justify-items: center; gap: var(--space-3); padding: var(--space-10) var(--space-6); text-align: center; }
+.empty .crest { width: var(--crest-md); height: var(--crest-md); color: var(--text-muted); }
+.empty h4 { margin-top: var(--space-2); font-size: var(--text-xl); }
+.empty p { max-width: 24em; color: var(--text-secondary); line-height: var(--leading-normal); word-break: auto-phrase; }
+.empty .btn { margin-top: var(--space-2); }
+.toast { display: flex; align-items: center; gap: var(--space-2); max-width: 380px; min-height: 40px; padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-md); animation: var(--animation-rise); }
+.toast > span { flex: 1; padding: var(--space-1) 0; }
+.toast .ok { color: var(--success); }
+.toast .ng { color: var(--danger); }
+.tooltip { display: inline-flex; align-items: center; gap: var(--space-2); padding: 5px var(--space-2); border-radius: var(--radius-sm); background: var(--text-primary); color: var(--bg-app); font-size: var(--text-sm); line-height: 1.4; box-shadow: var(--shadow-md); }
+.tooltip kbd { background: transparent; border-color: color-mix(in srgb, var(--bg-app) 35%, transparent); color: var(--bg-app); }
+.pop { --surface: var(--bg-elevated); width: min(100%, var(--popover-width)); padding: var(--space-1); background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: var(--shadow-md); animation: var(--animation-rise); }
+.pop-label { padding: 6px var(--space-2) var(--space-1); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: 0.04em; }
+.opt { display: flex; align-items: center; gap: var(--space-2); height: 36px; padding: 0 var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-md); }
+.opt[aria-selected='true'] { background: var(--bg-active); }
+.opt .opt-name { font-weight: var(--weight-medium); }
+.opt .opt-role { flex: 1; min-width: 0; overflow: hidden; color: var(--text-muted); font-size: var(--text-sm); text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.opt mark { background: none; color: var(--accent-text); font-weight: var(--weight-bold); }
+.pop-sep { margin: var(--space-1) var(--space-2); border-top: 1px solid var(--border-subtle); }
+.pop-foot { display: flex; gap: var(--space-3); padding: 6px var(--space-2) var(--space-1); color: var(--text-muted); font-size: var(--text-sm); }
+
+/* ═══════════════════ 画面の見本 ═══════════════════ */
+.app { display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--member-panel-width); height: 780px; overflow: hidden; background: var(--bg-app); border: 1px solid var(--border-strong); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+@media (max-width: 1120px) { .app { grid-template-columns: var(--sidebar-width) minmax(0, 1fr); } .members { display: none !important; } }
+@media (max-width: 760px) { .app { grid-template-columns: minmax(0, 1fr); } .side { display: none !important; } }
+.side { --surface: var(--bg-sidebar); display: flex; flex-direction: column; min-height: 0; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); }
+.brand { display: flex; align-items: center; gap: var(--space-2); flex: none; height: var(--header-height); padding: 0 var(--space-4); border-bottom: 1px solid var(--border-subtle); font-weight: var(--weight-bold); letter-spacing: 0.06em; }
+.side-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-2) var(--space-4); }
+.side-scroll:not(:hover)::-webkit-scrollbar-thumb { background-color: transparent; }
+.section + .section { margin-top: var(--space-5); }
+.section-head { display: flex; align-items: center; gap: var(--space-2); height: 28px; padding: 0 var(--space-1) 0 var(--space-2); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); }
+.section-head .icon-btn { width: 24px; height: 24px; margin-left: auto; opacity: 0; }
+.section:hover .section-head .icon-btn, .section-head .icon-btn:focus-visible { opacity: 1; }
+.srow { display: flex; align-items: center; gap: var(--space-2); height: var(--row-height); padding: 0 var(--space-2); border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; outline-offset: -2px; transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.srow:hover, .srow.is-hover { background: var(--bg-hover); color: var(--text-primary); }
+.srow[aria-current='page'] { background: var(--bg-active); color: var(--text-primary); font-weight: var(--weight-medium); }
+.srow .hash { width: var(--avatar-sm); flex: none; color: var(--text-muted); font-weight: var(--weight-regular); text-align: center; }
+.srow .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.srow.is-running .name { color: var(--text-primary); }
+.me { display: flex; align-items: center; gap: var(--space-2); flex: none; height: 56px; padding: 0 var(--space-2) 0 var(--space-3); border-top: 1px solid var(--border-subtle); }
+.me-text { display: grid; flex: 1; min-width: 0; line-height: var(--leading-tight); }
+.me-name { overflow: hidden; font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
+.me-sub { color: var(--text-muted); font-size: var(--text-sm); }
+.chat { --surface: var(--bg-app); display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.ch-head { display: flex; align-items: center; gap: var(--space-3); flex: none; height: var(--header-height); padding: 0 var(--space-3) 0 var(--space-4); border-bottom: 1px solid var(--border-subtle); }
+.ch-title { display: flex; align-items: center; gap: 6px; font-size: var(--text-lg); font-weight: var(--weight-bold); white-space: nowrap; }
+.ch-title .hash { color: var(--text-muted); font-weight: var(--weight-regular); }
+.ch-sep { flex: none; width: 1px; height: 16px; background: var(--border-strong); }
+.ch-topic { flex: 1; min-width: 0; overflow: hidden; color: var(--text-muted); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+.ch-running { display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); white-space: nowrap; }
+.ch-actions { display: flex; align-items: center; gap: var(--space-1); }
+.log { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-1) 0 var(--space-4); }
+.day { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-5) var(--space-4) 0; color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-medium); }
+.day::before, .day::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+.msg { display: grid; grid-template-columns: var(--avatar-md) minmax(0, 1fr); column-gap: var(--space-3); padding: var(--space-0-5) var(--space-4); }
+.msg.is-head { margin-top: var(--space-4); padding-top: var(--space-1); }
+.msg:hover { background: var(--bg-hover); }
+.msg > .av { grid-row: span 2; margin-top: 1px; }
+.msg-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2); min-height: 22px; }
+.msg-name { font-weight: var(--weight-bold); }
+.msg-time { color: var(--text-muted); font-size: var(--text-xs); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.msg-gutter { visibility: hidden; color: var(--text-muted); font-size: var(--text-xs); line-height: calc(var(--text-body) * 1.7); font-variant-numeric: tabular-nums; letter-spacing: 0; text-align: center; }
+.msg:hover .msg-gutter { visibility: visible; }
+.msg-body { grid-column: 2; max-width: var(--measure); font-size: var(--text-body); line-height: var(--leading-normal); overflow-wrap: anywhere; cursor: auto; }
+.msg.is-self { background: var(--mention-self-bg); box-shadow: inset 2px 0 0 var(--kind-human); }
+.md > * + * { margin-top: 0.6em; }
+.md :where(ul, ol) { padding-left: 1.4em; }
+.md li + li { margin-top: 0.15em; }
+.md li::marker { color: var(--text-muted); }
+.md :where(h1, h2, h3) { margin-top: 1em; font-size: 1.05em; }
+.md code { padding: 0.12em 0.36em; border-radius: var(--radius-sm); background: var(--bg-active); font-size: 0.86em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.md pre { padding: var(--space-3) var(--space-4); overflow-x: auto; background: var(--bg-sunken); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: var(--text-code); line-height: 1.6; }
+.md pre code { padding: 0; background: none; font-size: inherit; }
+.md blockquote { padding-left: 0.9em; border-left: 3px solid var(--border-strong); color: var(--text-secondary); }
+.sys { display: grid; grid-template-columns: var(--avatar-md) minmax(0, 1fr); column-gap: var(--space-3); align-items: center; margin-top: var(--space-3); padding: var(--space-1) var(--space-4); color: var(--text-secondary); line-height: var(--leading-snug); }
+.sys .i { justify-self: center; color: var(--text-muted); }
+.sys b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+.sys time { margin-left: var(--space-2); color: var(--text-muted); font-size: var(--text-xs); letter-spacing: 0; }
+.err { display: grid; gap: 2px; margin-top: var(--space-1); padding: var(--space-2) var(--space-3); max-width: var(--measure); background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); border-radius: var(--radius-md); }
+.err b { display: flex; align-items: center; gap: 6px; color: var(--danger); font-size: var(--text-md); font-weight: var(--weight-semibold); }
+.err b .i { width: 15px; height: 15px; }
+.err span { color: var(--text-secondary); font-size: var(--text-md); line-height: var(--leading-snug); }
+.activity { display: grid; gap: 2px; padding: 0 var(--space-4) var(--space-2) var(--space-8); font-size: var(--text-sm); color: var(--text-secondary); }
+.act-line { display: flex; align-items: center; gap: var(--space-2); min-width: 0; white-space: nowrap; }
+.act-line b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+.act-line .act-detail { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.composer { position: relative; display: flex; align-items: flex-end; gap: var(--space-2); margin: 0 var(--space-4) var(--space-4); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); background: var(--bg-input); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); transition: border-color var(--duration-fast) var(--ease-standard); }
+.composer:hover { border-color: var(--border-hover); }
+.composer:focus-within, .composer.is-focus { border-color: var(--border-focus); }
+.composer textarea { flex: 1; min-width: 0; height: var(--control-md); max-height: var(--composer-max-height); padding: 4px 0; background: none; border: 0; outline: none; box-shadow: none; color: var(--text-primary); font-size: var(--text-body); line-height: 1.6; resize: none; }
+.send { display: grid; place-items: center; flex: none; width: var(--control-md); height: var(--control-md); border-radius: var(--radius-md); color: var(--text-muted); transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.send[data-ready] { background: var(--accent); color: var(--text-on-accent); }
+.send[data-ready]:hover { background: var(--accent-hover); }
+.members { --surface: var(--bg-panel); display: flex; flex-direction: column; min-height: 0; background: var(--bg-panel); border-left: 1px solid var(--border-subtle); }
+.members-head { display: flex; align-items: center; gap: var(--space-2); flex: none; height: var(--header-height); padding: 0 var(--space-4); border-bottom: 1px solid var(--border-subtle); font-weight: var(--weight-bold); }
+.members-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-2); }
+.mrow { display: flex; align-items: center; gap: var(--space-3); min-height: 46px; padding: var(--space-1) var(--space-2); border-radius: var(--radius-md); }
+.mrow:hover { background: var(--bg-hover); }
+.mrow-text { display: grid; gap: 1px; min-width: 0; line-height: var(--leading-tight); }
+.mrow-name { display: flex; align-items: center; gap: 6px; font-weight: var(--weight-medium); }
+.mrow-role { overflow: hidden; color: var(--text-muted); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+.you { color: var(--kind-human); font-size: var(--text-sm); font-weight: var(--weight-medium); }
+.members-foot { flex: none; padding: var(--space-2); border-top: 1px solid var(--border-subtle); }
+.members-foot .btn { width: 100%; justify-content: flex-start; padding: 0 var(--space-2); }
+
+/* ═══════════════════ 状態を伝える画面 ═══════════════════ */
+.lamp.waiting { background: transparent; box-shadow: inset 0 0 0 1.5px var(--activity); animation: none; }
+.srow[data-backend='down'] .name { color: var(--text-muted); }
+.frame { overflow: hidden; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.frame + .frame { margin-top: var(--space-3); }
+.frame-top { display: flex; align-items: center; height: var(--header-height); background: var(--bg-app); }
+.frame-top .brand { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); border-bottom: 0; }
+.frame-top .ch-title { padding: 0 var(--space-4); }
+.banner { display: flex; align-items: center; gap: var(--space-2); min-height: var(--banner-height); padding: 0 var(--space-2) 0 var(--space-4); background: var(--bg-panel); border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: var(--text-sm); }
+.banner-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.banner b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+.banner[data-state='unavailable'] { background: var(--danger-soft); border-bottom-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+.banner[data-state='unavailable'] > .i { color: var(--danger); }
+.legend { display: grid; gap: var(--space-2); align-content: start; }
+.legend-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--space-3); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.legend-row b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+.legend-row span { color: var(--text-secondary); }
+.side-spec { --surface: var(--bg-sidebar); width: min(100%, var(--sidebar-width)); padding: var(--space-2); background: var(--bg-sidebar); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.split { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.mini-log { --surface: var(--bg-app); padding-bottom: var(--space-3); background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.msg.is-deleted > .av { filter: grayscale(1); opacity: 0.5; }
+.msg.is-deleted .msg-name { color: var(--text-secondary); }
+.deleted-note { color: var(--text-muted); font-size: var(--text-sm); }
+.status-line { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px var(--space-2); align-items: center; padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--bg-hover); }
+.status-line > .i { width: 15px; height: 15px; }
+.status-line b { font-size: var(--text-md); font-weight: var(--weight-semibold); }
+.status-line p { grid-column: 2; color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.status-line .btn { grid-column: 3; grid-row: 1 / span 2; }
+.status-line[data-status='ready'] { color: var(--success); }
+.status-line[data-status='needs_auth'] { background: var(--warning-soft); color: var(--warning); }
+.status-line[data-status='unavailable'] { background: var(--danger-soft); color: var(--danger); }
+.perm-chips { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); }
+.perm-chip { display: inline-flex; align-items: center; gap: var(--space-1); height: 24px; padding: 0 var(--space-2); border-radius: var(--radius-sm); background: var(--bg-hover); color: var(--text-secondary); font-size: var(--text-sm); }
+.perm-chip .i { width: 13px; height: 13px; color: var(--text-muted); }
+.perm-chip[data-off] { color: var(--text-muted); text-decoration: line-through; }
+.perm { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--space-4); align-items: center; padding: var(--space-3) var(--space-4); border: 1px solid var(--border-strong); border-radius: var(--radius-md); transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.perm b { font-weight: var(--weight-semibold); }
+.perm p { grid-column: 1; color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.perm .switch { grid-column: 2; grid-row: 1 / span 2; }
+.perm-warn { display: none; grid-column: 1 / -1; align-items: flex-start; gap: 6px; margin-top: var(--space-2); color: var(--warning); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.perm-warn .i { flex: none; width: 14px; height: 14px; margin-top: 2px; }
+.perm[data-on] { background: var(--warning-soft); border-color: color-mix(in srgb, var(--warning) 50%, transparent); }
+.perm[data-on] .switch { background: var(--warning); }
+.perm[data-on] .switch::after { background: var(--bg-elevated); }
+.perm[data-on] .perm-warn { display: flex; }
+.form-alert { display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); border-radius: var(--radius-md); line-height: var(--leading-snug); }
+.form-alert .i { flex: none; margin-top: 2px; color: var(--danger); }
+.label-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.link-btn { color: var(--text-muted); font-size: var(--text-sm); }
+.link-btn:hover { color: var(--text-primary); text-decoration: underline; text-underline-offset: 0.22em; }
+.input.num { width: 10em; font-variant-numeric: tabular-nums; }
+.recovery { display: grid; place-items: center; padding: var(--space-12) var(--space-4); background: var(--bg-sidebar); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.recovery-card { --surface: var(--bg-app); display: grid; gap: var(--space-3); width: min(100%, var(--dialog-width-md)); padding: var(--space-10) var(--space-8) var(--space-8); background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+.recovery-card .crest { width: var(--crest-lg); height: var(--crest-lg); margin-bottom: var(--space-2); color: var(--text-muted); }
+.recovery-card .kicker { color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-wide); }
+.recovery-card h4 { font-size: var(--text-xl); }
+.recovery-card .desc { color: var(--text-secondary); line-height: var(--leading-normal); word-break: auto-phrase; }
+.path { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); margin-top: var(--space-1); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); background: var(--bg-sunken); border-radius: var(--radius-md); }
+.path-label { color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.path code { color: var(--text-secondary); font-size: var(--text-sm); overflow-wrap: anywhere; }
+.recovery-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-3); }
+.recovery-actions .primary { grid-column: 1 / -1; }
+.recovery-card details { color: var(--text-muted); font-size: var(--text-sm); }
+.recovery-card summary { width: fit-content; cursor: pointer; }
+.recovery-card details pre { margin-top: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--bg-sunken); border-radius: var(--radius-md); font-size: var(--text-xs); white-space: pre-wrap; }
+
+/* ═══════════════════ 役割の色・テンプレート・振る舞い ═══════════════════ */
+.hue-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: var(--space-2); }
+.hue-group + .hue-group { margin-top: var(--space-5); }
+.hue-label { margin-bottom: var(--space-2); color: var(--text-muted); font-size: var(--text-sm); }
+.hue { display: grid; gap: 2px; padding: 0 0 var(--space-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
+.hue i { display: block; height: 36px; margin-bottom: var(--space-1); background: var(--tag-fg); }
+.hue b, .hue span, .hue code { padding: 0 var(--space-2); }
+.hue b { font-size: var(--text-sm); }
+.hue span { color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.hue code { color: var(--text-muted); font-size: var(--text-xs); }
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-2); }
+.tpl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px var(--space-2); align-content: start; padding: var(--space-3); border: 1px solid var(--border-strong); border-radius: var(--radius-md); text-align: left; transition: border-color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard); }
+.tpl:hover { border-color: var(--border-hover); }
+.tpl[aria-checked='true'] { border-color: var(--accent); background: var(--accent-soft); }
+.tpl .mark { margin-top: 6px; }
+.tpl b { font-weight: var(--weight-semibold); }
+.tpl span { grid-column: 2; color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+@media (max-width: 560px) { .choice-grid { grid-template-columns: minmax(0, 1fr); } }
+.taginput { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); min-height: var(--control-md); padding: var(--space-1) var(--space-2); background: var(--bg-input); border: 1px solid var(--border-strong); border-radius: var(--radius-md); }
+.taginput .lead { margin-inline-end: 2px; color: var(--text-muted); font-size: var(--text-sm); }
+.taginput input { flex: 1; min-width: 6em; height: 22px; padding: 0 var(--space-1); border: 0; background: none; outline: none; box-shadow: none; font-size: var(--text-md); }
+.perm-list { overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-md); }
+.perm-list .perm { border: 0; border-radius: 0; }
+.perm-list .perm + .perm { border-top: 1px solid var(--border-subtle); }
+.perm .off-note { grid-column: 1; color: var(--text-muted); font-size: var(--text-sm); }
+.perm[data-disabled] b { color: var(--text-muted); }
+
+/* ═══════════════════ タスクカード（割り振り） ═══════════════════ */
+.tasks { --surface: var(--bg-panel); container-type: inline-size; grid-column: 2; max-width: var(--measure); margin-top: var(--space-2); overflow: hidden; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.tasks-head { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-lg); padding: var(--space-2) var(--space-3); }
+.tasks-title { font-size: var(--text-sm); font-weight: var(--weight-semibold); white-space: nowrap; }
+.tasks-progress { flex: 1; min-width: 0; color: var(--text-muted); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
+.state-pill { display: inline-flex; flex: none; align-items: center; gap: 6px; height: var(--badge-height); padding: 0 calc(var(--space-1) + var(--space-0-5)); border-radius: var(--radius-sm); background: var(--bg-active); color: var(--text-secondary); font-size: var(--text-sm); font-weight: var(--weight-medium); white-space: nowrap; }
+.state-pill .i { width: 13px; height: 13px; }
+.state-pill[data-state='done'] { background: var(--success-soft); color: var(--success); }
+.state-pill[data-state='cancelled'] { color: var(--text-muted); }
+.meter { display: flex; gap: 2px; padding: 0 var(--space-3) var(--space-2); }
+.meter i { flex: 1; height: var(--space-1); border-radius: var(--radius-full); background: var(--bg-active); }
+.meter i[data-status='running'] { background: var(--activity); animation: var(--animation-glow); }
+.meter i[data-status='done'] { background: var(--success); }
+.meter i[data-status='failed'] { background: var(--danger); }
+.meter i[data-status='cancelled'] { background: var(--border-strong); }
+.subtasks { margin: 0; padding: 0; list-style: none; }
+.subtask { display: grid; grid-template-columns: 16px var(--avatar-xs) minmax(0, 1fr) auto; align-items: center; gap: 2px var(--space-2); padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border-subtle); }
+.st-icon { display: grid; place-items: center; width: 16px; height: 16px; color: var(--text-muted); }
+.st-icon .i { width: 15px; height: 15px; }
+.subtask[data-status='done'] .st-icon { color: var(--success); }
+.subtask[data-status='failed'] .st-icon { color: var(--danger); }
+.st-name { font-weight: var(--weight-semibold); }
+.st-state { display: flex; align-items: center; justify-self: end; gap: var(--space-2); color: var(--text-muted); font-size: var(--text-sm); white-space: nowrap; }
+.st-state b { font-weight: var(--weight-medium); }
+.subtask[data-status='running'] .st-state b { color: var(--accent-text); }
+.subtask[data-status='done'] .st-state b { color: var(--success); }
+.subtask[data-status='failed'] .st-state b { color: var(--danger); }
+.st-text { display: -webkit-box; grid-column: 3 / -1; overflow: hidden; color: var(--text-secondary); font-size: var(--text-sm); line-height: var(--leading-snug); white-space: pre-line; -webkit-box-orient: vertical; -webkit-line-clamp: 3; cursor: auto; }
+.subtask[data-status='cancelled'] .st-text { color: var(--text-muted); }
+.st-note { grid-column: 3 / -1; color: var(--danger); font-size: var(--text-sm); }
+.subtask[data-status='cancelled'] .st-note { color: var(--text-muted); }
+.jump { color: var(--text-secondary); font-size: var(--text-sm); text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); text-underline-offset: 0.22em; }
+.jump:hover { color: var(--text-primary); text-decoration-color: currentColor; }
+.tasks-foot { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-top: 1px solid var(--border-subtle); color: var(--text-secondary); font-size: var(--text-sm); }
+.tasks-foot b { color: var(--text-primary); font-weight: var(--weight-semibold); }
+.tasks-foot.muted { color: var(--text-muted); }
+@container (max-width: 420px) { .st-state { grid-column: 3 / -1; justify-self: start; } }
+.tasks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: var(--space-4); align-items: start; }
+.tasks-grid .tasks { grid-column: auto; max-width: none; margin-top: 0; }
+.ref { display: inline-flex; align-items: center; gap: 4px; height: var(--badge-height); padding: 0 calc(var(--space-1) + 1px); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); color: var(--text-muted); font-size: var(--text-sm); white-space: nowrap; }
+.ref .i { width: 12px; height: 12px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6M16 5.2a3 3 0 0 1 0 5.6M17.6 14.7c1.6.6 2.6 2 2.9 4.3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.5 21 19.5H3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-join" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8.5 12h7"/></symbol>
+  <symbol id="i-return" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 7.5 16.5 12 12 16.5 7.5 12Z"/></symbol>
+  <symbol id="i-crest" viewBox="0 0 24 24"><path d="M12 2.8 21.2 12 12 21.2 2.8 12Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="page">
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="lockup"><svg class="crest is-lit" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>AIギルド</div>
+      <div class="seg" role="radiogroup" aria-label="テーマ">
+        <button type="button" role="radio" aria-checked="true" data-theme-set="dark">ダーク</button>
+        <button type="button" role="radio" aria-checked="false" data-theme-set="light">ライト</button>
+      </div>
+    </div>
+    <p class="eyebrow">デザインの方向性 · スタイルタイル v3（テンプレートと割り振り） · 2026-11-08</p>
+    <h1>夜更けのギルドホール</h1>
+    <p class="masthead-lead">墨色の静かな面に、いま働いている仲間のところだけ灯（あかり）がともる。ファンタジーの飾りには頼らず、ギルドから「灯」「菱の紋」「卓を囲む」という構造だけを借りて、毎日使う道具として組み立てます。</p>
+
+    <div class="principles">
+      <article class="principle">
+        <span class="p-num">01</span><h2>静かな面、意味のある色</h2>
+        <p>面は藍墨のニュートラル。色は「誰か」「いま何が起きているか」「次に何をするか」にだけ使う。</p>
+        <div class="p-visual"><i class="mark" data-accent="worker"></i><i class="mark" data-accent="manager"></i><i class="mark" data-accent="expert"></i><span class="lamp solo"></span><span class="btn primary sm" aria-hidden="true">作成</span></div>
+      </article>
+      <article class="principle">
+        <span class="p-num">02</span><h2>丸は人、角は AI</h2>
+        <p>形で人と AI を見分ける。役割は先頭タグの色の札で。色だけに頼らない。</p>
+        <div class="p-visual"><span class="av row" data-human style="--c:#ea856b">🍵</span><span class="av row" style="--c:#cb9d2a">🌱</span><span class="av row" style="--c:#7ca2f6">🧐</span></div>
+      </article>
+      <article class="principle">
+        <span class="p-num">03</span><h2>灯がともる</h2>
+        <p>動いているところに金の灯。紋・アバター・ヘッダーで同じ灯を使い、2 秒でゆっくり呼吸する。</p>
+        <div class="p-visual"><span class="av row" style="--c:#cb9d2a">🌱<span class="lamp"></span></span><span class="code-note">考え中…</span></div>
+      </article>
+      <article class="principle">
+        <span class="p-num">04</span><h2>会話は読み物</h2>
+        <p>AI は長文を書く。本文は 15px・行間 1.7・最大 46 字で、読み物として組む。</p>
+        <div class="p-visual"><div class="p-lines"><i style="width:96%"></i><i style="width:100%"></i><i style="width:62%"></i></div></div>
+      </article>
+      <article class="principle">
+        <span class="p-num">05</span><h2>受付係の声</h2>
+        <p>丁寧で短く、少しだけ温かく。ロールプレイはしない。主語はいつも名前。</p>
+        <div class="p-visual"><span class="p-quote">ハル が考え中…</span></div>
+      </article>
+    </div>
+  </header>
+
+  <!-- ─────────── 01 画面 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">01 · SCREEN</span>
+      <h2 class="sec-title">画面の見本</h2>
+      <p class="sec-lead">#ロビー で、マネージャーのカナメが依頼を 3 つに分けて割り振ったところ。ハルは報告済み、ソラが作業中（灯）、ギアは順番待ち（灯の輪郭）。サイドバーとメンバーは先頭タグで区分し、区分の菱と札は役割の色。</p>
+    </div>
+
+    <div class="app">
+      <aside class="side" aria-label="サイドバー">
+        <div class="brand"><svg class="crest is-lit" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>AIギルド</div>
+        <nav class="side-scroll">
+          <div class="section">
+            <div class="section-head"><span>チャンネル</span><button class="icon-btn" type="button" aria-label="チャンネルを作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow is-running" href="#" aria-current="page"><span class="hash">#</span><span class="name">ロビー</span><span class="lamp solo"></span></a>
+            <a class="srow" href="#"><span class="hash">#</span><span class="name">勉強会の企画</span></a>
+            <a class="srow" href="#"><span class="hash">#</span><span class="name">実装ログ</span></a>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="manager"></i><span>マネージャー</span><span class="count">1</span><button class="icon-btn" type="button" aria-label="マネージャーを作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow" href="#"><span class="av sm" style="--c:#d285cb">🧭</span><span class="name">カナメ</span><span class="tag">codex</span></a>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="worker"></i><span>作業者</span><span class="count">2</span><button class="icon-btn" type="button" aria-label="作業者を作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow" href="#"><span class="av sm" style="--c:#cb9d2a">🌱</span><span class="name">ハル</span><span class="tag">claude</span></a>
+            <a class="srow is-running" href="#"><span class="av sm" style="--c:#22b5e1">🛠️<span class="lamp"></span></span><span class="name">ソラ</span><span class="tag">codex</span></a>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="expert"></i><span>専門家</span><span class="count">2</span><button class="icon-btn" type="button" aria-label="専門家を作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow" href="#"><span class="av sm" style="--c:#7ca2f6">🧐</span><span class="name">ロジカ</span><span class="tag">claude</span></a>
+            <a class="srow" href="#"><span class="av sm" style="--c:#e28d4f">⚙️</span><span class="name">ギア</span><span class="tag">codex</span></a>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="critic"></i><span>批判役</span><span class="count">1</span><button class="icon-btn" type="button" aria-label="批判役を作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow" href="#"><span class="av sm" style="--c:#9199a5">🦉</span><span class="name">クロ</span><span class="tag">claude</span></a>
+          </div>
+        </nav>
+        <div class="me">
+          <span class="av row" data-human style="--c:#ea856b">🍵</span>
+          <div class="me-text"><span class="me-name">ユウ</span><span class="me-sub">あなた</span></div>
+          <button class="icon-btn" type="button" aria-label="設定"><svg class="i"><use href="#i-settings"/></svg></button>
+        </div>
+      </aside>
+
+      <section class="chat" aria-label="#ロビー">
+        <header class="ch-head">
+          <div class="ch-title"><span class="hash">#</span>ロビー</div>
+          <span class="ch-sep"></span>
+          <span class="ch-topic">みんなの雑談と相談の場</span>
+          <span class="ch-running"><span class="lamp solo"></span>ソラ が作業中 · 待機 1</span>
+          <div class="ch-actions">
+            <button class="stop" type="button" title="実行中の返答を止め、待ち行列を空にします"><span class="sq"></span>停止</button>
+            <button class="icon-btn" type="button" aria-pressed="true" aria-label="メンバーを表示"><svg class="i"><use href="#i-users"/></svg></button>
+          </div>
+        </header>
+
+        <div class="log">
+          <div class="day">今日</div>
+          <div class="msg is-head">
+            <span class="av" data-human style="--c:#ea856b">🍵</span>
+            <div class="msg-head"><span class="msg-name">ユウ</span><time class="msg-time">10:02</time></div>
+            <div class="msg-body">来週の社内勉強会、テーマ決めと申込フォームの準備をお願いできる？</div>
+          </div>
+          <div class="msg is-head">
+            <span class="av" style="--c:#d285cb">🧭</span>
+            <div class="msg-head"><span class="msg-name">カナメ</span><span class="badge" data-accent="manager">マネージャー</span><span class="tag">codex</span><time class="msg-time">10:02</time></div>
+            <div class="msg-body">承知しました。3 つに分けて進めます。結果がそろったら、まとめてご報告します。</div>
+            <section class="tasks" aria-label="割り振り（3 件中 1 件完了）">
+              <div class="tasks-head"><span class="tasks-title">割り振り</span><span class="tasks-progress">3 件中 1 件完了</span><span class="state-pill" data-state="running"><span class="lamp solo"></span>進行中</span></div>
+              <div class="meter" aria-hidden="true"><i data-status="done"></i><i data-status="running"></i><i data-status="pending"></i></div>
+              <ol class="subtasks">
+                <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#cb9d2a">🌱</span><span class="st-name">ハル</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">テーマ案を 3 つ、出典つきで出して</span></li>
+                <li class="subtask" data-status="running"><span class="st-icon"><span class="lamp solo"></span></span><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="st-name">ソラ</span><span class="st-state"><b>作業中</b></span><span class="st-text">申込フォームを試作して、送信できるところまで
+（項目は名前・所属・希望テーマ）</span></li>
+                <li class="subtask" data-status="pending"><span class="st-icon"><span class="lamp solo waiting"></span></span><span class="av xs" style="--c:#e28d4f">⚙️</span><span class="st-name">ギア</span><span class="st-state"><b>待機中</b></span><span class="st-text">ソラの試作のコードレビュー</span></li>
+              </ol>
+            </section>
+          </div>
+          <div class="msg is-head">
+            <span class="av" style="--c:#cb9d2a">🌱</span>
+            <div class="msg-head"><span class="msg-name">ハル</span><span class="badge" data-accent="worker">作業者</span><span class="tag">claude</span><a class="ref" href="#"><svg class="i"><use href="#i-return"/></svg>割り振りの結果</a><time class="msg-time">10:06</time></div>
+            <div class="msg-body md">
+              <p>テーマ案です。社内の質問ログと外の動向から選びました。</p>
+              <ol>
+                <li><strong>ローカル LLM を業務で使う</strong> — 導入コストと精度の見極め</li>
+                <li><strong>エージェント同士の協調</strong> — 役割分担とレビューの設計</li>
+                <li><strong>生成 AI 時代のテスト戦略</strong> — 何を測るか</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <div class="activity" aria-live="polite">
+          <div class="act-line"><span class="lamp solo"></span><span class="act-detail"><b>ソラ</b> がファイルを書いています: entry-form.tsx</span></div>
+        </div>
+        <div class="composer">
+          <textarea rows="1" aria-label="メッセージ" placeholder="#ロビー へメッセージ（@ で呼びかけ）"></textarea>
+          <button class="send" type="button" aria-label="送信" disabled><svg class="i"><use href="#i-send"/></svg></button>
+        </div>
+      </section>
+
+      <aside class="members" aria-label="メンバー">
+        <div class="members-head">メンバー<span class="count">6</span></div>
+        <div class="members-scroll">
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="human"></i><span>あなた</span></div>
+            <div class="mrow"><span class="av row" data-human style="--c:#ea856b">🍵</span><div class="mrow-text"><span class="mrow-name">ユウ<span class="you">あなた</span></span><span class="mrow-role">ギルドの主</span></div></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="manager"></i><span>マネージャー</span><span class="count">1</span></div>
+            <div class="mrow"><span class="av row" style="--c:#d285cb">🧭</span><div class="mrow-text"><span class="mrow-name">カナメ</span><span class="mrow-role">依頼を分けて割り振る進行役</span></div></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="worker"></i><span>作業者</span><span class="count">2</span></div>
+            <div class="mrow"><span class="av row" style="--c:#cb9d2a">🌱</span><div class="mrow-text"><span class="mrow-name">ハル</span><span class="mrow-role">リサーチと企画担当</span></div></div>
+            <div class="mrow"><span class="av row" style="--c:#22b5e1">🛠️<span class="lamp"></span></span><div class="mrow-text"><span class="mrow-name">ソラ</span><span class="mrow-role">実装と検証担当</span></div></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><i class="mark" data-accent="expert"></i><span>専門家</span><span class="count">2</span></div>
+            <div class="mrow"><span class="av row" style="--c:#7ca2f6">🧐</span><div class="mrow-text"><span class="mrow-name">ロジカ</span><span class="mrow-role">文章・企画の論理チェック</span></div></div>
+            <div class="mrow"><span class="av row" style="--c:#e28d4f">⚙️</span><div class="mrow-text"><span class="mrow-name">ギア</span><span class="mrow-role">設計とコードレビュー</span></div></div>
+          </div>
+        </div>
+        <div class="members-foot"><button class="btn ghost sm" type="button"><svg class="i"><use href="#i-plus"/></svg>メンバーを追加</button></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ─────────── 02 色 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">02 · COLOR</span>
+      <h2 class="sec-title">色</h2>
+      <p class="sec-lead">面は奥ほど暗い 6 段の藍墨（ライトは生成りの紙）。色は意味を持つものだけ。文字色はどの面の上でも、ホバー中でも WCAG AA（4.5:1）を満たします。</p>
+    </div>
+    <div class="board">
+      <p class="board-title">面の重なり（左ほど奥）</p>
+      <div class="depth">
+        <div style="background:var(--bg-sunken)"><b>sunken</b><span class="chip-meta" data-var="--bg-sunken"></span></div>
+        <div style="background:var(--bg-sidebar)"><b>sidebar</b><span class="chip-meta" data-var="--bg-sidebar"></span></div>
+        <div style="background:var(--bg-panel)"><b>panel</b><span class="chip-meta" data-var="--bg-panel"></span></div>
+        <div style="background:var(--bg-app)"><b>app</b><span class="chip-meta" data-var="--bg-app"></span></div>
+        <div style="background:var(--bg-input)"><b>input</b><span class="chip-meta" data-var="--bg-input"></span></div>
+        <div style="background:var(--bg-elevated)"><b>elevated</b><span class="chip-meta" data-var="--bg-elevated"></span></div>
+      </div>
+      <p class="note">hover / active は半透明の重ね（<span class="code-note">--bg-hover</span> <span class="code-note">--bg-active</span>）なので、どの面の上でも同じ手ざわりになります。</p>
+    </div>
+    <div class="board">
+      <p class="board-title">色相の秩序 — 暖色は人と状態に、寒色は役割に</p>
+      <div class="hue-group">
+        <p class="hue-label">人と状態（暖色の半分）</p>
+        <div class="hue-strip">
+          <div class="hue" style="--tag-fg:var(--danger)"><i></i><b>紅</b><span>エラー・削除</span><code>--danger · 18°</code></div>
+          <div class="hue" style="--tag-fg:var(--warning)"><i></i><b>柿</b><span>注意</span><code>--warning · 58°</code></div>
+          <div class="hue" style="--tag-fg:var(--accent)"><i></i><b>金</b><span>あなた・灯・主ボタン</span><code>--accent · 78°</code></div>
+          <div class="hue" style="--tag-fg:var(--autonomous)"><i></i><b>山吹</b><span>💡 自発</span><code>--autonomous · 92°</code></div>
+          <div class="hue" style="--tag-fg:var(--success)"><i></i><b>青竹</b><span>完了・準備 OK</span><code>--success · 150°</code></div>
+        </div>
+      </div>
+      <div class="hue-group">
+        <p class="hue-label">エージェントの役割（寒色の半分。あなたに近い役ほど金の近く）</p>
+        <div class="hue-strip">
+          <div class="hue" data-accent="enduser"><i></i><b>若葉</b><span>エンドユーザー役</span><code>--kind-enduser · 122°</code></div>
+          <div class="hue" data-accent="worker"><i></i><b>若竹</b><span>作業者</span><code>--kind-worker · 168°</code></div>
+          <div class="hue" data-accent="scribe"><i></i><b>青磁</b><span>書記</span><code>--kind-scribe · 205°</code></div>
+          <div class="hue" data-accent="researcher"><i></i><b>露草</b><span>調査係</span><code>--kind-researcher · 237°</code></div>
+          <div class="hue" data-accent="manager"><i></i><b>群青</b><span>マネージャー</span><code>--kind-manager · 272°</code></div>
+          <div class="hue" data-accent="expert"><i></i><b>藤</b><span>専門家</span><code>--kind-expert · 300°</code></div>
+          <div class="hue" data-accent="critic"><i></i><b>牡丹</b><span>批判役</span><code>--kind-critic · 343°</code></div>
+          <div class="hue" data-accent="none"><i></i><b>中立</b><span>テンプレートに無いタグ</span><code>--kind-neutral</code></div>
+        </div>
+      </div>
+      <p class="note">役割の色はタグの札・メンションのチップ・区分の菱にだけ使う。リンクは色ではなく下線で示す（青は調査係とマネージャーの色）。</p>
+    </div>
+    <div class="board">
+      <p class="board-title">個人色（エージェント編集の色見本 12 色。タイルには面に溶かして使う）</p>
+      <div class="persona-grid">
+        <div class="persona"><span class="av" style="--c:#ea856b">🦊</span><b>朱</b><span class="chip-meta">#ea856b</span></div>
+        <div class="persona"><span class="av" style="--c:#e28d4f">⚙️</span><b>柿</b><span class="chip-meta">#e28d4f</span></div>
+        <div class="persona"><span class="av" style="--c:#cb9d2a">🌱</span><b>山吹</b><span class="chip-meta">#cb9d2a</span></div>
+        <div class="persona"><span class="av" style="--c:#91b34d">🍀</span><b>萌黄</b><span class="chip-meta">#91b34d</span></div>
+        <div class="persona"><span class="av" style="--c:#4cbd88">🐢</span><b>若竹</b><span class="chip-meta">#4cbd88</span></div>
+        <div class="persona"><span class="av" style="--c:#00beb7">🧪</span><b>青磁</b><span class="chip-meta">#00beb7</span></div>
+        <div class="persona"><span class="av" style="--c:#22b5e1">🛠️</span><b>浅葱</b><span class="chip-meta">#22b5e1</span></div>
+        <div class="persona"><span class="av" style="--c:#7ca2f6">🧐</span><b>群青</b><span class="chip-meta">#7ca2f6</span></div>
+        <div class="persona"><span class="av" style="--c:#b191ea">🔮</span><b>藤</b><span class="chip-meta">#b191ea</span></div>
+        <div class="persona"><span class="av" style="--c:#d285cb">🎨</span><b>菖蒲</b><span class="chip-meta">#d285cb</span></div>
+        <div class="persona"><span class="av" style="--c:#e680a1">🌸</span><b>桜</b><span class="chip-meta">#e680a1</span></div>
+        <div class="persona"><span class="av" style="--c:#9199a5">📚</span><b>鈍</b><span class="chip-meta">#9199a5</span></div>
+      </div>
+      <p class="note">個人色は名前の文字色には使いません（任意の色では読みやすさを保証できないため）。タイル = <span class="code-note">color-mix(in oklab, 個人色 var(--avatar-tint), var(--avatar-tint-base))</span></p>
+    </div>
+  </section>
+
+  <!-- ─────────── 03 文字 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">03 · TYPE</span>
+      <h2 class="sec-title">文字</h2>
+      <p class="sec-lead">Windows では英数字が Segoe UI Variable、かなと漢字が Noto Sans JP（なければ游ゴシック UI）。本文は UI より一段大きい 15px。見出しだけ palt でかなを詰め、文節で折り返します。</p>
+    </div>
+    <div class="board">
+      <div class="type-row"><span style="font-size:var(--text-2xl);font-weight:var(--weight-bold);font-feature-settings:'palt';letter-spacing:0.02em">夜更けのギルドホール</span><span class="meta"><span class="code-note">--text-2xl · 26px</span><br>オンボーディング・大きな空の状態</span></div>
+      <div class="type-row"><span style="font-size:var(--text-xl);font-weight:var(--weight-bold);font-feature-settings:'palt'">最初のチャンネルを作りましょう</span><span class="meta"><span class="code-note">--text-xl · 20px · tight</span><br>空の状態の見出し・設定の大見出し</span></div>
+      <div class="type-row"><span style="font-size:var(--text-lg);font-weight:var(--weight-bold)"><span style="color:var(--text-muted);font-weight:400"># </span>ロビー</span><span class="meta"><span class="code-note">--text-lg · 16px · bold</span><br>チャンネル名・ダイアログの見出し</span></div>
+      <div class="type-row"><span style="font-size:var(--text-body);line-height:var(--leading-normal)">AI は長文を書きます。本文は 15px、行間 1.7 で読み物として組み、Claude と Codex の発言が並んでも同じリズムで読めるようにします。</span><span class="meta"><span class="code-note">--text-body · 15px · normal 1.7</span><br>メッセージ本文・入力欄</span></div>
+      <div class="type-row"><span style="font-size:var(--text-md)">チャンネルを作成 · ハル · 勉強会の企画</span><span class="meta"><span class="code-note">--text-md · 14px · snug 1.5</span><br>UI の標準（行・ボタン・入力欄）</span></div>
+      <div class="type-row"><span style="font-size:var(--text-sm);color:var(--text-secondary)">リサーチと企画担当 · 呼びかける相手</span><span class="meta"><span class="code-note">--text-sm · 12px</span><br>補助・札・小見出し（日本語の最小）</span></div>
+      <div class="type-row"><span style="font-size:var(--text-xs);color:var(--text-muted);letter-spacing:0">claude · codex · 10:42</span><span class="meta"><span class="code-note">--text-xs · 11px</span><br>英数字だけ（時刻・バックエンド名）</span></div>
+      <div class="type-row"><span style="font-family:var(--font-mono);font-size:var(--text-code);letter-spacing:0">const 作業者 = agents.filter((a) =&gt; a.kind === 'worker');</span><span class="meta"><span class="code-note">--font-mono · --text-code 13px</span><br>コード・ファイル名</span></div>
+    </div>
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">太さ（Noto Sans JP + Segoe UI Variable）</p>
+        <div class="stack" style="font-size:var(--text-body)">
+          <span style="font-weight:var(--weight-regular)">400 regular — 本文。作業者と専門家</span>
+          <span style="font-weight:var(--weight-medium)">500 medium — 選択中の行・ボタン・チップ</span>
+          <span style="font-weight:var(--weight-semibold)">600 semibold — ラベル・主ボタン・強調</span>
+          <span style="font-weight:var(--weight-bold)">700 bold — 名前・見出し</span>
+        </div>
+        <p class="note">游ゴシック UI には 500 が無く 400 で表示されます（Noto Sans JP の無い古い Windows）。絶対に太く見せたい所は 600 を使う。</p>
+      </div>
+      <div class="board">
+        <p class="board-title">日本語の組版（global.css で全体に効いている）</p>
+        <div class="stack">
+          <p style="font-size:var(--text-body);line-height:var(--leading-normal)">行頭に「ゃ」「ー」「、」が来ないよう禁則は strict。和文と English・数字 2026 のあいだには自動で 1/8 字の空きが入り、最終行に 1 字だけ残る泣き別れも避けます。</p>
+          <p class="note" style="margin-top:0"><span class="code-note">line-break: strict · text-autospace: normal · text-wrap: pretty · 見出しは palt + word-break: auto-phrase</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 04 部品 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">04 · COMPONENTS</span>
+      <h2 class="sec-title">部品と状態</h2>
+      <p class="sec-lead">ホバーは面を一段明るく、選択は太さと面、フォーカスはキーボード操作のときだけ金の輪。動作中は灯、エラーは紅の面。どの部品も同じ文法で状態を表します。</p>
+    </div>
+
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">アバター — 丸は人、角は AI</p>
+        <div class="cluster">
+          <span class="av" data-human style="--c:#ea856b">🍵</span>
+          <span class="av" style="--c:#cb9d2a">🌱</span>
+          <span class="av" style="--c:#7ca2f6">🧐</span>
+          <span class="av lg" style="--c:#e28d4f">⚙️<span class="lamp"></span></span>
+          <span class="av row" style="--c:#22b5e1">🛠️</span>
+          <span class="av sm" style="--c:#22b5e1">🛠️</span>
+          <span class="av xs" style="--c:#22b5e1">🛠️</span>
+        </div>
+        <p class="note">人間（円）/ 作業者 / 専門家（角丸 30%）/ 動作中の灯つき 64 · 32 · 24 · 20px。灯の縁は <span class="code-note">--surface</span>（いま乗っている面の色）で切り抜く。</p>
+      </div>
+      <div class="board">
+        <p class="board-title">札・チップ・灯</p>
+        <div class="stack">
+          <div class="cluster"><span class="badge" data-accent="enduser">エンドユーザー役</span><span class="badge" data-accent="worker">作業者</span><span class="badge" data-accent="scribe">書記</span><span class="badge" data-accent="researcher">調査係</span><span class="badge" data-accent="manager">マネージャー</span><span class="badge" data-accent="expert">専門家</span><span class="badge" data-accent="critic">批判役</span><span class="badge" data-accent="none">リサーチ</span></div>
+          <div class="cluster"><span class="badge auto"><span class="emoji">💡</span>自発</span><span class="tag">claude</span><span class="tag">codex</span><span class="tag">gemini-cli</span><span class="ref"><svg class="i"><use href="#i-return"/></svg>割り振りの結果</span><span class="you">あなた</span></div>
+          <div class="cluster" style="font-size:var(--text-body)"><span class="mention" data-accent="worker">@ハル</span><span class="mention" data-accent="manager">@カナメ</span><span class="mention" data-accent="expert">@ロジカ</span><span class="mention" data-accent="critic">@クロ</span><span class="mention" data-accent="human">@ユウ</span><span class="mention">@ミライ（タグがテンプレートに無い・削除済み）</span></div>
+          <div class="cluster"><span class="lamp solo"></span><span class="help">動作中（2 秒で呼吸）</span><span class="lamp solo still"></span><span class="help">動きを減らす設定のとき（静止）</span></div>
+        </div>
+        <p class="note">役割（先頭タグ）は塗りの札、バックエンドは線の札、割り振りへの導線は中立の線の札。テンプレートに無いタグ（「リサーチ」）は中立の札。</p>
+      </div>
+    </div>
+
+    <div class="board">
+      <p class="board-title">ボタン — 状態</p>
+      <div class="states-wrap">
+        <table class="states">
+          <thead><tr><th></th><th>通常</th><th>ホバー</th><th>フォーカス（キーボード）</th><th>押下</th><th>無効</th></tr></thead>
+          <tbody>
+            <tr><td>主ボタン</td><td><button class="btn primary" type="button">作成</button></td><td><button class="btn primary is-hover" type="button">作成</button></td><td><button class="btn primary is-focus" type="button">作成</button></td><td><button class="btn primary is-active" type="button">作成</button></td><td><button class="btn primary" type="button" disabled>作成</button></td></tr>
+            <tr><td>副ボタン</td><td><button class="btn secondary" type="button">キャンセル</button></td><td><button class="btn secondary is-hover" type="button">キャンセル</button></td><td><button class="btn secondary is-focus" type="button">キャンセル</button></td><td><button class="btn secondary is-active is-hover" type="button">キャンセル</button></td><td><button class="btn secondary" type="button" disabled>キャンセル</button></td></tr>
+            <tr><td>ゴースト</td><td><button class="btn ghost" type="button">あとで</button></td><td><button class="btn ghost is-hover" type="button">あとで</button></td><td><button class="btn ghost is-focus" type="button">あとで</button></td><td><button class="btn ghost is-hover is-active" type="button">あとで</button></td><td><button class="btn ghost" type="button" disabled>あとで</button></td></tr>
+            <tr><td>危険</td><td><button class="btn danger" type="button">削除</button></td><td><button class="btn danger is-hover" type="button">削除</button></td><td><button class="btn danger is-focus" type="button">削除</button></td><td><button class="btn danger is-hover is-active" type="button">削除</button></td><td><button class="btn danger" type="button" disabled>削除</button></td></tr>
+            <tr><td>危険（確定）</td><td><button class="btn danger-solid" type="button">削除する</button></td><td><button class="btn danger-solid is-hover" type="button">削除する</button></td><td><button class="btn danger-solid is-focus" type="button">削除する</button></td><td><button class="btn danger-solid is-active" type="button">削除する</button></td><td><button class="btn danger-solid" type="button" disabled>削除する</button></td></tr>
+            <tr><td>停止 / アイコン</td><td><span class="cluster"><button class="stop" type="button"><span class="sq"></span>停止</button><button class="icon-btn" type="button" aria-label="設定"><svg class="i"><use href="#i-settings"/></svg></button></span></td><td><span class="cluster"><button class="stop is-hover" type="button"><span class="sq"></span>停止</button><button class="icon-btn is-hover" type="button" aria-label="設定"><svg class="i"><use href="#i-settings"/></svg></button></span></td><td><span class="cluster"><button class="stop is-focus btn" style="padding:0 var(--space-3) 0 10px;height:var(--control-sm);font-size:var(--text-sm);border-color:var(--border-strong);color:var(--text-primary)" type="button"><span class="sq"></span>停止</button><button class="icon-btn is-focus" type="button" aria-label="設定"><svg class="i"><use href="#i-settings"/></svg></button></span></td><td><span class="cluster"><button class="icon-btn" type="button" aria-pressed="true" aria-label="メンバー"><svg class="i"><use href="#i-users"/></svg></button><span class="help">オン</span></span></td><td><button class="icon-btn" type="button" disabled style="opacity:.45" aria-label="設定"><svg class="i"><use href="#i-settings"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">入力欄 — 状態</p>
+        <div class="stack">
+          <div class="field"><label class="label" for="f1">名前</label><input id="f1" class="input" placeholder="例: ハル"></div>
+          <div class="field"><label class="label" for="f2">名前 <span class="label-note">ホバー</span></label><input id="f2" class="input is-hover" value="ハル"></div>
+          <div class="field"><label class="label" for="f3">名前 <span class="label-note">フォーカス</span></label><input id="f3" class="input is-focus" value="ハル"></div>
+          <div class="field"><label class="label" for="f4">名前 <span class="label-note">エラー</span></label><input id="f4" class="input" aria-invalid="true" value=""><span class="field-error"><svg class="i"><use href="#i-alert"/></svg>名前を入力してください</span></div>
+          <div class="field"><label class="label" for="f5">名前 <span class="label-note">無効</span></label><input id="f5" class="input" value="ハル" disabled></div>
+        </div>
+      </div>
+      <div class="board">
+        <p class="board-title">選ぶ部品</p>
+        <div class="stack">
+          <div class="field"><span class="label">タグ</span>
+            <div class="taginput"><span class="lead">区分</span><span class="badge" data-accent="worker">作業者<span class="x">✕</span></span><span class="badge" data-accent="none">リサーチ<span class="x">✕</span></span><input aria-label="タグを追加" placeholder="タグを追加"></div>
+            <span class="help">先頭のタグがサイドバーの区分になります。色はそのタグから始まるテンプレートの色（無ければ中立）。</span>
+          </div>
+          <div class="field"><label class="label" for="f6">バックエンド</label><div class="select"><select id="f6" class="input"><option>claude — Claude Agent SDK</option><option>codex — Codex SDK</option></select><svg class="i"><use href="#i-chevron"/></svg></div></div>
+          <div class="field"><label class="label" for="f7">性格 <span class="label-note">任意</span></label><textarea id="f7" class="input">好奇心旺盛。気になったことはすぐ調べる。</textarea></div>
+          <div class="switch-row"><div class="field"><span class="label">自分から動く</span><span class="help">60 分ごとに、自分から調べものや提案をします。</span></div><button class="switch" type="button" role="switch" aria-checked="true" aria-label="自分から動く"></button></div>
+          <div class="field"><span class="label">個人色</span>
+            <div class="swatches" role="radiogroup" aria-label="個人色"><button class="swatch" style="--c:#ea856b" role="radio" aria-checked="false" aria-label="朱"></button><button class="swatch" style="--c:#e28d4f" role="radio" aria-checked="false" aria-label="柿"></button><button class="swatch" style="--c:#cb9d2a" role="radio" aria-checked="true" aria-label="山吹"></button><button class="swatch" style="--c:#91b34d" role="radio" aria-checked="false" aria-label="萌黄"></button><button class="swatch" style="--c:#4cbd88" role="radio" aria-checked="false" aria-label="若竹"></button><button class="swatch" style="--c:#00beb7" role="radio" aria-checked="false" aria-label="青磁"></button><button class="swatch" style="--c:#22b5e1" role="radio" aria-checked="false" aria-label="浅葱"></button><button class="swatch" style="--c:#7ca2f6" role="radio" aria-checked="false" aria-label="群青"></button><button class="swatch" style="--c:#b191ea" role="radio" aria-checked="false" aria-label="藤"></button><button class="swatch" style="--c:#d285cb" role="radio" aria-checked="false" aria-label="菖蒲"></button><button class="swatch" style="--c:#e680a1" role="radio" aria-checked="false" aria-label="桜"></button><button class="swatch" style="--c:#9199a5" role="radio" aria-checked="false" aria-label="鈍"></button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board">
+      <p class="board-title">テンプレートの選択（エージェント作成の最初。選ぶと既定値が入る）</p>
+      <div class="tpl-grid" role="radiogroup" aria-label="テンプレート">
+        <button class="tpl" type="button" role="radio" aria-checked="true"><i class="mark" data-accent="worker"></i><b>作業者</b><span>頼まれた作業を、手を動かして進めます。メンションがなくても答えます。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="expert"></i><b>専門家</b><span>得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="manager"></i><b>マネージャー</b><span>依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="researcher"></i><b>調査係</b><span>Web で調べて、出典つきで要点をまとめます。ファイルは書かず、コマンドも使いません。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="scribe"></i><b>書記</b><span>議論をときどき要約して、決まったことと残った論点を書き残します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="critic"></i><b>批判役</b><span>案の弱点やリスクを、あえて率直に指摘します。呼ばれたときだけ話します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="enduser"></i><b>エンドユーザー役</b><span>初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。</span></button>
+      </div>
+      <p class="note">役割の色は菱にだけ。選択中の枠と地は金（ほかのラジオカードと同じ）。入力したあとで別のテンプレートを選んだときだけ「入力した内容は、選んだテンプレートの値に置き換わります」と添える。</p>
+    </div>
+    <div class="board">
+      <p class="board-title">ダイアログ — エージェント編集（一部・振る舞い）</p>
+      <div class="dialog" role="dialog" aria-label="新しいエージェント">
+        <div class="dialog-head">
+          <div><h3 class="dialog-title">新しいエージェント</h3><p class="dialog-desc">ギルドに新しい仲間を迎えます。あとからいつでも変えられます。</p></div>
+          <button class="icon-btn" type="button" aria-label="閉じる"><svg class="i"><use href="#i-close"/></svg></button>
+        </div>
+        <div class="dialog-body">
+          <div class="card-preview">
+            <span class="eyebrow-sm">プレビュー</span>
+            <span class="av lg" style="--c:#cb9d2a">🌱</span>
+            <h4>ハル</h4>
+            <div class="cluster" style="justify-content:center;gap:var(--space-1)"><span class="badge" data-accent="worker">作業者</span><span class="badge" data-accent="none">リサーチ</span><span class="tag">claude</span></div>
+            <div class="cluster" style="justify-content:center;gap:var(--space-1)"><span class="badge line">答える</span><span class="badge line">自分から動く</span></div>
+            <span class="role">リサーチと企画担当</span>
+            <p class="hello">はじめまして、ハルです。気になることがあれば、なんでも調べてきますね。</p>
+          </div>
+          <div class="dialog-fields">
+            <div class="field"><label class="label" for="d1">名前</label><input id="d1" class="input" value="ハル"><span class="help">@ で呼ぶときの名前になります。</span></div>
+            <div class="field"><label class="label" for="d2">担当</label><input id="d2" class="input" value="リサーチと企画担当"></div>
+            <div class="field" role="radiogroup" aria-labelledby="d3"><span class="label" id="d3">メンションのない発言には</span>
+              <div class="choice-grid">
+                <div class="choice" role="radio" aria-checked="false" tabindex="-1"><span class="radio"></span><b>最初に受ける</b><span>まず自分が受けます。いるあいだ、ほかのメンバーは答えません。</span></div>
+                <div class="choice" role="radio" aria-checked="true" tabindex="0"><span class="radio"></span><b>答える</b><span>メンションがなくても答えます。</span></div>
+                <div class="choice" role="radio" aria-checked="false" tabindex="-1"><span class="radio"></span><b>他にいなければ答える</b><span>最初に受ける人も答える人もいないときだけ答えます。</span></div>
+                <div class="choice" role="radio" aria-checked="false" tabindex="-1"><span class="radio"></span><b>答えない</b><span>呼ばれたときと、割り振られたときだけ話します。</span></div>
+              </div>
+            </div>
+            <div class="switch-row"><div class="field"><span class="label">相談相手になる</span><span class="help">ほかのエージェントに @ で呼ばれたら、チャンネルの外からでも参加して答えます。</span></div><button class="switch" type="button" role="switch" aria-checked="false" aria-label="相談相手になる"></button></div>
+            <div class="switch-row"><div class="field"><span class="label">タスクを割り振れる</span><span class="help">依頼を分けて、ほかのメンバーに割り振れます。結果がそろったら、まとめて報告します。</span></div><button class="switch" type="button" role="switch" aria-checked="false" aria-label="タスクを割り振れる"></button></div>
+          </div>
+        </div>
+        <div class="dialog-foot">
+          <button class="btn ghost" type="button">スキルを編集…</button>
+          <button class="btn secondary" type="button">キャンセル</button>
+          <button class="btn primary" type="button">作成</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">メンションの候補（@ を打ったとき）</p>
+        <div class="pop" role="listbox" aria-label="呼びかける相手">
+          <div class="pop-label">呼びかける相手</div>
+          <div class="opt" role="option" aria-selected="true"><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="opt-name">ソ<mark>ラ</mark></span><span class="badge" data-accent="worker">作業者</span><span class="opt-role">実装と検証担当</span></div>
+          <div class="pop-sep"></div>
+          <div class="pop-label">チャンネル外 — 呼ぶと参加します</div>
+          <div class="opt" role="option" aria-selected="false"><span class="av xs" style="--c:#b191ea">🔮</span><span class="opt-name">ミ<mark>ラ</mark>イ</span><span class="badge" data-accent="expert">専門家</span><span class="opt-role">技術トレンドの目利き</span></div>
+          <div class="pop-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> 選ぶ</span><span><kbd>Enter</kbd> 決定</span><span><kbd>Esc</kbd> 閉じる</span></div>
+        </div>
+        <div class="composer is-focus" style="margin:var(--space-2) 0 0">
+          <textarea rows="1" aria-label="メッセージ">実装の段取りは @ラ</textarea>
+          <button class="send" type="button" data-ready aria-label="送信"><svg class="i"><use href="#i-send"/></svg></button>
+        </div>
+      </div>
+      <div class="board">
+        <p class="board-title">空の状態・トースト・ツールチップ</p>
+        <div class="empty">
+          <svg class="crest" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>
+          <h4>最初のチャンネルを作りましょう</h4>
+          <p>話題ごとにチャンネルを分けると、エージェントが文脈を取り違えにくくなります。</p>
+          <button class="btn primary" type="button"><svg class="i"><use href="#i-plus"/></svg>チャンネルを作成</button>
+        </div>
+        <div class="stack" style="justify-items:start">
+          <div class="toast" role="status"><svg class="i ok"><use href="#i-check"/></svg><span>保存しました</span></div>
+          <div class="toast" role="alert"><svg class="i ng"><use href="#i-alert"/></svg><span>送信できませんでした。通信を確かめてください。</span><button class="btn ghost sm" type="button">再送信</button></div>
+          <span class="tooltip">送信 <kbd>Enter</kbd> · 改行 <kbd>Shift</kbd>+<kbd>Enter</kbd></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 05 タスクカード ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">05 · TASKS</span>
+      <h2 class="sec-title">タスクカード（割り振り）</h2>
+      <p class="sec-lead">マネージャーの発言の下に、割り振りの進み具合を置く。状態は印・言葉・棒の区切りの 3 つで重ねて伝え、作業中のところだけ灯が呼吸する。結果の発言へはカードから、カードへは結果の発言から戻れる。</p>
+    </div>
+    <div class="board">
+      <div class="tasks-grid">
+        <section class="tasks" aria-label="割り振り（3 件中 1 件完了・失敗 1）">
+          <div class="tasks-head"><span class="tasks-title">割り振り</span><span class="tasks-progress">3 件中 1 件完了 · 失敗 1</span><span class="state-pill" data-state="running"><span class="lamp solo"></span>進行中</span></div>
+          <div class="meter" aria-hidden="true"><i data-status="done"></i><i data-status="running"></i><i data-status="failed"></i></div>
+          <ol class="subtasks">
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#cb9d2a">🌱</span><span class="st-name">ハル</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">競合アプリを 3 つ調べて、特徴を表にまとめて</span></li>
+            <li class="subtask" data-status="running"><span class="st-icon"><span class="lamp solo"></span></span><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="st-name">ソラ</span><span class="st-state"><b>作業中</b></span><span class="st-text">試作プロジェクトを作って、ビルドが通るところまで
+（手順は README に書いて）</span></li>
+            <li class="subtask" data-status="failed"><span class="st-icon"><svg class="i"><use href="#i-alert"/></svg></span><span class="av xs" style="--c:#7ca2f6">🧐</span><span class="st-name">ロジカ</span><span class="st-state"><b>失敗</b></span><span class="st-text">比較表の観点に漏れがないかレビュー</span><span class="st-note">回答がありませんでした</span></li>
+          </ol>
+        </section>
+        <section class="tasks" aria-label="割り振り（まとめ中）">
+          <div class="tasks-head"><span class="tasks-title">割り振り</span><span class="tasks-progress">2 件中 2 件完了</span><span class="state-pill" data-state="reporting"><span class="lamp solo"></span>まとめ中</span></div>
+          <div class="meter" aria-hidden="true"><i data-status="done"></i><i data-status="done"></i></div>
+          <ol class="subtasks">
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#cb9d2a">🌱</span><span class="st-name">ハル</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">テーマ案を 3 つ、出典つきで出して</span></li>
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="st-name">ソラ</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">申込フォームを試作して、送信できるところまで</span></li>
+          </ol>
+          <div class="tasks-foot"><span class="lamp solo"></span><span><b>カナメ</b> がまとめを書いています…</span></div>
+        </section>
+        <section class="tasks" aria-label="割り振り（完了）">
+          <div class="tasks-head"><span class="tasks-title">割り振り</span><span class="tasks-progress">2 件中 2 件完了</span><span class="state-pill" data-state="done"><svg class="i"><use href="#i-check"/></svg>完了</span></div>
+          <div class="meter" aria-hidden="true"><i data-status="done"></i><i data-status="done"></i></div>
+          <ol class="subtasks">
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#cb9d2a">🌱</span><span class="st-name">ハル</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">テーマ案を 3 つ、出典つきで出して</span></li>
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="st-name">ソラ</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">申込フォームを試作して、送信できるところまで</span></li>
+          </ol>
+          <div class="tasks-foot"><a class="jump" href="#">まとめを見る</a></div>
+        </section>
+        <section class="tasks" aria-label="割り振り（打ち切り）">
+          <div class="tasks-head"><span class="tasks-title">割り振り</span><span class="tasks-progress">3 件中 1 件完了</span><span class="state-pill" data-state="cancelled">打ち切り</span></div>
+          <div class="meter" aria-hidden="true"><i data-status="done"></i><i data-status="cancelled"></i><i data-status="cancelled"></i></div>
+          <ol class="subtasks">
+            <li class="subtask" data-status="done"><span class="st-icon"><svg class="i"><use href="#i-check"/></svg></span><span class="av xs" style="--c:#cb9d2a">🌱</span><span class="st-name">ハル</span><span class="st-state"><b>完了</b><a class="jump" href="#">結果を見る</a></span><span class="st-text">競合アプリを 3 つ調べて</span></li>
+            <li class="subtask" data-status="cancelled"><span class="st-icon"><svg class="i"><use href="#i-ban"/></svg></span><span class="av xs" style="--c:#22b5e1">🛠️</span><span class="st-name">ソラ</span><span class="st-state"><b>中止</b></span><span class="st-text">試作プロジェクトを作って</span></li>
+            <li class="subtask" data-status="cancelled"><span class="st-icon"><svg class="i"><use href="#i-ban"/></svg></span><span class="av xs" style="--c:#e28d4f">⚙️</span><span class="st-name">ギア</span><span class="st-state"><b>中止</b></span><span class="st-text">試作のコードレビュー</span></li>
+          </ol>
+          <div class="tasks-foot muted">打ち切りました</div>
+        </section>
+      </div>
+      <p class="note">器は浮かせない（--bg-panel・線・角丸 --radius-lg、影なし）。並びは tasks ブロックの順のまま。作業中の区切りだけ --animation-glow で呼吸する（形を変えない）。カードの幅が 420px 未満なら状態の言葉を指示の下に回す。</p>
+    </div>
+  </section>
+
+  <!-- ─────────── 06 状態を伝える画面 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">06 · STATES</span>
+      <h2 class="sec-title">状態を伝える画面</h2>
+      <p class="sec-lead">実行環境・バックエンド・権限・削除・データフォルダ。うまくいっているときは何も足さず、困ったときだけ「何が起きていて、次に何をすればいいか」をその場で伝えます。</p>
+    </div>
+
+    <div class="board">
+      <p class="board-title">ランナー状態のバナー（窓の最上部に全幅。重ねずに中身を押し下げる）</p>
+      <div class="frame">
+        <div class="banner" data-state="starting"><span class="lamp solo waiting"></span><span class="banner-text">エージェントの実行環境を起動しています…</span></div>
+        <div class="frame-top"><div class="brand"><svg class="crest" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>AIギルド</div><div class="ch-title"><span class="hash">#</span>ロビー</div></div>
+      </div>
+      <div class="frame">
+        <div class="banner" data-state="unavailable"><svg class="i"><use href="#i-alert"/></svg><span class="banner-text"><b>エージェントを動かせません</b> — Node.js が見つかりません。インストールしてから再起動してください。</span><button class="btn secondary sm" type="button">再起動</button></div>
+        <div class="frame-top"><div class="brand"><svg class="crest" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>AIギルド</div><div class="ch-title"><span class="hash">#</span>ロビー</div></div>
+      </div>
+      <p class="note">起動直後の 1.5 秒未満の starting は出さない（毎回のちらつきを防ぐ）。unavailable から ready に戻ったらバナーを消し、トースト「実行環境の準備ができました」。</p>
+    </div>
+
+    <div class="board">
+      <p class="board-title">サイドバーの行の状態（順番待ち・バックエンドの状態を含む）</p>
+      <div class="split">
+        <div class="side-spec">
+          <a class="srow" href="#"><span class="hash">#</span><span class="name">勉強会の企画</span></a>
+          <a class="srow is-hover" href="#"><span class="hash">#</span><span class="name">実装ログ</span></a>
+          <a class="srow is-running" href="#" aria-current="page"><span class="hash">#</span><span class="name">ロビー</span><span class="lamp solo"></span></a>
+          <a class="srow" href="#"><span class="hash">#</span><span class="name">調査メモ</span><span class="lamp solo waiting"></span></a>
+          <a class="srow is-running" href="#"><span class="av sm" style="--c:#cb9d2a">🌱<span class="lamp"></span></span><span class="name">ハル</span><span class="tag">claude</span></a>
+          <a class="srow" href="#" data-backend="down"><span class="av sm" style="--c:#22b5e1">🛠️</span><span class="name">ソラ</span><span class="tag" data-status="needs_auth">codex<span class="word">ログインが必要</span></span></a>
+          <a class="srow" href="#" data-backend="down"><span class="av sm" style="--c:#e28d4f">⚙️</span><span class="name">ギア</span><span class="tag" data-status="unavailable">codex<span class="word">使えません</span></span></a>
+        </div>
+        <div class="legend">
+          <div class="legend-row"><b>通常 / ホバー</b><span>文字は secondary。ホバーで面が一段明るくなり、文字が primary に。</span></div>
+          <div class="legend-row"><b>選択中</b><span>面 --bg-active + medium。色は付けない。右端の灯は、このチャンネルで誰かが動いている印。</span></div>
+          <div class="legend-row"><b>順番待ち</b><span>灯の輪郭だけ。待機ジョブはあるが、まだ誰も動いていない（同時実行の上限待ち）。</span></div>
+          <div class="legend-row"><b>動作中</b><span>アバターの右下に灯、名前を primary に。ツールチップに「Web検索: …」。</span></div>
+          <div class="legend-row"><b>ログインが必要</b><span>札を柿色にして状態の言葉を足し、名前を muted に。ツールチップに statusMessage。</span></div>
+          <div class="legend-row"><b>使えません</b><span>同じ形で紅。返答は来ないが行は押せる（編集画面で理由を見て再確認できる）。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">メッセージの種類（自分宛て・削除済み・システム発言・エラー）</p>
+        <div class="mini-log">
+          <div class="msg is-head is-self">
+            <span class="av" style="--c:#cb9d2a">🌱</span>
+            <div class="msg-head"><span class="msg-name">ハル</span><span class="badge" data-accent="worker">作業者</span><span class="tag">claude</span><time class="msg-time">10:31</time></div>
+            <div class="msg-body"><span class="mention" data-accent="human">@ユウ</span> 修正版をまとめました。ロジカのレビューも通っています。</div>
+          </div>
+          <div class="msg is-head is-deleted">
+            <span class="av" style="--c:#b191ea">🔮</span>
+            <div class="msg-head"><span class="msg-name">ミライ</span><span class="deleted-note">（削除済み）</span><time class="msg-time">10:33</time></div>
+            <div class="msg-body">技術トレンドの観点では、案 1 がいちばん旬です。</div>
+          </div>
+          <div class="sys"><svg class="i"><use href="#i-alert"/></svg><span>AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。<time>10:35</time></span></div>
+          <div class="sys"><svg class="i"><use href="#i-stop"/></svg><span>停止しました<time>10:36</time></span></div>
+          <div class="sys"><svg class="i"><use href="#i-diamond"/></svg><span><b>ギア</b> はこのチャンネルにいないため、メッセージは届きませんでした<time>10:40</time></span></div>
+          <div class="msg is-head">
+            <span class="av" style="--c:#22b5e1">🛠️</span>
+            <div class="msg-head"><span class="msg-name">ソラ</span><span class="badge" data-accent="worker">作業者</span><span class="tag">codex</span><time class="msg-time">10:52</time></div>
+            <div class="msg-body"><div class="err"><b><svg class="i"><use href="#i-alert"/></svg>返答できませんでした</b><span>時間切れで中断しました（15分）</span></div></div>
+          </div>
+        </div>
+        <p class="note">「{名前} は回答しませんでした」などの注記は作業者のプロンプトに入るだけで、画面には出しません。</p>
+      </div>
+      <div class="board">
+        <p class="board-title">エージェント編集 — バックエンドの状態と、できること（権限 6 つ）</p>
+        <div class="stack">
+          <div class="field"><label class="label" for="b1">バックエンド</label>
+            <div class="select"><select id="b1" class="input"><option>codex — Codex SDK</option></select><svg class="i"><use href="#i-chevron"/></svg></div>
+            <div class="status-line" data-status="needs_auth"><svg class="i"><use href="#i-alert"/></svg><b>ログインが必要です</b><button class="btn secondary sm" type="button">再確認</button><p>ターミナルで <code>codex login</code> を実行してから、再確認してください。</p></div>
+          </div>
+          <div class="status-line" data-status="ready"><svg class="i"><use href="#i-check"/></svg><b>準備 OK</b><button class="btn secondary sm" type="button" disabled>確認中…</button><p>claude — Claude Agent SDK（再確認を押した直後）</p></div>
+          <div class="field"><span class="label">できること</span>
+            <div class="perm-list">
+              <div class="perm"><b>Web 検索</b><button class="switch" type="button" role="switch" aria-checked="true" aria-label="Web 検索"></button><p>Web を検索して、最新の情報を探します。</p></div>
+              <div class="perm"><b>Web ページを読む</b><button class="switch" type="button" role="switch" aria-checked="true" aria-label="Web ページを読む"></button><p>URL を開いて、ページの中身を読みます。</p></div>
+              <div class="perm"><b>ファイルを読む</b><button class="switch" type="button" role="switch" aria-checked="true" aria-label="ファイルを読む"></button><p>作業フォルダ（と相談元の作業フォルダ）のファイルを読みます。</p></div>
+              <div class="perm"><b>ファイルを書く</b><button class="switch" type="button" role="switch" aria-checked="true" aria-label="ファイルを書く"></button><p>作業フォルダにファイルを作り、書き換えます。</p></div>
+              <div class="perm" data-on><b>コマンドを実行</b><button class="switch" type="button" role="switch" aria-checked="true" aria-label="コマンドを実行"></button><p>作業フォルダで npm や git などのコマンドを実行できるようにします。</p><div class="perm-warn"><svg class="i"><use href="#i-alert"/></svg><span>コマンドはこのパソコンの上で、あなたと同じ権限で動きます。ファイルの削除や外部への送信もできてしまうため、任せられる役割のエージェントにだけ許可してください。</span></div></div>
+              <div class="perm" data-disabled><b>スキルを使う</b><button class="switch" type="button" role="switch" aria-checked="false" aria-label="スキルを使う" disabled></button><p>登録したスキル（手引き）を読んでから答えます。</p><span class="off-note">このバックエンドでは使えません</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="board">
+        <p class="board-title">詳細設定（OptionSpec から描く汎用フォーム）と検証エラー</p>
+        <div class="stack">
+          <div class="form-alert" role="alert"><svg class="i"><use href="#i-alert"/></svg><span>保存できませんでした。バックエンドの設定に使えない値があります（sandbox）。</span></div>
+          <div class="field"><div class="label-row"><span class="label">推論の強さ</span><button class="link-btn" type="button">既定に戻す</button></div>
+            <div class="seg" role="radiogroup" aria-label="推論の強さ"><button type="button" role="radio" aria-checked="false">low</button><button type="button" role="radio" aria-checked="false">medium（既定）</button><button type="button" role="radio" aria-checked="true">high</button></div>
+            <span class="help">select で選択肢が 4 つ以下 → セグメント。high ほど丁寧で、時間がかかります。</span></div>
+          <div class="field"><label class="label" for="o2">最大ターン数</label><input id="o2" class="input num" type="number" aria-invalid="true" value="0"><span class="field-error"><svg class="i"><use href="#i-alert"/></svg>1 以上の数にしてください</span></div>
+          <div class="field"><label class="label" for="o3">プロファイル名</label><input id="o3" class="input" placeholder="既定: default"><span class="help">string → テキスト入力。プレースホルダに既定値。</span></div>
+          <div class="switch-row"><div class="field"><span class="label">Web 検索を使う</span><span class="help">boolean → スイッチの行。</span></div><button class="switch" type="button" role="switch" aria-checked="false" aria-label="Web 検索を使う"></button></div>
+          <div class="field"><label class="label" for="o5">サンドボックス</label><div class="select"><select id="o5" class="input"><option>workspace-write（既定）</option></select><svg class="i"><use href="#i-chevron"/></svg></div><span class="help">select で選択肢が多い・長い → セレクト。</span></div>
+        </div>
+        <p class="note">どの入力のエラーか分かればその下に、分からなければ本文の先頭の帯に。入力内容は消さず、最初のエラーにフォーカスを移す。</p>
+      </div>
+      <div class="board">
+        <p class="board-title">復旧画面（データフォルダを開けなかったとき、アプリ全体の代わりに出す）</p>
+        <div class="recovery">
+          <div class="recovery-card">
+            <svg class="crest" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-crest"/><circle class="core" cx="12" cy="12" r="3.3"/></svg>
+            <span class="kicker">データフォルダを開けませんでした</span>
+            <h4>データフォルダが見つかりません</h4>
+            <p class="desc">設定されている場所にアクセスできません。外付けドライブやネットワーク上の場所なら、つないでから再試行してください。</p>
+            <div class="path"><span class="path-label">場所</span><code>D:\Guild\data</code><span></span></div>
+            <div class="recovery-actions">
+              <button class="btn primary" type="button">再試行</button>
+              <button class="btn secondary" type="button">別のフォルダを選ぶ</button>
+              <button class="btn secondary" type="button">既定の場所に戻す</button>
+            </div>
+            <span class="help">既定の場所に戻しても、いまのフォルダのデータは消えません。</span>
+            <details><summary>詳しい情報</summary><pre>settings.json の dataDir に指定された D:\Guild\data が存在しません。</pre></details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── 07 言葉 ─────────── -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="sec-num">07 · VOICE</span>
+      <h2 class="sec-title">言葉</h2>
+      <p class="sec-lead">ギルドの受付係のように。丁寧で短く、少しだけ温かく。何が起きたか → 次に何をすればいいか、の順に書きます。</p>
+    </div>
+    <div class="board copy-wrap">
+      <table class="copy-table">
+        <thead><tr><th>場面</th><th>文言</th><th>避ける</th></tr></thead>
+        <tbody>
+          <tr><td>入力欄</td><td>#ロビー へメッセージ（@ で呼びかけ）</td><td class="ng">メッセージを入力してください</td></tr>
+          <tr><td>動作中</td><td>ハル が考え中… / ハル が Web検索中: 〜</td><td class="ng">AI が処理しています</td></tr>
+          <tr><td>停止の確認なし</td><td>停止しました（システム発言）</td><td class="ng">本当に停止しますか？</td></tr>
+          <tr><td>削除の確認</td><td>ギア を削除しますか？ 会話の履歴は残ります。スキルと作業フォルダは消え、元に戻せません。［削除する］</td><td class="ng">よろしいですか？［OK］</td></tr>
+          <tr><td>エラー発言</td><td>返答できませんでした ＋ 原因と次の一手</td><td class="ng">Error: timeout</td></tr>
+          <tr><td>チャンネル外を呼ぶ</td><td>チャンネル外 — 呼ぶと参加します</td><td class="ng">メンバーではありません</td></tr>
+          <tr><td>空のチャンネル</td><td>ここが #勉強会の企画 のはじまりです。@ でエージェントに呼びかけてみましょう。</td><td class="ng">メッセージがありません</td></tr>
+          <tr><td>エージェント作成</td><td>ギルドに新しい仲間を迎えます。あとからいつでも変えられます。</td><td class="ng">新規エージェントを登録します</td></tr>
+          <tr><td>実行環境が止まった</td><td>エージェントを動かせません — Node.js が見つかりません。［再起動］</td><td class="ng">Runner process exited with code 1</td></tr>
+          <tr><td>ログインが必要</td><td>ログインが必要です — ターミナルで codex login を実行してから、再確認してください。［再確認］</td><td class="ng">認証エラーが発生しました</td></tr>
+          <tr><td>危険な権限</td><td>コマンドはこのパソコンの上で、あなたと同じ権限で動きます。</td><td class="ng">警告: 危険な操作です！</td></tr>
+          <tr><td>復旧画面</td><td>データフォルダが見つかりません ／［再試行］［別のフォルダを選ぶ］［既定の場所に戻す］</td><td class="ng">起動に失敗しました（missing）</td></tr>
+          <tr><td>テンプレートの説明</td><td>依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。</td><td class="ng">canDelegate が有効なエージェントです</td></tr>
+          <tr><td>振る舞い</td><td>他にいなければ答える — 最初に受ける人も答える人もいないときだけ答えます。</td><td class="ng">unmentioned: fallback</td></tr>
+          <tr><td>割り振り</td><td>割り振り · 3 件中 1 件完了 · 失敗 1 ／ カナメ がまとめを書いています…</td><td class="ng">Delegation status: reporting</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll('[data-theme-set]');
+    function paintValues() {
+      var cs = getComputedStyle(root);
+      document.querySelectorAll('[data-var]').forEach(function (el) { el.textContent = cs.getPropertyValue(el.dataset.var).trim(); });
+    }
+    function setTheme(t) {
+      root.dataset.theme = t;
+      buttons.forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.themeSet === t)); });
+      paintValues();
+    }
+    buttons.forEach(function (b) { b.addEventListener('click', function () { setTheme(b.dataset.themeSet); }); });
+    setTheme(new URLSearchParams(location.search).get('theme') === 'light' ? 'light' : 'dark');
+    document.querySelectorAll('.log').forEach(function (log) { log.scrollTop = log.scrollHeight; });
+  })();
+</script>
+</body>
+</html>

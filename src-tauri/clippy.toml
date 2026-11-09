@@ -1,0 +1,5 @@
+# clippy の閾値（CLAUDE.md の保守性ハーネス）。lint の有効化はワークスペースの Cargo.toml の [workspace.lints.clippy]。
+too-many-lines-threshold = 60
+cognitive-complexity-threshold = 15
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

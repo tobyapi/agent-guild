@@ -1,0 +1,90 @@
+/* 浮いている面（docs/ui-design.md §3.1）。入力欄の上 8px に出す */
+.popover {
+  --surface: var(--bg-elevated);
+  position: absolute;
+  inset-block-end: calc(100% + var(--space-2));
+  inset-inline-start: 0;
+  z-index: var(--z-popover);
+  inline-size: min(100%, var(--popover-width));
+  padding: var(--space-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+  animation: var(--animation-rise);
+}
+
+.heading {
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.list {
+  max-block-size: calc(var(--control-lg) * 6);
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  block-size: calc(var(--control-md) + var(--space-1));
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.option[aria-selected='true'] {
+  background: var(--bg-active);
+}
+
+.name {
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.name mark {
+  background: none;
+  color: var(--accent-text);
+  font-weight: var(--weight-bold);
+}
+
+.role {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-align: end;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.separator {
+  margin: var(--space-1) var(--space-2) 0;
+  padding: var(--space-2) 0 var(--space-1);
+  border-block-start: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.empty {
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.hints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}

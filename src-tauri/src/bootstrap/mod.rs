@@ -1,0 +1,51 @@
+//! 組み立て役（composition root）: データフォルダの決定 → ロック → DB → ランナー → サービス → 初期データ → スケジューラ。
+//! データフォルダを開けなければ、サービスを起動せずに復旧モードで立ち上がる（design.md §11）。
+
+mod assemble;
+mod boot;
+mod paths;
+mod scheduler;
+mod seed;
+
+#[cfg(test)]
+mod tests;
+
+use std::error::Error;
+use std::sync::Arc;
+use std::time::Duration;
+
+use tauri::{AppHandle, Manager};
+
+use crate::infrastructure::runtime::RunnerRuntime;
+
+/// 終了時にランナーへ shutdown を送って待つ上限
+const SHUTDOWN_WAIT: Duration = Duration::from_secs(5);
+
+/// Tauri の setup から呼ぶ。通常時か復旧モードの AppState を State に入れる
+pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn Error>> {
+    let handle = app.handle().clone();
+    let paths = paths::resolve(&handle)?;
+    log::info!("データフォルダ: {}（{:?}）", paths.data_dir.display(), paths.source);
+    let state = match boot::open(&paths) {
+        Ok(opened) => assemble::ready(&handle, &paths, opened)?,
+        Err(boot) => {
+            log::warn!("データフォルダを開けないため、復旧モードで起動します: {:?} {}", boot.reason, boot.message);
+            assemble::recovery(&handle, &paths, boot)
+        }
+    };
+    app.manage(state);
+    Ok(())
+}
+
+/// アプリの終了時（再起動を含む）: ランナーに shutdown を送る
+pub fn shutdown(app: &AppHandle) {
+    let Some(runner) = app.try_state::<Arc<RunnerRuntime>>() else {
+        return;
+    };
+    let runner = Arc::clone(&runner);
+    tauri::async_runtime::block_on(async move {
+        if tokio::time::timeout(SHUTDOWN_WAIT, runner.shutdown()).await.is_err() {
+            log::warn!("ランナーの終了を待ちきれませんでした");
+        }
+    });
+}

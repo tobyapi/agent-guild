@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "メインウィンドウの権限（アプリ独自のコマンドは Rust 側で登録しているので core のみ）",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

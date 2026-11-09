@@ -1,0 +1,89 @@
+/* 入力欄の枠。常にフォーカスがある場所なので、フォーカスは枠の色だけで静かに示す */
+.composer {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin: 0 var(--space-4) var(--space-6);
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--bg-input);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+/* 枠線のない塗りの入力欄。フォーカス中だけ静かな枠で示す */
+.composer:hover {
+  border-color: transparent;
+}
+
+.composer:focus-within {
+  border-color: var(--border-focus);
+}
+
+/* ファイルをドラッグしている間（落とすと添付する） */
+.composer[data-dragging] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ファイルの添付（左端）。送信ボタンと同じ大きさで、静かな色 */
+.attach {
+  flex: none;
+  inline-size: var(--control-md);
+  block-size: var(--control-md);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.attach:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* 1 行の高さから伸びて、画面の 4 割まで（docs/ui-design.md §5.6） */
+.input {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: var(--control-md);
+  max-block-size: var(--composer-max-height);
+  padding: var(--space-1) 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  resize: none;
+  field-sizing: content;
+}
+
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.send {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--control-md);
+  block-size: var(--control-md);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.send[data-ready] {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.send[data-ready]:hover {
+  background: var(--accent-hover);
+}

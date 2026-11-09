@@ -1,0 +1,31 @@
+/* 左を入力欄の文字の頭にそろえる。誰も動いていなければ高さ 0 */
+.bar {
+  display: grid;
+  gap: var(--space-0-5);
+  padding: 0 var(--space-4) 0 var(--space-8);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  white-space: nowrap;
+}
+
+.line:last-child {
+  margin-block-end: var(--space-2);
+}
+
+.name {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.text {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

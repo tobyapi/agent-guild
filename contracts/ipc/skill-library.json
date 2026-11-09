@@ -1,0 +1,27 @@
+{
+  "dirs": [
+    "D:\\skills",
+    "E:\\shared-skills"
+  ],
+  "skills": [
+    {
+      "path": "D:\\skills\\unity-performance",
+      "libraryDir": "D:\\skills",
+      "name": "unity-performance",
+      "description": "Unity のプロファイリング結果を読んで、描画とスクリプトのボトルネックを指摘するときの手順",
+      "fileCount": 3,
+      "problem": null
+    },
+    {
+      "path": "D:\\skills\\Draft Notes",
+      "libraryDir": "D:\\skills",
+      "name": "Draft Notes",
+      "description": "",
+      "fileCount": 0,
+      "problem": "name が Agent Skills の形式（英小文字・数字・ハイフン）ではありません。description がありません。"
+    }
+  ],
+  "dirProblems": {
+    "E:\\shared-skills": "フォルダが見つかりません"
+  }
+}

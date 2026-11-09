@@ -1,0 +1,118 @@
+.frame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+}
+
+/* 発言が少ないうちは入力欄のすぐ上に寄せる（下から積み上がる。あふれたら上の余白は 0 になる） */
+.scroller {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+  overflow-y: auto;
+}
+
+.content {
+  margin-block-start: auto;
+  padding: var(--space-1) 0 var(--space-4);
+}
+
+.status {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-10) var(--space-4) var(--space-2);
+}
+
+.introTitle {
+  font-size: var(--text-xl);
+}
+
+.introText {
+  max-inline-size: var(--measure);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-5) var(--space-4) 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.day::before,
+.day::after {
+  flex: 1;
+  block-size: 1px;
+  background: var(--border-subtle);
+  content: '';
+}
+
+.system {
+  display: grid;
+  grid-template-columns: var(--avatar-md) minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
+  margin-block-start: var(--space-3);
+  padding: var(--space-1) var(--space-4);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+
+.systemIcon {
+  justify-self: center;
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.systemText {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.systemName {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.systemTime {
+  margin-inline-start: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0;
+}
+
+.jump {
+  position: absolute;
+  inset-block-end: var(--space-3);
+  inset-inline-start: 50%;
+  z-index: var(--z-popover);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  block-size: var(--control-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  translate: -50% 0;
+  animation: var(--animation-rise);
+}

@@ -1,0 +1,22 @@
+[package]
+name = "guild-application"
+version = "0.1.0"
+description = "AIギルドのユースケースとポート（guild-domain だけに依存）"
+edition = "2021"
+rust-version = "1.85"
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+guild-domain = { path = "../guild-domain" }
+async-trait = "0.1"
+tokio = { version = "1", default-features = false, features = ["sync", "time", "rt", "macros"] }
+parking_lot = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["sync", "time", "rt", "macros", "test-util"] }

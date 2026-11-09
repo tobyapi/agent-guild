@@ -1,0 +1,115 @@
+.editor {
+  --crop-radius: var(--radius-avatar);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.editor[data-human] {
+  --crop-radius: var(--radius-full);
+}
+
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+/* 作業枠。大きさは JS の CROP_FRAME_SIZE（--crop-frame-size）で、狭ければ縮む（計算は比率で直す） */
+.frame {
+  position: relative;
+  flex: none;
+  inline-size: min(100%, var(--crop-frame-size));
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.frame:active {
+  cursor: grabbing;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+.image {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 仕上がりの形。外側を暗く落とし、形の縁に細い線を引く */
+.mask {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--crop-radius);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--text-primary) 60%, transparent),
+    0 0 0 100vmax var(--bg-overlay);
+  pointer-events: none;
+}
+
+.previews {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.previewLabel {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.preview {
+  position: relative;
+  inline-size: var(--avatar-md);
+  block-size: var(--avatar-md);
+  overflow: hidden;
+  border-radius: var(--crop-radius);
+  background: var(--bg-sunken);
+}
+
+.preview[data-size='sm'] {
+  inline-size: var(--avatar-sm);
+  block-size: var(--avatar-sm);
+}
+
+.zoomRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.zoomLabel {
+  flex: none;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.slider {
+  flex: 1;
+  min-inline-size: 0;
+  accent-color: var(--accent);
+}
+
+.zoomValue {
+  flex: none;
+  min-inline-size: 4em;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.help {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}

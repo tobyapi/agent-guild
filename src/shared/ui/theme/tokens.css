@@ -1,0 +1,149 @@
+/*
+ * デザイントークン「夜更けのギルドホール」— 墨の面に、働く仲間のところだけ灯（あかり）がともる
+ * - コンポーネントは色・余白・文字サイズ・角丸・影・動きを必ずこの変数で指定する（生の値を書かない）
+ * - 名前は契約。足すのは自由（docs/ui-design.md に追記）。消す・改名するときは使っている箇所を同時に直す
+ * - 既定はダーク。ライトは <html data-theme="light">（tokens-light.css が色だけ上書きする）
+ * - 寸法と重なり順は tokens-layout.css。どちらもここから読み込むので、使う側は tokens.css だけ import する
+ * 使い分けは docs/ui-design.md、見本は docs/design/style-tile.html
+ */
+@import './tokens-layout.css';
+@import './tokens-light.css';
+
+:root {
+  color-scheme: dark;
+
+  /* 面（藍墨。奥ほど暗く、手前ほど明るい） */
+  --bg-sunken: #101317; /* コードブロックなど一段沈んだ面 */
+  --bg-sidebar: #121418;
+  --bg-panel: #15171c;
+  --bg-app: #191c21;
+  --bg-input: #202329;
+  --bg-elevated: #24262c; /* ダイアログ・ポップオーバー・メニュー */
+  --bg-hover: rgba(200, 210, 255, 0.05);
+  --bg-active: rgba(200, 210, 255, 0.09); /* 選択中の行・押下中 */
+  --bg-overlay: rgba(6, 8, 12, 0.64);
+  --surface: var(--bg-app); /* いま乗っている面。面を持つ容器が上書きし、灯の縁取りなどが使う */
+  --border-subtle: rgba(200, 210, 255, 0.08);
+  --border-strong: rgba(200, 210, 255, 0.15);
+  --border-hover: rgba(200, 210, 255, 0.24);
+  --border-focus: rgba(240, 186, 95, 0.5); /* 静かなフォーカス枠（常にフォーカスがある入力欄の枠） */
+  --scrollbar-thumb: rgba(200, 210, 255, 0.14);
+  --scrollbar-thumb-hover: rgba(200, 210, 255, 0.26);
+
+  /* 文字（すべて AA 以上。muted も 4.5:1 を確保） */
+  --text-primary: #e4e6ea; /* 真っ白にしない（長文のにじみを抑える） */
+  --text-secondary: #babec6;
+  --text-muted: #9a9ea7;
+  --text-on-accent: #20160b;
+  --text-on-danger: #2b1213;
+  --text-link: #dbe1ef; /* リンクは色ではなく下線で示す（青は役割の色に使う） */
+
+  /* アクセント = 灯の金。操作の主役・フォーカス・選択の印にだけ使う */
+  --accent: #f0ba5f;
+  --accent-hover: #facd78;
+  --accent-soft: rgba(240, 186, 95, 0.14);
+  --accent-text: #f0ba5f; /* 面の上に金で文字を書くとき（ライトでは暗い金になる） */
+  --danger: #ff868d;
+  --danger-hover: #ff9da0;
+  --danger-soft: rgba(255, 134, 141, 0.12);
+  --warning: #fca864;
+  --warning-soft: rgba(252, 168, 100, 0.14);
+  --success: #72d48a;
+  --success-soft: rgba(114, 212, 138, 0.14);
+  --selection-bg: rgba(240, 186, 95, 0.3);
+  --focus-color: #f0ba5f;
+  --focus-glow: rgba(240, 186, 95, 0.22); /* 入力欄のフォーカスのにじみ（枠は --focus-color） */
+  --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--focus-color);
+
+  /* 役割の色 --kind-<テンプレートの accent>。暖色側（赤〜金）は人と状態に取っておき、役割は寒色側に
+     金（あなた）に近い順に並べる: 若葉 → 若竹 → 青磁 → 露草 → 群青 → 藤 → 牡丹。文字にも点にも使える明度 */
+  --kind-enduser: #bfdc73; /* 若葉: エンドユーザー役 */
+  --kind-enduser-soft: rgba(191, 220, 115, 0.14);
+  --kind-worker: #67dab2; /* 若竹: 作業者 */
+  --kind-worker-soft: rgba(103, 218, 178, 0.14);
+  --kind-scribe: #92d1d8; /* 青磁: 書記（控えめな彩度） */
+  --kind-scribe-soft: rgba(146, 209, 216, 0.14);
+  --kind-researcher: #74c8fc; /* 露草: 調査係 */
+  --kind-researcher-soft: rgba(116, 200, 252, 0.14);
+  --kind-manager: #98afff; /* 群青: マネージャー */
+  --kind-manager-soft: rgba(152, 175, 255, 0.14);
+  --kind-expert: #c6aafa; /* 藤: 専門家 */
+  --kind-expert-soft: rgba(198, 170, 250, 0.14);
+  --kind-critic: #f195cd; /* 牡丹: 批判役 */
+  --kind-critic-soft: rgba(241, 149, 205, 0.14);
+  --kind-neutral: var(--text-secondary); /* テンプレートに無いタグ・タグなし */
+  --kind-neutral-soft: var(--bg-active);
+  --kind-human: #f0ba5f; /* 金（あなた） */
+  --kind-human-soft: rgba(240, 186, 95, 0.14);
+  --mention-bg: var(--kind-neutral-soft); /* 色の決まらない相手（タグがテンプレートに無い・削除済み） */
+  --mention-text: var(--text-primary);
+  --mention-self-bg: rgba(240, 186, 95, 0.07); /* 自分が呼ばれた発言の行 */
+  --activity: #f0ba5f; /* 灯：動作中 */
+  --activity-glow: rgba(240, 186, 95, 0.45);
+  --autonomous: #f3d268; /* 山吹：💡 自発 */
+  --autonomous-soft: rgba(243, 210, 104, 0.14);
+
+  /* アバター（タイル = 個人色を面に溶かす） */
+  --avatar-tint: 30%;
+  --avatar-tint-base: var(--bg-elevated);
+
+  /* 文字組み（外部フォントは読まない。Windows は Segoe UI Variable + Noto Sans JP / 游ゴシック UI） */
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
+    'Yu Gothic UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', Meiryo, system-ui,
+    sans-serif, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji';
+  --font-mono: 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'BIZ UDGothic', 'Noto Sans JP', 'Yu Gothic UI',
+    monospace;
+  --text-xs: 11px; /* 英数字だけ（時刻・バックエンド名）。日本語は 12px 以上 */
+  --text-sm: 12px;
+  --text-md: 14px; /* UI の標準 */
+  --text-body: 15px; /* メッセージ本文・入力欄 */
+  --text-code: 13px; /* コードブロック（等幅は小さめでも読める） */
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --leading-tight: 1.35;
+  --leading-snug: 1.5;
+  --leading-normal: 1.7;
+  --tracking-normal: 0.02em;
+  --tracking-wide: 0.08em; /* 小見出しのラベル */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* 余白（4px 単位） */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* 角丸・影・動き */
+  --radius-sm: 4px; /* バッジ・チップ */
+  --radius-md: 8px; /* ボタン・入力・行 */
+  --radius-lg: 12px; /* 入力欄の枠・カード */
+  --radius-xl: 16px; /* ダイアログ */
+  --radius-full: 999px;
+  --radius-avatar: 30%; /* エージェント（角丸）。人間は --radius-full */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.25), 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 16px -8px rgba(0, 0, 0, 0.45), 0 28px 56px -12px rgba(0, 0, 0, 0.65);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 現れるとき */
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 320ms;
+  --duration-lamp: 2000ms; /* 灯の呼吸 1 周期 */
+  --animation-lamp: guild-lamp var(--duration-lamp) ease-in-out infinite; /* キーフレームは motion.css */
+  --animation-glow: guild-glow var(--duration-lamp) ease-in-out infinite;
+  --animation-rise: guild-rise var(--duration-slow) var(--ease-out);
+  --animation-fade: guild-fade var(--duration-normal) var(--ease-standard);
+
+  /* レイアウト（寸法・重なり順）は tokens-layout.css */
+}

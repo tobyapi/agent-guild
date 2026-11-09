@@ -1,0 +1,125 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { objectOf } from '@/shared/types/schema';
+import { snapshotSchema } from '@/shared/types/schemas/system';
+import type { AgentInput } from '@/shared/types/domain';
+import { SEED_IDS } from './seedIds';
+import { createHarness } from './harness.test-support';
+
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
+
+const allowAll = {
+  webSearch: true,
+  webFetch: true,
+  readFiles: true,
+  writeFiles: true,
+  writeAnywhere: true,
+  runCommands: true,
+  skills: true,
+};
+
+const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => ({
+  name: 'ミライ',
+  avatar: '🔭',
+  color: '#8cc3fc',
+  tags: ['作業者'],
+  role: '調査',
+  personality: '',
+  tone: '',
+  expertise: '',
+  backend: 'claude',
+  model: '',
+  backendOptions: { maxTurns: 10, unknownKey: true },
+  permissions: allowAll,
+  unmentioned: 'answer',
+  consultable: false,
+  canDelegate: false,
+  autonomyEnabled: false,
+  autonomyIntervalMin: 60,
+  autonomyChannelId: null,
+  ...overrides,
+});
+
+describe('モックのコマンド', () => {
+  it('get_snapshot は契約に合い、初期データ（5人とロビー・テンプレート7つ・Codex は要ログイン）を返す', async () => {
+    const mock = await createHarness();
+    const snapshot = await mock.transport.invoke('get_snapshot', {});
+    expect(objectOf(snapshotSchema)(snapshot, 'snapshot')).toEqual([]);
+    expect(snapshot.agents.map((agent) => agent.name)).toEqual(['ハル', 'ソラ', 'ロジカ', 'ギア', 'カナメ']);
+    expect(snapshot.agents.find((agent) => agent.name === 'カナメ')).toMatchObject({ unmentioned: 'lead', canDelegate: true, backend: 'codex' });
+    expect(snapshot.templates).toHaveLength(7);
+    expect(snapshot.channels.map((channel) => channel.name)).toEqual(['ロビー']);
+    expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
+  });
+
+  it('list_messages は beforeSeq で古いほうへページングし、seq の昇順で返す', async () => {
+    const mock = await createHarness();
+    const latest = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 3 });
+    expect(latest.map((message) => message.seq)).toEqual([10, 11, 12]);
+    const older = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: 10, limit: 3 });
+    expect(older.map((message) => message.seq)).toEqual([7, 8, 9]);
+  });
+
+  it('create_agent: 名前の重複は validation。未知の設定キーは捨て、タグの重複はまとめる', async () => {
+    const mock = await createHarness();
+    const created = await mock.transport.invoke('create_agent', {
+      input: agentInput({ name: 'はる', tags: [' リサーチ ', 'りさーち', 'Review', 'review'] }),
+    });
+    expect(created.backendOptions).toEqual({ maxTurns: 10 });
+    expect(created.tags).toEqual(['リサーチ', 'りさーち', 'Review']);
+    await expect(mock.transport.invoke('create_agent', { input: agentInput({ name: 'ハル' }) })).rejects.toMatchObject({
+      code: 'validation',
+      field: 'name',
+    });
+  });
+
+  it('create_agent: タグの規則と権限の規則（permissionRules）の違反は、その field の validation', async () => {
+    const mock = await createHarness();
+    const badTag = agentInput({ tags: ['#設計'] });
+    await expect(mock.transport.invoke('create_agent', { input: badTag })).rejects.toMatchObject({ field: 'tags' });
+    const codex = agentInput({ backend: 'codex', backendOptions: {}, permissions: { ...allowAll, webFetch: false, runCommands: false } });
+    await expect(mock.transport.invoke('create_agent', { input: codex })).rejects.toMatchObject({
+      code: 'validation',
+      field: 'permissions',
+      message: 'Codexで「ファイルを書く」を使うには「コマンドを実行」も必要です。「コマンドを実行」を許可してください',
+    });
+  });
+
+  it('delete_agent は論理削除（一覧には残り、チャンネルからは外れる）', async () => {
+    const mock = await createHarness();
+    await mock.transport.invoke('delete_agent', { id: SEED_IDS.sora });
+    const snapshot = await mock.transport.invoke('get_snapshot', {});
+    expect(snapshot.agents.find((agent) => agent.id === SEED_IDS.sora)?.deletedAt).not.toBeNull();
+    expect(snapshot.channels[0]?.memberIds).not.toContain(SEED_IDS.sora);
+  });
+
+  it('save_skill は名前を変換せずに検証し、重複は conflict、保存すると skills-changed', async () => {
+    const mock = await createHarness();
+    const input = { id: null, agentId: SEED_IDS.logica, name: 'Bad Name', description: '説明', body: '' };
+    await expect(mock.transport.invoke('save_skill', { input })).rejects.toMatchObject({ code: 'validation' });
+    const duplicate = { ...input, name: 'review-checklist' };
+    await expect(mock.transport.invoke('save_skill', { input: duplicate })).rejects.toMatchObject({ code: 'conflict' });
+    await mock.transport.invoke('save_skill', { input: { ...input, name: 'tone-check' } });
+    await mock.settle();
+    expect(mock.skillsChanged).toEqual([SEED_IDS.logica]);
+  });
+
+  it('change_data_dir: copy で移動先にデータがあれば conflict、open なら再起動する', async () => {
+    const mock = await createHarness();
+    const path = await mock.transport.invoke('choose_folder', {});
+    expect(path).not.toBeNull();
+    await expect(mock.transport.invoke('change_data_dir', { path: path ?? '', mode: 'copy' })).rejects.toMatchObject({
+      code: 'conflict',
+    });
+    await mock.transport.invoke('change_data_dir', { path: path ?? '', mode: 'open' });
+    await mock.settle();
+    expect(mock.restart).toHaveBeenCalledOnce();
+  });
+
+  it('復旧モードでは許されたコマンドだけが動き、ほかは unavailable', async () => {
+    const mock = await createHarness({ bootFailure: 'missing' });
+    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ state: 'recovery', reason: 'missing' });
+    await expect(mock.transport.invoke('get_snapshot', {})).rejects.toMatchObject({ code: 'unavailable' });
+    await expect(mock.transport.invoke('get_storage_info', {})).resolves.toMatchObject({ source: 'settings' });
+  });
+});

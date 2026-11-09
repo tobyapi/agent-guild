@@ -1,0 +1,34 @@
+.crest {
+  flex: none;
+  color: var(--text-primary);
+}
+
+.md {
+  inline-size: var(--crest-sm);
+  block-size: var(--crest-sm);
+}
+
+.lg {
+  inline-size: var(--crest-lg);
+  block-size: var(--crest-lg);
+  color: var(--text-muted);
+}
+
+.frame {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.core {
+  fill: var(--border-strong);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.lit .core {
+  fill: var(--activity);
+  filter: drop-shadow(0 0 3px var(--activity-glow));
+  animation: var(--animation-lamp);
+}

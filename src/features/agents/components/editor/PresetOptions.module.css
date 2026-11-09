@@ -1,0 +1,80 @@
+/* プリセットの一覧（見た目はメンション補完 docs/ui-design.md §5.6 に合わせる） */
+.list {
+  max-block-size: calc(var(--control-lg) * 6);
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.option[aria-selected='true'] {
+  background: var(--bg-active);
+}
+
+.label {
+  font-weight: var(--weight-medium);
+}
+
+.text,
+.sample {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sample {
+  color: var(--text-secondary);
+}
+
+/* 補助の［追記］: 選択中かホバー中の行だけで見せる（キーボードでは Shift+Enter） */
+.append {
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.option[aria-selected='true'] .append,
+.option:hover .append {
+  opacity: 1;
+}
+
+.append:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* 組の見出し: メンション補完の「チャンネル外」の区切りと同じ形 */
+.separator {
+  margin: var(--space-1) var(--space-2) 0;
+  padding: var(--space-2) 0 var(--space-1);
+  border-block-start: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* 検索で定番が消えて見出しが先頭に来たときは、線を引かない */
+.separator:first-child {
+  margin-block-start: 0;
+  padding-block-start: var(--space-1);
+  border-block-start: 0;
+}

@@ -1,0 +1,121 @@
+.field {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.labelNote {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
+}
+
+.control {
+  inline-size: 100%;
+  block-size: var(--control-md);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--text-md);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.control:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.control:focus-visible:not(:disabled) {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px var(--focus-glow);
+}
+
+.control[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.control[aria-invalid='true']:focus-visible {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px var(--danger-soft);
+}
+
+.control:disabled {
+  opacity: 0.5;
+}
+
+.numeric {
+  inline-size: 10em;
+  font-variant-numeric: tabular-nums;
+}
+
+.textarea {
+  block-size: auto;
+  padding: var(--space-2) var(--space-3);
+  line-height: var(--leading-snug);
+  resize: vertical;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+}
+
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  overflow: hidden;
+  padding-inline-end: var(--space-8);
+  text-overflow: ellipsis;
+  appearance: none;
+  cursor: pointer;
+}
+
+.chevron {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--space-2);
+  translate: 0 -50%;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.errorIcon {
+  font-size: var(--text-md);
+}

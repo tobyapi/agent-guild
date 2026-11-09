@@ -1,0 +1,54 @@
+[package]
+name = "agent-guild"
+version = "0.1.0"
+description = "AIギルド: 人間と AI エージェントが集まるチャットアプリ"
+edition = "2021"
+# std::fs::File::try_lock（データフォルダの多重起動防止）が 1.89 から
+rust-version = "1.89"
+
+[lib]
+name = "agent_guild_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[workspace]
+members = ["crates/*"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+parking_lot = "0.12"
+tokio = { version = "1", features = ["sync", "time", "macros", "rt", "process", "io-util"] }
+
+[workspace.lints.clippy]
+too_many_lines = "warn"
+cognitive_complexity = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+
+[lints]
+workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+guild-domain = { path = "crates/guild-domain" }
+guild-application = { path = "crates/guild-application" }
+runner-client = { path = "crates/runner-client" }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+parking_lot = { workspace = true }
+tokio = { workspace = true }
+rusqlite = { version = "0.41", features = ["bundled"] }
+async-trait = "0.1"
+uuid = { version = "1", features = ["v4"] }
+base64 = "0.23"
+chrono = "0.4"
+env_logger = "0.11"
+tauri-plugin-opener = "2"

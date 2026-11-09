@@ -1,0 +1,16 @@
+[package]
+name = "arch-harness"
+version = "0.1.0"
+description = "保守性ハーネス: 本体クレートの構造と各クレートの依存を構文解析で検査するテスト専用クレート"
+edition = "2021"
+rust-version = "1.85"
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+syn = { version = "2", features = ["full", "visit"] }
+# 構文解析したノードの行番号を得るため
+proc-macro2 = { version = "1", features = ["span-locations"] }
+toml = "1"

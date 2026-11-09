@@ -1,0 +1,48 @@
+/*
+ * 動き: 共通のキーフレームと「視差効果を減らす」設定への対応（global.css から読み込む）
+ * - CSS Modules からは名前ではなくトークンで参照する（名前がモジュールごとに書き換わらないように）
+ *     animation: var(--animation-lamp);  … 灯の呼吸（動作中の印）
+ *     animation: var(--animation-glow);  … 形を変えない呼吸（進み具合の棒の作業中の区切り）
+ *     animation: var(--animation-rise);  … ポップオーバー・ダイアログ・トーストが現れる
+ *     animation: var(--animation-fade);  … 背景の幕・新着の行
+ * - どのキーフレームも「終わりの姿 = 要素の素の姿」。動きを止めても正しい見た目のまま残る
+ */
+@keyframes guild-lamp {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+/* 灯の呼吸の、形を変えない版（進み具合の棒など、縮むと困るもの） */
+@keyframes guild-glow {
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes guild-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes guild-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

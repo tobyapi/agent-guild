@@ -1,0 +1,58 @@
+/*
+ * body は overflow: hidden。シェルは窓いっぱいの縦の flex にして、各ペインがスクロールする。
+ * ランナーの帯は出ないこともあるので、行の数に依存するグリッドにはしない（本体が帯の行に入って縮むのを防ぐ）
+ */
+.shell {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  background: var(--bg-app);
+}
+
+.columns {
+  display: grid;
+  flex: 1;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  min-block-size: 0;
+}
+
+.columns[data-members] {
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--member-panel-width);
+}
+
+.main {
+  --surface: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.empty {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  overflow-y: auto;
+}
+
+/* 狭い窓ではメンバーパネル、さらに狭ければサイドバーを畳む（style-tile.html と同じ区切り） */
+@media (max-width: 1120px) {
+  .columns[data-members] {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  }
+
+  .columns[data-members] > :last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .columns,
+  .columns[data-members] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .columns > :first-child {
+    display: none;
+  }
+}

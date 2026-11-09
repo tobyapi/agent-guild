@@ -1,0 +1,80 @@
+.dialog {
+  --surface: var(--bg-elevated);
+  inline-size: min(100% - var(--space-8), var(--dialog-width-md));
+  max-inline-size: none;
+  max-block-size: calc(100% - var(--space-8));
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: var(--animation-rise);
+}
+
+.dialog::backdrop {
+  background: var(--bg-overlay);
+  animation: var(--animation-fade);
+}
+
+.sm {
+  inline-size: min(100% - var(--space-8), var(--dialog-width-sm));
+}
+
+.lg {
+  inline-size: min(100% - var(--space-8), var(--dialog-width-lg));
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5) var(--space-4) var(--space-6);
+}
+
+.heading {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.title {
+  font-size: var(--text-lg);
+}
+
+.description {
+  margin-block-start: var(--space-1);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+
+.body {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: var(--space-5);
+  min-block-size: 0;
+  overflow-y: auto;
+  padding: var(--space-1) var(--space-6) var(--space-2);
+  /* 本文がスクロールできるときだけ上下に区切り線: 線（scroll）を、中身と一緒に動く覆い（local）で隠す */
+  background:
+    linear-gradient(var(--bg-elevated), var(--bg-elevated)) top / 100% 2px no-repeat local,
+    linear-gradient(var(--bg-elevated), var(--bg-elevated)) bottom / 100% 2px no-repeat local,
+    linear-gradient(var(--border-subtle), var(--border-subtle)) top / 100% 1px no-repeat scroll,
+    linear-gradient(var(--border-subtle), var(--border-subtle)) bottom / 100% 1px no-repeat scroll;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}

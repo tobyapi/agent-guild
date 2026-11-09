@@ -1,0 +1,74 @@
+/* スイッチ --switch-width × --switch-height（つまみ --switch-knob）。docs/ui-design.md §5.9 */
+.switch {
+  position: relative;
+  flex: none;
+  inline-size: var(--switch-width);
+  block-size: var(--switch-height);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--bg-active);
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard);
+}
+
+.switch::after {
+  position: absolute;
+  inset-block-start: var(--space-0-5);
+  inset-inline-start: var(--space-0-5);
+  inline-size: var(--switch-knob);
+  block-size: var(--switch-knob);
+  border-radius: var(--radius-full);
+  background: var(--text-secondary);
+  content: '';
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
+}
+
+.switch[aria-checked='true'] {
+  border-color: transparent;
+  background: var(--accent);
+}
+
+.switch[aria-checked='true']::after {
+  transform: translateX(calc(var(--switch-width) - var(--switch-knob) - var(--space-1) - 2px));
+  background: var(--text-on-accent);
+}
+
+.switch[data-tone='warning'][aria-checked='true'] {
+  background: var(--warning);
+}
+
+.switch[data-tone='warning'][aria-checked='true']::after {
+  background: var(--bg-elevated);
+}
+
+.switch:disabled {
+  opacity: 0.45;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.text {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.label {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}

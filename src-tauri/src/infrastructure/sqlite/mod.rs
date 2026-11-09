@@ -1,0 +1,24 @@
+//! SQLite のアダプタ: 接続・マイグレーション（0001）・各リポジトリ・meta。rusqlite はこのフォルダの中だけで使う。
+
+mod agents;
+mod channels;
+mod codec;
+mod database;
+mod delegation_rows;
+mod delegations;
+mod messages;
+mod migrations;
+mod reset;
+mod settings_tables;
+mod skills;
+
+pub use agents::SqliteAgentRepository;
+pub use channels::SqliteChannelRepository;
+pub use database::{inspect_database, Database, DbError, OpenError};
+pub use delegations::SqliteDelegationRepository;
+pub use messages::SqliteMessageRepository;
+pub use settings_tables::{SqliteMetaRepository, SqliteProfileRepository};
+pub use skills::SqliteSkillRepository;
+
+#[cfg(test)]
+mod tests;

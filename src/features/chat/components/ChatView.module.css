@@ -1,0 +1,7 @@
+.chat {
+  --surface: var(--bg-app);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+}

@@ -1,0 +1,6 @@
+/* 状態の言葉だけは本文書体の --text-sm（等幅の --text-xs だと日本語が潰れる） */
+.word {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-normal);
+}

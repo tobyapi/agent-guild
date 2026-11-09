@@ -1,0 +1,25 @@
+.screen {
+  display: grid;
+  place-items: center;
+  block-size: 100%;
+  padding: var(--space-8) var(--space-4);
+  background: var(--bg-sidebar);
+}
+
+.content {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  max-inline-size: 28em;
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-xl);
+}
+
+.text {
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  word-break: auto-phrase;
+}

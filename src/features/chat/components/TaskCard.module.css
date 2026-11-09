@@ -1,0 +1,139 @@
+/* 割り振りのカード（docs/ui-design.md §5.13）。浮かせない（影なし）。全体の状態は data-state、区切りは data-status */
+.card {
+  --surface: var(--bg-panel);
+  grid-column: 2;
+  max-inline-size: var(--measure);
+  margin-block-start: var(--space-2);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+  container-type: inline-size;
+  cursor: auto;
+  animation: var(--animation-fade);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-lg);
+  padding: var(--space-2) var(--space-3);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.progress {
+  flex: 1;
+  min-inline-size: 0;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 右上の全体の状態の札 */
+.state {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: calc(var(--space-1) + var(--space-0-5));
+  block-size: var(--badge-height);
+  padding: 0 calc(var(--space-1) + var(--space-0-5));
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  transition:
+    color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard);
+}
+
+.card[data-state='done'] .state {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.card[data-state='cancelled'] .state {
+  color: var(--text-muted);
+}
+
+/* 進み具合: サブタスク 1 件 = 1 区切り。作業中だけ形を変えずに呼吸する */
+.bar {
+  display: flex;
+  gap: 2px;
+  padding: 0 var(--space-3) var(--space-2);
+}
+
+.segment {
+  flex: 1;
+  block-size: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--bg-active);
+  transition: background-color var(--duration-normal) var(--ease-standard);
+}
+
+.segment[data-status='running'] {
+  background: var(--activity);
+  animation: var(--animation-glow);
+}
+
+.segment[data-status='done'] {
+  background: var(--success);
+}
+
+.segment[data-status='failed'] {
+  background: var(--danger);
+}
+
+.segment[data-status='cancelled'] {
+  background: var(--border-strong);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 足元: まとめ中・まとめへの導線・打ち切り */
+.foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.foot b {
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.jump {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+}
+
+.jump:hover {
+  color: var(--text-primary);
+  text-decoration-color: currentColor;
+}

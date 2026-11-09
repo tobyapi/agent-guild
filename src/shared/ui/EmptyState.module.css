@@ -1,0 +1,25 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  text-align: center;
+}
+
+/* 空の状態の紋は少し小さく（復旧画面より控えめに） */
+.empty > svg:first-child {
+  inline-size: var(--crest-md);
+  block-size: var(--crest-md);
+}
+
+.title {
+  margin-block-start: var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.text {
+  max-inline-size: 24em;
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  word-break: auto-phrase;
+}

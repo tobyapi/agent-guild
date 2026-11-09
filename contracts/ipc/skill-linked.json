@@ -1,0 +1,13 @@
+{
+  "id": "b0000000-0000-4000-8000-000000000002",
+  "agentId": "a0000000-0000-4000-8000-000000000002",
+  "name": "unity-performance",
+  "description": "Unity のプロファイリング結果を読んで、描画とスクリプトのボトルネックを指摘するときの手順",
+  "body": "# 手順\n\n1. Profiler の CPU Usage を見る\n",
+  "source": {
+    "kind": "linked",
+    "path": "D:\\skills\\unity-performance"
+  },
+  "problem": null,
+  "updatedAt": 1793327500000
+}

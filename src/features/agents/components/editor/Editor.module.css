@@ -1,0 +1,128 @@
+.section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.section + .section {
+  padding-block-start: var(--space-5);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.sectionTitle {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.help {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.details {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.summary {
+  inline-size: fit-content;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.detailsBody {
+  display: grid;
+  gap: var(--space-4);
+  margin-block-start: var(--space-3);
+}
+
+.inlineAction {
+  justify-self: start;
+}
+
+.optionBlock {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.optionLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.optionLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+/* テンプレートのカード（docs/ui-design.md §5.9）: 2〜3 列の格子。役割の色は菱だけに使い、枠は塗らない */
+.question {
+  color: var(--text-secondary);
+}
+
+.templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-2);
+}
+
+.template {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-0-5) var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.template:hover {
+  border-color: var(--border-hover);
+}
+
+.template[aria-checked='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.templateMark {
+  display: grid;
+  place-items: center;
+  block-size: calc(var(--text-md) * 1.5);
+}
+
+.templateName {
+  font-weight: var(--weight-semibold);
+}
+
+.templateDescription {
+  grid-column: 2;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

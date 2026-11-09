@@ -1,0 +1,72 @@
+/* 送信前の添付の列（入力欄の中の1行目。docs/ui-design.md §5.6） */
+.list {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-1) 0 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+}
+
+.thumb {
+  display: block;
+  inline-size: 72px;
+  block-size: 72px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--bg-sunken);
+}
+
+/* ファイルの札: サムネイルと同じ高さで、アイコン・名前・大きさ */
+.file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  column-gap: var(--space-2);
+  inline-size: 200px;
+  block-size: 72px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+.fileIcon {
+  grid-row: span 2;
+  align-self: center;
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.fileName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+/* 右上の小さな × */
+.remove {
+  position: absolute;
+  inset-block-start: calc(var(--space-1) * -1);
+  inset-inline-end: calc(var(--space-1) * -1);
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}

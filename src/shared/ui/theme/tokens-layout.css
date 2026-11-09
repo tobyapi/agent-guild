@@ -1,0 +1,50 @@
+/*
+ * レイアウトのトークン: 骨組みの幅・行と部品の高さ・アバター・ダイアログ・重なり順（tokens.css から読み込む）
+ * テーマで変わらない値だけを置く。名前は契約（足すのは自由。docs/ui-design.md に追記）
+ */
+:root {
+  /* 骨組み */
+  --sidebar-width: 260px;
+  --member-panel-width: 248px;
+  --header-height: 52px;
+  --banner-height: 36px; /* 画面上部の帯（ランナーの状態） */
+  --row-height: 32px; /* サイドバーの行 */
+  --measure: 46em; /* 本文の最大行長（約 46 字） */
+
+  /* 部品の高さ */
+  --control-sm: 28px;
+  --control-md: 32px;
+  --control-lg: 40px;
+  --badge-height: 18px; /* 札（種別・バックエンド・自発） */
+  --switch-width: 34px;
+  --switch-height: 20px;
+  --switch-knob: 14px;
+  --composer-max-height: 40vh; /* 入力欄はここまで伸びて、あとはスクロール */
+
+  /* アバター */
+  --avatar-xs: 20px; /* メンション候補・動作中表示 */
+  --avatar-sm: 24px; /* サイドバー */
+  --avatar-row: 32px; /* 2 行の行（メンバー一覧・プロフィール） */
+  --avatar-md: 40px; /* メッセージ */
+  --avatar-lg: 64px; /* 編集画面のプレビュー */
+
+  /* 紋（菱に灯） */
+  --crest-sm: 20px; /* サイドバーの紋の行 */
+  --crest-md: 44px; /* 空の状態 */
+  --crest-lg: 48px; /* 復旧画面・起動画面 */
+
+  /* ダイアログ・トースト */
+  --dialog-width-sm: 440px; /* 確認・チャンネル作成 */
+  --dialog-width-md: 560px; /* 設定・復旧画面のカード */
+  --dialog-width-lg: 760px; /* エージェント編集（プレビュー + 入力） */
+  --toast-width: 360px;
+  --preview-width: 220px; /* エージェント編集の左のプレビュー */
+  --popover-width: 340px; /* メンション候補などのポップオーバー（狭ければ親の幅まで） */
+
+  /* 重なり順 */
+  --z-banner: 10;
+  --z-popover: 30;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+}

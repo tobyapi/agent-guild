@@ -1,0 +1,96 @@
+/* 発言に添えられたもの（本文の下。docs/ui-design.md §5.4）: 画像の列、その下にファイルの札を縦に */
+.attachments {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-block-start: var(--space-1);
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* 押すと大きく見る。枠と角丸で本文から区切る */
+.thumb {
+  display: block;
+  overflow: hidden;
+  max-inline-size: min(320px, 100%);
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  cursor: zoom-in;
+}
+
+.thumb:disabled {
+  cursor: progress;
+}
+
+.image {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 240px;
+  object-fit: contain;
+}
+
+/* 取得中の場所取り */
+.loading {
+  display: block;
+  inline-size: 160px;
+  block-size: 120px;
+  background: var(--bg-hover);
+}
+
+.failed {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ファイルの札: アイコン・名前・大きさ。押すとフォルダで表示する */
+.file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  max-inline-size: min(360px, 100%);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  text-align: start;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.file:hover {
+  background: var(--bg-hover);
+}
+
+.fileIcon {
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.fileName {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileSize {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+/* 大きく見る（ダイアログの中） */
+.full {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 70vh;
+  margin-inline: auto;
+  object-fit: contain;
+}

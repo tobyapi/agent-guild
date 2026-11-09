@@ -1,0 +1,3 @@
+# Rust のビルド成果物と、tauri-build が生成するスキーマ
+/target/
+/gen/schemas

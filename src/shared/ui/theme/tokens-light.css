@@ -1,0 +1,81 @@
+/*
+ * ライトテーマ「生成りの紙に墨」— tokens.css の色だけを上書きする（寸法・文字・動きは共通）
+ * 有効化: document.documentElement.dataset.theme = 'light'（未指定はダーク）
+ * ここに無い名前はダークと同じ値を使う。足すときは tokens.css にダークの値を先に書く
+ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* 面（生成り。紙の上に白いカードが浮く） */
+  --bg-sunken: #f1efeb;
+  --bg-sidebar: #f3f1ed;
+  --bg-panel: #f7f6f2;
+  --bg-app: #fcfbf8;
+  --bg-input: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: rgba(40, 36, 20, 0.05);
+  --bg-active: rgba(40, 36, 20, 0.08);
+  --bg-overlay: rgba(28, 24, 14, 0.32);
+  --border-subtle: rgba(40, 36, 20, 0.09);
+  --border-strong: rgba(40, 36, 20, 0.18);
+  --border-hover: rgba(40, 36, 20, 0.28);
+  --border-focus: rgba(173, 104, 0, 0.6);
+  --scrollbar-thumb: rgba(40, 36, 20, 0.18);
+  --scrollbar-thumb-hover: rgba(40, 36, 20, 0.32);
+
+  /* 文字 */
+  --text-primary: #1e222a;
+  --text-secondary: #494d56;
+  --text-muted: #5f636c;
+  --text-on-accent: #20160b;
+  --text-on-danger: #ffffff;
+  --text-link: #2a354d;
+
+  /* アクセント（金の塗りは明るいまま、金の文字と輪郭は暗い金で） */
+  --accent: #f1b047;
+  --accent-hover: #e89c33;
+  --accent-soft: rgba(241, 176, 71, 0.18);
+  --accent-text: #845001;
+  --danger: #b32130;
+  --danger-hover: #9b0d23;
+  --danger-soft: rgba(179, 33, 48, 0.1);
+  --warning: #964609;
+  --warning-soft: rgba(150, 70, 9, 0.1);
+  --success: #1d6835;
+  --success-soft: rgba(29, 104, 53, 0.1);
+  --selection-bg: rgba(241, 176, 71, 0.35);
+  --focus-color: #ad6800;
+  --focus-glow: rgba(173, 104, 0, 0.16);
+
+  /* 意味づけ */
+  --kind-enduser: #496009;
+  --kind-enduser-soft: rgba(73, 96, 9, 0.1);
+  --kind-worker: #136a55;
+  --kind-worker-soft: rgba(19, 106, 85, 0.1);
+  --kind-scribe: #2a6274;
+  --kind-scribe-soft: rgba(42, 98, 116, 0.1);
+  --kind-researcher: #125f94;
+  --kind-researcher-soft: rgba(18, 95, 148, 0.1);
+  --kind-manager: #4650a8;
+  --kind-manager-soft: rgba(70, 80, 168, 0.1);
+  --kind-expert: #6c44a4;
+  --kind-expert-soft: rgba(108, 68, 164, 0.1);
+  --kind-critic: #9d2f70;
+  --kind-critic-soft: rgba(157, 47, 112, 0.1);
+  --kind-human: #845001;
+  --kind-human-soft: rgba(241, 176, 71, 0.2);
+  --mention-self-bg: rgba(241, 176, 71, 0.12);
+  --activity: #c26300;
+  --activity-glow: rgba(232, 140, 30, 0.35);
+  --autonomous: #7c5a03;
+  --autonomous-soft: rgba(232, 190, 60, 0.22);
+
+  /* アバター */
+  --avatar-tint: 22%;
+  --avatar-tint-base: #ffffff;
+
+  /* 影（紙の上なので薄く、広く） */
+  --shadow-sm: 0 1px 2px rgba(40, 32, 10, 0.08);
+  --shadow-md: 0 1px 3px rgba(40, 32, 10, 0.06), 0 8px 20px -6px rgba(40, 32, 10, 0.16);
+  --shadow-lg: 0 4px 12px -4px rgba(40, 32, 10, 0.1), 0 28px 56px -12px rgba(40, 32, 10, 0.24);
+}

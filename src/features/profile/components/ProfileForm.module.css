@@ -1,0 +1,22 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.fields {
+  display: grid;
+  flex: 1;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}

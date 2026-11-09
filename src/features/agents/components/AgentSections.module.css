@@ -1,0 +1,8 @@
+/* サイドバーのエージェント一覧の下の作成の入口（行と同じ左右の余白で、頭をそろえる） */
+.add {
+  justify-content: flex-start;
+  inline-size: 100%;
+  margin-block-start: var(--space-1);
+  padding: 0 var(--space-2);
+  color: var(--text-secondary);
+}

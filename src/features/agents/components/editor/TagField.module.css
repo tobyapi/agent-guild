@@ -1,0 +1,90 @@
+.box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-block-size: var(--control-md);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.box:hover {
+  border-color: var(--border-hover);
+}
+
+.box:focus-within {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px var(--focus-glow);
+}
+
+.box[data-invalid] {
+  border-color: var(--danger);
+}
+
+.chips {
+  display: contents;
+  list-style: none;
+}
+
+/* 先頭の札の前の小さな「区分」 */
+.lead {
+  margin-inline-end: var(--space-0-5);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.promote {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.promote:hover {
+  text-decoration: underline;
+}
+
+.remove {
+  display: inline-grid;
+  place-items: center;
+  margin-inline-end: calc(var(--space-1) * -1);
+  padding: var(--space-0-5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.remove:hover {
+  opacity: 1;
+}
+
+.input {
+  flex: 1 1 8em;
+  min-inline-size: 0;
+  block-size: var(--badge-height);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: var(--text-md);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}

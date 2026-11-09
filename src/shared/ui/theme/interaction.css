@@ -1,0 +1,49 @@
+/*
+ * 操作の手ざわり: フォーカスリング・入力欄のフォーカス・選択色・スクロールバー（global.css から読み込む）
+ * - キーボード操作のときだけ金の輪を出す。輪を消すなら、必ず同じくらい目立つ代わりの印を用意する
+ * - スクロール容器の中の行は輪が切れるので、行側で outline-offset: -2px にする
+ */
+:where(:focus-visible) {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+:where(:focus:not(:focus-visible)) {
+  outline: none;
+}
+
+/* 文字入力欄は輪ではなく金の枠と淡いにじみで示す（クリックでも出る）。枠のない入力欄は親の :focus-within で示す */
+:where(
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='color']),
+    textarea,
+    select
+  ):focus-visible {
+  outline: none;
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px var(--focus-glow);
+}
+
+::selection {
+  background-color: var(--selection-bg);
+}
+
+/* スクロールバー: 細く、角丸、矢印なし。つまみは面になじむ半透明 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 3px solid transparent;
+  border-radius: var(--radius-full);
+  background: var(--scrollbar-thumb) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}

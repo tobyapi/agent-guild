@@ -1,0 +1,13 @@
+.mark {
+  flex: none;
+  inline-size: calc(var(--space-2) - 1px);
+  block-size: calc(var(--space-2) - 1px);
+  border-radius: 1.5px;
+  background: var(--tag-fg, var(--kind-neutral));
+  transform: rotate(45deg);
+}
+
+.mark[data-human] {
+  border-radius: var(--radius-full);
+  transform: none;
+}

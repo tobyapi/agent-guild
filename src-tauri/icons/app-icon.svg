@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5865f2"/>
+      <stop offset="1" stop-color="#2bb39b"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="url(#bg)"/>
+  <!-- 奥の吹き出し（エージェント） -->
+  <path d="M430 250h330a110 110 0 0 1 110 110v190a110 110 0 0 1-110 110h-30v90l-110-90H430a110 110 0 0 1-110-110V360a110 110 0 0 1 110-110z" fill="#ffffff" fill-opacity="0.35"/>
+  <!-- 手前の吹き出し（人間） -->
+  <path d="M264 380h330a110 110 0 0 1 110 110v190a110 110 0 0 1-110 110H404l-110 90v-90h-30a110 110 0 0 1-110-110V490a110 110 0 0 1 110-110z" fill="#ffffff"/>
+  <circle cx="324" cy="585" r="38" fill="#5865f2"/>
+  <circle cx="429" cy="585" r="38" fill="#3f8fd0"/>
+  <circle cx="534" cy="585" r="38" fill="#2bb39b"/>
+  <!-- きらめき -->
+  <path d="M790 150l22 58 58 22-58 22-22 58-22-58-58-22 58-22z" fill="#ffffff"/>
+</svg>

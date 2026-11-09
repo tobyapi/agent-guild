@@ -1,0 +1,31 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.emoji {
+  inline-size: calc(var(--control-md) * 2);
+  block-size: var(--control-md);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
+.emoji:hover {
+  border-color: var(--border-hover);
+}
+
+.emoji:focus-visible {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px var(--focus-glow);
+}
+
+.emoji::placeholder {
+  font-size: var(--text-sm);
+}

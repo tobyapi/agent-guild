@@ -1,0 +1,96 @@
+/* 本文（docs/ui-design.md §5.4 の Markdown）。中身は sanitize 済みの HTML なので、要素とクラスは :global で指す */
+.markdown {
+  grid-column: 2;
+  min-inline-size: 0;
+  max-inline-size: var(--measure);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  overflow-wrap: anywhere;
+  cursor: auto;
+}
+
+.markdown > :global(* + *) {
+  margin-block-start: 0.6em;
+}
+
+.markdown :global(:is(ul, ol)) {
+  margin: 0;
+  padding-inline-start: 1.4em;
+}
+
+.markdown :global(li + li) {
+  margin-block-start: 0.15em;
+}
+
+.markdown :global(li::marker) {
+  color: var(--text-muted);
+}
+
+.markdown :global(:is(h1, h2, h3, h4)) {
+  margin-block-start: 1em;
+  font-size: 1.05em;
+}
+
+.markdown :global(code) {
+  padding: 0.12em 0.36em;
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  font-size: 0.86em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.markdown :global(pre) {
+  overflow-x: auto;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  font-size: var(--text-code);
+  line-height: 1.6;
+}
+
+.markdown :global(pre code) {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.markdown :global(blockquote) {
+  margin-inline: 0;
+  padding-inline-start: 0.9em;
+  border-inline-start: 3px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.markdown :global(table) {
+  font-size: var(--text-md);
+}
+
+.markdown :global(:is(th, td)) {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-subtle);
+}
+
+.markdown :global(th) {
+  background: var(--bg-hover);
+  font-weight: var(--weight-semibold);
+  text-align: start;
+}
+
+.markdown :global(td) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* メンションのチップ: 色は相手の先頭のタグのテンプレートの accent（チップの style で --tag-fg / --tag-bg を渡す）。
+   自分宛ては人間の色。色の決まらない相手・削除済み・不明は既定の色（中立） */
+.markdown :global(.mention) {
+  padding: 0.08em 0.32em;
+  border-radius: var(--radius-sm);
+  background: var(--tag-bg, var(--mention-bg));
+  color: var(--tag-fg, var(--mention-text));
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
