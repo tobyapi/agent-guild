@@ -1,7 +1,7 @@
 //! インメモリのリポジトリ（発言・割り振り・スキル・プロフィール・meta）。
 
 use guild_application::ports::{
-    DelegationRepository, MessageRepository, MetaRepository, ProfileRepository, SkillRepository,
+    DelegationRepository, MessageFilter, MessageRepository, MetaRepository, ProfileRepository, SkillRepository,
 };
 use guild_application::AppResult;
 use guild_domain::delegation::{Delegation, SubtaskStatus};
@@ -23,19 +23,35 @@ impl MessageRepository for MemoryStore {
     fn get(&self, id: &MessageId) -> AppResult<Option<Message>> {
         Ok(self.messages.lock().iter().find(|m| &m.id == id).cloned())
     }
-    fn list(&self, channel: &ChannelId, before_seq: Option<i64>, limit: usize) -> AppResult<Vec<Message>> {
+    fn list(
+        &self,
+        channel: &ChannelId,
+        filter: MessageFilter,
+        before_seq: Option<i64>,
+        limit: usize,
+    ) -> AppResult<Vec<Message>> {
         let messages = self.messages.lock();
         let matching: Vec<Message> = messages
             .iter()
-            .filter(|m| &m.channel_id == channel && before_seq.is_none_or(|before| m.seq < before))
+            .filter(|m| &m.channel_id == channel && filter.matches(m.kind))
+            .filter(|m| before_seq.is_none_or(|before| m.seq < before))
             .cloned()
             .collect();
         Ok(matching[matching.len().saturating_sub(limit)..].to_vec())
     }
-    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>> {
+    fn list_in_conversations(
+        &self,
+        channel: &ChannelId,
+        roots: &[MessageId],
+        filter: MessageFilter,
+        limit: usize,
+    ) -> AppResult<Vec<Message>> {
         let messages = self.messages.lock();
-        let matching: Vec<Message> =
-            messages.iter().filter(|m| &m.channel_id == channel && roots.contains(&m.root_id)).cloned().collect();
+        let matching: Vec<Message> = messages
+            .iter()
+            .filter(|m| &m.channel_id == channel && roots.contains(&m.root_id) && filter.matches(m.kind))
+            .cloned()
+            .collect();
         Ok(matching[matching.len().saturating_sub(limit)..].to_vec())
     }
 }

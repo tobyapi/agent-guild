@@ -1,6 +1,6 @@
 //! チャンネル（メンバーの順序・追加・除外・削除）と発言（seq とページング）の往復。
 
-use guild_application::ports::{ChannelRepository, MessageRepository};
+use guild_application::ports::{ChannelRepository, MessageFilter, MessageRepository};
 use guild_domain::attachment::Attachment;
 use guild_domain::author::{Author, MemberId};
 use guild_domain::channel::Channel;
@@ -76,8 +76,8 @@ fn messages_get_increasing_seq_and_page_backwards() {
     assert!(first.seq < second.seq && second.seq < third.seq);
 
     let channel = ChannelId::new("c1");
-    assert_eq!(repository.list(&channel, None, 2).unwrap(), vec![second.clone(), third]);
-    assert_eq!(repository.list(&channel, Some(second.seq), 50).unwrap(), vec![first.clone()]);
+    assert_eq!(repository.list(&channel, MessageFilter::All, None, 2).unwrap(), vec![second.clone(), third]);
+    assert_eq!(repository.list(&channel, MessageFilter::All, Some(second.seq), 50).unwrap(), vec![first.clone()]);
     assert_eq!(first.mentions, vec![AgentId::new("b")]);
     assert_eq!(first.reply_to_id, Some(MessageId::new("m0")));
     assert_eq!(first.attachments[0].name, "screen.png", "添付のメタデータも保存する");
@@ -96,11 +96,29 @@ fn messages_of_conversations_are_the_latest_within_the_limit() {
     let a2 = repository.insert(in_root("a2", "a1")).unwrap();
     let a3 = repository.insert(in_root("a3", "a1")).unwrap();
     let channel = ChannelId::new("c1");
-    let only_a = [MessageId::new("a1")];
-    assert_eq!(repository.list_in_conversations(&channel, &only_a, 2).unwrap(), vec![a2.clone(), a3.clone()]);
-    let both = [MessageId::new("a1"), MessageId::new("b1")];
-    assert_eq!(repository.list_in_conversations(&channel, &both, 10).unwrap(), vec![a1, b1, a2, a3]);
-    assert!(repository.list_in_conversations(&channel, &[], 10).unwrap().is_empty());
+    let list = |roots: &[MessageId], limit| repository.list_in_conversations(&channel, roots, MessageFilter::All, limit);
+    assert_eq!(list(&[MessageId::new("a1")], 2).unwrap(), vec![a2.clone(), a3.clone()]);
+    assert_eq!(list(&[MessageId::new("a1"), MessageId::new("b1")], 10).unwrap(), vec![a1, b1, a2, a3]);
+    assert!(list(&[], 10).unwrap().is_empty());
+}
+
+#[test]
+fn progress_posts_can_be_left_out_or_listed_alone() {
+    let db = memory();
+    SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    let repository = SqliteMessageRepository::new(db);
+    let progress = |id: &str| NewMessage { kind: MessageKind::Progress, ..new_message(id, id) };
+    let reply1 = repository.insert(new_message("r1", "返答1")).unwrap();
+    let post1 = repository.insert(progress("p1")).unwrap();
+    let post2 = repository.insert(progress("p2")).unwrap();
+    let reply2 = repository.insert(new_message("r2", "返答2")).unwrap();
+    let channel = ChannelId::new("c1");
+    let roots = [MessageId::new("m0")];
+    let (without, only) = (MessageFilter::WithoutProgress, MessageFilter::ProgressOnly);
+    assert_eq!(repository.list(&channel, without, None, 2).unwrap(), vec![reply1.clone(), reply2.clone()]);
+    assert_eq!(repository.list(&channel, only, None, 1).unwrap(), vec![post2.clone()]);
+    assert_eq!(repository.list_in_conversations(&channel, &roots, without, 10).unwrap(), vec![reply1, reply2]);
+    assert_eq!(repository.list_in_conversations(&channel, &roots, only, 10).unwrap(), vec![post1, post2]);
 }
 
 #[test]
@@ -112,5 +130,5 @@ fn deleting_a_channel_removes_its_members_and_messages() {
     messages.insert(new_message("m1", "消える発言")).unwrap();
     channels.delete(&ChannelId::new("c1")).unwrap();
     assert!(channels.list().unwrap().is_empty());
-    assert!(messages.list(&ChannelId::new("c1"), None, 50).unwrap().is_empty());
+    assert!(messages.list(&ChannelId::new("c1"), MessageFilter::All, None, 50).unwrap().is_empty());
 }

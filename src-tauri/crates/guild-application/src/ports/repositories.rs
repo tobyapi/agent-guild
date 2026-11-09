@@ -5,7 +5,7 @@ use guild_domain::author::MemberId;
 use guild_domain::channel::Channel;
 use guild_domain::delegation::Delegation;
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SkillId};
-use guild_domain::message::{Message, NewMessage};
+use guild_domain::message::{Message, MessageKind, NewMessage};
 use guild_domain::profile::Profile;
 use guild_domain::skill::Skill;
 
@@ -37,14 +37,48 @@ pub trait ChannelRepository: Send + Sync {
     fn remove_member_everywhere(&self, member: &MemberId) -> AppResult<()>;
 }
 
+/// 発言の種類での絞り込み。プロンプトの履歴は、作業の途中の投稿（kind=progress）を別枠で数える（design.md §8）
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MessageFilter {
+    /// すべての発言
+    All,
+    /// 作業の途中の投稿を除く
+    WithoutProgress,
+    /// 作業の途中の投稿だけ
+    ProgressOnly,
+}
+
+impl MessageFilter {
+    /// 種類 kind の発言がこの絞り込みに合うか
+    pub fn matches(self, kind: MessageKind) -> bool {
+        match self {
+            Self::All => true,
+            Self::WithoutProgress => kind != MessageKind::Progress,
+            Self::ProgressOnly => kind == MessageKind::Progress,
+        }
+    }
+}
+
 pub trait MessageRepository: Send + Sync {
     /// 保存して seq を振った発言を返す
     fn insert(&self, message: NewMessage) -> AppResult<Message>;
     fn get(&self, id: &MessageId) -> AppResult<Option<Message>>;
-    /// seq が before_seq より小さい最新 limit 件を、seq の昇順で返す
-    fn list(&self, channel: &ChannelId, before_seq: Option<i64>, limit: usize) -> AppResult<Vec<Message>>;
-    /// 起点が roots のどれかの発言（それらの会話の発言）のうち最新 limit 件を、seq の昇順で返す
-    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>>;
+    /// filter に合う発言のうち、seq が before_seq より小さい最新 limit 件を、seq の昇順で返す
+    fn list(
+        &self,
+        channel: &ChannelId,
+        filter: MessageFilter,
+        before_seq: Option<i64>,
+        limit: usize,
+    ) -> AppResult<Vec<Message>>;
+    /// 起点が roots のどれかの発言（それらの会話の発言）で filter に合うもののうち最新 limit 件を、seq の昇順で返す
+    fn list_in_conversations(
+        &self,
+        channel: &ChannelId,
+        roots: &[MessageId],
+        filter: MessageFilter,
+        limit: usize,
+    ) -> AppResult<Vec<Message>>;
 }
 
 pub trait SkillRepository: Send + Sync {

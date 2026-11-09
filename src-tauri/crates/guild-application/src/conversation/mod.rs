@@ -20,6 +20,7 @@ use guild_domain::message::{normalize_human_content, Message, MessageKind};
 
 use crate::error::AppResult;
 use crate::maintenance::Maintenance;
+use crate::ports::MessageFilter;
 use crate::services::Ports;
 use dispatcher::DispatcherHandle;
 use posting::Origin;
@@ -90,7 +91,7 @@ impl ConversationService {
     pub fn list_messages(&self, channel_id: &ChannelId, before_seq: Option<i64>, limit: Option<u32>) -> AppResult<Vec<Message>> {
         posting::require_channel(&self.ports, channel_id)?;
         let limit = limit.unwrap_or(MESSAGE_PAGE_DEFAULT).clamp(1, MESSAGE_PAGE_MAX);
-        self.ports.messages.list(channel_id, before_seq, limit as usize)
+        self.ports.messages.list(channel_id, MessageFilter::All, before_seq, limit as usize)
     }
 
     /// そのチャンネルの割り振り（createdAt の昇順。新しい方から最大200件）

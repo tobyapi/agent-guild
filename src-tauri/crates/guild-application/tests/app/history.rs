@@ -8,14 +8,13 @@ use guild_domain::channel::Channel;
 use guild_domain::conversation::{JobMode, JobSpec};
 use guild_domain::ids::MessageId;
 use guild_domain::message::{Message, MessageKind, NewMessage};
-use guild_domain::prompt::{HISTORY_LIMIT, RECENT_CHANNEL_LIMIT};
+use guild_domain::prompt::{HISTORY_LIMIT, PROGRESS_LIMIT, RECENT_CHANNEL_LIMIT};
 
 use crate::support::runtime::reply;
 use crate::support::TestApp;
 
-/// 起点 root の会話に、振り分けをせずに発言を足す
-fn put(app: &TestApp, channel: &Channel, id: &str, root: &str, content: &str) -> Message {
-    let message = NewMessage {
+fn new_message(channel: &Channel, id: &str, root: &str, content: &str) -> NewMessage {
+    NewMessage {
         id: MessageId::new(id),
         channel_id: channel.id.clone(),
         author_id: Author::Human,
@@ -28,8 +27,21 @@ fn put(app: &TestApp, channel: &Channel, id: &str, root: &str, content: &str) ->
         depth: 0,
         delegation_id: None,
         created_at: 0,
-    };
-    MessageRepository::insert(app.store.as_ref(), message).unwrap_or_else(|error| panic!("{id}: {error}"))
+    }
+}
+
+fn insert(app: &TestApp, message: NewMessage) -> Message {
+    MessageRepository::insert(app.store.as_ref(), message).unwrap_or_else(|error| panic!("{error}"))
+}
+
+/// 起点 root の会話に、振り分けをせずに発言を足す
+fn put(app: &TestApp, channel: &Channel, id: &str, root: &str, content: &str) -> Message {
+    insert(app, new_message(channel, id, root, content))
+}
+
+/// 起点 root の会話に、作業の途中の投稿を足す
+fn put_progress(app: &TestApp, channel: &Channel, id: &str, root: &str, content: &str) -> Message {
+    insert(app, NewMessage { kind: MessageKind::Progress, ..new_message(channel, id, root, content) })
 }
 
 /// そのエージェントへの最後の依頼の、「あなた宛ての未対応の発言」より前（プロンプトに入れた発言）
@@ -105,4 +117,43 @@ async fn an_autonomous_job_sees_only_the_latest_messages_of_the_channel() {
     let history = history_sent_to(&app, &haru);
     assert!(history.starts_with("# チャンネル #ロビー の最近の発言"));
     assert!(history.contains("話題3番") && !history.contains("話題2番"), "最近の10件だけ");
+}
+
+#[tokio::test]
+async fn progress_posts_do_not_push_the_replies_out_of_the_history() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let lobby = app.channel("ロビー", &[&haru]);
+    put(&app, &lobby, "r", "r", "最初の依頼");
+    put(&app, &lobby, "r1", "r", "大事な返事");
+    let total = HISTORY_LIMIT + PROGRESS_LIMIT;
+    for n in 1..=total {
+        put_progress(&app, &lobby, &format!("p{n}"), "r", &format!("経過{n}番"));
+    }
+    let last = put(&app, &lobby, "r2", "r", "続けて");
+    app.services.conversation.enqueue(vec![JobSpec::respond(haru.id.clone(), &last, JobMode::Reply, Vec::new())]);
+    app.settle().await;
+    let history = history_sent_to(&app, &haru);
+    assert!(history.contains("大事な返事"), "途中の投稿は発言の件数に数えない");
+    let oldest_kept = total - PROGRESS_LIMIT + 1;
+    assert!(history.contains(&format!("（途中経過）:\n経過{total}番")) && history.contains(&format!("経過{oldest_kept}番")));
+    assert!(!history.contains(&format!("経過{}番", oldest_kept - 1)), "途中の投稿は新しい方から10件まで");
+}
+
+#[tokio::test]
+async fn progress_posts_older_than_the_recent_messages_are_left_out() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let lobby = app.channel("ロビー", &[&haru]);
+    put_progress(&app, &lobby, "p1", "p1", "昔の経過");
+    for n in 1..=RECENT_CHANNEL_LIMIT {
+        put(&app, &lobby, &format!("m{n}"), &format!("m{n}"), &format!("話題{n}番"));
+    }
+    put_progress(&app, &lobby, "p2", "m1", "いまの経過");
+    let job = JobSpec::autonomous(haru.id.clone(), lobby.id.clone());
+    assert!(app.services.conversation.enqueue_autonomous(job).await);
+    app.settle().await;
+    let history = history_sent_to(&app, &haru);
+    assert!(history.contains("話題1番") && history.contains("いまの経過"), "最近の発言の範囲にある途中の投稿は入れる");
+    assert!(!history.contains("昔の経過"), "それより古い流れの途中の投稿は入れない");
 }

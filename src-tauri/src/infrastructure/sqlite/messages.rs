@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use guild_application::ports::MessageRepository;
+use guild_application::ports::{MessageFilter, MessageRepository};
 use guild_application::AppResult;
 use guild_domain::author::Author;
 use guild_domain::ids::{ChannelId, DelegationId, MessageId};
@@ -64,30 +64,45 @@ impl MessageRepository for SqliteMessageRepository {
             .map_err(storage)
     }
 
-    fn list(&self, channel: &ChannelId, before_seq: Option<i64>, limit: usize) -> AppResult<Vec<Message>> {
+    fn list(
+        &self,
+        channel: &ChannelId,
+        filter: MessageFilter,
+        before_seq: Option<i64>,
+        limit: usize,
+    ) -> AppResult<Vec<Message>> {
         let limit = i64::try_from(limit).unwrap_or(i64::MAX);
+        let sql = format!(
+            "SELECT {COLUMNS} FROM messages WHERE channel_id = ?1 AND seq < ?2{} ORDER BY seq DESC LIMIT ?3",
+            kind_clause(filter)
+        );
         let mut messages: Vec<Message> = self
             .db
             .with(|conn| {
-                conn.prepare(&format!(
-                    "SELECT {COLUMNS} FROM messages WHERE channel_id = ?1 AND seq < ?2 ORDER BY seq DESC LIMIT ?3"
-                ))?
-                .query_map(params![channel.as_str(), before_seq.unwrap_or(i64::MAX), limit], read_message)?
-                .collect()
+                conn.prepare(&sql)?
+                    .query_map(params![channel.as_str(), before_seq.unwrap_or(i64::MAX), limit], read_message)?
+                    .collect()
             })
             .map_err(storage)?;
         messages.reverse();
         Ok(messages)
     }
 
-    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>> {
+    fn list_in_conversations(
+        &self,
+        channel: &ChannelId,
+        roots: &[MessageId],
+        filter: MessageFilter,
+        limit: usize,
+    ) -> AppResult<Vec<Message>> {
         if roots.is_empty() {
             return Ok(Vec::new());
         }
         let placeholders: Vec<String> = (0..roots.len()).map(|index| format!("?{}", index + 2)).collect();
         let sql = format!(
-            "SELECT {COLUMNS} FROM messages WHERE channel_id = ?1 AND root_id IN ({}) ORDER BY seq DESC LIMIT {}",
+            "SELECT {COLUMNS} FROM messages WHERE channel_id = ?1 AND root_id IN ({}){} ORDER BY seq DESC LIMIT {}",
             placeholders.join(", "),
+            kind_clause(filter),
             i64::try_from(limit).unwrap_or(i64::MAX)
         );
         let values: Vec<&str> = std::iter::once(channel.as_str()).chain(roots.iter().map(MessageId::as_str)).collect();
@@ -97,6 +112,16 @@ impl MessageRepository for SqliteMessageRepository {
             .map_err(storage)?;
         messages.reverse();
         Ok(messages)
+    }
+}
+
+/// 種類での絞り込みを WHERE に足す句（値は固定の識別子だけ）
+fn kind_clause(filter: MessageFilter) -> String {
+    let progress = MessageKind::Progress.as_str();
+    match filter {
+        MessageFilter::All => String::new(),
+        MessageFilter::WithoutProgress => format!(" AND kind <> '{progress}'"),
+        MessageFilter::ProgressOnly => format!(" AND kind = '{progress}'"),
     }
 }
 

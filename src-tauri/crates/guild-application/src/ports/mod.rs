@@ -10,8 +10,8 @@ mod system;
 pub use attachments::AttachmentStore;
 pub use library::{DirProblem, DirScan, FoundSkill, SkillFileError, SkillLibraryScanner};
 pub use repositories::{
-    AgentRepository, ChannelRepository, DelegationRepository, MessageRepository, MetaRepository,
-    ProfileRepository, SkillRepository,
+    AgentRepository, ChannelRepository, DelegationRepository, MessageFilter, MessageRepository,
+    MetaRepository, ProfileRepository, SkillRepository,
 };
 pub use runtime::{AgentRuntime, ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload, UpdateSink};
 pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsStore, TargetFolder};

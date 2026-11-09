@@ -15,6 +15,8 @@ use crate::message::{Message, MessageKind};
 pub const HISTORY_LIMIT: usize = 30;
 /// チャンネルの最近の発言として入れる件数（会話のない自発活動と、人間の発言に応えるジョブ）
 pub const RECENT_CHANNEL_LIMIT: usize = 10;
+/// 作業の途中の投稿（kind=progress）を入れる件数。上の2つの件数には数えず、それぞれの範囲にあるものを新しい方から
+pub const PROGRESS_LIMIT: usize = 10;
 /// 会話1件あたりの最大文字数
 pub const MESSAGE_CHAR_LIMIT: usize = 3000;
 /// あなた宛ての未対応の発言（とサブタスクの結果）1件あたりの最大文字数
