@@ -49,6 +49,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   change_data_dir: nullValue,
   reveal_data_dir: nullValue,
   restart_app: nullValue,
+  complete_setup: nullValue,
   open_url: nullValue,
 };
 

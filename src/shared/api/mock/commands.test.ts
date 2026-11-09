@@ -124,6 +124,13 @@ describe('モックのコマンド', () => {
     expect(mock.restart).toHaveBeenCalledOnce();
   });
 
+  it('初回起動なら needsSetup。complete_setup で終える', async () => {
+    const mock = await createHarness({ firstRun: true });
+    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ state: 'ok', needsSetup: true });
+    await mock.transport.invoke('complete_setup', {});
+    await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ needsSetup: false });
+  });
+
   it('復旧モードでは許されたコマンドだけが動き、ほかは unavailable', async () => {
     const mock = await createHarness({ bootFailure: 'missing' });
     await expect(mock.transport.invoke('get_boot_status', {})).resolves.toMatchObject({ state: 'recovery', reason: 'missing' });

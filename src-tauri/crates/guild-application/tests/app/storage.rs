@@ -11,6 +11,7 @@ use guild_domain::storage::{DataDirMode, StorageSource};
 use crate::support::TestApp;
 
 const TARGET: &str = "D:\\GuildData";
+const SKILLS: &str = "D:\\skills";
 
 fn answer(app: &TestApp, state: FolderState) {
     app.folders.answer.lock().state = state;
@@ -105,4 +106,16 @@ async fn recovery_mode_can_open_but_not_copy() {
     assert!(matches!(result, Err(AppError::Unavailable(_))));
     recovery.change_data_dir(TARGET, DataDirMode::Open).await.unwrap();
     assert_eq!(restarts(&app), 1);
+}
+
+#[tokio::test]
+async fn setup_is_needed_until_it_is_completed_and_keeps_other_settings() {
+    let app = TestApp::new();
+    assert!(app.services.storage.needs_setup(), "settings.json に印がなければ初期設定を出す");
+    let library = LaunchSettings { skill_library_dirs: vec![PathBuf::from(SKILLS)], ..LaunchSettings::default() };
+    app.settings.saved.lock().push(library);
+    app.services.storage.complete_setup().unwrap();
+    assert!(!app.services.storage.needs_setup());
+    let last = app.settings.saved.lock().last().cloned().unwrap_or_default();
+    assert_eq!(last.skill_library_dirs, vec![PathBuf::from(SKILLS)], "ほかの項目はそのまま");
 }

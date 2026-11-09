@@ -74,7 +74,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 | コマンド | 引数 | 戻り値 | emit | 主なエラー |
 |---|---|---|---|---|
-| `get_boot_status` | – | `BootStatus` | – | – |
+| `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す） | – | – |
+| `complete_setup` | – | `null`（settings.json に `setupDone: true` を書く。名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） | – | storage |
 | `get_snapshot` | – | `Snapshot` | – | unavailable |
 | `create_agent` | `{ input: AgentInput }` | `Agent` | state-changed | validation |
 | `update_agent` | `{ id, input: AgentInput }` | `Agent` | state-changed | not_found, validation |
@@ -288,12 +289,14 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - エージェントが自分の SDK 設定（Claude の `.claude/settings.json` や hooks、CLAUDE.md、Codex の設定）を書き換えて次の実行に影響させることはできないようにする。ただし writeAnywhere（作業場所の外にも書く）を許したエージェントは、データフォルダや Codex の利用者全体の設定（`~/.codex/config.toml`）も含めて PC のどこにでも書ける。これは止めず、編集画面の注意書きで伝える。アダプタは作業場所の設定ファイルを読み込ませない（Claude は `settingSources: []` とし、スキルは state 側のローカルプラグインで渡す。Codex で作業場所に置くしかないものは実行のたびに作り直す）。
 
 ### 場所の決定と起動手順
-1. データフォルダ = 環境変数 `GUILD_DATA_DIR` > `<app_config_dir>/settings.json` の `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[] }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
+1. データフォルダ = 環境変数 `GUILD_DATA_DIR` > `<app_config_dir>/settings.json` の `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない。setupDone は初回起動の初期設定を終えた印で、なければ false）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
 2. 既定の場所なら作成する。設定や環境変数で指定された場所が無いときは作らずに復旧モード（missing）。
 3. `.lock` を取る（再起動の重なりに備えて最大5秒再試行）。取れなければ復旧モード（locked）。
 4. guild-data.json を確認（空のフォルダなら作成）。app が違えば foreign、layoutVersion が新しければ newer_version。
 5. DB を開く: `application_id` が違えば foreign、`user_version` が既知より新しければ newer_version（書き込まない）、壊れていれば corrupt。マイグレーションはトランザクションで適用。初期データは meta 表に `seeded` の記録がないときだけ投入する。
 6. ランナーとサービスを起動し、スケジューラを動かす。
+
+**初回起動**: settings.json の `setupDone` が true でなければ（読めないときは除く）、`BootStatus.needsSetup` を true にして通常どおり起動する。React は本体の上に初期設定のダイアログ（名前・スキルのフォルダ・データの保存先。ui-design.md §5.11）を出し、「はじめる」で 名前（`update_profile`）→ `complete_setup` → 保存先を変えたなら `change_data_dir`（空のフォルダなら copy で、いまのデータと保存した名前を写す。ギルドのデータがあれば conflict を受けて open に切り替える。どちらも再起動する）の順に保存する。マシンごとの印なので、別の PC で同じデータフォルダを開くときも、その PC の初回起動では出る。
 
 **復旧モード**: 1〜5 のどこかで失敗したらサービスを起動せず、`get_boot_status` が `recovery` と理由を返す。React は復旧画面（理由の説明、「既定の場所に戻す」＝ `change_data_dir(defaultDataDir, 'open')`、「別のフォルダを選ぶ」、「再試行」＝ `restart_app`）を出す。
 

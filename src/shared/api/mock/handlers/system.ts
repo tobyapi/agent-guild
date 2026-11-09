@@ -7,6 +7,7 @@ import type { HandlerGroup } from './types';
 
 type SystemCommands =
   | 'get_boot_status'
+  | 'complete_setup'
   | 'get_snapshot'
   | 'update_profile'
   | 'refresh_backends'
@@ -21,6 +22,11 @@ const LOGIN_MS = 1500;
 
 export const systemHandlers: HandlerGroup<SystemCommands> = {
   get_boot_status: (_args, runtime) => runtime.state.boot,
+
+  complete_setup(_args, runtime) {
+    runtime.state.boot = { ...runtime.state.boot, needsSetup: false };
+    return null;
+  },
 
   get_snapshot: (_args, { state, conversation }) => ({
     me: state.me,

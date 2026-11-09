@@ -16,6 +16,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             boot::get_boot_status,
             boot::restart_app,
+            boot::complete_setup,
             snapshot::get_snapshot,
             snapshot::refresh_backends,
             snapshot::login_backend,

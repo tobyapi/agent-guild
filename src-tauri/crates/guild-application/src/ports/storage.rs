@@ -51,6 +51,8 @@ pub struct LaunchSettings {
     pub data_dir: Option<PathBuf>,
     /// スキルライブラリのフォルダ（使用者が並べた順）
     pub skill_library_dirs: Vec<PathBuf>,
+    /// 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）を終えた
+    pub setup_done: bool,
 }
 
 pub trait SettingsStore: Send + Sync {

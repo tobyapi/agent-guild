@@ -120,8 +120,14 @@ export function createSeedState(now: number, bootFailure: Exclude<BootReason, 'n
   const messages = [...demo, ...delegation.messages];
   return {
     boot: bootFailure
-      ? { state: 'recovery', reason: bootFailure, dataDir: MOCK_BROKEN_DATA_DIR, message: `（モック）${MOCK_BROKEN_DATA_DIR} を開けませんでした` }
-      : { state: 'ok', reason: 'none', dataDir: MOCK_DEFAULT_DATA_DIR, message: '' },
+      ? {
+          state: 'recovery',
+          reason: bootFailure,
+          dataDir: MOCK_BROKEN_DATA_DIR,
+          message: `（モック）${MOCK_BROKEN_DATA_DIR} を開けませんでした`,
+          needsSetup: false,
+        }
+      : { state: 'ok', reason: 'none', dataDir: MOCK_DEFAULT_DATA_DIR, message: '', needsSetup: false },
     me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f' },
     agents,
     channels: [

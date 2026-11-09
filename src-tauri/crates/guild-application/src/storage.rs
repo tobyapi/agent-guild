@@ -67,6 +67,18 @@ impl StorageService {
         Ok(())
     }
 
+    /// 初回起動の初期設定がまだか（settings.json を読めなければ、終えられないので出さない）
+    pub fn needs_setup(&self) -> bool {
+        self.ports.settings.load().is_ok_and(|settings| !settings.setup_done)
+    }
+
+    /// 初回起動の初期設定を終えた印を settings.json に書く（次の起動から初期設定のダイアログを出さない）
+    pub fn complete_setup(&self) -> AppResult<()> {
+        let mut settings = self.ports.settings.load()?;
+        settings.setup_done = true;
+        self.ports.settings.save(&settings)
+    }
+
     /// settings.json の保存先だけを書き換える（ほかの項目はそのまま）
     fn save_data_dir(&self, data_dir: Option<PathBuf>) -> AppResult<()> {
         let mut settings = self.ports.settings.load()?;

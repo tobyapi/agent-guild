@@ -26,12 +26,14 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     let chosen = LaunchSettings {
         data_dir: Some(PathBuf::from("D:\\GuildData")),
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
+        setup_done: true,
     };
     settings.save(&chosen).unwrap();
     let expected = json!({
         "version": 1,
         "dataDir": "D:\\GuildData",
         "skillLibraryDirs": ["D:\\skills", "E:\\shared-skills"],
+        "setupDone": true,
         "theme": "dark"
     });
     assert_eq!(read_json(&path), expected);
@@ -40,6 +42,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     settings.save(&LaunchSettings::default()).unwrap();
     assert_eq!(read_json(&path)["dataDir"], Value::Null);
     assert_eq!(read_json(&path)["skillLibraryDirs"], json!([]));
+    assert_eq!(read_json(&path)["setupDone"], json!(false));
 }
 
 #[test]

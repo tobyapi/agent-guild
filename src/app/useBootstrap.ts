@@ -6,6 +6,7 @@ import { applyChannelsSnapshot } from '@/features/channels';
 import { receiveDelegation, receiveMessage } from '@/features/chat';
 import { applyProfileSnapshot } from '@/features/profile';
 import { applyRuntimeSnapshot, currentActivityRevision, setActivity } from '@/features/runtime';
+import { openSetup } from '@/features/settings';
 import { reloadSkillLibraryIfLoaded, reloadSkillsIfLoaded } from '@/features/skills';
 import { invoke } from '@/shared/api';
 import { errorMessage } from '@/shared/lib/errors';
@@ -47,6 +48,8 @@ export function useBootstrap() {
       const boot = await invoke('get_boot_status');
       if (boot.state === 'recovery') return { phase: 'recovery', boot };
       await sync.refresh();
+      // 初回起動なら、本体の上に初期設定のダイアログを出す
+      if (boot.needsSetup) openSetup();
       return { phase: 'ready' };
     };
     start()

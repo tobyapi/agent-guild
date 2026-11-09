@@ -7,4 +7,5 @@ export const settingsApi = {
   /** 成功するとアプリが再起動する */
   changeDataDir: (path: string, mode: DataDirMode) => invoke('change_data_dir', { path, mode }),
   revealDataDir: () => invoke('reveal_data_dir'),
+  completeSetup: () => invoke('complete_setup'),
 };

@@ -1,4 +1,5 @@
-//! マシンごとの設定ファイル <app_config_dir>/settings.json（{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[] }）。
+//! マシンごとの設定ファイル <app_config_dir>/settings.json
+//! （{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean }）。
 //! データフォルダの外に置くので、どの保存先でも見つけられる。未知のフィールドは保持して書き戻し、
 //! version が新しすぎるファイルは読むだけで書き換えない。
 
@@ -55,7 +56,11 @@ impl SettingsFile {
 impl SettingsStore for SettingsFile {
     fn load(&self) -> AppResult<LaunchSettings> {
         let object = self.read().map_err(AppError::Storage)?;
-        Ok(LaunchSettings { data_dir: data_dir_of(&object), skill_library_dirs: library_dirs_of(&object) })
+        Ok(LaunchSettings {
+            data_dir: data_dir_of(&object),
+            skill_library_dirs: library_dirs_of(&object),
+            setup_done: object.get("setupDone").and_then(Value::as_bool).unwrap_or(false),
+        })
     }
 
     fn save(&self, settings: &LaunchSettings) -> AppResult<()> {
@@ -71,6 +76,7 @@ impl SettingsStore for SettingsFile {
         object.insert("dataDir".to_owned(), data_dir.unwrap_or(Value::Null));
         let library_dirs = settings.skill_library_dirs.iter().map(|dir| Value::String(dir.display().to_string()));
         object.insert("skillLibraryDirs".to_owned(), Value::Array(library_dirs.collect()));
+        object.insert("setupDone".to_owned(), Value::Bool(settings.setup_done));
         self.write(&object).map_err(|e| AppError::Storage(format!("設定を保存できませんでした: {e}")))
     }
 }

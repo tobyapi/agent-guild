@@ -101,6 +101,7 @@ export const bootStatusSchema = {
   }),
   dataDir: string,
   message: string,
+  needsSetup: boolean,
 } satisfies Schema<BootStatus>;
 
 export const errorCodeEnum = oneOf<ErrorCode>({

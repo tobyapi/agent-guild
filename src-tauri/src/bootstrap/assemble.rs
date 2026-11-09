@@ -61,7 +61,8 @@ pub fn ready(app: &AppHandle, paths: &AppPaths, opened: OpenedData) -> Result<Ap
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
     app.manage(runtime);
     app.manage(opened.lock);
-    Ok(AppState::Ready { boot: BootStatus::ok(display(&paths.data_dir)), services: Box::new(services) })
+    let boot = BootStatus::ok(display(&paths.data_dir), services.storage.needs_setup());
+    Ok(AppState::Ready { boot, services: Box::new(services) })
 }
 
 /// 復旧モード: サービスは起動せず、起動の結果と保存先の操作だけを持つ

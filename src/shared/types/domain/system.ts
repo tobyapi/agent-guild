@@ -35,6 +35,8 @@ export interface BootStatus {
   reason: BootReason;
   dataDir: string;
   message: string;
+  /** 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）がまだ（初期設定のダイアログを出す。復旧モードでは false） */
+  needsSetup: boolean;
 }
 
 export type ErrorCode = 'not_found' | 'validation' | 'conflict' | 'storage' | 'runtime' | 'unavailable' | 'internal';

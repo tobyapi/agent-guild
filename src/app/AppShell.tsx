@@ -10,7 +10,7 @@ import {
 } from '@/features/channels';
 import { ChatView } from '@/features/chat';
 import { RuntimeBanner } from '@/features/runtime';
-import { openSettings, SettingsDialog } from '@/features/settings';
+import { openSettings, SettingsDialog, SetupDialog } from '@/features/settings';
 import { Button, EmptyState, Icon } from '@/shared/ui';
 import { Sidebar } from './Sidebar';
 import styles from './AppShell.module.css';
@@ -70,6 +70,7 @@ function Dialogs() {
       <AgentEditorDialog channels={channels} onOpenSkillLibrarySettings={openSkillLibrarySettings} />
       <ChannelDialog />
       <SettingsDialog />
+      <SetupDialog />
     </>
   );
 }

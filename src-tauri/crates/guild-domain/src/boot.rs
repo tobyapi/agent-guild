@@ -35,15 +35,18 @@ pub struct BootStatus {
     pub reason: BootReason,
     pub data_dir: String,
     pub message: String,
+    /// 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）がまだ（React が初期設定のダイアログを出す）
+    pub needs_setup: bool,
 }
 
 impl BootStatus {
-    pub fn ok(data_dir: impl Into<String>) -> Self {
+    pub fn ok(data_dir: impl Into<String>, needs_setup: bool) -> Self {
         Self {
             state: BootState::Ok,
             reason: BootReason::None,
             data_dir: data_dir.into(),
             message: String::new(),
+            needs_setup,
         }
     }
 
@@ -53,6 +56,7 @@ impl BootStatus {
             reason,
             data_dir: data_dir.into(),
             message: message.into(),
+            needs_setup: false,
         }
     }
 

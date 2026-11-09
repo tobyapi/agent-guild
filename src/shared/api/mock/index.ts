@@ -42,13 +42,15 @@ export interface MockTransportOptions {
   bootFailure?: BootFailure | null;
   /** スキルライブラリのフォルダを指定していない状態で始める */
   emptySkillLibrary?: boolean;
+  /** 初回起動（初期設定のダイアログを出す）として始める */
+  firstRun?: boolean;
   env?: Partial<MockEnv>;
 }
 
 /**
  * URL で画面の状態を確かめられるようにする:
  * ?mockBoot=missing など → 復旧画面、?mockRuntime=slow → 起動中の帯、?mockRuntime=unavailable → 使えないときの帯、
- * ?mockLibrary=empty → スキルライブラリが未設定
+ * ?mockLibrary=empty → スキルライブラリが未設定、?mockSetup=1 → 初回起動（初期設定のダイアログ）
  */
 export function mockOptionsFromLocation(): MockTransportOptions {
   if (typeof window === 'undefined') return {};
@@ -58,6 +60,7 @@ export function mockOptionsFromLocation(): MockTransportOptions {
   return {
     bootFailure: BOOT_FAILURES.find((failure) => failure === reason) ?? null,
     emptySkillLibrary: params.get('mockLibrary') === 'empty',
+    firstRun: params.get('mockSetup') === '1',
     ...(runtime === 'slow' ? { runtimeStartupMs: 8000 } : {}),
     ...(runtime === 'unavailable' ? { runtimeFailure: 'ランナーを起動できませんでした（モック）: node が見つかりません' } : {}),
   };
@@ -84,6 +87,7 @@ export function createMockTransport(options: MockTransportOptions = {}): Transpo
   const env: MockEnv = { ...defaultEnv(), ...options.env };
   const state = createSeedState(env.now(), options.bootFailure ?? null);
   if (options.emptySkillLibrary) state.skillLibraryDirs = [];
+  if (options.firstRun && state.boot.state === 'ok') state.boot = { ...state.boot, needsSetup: true };
   const core = { state, bus: createMockEventBus((task) => env.schedule(0, task)), env };
   const runtime: MockRuntime = { ...core, conversation: createConversation(core) };
   if (state.boot.state === 'ok') startRunner(runtime, options.runtimeStartupMs ?? 1500, options.runtimeFailure ?? null);

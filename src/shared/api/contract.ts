@@ -25,6 +25,8 @@ type NoArgs = Record<never, never>;
 /** コマンド名 → 引数（JS 側は camelCase）と戻り値。失敗はすべて CommandError で reject される */
 export interface CommandMap {
   get_boot_status: { args: NoArgs; result: BootStatus };
+  /** 初回起動の初期設定を終えた（名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） */
+  complete_setup: { args: NoArgs; result: null };
   get_snapshot: { args: NoArgs; result: Snapshot };
   create_agent: { args: { input: AgentInput }; result: Agent };
   update_agent: { args: { id: string; input: AgentInput }; result: Agent };

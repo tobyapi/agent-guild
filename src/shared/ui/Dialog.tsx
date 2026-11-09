@@ -7,8 +7,8 @@ import styles from './Dialog.module.css';
 
 export interface DialogProps {
   title: ReactNode;
-  /** Esc・閉じるボタンで呼ばれる。親はこれを受けて Dialog を描くのをやめる */
-  onClose: () => void;
+  /** Esc・閉じるボタンで呼ばれる。親はこれを受けて Dialog を描くのをやめる。なければ閉じられない（閉じるボタンを出さず、Esc も無視する） */
+  onClose?: () => void;
   children: ReactNode;
   footer?: ReactNode;
   /** タイトルの下の補足（aria-describedby に結びつける） */
@@ -30,7 +30,7 @@ export function Dialog({ title, onClose, children, footer, description, size = '
 
   const handleCancel = (event: SyntheticEvent) => {
     event.preventDefault();
-    onClose();
+    onClose?.();
   };
 
   return (
@@ -53,9 +53,11 @@ export function Dialog({ title, onClose, children, footer, description, size = '
             </p>
           )}
         </div>
-        <IconButton label="閉じる" onClick={onClose}>
-          <Icon name="close" />
-        </IconButton>
+        {onClose && (
+          <IconButton label="閉じる" onClick={onClose}>
+            <Icon name="close" />
+          </IconButton>
+        )}
       </header>
       <div className={styles.body}>{children}</div>
       {footer && <footer className={styles.footer}>{footer}</footer>}
