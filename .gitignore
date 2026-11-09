@@ -3,6 +3,8 @@ node_modules/
 dist/
 coverage/
 src-tauri/target/
+# 配布用にまとめた agent-runner（scripts/stage-runner.mjs が作る）
+src-tauri/bundled-runner/
 # Tauri がビルドのたびに作り直すスキーマ
 src-tauri/gen/schemas/
 *.tsbuildinfo

@@ -15,6 +15,8 @@ pub struct AppPaths {
     /// いま使うデータフォルダ
     pub data_dir: PathBuf,
     pub source: StorageSource,
+    /// アプリのリソースのフォルダ（配布版では同梱の runner がある。分からなければ None）
+    pub resource_dir: Option<PathBuf>,
 }
 
 impl AppPaths {
@@ -32,7 +34,8 @@ pub fn resolve(app: &AppHandle) -> tauri::Result<AppPaths> {
     // app_local_data_dir の直下には WebView2 のプロファイル（EBWebView）が置かれるので、サブフォルダを使う
     let default_data_dir = app.path().app_local_data_dir()?.join("data");
     let (data_dir, source) = choose(&config_dir, &default_data_dir);
-    Ok(AppPaths { config_dir, default_data_dir, data_dir, source })
+    let resource_dir = app.path().resource_dir().ok();
+    Ok(AppPaths { config_dir, default_data_dir, data_dir, source, resource_dir })
 }
 
 fn choose(config_dir: &Path, default_data_dir: &Path) -> (PathBuf, StorageSource) {

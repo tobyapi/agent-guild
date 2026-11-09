@@ -1,46 +1,36 @@
-// Claude のログイン: SDK が同梱している Claude Code（OS ごとのパッケージの claude.exe）の `auth login` を
-// 新しいコンソールウィンドウで開き、利用者がブラウザでログインを終えて窓が閉じるまで待つ。
+// Claude のログイン: 利用者の環境の Claude Code（executable.ts）の `auth login` を新しいコンソールウィンドウで開き、
+// 利用者がブラウザでログインを終えて窓が閉じるまで待つ。
 // 別ウィンドウの開き方（cmd の start /wait）が Windows 向けなので、いまは Windows だけで使える。
 
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { errorMessage } from '../../log.ts';
 import { BackendError, type LoginContext } from '../types.ts';
+import { CLAUDE_NOT_FOUND, findClaude } from './executable.ts';
 
 /** アプリからログインを始められるか */
 export const CAN_LOGIN = process.platform === 'win32';
 
-/** SDK が使う Claude Code の実行ファイル（@anthropic-ai/claude-agent-sdk-<OS>-<CPU> に同梱）。見つからなければ例外 */
-export function bundledClaudePath(platform: string = process.platform, arch: string = process.arch): string {
-  const require = createRequire(import.meta.url);
-  const manifest = require.resolve(`@anthropic-ai/claude-agent-sdk-${platform}-${arch}/package.json`);
-  return join(dirname(manifest), platform === 'win32' ? 'claude.exe' : 'claude');
+/** Claude Code を起動するコマンド（npm の cli.js なら node で動かす） */
+export function loginCommand(executable: string, node: string = process.execPath): string[] {
+  return executable.endsWith('.js') ? [node, executable] : [executable];
 }
 
-/** cmd.exe に渡す引数。start /wait で新しい窓を開き、閉じるまで待つ。/s で外側の引用符を外す */
-export function loginArguments(claudePath: string): string {
-  return `/d /s /c "start "Claude にログイン" /wait "${claudePath}" auth login"`;
+/** cmd.exe に渡す引数。start /wait で新しい窓に command の auth login を開き、閉じるまで待つ。/s で外側の引用符を外す */
+export function loginArguments(command: readonly string[]): string {
+  const quoted = command.map((part) => `"${part}"`).join(' ');
+  return `/d /s /c "start "Claude にログイン" /wait ${quoted} auth login"`;
 }
 
 /**
  * ログインの窓を開き、閉じるまで待つ。start /wait は claude の終了コードを返さないので、成否はここでは決めない
- * （呼び出し側が窓が閉じたあとの状態を確かめる）
+ * （呼び出し側が窓が閉じたあとの状態を確かめる）。Claude Code がなければ開かない（start に渡すとエラーのダイアログで止まる）
  */
 export function openLoginWindow({ signal }: LoginContext): Promise<void> {
-  let claudePath: string;
-  try {
-    claudePath = bundledClaudePath();
-    // 無いまま start に渡すと、Windows のエラーのダイアログが出て止まる
-    if (!existsSync(claudePath)) throw new Error(`${claudePath} がありません`);
-  } catch (error) {
-    return Promise.reject(new BackendError('internal', `Claude Code の実行ファイルが見つかりません（${errorMessage(error)}）`));
-  }
+  const executable = findClaude();
+  if (executable === null) return Promise.reject(new BackendError('internal', CLAUDE_NOT_FOUND));
   return new Promise((resolve, reject) => {
     // cmd 自身の窓は出さない（start が claude の窓を新しく開く）
-    const child = spawn('cmd.exe', [loginArguments(claudePath)], {
+    const child = spawn('cmd.exe', [loginArguments(loginCommand(executable))], {
       cwd: homedir(),
       stdio: 'ignore',
       windowsHide: true,

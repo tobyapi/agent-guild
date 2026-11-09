@@ -37,7 +37,7 @@ pub fn ready(app: &AppHandle, paths: &AppPaths, opened: OpenedData) -> Result<Ap
     let events: Arc<dyn EventPublisher> = Arc::new(TauriEventPublisher::new(app.clone()));
     let spawner: Arc<dyn Spawner> = Arc::new(TauriSpawner);
     let clock: Arc<dyn Clock> = Arc::new(SystemClock::new());
-    let runtime = RunnerRuntime::start(events.clone(), spawner.as_ref());
+    let runtime = RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref());
     let ports = Ports {
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),

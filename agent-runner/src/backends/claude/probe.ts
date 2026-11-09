@@ -1,9 +1,11 @@
-// Claude の認証状態の確認。環境変数と資格情報ファイルの「存在」だけを見る（中身は読まない）。
+// Claude の状態の確認: Claude Code が入っているか（executable.ts）と、認証の手段があるか。
+// 認証は環境変数と資格情報ファイルの「存在」だけを見る（中身は読まない）。
 
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { definedEnv, fileExists } from '../environment.ts';
 import type { BackendProbe } from '../types.ts';
+import { CLAUDE_NOT_FOUND, findClaude } from './executable.ts';
 import { CAN_LOGIN } from './login.ts';
 
 /** どれかがあれば認証の手段があるとみなす（API キー・トークン・クラウド事業者経由） */
@@ -19,6 +21,7 @@ const CREDENTIAL_ENVS = [
 const READY: BackendProbe = { status: 'ready', statusMessage: '' };
 
 export async function probeClaude(): Promise<BackendProbe> {
+  if (findClaude() === null) return { status: 'unavailable', statusMessage: CLAUDE_NOT_FOUND };
   if (definedEnv(CREDENTIAL_ENVS)) return READY;
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   if (await fileExists(join(configDir, '.credentials.json'))) return READY;

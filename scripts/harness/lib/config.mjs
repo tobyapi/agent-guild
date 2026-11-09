@@ -33,7 +33,7 @@ export const RESOLVE_INDEXES = ['index.ts', 'index.tsx'];
  * agent-runner/src/backends/ 直下の単位（拡張子を除いた名前）のうち、アダプタが import してよい共通部品。
  * これと登録表以外はアダプタ（claude.ts と claude/ は同じアダプタ「claude」とみなす）。
  */
-export const RUNNER_BACKEND_COMMON_MODULES = new Set(['types', 'describe', 'environment', 'skill-files']);
+export const RUNNER_BACKEND_COMMON_MODULES = new Set(['types', 'describe', 'environment', 'executables', 'skill-files']);
 /** アダプタを束ねる登録表（アダプタではないが、アダプタから import してもいけない） */
 export const RUNNER_BACKEND_REGISTRY = 'registry';
 /** agent-runner で console に触れてよいファイル（stderr 用ロガーと、起動時に console を stderr に向ける main.ts） */

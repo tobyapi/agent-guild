@@ -13,7 +13,12 @@ const request = (permissions: Permissions, options: Record<string, unknown> = {}
   skills: [], images: [], options,
 });
 
-const run = (pluginDir: string | null = null): ClaudeRun => ({ abortController: new AbortController(), pluginDir, onPost: vi.fn() });
+const run = (pluginDir: string | null = null): ClaudeRun => ({
+  abortController: new AbortController(),
+  pluginDir,
+  onPost: vi.fn(),
+  executable: 'C:\\Users\\me\\.local\\bin\\claude.exe',
+});
 
 describe('toolsFor', () => {
   it('権限ごとに使えるツールを決める（専門家は書き込みなし、コマンドは runCommands のときだけ）', () => {
@@ -34,6 +39,7 @@ describe('claudeOptions', () => {
   it('作業場所の設定は読ませず、スキルはプラグインで渡し、ファイル操作は canUseTool に任せ、途中の投稿ツールは確認なしで許す', () => {
     const options = claudeOptions(request(WORKER), run('/data/a1/state/claude/guild-skills'));
     expect(options).toMatchObject({
+      pathToClaudeCodeExecutable: 'C:\\Users\\me\\.local\\bin\\claude.exe',
       cwd: '/data/a1/work',
       additionalDirectories: ['/data/a0/work'],
       model: 'sonnet',

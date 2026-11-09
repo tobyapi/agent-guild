@@ -4,7 +4,11 @@
 
 mod convert;
 mod launch;
+#[cfg(test)]
+mod tests;
+mod user_path;
 
+use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
@@ -21,11 +25,12 @@ pub struct RunnerRuntime {
 }
 
 impl RunnerRuntime {
-    /// 開発用の起動方法でランナーを起動する（tokio ランタイムの文脈を用意してから runner-client を生成する）
-    pub fn start(events: Arc<dyn EventPublisher>, spawner: &dyn Spawner) -> Arc<Self> {
+    /// ランナーを起動する（同梱の runner がリソースにあればそれ、なければ開発用。launch.rs）。
+    /// tokio ランタイムの文脈を用意してから runner-client を生成する
+    pub fn start(events: Arc<dyn EventPublisher>, spawner: &dyn Spawner, resource_dir: Option<&Path>) -> Arc<Self> {
         let handle = tauri::async_runtime::handle();
         let _context = handle.inner().enter();
-        let client = RunnerClient::new(launch::development_config());
+        let client = RunnerClient::new(launch::runner_config(resource_dir));
         let watcher = notify_changes(client.watch_status(), client.watch_backends(), events);
         spawner.spawn(Box::pin(watcher));
         Arc::new(Self { client, logins: AtomicU64::new(0) })

@@ -1,6 +1,6 @@
 // バックエンドアダプタの共通インターフェースと、アダプタ間で共有する部品。
 // アダプタ（claude.ts・codex.ts とそのフォルダ）同士は import しない。共通にしたいものはここ・describe.ts・
-// environment.ts・skill-files.ts（と skill-files/）に置く。
+// environment.ts・executables.ts・skill-files.ts（と skill-files/）に置く。
 
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import type { BackendInfo, ErrorCode, PermissionRule, Permissions, RunnerRequest } from '../protocol.ts';

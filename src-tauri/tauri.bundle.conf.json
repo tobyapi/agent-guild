@@ -1,0 +1,13 @@
+{
+  "build": {
+    "beforeBuildCommand": "npm run build && node scripts/stage-runner.mjs"
+  },
+  "bundle": {
+    "resources": {
+      "bundled-runner/": "runner/"
+    },
+    "macOS": {
+      "signingIdentity": "-"
+    }
+  }
+}

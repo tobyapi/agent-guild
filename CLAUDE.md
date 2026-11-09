@@ -10,6 +10,7 @@
 
 - `npm run app` … Tauri アプリを開発モードで起動
 - `npm run dev` … フロントだけ起動（ブラウザではモックのバックエンドで動く）
+- `npm run bundle` … 配布用のアプリとインストーラーを作る（agent-runner を同梱。Claude Code・Codex CLI・Node.js は利用者の環境のものを使う）。CI は `.github/workflows/build.yml`
 - `npm run check` … 型チェック・lint・ハーネス・テスト・clippy・Rust テストを全部実行。**作業の最後に必ず通す**
 
 ## 開発方針

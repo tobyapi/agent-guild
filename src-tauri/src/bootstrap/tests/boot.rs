@@ -12,7 +12,7 @@ use crate::bootstrap::paths::AppPaths;
 use crate::infrastructure::data_dir::{read_marker, MarkerState};
 
 fn paths(data_dir: PathBuf, source: StorageSource) -> AppPaths {
-    AppPaths { config_dir: data_dir.clone(), default_data_dir: data_dir.clone(), data_dir, source }
+    AppPaths { config_dir: data_dir.clone(), default_data_dir: data_dir.clone(), data_dir, source, resource_dir: None }
 }
 
 fn reason(paths: &AppPaths) -> Option<BootReason> {

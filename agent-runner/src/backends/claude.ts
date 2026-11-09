@@ -1,8 +1,10 @@
 // Claude Agent SDK のアダプタ。権限は使えるツールの集合と canUseTool（パスの判定）で守り、
 // スキルは stateDir に作るローカルプラグインで渡す。作業場所の設定ファイルは読ませない（settingSources: []）。
+// Claude Code は利用者の環境に入っているものを使う（claude/executable.ts）。
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
+import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
 import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
@@ -44,12 +46,14 @@ const INFO: BackendDescriptor = {
 
 async function run(request: RunRequest, { signal, onActivity, onPost }: RunContext): Promise<string> {
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
+  const executable = findClaude();
+  if (executable === null) throw new BackendError('internal', CLAUDE_NOT_FOUND);
   const abortController = new AbortController();
   if (signal.aborted) abortController.abort();
   else signal.addEventListener('abort', () => abortController.abort(), { once: true });
   try {
     const pluginDir = request.permissions.skills ? await writeSkillPlugin(request.stateDir, request.skills) : null;
-    const options = claudeOptions(request, { abortController, pluginDir, onPost });
+    const options = claudeOptions(request, { abortController, pluginDir, onPost, executable });
     const prompt = await claudePrompt(request.prompt, request.images);
     return await consumeMessages(query({ prompt, options }), onActivity);
   } catch (error) {

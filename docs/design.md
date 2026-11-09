@@ -131,6 +131,12 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 プロトコルの正は `agent-runner/src/protocol.ts`（同梱の内部契約。protocolVersion の完全一致）。
 
+- **起動のしかた**: どちらも利用者の環境の `node` で動かす（Node.js 20 以降）。
+  - **開発中**（`npm run app`）: リポジトリの `agent-runner/src/main.ts` を直接動かす（Node の型ストリップ）。環境変数 `GUILD_RUNNER_SCRIPT` で別のスクリプトにできる。
+  - **配布版**（`npm run bundle` = `tauri build --config src-tauri/tauri.bundle.conf.json`）: `scripts/stage-runner.mjs` が runner を JS にして（`agent-runner/tsconfig.build.json`）、SDK の JS（`@anthropic-ai/claude-agent-sdk`・`@openai/codex-sdk`・`@openai/codex`）と一緒に `src-tauri/bundled-runner/` にまとめ、アプリのリソースの `runner/` として同梱する。Rust はリソースに `runner/agent-runner/src/main.js` があればそれを使う（なければ開発用）。macOS では Finder から起動したアプリにシェルの PATH が渡らないので、ログインシェル（`$SHELL -ilc`）に PATH を聞き、Homebrew などのよく入れる場所も足して、`node` を探し、ランナーに PATH を渡す。
+  - **Claude Code と Codex CLI は同梱しない**（OS ごとの実行ファイルのパッケージは入れない）。アダプタが利用者の環境のものを探す: 環境変数 `GUILD_CLAUDE_PATH`・`GUILD_CODEX_PATH` > PATH（Windows の npm の `.cmd` は起動できないので、Claude は隣の `cli.js`、Codex は隣のパッケージの中の `codex.exe` とその ripgrep のフォルダ）> よく入れる場所（`~/.local/bin`・`/opt/homebrew/bin` など）> SDK の同梱（開発中に node_modules にあるときだけ）。見つからなければ、そのバックエンドは `unavailable` で、入れ方を `statusMessage` で伝える。
+- **配布のビルド**: `.github/workflows/build.yml` が、手動実行か `v*` のタグの push で、Windows（x64、NSIS のインストーラー）と macOS（Apple Silicon、.app と .dmg）を作る。署名はしない（macOS はアドホック署名）。
+
 - **ライフサイクル**: runner-client は生成に失敗しない。内部の監視タスクが起動・ready 待ち・版の確認・異常終了時の再起動（バックオフ付き、同時に1つ）を行い、状態 `starting / ready / unavailable(理由)` を公開する。Rust はこれを `Snapshot.runtime` に載せ、変化したら state-changed を出す。ランナーが使えない間の実行は `runtime` エラーで即座に失敗する。
 - アプリ終了時は shutdown を送り、猶予を過ぎたら kill。Windows ではジョブオブジェクト（KILL_ON_JOB_CLOSE）に入れて孤児プロセスを残さない。ランナーは stdin の EOF でも終了する。子の stderr は常に読み取って log に流す。
 - **中断**: cancel 後、終端イベントが来るか猶予（10秒）を過ぎたら `Cancelled` として扱い、以後その id のイベントは捨てる。中断は失敗ではない（error 発言を出さない）。

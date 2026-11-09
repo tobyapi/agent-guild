@@ -38,12 +38,15 @@ export interface ClaudeRun {
   pluginDir: string | null;
   /** 投稿ツールで投稿された文章を受け取る */
   onPost: (text: string) => void;
+  /** 使う Claude Code の実行ファイル（利用者の環境のもの。executable.ts） */
+  executable: string;
 }
 
-export function claudeOptions(request: RunRequest, { abortController, pluginDir, onPost }: ClaudeRun): Options {
+export function claudeOptions(request: RunRequest, { abortController, pluginDir, onPost, executable }: ClaudeRun): Options {
   const { permissions } = request;
   const tools = toolsFor(permissions);
   return {
+    pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],
     model: request.model || DEFAULT_MODEL,
