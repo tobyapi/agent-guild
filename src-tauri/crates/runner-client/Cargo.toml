@@ -3,6 +3,7 @@ name = "runner-client"
 version = "0.1.0"
 description = "agent-runner sidecar を起動・監視して stdio の JSON Lines で LLM エージェントの実行を依頼するクライアント"
 edition = "2021"
+license = "MIT"
 rust-version = "1.85"
 
 [lints]

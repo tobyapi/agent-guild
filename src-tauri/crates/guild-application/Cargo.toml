@@ -3,6 +3,7 @@ name = "guild-application"
 version = "0.1.0"
 description = "AIギルドのユースケースとポート（guild-domain だけに依存）"
 edition = "2021"
+license = "MIT"
 rust-version = "1.85"
 publish = false
 

@@ -3,6 +3,7 @@ name = "guild-domain"
 version = "0.1.0"
 description = "AIギルドのドメイン: 純粋なモデルとルール（I/O なし）"
 edition = "2021"
+license = "MIT"
 rust-version = "1.85"
 publish = false
 

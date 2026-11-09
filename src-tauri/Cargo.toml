@@ -3,6 +3,7 @@ name = "agent-guild"
 version = "0.1.0"
 description = "AIギルド: 人間と AI エージェントが集まるチャットアプリ"
 edition = "2021"
+license = "MIT"
 # std::fs::File::try_lock（データフォルダの多重起動防止）が 1.89 から
 rust-version = "1.89"
 

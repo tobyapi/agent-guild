@@ -3,6 +3,7 @@ name = "arch-harness"
 version = "0.1.0"
 description = "保守性ハーネス: 本体クレートの構造と各クレートの依存を構文解析で検査するテスト専用クレート"
 edition = "2021"
+license = "MIT"
 rust-version = "1.85"
 publish = false
 
