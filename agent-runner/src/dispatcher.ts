@@ -90,10 +90,15 @@ export class Dispatcher {
     const adapter = this.#claim(id, request.backend);
     if (!adapter) return;
     this.#track(id, (signal, isCurrent) => {
-      const onActivity = (detail: string): void => {
-        if (isCurrent()) this.#options.send({ type: 'activity', id, detail });
+      // 途中経過と途中の投稿は、終端イベントを送るまでのあいだだけ送る
+      const send = (event: RunnerEvent): void => {
+        if (isCurrent()) this.#options.send(event);
       };
-      return adapter.run(request, { signal, onActivity });
+      return adapter.run(request, {
+        signal,
+        onActivity: (detail) => send({ type: 'activity', id, detail }),
+        onPost: (text) => send({ type: 'post', id, text }),
+      });
     });
   }
 

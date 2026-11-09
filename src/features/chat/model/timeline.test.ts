@@ -57,6 +57,12 @@ describe('buildTimeline', () => {
     expect(shape(messages)).toEqual(['day', 'a×1', 'a×1', 'a×1', 'a×1', 'a×1', 'a×1']);
   });
 
+  it('途中経過は途中経過同士でまとめ、そのあとの返答は新しいまとまりにする', () => {
+    const messages = [message('a', 0, 'progress'), message('a', 60_000, 'progress'), message('a', 120_000), message('a', 130_000)];
+    expect(shape(messages)).toEqual(['day', 'a×2', 'a×2']);
+    expect(shape([message('a', 0), message('a', 1000, 'progress')])).toEqual(['day', 'a×1', 'a×1']);
+  });
+
   it('breaksGroup が真の発言（割り振りの結果・まとめ）は、続いていても新しいまとまりを始める', () => {
     const first = message('a', 0);
     const result = message('a', 1000);

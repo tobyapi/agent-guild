@@ -25,8 +25,8 @@ use std::time::Duration;
 pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
-    BackendInfo, BackendStatus, ImagePayload, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions, RunRequest,
-    SkillPayload,
+    BackendInfo, BackendStatus, ImagePayload, MidRunPost, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions,
+    RunRequest, SkillPayload,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
@@ -64,5 +64,14 @@ pub enum RunnerStatus {
     Unavailable { message: String },
 }
 
-/// 実行中の途中経過（「Web検索: …」など）を受け取るコールバック
-pub type ActivityFn = Box<dyn Fn(String) + Send + Sync + 'static>;
+/// 実行中（終端イベントより前）に届く知らせ
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RunUpdate {
+    /// 途中経過（「Web検索: …」など）
+    Activity(String),
+    /// 作業の途中の投稿（チャットに出す文章）
+    Post(String),
+}
+
+/// 実行中の知らせ（途中経過・途中の投稿）を受け取るコールバック。cancel 後は呼ばれない
+pub type UpdateFn = Box<dyn Fn(RunUpdate) + Send + Sync + 'static>;

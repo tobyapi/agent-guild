@@ -1,20 +1,24 @@
 //! 1ジョブの実行。実行（プロンプト組み立て → ランタイム。別タスク）と、
 //! 結果の確定（保存 → イベント → 振り分け。アクターの中で世代を確かめてから）の2段に分ける。
+//! 作業の途中の投稿も、アクターの中で世代を確かめてから保存する（interim.rs）。
 
 mod commit;
 mod delegate;
 mod ending;
+mod history;
+mod interim;
 mod request;
 
 pub(crate) use commit::commit;
 pub(crate) use ending::{Committed, Ending};
+pub(crate) use interim::post_progress;
 
 use std::sync::Arc;
 
 use guild_domain::conversation::JobSpec;
 
 use super::JOB_TIMEOUT;
-use crate::ports::RuntimeError;
+use crate::ports::{RunUpdate, RuntimeError};
 use crate::services::Ports;
 
 /// 実行の結果（まだ保存していない）
@@ -31,22 +35,22 @@ pub(crate) enum RunOutcome {
     Skipped,
 }
 
-type ActivityFn = Arc<dyn Fn(String) + Send + Sync>;
+type UpdateFn = Arc<dyn Fn(RunUpdate) + Send + Sync>;
 type FinishedFn = Box<dyn FnOnce(RunOutcome) + Send>;
 
 /// 実行タスクからアクターへの報告。報告せずに捨てられた（パニックなど）ときも失敗として必ず1回報告する
 pub(crate) struct JobReporter {
-    activity: ActivityFn,
+    update: UpdateFn,
     finished: Option<FinishedFn>,
 }
 
 impl JobReporter {
     pub fn new(
-        activity: impl Fn(String) + Send + Sync + 'static,
+        update: impl Fn(RunUpdate) + Send + Sync + 'static,
         finished: impl FnOnce(RunOutcome) + Send + 'static,
     ) -> Self {
         Self {
-            activity: Arc::new(activity),
+            update: Arc::new(update),
             finished: Some(Box::new(finished)),
         }
     }
@@ -68,17 +72,17 @@ impl Drop for JobReporter {
 
 /// 1ジョブを実行して結果を報告する（Spawner で別タスクとして動かす）
 pub(crate) async fn run(ports: Ports, job_id: String, job: JobSpec, reporter: JobReporter) {
-    let outcome = execute(&ports, &job_id, &job, Arc::clone(&reporter.activity)).await;
+    let outcome = execute(&ports, &job_id, &job, Arc::clone(&reporter.update)).await;
     reporter.finish(outcome);
 }
 
-async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, activity: ActivityFn) -> RunOutcome {
+async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -> RunOutcome {
     let request = match request::build(ports, job) {
         Ok(Some(request)) => request,
         Ok(None) => return RunOutcome::Skipped,
         Err(error) => return RunOutcome::Failed(error.to_string()),
     };
-    let sink = Box::new(move |detail: String| activity(detail));
+    let sink = Box::new(move |event: RunUpdate| update(event));
     match tokio::time::timeout(JOB_TIMEOUT, ports.runtime.run(job_id, request, sink)).await {
         Ok(Ok(text)) => RunOutcome::Reply(text),
         Ok(Err(RuntimeError::Cancelled)) => RunOutcome::Cancelled,

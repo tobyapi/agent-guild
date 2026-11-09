@@ -1,9 +1,9 @@
 //! runner-client の型と、ドメイン・ポートの型の変換。
 
-use guild_application::ports::{ImagePayload, RuntimeError, RuntimeRequest, SkillPayload};
+use guild_application::ports::{ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
-    BackendInfo, BackendStatus, OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus,
+    BackendInfo, BackendStatus, MidRunPost, OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus,
 };
 use runner_client as runner;
 
@@ -31,6 +31,22 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         options: info.options.into_iter().map(option).collect(),
         permission_rules: info.permission_rules.into_iter().map(rule).collect(),
         can_login: info.can_login,
+        mid_run_post: info.mid_run_post.map(mid_run_post),
+    }
+}
+
+fn mid_run_post(method: runner::MidRunPost) -> MidRunPost {
+    match method {
+        runner::MidRunPost::Tool => MidRunPost::Tool,
+        runner::MidRunPost::Text => MidRunPost::Text,
+    }
+}
+
+/// 実行中の知らせ（途中経過・途中の投稿）
+pub(super) fn update(update: runner::RunUpdate) -> RunUpdate {
+    match update {
+        runner::RunUpdate::Activity(detail) => RunUpdate::Activity(detail),
+        runner::RunUpdate::Post(text) => RunUpdate::Post(text),
     }
 }
 

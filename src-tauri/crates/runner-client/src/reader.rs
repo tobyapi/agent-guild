@@ -8,6 +8,7 @@ use tokio::sync::{oneshot, watch};
 
 use crate::shared::Shared;
 use crate::wire::{self, Event};
+use crate::RunUpdate;
 
 /// イベントを job_id ごとの待ち手へ配送する。stdout が閉じたら接続を閉じたことにする
 pub(crate) async fn read_events(
@@ -60,7 +61,8 @@ fn route(shared: &Shared, line: &str, ready: &mut Option<oneshot::Sender<wire::R
         Ok(Event::Backends { backends }) => {
             shared.backends.send_replace(backends);
         }
-        Ok(Event::Activity { id, detail }) => shared.jobs.activity(&id, detail),
+        Ok(Event::Activity { id, detail }) => shared.jobs.update(&id, RunUpdate::Activity(detail)),
+        Ok(Event::Post { id, text }) => shared.jobs.update(&id, RunUpdate::Post(text)),
         Ok(Event::Result { id, text }) => {
             shared.jobs.finish(&id, Ok(text));
         }

@@ -1,4 +1,4 @@
-//! 実行待ちジョブの仕様と、レーンでの合流規則（design.md §6）。
+//! 実行待ちジョブの仕様と、レーンでの合流規則・会話の判定（design.md §6）。
 
 use crate::delegation::SubtaskRef;
 use crate::ids::{AgentId, ChannelId, DelegationId, MessageId};
@@ -89,6 +89,16 @@ impl JobSpec {
     /// いちばん新しいきっかけ（返答の replyToId になる）
     pub fn latest_trigger(&self) -> Option<&Message> {
         self.triggers.last()
+    }
+
+    /// 関わる会話（起点）: 自分の起点と、きっかけの発言の起点（合流したジョブは複数の会話に関わる）。自発活動では空
+    pub fn conversations(&self) -> impl Iterator<Item = &MessageId> {
+        self.root_id.iter().chain(self.triggers.iter().map(|message| &message.root_id))
+    }
+
+    /// 同じ会話に関わるか（レーンでは同じ会話のジョブを順番に実行する。design.md §6）
+    pub fn shares_conversation(&self, other: &JobSpec) -> bool {
+        self.conversations().any(|root| other.conversations().any(|theirs| theirs == root))
     }
 
     /// 合流できるか: 同じチャンネルの同じエージェントで、サブタスクとまとめも同じジョブ

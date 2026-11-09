@@ -27,8 +27,7 @@ impl Workspace for FakeWorkspace {
     }
     fn read_memory(&self, _agent: &AgentId) -> AppResult<String> {
         Ok(self.memory.lock().clone())
-    }
-    fn remove(&self, agent: &AgentId) -> AppResult<()> {
+    }    fn remove(&self, agent: &AgentId) -> AppResult<()> {
         self.removed.lock().push(agent.clone());
         Ok(())
     }

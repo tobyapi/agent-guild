@@ -18,6 +18,8 @@ pub enum MessageKind {
     Chat,
     /// 自発活動での発言
     Autonomous,
+    /// 作業の途中の投稿（進捗状況や困っていること）。振り分けない
+    Progress,
     /// システムのお知らせ（参加・停止・上限など）
     System,
     /// エージェントの実行失敗
@@ -30,6 +32,7 @@ impl MessageKind {
         match self {
             Self::Chat => "chat",
             Self::Autonomous => "autonomous",
+            Self::Progress => "progress",
             Self::System => "system",
             Self::Error => "error",
         }
@@ -39,6 +42,7 @@ impl MessageKind {
         match value {
             "chat" => Some(Self::Chat),
             "autonomous" => Some(Self::Autonomous),
+            "progress" => Some(Self::Progress),
             "system" => Some(Self::System),
             "error" => Some(Self::Error),
             _ => None,

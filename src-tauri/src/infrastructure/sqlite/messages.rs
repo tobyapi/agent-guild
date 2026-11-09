@@ -7,7 +7,7 @@ use guild_application::AppResult;
 use guild_domain::author::Author;
 use guild_domain::ids::{ChannelId, DelegationId, MessageId};
 use guild_domain::message::{Message, MessageKind, NewMessage};
-use rusqlite::{params, OptionalExtension, Row};
+use rusqlite::{params, params_from_iter, OptionalExtension, Row};
 
 use super::codec::{json_column, parsed_column, storage, to_json};
 use super::database::Database;
@@ -75,6 +75,25 @@ impl MessageRepository for SqliteMessageRepository {
                 .query_map(params![channel.as_str(), before_seq.unwrap_or(i64::MAX), limit], read_message)?
                 .collect()
             })
+            .map_err(storage)?;
+        messages.reverse();
+        Ok(messages)
+    }
+
+    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>> {
+        if roots.is_empty() {
+            return Ok(Vec::new());
+        }
+        let placeholders: Vec<String> = (0..roots.len()).map(|index| format!("?{}", index + 2)).collect();
+        let sql = format!(
+            "SELECT {COLUMNS} FROM messages WHERE channel_id = ?1 AND root_id IN ({}) ORDER BY seq DESC LIMIT {}",
+            placeholders.join(", "),
+            i64::try_from(limit).unwrap_or(i64::MAX)
+        );
+        let values: Vec<&str> = std::iter::once(channel.as_str()).chain(roots.iter().map(MessageId::as_str)).collect();
+        let mut messages: Vec<Message> = self
+            .db
+            .with(|conn| conn.prepare(&sql)?.query_map(params_from_iter(values.iter()), read_message)?.collect())
             .map_err(storage)?;
         messages.reverse();
         Ok(messages)

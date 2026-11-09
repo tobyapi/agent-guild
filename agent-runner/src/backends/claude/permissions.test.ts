@@ -34,6 +34,16 @@ describe('fileAccessPolicy', () => {
     expect(await decide(EXPERT, 'Write', { file_path: join(WORK, 'report.md') })).toBe('deny');
   });
 
+  it('作業場所の MEMORY.md だけは、読み書きの権限がなくても読み書きできる', async () => {
+    const none = { ...EXPERT, readFiles: false };
+    expect(await decide(none, 'Edit', { file_path: join(WORK, 'MEMORY.md') })).toBe('allow');
+    expect(await decide(none, 'Write', { file_path: 'MEMORY.md' })).toBe('allow');
+    expect(await decide(none, 'Read', { file_path: join(WORK, 'MEMORY.md') })).toBe('allow');
+    expect(await decide(none, 'Write', { file_path: join(WORK, 'MEMORY.md', 'x.md') })).toBe('deny');
+    expect(await decide(none, 'Write', { file_path: join(PEER, 'MEMORY.md') })).toBe('deny');
+    expect(await decide(none, 'Read', { file_path: join(WORK, 'notes.md') })).toBe('deny');
+  });
+
   it('読み取りは作業場所と readableDirs だけ', async () => {
     expect(await decide(EXPERT, 'Read', { file_path: join(PEER, 'draft.md') })).toBe('allow');
     expect(await decide(EXPERT, 'Grep', { pattern: 'TODO' })).toBe('allow');

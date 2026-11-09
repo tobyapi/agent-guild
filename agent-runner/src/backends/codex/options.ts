@@ -1,6 +1,7 @@
 // run 要求 → Codex SDK の設定（Codex の config の上書きとスレッドのオプション）と、守れない権限の判定。
-// 権限の判断は Windows で実際に確かめた Codex の sandbox の挙動に基づく（read-only は書き込みとネットワークを拒否し、
-// workspace-write は作業場所の外への書き込みを拒否する。ただし既定では一時フォルダにも書けるので除外する）。
+// 権限の判断は Windows で実際に確かめた Codex の sandbox の挙動に基づく（workspace-write は作業場所の外への書き込みを
+// 拒否する。ただし既定では一時フォルダにも書けるので除外する）。書き込みを許していなくても workspace-write にする
+// （作業場所の MEMORY.md はいつでも書けるようにし、ほかのファイルを書かないことはエージェントがルールを守ることに任せる）。
 // 作業場所の外への書き込み（writeAnywhere）は sandbox を外して行う（danger-full-access）。外すとネットワークも止められない。
 
 import type { CodexOptions, Input, ThreadOptions } from '@openai/codex-sdk';
@@ -34,7 +35,7 @@ export function threadOptions(request: RunRequest): ThreadOptions {
     sandboxMode: sandboxModeOf(permissions),
     approvalPolicy: 'never',
     webSearchMode: permissions.webSearch ? 'live' : 'disabled',
-    // Codex に Web 閲覧の専用ツールはなく、ページの取得はネットワーク越しのコマンドで行う（read-only では常に遮断される）
+    // Codex に Web 閲覧の専用ツールはなく、ページの取得はネットワーク越しのコマンドで行う（webFetch のときだけ開く）
     networkAccessEnabled: permissions.webFetch,
     model: request.model || undefined,
     modelReasoningEffort: optionChoice(request.options, 'reasoningEffort', REASONING_EFFORTS),
@@ -48,10 +49,13 @@ export function threadInput(request: RunRequest): Input {
   return [{ type: 'text', text: request.prompt }, ...images];
 }
 
-/** 書き込みなしは read-only、作業場所の中だけなら workspace-write、作業場所の外にも書くなら sandbox を外す */
+/**
+ * 作業場所の中は workspace-write、作業場所の外にも書くなら sandbox を外す。書き込みを許していなくても workspace-write にする:
+ * 作業場所の MEMORY.md はいつでも書けるようにしたいが、sandbox は1ファイルに絞れないので、ほかのファイルを書かないことは
+ * エージェントがルール（プロンプト）を守ることに任せる
+ */
 function sandboxModeOf(permissions: Permissions): ThreadOptions['sandboxMode'] {
-  if (!permissions.writeFiles) return 'read-only';
-  return permissions.writeAnywhere ? 'danger-full-access' : 'workspace-write';
+  return permissions.writeFiles && permissions.writeAnywhere ? 'danger-full-access' : 'workspace-write';
 }
 
 /**
@@ -77,7 +81,8 @@ export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
 
 /**
  * Codex で守れない権限の組み合わせなら、その理由。Codex は作業にシェルを使うので、コマンドの実行そのものは止められない。
- * read-only（書き込みなし）なら sandbox が書き込みとネットワークを拒否するので、コマンドの効果は読み取りに限られる。
+ * 書き込みを許していないときも、MEMORY.md のために作業場所へは書ける（ほかのファイルを書かないのはエージェントに任せる）。
+ * ネットワークは webFetch のときだけ開く。
  */
 export function unenforceableReason(permissions: Permissions): string | null {
   if (!permissions.readFiles) return 'ファイルの読み取りを止められません（Codex はシェルで読み取ります）';

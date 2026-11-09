@@ -59,6 +59,16 @@ impl PermissionRule {
     }
 }
 
+/// 作業の途中でチャットに投稿する方法（TS の MidRunPost）。プロンプトの案内を変える
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum MidRunPost {
+    /// 投稿用のツール（post）を呼ぶ
+    Tool,
+    /// ツールを使う前に書いた文章が、そのまま投稿される
+    Text,
+}
+
 /// TS の BackendInfo
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -77,6 +87,8 @@ pub struct BackendInfo {
     pub permission_rules: Vec<PermissionRule>,
     /// アプリからログインを始められる（login_backend）
     pub can_login: bool,
+    /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）
+    pub mid_run_post: Option<MidRunPost>,
 }
 
 impl BackendInfo {

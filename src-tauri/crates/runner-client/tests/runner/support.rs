@@ -5,7 +5,8 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use runner_client::{
-    ActivityFn, ImagePayload, Launch, Permissions, RunRequest, RunnerClient, RunnerConfig, RunnerStatus, SkillPayload,
+    ImagePayload, Launch, Permissions, RunRequest, RunUpdate, RunnerClient, RunnerConfig, RunnerStatus, SkillPayload,
+    UpdateFn,
 };
 use tokio::sync::mpsc;
 
@@ -81,15 +82,15 @@ pub fn is_unavailable(status: &RunnerStatus) -> bool {
     matches!(status, RunnerStatus::Unavailable { .. })
 }
 
-/// 途中経過を受け取るチャンネルつきのコールバック
-pub fn activities() -> (ActivityFn, mpsc::UnboundedReceiver<String>) {
+/// 実行中の知らせ（途中経過・途中の投稿）を受け取るチャンネルつきのコールバック
+pub fn updates() -> (UpdateFn, mpsc::UnboundedReceiver<RunUpdate>) {
     let (sender, receiver) = mpsc::unbounded_channel();
-    let on_activity: ActivityFn = Box::new(move |detail| {
-        let _ = sender.send(detail);
+    let on_update: UpdateFn = Box::new(move |update| {
+        let _ = sender.send(update);
     });
-    (on_activity, receiver)
+    (on_update, receiver)
 }
 
-pub fn no_activity() -> ActivityFn {
+pub fn no_updates() -> UpdateFn {
     Box::new(|_| {})
 }

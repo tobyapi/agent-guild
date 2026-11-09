@@ -1,12 +1,14 @@
 //! 実行管理（design.md §6）を持つ単一タスクのアクター。レーン（チャンネルごとの FIFO と合流）・割り振りの枠・
-//! エージェント単位の排他・全体の同時実行上限・世代・起点ごとの上限・進行中の割り振り（§7.1）を1か所に持ち、
+//! エージェント単位の排他・全体の同時実行上限・世代・往復の上限のお知らせ・進行中の割り振り（§7.1）を1か所に持ち、
 //! mpsc のコマンドだけで動く（共有ロックなし）。
 
 mod actor;
 mod delegation;
+mod inflight;
 mod intake;
 mod pick;
 mod reconcile;
+mod reporting;
 pub(super) mod state;
 mod stopping;
 mod tracking;
@@ -33,6 +35,8 @@ pub(super) enum Command {
     /// そのエージェントがどこかで待機・実行中なら積まない
     EnqueueAutonomous { job: JobSpec, reply: oneshot::Sender<bool> },
     Activity { job_id: String, detail: String },
+    /// 作業の途中の投稿（振り分けはしない）
+    Post { job_id: String, text: String },
     Finished { job_id: String, outcome: RunOutcome },
     /// announce = 終端を待ってから「停止しました」を出す
     Stop { channel: ChannelId, announce: bool, done: oneshot::Sender<()> },

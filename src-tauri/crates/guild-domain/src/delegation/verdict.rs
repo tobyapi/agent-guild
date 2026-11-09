@@ -11,8 +11,8 @@ pub const RUN_FAILED: &str = "失敗しました";
 pub const TIMED_OUT: &str = "時間切れで中断しました";
 /// 担当者が削除された・チャンネルから外された
 pub const ASSIGNEE_REMOVED: &str = "担当者が外れました";
-/// task ジョブが実行されないまま消えた（起点ごとの上限で積めなかったなど）
-pub const NOT_STARTED: &str = "実行されませんでした（この会話での返答回数が上限に達したなど）";
+/// task ジョブが実行されないまま消えた
+pub const NOT_STARTED: &str = "実行されませんでした";
 
 /// サブタスクの決着のしかた
 #[derive(Debug, Clone, PartialEq, Eq)]

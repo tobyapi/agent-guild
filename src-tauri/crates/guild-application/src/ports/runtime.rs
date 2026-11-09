@@ -47,8 +47,17 @@ pub struct RuntimeRequest {
     pub options: Map<String, Value>,
 }
 
-/// 実行中の途中経過（「Web検索: …」など）を受け取る
-pub type ActivitySink = Box<dyn Fn(String) + Send + Sync>;
+/// 実行中（終わる前）に届く知らせ
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RunUpdate {
+    /// 途中経過（「Web検索: …」など）
+    Activity(String),
+    /// 作業の途中の投稿（チャットに出す文章）
+    Post(String),
+}
+
+/// 実行中の知らせ（途中経過・途中の投稿）を受け取る
+pub type UpdateSink = Box<dyn Fn(RunUpdate) + Send + Sync>;
 
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum RuntimeError {
@@ -65,13 +74,8 @@ pub trait AgentRuntime: Send + Sync {
     fn status(&self) -> RuntimeStatus;
     /// ランナーが ready でなければ空
     fn backends(&self) -> Vec<BackendInfo>;
-    /// 1回実行して最終テキストを返す。ランナーが使えなければ即座に Failed
-    async fn run(
-        &self,
-        job_id: &str,
-        request: RuntimeRequest,
-        on_activity: ActivitySink,
-    ) -> Result<String, RuntimeError>;
+    /// 1回実行して最終テキストを返す。途中経過と途中の投稿は on_update に届く。ランナーが使えなければ即座に Failed
+    async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError>;
     /// 実行中のジョブを中断する（なければ何もしない）
     async fn cancel(&self, job_id: &str);
     /// バックエンドの状態（認証など）を確認し直す。結果は状態の変化として届く

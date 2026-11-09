@@ -47,7 +47,7 @@ fn reply_job(agent_id: &str, trigger: &Message, return_to: &[&str]) -> JobSpec {
 fn shows_an_empty_history_and_the_autonomous_instruction() {
     let job = JobSpec::autonomous(AgentId::new("haru"), ChannelId::new("c1"));
     let prompt = prompt_for("haru", &[], &job, &[]);
-    assert!(prompt.contains("# チャンネル #ロビー の最近の会話\n（まだ会話はありません）"));
+    assert!(prompt.contains("# チャンネル #ロビー の最近の発言\n（まだ会話はありません）"), "自発活動はチャンネルの発言");
     assert!(!prompt.contains("あなた宛ての未対応の発言"));
     assert!(prompt.contains("# 自由時間の過ごし方\nいまは自由時間です"));
     assert!(prompt.contains("作業場所にメモや下書きを作り"));

@@ -22,6 +22,12 @@ export interface PermissionRule {
   requires: PermissionKey[];
 }
 
+/**
+ * 作業の途中でチャットに投稿する方法。'tool' は投稿用のツール（post）を呼ぶ、
+ * 'text' はツールを使う前に書いた文章がそのまま投稿される。Rust がプロンプトの案内に使う
+ */
+export type MidRunPost = 'tool' | 'text';
+
 export interface BackendInfo {
   id: BackendId;
   label: string;
@@ -37,6 +43,8 @@ export interface BackendInfo {
   permissionRules: PermissionRule[];
   /** アプリからログインを始められる（login_backend） */
   canLogin: boolean;
+  /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
+  midRunPost: MidRunPost | null;
 }
 
 export type RuntimeState = 'starting' | 'ready' | 'unavailable';

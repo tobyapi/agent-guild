@@ -36,7 +36,7 @@ src-tauri/
 - `agent/`（Agent・AgentInput・UnmentionedPolicy・**templates.rs**（作成のテンプレート表。design.md §2）・権限・タグと名前の正規化と検証）
 - `channel`, `message`（Message・MessageKind・NewMessage）, `skill`（名前と説明の検証）, `profile`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
 - 権限の組み合わせ規則（design.md §5）の検証は `agent/validation.rs`（保存時に実効権限で判定）
-- `conversation/`（`mentions` 解析、`routing` = design.md §7 を純粋関数で、`job` = JobSpec（agent・channel・mode・きっかけ集合・returnTo 集合・depth・rootId・注記）とレーンでの合流規則、`reply` = 返答の整形）
+- `conversation/`（`mentions` 解析、`routing` = design.md §7 を純粋関数で、`job` = JobSpec（agent・channel・mode・きっかけ集合・returnTo 集合・depth・rootId・注記）とレーンでの合流規則・ジョブが関わる会話の判定、`reply` = 返答の整形）
 - `autonomy`（判定と投稿先の選択）、`prompt/`（システムプロンプトと会話プロンプトの組み立て。現在日時の文字列・MEMORY.md・スキル一覧などは引数で受け取る）
 
 ### guild-application（依存: guild-domain, async-trait, tokio（sync・time・rt・macros）, parking_lot, log, thiserror, serde_json）
@@ -56,7 +56,7 @@ src-tauri/
   ```
 - `error.rs`（AppError → CommandError の code と field に対応）、`services.rs`（AppServices）
 - ユースケース: `agents`, `channels`, `skills`, `profile`, `snapshot`, `storage`, `autonomy`
-- `conversation/`: `ConversationService`（入口）、`dispatcher`（**単一タスクのアクター**。レーン・割り振りの枠・エージェント排他・同時実行上限・世代・起点ごとの上限・進行中の割り振りの記録を持ち、mpsc で Enqueue / Finished / Stop / RemoveAgent などを受ける。共有ロック不要。選び方は `pick`、割り振りの記録は `tracking`、決着と打ち切りは `delegation`、毎回の処理のあとの見直しは `reconcile`）、`executor`（1ジョブの実行: プロンプト組み立て → ランタイム → 保存 → イベント → 振り分け。結果の確定は `commit` が結末と結果を返し、tasks ブロックからの割り振りの作成は `delegate`）、`activity`
+- `conversation/`: `ConversationService`（入口）、`dispatcher`（**単一タスクのアクター**。レーン・割り振りの枠・エージェント排他・同時実行上限・世代・往復の上限のお知らせ・進行中の割り振りの記録を持ち、mpsc で Enqueue / Finished / Stop / RemoveAgent などを受ける。共有ロック不要。選び方は `pick`（レーンの中は会話ごとに直列）、割り振りの記録は `tracking`、決着と打ち切りは `delegation`、毎回の処理のあとの見直しは `reconcile`）、`executor`（1ジョブの実行: プロンプト組み立て → ランタイム → 保存 → イベント → 振り分け。結果の確定は `commit` が結末と結果を返し、tasks ブロックからの割り振りの作成は `delegate`、作業の途中の投稿の保存は `interim`。実行中の知らせ（途中経過・途中の投稿）はアクターの `reporting` がコマンドにして受け取る）、`activity`
 - テスト: ポートのフェイク（インメモリ）で、振り分けの一連の流れ・合流・排他・停止と世代・削除・タイムアウト・自発活動・保存先変更を検証する。時間は Clock のフェイクと tokio の時間停止で制御する。
 
 ### runner-client（C 担当。公開 API）
@@ -70,7 +70,7 @@ impl RunnerClient {
     pub fn watch_status(&self) -> tokio::sync::watch::Receiver<RunnerStatus>;
     pub fn backends(&self) -> Vec<BackendInfo>;                     // ready でなければ空
     pub fn watch_backends(&self) -> tokio::sync::watch::Receiver<Vec<BackendInfo>>;
-    pub async fn run(&self, job_id: &str, request: RunRequest, on_activity: ActivityFn) -> Result<String, RunnerError>;
+    pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError>; // 途中経過と途中の投稿は RunUpdate で届く
     pub async fn cancel(&self, job_id: &str);
     pub async fn probe(&self);
     pub async fn login(&self, job_id: &str, backend: &str) -> Result<(), RunnerError>; // 窓が閉じるまで待つ。終わると backends が届く

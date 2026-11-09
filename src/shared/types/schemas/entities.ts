@@ -106,7 +106,7 @@ export const messageSchema = {
   authorId: string,
   content: string,
   attachments: arrayOf(objectOf(attachmentSchema)),
-  kind: oneOf<MessageKind>({ chat: true, autonomous: true, system: true, error: true }),
+  kind: oneOf<MessageKind>({ chat: true, autonomous: true, progress: true, system: true, error: true }),
   mentions: arrayOf(string),
   replyToId: nullable(string),
   rootId: string,

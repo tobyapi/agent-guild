@@ -30,6 +30,7 @@ pub const STARTED_AT: i64 = 1_000_000;
 pub struct TestApp {
     pub services: AppServices,
     pub store: Arc<MemoryStore>,
+    pub ids: Arc<FakeIds>,
     pub attachments: Arc<FakeAttachments>,
     pub runtime: Arc<FakeRuntime>,
     pub events: Arc<FakeEvents>,
@@ -48,7 +49,16 @@ impl TestApp {
     }
 
     pub fn with_source(source: StorageSource) -> Self {
-        let (store, runtime) = (Arc::new(MemoryStore::default()), Arc::new(FakeRuntime::with_backend("claude")));
+        Self::assemble(source, Arc::new(MemoryStore::default()), Arc::new(FakeIds::default()))
+    }
+
+    /// 同じ記録（ストア）と ID の続きのまま組み立て直す（アプリの再起動）。前のアプリのジョブは止まったまま残る
+    pub fn restart(&self) -> Self {
+        Self::assemble(StorageSource::Default, self.store.clone(), self.ids.clone())
+    }
+
+    fn assemble(source: StorageSource, store: Arc<MemoryStore>, ids: Arc<FakeIds>) -> Self {
+        let runtime = Arc::new(FakeRuntime::with_backend("claude"));
         let (events, workspace) = (Arc::new(FakeEvents::default()), Arc::new(FakeWorkspace::default()));
         let (clock, library) = (Arc::new(FakeClock::starting_at(STARTED_AT)), Arc::new(FakeLibrary::default()));
         let attachments = Arc::new(FakeAttachments::default());
@@ -66,7 +76,7 @@ impl TestApp {
             events: events.clone(),
             workspace: workspace.clone(),
             clock,
-            ids: Arc::new(FakeIds::default()),
+            ids: ids.clone(),
             spawner: Arc::new(TokioSpawner),
         };
         let (folders, settings, control) = (Arc::new(FakeFolders::default()), Arc::new(FakeSettings::default()), Arc::new(FakeControl::default()));
@@ -74,7 +84,7 @@ impl TestApp {
         let storage = StoragePorts { info, folders: folders.clone(), settings: settings.clone(), control: control.clone() };
         let exporter = Arc::new(FakeExporter::default());
         let services = AppServices::new(ports, storage, exporter.clone());
-        Self { services, store, attachments, runtime, events, workspace, library, folders, exporter, settings, control }
+        Self { services, store, ids, attachments, runtime, events, workspace, library, folders, exporter, settings, control }
     }
 
     /// エージェントを作る（template はテンプレート ID、ID は作成後に決まる）

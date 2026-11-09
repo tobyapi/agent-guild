@@ -1,4 +1,4 @@
-//! job_id ごとの待ち手（途中経過のコールバック・結果の受け口・cancel の合図）。stdout の読み取りタスクがここへ配送する。
+//! job_id ごとの待ち手（途中経過と途中の投稿のコールバック・結果の受け口・cancel の合図）。stdout の読み取りタスクがここへ配送する。
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -6,12 +6,12 @@ use std::sync::Arc;
 use parking_lot::Mutex;
 use tokio::sync::{oneshot, watch};
 
-use crate::{ActivityFn, RunnerError};
+use crate::{RunUpdate, RunnerError, UpdateFn};
 
 pub(crate) type Outcome = Result<String, RunnerError>;
 
 struct Waiter {
-    on_activity: Arc<dyn Fn(String) + Send + Sync>,
+    on_update: Arc<dyn Fn(RunUpdate) + Send + Sync>,
     done: oneshot::Sender<Outcome>,
     cancel: watch::Sender<bool>,
 }
@@ -44,28 +44,28 @@ pub(crate) struct Jobs {
 
 impl Jobs {
     /// 待ち手を登録する。同じ job_id が実行中ならエラー。
-    pub(crate) fn register(&self, id: &str, on_activity: ActivityFn) -> Result<JobHandle, RunnerError> {
+    pub(crate) fn register(&self, id: &str, on_update: UpdateFn) -> Result<JobHandle, RunnerError> {
         let mut waiters = self.waiters.lock();
         if waiters.contains_key(id) {
             return Err(RunnerError::Protocol(format!("同じ job_id のジョブが実行中です: {id}")));
         }
         let (done, outcome) = oneshot::channel();
         let (cancel, cancel_signal) = watch::channel(false);
-        let on_activity = Arc::from(on_activity);
-        waiters.insert(id.to_owned(), Waiter { on_activity, done, cancel });
+        let on_update = Arc::from(on_update);
+        waiters.insert(id.to_owned(), Waiter { on_update, done, cancel });
         Ok(JobHandle { outcome, cancel: CancelSignal(cancel_signal) })
     }
 
-    /// 途中経過を渡す。cancel 後は流さない。コールバックはロックの外で呼ぶ（中から cancel などを呼んでも詰まらない）。
-    pub(crate) fn activity(&self, id: &str, detail: String) {
-        let on_activity = self
+    /// 途中経過・途中の投稿を渡す。cancel 後は流さない。コールバックはロックの外で呼ぶ（中から cancel などを呼んでも詰まらない）。
+    pub(crate) fn update(&self, id: &str, update: RunUpdate) {
+        let on_update = self
             .waiters
             .lock()
             .get(id)
             .filter(|waiter| !*waiter.cancel.borrow())
-            .map(|waiter| Arc::clone(&waiter.on_activity));
-        if let Some(on_activity) = on_activity {
-            on_activity(detail);
+            .map(|waiter| Arc::clone(&waiter.on_update));
+        if let Some(on_update) = on_update {
+            on_update(update);
         }
     }
 

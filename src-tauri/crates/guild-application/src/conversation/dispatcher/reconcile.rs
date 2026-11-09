@@ -9,7 +9,7 @@ use super::actor::Actor;
 
 impl Actor {
     /// 全サブタスクが決着した割り振りは reporting にしてマネージャーのまとめのジョブをレーンに積む。
-    /// まとめのジョブが（起点ごとの上限などで）なくなった reporting の割り振りは done にする（まとめの発言は null）
+    /// まとめのジョブがなくなった reporting の割り振りは done にする（まとめの発言は null）
     pub(super) fn reconcile_delegations(&mut self) {
         for id in self.tracked_ids(|_| true) {
             for (subtask, settlement) in self.orphans(&id) {

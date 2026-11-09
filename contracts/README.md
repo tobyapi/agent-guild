@@ -21,6 +21,6 @@
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
 | runner/requests.jsonl | RunnerRequest（run / cancel / probe / shutdown） |
-| runner/events.jsonl | RunnerEvent（ready / backends / activity / result / error）。ready の BackendInfo は permissionRules を含む |
+| runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules と midRunPost を含む |
 
 契約を変えたら、この表とフィクスチャを同じ変更で直すこと。

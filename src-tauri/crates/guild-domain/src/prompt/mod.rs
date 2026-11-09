@@ -17,7 +17,8 @@ mod rules;
 mod skills;
 
 pub use conversation::{
-    build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, TRIGGER_CHAR_LIMIT,
+    build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, RECENT_CHANNEL_LIMIT,
+    TRIGGER_CHAR_LIMIT,
 };
 
 use crate::agent::{Agent, Permissions};
@@ -67,7 +68,7 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
         delegating::section(ctx),
         consult::section(ctx),
         skills::section(ctx.skills, &ctx.permissions),
-        memory::section(ctx.memory, &ctx.permissions),
+        memory::section(ctx),
         rules::section(ctx),
     ];
     sections

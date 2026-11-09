@@ -8,7 +8,7 @@ use crate::connection::Connection;
 use crate::jobs::Jobs;
 use crate::shared::Shared;
 use crate::wire::Request;
-use crate::{ActivityFn, RunRequest, RunnerError, RunnerStatus};
+use crate::{RunRequest, RunnerError, RunnerStatus, UpdateFn};
 
 /// 起動中の ready を待つとき、ready_timeout に足す余裕
 const STARTING_MARGIN: Duration = Duration::from_secs(1);
@@ -32,10 +32,10 @@ pub(crate) async fn run(
     shared: &Shared,
     job_id: &str,
     work: Work<'_>,
-    on_activity: ActivityFn,
+    on_update: UpdateFn,
 ) -> Result<String, RunnerError> {
     let connection = ready_connection(shared).await?;
-    let job = shared.jobs.register(job_id, on_activity)?;
+    let job = shared.jobs.register(job_id, on_update)?;
     let mut registration = Registration { jobs: &shared.jobs, id: job_id, sent_on: None };
     let (mut outcome, mut cancel) = (job.outcome, job.cancel);
     connection.send(&request(work, job_id)).await?;

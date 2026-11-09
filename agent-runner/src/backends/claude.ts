@@ -39,16 +39,17 @@ const INFO: BackendDescriptor = {
   ],
   permissionRules: [...PERMISSION_RULES],
   canLogin: CAN_LOGIN,
+  midRunPost: 'tool',
 };
 
-async function run(request: RunRequest, { signal, onActivity }: RunContext): Promise<string> {
+async function run(request: RunRequest, { signal, onActivity, onPost }: RunContext): Promise<string> {
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const abortController = new AbortController();
   if (signal.aborted) abortController.abort();
   else signal.addEventListener('abort', () => abortController.abort(), { once: true });
   try {
     const pluginDir = request.permissions.skills ? await writeSkillPlugin(request.stateDir, request.skills) : null;
-    const options = claudeOptions(request, abortController, pluginDir);
+    const options = claudeOptions(request, { abortController, pluginDir, onPost });
     const prompt = await claudePrompt(request.prompt, request.images);
     return await consumeMessages(query({ prompt, options }), onActivity);
   } catch (error) {

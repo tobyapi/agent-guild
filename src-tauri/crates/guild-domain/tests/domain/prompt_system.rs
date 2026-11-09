@@ -97,13 +97,16 @@ fn everyone_sees_the_active_consultants_and_the_return_flow() {
 }
 
 #[test]
-fn a_consultable_reader_answers_consultations_without_memory() {
+fn a_consultable_reader_answers_consultations_and_keeps_memory_md_only() {
     let prompt = system_prompt("logica", &[], "前回のメモ");
     assert!(prompt.contains("## 相談・レビューへの答え方"));
     assert!(prompt.contains("- 得意分野: ロジカの専門"));
     assert!(prompt.contains("ファイルの読み取り"));
     assert!(prompt.contains("ファイルの作成・編集はできません"));
-    assert!(!prompt.contains("MEMORY.md"));
+    assert!(prompt.contains("作業場所の MEMORY.md だけは例外として、いつでも読み書きしてかまいません"));
+    assert!(prompt.contains("MEMORY.md 以外のファイルは、「できること」にあるとおりにしてください"), "ほかは設定に従う");
+    assert!(prompt.contains("### MEMORY.md の現在の内容（末尾）\n前回のメモ"), "書けなくても前回のメモは届く");
+    assert!(!prompt.contains("自由にファイルを置けます"), "作業場所に自由に置けるのは書き込める人だけ");
     assert!(prompt.contains("- @ギア: ギアの専門") && !prompt.contains("- @ロジカ: "), "自分以外の相談相手だけ");
     assert!(prompt.contains("✅ 問題なし / ⚠️ 要修正 / ❌ 作り直し推奨"));
 }

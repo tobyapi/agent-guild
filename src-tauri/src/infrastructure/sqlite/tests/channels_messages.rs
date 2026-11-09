@@ -86,6 +86,24 @@ fn messages_get_increasing_seq_and_page_backwards() {
 }
 
 #[test]
+fn messages_of_conversations_are_the_latest_within_the_limit() {
+    let db = memory();
+    SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    let repository = SqliteMessageRepository::new(db);
+    let in_root = |id: &str, root: &str| NewMessage { root_id: MessageId::new(root), ..new_message(id, id) };
+    let a1 = repository.insert(in_root("a1", "a1")).unwrap();
+    let b1 = repository.insert(in_root("b1", "b1")).unwrap();
+    let a2 = repository.insert(in_root("a2", "a1")).unwrap();
+    let a3 = repository.insert(in_root("a3", "a1")).unwrap();
+    let channel = ChannelId::new("c1");
+    let only_a = [MessageId::new("a1")];
+    assert_eq!(repository.list_in_conversations(&channel, &only_a, 2).unwrap(), vec![a2.clone(), a3.clone()]);
+    let both = [MessageId::new("a1"), MessageId::new("b1")];
+    assert_eq!(repository.list_in_conversations(&channel, &both, 10).unwrap(), vec![a1, b1, a2, a3]);
+    assert!(repository.list_in_conversations(&channel, &[], 10).unwrap().is_empty());
+}
+
+#[test]
 fn deleting_a_channel_removes_its_members_and_messages() {
     let db = memory();
     let channels = SqliteChannelRepository::new(db.clone());

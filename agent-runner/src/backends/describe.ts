@@ -16,6 +16,7 @@ export const activity = {
   searchFiles: (): string => 'ファイルを探しています…',
   skill: (name: string): string => (name ? `スキルを参照: ${name}` : 'スキルを参照しています…'),
   command: (command: string): string => `コマンド実行: ${clip(command, 40)}`,
+  posting: (): string => 'チャットに投稿しています…',
   tool: (name: string): string => `${name} を使っています…`,
 };
 

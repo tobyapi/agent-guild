@@ -11,8 +11,8 @@ import { MAX_SUBTASKS } from './tasks';
 import type { ParsedTasks } from './tasks';
 
 export interface DelegationDeps {
-  /** ジョブを積む（起点ごとの上限で積めなければ false） */
-  enqueue: (job: MockJob) => boolean;
+  /** ジョブを積む */
+  enqueue: (job: MockJob) => void;
   /** チャンネル外の相手を参加させる（参加させたら true） */
   join: (channel: Channel, agentId: string, rootId: string) => boolean;
 }
@@ -56,8 +56,7 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
     const lines = reportLines(delegation, nameOf, (subtask) => messageOf(subtask.resultMessageId)?.content ?? null);
     const depth = Math.max(plan.depth, ...results.map((message) => message.depth)) + 1;
     const job: MockJob = { agentId: delegation.managerId, channelId: delegation.channelId, mode: 'report', triggers: results.length > 0 ? results : [plan], returnTo: [], depth, rootId: plan.rootId, notes: lines, delegation: { delegationId: delegation.id, subtaskId: null } };
-    const latest = find(delegation.id);
-    if (!deps.enqueue(job) && latest) save({ ...latest, status: 'done', updatedAt: now() });
+    deps.enqueue(job);
   }
 
   function settle(delegationId: string, subtaskId: string, result: SubtaskResult): void {
@@ -87,7 +86,7 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
       if (joined) emitStateChanged(core);
       for (const subtask of subtasks) {
         const job: MockJob = { agentId: subtask.assigneeId, channelId: channel.id, mode: 'task', triggers: [reply], returnTo: [], depth: reply.depth + 1, rootId: reply.rootId, notes: [subtask.instruction], delegation: { delegationId: delegation.id, subtaskId: subtask.id } };
-        if (!deps.enqueue(job)) settle(delegation.id, subtask.id, { status: 'failed', resultMessageId: null, note: 'この会話の返答回数が上限に達しました' });
+        deps.enqueue(job);
       }
     },
     started(job) {

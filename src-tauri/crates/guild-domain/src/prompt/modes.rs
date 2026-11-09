@@ -86,7 +86,7 @@ fn autonomous(ctx: &PromptContext<'_>) -> String {
     if permissions.web_search || permissions.web_fetch {
         ideas.push("- Webで最近の話題やニュースを調べて、面白いものをチャンネルで紹介する");
     }
-    ideas.push("- 最近の会話から、役に立ちそうなアイデアや下調べを出す");
+    ideas.push("- チャンネルの最近の発言から、役に立ちそうなアイデアや下調べを出す");
     if permissions.write_files {
         ideas.push("- 作業場所にメモや下書きを作り、その進捗を共有する");
     }
@@ -97,7 +97,7 @@ fn autonomous(ctx: &PromptContext<'_>) -> String {
 あなたの役割と興味に沿って、自分で何かをしてください。たとえば:
 {}
 
-最近の会話と同じ話題の繰り返しは避けてください。共有する価値のあるものがなければ [PASS] とだけ出力してください。",
+チャンネルの最近の発言と同じ話題の繰り返しは避けてください。共有する価値のあるものがなければ [PASS] とだけ出力してください。",
         ideas.join("\n")
     )
 }

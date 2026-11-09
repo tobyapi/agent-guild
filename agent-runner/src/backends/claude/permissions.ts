@@ -1,6 +1,6 @@
 // Claude で権限を守る仕組み: ファイル操作をパスで判定する canUseTool と、守れない権限の組み合わせの判定。
 
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { PermissionRule, Permissions } from '../../protocol.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
@@ -8,6 +8,8 @@ import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunReques
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const READ_TOOLS = new Set(['Read', 'Glob', 'Grep', 'LS']);
 const PATH_FIELDS = ['file_path', 'notebook_path', 'path'] as const;
+/** 作業場所の中の、次回以降の自分へのメモ（Rust の workspace.rs と同じ名前） */
+const MEMORY_FILE = 'MEMORY.md';
 
 /** ツールの入力が指すパス（相対パスは作業場所から。指定がなければ作業場所そのもの） */
 function targetOf(input: Record<string, unknown>, workspace: string): string {
@@ -20,19 +22,22 @@ function targetOf(input: Record<string, unknown>, workspace: string): string {
 /**
  * 確認が必要になったツール呼び出しをパスで判定する。書き込みは作業場所の中だけ、読み取りは作業場所と readableDirs だけ。
  * writeAnywhere なら、書き込みも読み取りもパスを問わない（作業場所の外のファイルを直すには、まず読む必要がある）。
+ * 作業場所の MEMORY.md（次回以降の自分へのメモ）だけは、読み書きの権限がなくても読み書きできる。
  * それ以外（許していないツール・範囲外のパス）は拒否する。WebSearch などパスのないツールは allowedTools で先に許している。
  */
 export function fileAccessPolicy(request: RunRequest): CanUseTool {
   const { workspace, readableDirs, permissions } = request;
   const anywhere = permissions.writeAnywhere;
   const readableRoots = [workspace, ...readableDirs];
+  const memory = resolve(workspace, MEMORY_FILE);
   return (toolName, input) => {
     const target = targetOf(input, workspace);
-    const writable = WRITE_TOOLS.has(toolName) && permissions.writeFiles && (anywhere || isInside(target, workspace));
+    const isMemory = relative(memory, target) === '';
+    const writable =
+      WRITE_TOOLS.has(toolName) && (isMemory || (permissions.writeFiles && (anywhere || isInside(target, workspace))));
     const readable =
       READ_TOOLS.has(toolName) &&
-      permissions.readFiles &&
-      (anywhere || readableRoots.some((root) => isInside(target, root)));
+      (isMemory || (permissions.readFiles && (anywhere || readableRoots.some((root) => isInside(target, root)))));
     const result: PermissionResult =
       writable || readable
         ? { behavior: 'allow', updatedInput: input }

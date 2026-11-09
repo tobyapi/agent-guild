@@ -1,9 +1,9 @@
-//! 実行モデル（design.md §6）: 合流・エージェント単位の排他・全体の上限・起点ごとの上限・時間切れ。
+//! 実行モデル（design.md §6）: 合流・エージェント単位の排他・全体の上限・1つの会話の返答回数に上限がないこと・時間切れ。
 
 use std::sync::Arc;
 use std::time::Duration;
 
-use guild_application::conversation::{JOB_TIMEOUT, MAX_CONCURRENT_JOBS, ROOT_JOB_LIMIT};
+use guild_application::conversation::{JOB_TIMEOUT, MAX_CONCURRENT_JOBS};
 use guild_domain::activity::ChannelQueue;
 use tokio::sync::Notify;
 
@@ -85,15 +85,14 @@ async fn at_most_three_jobs_run_at_once() {
 }
 
 #[tokio::test]
-async fn one_root_creates_at_most_sixteen_jobs() {
+async fn one_conversation_has_no_limit_on_the_number_of_replies() {
     let app = TestApp::new();
-    let workers: Vec<_> = (0..=ROOT_JOB_LIMIT).map(|i| app.agent("worker", &format!("w{i}"))).collect();
+    let workers: Vec<_> = (0..20).map(|i| app.agent("worker", &format!("w{i}"))).collect();
     let lobby = app.channel("ロビー", &workers.iter().collect::<Vec<_>>());
     app.services.conversation.send_human_message(&lobby.id, "全員どうぞ", &[]).unwrap();
     app.settle().await;
-    assert_eq!(app.runtime.requests.lock().len(), ROOT_JOB_LIMIT as usize);
-    let notices: Vec<String> = app.transcript(&lobby).into_iter().filter(|line| line.contains("上限")).collect();
-    assert_eq!(notices, vec!["システム: この会話での AI の返答回数が上限に達しました。続けるには話しかけてください。"]);
+    assert_eq!(app.runtime.requests.lock().len(), workers.len(), "全員が返答する");
+    assert!(!app.transcript(&lobby).iter().any(|line| line.contains("上限")), "上限のお知らせは出ない");
 }
 
 #[tokio::test(start_paused = true)]

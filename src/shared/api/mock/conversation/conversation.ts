@@ -1,4 +1,4 @@
-// 会話の進行（モック）: 発言を振り分け（routing）、起点ごとの上限を守ってジョブを積み（scheduler）、
+// 会話の進行（モック）: 発言を振り分け（routing）、ジョブを積み（scheduler）、
 // 結果をまた振り分ける。割り振り（delegation）の進行と、チャンネル外の相手の参加・システム発言もここでつなぐ。
 import type { ActivityState, Channel, Message } from '@/shared/types/domain';
 import { createDelegations } from '../delegation/engine';
@@ -9,8 +9,6 @@ import type { JobOutcome } from './executor';
 import {
   DEPTH_LIMIT_NOTICE,
   MAX_DEPTH,
-  MAX_JOBS_PER_ROOT,
-  ROOT_LIMIT_NOTICE,
   routeAgentReply,
   routeHumanMessage,
   routeMissingReply,
@@ -62,7 +60,6 @@ function cancellations(core: MockCore, scheduler: Scheduler, delegations: MockDe
 }
 
 export function createConversation(core: MockCore): MockConversation {
-  const rootCounts = new Map<string, number>();
   const notified = new Set<string>();
   const scheduler = createScheduler(core, {
     onStarted: (job) => delegations.started(job),
@@ -81,18 +78,8 @@ export function createConversation(core: MockCore): MockConversation {
     postSystem(core, channelId, content, rootId);
   }
 
-  /** 1つの起点から生まれるジョブは MAX_JOBS_PER_ROOT 件まで（超えたら1回だけ知らせて false） */
-  function enqueue(job: MockJob): boolean {
-    if (job.rootId !== null) {
-      const count = rootCounts.get(job.rootId) ?? 0;
-      if (count >= MAX_JOBS_PER_ROOT) {
-        noticeOnce(job.channelId, job.rootId, ROOT_LIMIT_NOTICE);
-        return false;
-      }
-      rootCounts.set(job.rootId, count + 1);
-    }
+  function enqueue(job: MockJob): void {
     scheduler.enqueue(job);
-    return true;
   }
 
   function join(channel: Channel, agentId: string, rootId: string): boolean {

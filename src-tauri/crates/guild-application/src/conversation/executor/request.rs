@@ -1,4 +1,4 @@
-//! 実行の依頼（RuntimeRequest）を組み立てる: 作業場所・実効権限・スキル・MEMORY.md・履歴・割り振り・プロンプト。
+//! 実行の依頼（RuntimeRequest）を組み立てる: 作業場所・実効権限・スキル・MEMORY.md・履歴（history.rs）・割り振り・プロンプト。
 
 use std::path::PathBuf;
 
@@ -7,12 +7,11 @@ use guild_domain::attachment::Attachment;
 use guild_domain::channel::Channel;
 use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
-use guild_domain::prompt::{
-    build_conversation_prompt, build_system_prompt, ConsultSource, PromptContext, HISTORY_LIMIT,
-};
+use guild_domain::prompt::{build_conversation_prompt, build_system_prompt, ConsultSource, PromptContext};
 use guild_domain::message::Message;
 use guild_domain::skill::Skill;
 
+use super::history::history;
 use crate::error::AppResult;
 use crate::ports::{ImagePayload, RuntimeRequest, SkillPayload};
 use crate::services::Ports;
@@ -27,11 +26,12 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     let capabilities = backends.iter().find(|b| b.id == agent.backend).map(|b| b.capabilities);
     let permissions = effective_permissions(&agent, capabilities.as_ref());
     let paths = ports.workspace.prepare(&agent.id, &agent.backend)?;
-    let memory = if permissions.write_files { read_memory(ports, &agent) } else { String::new() };
+    // ファイルを書けなくても、バックエンドが MEMORY.md だけを書かせられるなら読む（出すかどうかはプロンプトが決める）
+    let memory = read_memory(ports, &agent);
     let skills = if permissions.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;
     let me = ports.profile.get()?;
-    let history = ports.messages.list(&channel.id, None, HISTORY_LIMIT)?;
+    let history = history(ports, job)?;
     let (sources, mut readable_dirs) = consult_sources(ports, job, &agents);
     // 添えられたファイルはパスを伝えて読んでもらうので、そのチャンネルの添付のフォルダを読めるようにする
     if !file_attachments(job, &history).is_empty() {

@@ -1,5 +1,5 @@
 // runner-client のテスト用の偽ランナー。プロトコル（agent-runner/src/protocol.ts）を話し、prompt の中身で振る舞いを変える。
-//   echo:<text>  activity を1回送ってから result      pid      自分のプロセス ID を返す
+//   echo:<text>  activity と post を1回ずつ送ってから result      pid      自分のプロセス ID を返す
 //   inspect      受け取った run 要求を JSON で返す      context  引数・環境変数・作業ディレクトリを返す
 //   fail:<code>  その code の error を返す             crash    異常終了する
 //   hang         cancel されたら error{cancelled}      stubborn cancel を無視して終わらない
@@ -20,6 +20,7 @@ export const BACKEND = {
   options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],
   permissionRules: [{ when: 'writeFiles', requires: ['runCommands'] }],
   canLogin: true,
+  midRunPost: 'tool',
   addedLater: true, // 未知のフィールドは無視されるはず
 };
 
@@ -31,6 +32,7 @@ function startJob(request, waiting) {
   switch (command) {
     case 'echo':
       send({ type: 'activity', id: request.id, detail: `working:${argument}`, addedLater: 1 });
+      send({ type: 'post', id: request.id, text: `posted:${argument}` });
       return reply(argument);
     case 'pid':
       return reply(String(process.pid));

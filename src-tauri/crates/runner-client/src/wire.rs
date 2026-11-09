@@ -47,6 +47,11 @@ pub(crate) enum Event {
         id: String,
         detail: String,
     },
+    /// 作業の途中の投稿
+    Post {
+        id: String,
+        text: String,
+    },
     Result {
         id: String,
         text: String,

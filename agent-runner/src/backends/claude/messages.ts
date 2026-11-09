@@ -9,6 +9,7 @@ import type {
 import type { ErrorCode } from '../../protocol.ts';
 import { activity, describeTool } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
+import { POST_TOOL } from './post.ts';
 
 const ASSISTANT_ERROR_CODES: Readonly<Record<SDKAssistantMessageError, ErrorCode>> = {
   authentication_failed: 'auth',
@@ -51,7 +52,7 @@ function readAssistant(message: SDKAssistantMessage, onActivity: (detail: string
   let text: string | undefined;
   for (const block of message.message.content) {
     if (block.type === 'tool_use') {
-      onActivity(describeTool(block.name, block.input));
+      onActivity(block.name === POST_TOOL ? activity.posting() : describeTool(block.name, block.input));
     } else if (block.type === 'text' && block.text.trim() !== '') {
       text = block.text;
       onActivity(activity.writing());

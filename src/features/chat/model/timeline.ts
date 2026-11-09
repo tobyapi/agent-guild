@@ -1,11 +1,14 @@
 // メッセージ一覧を画面の並び（日付の区切り・システム発言・同じ人の連続投稿のまとまり）に組み立てる。
-// まとめる条件（docs/ui-design.md §5.4）: 同じ発言者・どちらも chat・5 分以内・同じ日。
-// 自発投稿とエラー発言は札を見せるため、必ず新しいまとまりを始める。
+// まとめる条件（docs/ui-design.md §5.4）: 同じ発言者・同じ kind（chat 同士か、途中経過同士）・5 分以内・同じ日。
+// 自発投稿とエラー発言は札を見せるため、必ず新しいまとまりを始める。途中経過のあとの返答（chat）も新しいまとまりにする。
 import { isSameDay } from '@/shared/lib/time';
 import type { Message, MessageKind } from '@/shared/types/domain';
 
 /** 同じ人の連続投稿をひとまとめにする間隔 */
 export const GROUP_WINDOW_MS = 5 * 60 * 1000;
+
+/** 続けてまとめてよい種類（同じ種類同士だけまとめる） */
+const GROUPABLE: ReadonlySet<MessageKind> = new Set<MessageKind>(['chat', 'progress']);
 
 export type TimelineItem =
   | { type: 'day'; key: string; at: number }
@@ -16,7 +19,7 @@ type GroupItem = Extract<TimelineItem, { type: 'group' }>;
 
 function continuesGroup(group: GroupItem, message: Message): boolean {
   const tail = group.messages.at(-1);
-  if (!tail || group.kind !== 'chat' || message.kind !== 'chat' || group.authorId !== message.authorId) return false;
+  if (!tail || group.kind !== message.kind || !GROUPABLE.has(message.kind) || group.authorId !== message.authorId) return false;
   return isSameDay(tail.createdAt, message.createdAt) && message.createdAt - tail.createdAt <= GROUP_WINDOW_MS;
 }
 

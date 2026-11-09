@@ -28,7 +28,7 @@ pub(crate) struct Running {
 
 #[derive(Default)]
 pub(crate) struct Lane {
-    /// チャンネル内で直列に実行する待機ジョブ
+    /// レーンの待機ジョブ（積んだ順。同じ会話のジョブは順番に実行する。pick.rs）
     pub pending: VecDeque<Pending>,
     /// 割り振りの枠（§6）: レーンの順番を待たずに並行して実行する待機ジョブ
     pub delegated: Vec<Pending>,
@@ -47,11 +47,9 @@ impl Lane {
     }
 }
 
-/// 起点ごとの記録（上限とお知らせを1回だけ出すため）
+/// 起点ごとの記録（往復の上限のお知らせを1回だけ出すため）
 #[derive(Default)]
 pub(crate) struct RootState {
-    pub jobs: u32,
-    pub limit_notified: bool,
     pub depth_notified: bool,
 }
 
@@ -70,6 +68,12 @@ impl DispatchState {
     pub fn ticket(&mut self) -> u64 {
         self.next_ticket += 1;
         self.next_ticket
+    }
+
+    /// 実行中のジョブの結果をまだ受け取ってよいか（取り消されておらず、チャンネルの世代も変わっていない）
+    pub fn is_current(&self, running: &Running) -> bool {
+        let generation = self.lanes.get(&running.job.channel_id).map(|lane| lane.generation);
+        !running.discarded && generation == Some(running.generation)
     }
 
     /// そのエージェントが（どのチャンネルでも）実行中か

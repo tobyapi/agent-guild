@@ -7,7 +7,8 @@ export interface Channel {
   createdAt: number;
 }
 
-export type MessageKind = 'chat' | 'autonomous' | 'system' | 'error';
+/** progress は作業の途中の投稿（進捗状況や困っていること。振り分けない） */
+export type MessageKind = 'chat' | 'autonomous' | 'progress' | 'system' | 'error';
 
 /** 人間が発言に貼った画像のメタデータ（中身は get_attachment で data URL として取る） */
 export interface Attachment {

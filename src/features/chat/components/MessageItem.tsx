@@ -82,6 +82,11 @@ function MessageHeader({ message, author, taskLink }: { message: Message; author
       {author.tag && <TagBadge tag={author.tag} />}
       {author.backend && <BackendTag backendId={author.backend} showStatus={false} />}
       {message.kind === 'autonomous' && <Badge tone="autonomous">💡 自発</Badge>}
+      {message.kind === 'progress' && (
+        <Badge tone="outline" title="作業の途中の投稿（最後の返答は別に届きます）">
+          途中経過
+        </Badge>
+      )}
       {taskLink && (
         <button type="button" className={styles.taskLink} onClick={() => jumpToMessage(taskLink.planMessageId)}>
           {taskLink.kind === 'result' && <Icon name="return" />}

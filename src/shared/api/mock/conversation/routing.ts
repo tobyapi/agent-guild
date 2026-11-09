@@ -3,9 +3,7 @@ import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, BackendInfo, Channel, Message, UnmentionedPolicy } from '@/shared/types/domain';
 
 export const MAX_DEPTH = 10;
-export const MAX_JOBS_PER_ROOT = 16;
 export const DEPTH_LIMIT_NOTICE = 'AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。';
-export const ROOT_LIMIT_NOTICE = 'この会話での AI の返答回数が上限に達しました。続けるには話しかけてください。';
 export const NO_RESPONDER_NOTICE =
   'いま返答できるエージェントがいません（バックエンドの準備ができていないか、答える設定のメンバーがいません）';
 

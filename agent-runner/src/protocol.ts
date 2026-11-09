@@ -5,12 +5,15 @@
 // 規則:
 // - run ごとに終端イベント（result か error）を必ずちょうど1回返す。
 //   cancel されたら error{code:'cancelled'} を返す（中断が間に合わず完了したなら result でよい）。
+// - run は終端イベントの前に post（作業の途中の投稿）を 0 回以上返してよい。終端イベントのあとは送らない。
 // - 未知の type の要求: id があれば error{code:'bad_request'} を返し、なければ stderr に記録して無視する。
 // - 受け手は未知のフィールドを無視する。Rust は未知のイベントを無視し、id が null の error はログに残すだけ。
 // - stdin が EOF になったら、全実行を中断して終了する（親が落ちても孤児にならない）。
 // - stdout はプロトコル専用。console.log などは起動時に stderr へ向ける。
 // - 権限は「その効果を許すか」。false の効果をそのプラットフォームで確実に防げないなら、
 //   黙って実行せず error{code:'unsupported_permission'} で拒否する。
+//   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
+//   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
 
 export const PROTOCOL_VERSION = 1;
 
@@ -44,6 +47,12 @@ export interface OptionSpec {
   default: string | number | boolean | null;
 }
 
+/**
+ * 作業の途中でチャットに投稿する方法。'tool' は投稿用のツール（post）を呼ぶ。
+ * 'text' はツールを使う前に書いた文章が、そのまま投稿される。Rust はこれを見てプロンプトの案内を変える
+ */
+export type MidRunPost = 'tool' | 'text';
+
 export interface BackendInfo {
   id: string;
   label: string;
@@ -59,6 +68,8 @@ export interface BackendInfo {
   permissionRules: PermissionRule[];
   /** アプリからログインを始められる（login 要求を受け付ける） */
   canLogin: boolean;
+  /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
+  midRunPost: MidRunPost | null;
 }
 
 export interface SkillPayload {
@@ -131,5 +142,7 @@ export type RunnerEvent =
   | { type: 'ready'; protocolVersion: number; runnerVersion: string; backends: BackendInfo[] }
   | { type: 'backends'; backends: BackendInfo[] }
   | { type: 'activity'; id: string; detail: string }
+  /** 作業の途中の投稿（チャットにそのまま出す文章。振り分けはしない） */
+  | { type: 'post'; id: string; text: string }
   | { type: 'result'; id: string; text: string }
   | { type: 'error'; id: string | null; code: ErrorCode; message: string };

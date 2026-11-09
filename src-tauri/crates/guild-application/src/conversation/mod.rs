@@ -5,6 +5,7 @@ mod activity;
 mod attachments;
 mod dispatcher;
 mod executor;
+mod interrupted;
 pub(crate) mod posting;
 
 use std::time::Duration;
@@ -25,8 +26,6 @@ use posting::Origin;
 
 /// 全体の同時実行上限
 pub const MAX_CONCURRENT_JOBS: usize = 3;
-/// 1つの起点から生まれるジョブの上限
-pub const ROOT_JOB_LIMIT: u32 = 16;
 /// 1ジョブの時間切れ
 pub const JOB_TIMEOUT: Duration = Duration::from_secs(15 * 60);
 /// list_messages の既定件数と上限
@@ -44,13 +43,14 @@ pub struct ConversationService {
 
 impl ConversationService {
     /// アクターを起動する（Spawner でタスクを作る）。前回の起動で終わらなかった割り振りは、進めるジョブが
-    /// 残っていないので打ち切る
+    /// 残っていないので打ち切り、終了で中断された返答は会話ごとに知らせる
     pub fn new(ports: Ports, maintenance: Maintenance) -> Self {
         match ports.delegations.cancel_unfinished(ports.clock.now_ms()) {
             Ok(0) => {}
             Ok(count) => log::info!("前回の起動で終わらなかった割り振りを{count}件打ち切りました"),
             Err(error) => log::warn!("終わらなかった割り振りを打ち切れませんでした: {error}"),
         }
+        interrupted::announce(&ports);
         let dispatcher = dispatcher::start(ports.clone());
         Self { ports, dispatcher, maintenance }
     }

@@ -1,4 +1,4 @@
-//! レーンでの合流規則（design.md §6）。
+//! レーンでの合流規則と、ジョブが関わる会話の判定（design.md §6）。
 
 use guild_domain::author::Author;
 use guild_domain::conversation::{JobMode, JobSpec};
@@ -59,6 +59,19 @@ fn merging_ignores_duplicate_triggers() {
     let mut pending = reply_to(2, 0, &[]);
     pending.merge(reply_to(2, 0, &[]));
     assert_eq!(pending.triggers.len(), 1);
+}
+
+#[test]
+fn jobs_share_a_conversation_through_their_roots_or_triggers() {
+    let first = reply_to(1, 0, &[]);
+    let mut merged = reply_to(2, 0, &[]);
+    merged.merge(reply_to(3, 0, &[]));
+    assert!(!first.shares_conversation(&merged), "起点が違えば別の会話");
+    merged.merge(reply_to(1, 0, &[]));
+    assert!(first.shares_conversation(&merged) && merged.shares_conversation(&first), "合流したきっかけの会話にも関わる");
+    let idle = JobSpec::autonomous(AgentId::new("haru"), ChannelId::new("c1"));
+    assert_eq!(idle.conversations().count(), 0, "自発活動は会話を持たない");
+    assert!(!idle.shares_conversation(&first));
 }
 
 #[test]

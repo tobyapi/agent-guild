@@ -2,9 +2,9 @@
 
 use std::time::Duration;
 
-use runner_client::{BackendStatus, Launch, OptionKind, PermissionKey, RunnerClient, RunnerError, RunnerStatus};
+use runner_client::{BackendStatus, Launch, MidRunPost, OptionKind, PermissionKey, RunnerClient, RunnerError, RunnerStatus};
 
-use crate::support::{config, fixture, is_unavailable, no_activity, ready_client, request, wait_status, within};
+use crate::support::{config, fixture, is_unavailable, no_updates, ready_client, request, wait_status, within};
 
 #[tokio::test]
 async fn starts_and_publishes_backends() {
@@ -18,6 +18,7 @@ async fn starts_and_publishes_backends() {
     assert_eq!(backends[0].status, BackendStatus::Ready);
     assert_eq!(backends[0].options[0].kind, OptionKind::Number);
     assert!(backends[0].capabilities.skills && !backends[0].capabilities.run_commands);
+    assert_eq!(backends[0].mid_run_post, Some(MidRunPost::Tool));
     let rule = &backends[0].permission_rules[0];
     assert_eq!((rule.when, rule.requires.as_slice()), (PermissionKey::WriteFiles, &[PermissionKey::RunCommands][..]));
     client.shutdown().await;
@@ -26,7 +27,7 @@ async fn starts_and_publishes_backends() {
 #[tokio::test]
 async fn passes_args_env_and_cwd_to_the_runner() {
     let client = ready_client("ok.mjs").await;
-    let context = within(client.run("ctx", request("context"), no_activity())).await.expect("context");
+    let context = within(client.run("ctx", request("context"), no_updates())).await.expect("context");
     let context: serde_json::Value = serde_json::from_str(&context).expect("JSON");
     assert_eq!(context["args"], serde_json::json!(["--from-test"]));
     assert_eq!(context["flag"], "on");
@@ -39,7 +40,7 @@ async fn version_mismatch_makes_runner_unavailable() {
     let client = RunnerClient::new(config("version-999.mjs"));
     let status = wait_status(&client, is_unavailable).await;
     assert!(matches!(&status, RunnerStatus::Unavailable { message } if message.contains("期待 1、実際 999")), "{status:?}");
-    let error = within(client.run("j1", request("echo:x"), no_activity())).await.expect_err("使えないはず");
+    let error = within(client.run("j1", request("echo:x"), no_updates())).await.expect_err("使えないはず");
     assert!(matches!(error, RunnerError::Unavailable(_)), "{error:?}");
     client.shutdown().await;
 }
@@ -67,12 +68,12 @@ async fn missing_executable_is_unavailable() {
 #[tokio::test]
 async fn crash_disconnects_the_running_job_and_restarts() {
     let client = ready_client("ok.mjs").await;
-    let first = within(client.run("p1", request("pid"), no_activity())).await.expect("pid");
-    let crashed = within(client.run("c1", request("crash"), no_activity())).await.expect_err("落ちたはず");
+    let first = within(client.run("p1", request("pid"), no_updates())).await.expect("pid");
+    let crashed = within(client.run("c1", request("crash"), no_updates())).await.expect_err("落ちたはず");
     assert!(matches!(crashed, RunnerError::Disconnected), "{crashed:?}");
     wait_status(&client, |status| *status != RunnerStatus::Ready).await;
     wait_status(&client, |status| *status == RunnerStatus::Ready).await;
-    let second = within(client.run("p2", request("pid"), no_activity())).await.expect("再起動後の pid");
+    let second = within(client.run("p2", request("pid"), no_updates())).await.expect("再起動後の pid");
     assert_ne!(first, second, "別のプロセスで動いているはず");
     client.shutdown().await;
 }
@@ -111,6 +112,6 @@ async fn shutdown_stops_the_runner_for_good() {
     let status = wait_status(&client, is_unavailable).await;
     assert!(matches!(&status, RunnerStatus::Unavailable { message } if message.contains("停止")), "{status:?}");
     assert!(client.backends().is_empty());
-    let error = within(client.run("j1", request("echo:x"), no_activity())).await.expect_err("停止後は使えない");
+    let error = within(client.run("j1", request("echo:x"), no_updates())).await.expect_err("停止後は使えない");
     assert!(matches!(error, RunnerError::Unavailable(_)), "{error:?}");
 }

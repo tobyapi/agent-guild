@@ -34,6 +34,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
       { when: 'runCommands', requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'] },
     ],
     canLogin: true,
+    midRunPost: 'tool',
   },
   {
     id: 'codex',
@@ -66,5 +67,6 @@ export const MOCK_BACKENDS: BackendInfo[] = [
       { when: 'writeAnywhere', requires: ['writeFiles', 'webFetch'] },
     ],
     canLogin: false,
+    midRunPost: 'text',
   },
 ];

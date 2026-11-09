@@ -6,7 +6,7 @@ use tokio::sync::watch;
 
 use crate::shared::Shared;
 use crate::wire::Request;
-use crate::{run, supervisor, ActivityFn, BackendInfo, RunRequest, RunnerConfig, RunnerError, RunnerStatus};
+use crate::{run, supervisor, BackendInfo, RunRequest, RunnerConfig, RunnerError, RunnerStatus, UpdateFn};
 
 /// ランナーとの接続。`Send + Sync` で、`Arc` に包んで複数タスクから同時に使ってよい。
 pub struct RunnerClient {
@@ -38,10 +38,11 @@ impl RunnerClient {
         self.shared.backends.subscribe()
     }
 
-    /// 1回実行して最終テキストを返す。起動中なら ready になるまで（最長 ready_timeout）待ち、使えなければ
-    /// `Err(Unavailable)`。`cancel(job_id)` されたら、終端イベントか cancel_grace の早いほうで `Err(Cancelled)`。
-    pub async fn run(&self, job_id: &str, request: RunRequest, on_activity: ActivityFn) -> Result<String, RunnerError> {
-        run::run(&self.shared, job_id, run::Work::Run(&request), on_activity).await
+    /// 1回実行して最終テキストを返す。途中経過と途中の投稿は `on_update` に届く。起動中なら ready になるまで
+    /// （最長 ready_timeout）待ち、使えなければ `Err(Unavailable)`。`cancel(job_id)` されたら、終端イベントか
+    /// cancel_grace の早いほうで `Err(Cancelled)`。
+    pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError> {
+        run::run(&self.shared, job_id, run::Work::Run(&request), on_update).await
     }
 
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わるとランナーが状態を確かめ直す

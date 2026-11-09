@@ -9,6 +9,8 @@ export interface ReplyPlan {
   steps: string[];
   content: string;
   kind: MessageKind;
+  /** 作業の途中の投稿（kind=progress）。途中経過のあいだに順に投稿する */
+  progress?: string[];
 }
 
 export interface ReplyContext {

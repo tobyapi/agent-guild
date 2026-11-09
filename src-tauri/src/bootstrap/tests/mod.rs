@@ -7,7 +7,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use async_trait::async_trait;
-use guild_application::ports::{ActivitySink, AgentRuntime, AppControl, EventPublisher, RuntimeError, RuntimeRequest};
+use guild_application::ports::{AgentRuntime, AppControl, EventPublisher, RuntimeError, RuntimeRequest, UpdateSink};
 use guild_domain::activity::ActivityState;
 use guild_domain::backend::{BackendInfo, RuntimeStatus};
 use guild_domain::delegation::Delegation;
@@ -42,7 +42,7 @@ impl AgentRuntime for NoRuntime {
     fn backends(&self) -> Vec<BackendInfo> {
         Vec::new()
     }
-    async fn run(&self, _job_id: &str, _request: RuntimeRequest, _on_activity: ActivitySink) -> Result<String, RuntimeError> {
+    async fn run(&self, _job_id: &str, _request: RuntimeRequest, _on_update: UpdateSink) -> Result<String, RuntimeError> {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }
     async fn cancel(&self, _job_id: &str) {}

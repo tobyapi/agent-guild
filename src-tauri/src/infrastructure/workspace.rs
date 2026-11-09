@@ -58,7 +58,6 @@ impl Workspace for FsWorkspace {
             Err(error) => Err(storage(error)),
         }
     }
-
     fn remove(&self, agent: &AgentId) -> AppResult<()> {
         let root = self.root(agent);
         let mut attempt = 1;

@@ -17,6 +17,15 @@ async function readyHarness(): Promise<MockHarness> {
 
 const send = (mock: MockHarness, content: string) => mock.transport.invoke('send_message', { channelId: SEED_IDS.lobby, content, attachments: [] });
 
+/** 担当者は結果を報告する前に、作業の途中で進捗を投稿している */
+function expectProgressBeforeResult(mock: MockHarness, assigneeId: string, resultMessageId: string | null): void {
+  const result = mock.messages.find((message) => message.id === resultMessageId);
+  expect(result?.authorId).toBe(assigneeId);
+  const progress = mock.messages.find((message) => message.kind === 'progress' && message.authorId === assigneeId);
+  expect(progress?.content).toMatch(/^進捗: /);
+  expect(progress?.seq).toBeLessThan(result?.seq ?? 0);
+}
+
 describe('モックの割り振り', () => {
   it('メンションのない依頼は lead のカナメが受け、tasks ブロックで割り振り、担当者の報告がそろったらまとめる', async () => {
     const mock = await readyHarness();
@@ -32,9 +41,7 @@ describe('モックの割り振り', () => {
       [SEED_IDS.sora, 'done'],
       [SEED_IDS.logica, 'done'],
     ]);
-    for (const subtask of final?.subtasks ?? []) {
-      expect(mock.messages.find((message) => message.id === subtask.resultMessageId)?.authorId).toBe(subtask.assigneeId);
-    }
+    for (const subtask of final?.subtasks ?? []) expectProgressBeforeResult(mock, subtask.assigneeId, subtask.resultMessageId);
     const summary = mock.messages.find((message) => message.id === final?.summaryMessageId);
     expect(summary).toMatchObject({ authorId: SEED_IDS.kaname, delegationId: null });
     expect(summary?.content).toContain('まとめます');

@@ -4,7 +4,7 @@
 import { join } from 'node:path';
 import { Codex } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
-import { codexError, readEvent } from './codex/events.ts';
+import { codexError, EventReader } from './codex/events.ts';
 import {
   codexConfig,
   MAX_SYSTEM_PROMPT_LENGTH,
@@ -43,9 +43,10 @@ const INFO: BackendDescriptor = {
   ],
   permissionRules: [...PERMISSION_RULES],
   canLogin: false,
+  midRunPost: 'text',
 };
 
-async function run(request: RunRequest, { signal, onActivity }: RunContext): Promise<string> {
+async function run(request: RunRequest, { signal, onActivity, onPost }: RunContext): Promise<string> {
   rejectUnenforceable('Codex', unenforceableReason(request.permissions));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
     throw new BackendError('bad_request', `Codex に渡すシステムプロンプトは ${MAX_SYSTEM_PROMPT_LENGTH} 文字までです`);
@@ -54,9 +55,9 @@ async function run(request: RunRequest, { signal, onActivity }: RunContext): Pro
     await writeSkills(join(request.workspace, '.agents', 'skills'), request.skills);
     const thread = new Codex({ config: codexConfig(request) }).startThread(threadOptions(request));
     const { events } = await thread.runStreamed(threadInput(request), { signal });
-    let text = '';
-    for await (const event of events) text = readEvent(event, onActivity) ?? text;
-    return text;
+    const reader = new EventReader(onActivity, onPost);
+    for await (const event of events) reader.read(event);
+    return reader.finalText;
   } catch (error) {
     if (error instanceof BackendError || signal.aborted) throw error;
     throw codexError(errorMessage(error));

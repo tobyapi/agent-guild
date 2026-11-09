@@ -10,6 +10,7 @@ import type {
   ChannelQueue,
   CommandError,
   ErrorCode,
+  MidRunPost,
   OptionSpec,
   PermissionRule,
   RuntimeState,
@@ -44,6 +45,7 @@ export const backendInfoSchema = {
   options: arrayOf(objectOf(optionSpecSchema)),
   permissionRules: arrayOf(objectOf(permissionRuleSchema)),
   canLogin: boolean,
+  midRunPost: nullable(oneOf<MidRunPost>({ tool: true, text: true })),
 } satisfies Schema<BackendInfo>;
 
 export const runtimeStatusSchema = {

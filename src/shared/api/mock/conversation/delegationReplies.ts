@@ -36,7 +36,8 @@ export function taskPlan(ctx: ReplyContext): ReplyPlan {
   const steps = ['考え中…', `作業中: ${shorten(instruction, 24)}`, ...Array<string>(extra).fill('確かめています…'), '書いています…'];
   const lead = `${shorten(instruction, 28)} — ${isCasual(ctx.agent) ? '終わった。' : '終わりました！'}`;
   const content = [lead, '', '- 目的と制約を先に確かめました', '- 進め方の案を2つに絞りました', '- 詳しくは作業フォルダのメモにあります', '', MOCK_NOTE].join('\n');
-  return { steps, content, kind: 'chat' };
+  const progress = isCasual(ctx.agent) ? '進捗: 目的と制約は確かめた。案を絞っている。' : '進捗: 目的と制約を確かめました。いまは案を絞っています。';
+  return { steps, content, kind: 'chat', progress: [progress] };
 }
 
 /** マネージャーのまとめ。ジョブの注記（担当者｜指示｜状態｜結果か理由）を1人1行にする */

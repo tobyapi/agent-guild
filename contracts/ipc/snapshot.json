@@ -175,7 +175,8 @@
           ]
         }
       ],
-      "canLogin": true
+      "canLogin": true,
+      "midRunPost": "tool"
     },
     {
       "id": "codex",
@@ -222,7 +223,8 @@
           ]
         }
       ],
-      "canLogin": false
+      "canLogin": false,
+      "midRunPost": "text"
     }
   ],
   "templates": [

@@ -93,7 +93,7 @@ fn post_error(ports: &Ports, job: &JobSpec, agent: &Agent, content: String) -> A
 }
 
 /// ジョブから生まれる発言（起点・depth・返信先を引き継ぐ。自発活動なら自分が起点）
-fn from_job(
+pub(super) fn from_job(
     ports: &Ports,
     job: &JobSpec,
     agent: &Agent,

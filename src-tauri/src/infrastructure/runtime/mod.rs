@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use guild_application::ports::{ActivitySink, AgentRuntime, EventPublisher, RuntimeError, RuntimeRequest, Spawner};
+use guild_application::ports::{AgentRuntime, EventPublisher, RuntimeError, RuntimeRequest, Spawner, UpdateSink};
 use guild_domain::backend::{BackendInfo, RuntimeStatus};
 use runner_client::{RunnerClient, RunnerStatus};
 use tokio::sync::watch;
@@ -65,9 +65,10 @@ impl AgentRuntime for RunnerRuntime {
         self.client.backends().into_iter().map(convert::backend).collect()
     }
 
-    async fn run(&self, job_id: &str, request: RuntimeRequest, on_activity: ActivitySink) -> Result<String, RuntimeError> {
+    async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError> {
+        let on_update: runner_client::UpdateFn = Box::new(move |update| on_update(convert::update(update)));
         self.client
-            .run(job_id, convert::request(request), on_activity)
+            .run(job_id, convert::request(request), on_update)
             .await
             .map_err(convert::error)
     }

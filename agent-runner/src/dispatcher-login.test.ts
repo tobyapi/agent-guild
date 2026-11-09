@@ -15,6 +15,7 @@ const INFO: BackendDescriptor = {
   options: [],
   permissionRules: [],
   canLogin: true,
+  midRunPost: null,
 };
 
 /** ログインの成り行きを外から決める偽アダプタ（ログインが済むと状態が ready になる） */

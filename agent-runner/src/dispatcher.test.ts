@@ -15,14 +15,18 @@ const INFO: BackendDescriptor = {
   options: [],
   permissionRules: [],
   canLogin: false,
+  midRunPost: 'tool',
 };
 
 /** prompt で振る舞いを変える偽アダプタ */
 const fakeAdapter: BackendAdapter = {
   info: () => INFO,
   probe: () => Promise.resolve({ status: 'needs_auth', statusMessage: 'ログインしてください' }),
-  run(request, { signal, onActivity }) {
+  run(request, { signal, onActivity, onPost }) {
     onActivity(`作業中: ${request.prompt}`);
+    if (request.prompt === 'post') onPost('進捗: 半分まで終わりました');
+    // 終わったあとに届く投稿（送られてはいけない）
+    if (request.prompt === 'late') setImmediate(() => onPost('遅れて届いた投稿'));
     if (request.prompt === 'hang') {
       return new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new Error('aborted'))));
     }
@@ -84,6 +88,18 @@ describe('Dispatcher', () => {
     expect(events).toEqual([
       { type: 'activity', id: 'j1', detail: '作業中: こんにちは' },
       { type: 'result', id: 'j1', text: 'echo: こんにちは' },
+    ]);
+  });
+
+  it('post は終端イベントの前だけ中継し、終わったジョブの post は捨てる', async () => {
+    const { events, receive } = setup();
+    receive(runLine('j1', 'post'));
+    receive(runLine('j2', 'late'));
+    await settle();
+    expect(events.filter((event) => event.type !== 'activity')).toEqual([
+      { type: 'post', id: 'j1', text: '進捗: 半分まで終わりました' },
+      { type: 'result', id: 'j1', text: 'echo: post' },
+      { type: 'result', id: 'j2', text: 'echo: late' },
     ]);
   });
 

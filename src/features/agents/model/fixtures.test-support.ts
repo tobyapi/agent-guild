@@ -56,6 +56,7 @@ export const BACKENDS: BackendInfo[] = [
     status: 'needs_auth',
     statusMessage: '',
     canLogin: true,
+    midRunPost: 'tool',
     options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],
     permissionRules: [
       { when: 'writeAnywhere', requires: ['writeFiles'] },
@@ -71,6 +72,7 @@ export const BACKENDS: BackendInfo[] = [
     status: 'ready',
     statusMessage: '',
     canLogin: false,
+    midRunPost: 'text',
     options: [],
     permissionRules: [
       { when: 'writeFiles', requires: ['runCommands'] },

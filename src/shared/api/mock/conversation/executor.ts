@@ -1,4 +1,4 @@
-// 1ジョブの実行（ランナーの代わり）: activity を順に出してから、返答を投稿する。
+// 1ジョブの実行（ランナーの代わり）: activity を順に出し（そのあいだに途中の投稿もして）から、返答を投稿する。
 // 割り振れるエージェント（canDelegate）の返答に tasks ブロックがあれば、投稿の前に読んで割り振りの id を結ぶ。
 import type { Agent, Message, MessageKind } from '@/shared/types/domain';
 import { parseTasks } from '../delegation/tasks';
@@ -58,6 +58,15 @@ function finish(core: MockCore, job: MockJob, agent: Agent, plan: ReplyPlan): Jo
   return { type: 'reply', message: post(core, job, plan.content, plan.kind, delegationId), tasks };
 }
 
+/** 途中の投稿（kind=progress。振り分けない）を、最後の返答より前に順に出す */
+function scheduleProgress(core: MockCore, job: MockJob, plan: ReplyPlan | null, finishAt: number): Cancel[] {
+  return (plan?.progress ?? []).map((content, index) =>
+    core.env.schedule(Math.min(STEP_MS * (index + 1.5), finishAt - 1), () => {
+      post(core, job, content, 'progress');
+    }),
+  );
+}
+
 function membersOf(core: MockCore, channelId: string): Agent[] {
   const channel = core.state.channels.find((candidate) => candidate.id === channelId);
   return activeAgents(core).filter((agent) => channel?.memberIds.includes(agent.id));
@@ -72,6 +81,7 @@ export function runJob(core: MockCore, job: MockJob, agent: Agent, callbacks: Jo
       : null;
   const details = plan?.steps ?? ['考え中…'];
   const cancels = details.map((detail, index) => core.env.schedule(index * STEP_MS, () => callbacks.onActivity(detail)));
+  cancels.push(...scheduleProgress(core, job, plan, details.length * STEP_MS));
   cancels.push(
     core.env.schedule(details.length * STEP_MS, () => {
       if (plan) {

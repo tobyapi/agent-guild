@@ -32,6 +32,12 @@ impl MessageRepository for MemoryStore {
             .collect();
         Ok(matching[matching.len().saturating_sub(limit)..].to_vec())
     }
+    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>> {
+        let messages = self.messages.lock();
+        let matching: Vec<Message> =
+            messages.iter().filter(|m| &m.channel_id == channel && roots.contains(&m.root_id)).cloned().collect();
+        Ok(matching[matching.len().saturating_sub(limit)..].to_vec())
+    }
 }
 
 impl DelegationRepository for MemoryStore {

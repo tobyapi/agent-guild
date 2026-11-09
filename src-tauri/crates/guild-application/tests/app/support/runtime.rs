@@ -6,7 +6,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use guild_application::ports::{ActivitySink, AgentRuntime, RuntimeError, RuntimeRequest};
+use guild_application::ports::{AgentRuntime, RunUpdate, RuntimeError, RuntimeRequest, UpdateSink};
 use guild_domain::agent::Permissions;
 use guild_domain::backend::{BackendInfo, BackendStatus, RuntimeState, RuntimeStatus};
 use parking_lot::Mutex;
@@ -22,6 +22,10 @@ pub enum Script {
     Gate(Arc<Notify>, String),
     /// 中断を無視して、gate が開いたら返す（中断が間に合わなかった実行）
     Stubborn(Arc<Notify>, String),
+    /// 作業の途中の投稿を順に送ってから返す
+    Posts(Vec<String>, String),
+    /// 中断を無視して、gate が開いたら途中の投稿を送り、[PASS] を返す
+    LatePost(Arc<Notify>, String),
 }
 
 pub fn reply(text: &str) -> Script {
@@ -91,6 +95,7 @@ pub fn ready_backend(id: &str) -> BackendInfo {
         options: Vec::new(),
         permission_rules: Vec::new(),
         can_login: true,
+        mid_run_post: None,
     }
 }
 
@@ -110,9 +115,9 @@ impl AgentRuntime for FakeRuntime {
         self.backends.lock().clone()
     }
 
-    async fn run(&self, job_id: &str, request: RuntimeRequest, on_activity: ActivitySink) -> Result<String, RuntimeError> {
+    async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError> {
         let agent = agent_of(&request.workspace);
-        on_activity("Web検索: テスト".to_owned());
+        on_update(RunUpdate::Activity("Web検索: テスト".to_owned()));
         let script = self.scripts.lock().get_mut(&agent).and_then(VecDeque::pop_front);
         self.requests.lock().push((job_id.to_owned(), agent, request));
         match script.unwrap_or_else(|| reply("[PASS]")) {
@@ -126,6 +131,17 @@ impl AgentRuntime for FakeRuntime {
             Script::Stubborn(gate, text) => {
                 gate.notified().await;
                 Ok(text)
+            }
+            Script::Posts(posts, text) => {
+                for post in posts {
+                    on_update(RunUpdate::Post(post));
+                }
+                Ok(text)
+            }
+            Script::LatePost(gate, post) => {
+                gate.notified().await;
+                on_update(RunUpdate::Post(post));
+                Ok("[PASS]".to_owned())
             }
         }
     }

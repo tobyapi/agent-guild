@@ -8,22 +8,25 @@ use tokio::sync::{mpsc, watch};
 use super::state::{DispatchState, Pending, Running};
 use super::stopping::StopWaiter;
 use super::Command;
-use crate::conversation::executor::{self, Committed, Ending, JobReporter, RunOutcome};
+use crate::conversation::executor::{self, Committed, Ending, RunOutcome};
 use crate::conversation::posting::{self, Origin};
-use crate::conversation::{activity, MAX_CONCURRENT_JOBS};
+use crate::conversation::{activity, interrupted, MAX_CONCURRENT_JOBS};
 use crate::services::Ports;
 
 pub(super) struct Actor {
     pub(super) ports: Ports,
-    sender: mpsc::UnboundedSender<Command>,
+    pub(super) sender: mpsc::UnboundedSender<Command>,
     activity_tx: watch::Sender<ActivityState>,
     pub(super) state: DispatchState,
     pub(super) waiters: Vec<StopWaiter>,
+    /// 最後に保存した、待機・実行中のジョブの要約（inflight.rs）
+    pub(super) recorded: String,
 }
 
 impl Actor {
     pub fn new(ports: Ports, sender: mpsc::UnboundedSender<Command>, activity_tx: watch::Sender<ActivityState>) -> Self {
-        Self { ports, sender, activity_tx, state: DispatchState::default(), waiters: Vec::new() }
+        let recorded = interrupted::EMPTY.to_owned();
+        Self { ports, sender, activity_tx, state: DispatchState::default(), waiters: Vec::new(), recorded }
     }
 
     pub async fn run(mut self, mut receiver: mpsc::UnboundedReceiver<Command>) {
@@ -32,6 +35,7 @@ impl Actor {
             self.reconcile_delegations();
             self.pump();
             self.publish_activity();
+            self.record_inflight();
         }
     }
 
@@ -55,6 +59,7 @@ impl Actor {
                     running.detail = detail;
                 }
             }
+            Command::Post { job_id, text } => self.post_progress(&job_id, &text),
             Command::Finished { job_id, outcome } => self.finish(&job_id, outcome),
             Command::Stop { channel, announce, done } => self.stop(channel, announce, done),
             Command::StopAll { done } => self.stop_all(done),
@@ -65,7 +70,7 @@ impl Actor {
         }
     }
 
-    /// 全体の上限まで、始められるレーンの先頭ジョブを始める
+    /// 全体の上限まで、始められるジョブを始める（選び方は pick.rs）
     fn pump(&mut self) {
         while self.state.running.len() < MAX_CONCURRENT_JOBS {
             let Some(pick) = self.state.next_startable() else {
@@ -94,27 +99,12 @@ impl Actor {
         self.ports.spawner.spawn(Box::pin(task));
     }
 
-    /// 実行タスクからの報告をコマンドとして受け取る
-    fn reporter(&self, job_id: &str) -> JobReporter {
-        let (activity, finished) = (self.sender.clone(), self.sender.clone());
-        let (activity_id, finished_id) = (job_id.to_owned(), job_id.to_owned());
-        JobReporter::new(
-            move |detail| {
-                let _ = activity.send(Command::Activity { job_id: activity_id.clone(), detail });
-            },
-            move |outcome| {
-                let _ = finished.send(Command::Finished { job_id: finished_id, outcome });
-            },
-        )
-    }
-
     /// 実行が終わった: 世代が変わらず取り消されてもいなければ、結果を保存して振り分ける
     fn finish(&mut self, job_id: &str, outcome: RunOutcome) {
         let Some(running) = self.state.running.remove(job_id) else {
             return;
         };
-        let generation = self.state.lanes.get(&running.job.channel_id).map(|lane| lane.generation);
-        if !running.discarded && generation == Some(running.generation) {
+        if self.state.is_current(&running) {
             match executor::commit(&self.ports, &running.job, outcome) {
                 Ok(committed) => self.absorb(&running.job, committed),
                 Err(error) => log::error!("ジョブの結果を保存できませんでした: {error}"),

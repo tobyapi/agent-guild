@@ -43,6 +43,8 @@ pub trait MessageRepository: Send + Sync {
     fn get(&self, id: &MessageId) -> AppResult<Option<Message>>;
     /// seq が before_seq より小さい最新 limit 件を、seq の昇順で返す
     fn list(&self, channel: &ChannelId, before_seq: Option<i64>, limit: usize) -> AppResult<Vec<Message>>;
+    /// 起点が roots のどれかの発言（それらの会話の発言）のうち最新 limit 件を、seq の昇順で返す
+    fn list_in_conversations(&self, channel: &ChannelId, roots: &[MessageId], limit: usize) -> AppResult<Vec<Message>>;
 }
 
 pub trait SkillRepository: Send + Sync {

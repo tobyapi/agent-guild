@@ -17,6 +17,8 @@ export interface RunContext {
   signal: AbortSignal;
   /** 途中経過（「Web検索: …」など）を Rust へ送る */
   onActivity: (detail: string) => void;
+  /** 作業の途中の投稿（チャットに出す文章）を Rust へ送る。終わったジョブの投稿は捨てられる */
+  onPost: (text: string) => void;
 }
 
 export interface LoginContext {

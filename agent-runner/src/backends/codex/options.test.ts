@@ -26,19 +26,19 @@ describe('threadOptions', () => {
     });
   });
 
-  it('専門家は read-only。Web の権限がなければ検索もネットワークも閉じる。readableDirs は渡さない', () => {
+  it('専門家も MEMORY.md のために workspace-write。Web の権限がなければ検索もネットワークも閉じる。readableDirs は渡さない', () => {
     const options = threadOptions(request({ ...EXPERT, webSearch: false, webFetch: false }, { reasoningEffort: 'max' }, 'gpt-x'));
-    expect(options).toMatchObject({ sandboxMode: 'read-only', webSearchMode: 'disabled', networkAccessEnabled: false, model: 'gpt-x' });
+    expect(options).toMatchObject({ sandboxMode: 'workspace-write', webSearchMode: 'disabled', networkAccessEnabled: false, model: 'gpt-x' });
     expect(options.modelReasoningEffort).toBeUndefined();
     expect(options).not.toHaveProperty('additionalDirectories');
   });
 });
 
 describe('threadOptions の sandbox', () => {
-  it('作業場所の外にも書くなら sandbox を外す。書き込みがなければ read-only のまま', () => {
+  it('作業場所の外にも書くなら sandbox を外す。書き込みがなければ外さない', () => {
     const anywhere = { ...WORKER, writeAnywhere: true };
     expect(threadOptions(request(anywhere))).toMatchObject({ sandboxMode: 'danger-full-access', networkAccessEnabled: true });
-    expect(threadOptions(request({ ...EXPERT, writeAnywhere: true }))).toMatchObject({ sandboxMode: 'read-only' });
+    expect(threadOptions(request({ ...EXPERT, writeAnywhere: true }))).toMatchObject({ sandboxMode: 'workspace-write' });
   });
 });
 
@@ -68,7 +68,7 @@ describe('codexConfig', () => {
 });
 
 describe('unenforceableReason', () => {
-  it('作業者は runCommands つきなら、専門家（read-only）はそのままで守れる', () => {
+  it('作業者は runCommands つきなら、専門家はそのままで受け付ける', () => {
     expect(unenforceableReason(WORKER)).toBeNull();
     expect(unenforceableReason(EXPERT)).toBeNull();
   });
