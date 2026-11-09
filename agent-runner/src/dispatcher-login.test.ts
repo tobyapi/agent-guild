@@ -9,8 +9,6 @@ const PERMISSIONS = { webSearch: true, webFetch: true, readFiles: true, writeFil
 const INFO: BackendDescriptor = {
   id: 'fake',
   label: 'Fake',
-  modelSuggestions: [],
-  defaultModel: '',
   capabilities: PERMISSIONS,
   options: [],
   permissionRules: [],

@@ -8,9 +8,14 @@ import type { BackendInfo, ErrorCode, PermissionRule, Permissions, RunnerRequest
 /** 検証済みの run 要求 */
 export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
 
-/** 状態を除いた、アダプタが静的に申告する情報 */
-export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage'>;
+/** 状態とモデルの一覧を除いた、アダプタが静的に申告する情報 */
+export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage' | 'models' | 'defaultModel'>;
 export type BackendProbe = Pick<BackendInfo, 'status' | 'statusMessage'>;
+/** 選べるモデルと、モデルを選ばないときのモデル（probe のたびに聞き直す） */
+export type ModelCatalog = Pick<BackendInfo, 'models' | 'defaultModel'>;
+
+/** モデルの一覧が分からないとき（モデルは自由入力、深さは選べない） */
+export const EMPTY_CATALOG: ModelCatalog = { models: [], defaultModel: '' };
 
 export interface RunContext {
   /** cancel・shutdown で中断される */
@@ -31,6 +36,8 @@ export interface BackendAdapter {
   info(): BackendDescriptor;
   /** 認証などの状態を安価に確かめる。資格情報ファイルや環境変数の「存在」だけを見て、中身は読まない */
   probe(): Promise<BackendProbe>;
+  /** 選べるモデルと推論の深さ。なければ EMPTY_CATALOG（probe と一緒に聞き直す） */
+  catalog?: () => Promise<ModelCatalog>;
   /** 1回実行して最終テキストを返す。分類できる失敗は BackendError で投げる */
   run(request: RunRequest, context: RunContext): Promise<string>;
   /**

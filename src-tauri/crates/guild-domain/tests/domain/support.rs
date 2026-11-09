@@ -94,7 +94,7 @@ pub fn backend(id: &str) -> BackendInfo {
     BackendInfo {
         id: id.to_owned(),
         label: id.to_owned(),
-        model_suggestions: Vec::new(),
+        models: Vec::new(),
         default_model: String::new(),
         capabilities: ALL,
         status: BackendStatus::Ready,

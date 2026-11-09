@@ -12,7 +12,7 @@ import { createInterface } from 'node:readline';
 export const BACKEND = {
   id: 'fake',
   label: 'Fake',
-  modelSuggestions: ['m1'],
+  models: [{ id: 'm1', label: 'M1', description: '', efforts: ['low', 'high'], defaultEffort: 'low' }],
   defaultModel: 'm1',
   capabilities: { webSearch: true, webFetch: false, readFiles: true, writeFiles: true, writeAnywhere: false, runCommands: false, skills: true },
   status: 'ready',

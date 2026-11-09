@@ -18,7 +18,7 @@ fn agents_round_trip_with_json_columns() {
     let db = memory();
     let repository = SqliteAgentRepository::new(db.clone());
     let mut sora = Agent::new(AgentId::new("a2"), input("worker", "ソラ"), 20);
-    sora.backend_options = json!({ "reasoningEffort": "high", "maxTurns": 30 }).as_object().cloned().unwrap();
+    sora.backend_options = json!({ "effort": "high", "maxTurns": 30 }).as_object().cloned().unwrap();
     sora.permissions.run_commands = true;
     sora.tags = vec!["作業者".to_owned(), "実装".to_owned()];
     sora.unmentioned = UnmentionedPolicy::Ignore;

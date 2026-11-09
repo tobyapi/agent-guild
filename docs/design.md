@@ -62,7 +62,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 ### 入力規則（保存時に検証し、違反は `validation`。`CommandError.field` にどの入力かを入れる）
 - エージェント名: 前後の空白を除いて1〜32文字、空白と `@`/`＠` を含まない。NFKC＋大文字小文字無視で正規化した名前が、削除されていない他のエージェント・人間のプロフィール名と重複しない（DB にも正規化名の部分一意索引）。プロフィール名の変更も同じ規則で検査する。
 - スキル: name は Agent Skills 標準（64文字以内の英小文字・数字・ハイフン、先頭末尾にハイフン不可、ハイフンの連続 `--` も不可）。勝手に変換せず、違反は `validation`。description は必須・1024文字以内。(agentId, name) は一意（重複は `conflict`）。
-- `autonomyIntervalMin` は 5 以上。`backendOptions` は選んだバックエンドの OptionSpec に合う型だけ（未知のキーは保存時に捨てる）。
+- `autonomyIntervalMin` は 5 以上。`backendOptions` は選んだバックエンドの OptionSpec に合う型だけ（未知のキーは保存時に捨てる）。推論の深さ `effort` は、モデル（空なら `defaultModel`）が `BackendInfo.models` にあれば、その `efforts` のどれかだけ（違反は field `backendOptions`）。一覧に無いモデル・一覧が分からないときは文字列なら残す（使えない値はアダプタが無視する）。
 - タグ: 0〜8個。各タグは前後の空白を除いて1〜16文字で、空白・`#`・`,`・`@` を含まない。NFKC＋大文字小文字無視で重複していたら1つにまとめる（エラーにはしない）。違反は field `tags`。
 - 実効権限は、選んだバックエンドの `permissionRules`（§5）を満たすこと。違反は field `permissions`（足りない権限を付けるか、別のバックエンドを選んでもらう）。
 - チャンネル: 名前は前後の空白と先頭の `#`（全角 `＃` を含む）を除いて1〜40文字、話題は前後の空白を除いて200文字まで（文字数はコードポイントで数える）。
@@ -143,6 +143,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - **認証状態**: アダプタは ready / probe のときに認証の有無を安価に確認し（資格情報ファイルや環境変数の**存在**だけを見る。中身は読まない）、`status` と `statusMessage` に載せる。
 - **ログイン**: `BackendInfo.canLogin` のアダプタは `login` 要求を受け付ける。アダプタはログインの窓を開き、利用者が終えて窓が閉じるまで待つ。閉じたら状態を確かめ直してログインできていなければ error（auth）、できていれば result（text は空）で終える。どちらの場合も Dispatcher が終端イベントの前に `backends` を送る（Rust は result より先に新しい状態を受け取る）。cancel で窓を閉じる。
 - **作業の途中の投稿**: run は終端イベントの前に `post`（`{ id, text }`）を 0 回以上返してよい（Dispatcher は終端イベントを送ったあと・cancel のあとに届いたものを捨てる）。アダプタは投稿のしかたを `BackendInfo.midRunPost` で申告する: `'tool'` は投稿用のツールを呼ぶ、`'text'` はツールを使う前に書いた文章がそのまま投稿される、`null` は途中では投稿できない。Rust はこれでプロンプトの案内（§8）を変え、届いた投稿を §6 の規則で保存する。
+- **モデルと推論の深さ**: アダプタは選べるモデルを `BackendInfo.models`（`{ id, label, description, efforts, defaultEffort }`。efforts は浅い順、空なら深さを選べない）で、モデルを選ばないときのモデルを `defaultModel` で申告する（ready / probe のたび。分からなければ空で、そのときモデルは自由入力）。推論の深さは `backendOptions` の `effort`（protocol.ts の `EFFORT_OPTION`）で run に渡り、空なら既定。
+  - **Claude**: SDK の `supportedModels()`（`default` は除く）。取れなければ opus / sonnet / haiku の固定の一覧。既定のモデルは `sonnet`、既定の深さは決めない（Claude Code に任せる）。`effort` は SDK の `effort`（low / medium / high / xhigh / max）。
+  - **Codex**: Codex CLI が保存する `$CODEX_HOME/models_cache.json`（既定 `~/.codex`）の `visibility` が `hide` でないモデルを `priority` の順に。既定のモデルは先頭のもの、既定の深さはそのモデルの `default_reasoning_level`。run ではモデル・深さが空でもこの既定を明示して渡す（利用者の config.toml の既定に頼らない）。キャッシュがなければ一覧は空。
+  - Rust は保存時に深さがモデルで選べるかを確かめ（§2）、React はモデルと深さを選択式にする（ui-design.md §5.10）。
 - **起動中の実行**: ランナーが starting の間に来た run は、最長で ready_timeout＋1秒だけ ready を待つ。unavailable なら即座に失敗する。
 
 ### バックエンドごとの権限の実装（ランナーのアダプタ）

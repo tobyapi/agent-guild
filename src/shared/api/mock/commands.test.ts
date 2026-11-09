@@ -73,6 +73,14 @@ describe('モックのコマンド', () => {
     });
   });
 
+  it('create_agent: 推論の深さはモデルで選べるものだけ（選べなければ backendOptions の validation）', async () => {
+    const mock = await createHarness();
+    const chosen = agentInput({ model: 'opus', backendOptions: { effort: 'max' } });
+    expect((await mock.transport.invoke('create_agent', { input: chosen })).backendOptions).toEqual({ effort: 'max' });
+    const haiku = agentInput({ name: 'ミナ', model: 'claude-haiku-4-5-20251001', backendOptions: { effort: 'max' } });
+    await expect(mock.transport.invoke('create_agent', { input: haiku })).rejects.toMatchObject({ field: 'backendOptions' });
+  });
+
   it('create_agent: タグの規則と権限の規則（permissionRules）の違反は、その field の validation', async () => {
     const mock = await createHarness();
     const badTag = agentInput({ tags: ['#設計'] });

@@ -3,7 +3,7 @@
 use guild_application::ports::{ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
-    BackendInfo, BackendStatus, MidRunPost, OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus,
+    BackendInfo, BackendStatus, MidRunPost, ModelSpec, OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus,
 };
 use runner_client as runner;
 
@@ -19,7 +19,7 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
     BackendInfo {
         id: info.id,
         label: info.label,
-        model_suggestions: info.model_suggestions,
+        models: info.models.into_iter().map(model).collect(),
         default_model: info.default_model,
         capabilities: permissions_from(info.capabilities),
         status: match info.status {
@@ -32,6 +32,16 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         permission_rules: info.permission_rules.into_iter().map(rule).collect(),
         can_login: info.can_login,
         mid_run_post: info.mid_run_post.map(mid_run_post),
+    }
+}
+
+fn model(spec: runner::ModelSpec) -> ModelSpec {
+    ModelSpec {
+        id: spec.id,
+        label: spec.label,
+        description: spec.description,
+        efforts: spec.efforts,
+        default_effort: spec.default_effort,
     }
 }
 

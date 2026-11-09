@@ -19,6 +19,8 @@ async fn starts_and_publishes_backends() {
     assert_eq!(backends[0].options[0].kind, OptionKind::Number);
     assert!(backends[0].capabilities.skills && !backends[0].capabilities.run_commands);
     assert_eq!(backends[0].mid_run_post, Some(MidRunPost::Tool));
+    assert_eq!(backends[0].models[0].efforts, ["low", "high"]);
+    assert_eq!(backends[0].models[0].default_effort.as_deref(), Some("low"));
     let rule = &backends[0].permission_rules[0];
     assert_eq!((rule.when, rule.requires.as_slice()), (PermissionKey::WriteFiles, &[PermissionKey::RunCommands][..]));
     client.shutdown().await;

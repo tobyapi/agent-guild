@@ -25,8 +25,8 @@ use std::time::Duration;
 pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
-    BackendInfo, BackendStatus, ImagePayload, MidRunPost, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions,
-    RunRequest, SkillPayload,
+    BackendInfo, BackendStatus, ImagePayload, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule,
+    Permissions, RunRequest, SkillPayload,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。

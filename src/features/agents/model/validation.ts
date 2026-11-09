@@ -1,6 +1,7 @@
 // エージェントの入力の検証と AgentInput への変換（docs/design.md §2 入力規則。正はサーバの validation）。
 import { checkAvatar } from '@/shared/lib/avatar';
 import { isHexColor } from '@/shared/lib/colors';
+import { checkEffort, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
@@ -9,7 +10,7 @@ import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
 import { permissionRuleProblem } from './permissions';
 
-export type AgentField = 'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'permissions' | 'autonomyIntervalMin';
+export type AgentField = 'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
 
 const AGENT_FIELDS: readonly AgentField[] = ['name', 'avatar', 'color', 'tags', 'backend', 'permissions', 'autonomyIntervalMin'];
 export type AgentErrors = Partial<Record<AgentField, string>>;
@@ -33,6 +34,7 @@ function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
     ['color', isHexColor(draft.color) ? null : '色を選んでください'],
     ['tags', checkTags(draft.tags)],
     ['backend', draft.backend === '' ? 'バックエンドを選んでください' : rule?.field === 'backend' ? rule.message : null],
+    ['effort', checkEffort(backend, draft.model.trim(), draft.effort)],
     ['permissions', rule?.field === 'permissions' ? rule.message : null],
     ['autonomyIntervalMin', checkIntervalMin(draft.autonomyIntervalMin)],
   ];
@@ -52,7 +54,7 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
     expertise: draft.expertise.trim(),
     backend: draft.backend,
     model: draft.model.trim(),
-    backendOptions,
+    backendOptions: withEffort(backendOptions, draft.effort),
     permissions: draft.permissions,
     unmentioned: draft.unmentioned,
     consultable: draft.consultable,

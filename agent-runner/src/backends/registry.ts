@@ -1,11 +1,11 @@
 // アダプタの登録表。新しいバックエンドは backends/<id>.ts に BackendAdapter を実装し、BUILTIN_ADAPTERS に1行足す。
 // Rust・React の変更は不要（能力・状態・設定項目はアダプタが申告し、ready / backends で届く）。
 
-import { errorMessage } from '../log.ts';
+import { errorMessage, logInfo } from '../log.ts';
 import type { BackendInfo } from '../protocol.ts';
 import { claudeAdapter } from './claude.ts';
 import { codexAdapter } from './codex.ts';
-import type { BackendAdapter } from './types.ts';
+import { EMPTY_CATALOG, type BackendAdapter, type BackendProbe, type ModelCatalog } from './types.ts';
 
 const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
   claudeAdapter,
@@ -34,11 +34,26 @@ export class BackendRegistry {
 }
 
 async function describeAdapter(adapter: BackendAdapter): Promise<BackendInfo> {
-  const info = adapter.info();
+  const [probe, catalog] = await Promise.all([probeOf(adapter), catalogOf(adapter)]);
+  return { ...adapter.info(), ...probe, ...catalog };
+}
+
+/** probe に失敗したら unavailable */
+async function probeOf(adapter: BackendAdapter): Promise<BackendProbe> {
   try {
-    return { ...info, ...(await adapter.probe()) };
+    return await adapter.probe();
   } catch (error) {
-    return { ...info, status: 'unavailable', statusMessage: `状態を確認できませんでした（${errorMessage(error)}）` };
+    return { status: 'unavailable', statusMessage: `状態を確認できませんでした（${errorMessage(error)}）` };
+  }
+}
+
+/** モデルの一覧を聞けなければ、分からないとする */
+async function catalogOf(adapter: BackendAdapter): Promise<ModelCatalog> {
+  try {
+    return (await adapter.catalog?.()) ?? EMPTY_CATALOG;
+  } catch (error) {
+    logInfo(`${adapter.info().id} のモデルの一覧を確認できませんでした（${errorMessage(error)}）`);
+    return EMPTY_CATALOG;
   }
 }
 

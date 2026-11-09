@@ -8,7 +8,8 @@ import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
 import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
-import { claudeOptions, DEFAULT_MAX_TURNS, DEFAULT_MODEL } from './claude/options.ts';
+import { claudeCatalog } from './claude/models.ts';
+import { claudeOptions, DEFAULT_MAX_TURNS } from './claude/options.ts';
 import { PERMISSION_RULES, unenforceableReason } from './claude/permissions.ts';
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
@@ -26,8 +27,6 @@ import {
 const INFO: BackendDescriptor = {
   id: 'claude',
   label: 'Claude',
-  modelSuggestions: ['sonnet', 'opus', 'haiku'],
-  defaultModel: DEFAULT_MODEL,
   capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
   options: [
     {
@@ -76,6 +75,7 @@ async function login(context: LoginContext): Promise<void> {
 export const claudeAdapter: BackendAdapter = {
   info: () => INFO,
   probe: probeClaude,
+  catalog: claudeCatalog,
   run,
   login,
 };

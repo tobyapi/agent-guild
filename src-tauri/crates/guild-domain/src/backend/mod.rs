@@ -1,10 +1,16 @@
 //! ランナーが申告するバックエンド（Claude / Codex / 将来の追加分）とランナー自体の状態。Rust では列挙しない。
 
+mod options;
+
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 
 use super::agent::{PermissionKey, Permissions};
-use super::error::ValidationError;
+
+pub use options::sanitize_backend_options;
+
+/// backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか）
+pub const EFFORT_OPTION: &str = "effort";
 
 /// バックエンドの状態（認証の有無など）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -69,13 +75,27 @@ pub enum MidRunPost {
     Text,
 }
 
+/// 選べるモデル（TS の ModelSpec。id は実行時に渡す値）。efforts は選べる推論の深さ（浅い順。空なら選べない）、
+/// default_effort は深さを選ばないときの深さ（None はバックエンドに任せる）
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelSpec {
+    pub id: String,
+    pub label: String,
+    pub description: String,
+    pub efforts: Vec<String>,
+    pub default_effort: Option<String>,
+}
+
 /// TS の BackendInfo
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BackendInfo {
     pub id: String,
     pub label: String,
-    pub model_suggestions: Vec<String>,
+    /// 選べるモデル（分からなければ空）
+    pub models: Vec<ModelSpec>,
+    /// モデルを選ばないときに使うモデル（空ならバックエンドに任せる）
     pub default_model: String,
     /// バックエンドがそもそも提供できる能力
     pub capabilities: Permissions,
@@ -95,38 +115,11 @@ impl BackendInfo {
     pub fn is_ready(&self) -> bool {
         self.status == BackendStatus::Ready
     }
-}
 
-/// backendOptions を項目定義に合わせる: 未知のキーと null（＝既定値）は捨て、型が合わない値は拒否する
-pub fn sanitize_backend_options(
-    options: Map<String, Value>,
-    specs: &[OptionSpec],
-) -> Result<Map<String, Value>, ValidationError> {
-    let mut result = Map::new();
-    for (key, value) in options {
-        let Some(spec) = specs.iter().find(|spec| spec.key == key) else {
-            continue;
-        };
-        if value.is_null() {
-            continue;
-        }
-        if !accepts(spec, &value) {
-            let message = format!("「{}」の値が正しくありません", spec.label);
-            return Err(ValidationError::on("backendOptions", message));
-        }
-        result.insert(key, value);
-    }
-    Ok(result)
-}
-
-fn accepts(spec: &OptionSpec, value: &Value) -> bool {
-    match spec.value_type {
-        OptionType::String => value.is_string(),
-        OptionType::Number => value.is_number(),
-        OptionType::Boolean => value.is_boolean(),
-        OptionType::Select => value
-            .as_str()
-            .is_some_and(|choice| spec.choices.iter().any(|c| c == choice)),
+    /// 実際に使うモデル（空なら既定のモデル）の定義。モデルの一覧に無ければ None
+    pub fn model_spec(&self, model: &str) -> Option<&ModelSpec> {
+        let id = if model.is_empty() { self.default_model.as_str() } else { model };
+        self.models.iter().find(|spec| spec.id == id)
     }
 }
 

@@ -3,6 +3,7 @@
 mod agent;
 mod attachments;
 mod autonomy;
+mod backend_options;
 mod delegation;
 mod job_merge;
 mod mentions;

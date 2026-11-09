@@ -79,12 +79,26 @@ pub enum MidRunPost {
     Text,
 }
 
+/// 選べるモデル（id は run の model に渡す値）。efforts は選べる推論の深さ（浅い順。空なら選べない）、
+/// default_effort は深さを選ばないときの深さ（None はバックエンドに任せる）
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelSpec {
+    pub id: String,
+    pub label: String,
+    pub description: String,
+    pub efforts: Vec<String>,
+    pub default_effort: Option<String>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BackendInfo {
     pub id: String,
     pub label: String,
-    pub model_suggestions: Vec<String>,
+    /// 選べるモデル（分からなければ空）
+    pub models: Vec<ModelSpec>,
+    /// モデルを選ばないときに使うモデル（空ならバックエンドに任せる）
     pub default_model: String,
     /// そもそも提供できる能力
     pub capabilities: Permissions,

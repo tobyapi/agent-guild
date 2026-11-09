@@ -47,16 +47,31 @@ export interface OptionSpec {
   default: string | number | boolean | null;
 }
 
-/**
- * 作業の途中でチャットに投稿する方法。'tool' は投稿用のツール（post）を呼ぶ。
- * 'text' はツールを使う前に書いた文章が、そのまま投稿される。Rust はこれを見てプロンプトの案内を変える
- */
+/** 作業の途中の投稿のしかた: 'tool' は投稿用のツール（post）、'text' はツールを使う前の文章。Rust はプロンプトの案内を変える */
 export type MidRunPost = 'tool' | 'text';
+
+/**
+ * 選べるモデル（id は run の model に渡す値、description はなければ空）。React はモデルと推論の深さの選択肢に使い、
+ * Rust は保存時に深さがそのモデルで選べるかを確かめる。efforts は選べる深さ（浅い順。空なら選べない）、
+ * defaultEffort は深さを選ばないときの深さ（null はバックエンドに任せる）
+ */
+export interface ModelSpec {
+  id: string;
+  label: string;
+  description: string;
+  efforts: string[];
+  defaultEffort: string | null;
+}
+
+/** backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか） */
+export const EFFORT_OPTION = 'effort';
 
 export interface BackendInfo {
   id: string;
   label: string;
-  modelSuggestions: string[];
+  /** 選べるモデル（分からなければ空。そのときモデルは自由入力で、深さは選べない） */
+  models: ModelSpec[];
+  /** モデルを選ばないときに使うモデル（空ならバックエンドに任せる） */
   defaultModel: string;
   /** そもそも提供できる能力 */
   capabilities: Permissions;
@@ -124,16 +139,13 @@ export type RunnerRequest =
       skills: SkillPayload[];
       /** 応える発言と会話の起点に貼られた画像（発言の順）。なければ空 */
       images: ImagePayload[];
-      /** Agent.backendOptions。知らないキーは無視する */
+      /** Agent.backendOptions。知らないキーは無視する。EFFORT_OPTION（effort）は推論の深さ */
       options: Record<string, unknown>;
     }
   | { type: 'cancel'; id: string }
   /** バックエンドの状態（認証など）を確認し直して backends を送る */
   | { type: 'probe' }
-  /**
-   * バックエンドのログインを始める（canLogin のものだけ。ブラウザと別ウィンドウで利用者が進める）。
-   * 終わったら状態を確認し直して backends を送り、result（text は空）か error で終える。cancel で打ち切れる
-   */
+  /** ログインを始める（canLogin のものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
   | { type: 'login'; id: string; backend: string }
   | { type: 'shutdown' };
 

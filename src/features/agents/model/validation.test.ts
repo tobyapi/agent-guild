@@ -23,6 +23,14 @@ describe('validateAgentDraft', () => {
     }
   });
 
+  it('推論の深さは backendOptions の effort にし、モデルで選べなければ指摘する', () => {
+    const chosen = validateAgentDraft(draft({ model: 'sonnet', effort: 'max' }), ctx);
+    expect(chosen.ok && chosen.input.backendOptions).toEqual({ effort: 'max' });
+    expect(validateAgentDraft(draft({ effort: '' }), ctx)).toMatchObject({ ok: true, input: { backendOptions: {} } });
+    const unsupported = validateAgentDraft(draft({ model: 'haiku', effort: 'max' }), ctx);
+    expect(!unsupported.ok && unsupported.errors.effort).toBe('「Haiku」では推論の深さを選べません');
+  });
+
   it('得意分野・相談相手・自発活動は誰でも持てる', () => {
     const result = validateAgentDraft(draft({ expertise: ' 設計 ', autonomyEnabled: true, consultable: true }), ctx);
     expect(result.ok && result.input).toMatchObject({ expertise: '設計', autonomyEnabled: true, consultable: true });

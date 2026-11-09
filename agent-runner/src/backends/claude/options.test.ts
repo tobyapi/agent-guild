@@ -68,10 +68,13 @@ describe('claudeOptions', () => {
     expect(options.additionalDirectories).toEqual([]);
   });
 
-  it('options は maxTurns（正の整数）だけ使う', () => {
+  it('options は maxTurns（正の整数）と effort（Claude Code の深さ）を使う', () => {
     expect(claudeOptions(request(WORKER, { maxTurns: 5 }), run()).maxTurns).toBe(5);
     expect(claudeOptions(request(WORKER, { maxTurns: -1, effort: 'max' }), run())).toMatchObject({
       maxTurns: 30,
+      effort: 'max',
     });
+    expect(claudeOptions(request(WORKER, { effort: 'ultra' }), run()).effort, '知らない深さは渡さない').toBeUndefined();
+    expect(claudeOptions(request(WORKER), run()).effort, '選ばなければ Claude Code の既定').toBeUndefined();
   });
 });

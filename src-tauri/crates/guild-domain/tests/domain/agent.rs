@@ -4,9 +4,8 @@ use guild_domain::agent::{
     effective_permissions, ensure_unique_name, find_template, normalize_agent_input, templates, Agent, PermissionKey,
     UnmentionedPolicy,
 };
-use guild_domain::backend::{OptionSpec, OptionType, PermissionRule};
+use guild_domain::backend::PermissionRule;
 use guild_domain::ids::AgentId;
-use serde_json::{json, Map, Value};
 
 use super::support::{agent, backend, input};
 
@@ -74,27 +73,6 @@ fn autonomy_is_available_to_any_agent() {
     let mut expert = input("expert", "ロジカ");
     expert.autonomy_enabled = true;
     assert_eq!(normalize_agent_input(expert, None).map(|i| i.autonomy_enabled), Ok(true));
-}
-
-#[test]
-fn backend_options_follow_the_option_specs() {
-    let spec = |key: &str, value_type, choices: &[&str]| OptionSpec {
-        key: key.to_owned(),
-        label: key.to_owned(),
-        description: String::new(),
-        value_type,
-        choices: choices.iter().map(|c| (*c).to_owned()).collect(),
-        default: Value::Null,
-    };
-    let mut info = backend("codex");
-    info.options = vec![spec("maxTurns", OptionType::Number, &[]), spec("effort", OptionType::Select, &["low", "high"])];
-    let options = |value: Value| -> Map<String, Value> { value.as_object().cloned().unwrap_or_default() };
-    let mut raw = input("worker", "ソラ");
-    raw.backend_options = options(json!({ "maxTurns": 5, "effort": "high", "unknown": 1, "x": null }));
-    let saved = normalize_agent_input(raw.clone(), Some(&info)).map(|i| Value::Object(i.backend_options));
-    assert_eq!(saved, Ok(json!({ "maxTurns": 5, "effort": "high" })));
-    raw.backend_options = options(json!({ "effort": "max" }));
-    assert!(normalize_agent_input(raw, Some(&info)).is_err());
 }
 
 #[test]

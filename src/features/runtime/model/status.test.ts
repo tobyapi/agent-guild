@@ -5,7 +5,7 @@ import { backendTitle, runtimeBanner } from './status';
 const backend = (overrides: Partial<BackendInfo>): BackendInfo => ({
   id: 'codex',
   label: 'Codex',
-  modelSuggestions: [],
+  models: [],
   defaultModel: '',
   capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
   status: 'ready',

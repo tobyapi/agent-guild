@@ -7,11 +7,11 @@ import { Codex } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex/events.ts';
 import { CODEX_NOT_FOUND, findCodex } from './codex/executable.ts';
+import { codexCatalog } from './codex/models.ts';
 import {
   codexConfig,
   MAX_SYSTEM_PROMPT_LENGTH,
   PERMISSION_RULES,
-  REASONING_EFFORTS,
   threadInput,
   threadOptions,
   unenforceableReason,
@@ -31,19 +31,9 @@ import {
 const INFO: BackendDescriptor = {
   id: 'codex',
   label: 'Codex',
-  modelSuggestions: [],
-  defaultModel: '',
   capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
-  options: [
-    {
-      key: 'reasoningEffort',
-      label: '推論の深さ',
-      description: '深いほど時間をかけて考える',
-      type: 'select',
-      choices: [...REASONING_EFFORTS],
-      default: 'medium',
-    },
-  ],
+  // 推論の深さはモデルごとに選ぶ（models.ts の一覧。backendOptions の effort）
+  options: [],
   permissionRules: [...PERMISSION_RULES],
   canLogin: false,
   midRunPost: 'text',
@@ -63,7 +53,7 @@ async function run(request: RunRequest, { signal, onActivity, onPost }: RunConte
       codexPathOverride: executable.path,
       env: withPathDirs(executable.pathDirs),
     });
-    const thread = codex.startThread(threadOptions(request));
+    const thread = codex.startThread(threadOptions(request, codexCatalog()));
     const { events } = await thread.runStreamed(threadInput(request), { signal });
     const reader = new EventReader(onActivity, onPost);
     for await (const event of events) reader.read(event);
@@ -77,5 +67,6 @@ async function run(request: RunRequest, { signal, onActivity, onPost }: RunConte
 export const codexAdapter: BackendAdapter = {
   info: () => INFO,
   probe: probeCodex,
+  catalog: () => Promise.resolve(codexCatalog()),
   run,
 };

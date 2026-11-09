@@ -2,11 +2,17 @@
 // 汎用フォームの見た目を確かめられるよう、設定項目は4つの型（number / boolean / select / string）をそろえる。
 import type { BackendInfo } from '@/shared/types/domain';
 
+const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
+
 export const MOCK_BACKENDS: BackendInfo[] = [
   {
     id: 'claude',
     label: 'Claude',
-    modelSuggestions: ['sonnet', 'opus', 'haiku'],
+    models: [
+      { id: 'opus', label: 'Opus 5.5', description: 'Opus 5.5 · 難しい作業向け', efforts: EFFORTS, defaultEffort: null },
+      { id: 'sonnet', label: 'Sonnet 5.5', description: 'Sonnet 5.5 · 日々の作業向け', efforts: EFFORTS, defaultEffort: null },
+      { id: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5', description: '', efforts: [], defaultEffort: null },
+    ],
     defaultModel: 'sonnet',
     capabilities: { webSearch: true, webFetch: true, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
     status: 'ready',
@@ -39,15 +45,24 @@ export const MOCK_BACKENDS: BackendInfo[] = [
   {
     id: 'codex',
     label: 'Codex',
-    modelSuggestions: [],
-    defaultModel: '',
+    models: [
+      {
+        id: 'gpt-6.1-sol',
+        label: 'GPT-6.1-Sol',
+        description: 'Latest workhorse model for coding and everyday work.',
+        efforts: [...EFFORTS, 'ultra'],
+        defaultEffort: 'low',
+      },
+      { id: 'gpt-6-luna', label: 'GPT-6-Luna', description: '', efforts: EFFORTS, defaultEffort: 'medium' },
+    ],
+    defaultModel: 'gpt-6.1-sol',
     capabilities: { webSearch: true, webFetch: false, readFiles: true, writeFiles: true, writeAnywhere: true, runCommands: true, skills: true },
     status: 'needs_auth',
     statusMessage: 'ターミナルで codex login を実行してから「再確認」を押してください。',
     options: [
       {
-        key: 'reasoningEffort',
-        label: '推論の深さ',
+        key: 'verbosity',
+        label: '返答の詳しさ',
         description: '',
         type: 'select',
         choices: ['low', 'medium', 'high'],

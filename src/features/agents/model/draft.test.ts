@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { autonomyChannelChoices, checkIntervalMin } from './autonomy';
-import { applyPreset, applyTemplate, changeBackend, draftFromAgent, newDraft, putHeadTag, setPermission } from './draft';
+import { applyPreset, applyTemplate, changeBackend, changeModel, draftFromAgent, newDraft, putHeadTag, setPermission } from './draft';
 import { agentFixture, BACKENDS, TEMPLATES } from './fixtures.test-support';
 import { PERSONALITIES } from './personas/personalities';
 import { findPreset } from './personas/presetText';
@@ -29,6 +29,8 @@ describe('newDraft / draftFromAgent', () => {
     const draft = draftFromAgent(agent, BACKENDS);
     expect(draft.optionValues).toEqual({ maxTurns: '12' });
     expect(draft.storedOptions).toEqual(agent.backendOptions);
+    expect(draft.effort).toBe('');
+    expect(draftFromAgent(agentFixture({ backendOptions: { effort: 'high' } }), BACKENDS).effort).toBe('high');
     expect(draft.autonomyIntervalMin).toBe('30');
     expect(draft).toMatchObject({ tags: agent.tags, unmentioned: 'answer', consultable: false });
   });
@@ -80,9 +82,17 @@ describe('変更', () => {
     expect(presetsFor('unknown')).toEqual([]);
   });
 
-  it('バックエンドを変えるとモデルと固有設定を既定に戻す', () => {
-    expect(changeBackend(draft, 'codex')).toMatchObject({ backend: 'codex', model: '', optionValues: {} });
+  it('バックエンドを変えるとモデル・推論の深さ・固有設定を既定に戻す', () => {
+    const changed = changeBackend({ ...draft, effort: 'high' }, 'codex');
+    expect(changed).toMatchObject({ backend: 'codex', model: '', effort: '', optionValues: {} });
     expect(changeBackend(draft, draft.backend)).toBe(draft);
+  });
+
+  it('モデルを変えると、そのモデルで選べない推論の深さだけを既定に戻す', () => {
+    const high = { ...draft, model: '', effort: 'high' };
+    expect(changeModel(high, 'sonnet', BACKENDS[0])).toMatchObject({ model: 'sonnet', effort: 'high' });
+    expect(changeModel(high, 'haiku', BACKENDS[0])).toMatchObject({ model: 'haiku', effort: '' });
+    expect(changeModel(high, 'my-model', BACKENDS[0]).effort).toBe('high');
   });
 
   it('権限を1つずつ付け外しする', () => {

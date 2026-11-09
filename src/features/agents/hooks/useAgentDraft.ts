@@ -1,7 +1,16 @@
 import { useCallback, useState } from 'react';
 import { useBackends } from '@/features/runtime';
 import type { Agent, AgentTemplate, PermissionKey } from '@/shared/types/domain';
-import { applyPreset, applyTemplate, changeBackend, draftFromAgent, newDraft, putHeadTag, setPermission } from '../model/draft';
+import {
+  applyPreset,
+  applyTemplate,
+  changeBackend,
+  changeModel,
+  draftFromAgent,
+  newDraft,
+  putHeadTag,
+  setPermission,
+} from '../model/draft';
 import type { AgentDraft, DraftUpdate } from '../model/draft';
 import type { AgentPreset } from '../model/presets';
 import type { EditorTarget } from '../store';
@@ -31,6 +40,10 @@ export function useAgentDraft(target: EditorTarget) {
 
   const update: DraftUpdate = useCallback((key, value) => change((current) => ({ ...current, [key]: value })), [change]);
   const setBackend = useCallback((backend: string) => change((current) => changeBackend(current, backend)), [change]);
+  const setModel = useCallback(
+    (model: string) => change((current) => changeModel(current, model, backends.find((b) => b.id === current.backend))),
+    [change, backends],
+  );
   const chooseTemplate = (template: AgentTemplate) => {
     setReplaced(edited && template.id !== templateId);
     setEdited(false);
@@ -43,5 +56,5 @@ export function useAgentDraft(target: EditorTarget) {
     [change],
   );
 
-  return { agent, draft, templateId, replaced, update, setBackend, chooseTemplate, choosePreset, togglePermission };
+  return { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset, togglePermission };
 }

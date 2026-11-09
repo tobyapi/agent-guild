@@ -11,6 +11,7 @@ import type {
   CommandError,
   ErrorCode,
   MidRunPost,
+  ModelSpec,
   OptionSpec,
   PermissionRule,
   RuntimeState,
@@ -34,10 +35,18 @@ export const optionSpecSchema = {
 
 export const permissionRuleSchema = { when: permissionKey, requires: arrayOf(permissionKey) } satisfies Schema<PermissionRule>;
 
+export const modelSpecSchema = {
+  id: string,
+  label: string,
+  description: string,
+  efforts: arrayOf(string),
+  defaultEffort: nullable(string),
+} satisfies Schema<ModelSpec>;
+
 export const backendInfoSchema = {
   id: string,
   label: string,
-  modelSuggestions: arrayOf(string),
+  models: arrayOf(objectOf(modelSpecSchema)),
   defaultModel: string,
   capabilities: objectOf(permissionsSchema),
   status: oneOf<BackendStatus>({ ready: true, needs_auth: true, unavailable: true }),

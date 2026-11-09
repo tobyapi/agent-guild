@@ -1,5 +1,6 @@
 // エージェントの入力の検証と正規化（docs/design.md §2 入力規則をモック用に）。
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
+import { checkEffort, effortFrom, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
 import { permissionRuleProblem } from '@/shared/lib/permissions';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
@@ -12,13 +13,20 @@ function matchesType(spec: OptionSpec, value: unknown): boolean {
   return typeof value === spec.type;
 }
 
-/** backendOptions は選んだバックエンドの OptionSpec に合う値だけを残す（未知のキーは捨てる） */
-function pickOptions(backend: BackendInfo, values: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(values).filter(([key, value]) =>
+/**
+ * backendOptions は選んだバックエンドの OptionSpec に合う値だけを残す（未知のキーは捨てる）。
+ * 推論の深さはモデルで選べるものだけ（選べなければ validation）
+ */
+function pickOptions(backend: BackendInfo, input: AgentInput): Record<string, unknown> {
+  const effort = effortFrom(input.backendOptions);
+  const effortProblem = checkEffort(backend, input.model.trim(), effort);
+  if (effortProblem !== null) fail('validation', effortProblem, 'backendOptions');
+  const picked = Object.fromEntries(
+    Object.entries(input.backendOptions).filter(([key, value]) =>
       backend.options.some((spec) => spec.key === key && matchesType(spec, value)),
     ),
   );
+  return withEffort(picked, effort);
 }
 
 /** 問題があれば validation で失敗させ、保存してよい形にそろえた入力を返す */
@@ -42,6 +50,6 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
     ...input,
     name: input.name.trim(),
     tags: cleanTags(input.tags),
-    backendOptions: pickOptions(backend, input.backendOptions),
+    backendOptions: pickOptions(backend, input),
   };
 }

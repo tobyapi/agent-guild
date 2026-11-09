@@ -31,7 +31,7 @@ pub fn normalize_agent_input(
         return Err(ValidationError::on("avatar", "アバター画像が大きすぎます（2MB まで）"));
     }
     if let Some(info) = backend {
-        input.backend_options = sanitize_backend_options(input.backend_options, &info.options)?;
+        input.backend_options = sanitize_backend_options(input.backend_options, info, &input.model)?;
         ensure_permission_rules(&input, info)?;
     }
     Ok(input)

@@ -2,12 +2,14 @@
 
 import type { Options } from '@anthropic-ai/claude-agent-sdk';
 import { logInfo } from '../../log.ts';
-import type { Permissions } from '../../protocol.ts';
-import { optionPositiveInt, type RunRequest } from '../types.ts';
+import { EFFORT_OPTION, type Permissions } from '../../protocol.ts';
+import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
 import { fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
 
 export const DEFAULT_MODEL = 'sonnet';
+/** Claude Code の推論の深さ（浅い順）。backendOptions の effort はこのどれか */
+export const CLAUDE_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 /** 暴走を防ぐ既定のターン上限（options.maxTurns で上書きできる） */
 export const DEFAULT_MAX_TURNS = 30;
 
@@ -50,6 +52,8 @@ export function claudeOptions(request: RunRequest, { abortController, pluginDir,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],
     model: request.model || DEFAULT_MODEL,
+    // 選ばなければ Claude Code の既定（settingSources: [] なので、利用者の Claude Code の設定の深さは使わない）
+    effort: optionChoice(request.options, EFFORT_OPTION, CLAUDE_EFFORTS),
     systemPrompt: request.systemPrompt,
     // tools は使える組み込みツールの集合。ファイル操作は canUseTool がパスで判定する
     tools,

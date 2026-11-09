@@ -1,5 +1,6 @@
 // エージェント編集画面の入力中の値（AgentDraft）と、その作り方・変え方。
 import { presetColor } from '@/shared/lib/colors';
+import { checkEffort, effortFrom } from '@/shared/lib/models';
 import type {
   Agent,
   AgentTemplate,
@@ -27,6 +28,8 @@ export interface AgentDraft {
   expertise: string;
   backend: string;
   model: string;
+  /** 推論の深さ（空なら既定。backendOptions の effort に保存する） */
+  effort: string;
   /** バックエンド固有設定の入力値（OptionSpec.key → 値） */
   optionValues: OptionValues;
   /** 保存されていた backendOptions（バックエンドの一覧が届いていないときにそのまま保つ） */
@@ -90,6 +93,7 @@ export function newDraft(template: AgentTemplate | undefined, backends: readonly
     tone: '',
     backend: defaultBackend(backends),
     model: '',
+    effort: '',
     optionValues: {},
     storedOptions: {},
     autonomyIntervalMin: String(DEFAULT_INTERVAL_MIN),
@@ -112,6 +116,7 @@ export function draftFromAgent(agent: Agent, backends: readonly BackendInfo[]): 
     expertise: agent.expertise,
     backend: agent.backend,
     model: agent.model,
+    effort: effortFrom(agent.backendOptions),
     optionValues: optionValuesFrom(specs, agent.backendOptions),
     storedOptions: agent.backendOptions,
     permissions: agent.permissions,
@@ -135,9 +140,16 @@ export function putHeadTag(draft: AgentDraft, tag: string): AgentDraft {
   return { ...draft, tags: [tag, ...draft.tags.filter((other) => tagKey(other) !== tagKey(tag))] };
 }
 
-/** バックエンドを変える。モデルと固有設定はバックエンドごとに違うので既定に戻す */
+/** バックエンドを変える。モデル・推論の深さ・固有設定はバックエンドごとに違うので既定に戻す */
 export function changeBackend(draft: AgentDraft, backend: string): AgentDraft {
-  return draft.backend === backend ? draft : { ...draft, backend, model: '', optionValues: {}, storedOptions: {} };
+  if (draft.backend === backend) return draft;
+  return { ...draft, backend, model: '', effort: '', optionValues: {}, storedOptions: {} };
+}
+
+/** モデルを変える。いまの推論の深さが新しいモデルで選べなければ既定に戻す */
+export function changeModel(draft: AgentDraft, model: string, backend: BackendInfo | undefined): AgentDraft {
+  const effort = checkEffort(backend, model, draft.effort) === null ? draft.effort : '';
+  return { ...draft, model, effort };
 }
 
 export function setPermission(draft: AgentDraft, key: PermissionKey, on: boolean): AgentDraft {

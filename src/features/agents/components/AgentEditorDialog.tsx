@@ -36,7 +36,8 @@ export function AgentEditorDialog({ channels, onOpenSkillLibrarySettings }: Agen
 }
 
 function AgentEditor({ target, channels, onOpenSkillLibrarySettings }: AgentEditorDialogProps & { target: EditorTarget }) {
-  const { agent, draft, templateId, replaced, update, setBackend, chooseTemplate, choosePreset, togglePermission } = useAgentDraft(target);
+  const { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset, togglePermission } =
+    useAgentDraft(target);
   const save = useAgentSave(agent, draft);
   const formId = useId();
   const sectionProps = { draft, update, errors: save.errors, touch: save.touch };
@@ -57,7 +58,14 @@ function AgentEditor({ target, channels, onOpenSkillLibrarySettings }: AgentEdit
             <BasicsFields {...sectionProps} />
             <PersonaFields draft={draft} update={update} />
             <BehaviorFields draft={draft} update={update} />
-            <BrainFields draft={draft} errors={save.errors} optionErrors={save.optionErrors} update={update} onBackend={setBackend} />
+            <BrainFields
+              draft={draft}
+              errors={save.errors}
+              optionErrors={save.optionErrors}
+              update={update}
+              onBackend={setBackend}
+              onModel={setModel}
+            />
             <PermissionFields
               backendId={draft.backend}
               permissions={draft.permissions}

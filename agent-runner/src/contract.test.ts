@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { createBuiltinRegistry } from './backends/registry.ts';
+import { EMPTY_CATALOG } from './backends/types.ts';
 import { parseLine, serializeEvent, type JsonObject } from './line-parser.ts';
 import type { RunnerEvent } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
@@ -38,14 +39,21 @@ describe('contracts/runner', () => {
     }
   });
 
-  it('アダプタが申告する BackendInfo は実例と同じフィールドを持つ', async () => {
+  it('アダプタが申告する BackendInfo は実例と同じフィールドを持つ', () => {
     const ready = fixture('events.jsonl').find((event) => event.type === 'ready') as unknown as
       | Extract<RunnerEvent, { type: 'ready' }>
       | undefined;
     const example = ready?.backends[0];
     expect(example).toBeDefined();
     if (!example) return;
-    for (const info of await createBuiltinRegistry().describe()) {
+    expect(sortedKeys(example.models[0] ?? {})).toEqual(['defaultEffort', 'description', 'efforts', 'id', 'label']);
+    const registry = createBuiltinRegistry();
+    for (const id of ['claude', 'codex']) {
+      // probe とモデルの一覧は利用者の環境の Claude Code・Codex に聞くので、ここでは形だけを合わせる
+      const descriptor = registry.find(id)?.info();
+      expect(descriptor).toBeDefined();
+      if (!descriptor) continue;
+      const info = { ...descriptor, status: 'ready', statusMessage: '', ...EMPTY_CATALOG };
       expect(sortedKeys(info)).toEqual(sortedKeys(example));
       expect(sortedKeys(info.capabilities)).toEqual(sortedKeys(example.capabilities));
       for (const option of info.options) expect(sortedKeys(option)).toEqual(sortedKeys(example.options[0] ?? {}));

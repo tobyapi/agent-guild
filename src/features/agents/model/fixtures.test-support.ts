@@ -50,7 +50,10 @@ export const BACKENDS: BackendInfo[] = [
   {
     id: 'claude',
     label: 'Claude',
-    modelSuggestions: ['sonnet'],
+    models: [
+      { id: 'sonnet', label: 'Sonnet', description: '日々の作業向け', efforts: ['low', 'high', 'max'], defaultEffort: null },
+      { id: 'haiku', label: 'Haiku', description: '', efforts: [], defaultEffort: null },
+    ],
     defaultModel: 'sonnet',
     capabilities: allCapabilities,
     status: 'needs_auth',
@@ -66,7 +69,7 @@ export const BACKENDS: BackendInfo[] = [
   {
     id: 'codex',
     label: 'Codex',
-    modelSuggestions: [],
+    models: [],
     defaultModel: '',
     capabilities: allCapabilities,
     status: 'ready',

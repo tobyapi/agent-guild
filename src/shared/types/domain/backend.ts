@@ -28,10 +28,27 @@ export interface PermissionRule {
  */
 export type MidRunPost = 'tool' | 'text';
 
+/**
+ * 選べるモデル（id は Agent.model に保存する値）。efforts は選べる推論の深さ（浅い順。空なら選べない）、
+ * defaultEffort は深さを選ばないときの深さ（null はバックエンドに任せる）
+ */
+export interface ModelSpec {
+  id: string;
+  label: string;
+  description: string;
+  efforts: string[];
+  defaultEffort: string | null;
+}
+
+/** Agent.backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか） */
+export const EFFORT_OPTION = 'effort';
+
 export interface BackendInfo {
   id: BackendId;
   label: string;
-  modelSuggestions: string[];
+  /** 選べるモデル（分からなければ空。そのときモデルは自由入力で、深さは選べない） */
+  models: ModelSpec[];
+  /** モデルを選ばないときに使うモデル（空ならバックエンドに任せる） */
   defaultModel: string;
   /** バックエンドがそもそも提供できる能力 */
   capabilities: Permissions;

@@ -14,7 +14,7 @@ const request = (permissions: Permissions, options: Record<string, unknown> = {}
 
 describe('threadOptions', () => {
   it('作業者（runCommands あり）は workspace-write・Web 検索あり・ネットワークあり', () => {
-    expect(threadOptions(request(WORKER, { reasoningEffort: 'high' }))).toEqual({
+    expect(threadOptions(request(WORKER, { effort: 'high' }))).toEqual({
       workingDirectory: '/data/a1/work',
       skipGitRepoCheck: true,
       sandboxMode: 'workspace-write',
@@ -27,10 +27,24 @@ describe('threadOptions', () => {
   });
 
   it('専門家も MEMORY.md のために workspace-write。Web の権限がなければ検索もネットワークも閉じる。readableDirs は渡さない', () => {
-    const options = threadOptions(request({ ...EXPERT, webSearch: false, webFetch: false }, { reasoningEffort: 'max' }, 'gpt-x'));
+    const options = threadOptions(request({ ...EXPERT, webSearch: false, webFetch: false }, { effort: 'deepest' }, 'gpt-x'));
     expect(options).toMatchObject({ sandboxMode: 'workspace-write', webSearchMode: 'disabled', networkAccessEnabled: false, model: 'gpt-x' });
-    expect(options.modelReasoningEffort).toBeUndefined();
+    expect(options.modelReasoningEffort, 'SDK が受け付けない深さは渡さない').toBeUndefined();
     expect(options).not.toHaveProperty('additionalDirectories');
+  });
+
+  it('モデルと深さを選んでいなければ、一覧の既定を明示して渡す（Codex の config.toml の既定は使わない）', () => {
+    const catalog = {
+      defaultModel: 'gpt-a',
+      models: [
+        { id: 'gpt-a', label: 'A', description: '', efforts: ['low', 'high'], defaultEffort: 'low' },
+        { id: 'gpt-b', label: 'B', description: '', efforts: ['medium'], defaultEffort: 'medium' },
+      ],
+    };
+    expect(threadOptions(request(WORKER), catalog)).toMatchObject({ model: 'gpt-a', modelReasoningEffort: 'low' });
+    expect(threadOptions(request(WORKER, {}, 'gpt-b'), catalog)).toMatchObject({ model: 'gpt-b', modelReasoningEffort: 'medium' });
+    expect(threadOptions(request(WORKER, { effort: 'high' }, 'gpt-a'), catalog)).toMatchObject({ modelReasoningEffort: 'high' });
+    expect(threadOptions(request(WORKER, {}, 'custom'), catalog)).toMatchObject({ model: 'custom', modelReasoningEffort: undefined });
   });
 });
 

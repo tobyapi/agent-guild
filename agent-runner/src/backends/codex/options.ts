@@ -5,10 +5,10 @@
 // 作業場所の外への書き込み（writeAnywhere）は sandbox を外して行う（danger-full-access）。外すとネットワークも止められない。
 
 import type { CodexOptions, Input, ThreadOptions } from '@openai/codex-sdk';
-import type { PermissionRule, Permissions } from '../../protocol.ts';
-import { brokenRule, declaredRules, optionChoice, type ExplainedRule, type RunRequest } from '../types.ts';
+import { EFFORT_OPTION, type PermissionRule, type Permissions } from '../../protocol.ts';
+import { brokenRule, declaredRules, EMPTY_CATALOG, optionChoice, type ExplainedRule, type ModelCatalog, type RunRequest } from '../types.ts';
+import { CODEX_EFFORTS, defaultEffortOf } from './models.ts';
 
-export const REASONING_EFFORTS = ['low', 'medium', 'high'] as const;
 /** developer_instructions はコマンドライン引数で渡るので、Windows のコマンドラインの上限（32767 文字）に収める */
 export const MAX_SYSTEM_PROMPT_LENGTH = 24_000;
 
@@ -26,9 +26,12 @@ export function codexConfig(request: RunRequest): NonNullable<CodexOptions['conf
 /**
  * readableDirs は渡さない: Codex の additionalDirectories は workspace-write で「書ける」場所になってしまい、
  * 一方で読み取りは sandbox がどこでも許すので、渡さなくても読める。
+ * モデルと推論の深さは、選んでいなければモデルの一覧（catalog）の既定を明示して渡す（Codex の config.toml の既定は使わない）
  */
-export function threadOptions(request: RunRequest): ThreadOptions {
+export function threadOptions(request: RunRequest, catalog: ModelCatalog = EMPTY_CATALOG): ThreadOptions {
   const { permissions } = request;
+  const model = request.model || catalog.defaultModel;
+  const fallbackEffort = { [EFFORT_OPTION]: defaultEffortOf(catalog, model) };
   return {
     workingDirectory: request.workspace,
     skipGitRepoCheck: true,
@@ -37,8 +40,9 @@ export function threadOptions(request: RunRequest): ThreadOptions {
     webSearchMode: permissions.webSearch ? 'live' : 'disabled',
     // Codex に Web 閲覧の専用ツールはなく、ページの取得はネットワーク越しのコマンドで行う（webFetch のときだけ開く）
     networkAccessEnabled: permissions.webFetch,
-    model: request.model || undefined,
-    modelReasoningEffort: optionChoice(request.options, 'reasoningEffort', REASONING_EFFORTS),
+    model: model || undefined,
+    modelReasoningEffort:
+      optionChoice(request.options, EFFORT_OPTION, CODEX_EFFORTS) ?? optionChoice(fallbackEffort, EFFORT_OPTION, CODEX_EFFORTS),
   };
 }
 

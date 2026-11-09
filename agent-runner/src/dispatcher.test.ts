@@ -9,8 +9,6 @@ const PERMISSIONS = { webSearch: true, webFetch: true, readFiles: true, writeFil
 const INFO: BackendDescriptor = {
   id: 'fake',
   label: 'Fake',
-  modelSuggestions: [],
-  defaultModel: '',
   capabilities: PERMISSIONS,
   options: [],
   permissionRules: [],
@@ -35,7 +33,7 @@ const fakeAdapter: BackendAdapter = {
     return Promise.resolve(`echo: ${request.prompt}`);
   },
 };
-const FAKE_INFO = { ...INFO, status: 'needs_auth', statusMessage: 'ログインしてください' };
+const FAKE_INFO = { ...INFO, status: 'needs_auth', statusMessage: 'ログインしてください', models: [], defaultModel: '' };
 
 const runLine = (id: string, prompt: string, backend = 'fake'): string =>
   JSON.stringify({

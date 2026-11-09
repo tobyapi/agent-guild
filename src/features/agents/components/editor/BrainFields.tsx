@@ -1,11 +1,10 @@
-import { useId } from 'react';
 import { BackendStatus, useBackends } from '@/features/runtime';
-import { SelectField, TextField } from '@/shared/ui';
-import type { BackendInfo } from '@/shared/types/domain';
+import { SelectField } from '@/shared/ui';
 import type { AgentDraft, DraftUpdate } from '../../model/draft';
 import type { AgentErrors } from '../../model/validation';
 import { BackendOptionsFields } from './BackendOptionsFields';
 import { EditorSection } from './EditorSection';
+import { ModelFields } from './ModelFields';
 
 export interface BrainFieldsProps {
   draft: AgentDraft;
@@ -13,16 +12,12 @@ export interface BrainFieldsProps {
   optionErrors: Record<string, string>;
   update: DraftUpdate;
   onBackend: (backendId: string) => void;
+  onModel: (model: string) => void;
 }
 
-function modelPlaceholder(backend: BackendInfo | undefined): string {
-  return backend?.defaultModel ? `既定: ${backend.defaultModel}` : '既定のモデル';
-}
-
-/** 頭脳: バックエンド（状態と再確認）・モデル・バックエンド固有の詳細設定 */
-export function BrainFields({ draft, errors, optionErrors, update, onBackend }: BrainFieldsProps) {
+/** 頭脳: バックエンド（状態と再確認）・モデルと推論の深さ・バックエンド固有の詳細設定 */
+export function BrainFields({ draft, errors, optionErrors, update, onBackend, onModel }: BrainFieldsProps) {
   const backends = useBackends();
-  const listId = useId();
   const backend = backends.find((candidate) => candidate.id === draft.backend);
   const unknownBackend = backend === undefined && draft.backend !== '';
   return (
@@ -43,19 +38,14 @@ export function BrainFields({ draft, errors, optionErrors, update, onBackend }: 
         ))}
       </SelectField>
       {backend && <BackendStatus backend={backend} />}
-      <TextField
-        label="モデル"
-        optional
-        value={draft.model}
-        onChange={(value) => update('model', value)}
-        list={listId}
-        placeholder={modelPlaceholder(backend)}
-        hint="空欄ならバックエンドの既定のモデルを使います。"
-        spellCheck={false}
+      <ModelFields
+        backend={backend}
+        model={draft.model}
+        effort={draft.effort}
+        effortError={errors.effort}
+        onModel={onModel}
+        onEffort={(effort) => update('effort', effort)}
       />
-      <datalist id={listId}>
-        {backend?.modelSuggestions.map((model) => <option key={model} value={model} />)}
-      </datalist>
       {backend && backend.options.length > 0 && (
         <BackendOptionsFields
           backend={backend}
