@@ -5,7 +5,8 @@
 // 作業場所の外への書き込み（writeAnywhere）は sandbox を外して行う（danger-full-access）。外すとネットワークも止められない。
 
 import type { CodexOptions, Input, ThreadOptions } from '@openai/codex-sdk';
-import { EFFORT_OPTION, type PermissionRule, type Permissions } from '../../protocol.ts';
+import { SECRET_ENV_GLOBS } from '../agent-env.ts';
+import { EFFORT_OPTION, type PermissionKey, type PermissionRule, type Permissions } from '../../protocol.ts';
 import { brokenRule, declaredRules, EMPTY_CATALOG, optionChoice, type ExplainedRule, type ModelCatalog, type RunRequest } from '../types.ts';
 import { CODEX_EFFORTS, defaultEffortOf } from './models.ts';
 
@@ -20,6 +21,8 @@ export function codexConfig(request: RunRequest): NonNullable<CodexOptions['conf
     project_doc_max_bytes: 0,
     // 書き込みは作業場所だけ（既定では TMPDIR と /tmp にも書ける）
     sandbox_workspace_write: { exclude_tmpdir_env_var: true, exclude_slash_tmp: true },
+    // コマンドには秘密らしい環境変数を渡さない（Codex 自身は認証に使うので、Codex のプロセスには渡す）
+    shell_environment_policy: { exclude: [...SECRET_ENV_GLOBS] },
   };
 }
 
@@ -82,6 +85,12 @@ const RULES: readonly ExplainedRule[] = [
 
 /** 申告する権限の規則（BackendInfo.permissionRules） */
 export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
+
+/**
+ * 持ち出しの危険がある組（BackendInfo.leakRisks）。sandbox はどこでも読めて、コマンドの実行は止められないので、
+ * Web 閲覧（sandbox のネットワークを開ける）を許すだけで、ファイルを読んで外へ送れる
+ */
+export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [['webFetch']];
 
 /**
  * Codex で守れない権限の組み合わせなら、その理由。Codex は作業にシェルを使うので、コマンドの実行そのものは止められない。

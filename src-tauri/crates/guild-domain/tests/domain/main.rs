@@ -10,6 +10,7 @@ mod mentions;
 mod prompt_conversation;
 mod prompt_delegation;
 mod prompt_posting;
+mod prompt_safeguards;
 mod prompt_system;
 mod reply;
 mod routing_human;

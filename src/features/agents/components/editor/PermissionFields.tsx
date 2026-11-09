@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { useBackend } from '@/features/runtime';
 import { Icon, Switch } from '@/shared/ui';
 import type { PermissionKey, Permissions } from '@/shared/types/domain';
-import { PERMISSION_ORDER, permissionRuleProblem, permissionText } from '../../model/permissions';
+import { leakRisk, PERMISSION_ORDER, permissionRuleProblem, permissionText } from '../../model/permissions';
 import { EditorSection } from './EditorSection';
 import styles from './PermissionFields.module.css';
 
@@ -14,20 +14,20 @@ export interface PermissionFieldsProps {
   onToggle: (key: PermissionKey, on: boolean) => void;
 }
 
-/** できること: 権限のトグル（docs/ui-design.md §6.3）。バックエンドの権限の規則に反していれば先に知らせる */
+/**
+ * できること: 権限のトグル（docs/ui-design.md §6.3）。バックエンドの権限の規則に反していれば先に知らせる。
+ * 持ち出しの危険がある組み合わせ（leakRisks）も知らせる（保存は止めない）
+ */
 export function PermissionFields({ backendId, permissions, error, onToggle }: PermissionFieldsProps) {
   const backend = useBackend(backendId);
   // 規則に反していれば保存する前から知らせる（保存も validation で止まる）。backend の問題は頭脳の区画に出る
   const rule = permissionRuleProblem(backend, permissions);
   const notice = rule?.field === 'permissions' ? rule.message : error;
+  const leak = leakRisk(backend, permissions);
   return (
     <EditorSection title="できること">
-      {notice && (
-        <p className={styles.notice} role="note">
-          <Icon name="alert" className={styles.warningIcon} />
-          {notice}
-        </p>
-      )}
+      {notice && <Notice>{notice}</Notice>}
+      {leak && <Notice>{leak}</Notice>}
       <ul className={styles.list}>
         {PERMISSION_ORDER.map((key) => (
           <PermissionToggle
@@ -40,6 +40,15 @@ export function PermissionFields({ backendId, permissions, error, onToggle }: Pe
         ))}
       </ul>
     </EditorSection>
+  );
+}
+
+function Notice({ children }: { children: string }) {
+  return (
+    <p className={styles.notice} role="note">
+      <Icon name="alert" className={styles.warningIcon} />
+      {children}
+    </p>
   );
 }
 

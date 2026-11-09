@@ -1,5 +1,5 @@
-// 権限の名前と、実効権限・バックエンドの権限の規則（BackendInfo.permissionRules）の判定（docs/design.md §2・§5）。
-// Rust の保存時検証（guild-domain の agent/validation.rs）と同じ判定を、編集画面とモックで使う。
+// 権限の名前と、実効権限・バックエンドの権限の規則（BackendInfo.permissionRules）・持ち出しの危険（leakRisks）の判定
+// （docs/design.md §2・§5）。権限の規則は Rust の保存時検証（guild-domain の agent/validation.rs）と同じ判定を、編集画面とモックで使う。
 import type { BackendInfo, PermissionKey, Permissions } from '@/shared/types/domain';
 
 /** 表示の順 */
@@ -54,4 +54,17 @@ export function permissionRuleProblem(backend: BackendInfo | undefined, permissi
       : { field: 'backend', message: `${head}。${backend.label}では使えないので、別のバックエンドを選んでください` };
   }
   return null;
+}
+
+/**
+ * 実効権限が持ち出しの危険がある組（BackendInfo.leakRisks）のどれかをすべて満たしていれば、その知らせ。
+ * 保存は止めない（任せる仕事しだいで、知ったうえで許してよい）。バックエンドが分からなければ null
+ */
+export function leakRisk(backend: BackendInfo | undefined, permissions: Permissions): string | null {
+  if (!backend) return null;
+  const effective = effectivePermissions(permissions, backend.capabilities);
+  const risk = backend.leakRisks.find((keys) => keys.length > 0 && keys.every((key) => effective[key]));
+  if (!risk) return null;
+  const head = risk.length === 1 ? `${backend.label}では${quoted(risk)}を許すと` : `${quoted(risk)}がそろうと`;
+  return `${head}、このパソコンのどのファイルでも読めて、外へも送れる状態になります。Web ページなどに紛れた指示で、ファイルの中身を持ち出されるおそれがあります。秘密を扱う仕事は、この組み合わせのないエージェントに任せてください。`;
 }

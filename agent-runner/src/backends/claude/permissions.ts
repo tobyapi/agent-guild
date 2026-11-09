@@ -2,7 +2,7 @@
 
 import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
-import type { PermissionRule, Permissions } from '../../protocol.ts';
+import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
@@ -66,6 +66,12 @@ const RULES: readonly ExplainedRule[] = [
 
 /** 申告する権限の規則（BackendInfo.permissionRules） */
 export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
+
+/**
+ * 持ち出しの危険がある組（BackendInfo.leakRisks）。作業場所の外にも書けるなら読み取りもどこでもでき（fileAccessPolicy）、
+ * Web 閲覧は URL に情報を入れて外へ送れる。コマンドの実行（Bash）を許すときは、必ずこの組もそろう（RULES）
+ */
+export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [['readFiles', 'writeAnywhere', 'webFetch']];
 
 /** Claude で守れない権限の組み合わせなら、その理由 */
 export function unenforceableReason(permissions: Permissions): string | null {

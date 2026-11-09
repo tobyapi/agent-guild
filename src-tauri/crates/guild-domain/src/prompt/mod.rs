@@ -14,6 +14,7 @@ mod modes;
 mod persona;
 mod report;
 mod rules;
+mod safeguards;
 mod skills;
 
 pub use conversation::{
@@ -59,7 +60,7 @@ pub struct PromptContext<'a> {
 }
 
 /// システムプロンプト: 人格 → 仕事 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
-/// 作業場所とメモ → 場所と共通ルール
+/// 作業場所とメモ → 外の資料の扱いと操作の前の確認 → 場所と共通ルール
 pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
     let sections = [
         persona::section(ctx.agent),
@@ -69,6 +70,7 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
         consult::section(ctx),
         skills::section(ctx.skills, &ctx.permissions),
         memory::section(ctx),
+        safeguards::section(ctx),
         rules::section(ctx),
     ];
     sections

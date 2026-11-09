@@ -10,7 +10,7 @@ import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
 import { claudeCatalog } from './claude/models.ts';
 import { claudeOptions, DEFAULT_MAX_TURNS } from './claude/options.ts';
-import { PERMISSION_RULES, unenforceableReason } from './claude/permissions.ts';
+import { LEAK_RISKS, PERMISSION_RULES, unenforceableReason } from './claude/permissions.ts';
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
 import {
@@ -39,6 +39,7 @@ const INFO: BackendDescriptor = {
     },
   ],
   permissionRules: [...PERMISSION_RULES],
+  leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   canLogin: CAN_LOGIN,
   midRunPost: 'tool',
 };

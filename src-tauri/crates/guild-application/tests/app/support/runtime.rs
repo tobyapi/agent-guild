@@ -94,6 +94,7 @@ pub fn ready_backend(id: &str) -> BackendInfo {
         status_message: String::new(),
         options: Vec::new(),
         permission_rules: Vec::new(),
+        leak_risks: Vec::new(),
         can_login: true,
         mid_run_post: None,
     }

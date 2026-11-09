@@ -23,6 +23,7 @@ async fn starts_and_publishes_backends() {
     assert_eq!(backends[0].models[0].default_effort.as_deref(), Some("low"));
     let rule = &backends[0].permission_rules[0];
     assert_eq!((rule.when, rule.requires.as_slice()), (PermissionKey::WriteFiles, &[PermissionKey::RunCommands][..]));
+    assert_eq!(backends[0].leak_risks, [[PermissionKey::WebFetch]]);
     client.shutdown().await;
 }
 

@@ -73,11 +73,16 @@ describe('threadInput', () => {
 
 describe('codexConfig', () => {
   it('人格は developer_instructions、作業場所の AGENTS.md は無視、一時フォルダへの書き込みは除外', () => {
-    expect(codexConfig(request(WORKER))).toEqual({
+    expect(codexConfig(request(WORKER))).toMatchObject({
       developer_instructions: 'あなたはソラだ',
       project_doc_max_bytes: 0,
       sandbox_workspace_write: { exclude_tmpdir_env_var: true, exclude_slash_tmp: true },
     });
+  });
+
+  it('コマンドには秘密らしい環境変数を渡さない（Codex の既定の除外には頼らない）', () => {
+    const { shell_environment_policy: policy } = codexConfig(request(WORKER)) as { shell_environment_policy: { exclude: string[] } };
+    expect(policy.exclude).toEqual(expect.arrayContaining(['*PASSWORD*', '*CREDENTIAL*', 'AUTH', '*_AUTH_*', '*_PAT']));
   });
 });
 

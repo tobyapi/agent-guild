@@ -4,6 +4,7 @@ import type { Options } from '@anthropic-ai/claude-agent-sdk';
 import { logInfo } from '../../log.ts';
 import { EFFORT_OPTION, type Permissions } from '../../protocol.ts';
 import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
+import { claudeEnv } from './env.ts';
 import { fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
 
@@ -70,7 +71,8 @@ export function claudeOptions(request: RunRequest, { abortController, pluginDir,
     persistSession: false,
     maxTurns: optionPositiveInt(request.options, 'maxTurns') ?? DEFAULT_MAX_TURNS,
     abortController,
-    env: { ...process.env, CLAUDE_AGENT_SDK_CLIENT_APP: 'agent-guild' },
+    // 秘密らしい環境変数は渡さない（Bash から読まれないように。Claude Code 自身の認証に要るものは残す）
+    env: { ...claudeEnv(process.env), CLAUDE_AGENT_SDK_CLIENT_APP: 'agent-guild' },
     stderr: (data) => logInfo(`[claude] ${data.trimEnd()}`),
   };
 }

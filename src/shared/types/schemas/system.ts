@@ -53,6 +53,7 @@ export const backendInfoSchema = {
   statusMessage: string,
   options: arrayOf(objectOf(optionSpecSchema)),
   permissionRules: arrayOf(objectOf(permissionRuleSchema)),
+  leakRisks: arrayOf(arrayOf(permissionKey)),
   canLogin: boolean,
   midRunPost: nullable(oneOf<MidRunPost>({ tool: true, text: true })),
 } satisfies Schema<BackendInfo>;

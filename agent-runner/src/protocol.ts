@@ -81,6 +81,8 @@ export interface BackendInfo {
   options: OptionSpec[];
   /** 守れない権限の組み合わせ（この規則に反する run は unsupported_permission で拒否される） */
   permissionRules: PermissionRule[];
+  /** どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる（資料に紛れた指示で持ち出されうる。React が知らせる） */
+  leakRisks: PermissionKey[][];
   /** アプリからログインを始められる（login 要求を受け付ける） */
   canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */

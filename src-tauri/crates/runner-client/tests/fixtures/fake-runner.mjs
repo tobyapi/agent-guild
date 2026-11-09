@@ -19,6 +19,7 @@ export const BACKEND = {
   statusMessage: '',
   options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],
   permissionRules: [{ when: 'writeFiles', requires: ['runCommands'] }],
+  leakRisks: [['webFetch']],
   canLogin: true,
   midRunPost: 'tool',
   addedLater: true, // 未知のフィールドは無視されるはず

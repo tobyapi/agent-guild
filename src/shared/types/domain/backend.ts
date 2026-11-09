@@ -58,6 +58,11 @@ export interface BackendInfo {
   options: OptionSpec[];
   /** 実効権限がこの規則に反するエージェントは保存できない（validation）。編集画面でも知らせる */
   permissionRules: PermissionRule[];
+  /**
+   * 持ち出しの危険がある権限の組。どれかの組をすべて許すと、このパソコンのどのファイルでも読めて外へも送れる
+   * （資料に紛れた指示で中身を持ち出されうる）。編集画面で知らせる（保存は止めない）
+   */
+  leakRisks: PermissionKey[][];
   /** アプリからログインを始められる（login_backend） */
   canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */

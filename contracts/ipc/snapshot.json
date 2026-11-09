@@ -205,6 +205,13 @@
           ]
         }
       ],
+      "leakRisks": [
+        [
+          "readFiles",
+          "writeAnywhere",
+          "webFetch"
+        ]
+      ],
       "canLogin": true,
       "midRunPost": "tool"
     },
@@ -243,7 +250,7 @@
       "defaultModel": "gpt-6.1-sol",
       "capabilities": {
         "webSearch": true,
-        "webFetch": false,
+        "webFetch": true,
         "readFiles": true,
         "writeFiles": true,
         "writeAnywhere": true,
@@ -267,6 +274,11 @@
             "webFetch"
           ]
         }
+      ],
+      "leakRisks": [
+        [
+          "webFetch"
+        ]
       ],
       "canLogin": false,
       "midRunPost": "text"

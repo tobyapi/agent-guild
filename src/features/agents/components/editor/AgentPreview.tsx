@@ -1,8 +1,8 @@
-import { BackendTag } from '@/features/runtime';
+import { BackendTag, useBackend } from '@/features/runtime';
 import { Avatar, Badge } from '@/shared/ui';
 import { behaviorSummary } from '../../model/behavior';
 import type { AgentDraft } from '../../model/draft';
-import { PERMISSION_LABELS, riskyGrants } from '../../model/permissions';
+import { leakRisk, PERMISSION_LABELS, riskyGrants } from '../../model/permissions';
 import { TagBadge } from '../TagBadge';
 import styles from './AgentPreview.module.css';
 
@@ -10,6 +10,7 @@ import styles from './AgentPreview.module.css';
 export function AgentPreview({ draft }: { draft: AgentDraft }) {
   const name = draft.name.trim();
   const risky = riskyGrants(draft.permissions);
+  const leaky = leakRisk(useBackend(draft.backend), draft.permissions) !== null;
   const behaviors = behaviorSummary(draft);
   return (
     <aside className={styles.preview} aria-label="プレビュー">
@@ -34,13 +35,14 @@ export function AgentPreview({ draft }: { draft: AgentDraft }) {
           ))}
         </div>
       )}
-      {risky.length > 0 && (
+      {(risky.length > 0 || leaky) && (
         <div className={styles.badges}>
           {risky.map((key) => (
             <Badge key={key} tone="warning">
               {PERMISSION_LABELS[key]}: 許可
             </Badge>
           ))}
+          {leaky && <Badge tone="warning">持ち出しの危険</Badge>}
         </div>
       )}
     </aside>

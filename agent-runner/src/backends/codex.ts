@@ -10,6 +10,7 @@ import { CODEX_NOT_FOUND, findCodex } from './codex/executable.ts';
 import { codexCatalog } from './codex/models.ts';
 import {
   codexConfig,
+  LEAK_RISKS,
   MAX_SYSTEM_PROMPT_LENGTH,
   PERMISSION_RULES,
   threadInput,
@@ -35,6 +36,7 @@ const INFO: BackendDescriptor = {
   // 推論の深さはモデルごとに選ぶ（models.ts の一覧。backendOptions の effort）
   options: [],
   permissionRules: [...PERMISSION_RULES],
+  leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   canLogin: false,
   midRunPost: 'text',
 };

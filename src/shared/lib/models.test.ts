@@ -14,6 +14,7 @@ const backend: BackendInfo = {
   statusMessage: '',
   options: [],
   permissionRules: [],
+  leakRisks: [],
   canLogin: false,
   midRunPost: 'tool',
 };

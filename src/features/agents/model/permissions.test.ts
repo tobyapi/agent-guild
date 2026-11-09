@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BackendInfo, Permissions } from '@/shared/types/domain';
 import { allCapabilities, BACKENDS } from './fixtures.test-support';
-import { effectivePermissions, permissionRuleProblem, permissionText, riskyGrants } from './permissions';
+import { effectivePermissions, leakRisk, permissionRuleProblem, permissionText, riskyGrants } from './permissions';
 
 const writerOnly: Permissions = { ...allCapabilities, writeAnywhere: false, runCommands: false };
 
@@ -83,5 +83,24 @@ describe('permissionText / riskyGrants', () => {
   it('注意書きのある権限のうち許可しているものだけを返す', () => {
     expect(riskyGrants(allCapabilities)).toEqual(['writeAnywhere', 'runCommands']);
     expect(riskyGrants(writerOnly)).toEqual([]);
+  });
+});
+
+describe('leakRisk', () => {
+  const reader: Permissions = { ...allCapabilities, writeFiles: false, writeAnywhere: false, runCommands: false };
+
+  it('組がそろったときだけ、その権限を挙げて知らせる', () => {
+    expect(leakRisk(find('claude'), reader)).toBeNull();
+    expect(leakRisk(find('claude'), { ...reader, writeFiles: true, writeAnywhere: true })).toMatch(
+      /^「ファイルを読む」と「作業フォルダの外にも書く」と「Web ページを読む」がそろうと、このパソコンのどのファイルでも読めて/,
+    );
+    expect(leakRisk(find('codex'), reader)).toMatch(/^Codexでは「Web ページを読む」を許すと、/);
+    expect(leakRisk(find('codex'), { ...reader, webFetch: false })).toBeNull();
+  });
+
+  it('バックエンドの能力で絞ったあとの権限で判定し、バックエンドが分からなければ何も出さない', () => {
+    const noFetch = { ...find('codex'), capabilities: { ...allCapabilities, webFetch: false } };
+    expect(leakRisk(noFetch, reader)).toBeNull();
+    expect(leakRisk(undefined, allCapabilities)).toBeNull();
   });
 });
