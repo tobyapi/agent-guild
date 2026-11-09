@@ -20,7 +20,10 @@ export function BackendStatus({ backend }: BackendStatusProps) {
     return (
       <p className={styles.ready}>
         <span className={styles.dot} aria-hidden="true" />
-        {BACKEND_STATUS_WORDS.ready}
+        <span className={styles.text}>
+          {BACKEND_STATUS_WORDS.ready}
+          {backend.statusMessage && <span className={styles.message}>{backend.statusMessage}</span>}
+        </span>
       </p>
     );
   }

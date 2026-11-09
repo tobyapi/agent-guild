@@ -5,7 +5,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { definedEnv, fileExists } from '../environment.ts';
 import type { BackendProbe } from '../types.ts';
-import { CODEX_NOT_FOUND, findCodex } from './executable.ts';
+import { CODEX_NOT_FOUND, findCodex } from '../codex-runtime/executable.ts';
 
 const CREDENTIAL_ENVS = ['OPENAI_API_KEY', 'CODEX_API_KEY'];
 

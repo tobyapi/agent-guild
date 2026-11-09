@@ -1,21 +1,18 @@
-// 要求の処理: run と login をジョブとして登録し（終端イベント result / error をちょうど1回返す）、cancel・probe・shutdown・
-// 不正な入力に応答する。I/O は持たない（送信と終了は main.ts から関数で受け取る）ので、偽のアダプタで単体テストできる。
-
+import { toErrorEvent } from './dispatcher-errors.ts';
+import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
-import { BackendError, type BackendAdapter, type RunRequest } from './backends/types.ts';
+import { type BackendAdapter, type RunRequest } from './backends/types.ts';
 import type { ParsedLine } from './line-parser.ts';
-import { errorMessage, logError } from './log.ts';
+import { logError } from './log.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
 
 type LoginRequest = Extract<RunnerRequest, { type: 'login' }>;
-/** ジョブの中身。signal は cancel・shutdown で中断され、isCurrent はまだ打ち切られていないか */
 type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
 
 export interface DispatcherOptions {
   registry: BackendRegistry;
   runnerVersion: string;
-  /** イベントを1件 Rust へ送る */
   send: (event: RunnerEvent) => void;
   /** shutdown を処理し終えたら呼ばれる（プロセスを終わらせる） */
   exit: () => void;
@@ -69,7 +66,14 @@ export class Dispatcher {
 
   #handle(request: RunnerRequest): void {
     if (request.type === 'run') this.#run(request);
-    else if (request.type === 'login') this.#login(request);
+    else if (request.type === 'apiKey') {
+      if (!this.#claim(request.id, request.backend)) return;
+      this.#track(request.id, async () => {
+        const status = await manageApiKey(request.backend, request.action, request.key);
+        await this.#probe();
+        return status;
+      });
+    } else if (request.type === 'login') this.#login(request);
     else if (request.type === 'cancel') this.cancel(request.id);
     else if (request.type === 'probe') void this.#probe();
     else this.shutdown();
@@ -160,8 +164,3 @@ export class Dispatcher {
   }
 }
 
-function toErrorEvent(id: string, error: unknown): RunnerEvent {
-  if (error instanceof BackendError) return { type: 'error', id, code: error.code, message: error.message };
-  logError(`ジョブ ${id} で予期しないエラーが起きました`, error);
-  return { type: 'error', id, code: 'internal', message: errorMessage(error) };
-}

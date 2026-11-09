@@ -18,6 +18,7 @@ pub fn run() {
             boot::complete_setup,
             snapshot::get_snapshot,
             snapshot::refresh_backends,
+            snapshot::backend_api_key,
             snapshot::login_backend,
             agents::create_agent,
             agents::update_agent,

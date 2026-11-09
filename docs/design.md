@@ -338,3 +338,9 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
   - どちらも、同じエージェントに同じ name のスキルがあれば `conflict`。
 - **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。
 - **安全**: 付属ファイルは作業場所ではなく stateDir 側に展開し、エージェントからは書き換えられない。ライブラリのフォルダはアプリから書き換えない（読むだけ）。
+
+## Backend API key IPC
+
+`backend_api_key({ backendId, action, key? })` returns a JSON string containing only
+`source` (saved/environment/unset) and `supported` (boolean). Actions: status/set/delete.
+Only Grok and Muse are supported. See [backend-api-keys.md](backend-api-keys.md).

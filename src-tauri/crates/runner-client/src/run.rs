@@ -17,12 +17,18 @@ const STARTING_MARGIN: Duration = Duration::from_secs(1);
 #[derive(Clone, Copy)]
 pub(crate) enum Work<'a> {
     Run(&'a RunRequest),
+    ApiKey {
+        backend: &'a str,
+        action: &'a str,
+        key: Option<&'a str>,
+    },
     /// バックエンドのログイン（値はバックエンドの ID）
     Login(&'a str),
 }
 
 fn request<'a>(work: Work<'a>, id: &'a str) -> Request<'a> {
     match work {
+        Work::ApiKey { backend, action, key } => Request::ApiKey { id, backend, action, key },
         Work::Run(request) => Request::Run { id, request },
         Work::Login(backend) => Request::Login { id, backend },
     }
@@ -69,12 +75,14 @@ async fn ready_connection(shared: &Shared) -> Result<Arc<Connection>, RunnerErro
     let status = match settled {
         Ok(Ok(status)) => (*status).clone(),
         Ok(Err(_)) => RunnerStatus::Unavailable { message: "ランナーは停止しています".to_owned() },
-        Err(_) => RunnerStatus::Unavailable { message: "ランナーの起動が終わりませんでした".to_owned() },
+        Err(_) => {
+            RunnerStatus::Unavailable { message: "ランナーの起動が終わりませんでした".to_owned() }
+        }
     };
     match status {
-        RunnerStatus::Ready => shared
-            .current()
-            .ok_or_else(|| RunnerError::Unavailable("ランナーとの接続が切れました".to_owned())),
+        RunnerStatus::Ready => {
+            shared.current().ok_or_else(|| RunnerError::Unavailable("ランナーとの接続が切れました".to_owned()))
+        }
         RunnerStatus::Unavailable { message } => Err(RunnerError::Unavailable(message)),
         RunnerStatus::Starting => Err(RunnerError::Unavailable("ランナーを起動しています".to_owned())),
     }

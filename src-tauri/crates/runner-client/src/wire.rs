@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{BackendInfo, ErrorCode, RunRequest, RunnerError};
 
 /// Rust → runner
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub(crate) enum Request<'a> {
     Run {
@@ -20,6 +20,13 @@ pub(crate) enum Request<'a> {
     },
     Cancel {
         id: &'a str,
+    },
+    ApiKey {
+        id: &'a str,
+        backend: &'a str,
+        action: &'a str,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        key: Option<&'a str>,
     },
     Probe,
     Shutdown,

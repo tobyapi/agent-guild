@@ -52,6 +52,16 @@ impl RunnerClient {
     }
 
     /// 実行中のジョブを中断する（存在しなければ何もしない）。待たずに戻る
+    pub async fn api_key(
+        &self,
+        id: &str,
+        backend: &str,
+        action: &str,
+        key: Option<&str>,
+    ) -> Result<String, RunnerError> {
+        run::run(&self.shared, id, run::Work::ApiKey { backend, action, key }, Box::new(|_| {})).await
+    }
+
     pub async fn cancel(&self, job_id: &str) {
         if !self.shared.jobs.request_cancel(job_id) {
             return;

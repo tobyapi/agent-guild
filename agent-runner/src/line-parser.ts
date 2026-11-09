@@ -1,7 +1,6 @@
 // JSON Lines の分割（届いたかたまり → 行）とパース（行 → JSON オブジェクト）、イベントの直列化。
 // stdio そのものは main.ts が扱う。
 
-import { errorMessage } from './log.ts';
 import type { RunnerEvent } from './protocol.ts';
 
 export type JsonObject = Record<string, unknown>;
@@ -41,8 +40,8 @@ export function parseLine(line: string): ParsedLine {
   let value: unknown;
   try {
     value = JSON.parse(text);
-  } catch (error) {
-    return { kind: 'malformed', reason: `JSON として読めない行を受け取りました（${errorMessage(error)}）` };
+  } catch {
+    return { kind: 'malformed', reason: 'JSON として読めない要求を受け取りました' };
   }
   if (!isJsonObject(value)) return { kind: 'malformed', reason: 'JSON オブジェクトではない行を受け取りました' };
   return { kind: 'message', value };

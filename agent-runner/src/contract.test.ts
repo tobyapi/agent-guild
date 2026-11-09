@@ -24,7 +24,7 @@ const sortedKeys = (value: object): string[] => Object.keys(value).sort();
 describe('contracts/runner', () => {
   it('requests.jsonl の要求はすべて検証を通り、書き戻すと元と一致する', () => {
     const requests = fixture('requests.jsonl');
-    expect(requests.map((request) => request.type)).toEqual(['run', 'login', 'cancel', 'probe', 'shutdown']);
+    expect(requests.map((request) => request.type)).toEqual(['run', 'login', 'cancel', 'probe', 'shutdown', 'apiKey']);
     for (const expected of requests) {
       const decoded = decodeRequest(expected);
       expect(decoded.ok).toBe(true);
@@ -48,7 +48,7 @@ describe('contracts/runner', () => {
     if (!example) return;
     expect(sortedKeys(example.models[0] ?? {})).toEqual(['defaultEffort', 'description', 'efforts', 'id', 'label']);
     const registry = createBuiltinRegistry();
-    for (const id of ['claude', 'codex']) {
+    for (const id of ['claude', 'codex', 'grok', 'muse']) {
       // probe とモデルの一覧は利用者の環境の Claude Code・Codex に聞くので、ここでは形だけを合わせる
       const descriptor = registry.find(id)?.info();
       expect(descriptor).toBeDefined();

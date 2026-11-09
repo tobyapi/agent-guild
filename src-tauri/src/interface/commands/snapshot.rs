@@ -7,6 +7,16 @@ use super::{reject, CommandResult};
 use crate::interface::state::AppState;
 
 #[tauri::command]
+pub async fn backend_api_key(
+    state: State<'_, AppState>,
+    backend_id: String,
+    action: String,
+    key: Option<String>,
+) -> CommandResult<String> {
+    state.services()?.backends.api_key(&backend_id, &action, key.as_deref()).await.map_err(reject)
+}
+
+#[tauri::command]
 pub async fn get_snapshot(state: State<'_, AppState>) -> CommandResult<Snapshot> {
     state.services()?.snapshot.get().map_err(reject)
 }

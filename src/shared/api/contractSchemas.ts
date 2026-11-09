@@ -42,6 +42,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   stop_channel: nullValue,
   list_delegations: arrayOf(delegation),
   update_profile: objectOf(profileSchema),
+  backend_api_key: string,
   refresh_backends: nullValue,
   login_backend: nullValue,
   get_storage_info: objectOf(storageInfoSchema),

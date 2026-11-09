@@ -9,7 +9,8 @@ use crate::{BackendInfo, ErrorCode, RunRequest, RunnerError};
 
 fn fixture(name: &str) -> Vec<Value> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../contracts/runner").join(name);
-    let text = std::fs::read_to_string(&path).unwrap_or_else(|error| panic!("{} を読めません: {error}", path.display()));
+    let text =
+        std::fs::read_to_string(&path).unwrap_or_else(|error| panic!("{} を読めません: {error}", path.display()));
     text.lines()
         .filter(|line| !line.trim().is_empty())
         .map(|line| serde_json::from_str(line).expect("JSON として読めない行がある"))
@@ -24,13 +25,20 @@ fn requests_fixture_round_trips() {
         let id = expected["id"].as_str().unwrap_or_default();
         let actual = match expected["type"].as_str() {
             Some("run") => {
-                let request: RunRequest = serde_json::from_value(expected.clone()).expect("run を RunRequest として読めない");
+                let request: RunRequest =
+                    serde_json::from_value(expected.clone()).expect("run を RunRequest として読めない");
                 serde_json::to_value(Request::Run { id, request: &request })
             }
             Some("login") => {
                 let backend = expected["backend"].as_str().unwrap_or_default();
                 serde_json::to_value(Request::Login { id, backend })
             }
+            Some("apiKey") => serde_json::to_value(Request::ApiKey {
+                id,
+                backend: expected["backend"].as_str().unwrap_or_default(),
+                action: expected["action"].as_str().unwrap_or_default(),
+                key: None,
+            }),
             Some("cancel") => serde_json::to_value(Request::Cancel { id }),
             Some("probe") => serde_json::to_value(Request::Probe),
             Some("shutdown") => serde_json::to_value(Request::Shutdown),

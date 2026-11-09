@@ -12,6 +12,7 @@ type SystemCommands =
   | 'update_profile'
   | 'refresh_backends'
   | 'login_backend'
+  | 'backend_api_key'
   | 'restart_app'
   | 'open_url';
 
@@ -21,6 +22,9 @@ const PROBE_MS = 800;
 const LOGIN_MS = 1500;
 
 export const systemHandlers: HandlerGroup<SystemCommands> = {
+  backend_api_key() {
+    fail('unavailable', 'APIキー設定はデスクトップアプリで利用してください');
+  },
   get_boot_status: (_args, runtime) => runtime.state.boot,
 
   complete_setup(_args, runtime) {

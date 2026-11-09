@@ -61,6 +61,7 @@ export interface CommandMap {
   list_delegations: { args: { channelId: string }; result: Delegation[] };
   update_profile: { args: { profile: Profile }; result: Profile };
   /** ランナーに probe を送る。結果は state-changed で届く */
+  backend_api_key: { args: { backendId: string; action: 'status' | 'set' | 'delete'; key?: string }; result: string };
   refresh_backends: { args: NoArgs; result: null };
   /** ログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く */
   login_backend: { args: { backendId: string }; result: null };

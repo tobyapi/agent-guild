@@ -1,6 +1,7 @@
 // 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
+import { isKeyBackend } from './credentials/store.ts';
 import type { RunRequest } from './backends/types.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
 import type { ImagePayload, PermissionKey, Permissions, RunnerRequest, SkillPayload } from './protocol.ts';
@@ -40,6 +41,8 @@ export function decodeRequest(value: JsonObject): DecodeResult {
   switch (value.type) {
     case 'run':
       return decodeRun(value, id);
+    case 'apiKey':
+      return decodeApiKey(value, id);
     case 'login':
       return decodeLogin(value, id);
     case 'cancel':
@@ -130,4 +133,11 @@ function decodeStrings(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
   const items: unknown[] = value;
   return items.every(isString) ? items : null;
+}
+
+function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
+      if (id === null || !isKeyBackend(value.backend) || (value.action !== 'status' && value.action !== 'set' && value.action !== 'delete')
+        || (value.action === 'set' && typeof value.key !== 'string')) return reject(id, 'Invalid API key request');
+      return { ok: true, request: { type: 'apiKey', id, backend: value.backend,
+        action: value.action, ...(value.action === 'set' ? { key: value.key as string } : {}) } };
 }

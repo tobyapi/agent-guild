@@ -72,10 +72,7 @@ impl AgentRuntime for RunnerRuntime {
 
     async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError> {
         let on_update: runner_client::UpdateFn = Box::new(move |update| on_update(convert::update(update)));
-        self.client
-            .run(job_id, convert::request(request), on_update)
-            .await
-            .map_err(convert::error)
+        self.client.run(job_id, convert::request(request), on_update).await.map_err(convert::error)
     }
 
     async fn cancel(&self, job_id: &str) {
@@ -84,6 +81,11 @@ impl AgentRuntime for RunnerRuntime {
 
     async fn probe(&self) {
         self.client.probe().await;
+    }
+
+    async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {
+        let id = format!("api-key-{}", self.logins.fetch_add(1, Ordering::Relaxed) + 1);
+        self.client.api_key(&id, backend, action, key).await.map_err(convert::error)
     }
 
     async fn login(&self, backend: &str) -> Result<(), RuntimeError> {

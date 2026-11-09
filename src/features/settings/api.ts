@@ -2,6 +2,8 @@ import { invoke } from '@/shared/api';
 import type { DataDirMode } from '@/shared/types/domain';
 
 export const settingsApi = {
+  backendApiKey: (backendId: string, action: 'status' | 'set' | 'delete', key?: string) =>
+    invoke('backend_api_key', { backendId, action, key }),
   storageInfo: () => invoke('get_storage_info'),
   chooseFolder: () => invoke('choose_folder'),
   /** 成功するとアプリが再起動する */

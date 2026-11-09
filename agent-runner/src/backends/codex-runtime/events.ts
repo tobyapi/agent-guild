@@ -46,7 +46,10 @@ export class EventReader {
   /** まだ投稿も返答もしていない、直近の agent_message */
   #held: string | undefined;
 
-  constructor(onActivity: (detail: string) => void, onPost: (text: string) => void) {
+  readonly #failure: typeof codexError;
+
+  constructor(onActivity: (detail: string) => void, onPost: (text: string) => void, failure = codexError) {
+    this.#failure = failure;
     this.#onActivity = onActivity;
     this.#onPost = onPost;
   }
@@ -64,9 +67,9 @@ export class EventReader {
         this.#item(event.type, event.item);
         return;
       case 'turn.failed':
-        throw codexError(event.error.message);
+        throw this.#failure(event.error.message);
       case 'error':
-        throw codexError(event.message);
+        throw this.#failure(event.message);
       default:
         return;
     }

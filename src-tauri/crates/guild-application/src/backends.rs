@@ -8,6 +8,9 @@ use guild_domain::error::ValidationError;
 use crate::error::{AppError, AppResult};
 use crate::ports::{AgentRuntime, RuntimeError};
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone)]
 pub struct BackendService {
     runtime: Arc<dyn AgentRuntime>,
@@ -16,6 +19,24 @@ pub struct BackendService {
 impl BackendService {
     pub fn new(runtime: Arc<dyn AgentRuntime>) -> Self {
         Self { runtime }
+    }
+
+    pub async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> AppResult<String> {
+        if !matches!(backend, "grok" | "muse") || !matches!(action, "status" | "set" | "delete") {
+            return Err(AppError::Validation(ValidationError::new("APIキー設定の対象・操作が不正です")));
+        }
+        if action == "set"
+            && key
+                .is_none_or(|value| value.trim().is_empty() || value.len() > 2560 || value.contains(['\r', '\n', '\0']))
+        {
+            return Err(AppError::Validation(ValidationError::new("APIキーを1行・2560バイト以内で入力してください")));
+        }
+        let key = if action == "set" { key } else { None };
+        self.runtime.api_key(backend, action, key).await.map_err(|_| {
+            AppError::Runtime(
+                "APIキー設定を処理できませんでした。OSの資格情報ストアと実行環境を確認してください".to_owned(),
+            )
+        })
     }
 
     pub async fn refresh(&self) {

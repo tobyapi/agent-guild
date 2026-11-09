@@ -3,3 +3,4 @@
 {"type":"cancel","id":"job-0001"}
 {"type":"probe"}
 {"type":"shutdown"}
+{"type":"apiKey","id":"key-0001","backend":"grok","action":"status"}

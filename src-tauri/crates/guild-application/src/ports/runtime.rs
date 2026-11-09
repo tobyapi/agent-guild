@@ -85,4 +85,8 @@ pub trait AgentRuntime: Send + Sync {
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わると状態の確認し直しが届く。
     /// ログインできなければ Failed
     async fn login(&self, backend: &str) -> Result<(), RuntimeError>;
+    /// Status contains metadata only, never the saved API key.
+    async fn api_key(&self, _backend: &str, _action: &str, _key: Option<&str>) -> Result<String, RuntimeError> {
+        Err(RuntimeError::Failed("APIキー設定に対応していません".to_owned()))
+    }
 }
