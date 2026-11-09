@@ -149,6 +149,8 @@ pub struct RunRequest {
     pub readable_dirs: Vec<PathBuf>,
     pub system_prompt: String,
     pub prompt: String,
+    /// 操作の確認に使う、信頼できる依頼の情報（使わないアダプタは無視する）
+    pub intent: String,
     /// 空文字ならバックエンド既定
     pub model: String,
     pub permissions: Permissions,

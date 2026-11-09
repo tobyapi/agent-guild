@@ -94,11 +94,8 @@ export interface SkillPayload {
   description: string;
   /** SKILL.md の本文（frontmatter を除く）。アダプタはこれと name / description から SKILL.md を書く */
   body: string;
-  /**
-   * ライブラリにリンクしたスキルのフォルダ（絶対パス）。null ならアプリ内のスキル。
-   * 指定があれば、アダプタは SKILL.md 以外の付属ファイル（scripts/・references/ など）もそのフォルダから展開先へコピーする。
-   * コピーしないもの: SKILL.md 自身・.git・node_modules・シンボリックリンク。上限は合計 50MB・2000 ファイル（超えたら error{bad_request}）
-   */
+  /** ライブラリにリンクしたスキルのフォルダ（絶対パス。null ならアプリ内）。アダプタは SKILL.md 以外の付属ファイル（scripts/ など）も
+   * 展開先へコピーする（SKILL.md・.git・node_modules・シンボリックリンクは除く。合計 50MB・2000 ファイルまで。超えたら error{bad_request}） */
   dir: string | null;
 }
 
@@ -134,6 +131,8 @@ export type RunnerRequest =
       readableDirs: string[];
       systemPrompt: string;
       prompt: string;
+      /** 操作の確認に使う、信頼できる依頼の情報（人間の依頼・エージェントの役割とできること。資料や仲間の発言は入らない） */
+      intent: string;
       /** 空文字ならバックエンド既定 */
       model: string;
       permissions: Permissions;

@@ -4,7 +4,9 @@ import type { Options } from '@anthropic-ai/claude-agent-sdk';
 import { logInfo } from '../../log.ts';
 import { EFFORT_OPTION, type Permissions } from '../../protocol.ts';
 import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
+import { CHECKED_TOOLS, checkedPolicy, checksOperations } from './check.ts';
 import { claudeEnv } from './env.ts';
+import { claudeJudge } from './judge.ts';
 import { fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
 
@@ -48,6 +50,9 @@ export interface ClaudeRun {
 export function claudeOptions(request: RunRequest, { abortController, pluginDir, onPost, executable }: ClaudeRun): Options {
   const { permissions } = request;
   const tools = toolsFor(permissions);
+  // 操作の確認をするなら、コマンドと Web ページを開くことも canUseTool を通す（judge.ts のモデルに確かめる）
+  const checking = checksOperations(request);
+  const preApproved = (tool: string) => PATHLESS_TOOLS.has(tool) && !(checking && tool in CHECKED_TOOLS);
   return {
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
@@ -59,9 +64,11 @@ export function claudeOptions(request: RunRequest, { abortController, pluginDir,
     // tools は使える組み込みツールの集合。ファイル操作は canUseTool がパスで判定する
     tools,
     // 途中の投稿ツールはパスを扱わないので、確認なしで許す
-    allowedTools: [...tools.filter((tool) => PATHLESS_TOOLS.has(tool)), POST_TOOL],
+    allowedTools: [...tools.filter(preApproved), POST_TOOL],
     mcpServers: { [POST_SERVER]: postServer(onPost) },
-    canUseTool: fileAccessPolicy(request),
+    canUseTool: checking
+      ? checkedPolicy(request, claudeJudge(request, executable, abortController.signal), onPost)
+      : fileAccessPolicy(request),
     permissionMode: 'default',
     // 作業場所の .claude/settings.json・hooks・CLAUDE.md を読ませない（エージェントが書き換えても次の実行に影響しない）
     settingSources: [],

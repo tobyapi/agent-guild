@@ -37,6 +37,7 @@ pub fn request(prompt: &str) -> RunRequest {
         readable_dirs: vec![r"C:\data\agents\a0\work".into()],
         system_prompt: "あなたはテスト用のエージェントです。".to_owned(),
         prompt: prompt.to_owned(),
+        intent: "# 人間の依頼\n> 試して\n".to_owned(),
         model: String::new(),
         permissions: Permissions {
             web_search: true,

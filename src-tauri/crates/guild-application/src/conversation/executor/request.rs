@@ -7,7 +7,7 @@ use guild_domain::attachment::Attachment;
 use guild_domain::channel::Channel;
 use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
-use guild_domain::prompt::{build_conversation_prompt, build_system_prompt, ConsultSource, PromptContext};
+use guild_domain::prompt::{build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext};
 use guild_domain::message::Message;
 use guild_domain::skill::Skill;
 
@@ -64,6 +64,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         readable_dirs,
         system_prompt: build_system_prompt(&ctx),
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
+        intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),
         permissions,
         skills: skills.iter().map(payload).collect(),

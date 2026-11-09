@@ -5,14 +5,14 @@ import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sd
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
-const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+export const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const READ_TOOLS = new Set(['Read', 'Glob', 'Grep', 'LS']);
 const PATH_FIELDS = ['file_path', 'notebook_path', 'path'] as const;
 /** 作業場所の中の、次回以降の自分へのメモ（Rust の workspace.rs と同じ名前） */
 const MEMORY_FILE = 'MEMORY.md';
 
 /** ツールの入力が指すパス（相対パスは作業場所から。指定がなければ作業場所そのもの） */
-function targetOf(input: Record<string, unknown>, workspace: string): string {
+export function targetOf(input: Record<string, unknown>, workspace: string): string {
   const field = PATH_FIELDS.map((key) => input[key]).find(
     (value): value is string => typeof value === 'string' && value !== '',
   );
@@ -23,7 +23,8 @@ function targetOf(input: Record<string, unknown>, workspace: string): string {
  * 確認が必要になったツール呼び出しをパスで判定する。書き込みは作業場所の中だけ、読み取りは作業場所と readableDirs だけ。
  * writeAnywhere なら、書き込みも読み取りもパスを問わない（作業場所の外のファイルを直すには、まず読む必要がある）。
  * 作業場所の MEMORY.md（次回以降の自分へのメモ）だけは、読み書きの権限がなくても読み書きできる。
- * それ以外（許していないツール・範囲外のパス）は拒否する。WebSearch などパスのないツールは allowedTools で先に許している。
+ * それ以外（許していないツール・範囲外のパス）は拒否する。WebSearch などパスのないツールは allowedTools で先に許している
+ * （操作の確認をするときの Bash・WebFetch は check.ts が扱う）。
  */
 export function fileAccessPolicy(request: RunRequest): CanUseTool {
   const { workspace, readableDirs, permissions } = request;

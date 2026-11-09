@@ -12,7 +12,7 @@ const EXPERT: Permissions = { ...WORKER, writeFiles: false };
 
 const request = (permissions: Permissions): RunRequest => ({
   type: 'run', id: 'j1', backend: 'claude', workspace: WORK, stateDir: join(ROOT, 'a1', 'state', 'claude'),
-  readableDirs: [PEER], systemPrompt: '', prompt: '', model: '', permissions, skills: [], images: [], options: {},
+  readableDirs: [PEER], systemPrompt: '', prompt: '', intent: '', model: '', permissions, skills: [], images: [], options: {},
 });
 
 async function decide(permissions: Permissions, toolName: string, input: Record<string, unknown>): Promise<string> {

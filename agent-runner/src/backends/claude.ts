@@ -4,6 +4,7 @@
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
+import { OPERATION_CHECK_OPTION } from './claude/check.ts';
 import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
 import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
@@ -36,6 +37,15 @@ const INFO: BackendDescriptor = {
       type: 'number',
       choices: [],
       default: DEFAULT_MAX_TURNS,
+    },
+    {
+      key: OPERATION_CHECK_OPTION,
+      label: '操作の確認',
+      description:
+        'コマンドの実行・Web ページを開く・作業フォルダの外への書き込みの前に、小さいモデル（Haiku）で依頼に沿っているかを確かめ、怪しければ止めます（人間には聞きません）',
+      type: 'boolean',
+      choices: [],
+      default: true,
     },
   ],
   permissionRules: [...PERMISSION_RULES],

@@ -8,6 +8,7 @@ mod capabilities;
 mod consult;
 mod conversation;
 mod delegating;
+mod intent;
 mod members;
 mod memory;
 mod modes;
@@ -21,6 +22,7 @@ pub use conversation::{
     build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, RECENT_CHANNEL_LIMIT,
     TRIGGER_CHAR_LIMIT,
 };
+pub use intent::{build_intent, INTENT_CHAR_LIMIT, INTENT_MESSAGE_LIMIT};
 
 use crate::agent::{Agent, Permissions};
 use crate::attachment::Attachment;

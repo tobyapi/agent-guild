@@ -9,7 +9,7 @@ export type DecodeResult =
   | { ok: true; request: RunnerRequest }
   | { ok: false; id: string | null; message: string };
 
-const RUN_STRING_FIELDS = ['backend', 'workspace', 'stateDir', 'systemPrompt', 'prompt', 'model'] as const;
+const RUN_STRING_FIELDS = ['backend', 'workspace', 'stateDir', 'systemPrompt', 'prompt', 'intent', 'model'] as const;
 const PERMISSION_KEYS = [
   'webSearch',
   'webFetch',
@@ -85,6 +85,7 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     readableDirs,
     systemPrompt: value.systemPrompt,
     prompt: value.prompt,
+    intent: value.intent,
     model: value.model,
     permissions,
     skills,

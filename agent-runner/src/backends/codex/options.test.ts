@@ -8,7 +8,7 @@ const EXPERT: Permissions = { ...WORKER, writeFiles: false, runCommands: false }
 
 const request = (permissions: Permissions, options: Record<string, unknown> = {}, model = ''): RunRequest => ({
   type: 'run', id: 'j1', backend: 'codex', workspace: '/data/a1/work', stateDir: '/data/a1/state/codex',
-  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはソラだ', prompt: '実装して', model, permissions,
+  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはソラだ', prompt: '実装して', intent: '', model, permissions,
   skills: [], images: [], options,
 });
 

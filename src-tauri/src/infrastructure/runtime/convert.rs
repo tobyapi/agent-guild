@@ -101,6 +101,7 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
         readable_dirs: request.readable_dirs,
         system_prompt: request.system_prompt,
         prompt: request.prompt,
+        intent: request.intent,
         model: request.model,
         permissions: permissions_to(request.permissions),
         skills: request.skills.into_iter().map(skill).collect(),

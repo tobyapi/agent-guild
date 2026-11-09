@@ -39,7 +39,7 @@ const FAKE_INFO = { ...INFO, status: 'needs_auth', statusMessage: 'ログイン�
 const runLine = (id: string, prompt: string, backend = 'fake'): string =>
   JSON.stringify({
     type: 'run', id, backend, workspace: '/ws', stateDir: '/state', readableDirs: [], systemPrompt: '', prompt,
-    model: '', permissions: PERMISSIONS, skills: [], images: [], options: {},
+    intent: '', model: '', permissions: PERMISSIONS, skills: [], images: [], options: {},
   });
 
 const settle = (): Promise<void> => new Promise((resolve) => setImmediate(resolve));

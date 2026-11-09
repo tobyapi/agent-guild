@@ -37,6 +37,8 @@ pub struct RuntimeRequest {
     pub readable_dirs: Vec<PathBuf>,
     pub system_prompt: String,
     pub prompt: String,
+    /// 操作の確認に使う、信頼できる依頼の情報（人間の依頼・エージェントの役割とできること。guild-domain の build_intent）
+    pub intent: String,
     /// 空文字ならバックエンド既定
     pub model: String,
     /// 実効権限

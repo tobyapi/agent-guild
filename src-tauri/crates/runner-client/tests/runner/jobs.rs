@@ -28,6 +28,7 @@ async fn run_request_has_the_protocol_shape() {
     assert_eq!(sent["stateDir"], r"C:\data\agents\a1\state\fake");
     assert_eq!(sent["readableDirs"][0], r"C:\data\agents\a0\work");
     assert_eq!(sent["permissions"]["runCommands"], false);
+    assert_eq!(sent["intent"], "# 人間の依頼\n> 試して\n");
     assert_eq!(sent["skills"][0]["name"], "review-checklist");
     assert_eq!(sent["options"]["maxTurns"], 3);
     client.shutdown().await;

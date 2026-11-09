@@ -9,6 +9,7 @@ mod job_merge;
 mod mentions;
 mod prompt_conversation;
 mod prompt_delegation;
+mod prompt_intent;
 mod prompt_posting;
 mod prompt_safeguards;
 mod prompt_system;

@@ -94,6 +94,12 @@ export function optionChoice<T extends string>(
   return choices.find((choice) => choice === value);
 }
 
+/** options[key] が真偽値ならその値 */
+export function optionBoolean(options: Record<string, unknown>, key: string): boolean | undefined {
+  const value = options[key];
+  return typeof value === 'boolean' ? value : undefined;
+}
+
 /** options[key] が正の整数ならその値 */
 export function optionPositiveInt(options: Record<string, unknown>, key: string): number | undefined {
   const value = options[key];

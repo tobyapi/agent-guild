@@ -9,7 +9,7 @@ const EXPERT: Permissions = { ...WORKER, writeFiles: false };
 
 const request = (permissions: Permissions, options: Record<string, unknown> = {}, model = ''): RunRequest => ({
   type: 'run', id: 'j1', backend: 'claude', workspace: '/data/a1/work', stateDir: '/data/a1/state/claude',
-  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはハルです', prompt: 'こんにちは', model, permissions,
+  readableDirs: ['/data/a0/work'], systemPrompt: 'あなたはハルです', prompt: 'こんにちは', intent: '', model, permissions,
   skills: [], images: [], options,
 });
 
@@ -51,7 +51,10 @@ describe('claudeOptions', () => {
       persistSession: false,
       maxTurns: 30,
     });
-    expect(options.allowedTools).toEqual(['WebSearch', 'WebFetch', POST_TOOL]);
+    // 操作の確認をする（既定）ので、Web ページを開くことは canUseTool を通す
+    expect(options.allowedTools).toEqual(['WebSearch', POST_TOOL]);
+    const unchecked = claudeOptions(request(WORKER, { operationCheck: false }), run());
+    expect(unchecked.allowedTools).toEqual(['WebSearch', 'WebFetch', POST_TOOL]);
     expect(options.mcpServers?.guild).toMatchObject({ type: 'sdk', name: 'guild' });
     expect(options.canUseTool).toBeTypeOf('function');
   });

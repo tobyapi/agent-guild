@@ -19,6 +19,7 @@ const RUN = {
   readableDirs: ['/data/agents/a0/work'],
   systemPrompt: 'あなたはロジカです',
   prompt: 'レビューしてください',
+  intent: '# 人間の依頼\n> レビューして',
   model: '',
   permissions: PERMISSIONS,
   skills: [
