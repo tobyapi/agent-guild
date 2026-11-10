@@ -1,5 +1,5 @@
-//! 作業場所と MEMORY.md（次回以降の自分へのメモ）。作業場所の MEMORY.md は、ファイルの書き込みを許していなくても
-//! いつでも読み書きしてよい（ほかのファイルの読み書きは設定に従う。守れないバックエンドでは、エージェントがこのルールを守る）。
+//! 作業場所と MEMORY.md（次回以降の自分へのメモ）。書き込めるバックエンドでは、ファイルの書き込みを許していなくても
+//! 作業場所の MEMORY.md は読み書きしてよい。書き込めないバックエンドには、メモの内容だけを渡す。
 //! 作業場所の外にも書ける（writeAnywhere）なら、外のファイルの扱い方も添える。
 
 use super::PromptContext;
@@ -19,7 +19,18 @@ MEMORY.md 以外のファイルは、「できること」にあるとおりに�
 
 pub(super) fn section(ctx: &PromptContext<'_>) -> String {
     let permissions = &ctx.permissions;
-    let mut text = if permissions.write_files { workspace_note(permissions) } else { MEMORY_ONLY.to_owned() };
+    let can_write = ctx
+        .backends
+        .iter()
+        .find(|backend| backend.id == ctx.agent.backend)
+        .is_none_or(|backend| backend.capabilities.write_files);
+    let mut text = if permissions.write_files {
+        workspace_note(permissions)
+    } else if can_write {
+        MEMORY_ONLY.to_owned()
+    } else {
+        String::new()
+    };
     let memory = tail(ctx.memory.trim(), MEMORY_TAIL_CHARS);
     if !memory.is_empty() {
         text.push_str(&format!("\n### MEMORY.md の現在の内容（末尾）\n{memory}\n"));

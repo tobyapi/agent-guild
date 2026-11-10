@@ -47,8 +47,8 @@ describe('contracts/runner', () => {
     if (!example) return;
     expect(sortedKeys(example.models[0] ?? {})).toEqual(['defaultEffort', 'description', 'efforts', 'id', 'label']);
     const registry = createBuiltinRegistry();
-    for (const id of ['claude', 'codex', 'grok', 'muse']) {
-      // probe とモデルの一覧は利用者の環境の Claude Code・Codex に聞くので、ここでは形だけを合わせる
+    for (const id of ['claude', 'codex', 'grok', 'muse', 'ollama']) {
+      // 状態やモデルは実行環境で変わるので、ここでは形だけを合わせる
       const descriptor = registry.find(id)?.info();
       expect(descriptor).toBeDefined();
       if (!descriptor) continue;

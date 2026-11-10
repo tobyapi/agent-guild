@@ -10,7 +10,7 @@ export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
 
 /** 状態とモデルの一覧を除いた、アダプタが静的に申告する情報 */
 export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage' | 'models' | 'defaultModel'>;
-export type BackendProbe = Pick<BackendInfo, 'status' | 'statusMessage'>;
+export type BackendProbe = Pick<BackendInfo, 'status' | 'statusMessage'> & Partial<ModelCatalog>;
 /** 選べるモデルと、モデルを選ばないときのモデル（probe のたびに聞き直す） */
 export type ModelCatalog = Pick<BackendInfo, 'models' | 'defaultModel'>;
 
@@ -34,7 +34,7 @@ export interface LoginContext {
 /** バックエンドの実装。新しいバックエンドはこれを実装して registry.ts に1行登録する */
 export interface BackendAdapter {
   info(): BackendDescriptor;
-  /** 認証などの状態を安価に確かめる。資格情報ファイルや環境変数の「存在」だけを見て、中身は読まない */
+  /** 状態を確かめる。同じ問い合わせで分かるときはモデルの一覧も返す */
   probe(): Promise<BackendProbe>;
   /** 選べるモデルと推論の深さ。なければ EMPTY_CATALOG（probe と一緒に聞き直す） */
   catalog?: () => Promise<ModelCatalog>;

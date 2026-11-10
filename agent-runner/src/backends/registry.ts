@@ -7,9 +7,16 @@ import { claudeAdapter } from './claude.ts';
 import { codexAdapter } from './codex.ts';
 import { grokAdapter } from './grok.ts';
 import { museAdapter } from './muse.ts';
+import { ollamaAdapter } from './ollama.ts';
 import { EMPTY_CATALOG, type BackendAdapter, type BackendProbe, type ModelCatalog } from './types.ts';
 
-const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [claudeAdapter, codexAdapter, grokAdapter, museAdapter];
+const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
+  claudeAdapter,
+  codexAdapter,
+  grokAdapter,
+  museAdapter,
+  ollamaAdapter,
+];
 
 export class BackendRegistry {
   readonly #adapters = new Map<string, BackendAdapter>();
@@ -34,7 +41,7 @@ export class BackendRegistry {
 
 async function describeAdapter(adapter: BackendAdapter): Promise<BackendInfo> {
   const [probe, catalog] = await Promise.all([probeOf(adapter), catalogOf(adapter)]);
-  return { ...adapter.info(), ...probe, ...catalog };
+  return { ...adapter.info(), ...catalog, ...probe };
 }
 
 /** probe に失敗したら unavailable */

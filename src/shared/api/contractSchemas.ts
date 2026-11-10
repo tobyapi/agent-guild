@@ -49,6 +49,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   update_profile: objectOf(profileSchema),
   backend_api_key: string,
   refresh_backends: nullValue,
+  install_backend_cli: nullValue,
   login_backend: nullValue,
   get_storage_info: objectOf(storageInfoSchema),
   choose_folder: nullable(string),

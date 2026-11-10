@@ -9,7 +9,7 @@ import { findInDirs, isFile, overridePath, pathDirs } from '../executables.ts';
 
 /** 見つからないときの案内 */
 export const CLAUDE_NOT_FOUND =
-  'Claude Code が見つかりません。Claude Code をインストールしてください。別の場所に入れた場合は、環境変数 GUILD_CLAUDE_PATH にその実行ファイルのパスを設定してください。';
+  'Claude のセットアップが必要です。AIギルドの「設定 → バックエンド → Claude」から進めてください。';
 
 export interface ClaudeLookup {
   env?: NodeJS.ProcessEnv;

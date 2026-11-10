@@ -10,7 +10,7 @@ import { findInDirs, isDirectory, isFile, overridePath, pathDirs } from '../exec
 
 /** 見つからないときの案内 */
 export const CODEX_NOT_FOUND =
-  'Codex CLI が見つかりません。AIギルドの「設定 → バックエンド → Codex」でインストール手順を確認できます。別の場所に入れた場合は、環境変数 GUILD_CODEX_PATH に実行ファイルのパスを設定してください。';
+  'Codex のセットアップが必要です。AIギルドの「設定 → バックエンド → Codex」から進めてください。';
 
 export interface CodexExecutable {
   path: string;

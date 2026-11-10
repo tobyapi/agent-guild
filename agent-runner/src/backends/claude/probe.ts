@@ -1,12 +1,12 @@
 // Claude の状態の確認: Claude Code が入っているか（executable.ts）と、認証の手段があるか。
-// 認証は環境変数と資格情報ファイルの「存在」だけを見る（中身は読まない）。
+// macOS はキーチェーンも確認できるよう、認証状態を CLI に問い合わせる。
 
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { definedEnv, fileExists } from '../environment.ts';
 import type { BackendProbe } from '../types.ts';
 import { CLAUDE_NOT_FOUND, findClaude } from './executable.ts';
-import { CAN_LOGIN } from './login.ts';
+import { CAN_LOGIN, claudeLoginStatus } from './login.ts';
 
 /** どれかがあれば認証の手段があるとみなす（API キー・トークン・クラウド事業者経由） */
 const CREDENTIAL_ENVS = [
@@ -21,16 +21,21 @@ const CREDENTIAL_ENVS = [
 const READY: BackendProbe = { status: 'ready', statusMessage: '' };
 
 export async function probeClaude(): Promise<BackendProbe> {
-  if (findClaude() === null) return { status: 'unavailable', statusMessage: CLAUDE_NOT_FOUND };
+  const executable = findClaude();
+  if (executable === null) return { status: 'unavailable', statusMessage: CLAUDE_NOT_FOUND };
   if (definedEnv(CREDENTIAL_ENVS)) return READY;
-  const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
-  if (await fileExists(join(configDir, '.credentials.json'))) return READY;
-  // macOS ではログイン情報がキーチェーンにあり、ファイルの有無では分からない
-  if (process.platform === 'darwin') return { status: 'ready', statusMessage: 'ログイン状態は実行時に確認します' };
+  if (process.platform === 'darwin') {
+    const signedIn = await claudeLoginStatus(executable);
+    if (signedIn === true) return READY;
+    if (signedIn === null) return { status: 'ready', statusMessage: 'ログイン状態は実行時に確認します' };
+  } else {
+    const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+    if (await fileExists(join(configDir, '.credentials.json'))) return READY;
+  }
   return {
     status: 'needs_auth',
     statusMessage: CAN_LOGIN
-      ? 'Claude にログインしていません。［ログイン］を押して、開いたブラウザで Claude のアカウントにログインしてください（API キーを使うなら環境変数 ANTHROPIC_API_KEY を設定します）。'
+      ? 'Claude を使うには、ブラウザーで Claude のアカウントにログインしてください。'
       : 'Claude にログインしていません。ターミナルで `claude auth login` を実行するか、環境変数 ANTHROPIC_API_KEY を設定してください。',
   };
 }

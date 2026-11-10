@@ -1,5 +1,8 @@
 import { invoke } from '@/shared/api';
+import type { CommandArgs } from '@/shared/api';
 import type { DataDirMode } from '@/shared/types/domain';
+
+export type SetupBackend = CommandArgs<'install_backend_cli'>['backendId'];
 
 export const settingsApi = {
   backendApiKey: (backendId: string, action: 'status' | 'set' | 'delete', key?: string) =>
@@ -11,4 +14,5 @@ export const settingsApi = {
   revealDataDir: () => invoke('reveal_data_dir'),
   completeSetup: () => invoke('complete_setup'),
   openUrl: (url: string) => invoke('open_url', { url }),
+  installBackendCli: (backendId: SetupBackend) => invoke('install_backend_cli', { backendId }),
 };

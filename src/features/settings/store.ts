@@ -1,7 +1,9 @@
 // 設定ダイアログ・初回起動の初期設定のダイアログの開閉と、データの保存先の情報。
 import { create } from 'zustand';
+import { errorMessage } from '@/shared/lib/errors';
 import type { DataDirMode, StorageInfo } from '@/shared/types/domain';
-import { settingsApi } from './api';
+import { notifyInfo } from '@/shared/ui';
+import { settingsApi, type SetupBackend } from './api';
 
 /** 開いたときに見せる区画（ほかの画面から案内するとき） */
 export type SettingsSection = 'skillLibrary';
@@ -10,6 +12,8 @@ interface SettingsStoreState {
   open: boolean;
   focus: SettingsSection | null;
   storage: StorageInfo | null;
+  settingUpBackend: SetupBackend | null;
+  setupErrors: Partial<Record<SetupBackend, string>>;
   /** 初回起動の初期設定のダイアログ（起動時に BootStatus.needsSetup なら開く） */
   setupOpen: boolean;
 }
@@ -18,6 +22,8 @@ export const useSettingsStore = create<SettingsStoreState>()(() => ({
   open: false,
   focus: null,
   storage: null,
+  settingUpBackend: null,
+  setupErrors: {},
   setupOpen: false,
 }));
 
@@ -44,6 +50,22 @@ export async function changeDataDir(path: string, mode: DataDirMode): Promise<vo
 
 export async function revealDataDir(): Promise<void> {
   await settingsApi.revealDataDir();
+}
+
+export async function setUpBackend(backendId: SetupBackend, label: string): Promise<void> {
+  if (useSettingsStore.getState().settingUpBackend !== null) return;
+  useSettingsStore.setState((state) => ({
+    settingUpBackend: backendId,
+    setupErrors: { ...state.setupErrors, [backendId]: undefined },
+  }));
+  try {
+    await settingsApi.installBackendCli(backendId);
+    notifyInfo(`${label} のインストールが完了しました。`);
+  } catch (cause) {
+    useSettingsStore.setState((state) => ({ setupErrors: { ...state.setupErrors, [backendId]: errorMessage(cause) } }));
+  } finally {
+    useSettingsStore.setState({ settingUpBackend: null });
+  }
 }
 
 export function openSetup(): void {

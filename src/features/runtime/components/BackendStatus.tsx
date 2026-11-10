@@ -29,7 +29,10 @@ export function BackendStatus({ backend }: BackendStatusProps) {
   }
   const canLogin = backend.canLogin && backend.status === 'needs_auth';
   const mine = loggingIn === backend.id;
-  const message = mine ? LOGGING_IN_MESSAGE : backend.statusMessage;
+  const loginMessage = backend.id === 'codex' ? 'ブラウザーで ChatGPT にログインしてください。' : LOGGING_IN_MESSAGE;
+  const loginLabel =
+    backend.id === 'codex' ? 'ChatGPT でログイン' : backend.id === 'claude' ? 'Claude Code でログイン' : 'ログイン';
+  const message = mine ? loginMessage : backend.statusMessage;
   return (
     <div className={styles.problem} data-tone={BACKEND_STATUS_TONES[backend.status]} role="status">
       <Icon name="alert" className={styles.icon} />
@@ -45,7 +48,7 @@ export function BackendStatus({ backend }: BackendStatusProps) {
             onClick={() => void loginBackend(backend.id).catch(reportError)}
             disabled={loggingIn !== null}
           >
-            {mine ? 'ログイン中…' : 'ログイン'}
+            {mine ? 'ログイン中…' : loginLabel}
           </Button>
         )}
         <Button size="sm" onClick={() => void refreshBackends().catch(reportError)} disabled={checking}>

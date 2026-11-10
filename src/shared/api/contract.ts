@@ -63,6 +63,8 @@ export interface CommandMap {
   /** ランナーの probe 結果を待つ。失敗・応答待ち超過は reject。結果は get_snapshot で取得できる */
   backend_api_key: { args: { backendId: string; action: 'status' | 'set' | 'delete'; key?: string }; result: string };
   refresh_backends: { args: NoArgs; result: null };
+  /** 公式 CLI のセットアップを行い、バックエンドの状態を更新する（macOS） */
+  install_backend_cli: { args: { backendId: 'claude' | 'codex' }; result: null };
   /** ログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く */
   login_backend: { args: { backendId: string }; result: null };
   get_storage_info: { args: NoArgs; result: StorageInfo };

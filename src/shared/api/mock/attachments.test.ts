@@ -68,6 +68,7 @@ describe('モックのログイン', () => {
     expect(backends.map((backend) => [backend.id, backend.canLogin])).toEqual([
       ['claude', true],
       ['codex', false],
+      ['ollama', false],
     ]);
     await expect(mock.transport.invoke('login_backend', { backendId: 'codex' })).rejects.toMatchObject({
       code: 'validation',

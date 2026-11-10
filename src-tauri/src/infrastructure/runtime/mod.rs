@@ -2,6 +2,8 @@
 //! ランナーの起動はアプリの起動を止めない: 生成は失敗せず、起動・再起動は runner-client の監視タスクが行う。
 //! 状態（starting / ready / unavailable）やバックエンド一覧が変わったら state-changed を出す。
 
+#[cfg(target_os = "macos")]
+mod cli_installer;
 mod convert;
 mod launch;
 #[cfg(test)]
@@ -81,6 +83,11 @@ impl AgentRuntime for RunnerRuntime {
 
     async fn probe(&self) -> Result<(), RuntimeError> {
         self.client.probe().await.map_err(convert::error)
+    }
+
+    #[cfg(target_os = "macos")]
+    async fn install_cli(&self, backend: &str) -> Result<(), RuntimeError> {
+        cli_installer::install(backend).await
     }
 
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {

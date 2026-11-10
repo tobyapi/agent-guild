@@ -35,9 +35,17 @@ it('名前が空か、ほかのエージェントと同じなら、作成せず�
   expect(within(openDialog()).getByRole('heading', { name: '新しいエージェント' })).toBeTruthy();
 });
 
-it('使える名前なら作成され、サイドバーに出る', async () => {
+it('Ollama に入っているモデルを選んで作成すると、サイドバーに出る', async () => {
   expect(sidebarText()).not.toContain('ミナ');
+  fireEvent.change(within(openDialog()).getByRole('combobox', { name: 'バックエンド' }), {
+    target: { value: 'ollama' },
+  });
+  const modelField = within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' });
+  expect(Array.from(modelField.options, (option) => option.value)).toEqual(['', 'deepseek-r1:8b', 'gemma4:26b']);
+  fireEvent.change(modelField, { target: { value: 'gemma4:26b' } });
+  expect(within(openDialog()).getByText('画像と文章に対応')).toBeTruthy();
   await submitName('ミナ');
   expect(sidebarText()).toContain('ミナ');
   expect(nameField().hasAttribute('aria-invalid')).toBe(false);
+  expect(within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' }).value).toBe('gemma4:26b');
 });

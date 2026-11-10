@@ -11,6 +11,7 @@ type SystemCommands =
   | 'get_snapshot'
   | 'update_profile'
   | 'refresh_backends'
+  | 'install_backend_cli'
   | 'login_backend'
   | 'backend_api_key'
   | 'restart_app'
@@ -63,6 +64,21 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
           status: 'ready',
           statusMessage: '',
         }));
+        emitStateChanged(runtime);
+        resolve(null);
+      });
+    });
+  },
+
+  install_backend_cli({ backendId }, runtime) {
+    if (backendId !== 'claude' && backendId !== 'codex') fail('validation', 'セットアップの対象が不正です');
+    return new Promise<null>((resolve) => {
+      runtime.env.schedule(PROBE_MS, () => {
+        runtime.state.backends = runtime.state.backends.map((backend) =>
+          backend.id === backendId && backend.status === 'unavailable'
+            ? { ...backend, status: 'needs_auth', statusMessage: 'ブラウザーでログインしてください。', canLogin: true }
+            : backend,
+        );
         emitStateChanged(runtime);
         resolve(null);
       });

@@ -28,7 +28,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     let capabilities = backends.iter().find(|b| b.id == agent.backend).map(|b| b.capabilities);
     let permissions = effective_permissions(&agent, capabilities.as_ref());
     let paths = ports.workspace.prepare(&agent.id, &agent.backend)?;
-    // ファイルを書けなくても、バックエンドが MEMORY.md だけを書かせられるなら読む（出すかどうかはプロンプトが決める）
+    // エージェントの権限にかかわらず、既存の MEMORY.md は参照用に渡す。
     let memory = read_memory(ports, &agent);
     let skills = if permissions.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;

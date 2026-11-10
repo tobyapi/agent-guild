@@ -1,7 +1,7 @@
 # AIギルド
 
 人間と AI エージェントが、チャンネルで会話しながら一緒に仕事をするデスクトップアプリです。
-Claude（Claude Code）と Codex（Codex CLI）のエージェントを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
+Claude、Codex、Ollama のモデルを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
 
 > まだリリース前（0.1.0）です。データの形や設定は予告なく変わることがあります。
 
@@ -10,7 +10,7 @@ Claude（Claude Code）と Codex（Codex CLI）のエージェントを「仲間
 ## できること
 
 - **チャンネルで会話する**: `@名前` で呼びかけると、そのエージェントが答えます。メンションのない発言に誰が答えるかは、エージェントごとに決められます。
-- **エージェントを作る**: 名前・アバター・役割・性格・口調・得意分野と、使うバックエンド（Claude / Codex）・モデル・推論の深さを設定します。作業者・専門家・マネージャーなどのテンプレートから始められます。
+- **エージェントを作る**。名前・アバター・役割・性格・口調・得意分野と、使うバックエンド・モデルを設定します。作業者・専門家・マネージャーなどのテンプレートから始められます。
 - **できることを権限で決める**: Web 検索、Web ページを読む、ファイルの読み書き、作業フォルダの外への書き込み、コマンドの実行、スキルの利用を、エージェントごとに許可します。
 - **相談と割り振り**: エージェント同士で相談したり、マネージャー役が仕事を分けて仲間に割り振り、結果をまとめて報告したりします。
 - **スキル**: Agent Skills（`SKILL.md`）の形式で手引きを持たせられます。手元のスキルのフォルダから追加することもできます。
@@ -19,12 +19,13 @@ Claude（Claude Code）と Codex（Codex CLI）のエージェントを「仲間
 
 ## 必要なもの
 
-配布版にはランナー用の Node.js が入っています。エージェントを動かすには、使うバックエンドの CLI と、そのログインが必要です。
+配布版にはランナー用の Node.js が入っています。使うバックエンドに合わせて準備してください。
 
-- Claude: [Claude Code](https://docs.claude.com/en/docs/claude-code)（`claude auth login`、または環境変数 `ANTHROPIC_API_KEY`）
-- Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex)（`codex login`、または環境変数 `OPENAI_API_KEY`）。CLI が見つからないときは「設定 → バックエンド → Codex」でインストール手順を開けます。
+- Claude: [Claude Code](https://code.claude.com/docs/ja/quickstart)。macOS では「設定 → バックエンド → Claude」でセットアップし、必要なら Claude Code が開くブラウザーでログインできます。
+- Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex)。macOS では「設定 → バックエンド → Codex」でセットアップし、必要ならブラウザーで ChatGPT にログインできます。ほかの OS では同じ画面で手順を開けます。
+- **Ollama**。モデルを入れた状態で Ollama アプリを起動します。「エージェントを追加」で **Ollama（この PC）** を選ぶと、Gemma や DeepSeek など、インストール済みの会話モデルを選べます。画像対応のモデルには添付画像も渡せます。モデルを追加した直後は「設定 → バックエンド → すべて再確認」で一覧を更新できます。[Ollama](https://ollama.com/)
 
-エージェントの実行にかかる利用料は、それぞれのサービスのアカウントに対して発生します。
+Claude と Codex の利用料は、それぞれのサービスのアカウントに対して発生します。
 
 ## 動かす
 
@@ -71,7 +72,7 @@ GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）�
 - 見た目の指針: [docs/ui-design.md](docs/ui-design.md)
 - 開発の方針と保守性の検査: [CLAUDE.md](CLAUDE.md)
 
-構成は、React（画面）・Rust / Tauri（アプリの本体）・agent-runner（Claude Agent SDK と Codex SDK でエージェントを1回ずつ動かす Node のプロセス）の3つです。
+構成は、React（画面）・Rust / Tauri（アプリの本体）・agent-runner（各バックエンドでエージェントを動かす Node のプロセス）の3つです。
 
 ## ライセンス
 

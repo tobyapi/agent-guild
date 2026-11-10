@@ -3,6 +3,7 @@
 
 use std::sync::Arc;
 
+use guild_domain::backend::BackendStatus;
 use guild_domain::error::ValidationError;
 
 use crate::error::{AppError, AppResult};
@@ -41,6 +42,31 @@ impl BackendService {
 
     pub async fn refresh(&self) -> AppResult<()> {
         self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
+    }
+
+    pub async fn install_cli(&self, backend_id: &str) -> AppResult<()> {
+        let label = match backend_id {
+            "claude" => "Claude Code",
+            "codex" => "Codex",
+            _ => return Err(AppError::validation("セットアップの対象が不正です")),
+        };
+        if self.is_available(backend_id) {
+            return Ok(());
+        }
+        self.runtime.install_cli(backend_id).await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        self.refresh().await?;
+        if self.is_available(backend_id) {
+            Ok(())
+        } else {
+            Err(AppError::Runtime(format!("インストールした {label} を確認できませんでした。再確認をお試しください。")))
+        }
+    }
+
+    fn is_available(&self, backend_id: &str) -> bool {
+        self.runtime
+            .backends()
+            .iter()
+            .any(|backend| backend.id == backend_id && backend.status != BackendStatus::Unavailable)
     }
 
     /// ログインを始め、利用者が終える（窓が閉じる）まで待つ。ログインできなければ runtime エラー

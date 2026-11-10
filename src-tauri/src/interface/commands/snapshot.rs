@@ -27,6 +27,11 @@ pub async fn refresh_backends(state: State<'_, AppState>) -> CommandResult<()> {
     state.services()?.backends.refresh().await.map_err(reject)
 }
 
+#[tauri::command]
+pub async fn install_backend_cli(state: State<'_, AppState>, backend_id: String) -> CommandResult<()> {
+    state.services()?.backends.install_cli(&backend_id).await.map_err(reject)
+}
+
 /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く
 #[tauri::command]
 pub async fn login_backend(state: State<'_, AppState>, backend_id: String) -> CommandResult<()> {

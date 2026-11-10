@@ -1,12 +1,13 @@
 //! システムプロンプト: 種別ポリシーと実効権限による出し分け。
 
-use guild_domain::agent::{effective_permissions, Agent};
+use guild_domain::agent::{effective_permissions, Agent, Permissions};
+use guild_domain::backend::BackendInfo;
 use guild_domain::ids::{AgentId, SkillId};
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_system_prompt, PromptContext};
 use guild_domain::skill::Skill;
 
-use super::support::{agent, channel};
+use super::support::{agent, backend, channel};
 
 fn agents() -> Vec<Agent> {
     let mut ghost = agent("ghost", "expert", "ゴースト");
@@ -38,6 +39,10 @@ fn skill(name: &str) -> Skill {
 }
 
 fn system_prompt(agent_id: &str, skills: &[Skill], memory: &str) -> String {
+    system_prompt_with_backends(agent_id, skills, memory, &[])
+}
+
+fn system_prompt_with_backends(agent_id: &str, skills: &[Skill], memory: &str, backends: &[BackendInfo]) -> String {
     let agents = agents();
     let lobby = channel("c1", &["me", "haru", "sora", "logica", "ghost"]);
     let me = Profile::default();
@@ -46,10 +51,10 @@ fn system_prompt(agent_id: &str, skills: &[Skill], memory: &str) -> String {
     };
     let ctx = PromptContext {
         agent: subject,
-        permissions: effective_permissions(subject, None),
+        permissions: effective_permissions(subject, backends.first().map(|backend| &backend.capabilities)),
         channel: &lobby,
         agents: &agents,
-        backends: &[],
+        backends,
         me: &me,
         skills,
         memory,
@@ -90,6 +95,15 @@ fn memory_is_cut_to_its_last_4000_chars() {
     let prompt = system_prompt("haru", &[], &memory);
     assert!(!prompt.contains('古'));
     assert!(prompt.contains(&"新".repeat(4000)));
+}
+
+#[test]
+fn a_conversation_backend_can_reference_memory_without_writing_it() {
+    let conversation_only = BackendInfo { capabilities: Permissions::default(), ..backend("claude") };
+    let prompt = system_prompt_with_backends("haru", &[], "前回のメモ", &[conversation_only]);
+    assert!(prompt.contains("### MEMORY.md の現在の内容（末尾）\n前回のメモ"));
+    assert!(!prompt.contains("MEMORY.md に追記してください"));
+    assert!(!prompt.contains("読み書きしてかまいません"));
 }
 
 #[test]

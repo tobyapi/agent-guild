@@ -282,6 +282,43 @@
       ],
       "canLogin": false,
       "midRunPost": "text"
+    },
+    {
+      "id": "ollama",
+      "label": "Ollama（この PC）",
+      "models": [
+        {
+          "id": "deepseek-r1:8b",
+          "label": "deepseek-r1:8b",
+          "description": "8.2B · 文章に対応",
+          "efforts": [],
+          "defaultEffort": null
+        },
+        {
+          "id": "gemma4:26b",
+          "label": "gemma4:26b",
+          "description": "画像と文章に対応",
+          "efforts": [],
+          "defaultEffort": null
+        }
+      ],
+      "defaultModel": "deepseek-r1:8b",
+      "capabilities": {
+        "webSearch": false,
+        "webFetch": false,
+        "readFiles": false,
+        "writeFiles": false,
+        "writeAnywhere": false,
+        "runCommands": false,
+        "skills": false
+      },
+      "status": "ready",
+      "statusMessage": "この PC のモデルを使います。",
+      "options": [],
+      "permissionRules": [],
+      "leakRisks": [],
+      "canLogin": false,
+      "midRunPost": null
     }
   ],
   "templates": [
