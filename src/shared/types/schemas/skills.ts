@@ -1,12 +1,33 @@
 // domain のスキル（エージェントのスキル・スキルライブラリ）のスキーマ。
-import type { LibrarySkill, Skill, SkillInput, SkillLibrary, SkillSource } from '../domain';
-import { arrayOf, nullable, number, objectOf, oneOf, recordOf, string } from '../schema';
+import type {
+  BuiltinSkill,
+  BuiltinSkillSource,
+  LibrarySkill,
+  LinkedSkillSource,
+  Skill,
+  SkillInput,
+  SkillLibrary,
+} from '../domain';
+import { anyOf, arrayOf, nullable, number, objectOf, oneOf, recordOf, string } from '../schema';
 import type { Schema } from '../schema';
 
-export const skillSourceSchema = {
-  kind: oneOf<SkillSource['kind']>({ linked: true }),
+const linkedSourceSchema = {
+  kind: oneOf<LinkedSkillSource['kind']>({ linked: true }),
   path: string,
-} satisfies Schema<SkillSource>;
+} satisfies Schema<LinkedSkillSource>;
+
+const builtinSourceSchema = {
+  kind: oneOf<BuiltinSkillSource['kind']>({ builtin: true }),
+  name: string,
+} satisfies Schema<BuiltinSkillSource>;
+
+const skillSource = anyOf(objectOf(linkedSourceSchema), objectOf(builtinSourceSchema));
+
+export const builtinSkillSchema = {
+  name: string,
+  description: string,
+  body: string,
+} satisfies Schema<BuiltinSkill>;
 
 export const skillSchema = {
   id: string,
@@ -14,7 +35,7 @@ export const skillSchema = {
   name: string,
   description: string,
   body: string,
-  source: nullable(objectOf(skillSourceSchema)),
+  source: nullable(skillSource),
   problem: nullable(string),
   updatedAt: number,
 } satisfies Schema<Skill>;

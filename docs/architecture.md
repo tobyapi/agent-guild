@@ -45,7 +45,7 @@ src-tauri/
 ### guild-domain（依存: serde, serde_json, unicode-normalization のみ）
 - `ids`（ニュータイプ AgentId / ChannelId / MessageId / SkillId / AttachmentId / DelegationId / SubtaskId）、`author`（`Author { Human, System, Agent }`・`MemberId { Human, Agent }`。JSON では "me" / "system" / UUID）
 - `agent/`（Agent・AgentInput・UnmentionedPolicy・**templates.rs**（作成のテンプレート表。design.md §2）・権限・タグと名前の正規化と検証）
-- `channel`, `message`（Message・MessageKind・NewMessage）, `attachment`（発言に添えた画像・ファイル）, `skill/`（名前と説明の検証・SKILL.md の読み取り・ライブラリ）, `profile`, `snapshot`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
+- `channel`, `message`（Message・MessageKind・NewMessage）, `attachment`（発言に添えた画像・ファイル）, `skill/`（名前と説明の検証・SKILL.md の読み取り・内蔵スキル・ライブラリ）, `profile`, `snapshot`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
 - 権限の組み合わせ規則（design.md §5）の検証は `agent/validation.rs`（保存時に実効権限で判定）
 - `conversation/`（`mentions` 解析、`routing` = design.md §7 を純粋関数で、`job` = JobSpec（agent・channel・mode・きっかけ集合・returnTo 集合・depth・rootId・注記）とレーンでの合流規則・ジョブが関わる会話の判定、`reply` = 返答の整形、`notices` = システム発言と注記の文面、`attachments` = プロンプトに渡す添付の選び方）
 - `delegation/`（割り振り。design.md §7.1: `tasks` = tasks ブロックの読み取り、`state` = Delegation とサブタスクの状態、`verdict` = サブタスクの決着の判定）
@@ -67,7 +67,7 @@ src-tauri/
   SkillLibraryScanner { scan(dir, limit); read_skill_file(folder); is_folder(path) }   // スキルライブラリ（design.md §14）。全体の上限はアプリ側が残り件数を渡して守る
   ```
 - `error.rs`（AppError → CommandError の code と field に対応）、`services.rs`（AppServices）
-- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・ライブラリ・リンクしたスキルの読み直し）, `profile`, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
+- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・内蔵スキル・ライブラリ・参照しているスキルの読み直し）, `profile`, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
 - `conversation/`: `ConversationService`（入口）、`dispatcher`（**単一タスクのアクター**。レーン・割り振りの枠・エージェント排他・同時実行上限・世代・往復の上限のお知らせ・進行中の割り振りの記録を持ち、mpsc で Enqueue / Finished / Stop / RemoveAgent などを受ける。共有ロック不要。受け入れと合流は `intake`、選び方は `pick`（レーンの中は会話ごとに直列）、割り振りの記録は `tracking`、決着と打ち切りは `delegation`、停止と取り消しは `stopping`、毎回の処理のあとの見直しは `reconcile`、終了で消えるジョブの記録は `inflight`）、`executor`（1ジョブの実行: プロンプト組み立て → ランタイム → 保存 → イベント → 振り分け。依頼の組み立ては `request`、プロンプトに入れる発言の選び方は `history`、結果の確定は `commit` が結末（`ending`）と結果を返し、tasks ブロックからの割り振りの作成は `delegate`、作業の途中の投稿の保存は `interim`。実行中の知らせ（途中経過・途中の投稿）はアクターの `reporting` がコマンドにして受け取る）、`posting`（発言の保存と message-created の発行、参加とお知らせ）、`attachments`、`interrupted`（終了で中断された返答の知らせ）、`activity`
 - テスト: ポートのフェイク（インメモリ）で、振り分けの一連の流れ・合流・排他・停止と世代・削除・タイムアウト・自発活動・保存先変更を検証する。時間は Clock のフェイクと tokio の時間停止で制御する。
 

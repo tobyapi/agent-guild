@@ -4,7 +4,12 @@ import { arrayOf, nullable, nullValue, objectOf, string } from '@/shared/types/s
 import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { agentSchema, channelSchema, messageSchema, profileSchema } from '@/shared/types/schemas/entities';
-import { skillLibrarySchema, skillSchema, skillsChangedSchema } from '@/shared/types/schemas/skills';
+import {
+  builtinSkillSchema,
+  skillLibrarySchema,
+  skillSchema,
+  skillsChangedSchema,
+} from '@/shared/types/schemas/skills';
 import { channelStatisticsSchema } from '@/shared/types/schemas/statistics';
 import {
   activityStateSchema,
@@ -32,6 +37,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   list_skills: arrayOf(skill),
   save_skill: skill,
   delete_skill: nullValue,
+  list_builtin_skills: arrayOf(objectOf(builtinSkillSchema)),
+  add_builtin_skill: skill,
   get_skill_library: skillLibrary,
   set_skill_library_dirs: skillLibrary,
   add_library_skill: skill,

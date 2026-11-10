@@ -11,7 +11,7 @@ use guild_domain::skill::{
     LIBRARY_SKILL_LIMIT,
 };
 
-use super::linked::folder_name;
+use super::sources::folder_name;
 use super::{ensure_name_free, require_agent};
 use crate::error::{AppError, AppResult};
 use crate::ports::{Folders, FoundSkill, SettingsStore, SkillFileError, SkillLibraryScanner};

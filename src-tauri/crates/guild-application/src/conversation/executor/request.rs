@@ -17,7 +17,7 @@ use super::history::history;
 use crate::error::AppResult;
 use crate::ports::{ImagePayload, RuntimeRequest, SkillPayload};
 use crate::services::Ports;
-use crate::skills::linked;
+use crate::skills::sources;
 
 /// エージェントが削除・除外されているか、チャンネルがなければ None（実行しない）
 pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeRequest>> {
@@ -130,7 +130,7 @@ fn delegation_of(ports: &Ports, job: &JobSpec) -> AppResult<Option<Delegation>> 
 /// linked のスキルは SKILL.md を読み直したもの（読めなければ外す）
 fn runnable_skills(ports: &Ports, agent: &Agent) -> AppResult<Vec<Skill>> {
     let skills = ports.skills.list_for_agent(&agent.id)?;
-    Ok(linked::runnable(ports.library.as_ref(), &agent.name, skills))
+    Ok(sources::runnable(ports.library.as_ref(), &agent.name, skills))
 }
 
 fn payload(skill: &Skill) -> SkillPayload {

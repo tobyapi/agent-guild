@@ -16,7 +16,8 @@
 | ipc/snapshot.json | Snapshot |
 | ipc/agent-input.json | AgentInput |
 | ipc/messages.json | Message[] |
-| ipc/skill.json / ipc/skill-linked.json / ipc/skill-input.json | Skill（アプリ内）/ Skill（ライブラリにリンク）/ SkillInput |
+| ipc/skill.json / ipc/skill-linked.json / ipc/skill-builtin.json / ipc/skill-input.json | Skill（アプリ内）/ Skill（ライブラリにリンク）/ Skill（内蔵スキルを参照）/ SkillInput |
+| ipc/builtin-skills.json | BuiltinSkill[]（list_builtin_skills） |
 | ipc/skill-library.json | SkillLibrary |
 | ipc/delegation.json | Delegation（list_delegations の要素・delegation-changed のペイロード） |
 | ipc/activity-state.json | ActivityState（activity-changed のペイロード） |

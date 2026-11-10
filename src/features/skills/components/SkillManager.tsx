@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Icon } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
 import { useAgentSkills } from '../hooks/useAgentSkills';
+import { BuiltinPicker } from './BuiltinPicker';
 import { DeleteSkillDialog } from './DeleteSkillDialog';
 import { LibraryPicker } from './LibraryPicker';
 import { SkillEditor } from './SkillEditor';
@@ -18,9 +19,10 @@ export interface SkillManagerProps {
 }
 
 /** 一覧の下に開く作業の場所（1つずつ） */
-type Panel = { type: 'edit'; skill: Skill | null } | { type: 'view'; skill: Skill } | { type: 'library' };
+type Panel =
+  { type: 'edit'; skill: Skill | null } | { type: 'view'; skill: Skill } | { type: 'builtin' } | { type: 'library' };
 
-/** エージェントのスキルの一覧・作成・編集・ライブラリからの追加・削除（リンクしたスキルは見るだけ） */
+/** エージェントのスキルの一覧・作成・編集・内蔵スキルとライブラリからの追加・削除（参照しているスキルは見るだけ） */
 export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: SkillManagerProps) {
   const skills = useAgentSkills(agentId);
   const [panel, setPanel] = useState<Panel | null>(null);
@@ -38,7 +40,8 @@ export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: Sk
           {list.length === 0 && panel === null && skills && (
             <p className={styles.empty}>
               <b>スキルはまだありません</b>
-              専門知識の手引きを Markdown で書くか、スキルのフォルダから追加すると、相談のときに読んでから答えます。
+              専門知識の手引きを Markdown
+              で書くか、内蔵スキルやスキルのフォルダから追加すると、相談のときに読んでから答えます。
             </p>
           )}
           <ul className={styles.list}>
@@ -57,6 +60,10 @@ export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: Sk
               <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'edit', skill: null })}>
                 <Icon name="plus" />
                 スキルを書く
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'builtin' })}>
+                <Icon name="diamond" />
+                内蔵スキルから追加
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'library' })}>
                 <Icon name="link" />
@@ -85,7 +92,7 @@ interface PanelViewProps extends Pick<SkillManagerProps, 'agentId' | 'onOpenLibr
   onClose: () => void;
 }
 
-/** 一覧の下の作業の場所: スキルを書く・リンクしたスキルを見る・ライブラリから追加 */
+/** 一覧の下の作業の場所: スキルを書く・参照しているスキルを見る・内蔵スキルやライブラリから追加 */
 function PanelView({ panel, agentId, skills, onClose, onOpenLibrarySettings }: PanelViewProps) {
   switch (panel.type) {
     case 'edit':
@@ -103,6 +110,8 @@ function PanelView({ panel, agentId, skills, onClose, onOpenLibrarySettings }: P
       const current = skills.find((skill) => skill.id === panel.skill.id) ?? panel.skill;
       return <SkillViewer key={current.id} skill={current} onClose={onClose} />;
     }
+    case 'builtin':
+      return <BuiltinPicker agentId={agentId} existing={skills} onClose={onClose} />;
     case 'library':
       return (
         <LibraryPicker agentId={agentId} existing={skills} onClose={onClose} onOpenSettings={onOpenLibrarySettings} />

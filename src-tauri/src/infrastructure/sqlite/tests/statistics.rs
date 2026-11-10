@@ -8,7 +8,7 @@ use guild_domain::statistics::{DelegationStatistics, RunMeasurement, RunUsage};
 use rusqlite::Connection;
 
 use super::temp_dir;
-use crate::infrastructure::sqlite::migrations::{applied_version, APPLICATION_ID};
+use crate::infrastructure::sqlite::migrations::{applied_version, latest_version, APPLICATION_ID};
 use crate::infrastructure::sqlite::{Database, SqliteChannelRepository, SqliteStatisticsRepository};
 
 #[test]
@@ -17,7 +17,7 @@ fn upgrading_keeps_all_previous_delegations_and_aggregates_new_runs_by_channel_a
     let path = directory.join("guild.db");
     create_v1_fixture(&path);
     let db = Arc::new(Database::open(&path).unwrap());
-    assert_eq!(applied_version(&Connection::open(&path).unwrap()).unwrap(), 2);
+    assert_eq!(applied_version(&Connection::open(&path).unwrap()).unwrap(), latest_version());
     let statistics = SqliteStatisticsRepository::new(db.clone());
     let c1 = ChannelId::new("c1");
     let c2 = ChannelId::new("c2");

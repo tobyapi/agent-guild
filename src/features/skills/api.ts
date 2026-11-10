@@ -5,6 +5,9 @@ export const skillsApi = {
   list: (agentId: string) => invoke('list_skills', { agentId }),
   save: (input: SkillInput) => invoke('save_skill', { input }),
   remove: (id: string) => invoke('delete_skill', { id }),
+  builtins: () => invoke('list_builtin_skills'),
+  addBuiltin: (agentId: string, name: string, mode: LibraryAddMode) =>
+    invoke('add_builtin_skill', { agentId, name, mode }),
   library: () => invoke('get_skill_library'),
   setLibraryDirs: (dirs: string[]) => invoke('set_skill_library_dirs', { dirs }),
   addFromLibrary: (agentId: string, path: string, mode: LibraryAddMode) =>

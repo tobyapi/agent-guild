@@ -1,7 +1,7 @@
 // スキル（エージェントごと）。開いたエージェントの分だけ取得し、skills-changed で取り直す。
 import { create } from 'zustand';
 import { reportError } from '@/shared/ui';
-import type { LibraryAddMode, Skill, SkillInput } from '@/shared/types/domain';
+import type { BuiltinSkill, LibraryAddMode, Skill, SkillInput } from '@/shared/types/domain';
 import { skillsApi } from './api';
 
 interface SkillsStoreState {
@@ -38,6 +38,16 @@ export async function saveSkill(input: SkillInput): Promise<Skill> {
 /** ライブラリのスキルをエージェントに付ける（link: 参照して実行のたびに読み直す / copy: 取り込む） */
 export async function addLibrarySkill(agentId: string, path: string, mode: LibraryAddMode): Promise<Skill> {
   return upsert(await skillsApi.addFromLibrary(agentId, path, mode));
+}
+
+/** アプリに同梱した内蔵スキル（name の順。変わらないのでストアには持たない） */
+export async function listBuiltinSkills(): Promise<BuiltinSkill[]> {
+  return skillsApi.builtins();
+}
+
+/** 内蔵スキルをエージェントに付ける（link: 参照してアプリの更新に追従する / copy: 取り込む） */
+export async function addBuiltinSkill(agentId: string, name: string, mode: LibraryAddMode): Promise<Skill> {
+  return upsert(await skillsApi.addBuiltin(agentId, name, mode));
 }
 
 /** リンク先・ライブラリのフォルダを OS のファイラで開く */

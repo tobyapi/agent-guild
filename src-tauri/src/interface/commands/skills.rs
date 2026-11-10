@@ -1,28 +1,45 @@
 //! スキルとスキルライブラリのコマンド。
 
 use guild_domain::ids::{AgentId, SkillId};
-use guild_domain::skill::{LibraryAddMode, Skill, SkillInput, SkillLibrary};
+use guild_domain::skill::{BuiltinSkill, LibraryAddMode, Skill, SkillInput, SkillLibrary};
 use tauri::State;
 
 use super::{reject, CommandResult};
 use crate::interface::state::AppState;
 
-/// linked のスキルは SKILL.md を読み直した内容（読めなければ problem に理由）
+/// linked・builtin のスキルは参照先を読み直した内容（読めなければ problem に理由）
 #[tauri::command]
 pub async fn list_skills(state: State<'_, AppState>, agent_id: AgentId) -> CommandResult<Vec<Skill>> {
     state.services()?.skills.list(&agent_id).map_err(reject)
 }
 
-/// id が null なら新規。name は変換せずに検証する。linked は編集できない
+/// id が null なら新規。name は変換せずに検証する。linked・builtin は編集できない
 #[tauri::command]
 pub async fn save_skill(state: State<'_, AppState>, input: SkillInput) -> CommandResult<Skill> {
     state.services()?.skills.save(input).map_err(reject)
 }
 
-/// linked なら参照を外すだけ（元のフォルダは消さない）
+/// linked・builtin なら参照を外すだけ（元のフォルダは消さない）
 #[tauri::command]
 pub async fn delete_skill(state: State<'_, AppState>, id: SkillId) -> CommandResult<()> {
     state.services()?.skills.delete(&id).map_err(reject)
+}
+
+/// アプリに同梱した内蔵スキル（name の順）
+#[tauri::command]
+pub async fn list_builtin_skills(state: State<'_, AppState>) -> CommandResult<Vec<BuiltinSkill>> {
+    Ok(state.services()?.skills.builtins())
+}
+
+/// 内蔵スキルを付ける（link: 参照してアプリの更新に追従する / copy: 取り込んで編集できる）
+#[tauri::command]
+pub async fn add_builtin_skill(
+    state: State<'_, AppState>,
+    agent_id: AgentId,
+    name: String,
+    mode: LibraryAddMode,
+) -> CommandResult<Skill> {
+    state.services()?.skills.add_builtin(&agent_id, &name, mode).map_err(reject)
 }
 
 /// 呼ぶたびにライブラリのフォルダを走査し直す

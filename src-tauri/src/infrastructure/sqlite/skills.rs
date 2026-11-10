@@ -1,4 +1,4 @@
-//! スキルのリポジトリ。(agent_id, name) は一意。source_path が NULL でなければ linked（problem は DB に持たない）。
+//! スキルのリポジトリ。(agent_id, name) は一意。source は SkillSource の JSON で、NULL ならアプリ内のスキル（problem は DB に持たない）。
 
 use std::sync::Arc;
 
@@ -6,12 +6,13 @@ use guild_application::ports::SkillRepository;
 use guild_application::{AppError, AppResult};
 use guild_domain::ids::{AgentId, SkillId};
 use guild_domain::skill::{Skill, SkillSource};
+use rusqlite::types::Type;
 use rusqlite::{params, OptionalExtension, Row};
 
-use super::codec::{is_unique_violation, storage};
+use super::codec::{is_unique_violation, storage, to_json};
 use super::database::Database;
 
-const COLUMNS: &str = "id, agent_id, name, description, body, source_path, updated_at";
+const COLUMNS: &str = "id, agent_id, name, description, body, source, updated_at";
 
 pub struct SqliteSkillRepository {
     db: Arc<Database>,
@@ -36,18 +37,19 @@ impl SkillRepository for SqliteSkillRepository {
 
     fn upsert(&self, skill: &Skill) -> AppResult<()> {
         let result = self.db.with(|conn| {
+            let source = skill.source.as_ref().map(to_json).transpose()?;
             conn.execute(
-                "INSERT INTO skills (id, agent_id, name, description, body, source_path, updated_at) \
+                "INSERT INTO skills (id, agent_id, name, description, body, source, updated_at) \
                  VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) \
                  ON CONFLICT (id) DO UPDATE SET name = excluded.name, description = excluded.description, \
-                 body = excluded.body, source_path = excluded.source_path, updated_at = excluded.updated_at",
+                 body = excluded.body, source = excluded.source, updated_at = excluded.updated_at",
                 params![
                     skill.id.as_str(),
                     skill.agent_id.as_str(),
                     skill.name,
                     skill.description,
                     skill.body,
-                    skill.linked_path(),
+                    source,
                     skill.updated_at,
                 ],
             )
@@ -83,8 +85,18 @@ fn read_skill(row: &Row<'_>) -> rusqlite::Result<Skill> {
         name: row.get(2)?,
         description: row.get(3)?,
         body: row.get(4)?,
-        source: row.get::<_, Option<String>>(5)?.map(|path| SkillSource::Linked { path }),
+        source: read_source(row, 5)?,
         problem: None,
         updated_at: row.get(6)?,
     })
+}
+
+/// source の列（SkillSource の JSON。NULL ならアプリ内のスキル）
+fn read_source(row: &Row<'_>, index: usize) -> rusqlite::Result<Option<SkillSource>> {
+    let Some(text) = row.get::<_, Option<String>>(index)? else {
+        return Ok(None);
+    };
+    serde_json::from_str(&text)
+        .map(Some)
+        .map_err(|error| rusqlite::Error::FromSqlConversionFailure(index, Type::Text, Box::new(error)))
 }

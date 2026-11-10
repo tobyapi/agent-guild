@@ -6,6 +6,7 @@ import type {
   AgentInput,
   AttachmentInput,
   BootStatus,
+  BuiltinSkill,
   Channel,
   ChannelStatistics,
   DataDirMode,
@@ -37,6 +38,8 @@ export interface CommandMap {
   list_skills: { args: { agentId: string }; result: Skill[] };
   save_skill: { args: { input: SkillInput }; result: Skill };
   delete_skill: { args: { id: string }; result: null };
+  list_builtin_skills: { args: NoArgs; result: BuiltinSkill[] };
+  add_builtin_skill: { args: { agentId: string; name: string; mode: LibraryAddMode }; result: Skill };
   /** 呼ぶたびにライブラリのフォルダを走査し直す */
   get_skill_library: { args: NoArgs; result: SkillLibrary };
   set_skill_library_dirs: { args: { dirs: string[] }; result: SkillLibrary };

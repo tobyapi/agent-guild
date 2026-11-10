@@ -1,6 +1,8 @@
 //! スキル（Agent Skills 標準の SKILL.md）。DB が正で、実行のたびにランナーへ渡す（展開はランナーのアダプタ）。
-//! スキルライブラリのフォルダを参照する linked のスキルだけは、実行のたびに読み直した SKILL.md が正。
+//! スキルライブラリのフォルダを参照する linked のスキルは実行のたびに読み直した SKILL.md が、
+//! 内蔵スキルを参照する builtin のスキルはアプリに同梱した SKILL.md が正。
 
+mod builtin;
 mod file;
 mod frontmatter;
 mod library;
@@ -10,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, SkillId};
 
+pub use builtin::{builtin_skill_files, builtin_skills, find_builtin_skill, BuiltinSkill};
 pub use file::{parse_skill_file, SkillFile, SKILL_FILE};
 pub use library::{
     validate_library_dirs, LibraryAddMode, LibrarySkill, SkillLibrary, LIBRARY_SCAN_DEPTH, LIBRARY_SKILL_LIMIT,
@@ -29,6 +32,11 @@ pub enum SkillSource {
         /// SKILL.md があるフォルダの絶対パス
         path: String,
     },
+    /// アプリに同梱した内蔵スキルを参照する。アプリ内では編集できない
+    Builtin {
+        /// 内蔵スキルの name
+        name: String,
+    },
 }
 
 /// TS の Skill
@@ -40,10 +48,10 @@ pub struct Skill {
     /// 64文字以内の英小文字・数字・ハイフン。エージェント内で一意
     pub name: String,
     pub description: String,
-    /// linked のときは、取得した時点で SKILL.md から読んだ本文
+    /// linked・builtin のときは、取得した時点で参照先から読んだ本文
     pub body: String,
     pub source: Option<SkillSource>,
-    /// linked のスキルを読めなかったときの理由（DB には持たない）
+    /// linked・builtin のスキルを読めなかったときの理由（DB には持たない）
     pub problem: Option<String>,
     pub updated_at: i64,
 }
@@ -53,7 +61,15 @@ impl Skill {
     pub fn linked_path(&self) -> Option<&str> {
         match &self.source {
             Some(SkillSource::Linked { path }) => Some(path),
-            None => None,
+            _ => None,
+        }
+    }
+
+    /// builtin なら参照する内蔵スキルの name
+    pub fn builtin_name(&self) -> Option<&str> {
+        match &self.source {
+            Some(SkillSource::Builtin { name }) => Some(name),
+            _ => None,
         }
     }
 }

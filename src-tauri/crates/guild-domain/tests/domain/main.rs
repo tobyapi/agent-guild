@@ -18,6 +18,7 @@ mod prompt_system;
 mod reply;
 mod routing_human;
 mod routing_reply;
+mod skill_builtin;
 mod skill_file;
 mod skill_library;
 mod support;

@@ -30,6 +30,8 @@ pub fn run() {
             skills::list_skills,
             skills::save_skill,
             skills::delete_skill,
+            skills::list_builtin_skills,
+            skills::add_builtin_skill,
             skills::get_skill_library,
             skills::set_skill_library_dirs,
             skills::add_library_skill,

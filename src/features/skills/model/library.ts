@@ -1,7 +1,7 @@
 // スキルライブラリの表示の判断（追加できるか・検索・フォルダの並べ替え）。正はサーバの検証。
 import { normalizeName } from '@/shared/lib/names';
 import { isInsidePath, isSamePath } from '@/shared/lib/paths';
-import type { LibrarySkill, Skill, SkillLibrary } from '@/shared/types/domain';
+import type { BuiltinSkill, LibrarySkill, Skill, SkillLibrary } from '@/shared/types/domain';
 
 /** ライブラリのスキルを、そのエージェントに追加できるか */
 export type LibraryEntryState =
@@ -14,9 +14,20 @@ export type LibraryEntryState =
   | { kind: 'problem'; reason: string };
 
 export function libraryEntryState(entry: LibrarySkill, agentSkills: readonly Skill[]): LibraryEntryState {
-  if (agentSkills.some((skill) => skill.source !== null && isSamePath(skill.source.path, entry.path)))
+  if (agentSkills.some((skill) => skill.source?.kind === 'linked' && isSamePath(skill.source.path, entry.path)))
     return { kind: 'added' };
   if (entry.problem !== null) return { kind: 'problem', reason: entry.problem };
+  if (agentSkills.some((skill) => skill.name === entry.name)) return { kind: 'nameTaken' };
+  return { kind: 'available' };
+}
+
+/** 内蔵スキルを、そのエージェントに追加できるか（同じ内蔵スキルを参照済みなら added） */
+export function builtinEntryState(
+  entry: BuiltinSkill,
+  agentSkills: readonly Skill[],
+): Exclude<LibraryEntryState, { kind: 'problem' }> {
+  if (agentSkills.some((skill) => skill.source?.kind === 'builtin' && skill.source.name === entry.name))
+    return { kind: 'added' };
   if (agentSkills.some((skill) => skill.name === entry.name)) return { kind: 'nameTaken' };
   return { kind: 'available' };
 }

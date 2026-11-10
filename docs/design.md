@@ -85,8 +85,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `run_autonomous` | `{ agentId }` | `null` | activity-changed, state-changed（lastAutonomousAt が変わる） | not_found, validation（参加チャンネルなし） |
 | `open_agent_workspace` | `{ agentId }` | `null` | – | not_found |
 | `list_skills` | `{ agentId }` | `Skill[]` | – | not_found |
-| `save_skill` | `{ input: SkillInput }` | `Skill` | skills-changed | validation, conflict, not_found, validation（linked のスキルは編集できない） |
+| `save_skill` | `{ input: SkillInput }` | `Skill` | skills-changed | validation, conflict, not_found, validation（linked・builtin のスキルは編集できない） |
 | `delete_skill` | `{ id }` | `null` | skills-changed | not_found |
+| `list_builtin_skills` | – | `BuiltinSkill[]`（アプリに同梱した内蔵スキル。name の順） | – | – |
+| `add_builtin_skill` | `{ agentId, name, mode: LibraryAddMode }` | `Skill` | skills-changed | not_found（エージェント・内蔵スキル）, conflict（同じ name のスキルがすでにある） |
 | `get_skill_library` | – | `SkillLibrary`（呼ぶたびにフォルダを走査し直す） | – | – |
 | `set_skill_library_dirs` | `{ dirs: string[] }` | `SkillLibrary` | skill-library-changed | validation（絶対パスでない・重複・互いに入れ子） |
 | `add_library_skill` | `{ agentId, path, mode: LibraryAddMode }` | `Skill` | skills-changed | not_found（エージェント・フォルダ）, validation（SKILL.md が標準に合わない）, conflict（同じ name のスキルがすでにある） |
@@ -320,7 +322,7 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
 
 - **リリース後に壊してはいけない境界**: (1) データフォルダ（構成・guild-data.json・SQLite スキーマ・settings.json）(2) スキル形式（Agent Skills の SKILL.md 標準）(3) 将来のエージェント定義のエクスポート形式。
 - React ⇄ Rust の IPC と Rust ⇄ ランナーのプロトコルは、同じアプリに同梱して同時に出荷する**内部契約**。自由に変えてよいが、文書とフィクスチャは常に正しく保つ。
-- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**既存の割り振りを保持するため 0001 は固定し、運用統計の 0002 以降は追記する。** 指紋が変わったら、デバッグビルドは古い DB を `guild.db.bak-<日時>` に退避して作り直す（リリースビルドでは決してしない）。リリース時に 0001 を凍結し、内容のハッシュを固定するテストを足す。以後は追記のみ。
+- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**既存の割り振りを保持するため 0001 は固定し、運用統計の 0002・スキルの出どころの 0003 以降は追記する。** 指紋が変わったら、デバッグビルドは古い DB を `guild.db.bak-<日時>` に退避して作り直す（リリースビルドでは決してしない）。リリース時に 0001 を凍結し、内容のハッシュを固定するテストを足す。以後は追記のみ。
 - 発言の並びは seq（INTEGER PRIMARY KEY AUTOINCREMENT）。エージェントは論理削除。外部キー: skills → agents、channel_members・messages → channels（ON DELETE CASCADE）。
 - **拡張の余白**: バックエンドの能力・状態・設定項目はランナーが申告する（Rust・React は列挙しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。
 - **リリース前の今は、後方互換のための分岐・移行コード・非推奨 API を書かない。** より良い形があれば壊して作り直す。
@@ -342,7 +344,10 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
   - `link`（既定）: スキルは `source = { kind: 'linked', path }` で保存する。DB には name・description・本文の写しも入れるが、**実行のたびに SKILL.md を読み直したものが正**。読めなければそのスキルを外して実行し、警告ログを残す（`list_skills` の `problem` にも理由が出る）。アプリ内では編集できない（`save_skill` は validation）。付属ファイルはランナーのアダプタが実行のたびにリンク先からコピーする（SkillPayload.dir）。
   - `copy`: いまの SKILL.md を読んで、ふつうのスキル（source = null）として保存する。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - どちらも、同じエージェントに同じ name のスキルがあれば `conflict`。
-- **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。
+- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/SKILL.md`。Rust は guild-domain の `skill/builtin.rs` が埋め込み、ブラウザのモックも同じファイルを読む）。フォルダ名と frontmatter の name をそろえ、すべて標準に合うことをテストで確かめる。いまは code-review・bug-investigation・research-report・task-breakdown・meeting-minutes・proofreading。
+  - `list_builtin_skills` で一覧し、`add_builtin_skill` でエージェントに付ける。`link`（既定）は `source = { kind: 'builtin', name }` で保存し、**一覧と実行のたびに同梱の SKILL.md を読み直したものが正**（アプリの更新に追従する）。この版にない name なら、そのスキルを外して実行し、`problem` に理由を出す。アプリ内では編集できない。`copy` はふつうのスキル（source = null）として取り込む。付属ファイルは持たない。
+  - DB の `skills.source` は SkillSource の JSON（アプリ内のスキルは NULL）。
+- **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。内蔵スキルには「内蔵」の印を出し、本文を見られるようにする。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。
 - **安全**: 付属ファイルは作業場所ではなく stateDir 側に展開し、エージェントからは書き換えられない。ライブラリのフォルダはアプリから書き換えない（読むだけ）。
 
 ## Backend API key IPC

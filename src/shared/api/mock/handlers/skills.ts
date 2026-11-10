@@ -1,8 +1,9 @@
 // スキルの一覧・保存・削除。名前は変換せずに検証する（design.md §2）。変わったら skills-changed。
-// リンクしたスキル（§14）は一覧のたびに読み直し、アプリ内では編集させない。
+// リンクしたスキル・内蔵スキル（§14）は一覧のたびに読み直し、アプリ内では編集させない。
 import { isValidSkillName, SKILL_DESCRIPTION_MAX, SKILL_NAME_RULE } from '@/shared/lib/skillName';
 import { textLength } from '@/shared/lib/validation';
 import type { Skill, SkillInput } from '@/shared/types/domain';
+import { readBuiltinSkill } from '../builtinSkills';
 import { readLinkedSkill } from '../library';
 import { fail, requireAgent } from '../runtime';
 import type { MockCore } from '../runtime';
@@ -28,7 +29,9 @@ export const skillHandlers: HandlerGroup<SkillCommands> = {
     requireAgent(runtime, agentId);
     return runtime.state.skills
       .filter((skill) => skill.agentId === agentId)
-      .map(readLinkedSkill)
+      .map((skill) =>
+        skill.source?.kind === 'builtin' ? readBuiltinSkill(skill, skill.source.name) : readLinkedSkill(skill),
+      )
       .sort((a, b) => a.name.localeCompare(b.name));
   },
 
@@ -37,6 +40,8 @@ export const skillHandlers: HandlerGroup<SkillCommands> = {
     validateSkill(runtime, input);
     const current = runtime.state.skills.find((skill) => skill.id === input.id);
     if (input.id !== null && !current) fail('not_found', 'スキルが見つかりません');
+    if (current?.source?.kind === 'builtin')
+      fail('validation', '内蔵スキルはアプリ内では編集できません（「コピーして追加」すると編集できます）');
     if (current?.source)
       fail(
         'validation',

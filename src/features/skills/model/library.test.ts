@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { LibrarySkill, Skill, SkillLibrary } from '@/shared/types/domain';
-import { checkNewDir, libraryEntryState, moveItem, searchLibrary, skillCountIn } from './library';
+import type { BuiltinSkill, LibrarySkill, Skill, SkillLibrary } from '@/shared/types/domain';
+import { builtinEntryState, checkNewDir, libraryEntryState, moveItem, searchLibrary, skillCountIn } from './library';
 
 const entry = (name: string, overrides: Partial<LibrarySkill> = {}): LibrarySkill => ({
   path: `D:\\skills\\${name}`,
@@ -21,6 +21,20 @@ const skill = (name: string, linkedPath: string | null = null): Skill => ({
   source: linkedPath === null ? null : { kind: 'linked', path: linkedPath },
   problem: null,
   updatedAt: 0,
+});
+
+describe('builtinEntryState', () => {
+  const builtin: BuiltinSkill = { name: 'code-review', description: 'レビュー', body: '' };
+  const referencing: Skill = { ...skill('code-review'), source: { kind: 'builtin', name: 'code-review' } };
+
+  it('同じ内蔵スキルを参照済みなら追加済み、同じ名前の別のスキルがあれば追加できない', () => {
+    expect(builtinEntryState(builtin, [referencing])).toEqual({ kind: 'added' });
+    expect(builtinEntryState(builtin, [skill('code-review')])).toEqual({ kind: 'nameTaken' });
+    expect(builtinEntryState(builtin, [skill('code-review', 'D:\\skills\\code-review')])).toEqual({
+      kind: 'nameTaken',
+    });
+    expect(builtinEntryState(builtin, [skill('other')])).toEqual({ kind: 'available' });
+  });
 });
 
 describe('libraryEntryState', () => {

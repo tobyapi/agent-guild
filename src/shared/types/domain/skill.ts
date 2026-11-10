@@ -1,12 +1,28 @@
 /**
  * スキルの出どころ。
- * - null: アプリ内で書いたスキル（またはライブラリからコピーしたもの）。DB の name / description / body が正で、編集できる
+ * - null: アプリ内で書いたスキル（またはライブラリ・内蔵スキルからコピーしたもの）。DB の name / description / body が正で、編集できる
  * - linked: スキルライブラリのフォルダを参照する。実行のたびに SKILL.md を読み直し、付属ファイルも含めて渡す。アプリ内では編集できない
+ * - builtin: アプリに同梱した内蔵スキルを参照する。一覧と実行のたびに同梱の SKILL.md を読み直す（アプリの更新に追従）。アプリ内では編集できない
  */
-export interface SkillSource {
+export type SkillSource = LinkedSkillSource | BuiltinSkillSource;
+
+export interface LinkedSkillSource {
   kind: 'linked';
   /** SKILL.md があるフォルダの絶対パス */
   path: string;
+}
+
+export interface BuiltinSkillSource {
+  kind: 'builtin';
+  /** 内蔵スキルの name */
+  name: string;
+}
+
+/** アプリに同梱した内蔵スキル（list_builtin_skills。name の順） */
+export interface BuiltinSkill {
+  name: string;
+  description: string;
+  body: string;
 }
 
 export interface Skill {
@@ -16,10 +32,10 @@ export interface Skill {
   name: string;
   /** 必須・1024文字以内 */
   description: string;
-  /** linked のときは、取得した時点で SKILL.md から読んだ本文 */
+  /** linked・builtin のときは、取得した時点で参照先から読んだ本文 */
   body: string;
   source: SkillSource | null;
-  /** linked のスキルを読めなかったときの理由（フォルダがない・SKILL.md が壊れている など）。問題なければ null */
+  /** linked・builtin のスキルを読めなかったときの理由（フォルダがない・SKILL.md が壊れている・この版にない など）。問題なければ null */
   problem: string | null;
   updatedAt: number;
 }
@@ -56,5 +72,5 @@ export interface SkillLibrary {
   dirProblems: Record<string, string>;
 }
 
-/** ライブラリからの追加のしかた: link = 参照して実行のたびに読み直す（既定）/ copy = 取り込んでアプリ内で編集する */
+/** ライブラリ・内蔵スキルからの追加のしかた: link = 参照して実行のたびに読み直す（既定）/ copy = 取り込んでアプリ内で編集する */
 export type LibraryAddMode = 'link' | 'copy';

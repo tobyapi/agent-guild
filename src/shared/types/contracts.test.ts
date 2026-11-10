@@ -5,7 +5,13 @@ import { arrayOf, objectOf } from './schema';
 import type { Validator } from './schema';
 import { delegationSchema } from './schemas/delegation';
 import { agentInputSchema, messageSchema } from './schemas/entities';
-import { skillInputSchema, skillLibrarySchema, skillSchema, skillsChangedSchema } from './schemas/skills';
+import {
+  builtinSkillSchema,
+  skillInputSchema,
+  skillLibrarySchema,
+  skillSchema,
+  skillsChangedSchema,
+} from './schemas/skills';
 import { channelStatisticsSchema } from './schemas/statistics';
 import {
   activityStateSchema,
@@ -24,6 +30,8 @@ const CASES: Record<string, Validator> = {
   'messages.json': arrayOf(objectOf(messageSchema)),
   'skill.json': objectOf(skillSchema),
   'skill-linked.json': objectOf(skillSchema),
+  'skill-builtin.json': objectOf(skillSchema),
+  'builtin-skills.json': arrayOf(objectOf(builtinSkillSchema)),
   'skill-library.json': objectOf(skillLibrarySchema),
   'delegation.json': objectOf(delegationSchema),
   'skill-input.json': objectOf(skillInputSchema),

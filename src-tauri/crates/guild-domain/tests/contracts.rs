@@ -13,7 +13,7 @@ use guild_domain::boot::BootStatus;
 use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus};
 use guild_domain::error::CommandError;
 use guild_domain::message::Message;
-use guild_domain::skill::{LibraryAddMode, Skill, SkillInput, SkillLibrary, SkillSource, SkillsChanged};
+use guild_domain::skill::{BuiltinSkill, LibraryAddMode, Skill, SkillInput, SkillLibrary, SkillSource, SkillsChanged};
 use guild_domain::snapshot::Snapshot;
 use guild_domain::statistics::ChannelStatistics;
 use guild_domain::storage::StorageInfo;
@@ -66,6 +66,14 @@ fn linked_skill_and_library() {
     assert!(matches!(linked.source, Some(SkillSource::Linked { .. })));
     let modes: Vec<LibraryAddMode> = serde_json::from_str(r#"["link", "copy"]"#).expect("LibraryAddMode");
     assert_eq!(modes, [LibraryAddMode::Link, LibraryAddMode::Copy]);
+}
+
+#[test]
+fn builtin_skill_and_catalog() {
+    assert_round_trip::<Skill>("skill-builtin.json");
+    assert_round_trip::<Vec<BuiltinSkill>>("builtin-skills.json");
+    let builtin: Skill = serde_json::from_value(fixture("skill-builtin.json")).expect("Skill");
+    assert_eq!(builtin.builtin_name(), Some("code-review"));
 }
 
 #[test]

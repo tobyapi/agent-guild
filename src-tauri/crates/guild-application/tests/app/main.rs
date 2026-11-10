@@ -2,6 +2,7 @@
 
 mod attachments;
 mod autonomy;
+mod builtin_skills;
 mod delegation;
 mod delegation_stopping;
 mod flow;

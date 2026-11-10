@@ -79,7 +79,11 @@ fn skills_are_unique_per_agent_and_follow_their_agent() {
     let linked =
         Skill { source: Some(SkillSource::Linked { path: "D:/skills/unity".to_owned() }), ..skill("s4", "unity") };
     repository.upsert(&linked).unwrap();
-    assert_eq!(repository.get(&SkillId::new("s4")).unwrap(), Some(linked), "参照先は source_path に入る");
+    assert_eq!(repository.get(&SkillId::new("s4")).unwrap(), Some(linked), "参照先は source に入る");
+    let builtin =
+        Skill { source: Some(SkillSource::Builtin { name: "code-review".to_owned() }), ..skill("s5", "code-review") };
+    repository.upsert(&builtin).unwrap();
+    assert_eq!(repository.get(&SkillId::new("s5")).unwrap(), Some(builtin), "内蔵スキルの参照も source に入る");
     repository.delete(&SkillId::new("s1")).unwrap();
     repository.delete_for_agent(&AgentId::new("a1")).unwrap();
     assert!(repository.list_for_agent(&AgentId::new("a1")).unwrap().is_empty());

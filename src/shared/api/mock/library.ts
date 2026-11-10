@@ -121,7 +121,7 @@ export function scanLibrary(dirs: readonly string[]): SkillLibrary {
 
 /** リンクしたスキルは、取得のたびに SKILL.md を読み直した値にする（読めなければ problem に理由） */
 export function readLinkedSkill(skill: Skill): Skill {
-  if (!skill.source) return skill;
+  if (skill.source?.kind !== 'linked') return skill;
   const found = findSkillFolder(skill.source.path);
   if (!found) return { ...skill, problem: `リンク先のフォルダが見つかりません（${skill.source.path}）` };
   const problem = skillMdProblem(found);
