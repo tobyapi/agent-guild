@@ -68,6 +68,7 @@ impl TestApp {
             messages: store.clone(),
             attachments: attachments.clone(),
             delegations: store.clone(),
+            statistics: store.clone(),
             skills: store.clone(),
             library: library.clone(),
             profile: store.clone(),

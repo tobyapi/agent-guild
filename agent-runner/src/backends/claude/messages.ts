@@ -6,10 +6,11 @@ import type {
   SDKMessage,
   SDKResultMessage,
 } from '@anthropic-ai/claude-agent-sdk';
-import type { ErrorCode } from '../../protocol.ts';
+import type { ErrorCode, RunUsage } from '../../protocol.ts';
 import { activity, describeTool } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
 import { POST_TOOL } from './post.ts';
+import { claudeUsage } from './usage.ts';
 
 const ASSISTANT_ERROR_CODES: Readonly<Record<SDKAssistantMessageError, ErrorCode>> = {
   authentication_failed: 'auth',
@@ -71,11 +72,21 @@ function readResult(message: SDKResultMessage, lastText: string): string {
 export async function consumeMessages(
   messages: AsyncIterable<SDKMessage>,
   onActivity: (detail: string) => void,
+  onUsage: (usage: RunUsage) => void,
 ): Promise<string> {
   let lastText = '';
+  let sawMainModel = false;
   for await (const message of messages) {
-    if (message.type === 'assistant') lastText = readAssistant(message, onActivity) ?? lastText;
-    else if (message.type === 'result') return readResult(message, lastText);
+    if (message.type === 'assistant') {
+      if (!sawMainModel && !message.parent_tool_use_id && message.message.model) {
+        sawMainModel = true;
+        onUsage({ model: message.message.model });
+      }
+      lastText = readAssistant(message, onActivity) ?? lastText;
+    } else if (message.type === 'result') {
+      onUsage(claudeUsage(message));
+      return readResult(message, lastText);
+    }
   }
   return lastText;
 }

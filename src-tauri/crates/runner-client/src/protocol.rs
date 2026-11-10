@@ -4,6 +4,20 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+/// この実行で取得できた使用量の増分。省略された値は未取得。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RunUsage {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_tokens: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_tokens: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub estimated_cost_nano_usd: Option<u64>,
+}
+
 /// 権限は「その効果を許すか」。false の効果を確実に防げないアダプタは実行を拒否する（`UnsupportedPermission`）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -43,6 +57,7 @@ pub struct PermissionRule {
 pub enum BackendStatus {
     Ready,
     NeedsAuth,
+    Stopped,
     Unavailable,
 }
 

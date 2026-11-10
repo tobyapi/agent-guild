@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import { Button, Icon, reportError } from '@/shared/ui';
 import type { BackendInfo } from '@/shared/types/domain';
-import { useCheckingBackends, useLoggingIn } from '../hooks/useRuntime';
+import { useCheckingBackends, useLoggingIn, useStartingOllama } from '../hooks/useRuntime';
 import { BACKEND_STATUS_TONES, BACKEND_STATUS_WORDS, LOGGING_IN_MESSAGE } from '../model/status';
-import { loginBackend, refreshBackends } from '../store';
+import { loginBackend, refreshBackends, startOllama } from '../store';
 import styles from './BackendStatus.module.css';
 
 export interface BackendStatusProps {
@@ -14,8 +15,6 @@ export interface BackendStatusProps {
  * （docs/ui-design.md §6.2）。ログインは窓が閉じるまで待ち、その間は案内を差し替える
  */
 export function BackendStatus({ backend }: BackendStatusProps) {
-  const checking = useCheckingBackends();
-  const loggingIn = useLoggingIn();
   if (backend.status === 'ready') {
     return (
       <p className={styles.ready}>
@@ -27,12 +26,48 @@ export function BackendStatus({ backend }: BackendStatusProps) {
       </p>
     );
   }
+  if (backend.id === 'ollama' && backend.status === 'stopped') return <StoppedOllama backend={backend} />;
+  return <BackendLoginStatus backend={backend} />;
+}
+
+function StoppedOllama({ backend }: BackendStatusProps) {
+  const checking = useCheckingBackends();
+  const starting = useStartingOllama();
+  const message = starting ? 'Ollama の起動とモデル一覧の読み込みを待っています。' : backend.statusMessage;
+  return (
+    <BackendProblem backend={backend} message={message}>
+      <Button size="sm" variant="primary" onClick={() => void startOllama().catch(reportError)} disabled={checking}>
+        {starting ? '起動中…' : 'Ollama を起動'}
+      </Button>
+    </BackendProblem>
+  );
+}
+
+function BackendLoginStatus({ backend }: BackendStatusProps) {
+  const loggingIn = useLoggingIn();
   const canLogin = backend.canLogin && backend.status === 'needs_auth';
   const mine = loggingIn === backend.id;
   const loginMessage = backend.id === 'codex' ? 'ブラウザーで ChatGPT にログインしてください。' : LOGGING_IN_MESSAGE;
   const loginLabel =
     backend.id === 'codex' ? 'ChatGPT でログイン' : backend.id === 'claude' ? 'Claude Code でログイン' : 'ログイン';
-  const message = mine ? loginMessage : backend.statusMessage;
+  return (
+    <BackendProblem backend={backend} message={mine ? loginMessage : backend.statusMessage}>
+      {canLogin && (
+        <Button
+          size="sm"
+          variant="primary"
+          onClick={() => void loginBackend(backend.id).catch(reportError)}
+          disabled={loggingIn !== null}
+        >
+          {mine ? 'ログイン中…' : loginLabel}
+        </Button>
+      )}
+    </BackendProblem>
+  );
+}
+
+function BackendProblem({ backend, message, children }: BackendStatusProps & { message: string; children: ReactNode }) {
+  const checking = useCheckingBackends();
   return (
     <div className={styles.problem} data-tone={BACKEND_STATUS_TONES[backend.status]} role="status">
       <Icon name="alert" className={styles.icon} />
@@ -41,16 +76,7 @@ export function BackendStatus({ backend }: BackendStatusProps) {
         {message && <span className={styles.message}>{message}</span>}
       </div>
       <div className={styles.actions}>
-        {canLogin && (
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => void loginBackend(backend.id).catch(reportError)}
-            disabled={loggingIn !== null}
-          >
-            {mine ? 'ログイン中…' : loginLabel}
-          </Button>
-        )}
+        {children}
         <Button size="sm" onClick={() => void refreshBackends().catch(reportError)} disabled={checking}>
           {checking ? '確認中…' : '再確認'}
         </Button>

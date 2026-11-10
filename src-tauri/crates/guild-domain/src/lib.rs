@@ -19,4 +19,5 @@ pub mod profile;
 pub mod prompt;
 pub mod skill;
 pub mod snapshot;
+pub mod statistics;
 pub mod storage;

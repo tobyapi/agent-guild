@@ -26,7 +26,7 @@ pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
     BackendInfo, BackendStatus, ImagePayload, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey,
-    PermissionRule, Permissions, RunRequest, SkillPayload,
+    PermissionRule, Permissions, RunRequest, RunUsage, SkillPayload,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
@@ -73,6 +73,7 @@ pub enum RunUpdate {
     Activity(String),
     /// 作業の途中の投稿（チャットに出す文章）
     Post(String),
+    Usage(RunUsage),
 }
 
 /// 実行中の知らせ（途中経過・途中の投稿）を受け取るコールバック。cancel 後は呼ばれない

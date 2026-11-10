@@ -9,6 +9,7 @@ use async_trait::async_trait;
 use guild_application::ports::{AgentRuntime, RunUpdate, RuntimeError, RuntimeRequest, UpdateSink};
 use guild_domain::agent::Permissions;
 use guild_domain::backend::{BackendInfo, BackendStatus, RuntimeState, RuntimeStatus};
+use guild_domain::statistics::RunUsage;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
 
@@ -16,6 +17,7 @@ use tokio::sync::Notify;
 pub enum Script {
     Reply(String),
     Fail(String),
+    Measured(Vec<RunUsage>, Result<String, RuntimeError>),
     /// 中断されるまで返さない
     Hang,
     /// gate が開くまで待ってから返す（中断されたら Cancelled）
@@ -124,6 +126,12 @@ impl AgentRuntime for FakeRuntime {
         match script.unwrap_or_else(|| reply("[PASS]")) {
             Script::Reply(text) => Ok(text),
             Script::Fail(message) => Err(RuntimeError::Failed(message)),
+            Script::Measured(events, result) => {
+                for event in events {
+                    on_update(RunUpdate::Usage(event));
+                }
+                result
+            }
             Script::Hang => self.wait_cancel(job_id).await,
             Script::Gate(gate, text) => tokio::select! {
                 () = gate.notified() => Ok(text),

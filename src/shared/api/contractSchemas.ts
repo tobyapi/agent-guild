@@ -5,6 +5,7 @@ import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { agentSchema, channelSchema, messageSchema, profileSchema } from '@/shared/types/schemas/entities';
 import { skillLibrarySchema, skillSchema, skillsChangedSchema } from '@/shared/types/schemas/skills';
+import { channelStatisticsSchema } from '@/shared/types/schemas/statistics';
 import {
   activityStateSchema,
   bootStatusSchema,
@@ -36,6 +37,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   add_library_skill: skill,
   reveal_skill_folder: nullValue,
   create_channel: channel,
+  get_channel_statistics: objectOf(channelStatisticsSchema),
   update_channel: channel,
   delete_channel: nullValue,
   add_channel_member: nullValue,
@@ -50,6 +52,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   backend_api_key: string,
   refresh_backends: nullValue,
   install_backend_cli: nullValue,
+  start_ollama: nullValue,
   login_backend: nullValue,
   get_storage_info: objectOf(storageInfoSchema),
   choose_folder: nullable(string),

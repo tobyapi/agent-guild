@@ -12,6 +12,7 @@ type SystemCommands =
   | 'update_profile'
   | 'refresh_backends'
   | 'install_backend_cli'
+  | 'start_ollama'
   | 'login_backend'
   | 'backend_api_key'
   | 'restart_app'
@@ -59,11 +60,9 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     if (runtime.state.runtime.state !== 'ready') fail('unavailable', 'エージェントの実行環境が起動していません');
     return new Promise<null>((resolve) => {
       runtime.env.schedule(PROBE_MS, () => {
-        runtime.state.backends = runtime.state.backends.map((backend) => ({
-          ...backend,
-          status: 'ready',
-          statusMessage: '',
-        }));
+        runtime.state.backends = runtime.state.backends.map((backend) =>
+          backend.status === 'stopped' ? backend : { ...backend, status: 'ready', statusMessage: '' },
+        );
         emitStateChanged(runtime);
         resolve(null);
       });
@@ -77,6 +76,20 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
         runtime.state.backends = runtime.state.backends.map((backend) =>
           backend.id === backendId && backend.status === 'unavailable'
             ? { ...backend, status: 'needs_auth', statusMessage: 'ブラウザーでログインしてください。', canLogin: true }
+            : backend,
+        );
+        emitStateChanged(runtime);
+        resolve(null);
+      });
+    });
+  },
+
+  start_ollama(_args, runtime) {
+    return new Promise<null>((resolve) => {
+      runtime.env.schedule(PROBE_MS, () => {
+        runtime.state.backends = runtime.state.backends.map((backend) =>
+          backend.id === 'ollama'
+            ? { ...backend, status: 'ready', statusMessage: 'この PC のモデルを使います。' }
             : backend,
         );
         emitStateChanged(runtime);

@@ -63,6 +63,7 @@ fn route(shared: &Shared, line: &str, ready: &mut Option<oneshot::Sender<wire::R
         }
         Ok(Event::Activity { id, detail }) => shared.jobs.update(&id, RunUpdate::Activity(detail)),
         Ok(Event::Post { id, text }) => shared.jobs.update(&id, RunUpdate::Post(text)),
+        Ok(Event::Usage { id, usage }) => shared.jobs.update(&id, RunUpdate::Usage(usage)),
         Ok(Event::Result { id, text }) => {
             shared.jobs.finish(&id, Ok(text));
         }

@@ -3,18 +3,27 @@
 use std::sync::Arc;
 use std::time::Instant;
 
-use runner_client::{ErrorCode, RunUpdate, RunnerClient, RunnerError};
+use runner_client::{ErrorCode, RunUpdate, RunUsage, RunnerClient, RunnerError};
 
 use crate::support::{no_updates, ready_client, request, updates, within, CANCEL_GRACE};
 
 #[tokio::test]
-async fn run_relays_activity_and_posts_then_returns_the_result() {
+async fn run_relays_activity_posts_and_usage_then_returns_the_result() {
     let client = ready_client("ok.mjs").await;
     let (on_update, mut updates) = updates();
     let text = within(client.run("j1", request("echo:こんにちは"), on_update)).await.expect("result");
     assert_eq!(text, "こんにちは");
     assert_eq!(updates.recv().await, Some(RunUpdate::Activity("working:こんにちは".to_owned())));
     assert_eq!(updates.recv().await, Some(RunUpdate::Post("posted:こんにちは".to_owned())));
+    assert_eq!(
+        updates.recv().await,
+        Some(RunUpdate::Usage(RunUsage {
+            model: Some("fixture-model".to_owned()),
+            input_tokens: Some(8),
+            output_tokens: Some(0),
+            estimated_cost_nano_usd: None,
+        }))
+    );
     client.shutdown().await;
 }
 

@@ -7,7 +7,12 @@ import { activeAgents, emitStateChanged, fail, joinChannel, requireAgent, requir
 import type { HandlerGroup } from './types';
 
 type ChannelCommands =
-  'create_channel' | 'update_channel' | 'delete_channel' | 'add_channel_member' | 'remove_channel_member';
+  | 'create_channel'
+  | 'get_channel_statistics'
+  | 'update_channel'
+  | 'delete_channel'
+  | 'add_channel_member'
+  | 'remove_channel_member';
 
 /** 名前（先頭の # は除く）と話題を検証して整える */
 function cleanFields(name: string, topic: string): Pick<Channel, 'name' | 'topic'> {
@@ -20,6 +25,23 @@ function cleanFields(name: string, topic: string): Pick<Channel, 'name' | 'topic
 }
 
 export const channelHandlers: HandlerGroup<ChannelCommands> = {
+  get_channel_statistics({ channelId }, runtime) {
+    requireChannel(runtime, channelId);
+    const delegations = runtime.state.delegations.filter((delegation) => delegation.channelId === channelId);
+    const subtasks = delegations.flatMap((delegation) => delegation.subtasks);
+    return {
+      delegation: {
+        delegations: delegations.length,
+        subtasks: subtasks.length,
+        reported: subtasks.filter((task) => task.status === 'done' && task.resultMessageId !== null).length,
+        failed: subtasks.filter((task) => task.status === 'failed').length,
+        cancelled: subtasks.filter((task) => task.status === 'cancelled').length,
+        pending: subtasks.filter((task) => task.status === 'pending' || task.status === 'running').length,
+      },
+      models: [],
+    };
+  },
+
   create_channel({ name, topic, memberIds }, runtime) {
     const agentIds = activeAgents(runtime)
       .map((agent) => agent.id)

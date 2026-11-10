@@ -18,6 +18,7 @@ pub const EFFORT_OPTION: &str = "effort";
 pub enum BackendStatus {
     Ready,
     NeedsAuth,
+    Stopped,
     Unavailable,
 }
 

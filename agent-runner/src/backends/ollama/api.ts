@@ -5,6 +5,12 @@ import { localHttp } from './http.ts';
 const PROBE_TIMEOUT_MS = 5000;
 const CONNECTION_HELP = 'Ollama アプリを起動して「再確認」を押してください。';
 
+export class OllamaStopped extends BackendError {
+  constructor() {
+    super('internal', `Ollama に接続できませんでした。${CONNECTION_HELP}`);
+  }
+}
+
 export interface LocalModel {
   id: string;
   size: string;
@@ -20,7 +26,8 @@ export async function ollamaRequest(
   body?: JsonObject,
 ): Promise<JsonObject> {
   const { status, text } = await localHttp(path, signal, body === undefined ? undefined : JSON.stringify(body)).catch(
-    () => {
+    (error: unknown) => {
+      if (path === '/api/tags' && isJsonObject(error) && error.code === 'ECONNREFUSED') throw new OllamaStopped();
       throw new BackendError('internal', `Ollama に接続できませんでした。${CONNECTION_HELP}`);
     },
   );

@@ -2,7 +2,7 @@
 
 import type { Options } from '@anthropic-ai/claude-agent-sdk';
 import { logInfo } from '../../log.ts';
-import { EFFORT_OPTION, type Permissions } from '../../protocol.ts';
+import { EFFORT_OPTION, type Permissions, type RunUsage } from '../../protocol.ts';
 import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
 import { CHECKED_TOOLS, checkedPolicy, checksOperations } from './check.ts';
 import { claudeEnv } from './env.ts';
@@ -43,13 +43,14 @@ export interface ClaudeRun {
   pluginDir: string | null;
   /** 投稿ツールで投稿された文章を受け取る */
   onPost: (text: string) => void;
+  onUsage: (usage: RunUsage) => void;
   /** 使う Claude Code の実行ファイル（利用者の環境のもの。executable.ts） */
   executable: string;
 }
 
 export function claudeOptions(
   request: RunRequest,
-  { abortController, pluginDir, onPost, executable }: ClaudeRun,
+  { abortController, pluginDir, onPost, onUsage, executable }: ClaudeRun,
 ): Options {
   const { permissions } = request;
   const tools = toolsFor(permissions);
@@ -70,7 +71,7 @@ export function claudeOptions(
     allowedTools: [...tools.filter(preApproved), POST_TOOL],
     mcpServers: { [POST_SERVER]: postServer(onPost) },
     canUseTool: checking
-      ? checkedPolicy(request, claudeJudge(request, executable, abortController.signal), onPost)
+      ? checkedPolicy(request, claudeJudge(request, executable, abortController.signal, onUsage), onPost)
       : fileAccessPolicy(request),
     permissionMode: 'default',
     // 作業場所の .claude/settings.json・hooks・CLAUDE.md を読ませない（エージェントが書き換えても次の実行に影響しない）

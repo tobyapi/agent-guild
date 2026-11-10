@@ -1,0 +1,38 @@
+{
+  "delegation": { "delegations": 3, "subtasks": 5, "reported": 2, "failed": 1, "cancelled": 1, "pending": 1 },
+  "models": [
+    {
+      "backend": "claude",
+      "model": "claude-sonnet-4-6",
+      "runs": 3,
+      "totalDurationMs": 21000,
+      "inputTokens": 6000,
+      "outputTokens": 850,
+      "tokenRuns": 2,
+      "estimatedCostNanoUsd": 32000000,
+      "costRuns": 2
+    },
+    {
+      "backend": "ollama",
+      "model": "gemma4:26b",
+      "runs": 2,
+      "totalDurationMs": 12550,
+      "inputTokens": 1400,
+      "outputTokens": 260,
+      "tokenRuns": 2,
+      "estimatedCostNanoUsd": null,
+      "costRuns": 0
+    },
+    {
+      "backend": "codex",
+      "model": null,
+      "runs": 1,
+      "totalDurationMs": 4400,
+      "inputTokens": null,
+      "outputTokens": null,
+      "tokenRuns": 0,
+      "estimatedCostNanoUsd": null,
+      "costRuns": 0
+    }
+  ]
+}

@@ -4,8 +4,10 @@
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage, logInfo } from '../../log.ts';
+import type { RunUsage } from '../../protocol.ts';
 import type { RunRequest } from '../types.ts';
 import { claudeEnv } from './env.ts';
+import { claudeUsage } from './usage.ts';
 
 /** 確かめる操作 */
 export interface Operation {
@@ -69,11 +71,21 @@ export function makeJudge(request: RunRequest, ask: (input: string) => Promise<s
 }
 
 /** 利用者の Claude Code で判定する（ツールなし・1ターン・設定ファイルを読まない） */
-export function claudeJudge(request: RunRequest, executable: string, signal: AbortSignal): Judge {
-  return makeJudge(request, (input) => askClaude(input, executable, signal));
+export function claudeJudge(
+  request: RunRequest,
+  executable: string,
+  signal: AbortSignal,
+  onUsage: (usage: RunUsage) => void,
+): Judge {
+  return makeJudge(request, (input) => askClaude(input, executable, signal, onUsage));
 }
 
-async function askClaude(input: string, executable: string, signal: AbortSignal): Promise<string> {
+async function askClaude(
+  input: string,
+  executable: string,
+  signal: AbortSignal,
+  onUsage: (usage: RunUsage) => void,
+): Promise<string> {
   const abortController = new AbortController();
   const abort = () => abortController.abort();
   if (signal.aborted) abort();
@@ -93,6 +105,7 @@ async function askClaude(input: string, executable: string, signal: AbortSignal)
     };
     for await (const message of query({ prompt: input, options })) {
       if (message.type !== 'result') continue;
+      onUsage(claudeUsage(message));
       if (message.subtype !== 'success') throw new Error(`判定が終わりませんでした（${message.subtype}）`);
       return message.result;
     }

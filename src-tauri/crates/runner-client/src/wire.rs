@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{BackendInfo, ErrorCode, RunRequest, RunnerError};
+use crate::{BackendInfo, ErrorCode, RunRequest, RunUsage, RunnerError};
 
 /// Rust → runner
 #[derive(Serialize)]
@@ -60,6 +60,10 @@ pub(crate) enum Event {
     Post {
         id: String,
         text: String,
+    },
+    Usage {
+        id: String,
+        usage: RunUsage,
     },
     Result {
         id: String,

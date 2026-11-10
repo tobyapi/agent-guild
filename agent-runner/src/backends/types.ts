@@ -3,7 +3,7 @@
 // environment.ts・executables.ts・skill-files.ts（と skill-files/）に置く。
 
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import type { BackendInfo, ErrorCode, PermissionRule, Permissions, RunnerRequest } from '../protocol.ts';
+import type { BackendInfo, ErrorCode, PermissionRule, Permissions, RunnerRequest, RunUsage } from '../protocol.ts';
 
 /** 検証済みの run 要求 */
 export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
@@ -24,6 +24,7 @@ export interface RunContext {
   onActivity: (detail: string) => void;
   /** 作業の途中の投稿（チャットに出す文章）を Rust へ送る。終わったジョブの投稿は捨てられる */
   onPost: (text: string) => void;
+  onUsage: (usage: RunUsage) => void;
 }
 
 export interface LoginContext {

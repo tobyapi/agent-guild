@@ -36,6 +36,7 @@ const run = (pluginDir: string | null = null): ClaudeRun => ({
   abortController: new AbortController(),
   pluginDir,
   onPost: vi.fn(),
+  onUsage: vi.fn(),
   executable: 'C:\\Users\\me\\.local\\bin\\claude.exe',
 });
 

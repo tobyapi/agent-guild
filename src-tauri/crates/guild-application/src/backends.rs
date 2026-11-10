@@ -2,6 +2,7 @@
 //! 結果はランタイムの状態の変化（state-changed）で届く。
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use guild_domain::backend::BackendStatus;
 use guild_domain::error::ValidationError;
@@ -44,6 +45,32 @@ impl BackendService {
         self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
     }
 
+    pub async fn start_ollama(&self) -> AppResult<()> {
+        if self.ollama_status() == Some(BackendStatus::Ready) {
+            return Ok(());
+        }
+        self.runtime.open_ollama().await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        tokio::time::timeout(Duration::from_secs(20), async {
+            loop {
+                self.refresh().await?;
+                if matches!(self.ollama_status(), Some(BackendStatus::Ready | BackendStatus::Unavailable)) {
+                    return Ok(());
+                }
+                tokio::time::sleep(Duration::from_millis(400)).await;
+            }
+        })
+        .await
+        .map_err(|_| {
+            AppError::Runtime(
+                "Ollama の起動を確認できませんでした。Ollama の画面を確認して「再確認」を押してください。".to_owned(),
+            )
+        })?
+    }
+
+    fn ollama_status(&self) -> Option<BackendStatus> {
+        self.runtime.backends().into_iter().find(|backend| backend.id == "ollama").map(|backend| backend.status)
+    }
+
     pub async fn install_cli(&self, backend_id: &str) -> AppResult<()> {
         let label = match backend_id {
             "claude" => "Claude Code",
@@ -63,10 +90,9 @@ impl BackendService {
     }
 
     fn is_available(&self, backend_id: &str) -> bool {
-        self.runtime
-            .backends()
-            .iter()
-            .any(|backend| backend.id == backend_id && backend.status != BackendStatus::Unavailable)
+        self.runtime.backends().iter().any(|backend| {
+            backend.id == backend_id && matches!(backend.status, BackendStatus::Ready | BackendStatus::NeedsAuth)
+        })
     }
 
     /// ログインを始め、利用者が終える（窓が閉じる）まで待つ。ログインできなければ runtime エラー

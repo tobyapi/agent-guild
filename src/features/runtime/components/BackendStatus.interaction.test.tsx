@@ -19,7 +19,7 @@ function BackendsSection() {
   );
 }
 
-vi.mock('../api', () => ({ runtimeApi: { refreshBackends: vi.fn(), snapshot: vi.fn() } }));
+vi.mock('../api', () => ({ runtimeApi: { refreshBackends: vi.fn(), snapshot: vi.fn(), startOllama: vi.fn() } }));
 
 const grok = {
   id: 'grok',
@@ -32,7 +32,7 @@ const grok = {
 beforeEach(() => {
   vi.clearAllMocks();
   useToastStore.setState({ toasts: [] });
-  useRuntimeStore.setState({ checkingBackends: false, backends: [grok] });
+  useRuntimeStore.setState({ checkingBackends: false, startingOllama: false, backends: [grok] });
 });
 afterEach(cleanup);
 
@@ -88,4 +88,34 @@ it('shows the failure and re-enables recheck after a rejected command', async ()
   expect(screen.getByRole('alert', { hidden: true }).textContent).toContain('タイムアウト');
   expect(screen.getByRole<HTMLButtonElement>('button', { name: '再確認' }).disabled).toBe(false);
   expect(screen.queryByText(/再確認が完了/)).toBeNull();
+});
+
+it('Ollama を起動し、一覧の取得が終わるまで再クリックを防ぐ', async () => {
+  const ollama: BackendInfo = { ...grok, id: 'ollama', label: 'Ollama（この PC）', status: 'stopped' };
+  useRuntimeStore.setState({ backends: [ollama] });
+  let complete!: () => void;
+  vi.mocked(runtimeApi.startOllama).mockReturnValueOnce(
+    new Promise((resolve) => {
+      complete = () => resolve(null);
+    }),
+  );
+  const model = { id: 'gemma4:26b', label: 'gemma4:26b', description: '', efforts: [], defaultEffort: null };
+  vi.mocked(runtimeApi.snapshot).mockResolvedValue({
+    runtime: { state: 'ready', message: '' },
+    backends: [{ ...ollama, status: 'ready', models: [model] }],
+    activity: { activities: [], queues: [] },
+  } as unknown as Snapshot);
+  render(<BackendsSection />);
+  fireEvent.click(screen.getByRole('button', { name: 'Ollama を起動' }));
+  const pending = screen.getByRole<HTMLButtonElement>('button', { name: '起動中…' });
+  expect(pending.disabled).toBe(true);
+  fireEvent.click(pending);
+  expect(runtimeApi.startOllama).toHaveBeenCalledTimes(1);
+  await act(async () => {
+    complete();
+    await Promise.resolve();
+  });
+  expect(screen.getByText('準備 OK')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Ollama を起動' })).toBeNull();
+  expect(useRuntimeStore.getState().backends[0]?.models).toEqual([model]);
 });

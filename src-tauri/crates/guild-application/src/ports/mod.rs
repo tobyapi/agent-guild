@@ -11,7 +11,7 @@ pub use attachments::AttachmentStore;
 pub use library::{DirProblem, DirScan, FoundSkill, SkillFileError, SkillLibraryScanner};
 pub use repositories::{
     AgentRepository, ChannelRepository, DelegationRepository, MessageFilter, MessageRepository, MetaRepository,
-    ProfileRepository, SkillRepository,
+    ProfileRepository, SkillRepository, StatisticsRepository,
 };
 pub use runtime::{AgentRuntime, ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload, UpdateSink};
 pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsStore, TargetFolder};

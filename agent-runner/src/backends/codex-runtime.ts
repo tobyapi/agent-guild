@@ -32,7 +32,7 @@ function defaultProvider(): CodexProvider {
 
 export async function runCodex(
   request: RunRequest,
-  { signal, onActivity, onPost }: RunContext,
+  { signal, onActivity, onPost, onUsage }: RunContext,
   provider = defaultProvider(),
 ): Promise<string> {
   rejectUnenforceable(provider.label, unenforceableReason(request.permissions));
@@ -49,9 +49,11 @@ export async function runCodex(
       codexPathOverride: executable.path,
       env: withPathDirs(executable.pathDirs, provider.env) ?? provider.env,
     });
-    const thread = codex.startThread(threadOptions(request, provider.catalog));
+    const options = threadOptions(request, provider.catalog);
+    if (options.model) onUsage({ model: options.model });
+    const thread = codex.startThread(options);
     const { events } = await thread.runStreamed(threadInput(request), { signal });
-    const reader = new EventReader(onActivity, onPost, provider.failure);
+    const reader = new EventReader(onActivity, onPost, provider.failure, onUsage);
     for await (const event of events) reader.read(event);
     return reader.finalText;
   } catch (error) {

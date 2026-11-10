@@ -16,7 +16,11 @@ export function useBackend(backendId: string): BackendInfo | undefined {
 }
 
 export function useCheckingBackends(): boolean {
-  return useRuntimeStore((state) => state.checkingBackends);
+  return useRuntimeStore((state) => state.checkingBackends || state.startingOllama);
+}
+
+export function useStartingOllama(): boolean {
+  return useRuntimeStore((state) => state.startingOllama);
 }
 
 /** ログイン中のバックエンドの ID（なければ null） */

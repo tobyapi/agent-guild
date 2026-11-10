@@ -8,7 +8,8 @@ use rusqlite::{params, Connection, OptionalExtension};
 pub const APPLICATION_ID: i32 = 0x4755_494C;
 
 /// 移行の一覧（index + 1 が user_version）
-const MIGRATIONS: &[&str] = &[include_str!("migrations/0001_init.sql")];
+const MIGRATIONS: &[&str] =
+    &[include_str!("migrations/0001_init.sql"), include_str!("migrations/0002_run_measurements.sql")];
 
 /// 移行の仕組みが使う表（指紋・初期データの記録）。移行の外で作る
 const META_TABLE: &str = "CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)";

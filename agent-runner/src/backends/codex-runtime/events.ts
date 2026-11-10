@@ -2,8 +2,10 @@
 // 失敗を ErrorCode に対応づける。
 
 import type { ThreadEvent, ThreadItem } from '@openai/codex-sdk';
+import type { RunUsage } from '../../protocol.ts';
 import { activity } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
+import { count } from '../../usage.ts';
 
 /** Windows で CLI のパスが MAX_PATH（260 文字）を超えると、存在していても spawn が ENOENT になる */
 const LONG_PATH_HINT =
@@ -48,9 +50,16 @@ export class EventReader {
   #held: string | undefined;
 
   readonly #failure: typeof codexError;
+  readonly #onUsage: ((usage: RunUsage) => void) | undefined;
 
-  constructor(onActivity: (detail: string) => void, onPost: (text: string) => void, failure = codexError) {
+  constructor(
+    onActivity: (detail: string) => void,
+    onPost: (text: string) => void,
+    failure = codexError,
+    onUsage?: (usage: RunUsage) => void,
+  ) {
     this.#failure = failure;
+    this.#onUsage = onUsage;
     this.#onActivity = onActivity;
     this.#onPost = onPost;
   }
@@ -69,6 +78,12 @@ export class EventReader {
         return;
       case 'turn.failed':
         throw this.#failure(event.error.message);
+      case 'turn.completed':
+        this.#onUsage?.({
+          inputTokens: count(event.usage?.input_tokens),
+          outputTokens: count(event.usage?.output_tokens),
+        });
+        return;
       case 'error':
         throw this.#failure(event.message);
       default:

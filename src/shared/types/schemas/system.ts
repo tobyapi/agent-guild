@@ -59,7 +59,7 @@ export const backendInfoSchema = {
   models: arrayOf(objectOf(modelSpecSchema)),
   defaultModel: string,
   capabilities: objectOf(permissionsSchema),
-  status: oneOf<BackendStatus>({ ready: true, needs_auth: true, unavailable: true }),
+  status: oneOf<BackendStatus>({ ready: true, needs_auth: true, stopped: true, unavailable: true }),
   statusMessage: string,
   options: arrayOf(objectOf(optionSpecSchema)),
   permissionRules: arrayOf(objectOf(permissionRuleSchema)),

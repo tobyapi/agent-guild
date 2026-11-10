@@ -18,7 +18,7 @@ function fixture(name: string): JsonObject[] {
   });
 }
 
-const EVENT_TYPES = ['ready', 'backends', 'activity', 'post', 'result', 'error'];
+const EVENT_TYPES = ['ready', 'backends', 'activity', 'post', 'usage', 'result', 'error'];
 const sortedKeys = (value: object): string[] => Object.keys(value).sort();
 
 describe('contracts/runner', () => {

@@ -4,6 +4,7 @@ use guild_domain::author::MemberId;
 use guild_domain::channel::{normalize_channel_name, normalize_channel_topic, normalize_members, Channel};
 use guild_domain::conversation::notices;
 use guild_domain::ids::{AgentId, ChannelId};
+use guild_domain::statistics::ChannelStatistics;
 
 use crate::conversation::{posting, ConversationService};
 use crate::error::{AppError, AppResult};
@@ -18,6 +19,11 @@ pub struct ChannelService {
 impl ChannelService {
     pub fn new(ports: Ports, conversation: ConversationService) -> Self {
         Self { ports, conversation }
+    }
+
+    pub fn statistics(&self, id: &ChannelId) -> AppResult<ChannelStatistics> {
+        posting::require_channel(&self.ports, id)?;
+        self.ports.statistics.for_channel(id)
     }
 
     /// 人間は常にメンバーに入る

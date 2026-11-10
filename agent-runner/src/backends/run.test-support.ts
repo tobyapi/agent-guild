@@ -32,4 +32,5 @@ export const runContext = (signal = new AbortController().signal): RunContext =>
   signal,
   onActivity: vi.fn(),
   onPost: vi.fn(),
+  onUsage: vi.fn(),
 });

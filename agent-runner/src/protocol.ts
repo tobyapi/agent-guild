@@ -31,7 +31,7 @@ export interface PermissionRule {
   requires: PermissionKey[];
 }
 
-export type BackendStatus = 'ready' | 'needs_auth' | 'unavailable';
+export type BackendStatus = 'ready' | 'needs_auth' | 'stopped' | 'unavailable';
 
 export interface OptionSpec {
   key: string;
@@ -146,6 +146,14 @@ export type RunnerRequest =
   | { type: 'login'; id: string; backend: string }
   | { type: 'shutdown' };
 
+/** 取得できた使用量の増分。model は主モデル名。費用の単位は 10 億分の 1 米ドル。 */
+export interface RunUsage {
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  estimatedCostNanoUsd?: number;
+}
+
 /** runner → Rust */
 export type RunnerEvent =
   | { type: 'ready'; protocolVersion: number; runnerVersion: string; backends: BackendInfo[] }
@@ -153,5 +161,6 @@ export type RunnerEvent =
   | { type: 'activity'; id: string; detail: string }
   /** 作業の途中の投稿（チャットにそのまま出す文章。振り分けはしない） */
   | { type: 'post'; id: string; text: string }
+  | { type: 'usage'; id: string; usage: RunUsage }
   | { type: 'result'; id: string; text: string }
   | { type: 'error'; id: string | null; code: ErrorCode; message: string };

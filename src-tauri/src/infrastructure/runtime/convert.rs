@@ -26,6 +26,7 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         status: match info.status {
             runner::BackendStatus::Ready => BackendStatus::Ready,
             runner::BackendStatus::NeedsAuth => BackendStatus::NeedsAuth,
+            runner::BackendStatus::Stopped => BackendStatus::Stopped,
             runner::BackendStatus::Unavailable => BackendStatus::Unavailable,
         },
         status_message: info.status_message,
@@ -59,6 +60,12 @@ pub(super) fn update(update: runner::RunUpdate) -> RunUpdate {
     match update {
         runner::RunUpdate::Activity(detail) => RunUpdate::Activity(detail),
         runner::RunUpdate::Post(text) => RunUpdate::Post(text),
+        runner::RunUpdate::Usage(usage) => RunUpdate::Usage(guild_domain::statistics::RunUsage {
+            model: usage.model,
+            input_tokens: usage.input_tokens.and_then(|value| i64::try_from(value).ok()),
+            output_tokens: usage.output_tokens.and_then(|value| i64::try_from(value).ok()),
+            estimated_cost_nano_usd: usage.estimated_cost_nano_usd.and_then(|value| i64::try_from(value).ok()),
+        }),
     }
 }
 

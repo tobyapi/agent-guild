@@ -5,6 +5,7 @@ import type { BackendInfo, BackendStatus, RuntimeStatus } from '@/shared/types/d
 export const BACKEND_STATUS_WORDS: Readonly<Record<BackendStatus, string>> = {
   ready: '準備 OK',
   needs_auth: 'ログインが必要',
+  stopped: '停止中',
   unavailable: '使えません',
 };
 
@@ -16,6 +17,7 @@ export type StatusTone = 'neutral' | 'warning' | 'danger';
 export const BACKEND_STATUS_TONES: Readonly<Record<BackendStatus, StatusTone>> = {
   ready: 'neutral',
   needs_auth: 'warning',
+  stopped: 'warning',
   unavailable: 'danger',
 };
 

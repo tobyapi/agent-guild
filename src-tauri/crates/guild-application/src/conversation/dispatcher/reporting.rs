@@ -16,6 +16,7 @@ impl Actor {
                 let command = match update {
                     RunUpdate::Activity(detail) => Command::Activity { job_id, detail },
                     RunUpdate::Post(text) => Command::Post { job_id, text },
+                    RunUpdate::Usage(_) => return,
                 };
                 let _ = updates.send(command);
             },

@@ -6,6 +6,7 @@ import type { Validator } from './schema';
 import { delegationSchema } from './schemas/delegation';
 import { agentInputSchema, messageSchema } from './schemas/entities';
 import { skillInputSchema, skillLibrarySchema, skillSchema, skillsChangedSchema } from './schemas/skills';
+import { channelStatisticsSchema } from './schemas/statistics';
 import {
   activityStateSchema,
   bootStatusSchema,
@@ -18,6 +19,7 @@ const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: tru
 
 const CASES: Record<string, Validator> = {
   'snapshot.json': objectOf(snapshotSchema),
+  'channel-statistics.json': objectOf(channelStatisticsSchema),
   'agent-input.json': objectOf(agentInputSchema),
   'messages.json': arrayOf(objectOf(messageSchema)),
   'skill.json': objectOf(skillSchema),

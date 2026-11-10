@@ -90,6 +90,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `add_library_skill` | `{ agentId, path, mode: LibraryAddMode }` | `Skill` | skills-changed | not_found（エージェント・フォルダ）, validation（SKILL.md が標準に合わない）, conflict（同じ name のスキルがすでにある） |
 | `reveal_skill_folder` | `{ path }` | `null`（リンク先・ライブラリのフォルダをファイラで開く） | – | not_found |
 | `create_channel` | `{ name, topic, memberIds }` | `Channel` | state-changed | validation, not_found（存在しないメンバー） |
+| `get_channel_statistics` | `{ channelId }` | `ChannelStatistics`（全期間の割り振り・サブタスクの件数、モデル別の実行記録の集計） | – | not_found, storage |
 | `update_channel` | `{ id, name, topic }` | `Channel` | state-changed | not_found, validation |
 | `delete_channel` | `{ id }` | `null` | state-changed, activity-changed | not_found |
 | `add_channel_member` | `{ channelId, memberId }` | `null` | state-changed, message-created | not_found |
@@ -103,6 +104,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `update_profile` | `{ profile: Profile }` | `Profile` | state-changed | validation |
 | `refresh_backends` | – | `null`（probe の結果を待つ。完了後は get_snapshot で取得可能。30秒の応答待ち超過・送信失敗・切断は reject） | state-changed | runtime |
 | `install_backend_cli` | `{ backendId }`（`claude` または `codex`） | `null`（macOS で公式 CLI を利用者の `~/.local/bin` にインストールし、probe で検出を確認する） | state-changed | runtime, validation |
+| `start_ollama` | – | `null`（macOS でインストール済みの Ollama を開き、停止中でなくなるまで probe する。待機は最長20秒） | state-changed | runtime |
 | `login_backend` | `{ backendId }` | `null`（ランナーに login を送り、利用者がログインを終える＝窓が閉じるまで待つ。終わったときの状態は state-changed で届く） | state-changed | not_found, validation（canLogin でない）, runtime（ログインが完了しなかった・中断した） |
 | `get_storage_info` | – | `StorageInfo` | – | – |
 | `choose_folder` | – | `string \| null`（OS のフォルダ選択） | – | – |
@@ -150,7 +152,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - **モデルと推論の深さ**: アダプタは選べるモデルを `BackendInfo.models`（`{ id, label, description, efforts, defaultEffort }`。efforts は浅い順、空なら深さを選べない）で、モデルを選ばないときのモデルを `defaultModel` で申告する（ready / probe のたび。分からなければ空で、そのときモデルは自由入力）。推論の深さは `backendOptions` の `effort`（protocol.ts の `EFFORT_OPTION`）で run に渡り、空なら既定。
   - **Claude**: SDK の `supportedModels()`（`default` は除く）。取れなければ opus / sonnet / haiku の固定の一覧。既定のモデルは `sonnet`、既定の深さは決めない（Claude Code に任せる）。`effort` は SDK の `effort`（low / medium / high / xhigh / max）。
   - **Codex**: Codex CLI が保存する `$CODEX_HOME/models_cache.json`（既定 `~/.codex`）の `visibility` が `hide` でないモデルを `priority` の順に。既定のモデルは先頭のもの、既定の深さはそのモデルの `default_reasoning_level`。run ではモデル・深さが空でもこの既定を明示して渡す（利用者の config.toml の既定に頼らない）。キャッシュがなければ一覧は空。
-  - **Ollama**。この PC の `127.0.0.1:11434` に直接接続し、`/api/tags` からインストール済みの会話モデルを取得する。能力が一覧にない場合は `/api/show` で調べる。ローカルの `completion` 対応モデルだけを名前順に並べ、先頭を既定とする。Ollama の起動やモデルの追加が必要なら状態に案内を出す。
+  - **Ollama**。この PC の `127.0.0.1:11434` に直接接続し、`/api/tags` からインストール済みの会話モデルを取得する。能力が一覧にない場合は `/api/show` で調べる。ローカルの `completion` 対応モデルだけを名前順に並べ、先頭を既定とする。macOS で接続を拒否された場合は `stopped` とし、起動ボタンを出す。接続できても会話モデルがなければ `unavailable` とし、モデル追加を案内する。
   - Rust は保存時に深さがモデルで選べるかを確かめ（§2）、React はモデルと深さを選択式にする（ui-design.md §5.10）。
 - **起動中の実行**: ランナーが starting の間に来た run は、最長で ready_timeout＋1秒だけ ready を待つ。unavailable なら即座に失敗する。
 
@@ -191,6 +193,7 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
 - **世代**: チャンネルごとに世代番号を持ち、停止・削除で1つ上げる。実行が終わったとき、世代が変わっている・チャンネルが消えている・エージェントが削除または除外されている場合、結果は保存も振り分けもせずに捨てる。
 - **作業の途中の投稿**: 実行中のジョブから届いた投稿（§5）は、アクターの中で結果と同じ規則（取り消し・世代）で確かめてから、そのエージェント名義の kind=`progress` の発言として保存し、message-created を出す。位置（rootId・depth・replyToId）は返答と同じ。整形も返答と同じ（名前の接頭辞を外し、空と [PASS] は捨てる）。メンションは記録せず、振り分けもしない（頼みたいことは最後の返答に書く）。
 - **タイムアウト**: 1ジョブ15分。超えたら中断し、そのエージェント名義で kind=error の「時間切れで中断しました（15分）」を残す。
+- **運用統計**。ランナーを呼ぶ直前から終了・中断までの経過時間を計測し、ジョブ ID・チャンネル・バックエンド・開始時刻・モデルと合わせて `run_measurements` に一度だけ保存する。ランナーは終端前に `usage`（`{ id, usage }`）でモデル名と利用量の増分を通知する。利用量のない項目は未取得のまま集計する。Claude の費用は SDK の推定値を 10 億分の 1 米ドルで保存する。ローカル Ollama の API 費用は 0 USD として表示する。割り振りは保存済みの全件が対象で、報告率は結果の発言があるサブタスク数を、失敗・中断を含む決着済みサブタスク数で割る。
 - **終了で中断した返答**: 待機と実行中のジョブはメモリにしかないので、アプリが終了すると（再起動・異常終了を含む）消える。アクターは処理のたびに、待機と実行中のジョブ（停止・取り消しで結果を捨てるものは除く）の要約（チャンネル・起点・depth・エージェント。合流したジョブは関わる会話ごと）を積んだ順に作り、前回の保存から変わっていれば meta 表の `interrupted_jobs` に JSON で保存する。起動時（割り振りの打ち切りのあと、ジョブを積む前）に前回の要約があれば、会話ごとにお知らせ「前回アプリが終了したときに、{名前・名前}の返答が中断されました。続けるには、もう一度話しかけてください。」を出して要約を空にする（消えたチャンネル・削除されたエージェントは除く。自発活動など会話のないジョブは記録しない）。自動ではやり直さない。
 
 ## 7. 会話の振り分け
@@ -315,7 +318,7 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
 
 - **リリース後に壊してはいけない境界**: (1) データフォルダ（構成・guild-data.json・SQLite スキーマ・settings.json）(2) スキル形式（Agent Skills の SKILL.md 標準）(3) 将来のエージェント定義のエクスポート形式。
 - React ⇄ Rust の IPC と Rust ⇄ ランナーのプロトコルは、同じアプリに同梱して同時に出荷する**内部契約**。自由に変えてよいが、文書とフィクスチャは常に正しく保つ。
-- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**リリース前はマイグレーションを 0001 の1本に保ち、直接書き換える。** 指紋が変わったら、デバッグビルドは古い DB を `guild.db.bak-<日時>` に退避して作り直す（リリースビルドでは決してしない）。リリース時に 0001 を凍結し、内容のハッシュを固定するテストを足す。以後は追記のみ。
+- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**既存の割り振りを保持するため 0001 は固定し、運用統計の 0002 以降は追記する。** 指紋が変わったら、デバッグビルドは古い DB を `guild.db.bak-<日時>` に退避して作り直す（リリースビルドでは決してしない）。リリース時に 0001 を凍結し、内容のハッシュを固定するテストを足す。以後は追記のみ。
 - 発言の並びは seq（INTEGER PRIMARY KEY AUTOINCREMENT）。エージェントは論理削除。外部キー: skills → agents、channel_members・messages → channels（ON DELETE CASCADE）。
 - **拡張の余白**: バックエンドの能力・状態・設定項目はランナーが申告する（Rust・React は列挙しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。
 - **リリース前の今は、後方互換のための分岐・移行コード・非推奨 API を書かない。** より良い形があれば壊して作り直す。

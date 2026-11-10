@@ -4,6 +4,7 @@ mod channels_messages;
 mod delegations;
 mod opening;
 mod records;
+mod statistics;
 
 use std::fs;
 use std::path::PathBuf;

@@ -1,6 +1,6 @@
 import type { ThreadEvent } from '@openai/codex-sdk';
 import { describe, expect, it, vi } from 'vitest';
-import { EventReader } from './events.ts';
+import { codexError, EventReader } from './events.ts';
 
 const message = (text: string): ThreadEvent => ({
   type: 'item.completed',
@@ -44,6 +44,11 @@ function readAll(events: ThreadEvent[]) {
 }
 
 describe('EventReader', () => {
+  it('完了時の使用量を取得し、費用は未取得のままにする', () => {
+    const onUsage = vi.fn();
+    new EventReader(vi.fn(), vi.fn(), codexError, onUsage).read(done);
+    expect(onUsage).toHaveBeenCalledExactlyOnceWith({ inputTokens: 1, outputTokens: 1 });
+  });
   it('あとに作業が続いた agent_message は途中の投稿にし、最後のものを最終返答にする', () => {
     const { posts, final } = readAll([
       message('まずテストを流します。'),

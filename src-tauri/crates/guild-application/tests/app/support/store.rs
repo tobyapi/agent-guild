@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use guild_application::ports::{AgentRepository, ChannelRepository};
+use guild_application::ports::{AgentRepository, ChannelRepository, StatisticsRepository};
 use guild_application::{AppError, AppResult};
 use guild_domain::agent::{name_key, Agent};
 use guild_domain::author::MemberId;
@@ -12,6 +12,7 @@ use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::message::Message;
 use guild_domain::profile::Profile;
 use guild_domain::skill::Skill;
+use guild_domain::statistics::{ChannelStatistics, RunMeasurement};
 use parking_lot::Mutex;
 
 #[derive(Default)]
@@ -20,9 +21,21 @@ pub struct MemoryStore {
     pub channels: Mutex<Vec<Channel>>,
     pub messages: Mutex<Vec<Message>>,
     pub delegations: Mutex<Vec<Delegation>>,
+    pub measurements: Mutex<Vec<RunMeasurement>>,
     pub skills: Mutex<Vec<Skill>>,
     pub profile: Mutex<Option<Profile>>,
     pub meta: Mutex<HashMap<String, String>>,
+}
+
+impl StatisticsRepository for MemoryStore {
+    fn record_run(&self, run: &RunMeasurement) -> AppResult<()> {
+        self.measurements.lock().push(run.clone());
+        Ok(())
+    }
+
+    fn for_channel(&self, _channel: &ChannelId) -> AppResult<ChannelStatistics> {
+        Ok(ChannelStatistics::default())
+    }
 }
 
 impl AgentRepository for MemoryStore {

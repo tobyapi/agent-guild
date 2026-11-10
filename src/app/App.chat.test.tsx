@@ -3,7 +3,7 @@
 // アプリ全体をモックのバックエンドで動かす。テストは同じ起動の続きとして順に動く（appFlow.test-support.tsx）。
 import { fireEvent, screen, within } from '@testing-library/react';
 import { afterAll, beforeAll, expect, it } from 'vitest';
-import { advance, bootApp, closeApp, logText } from './appFlow.test-support';
+import { advance, bootApp, closeApp, logText, openDialog } from './appFlow.test-support';
 
 beforeAll(bootApp);
 afterAll(closeApp);
@@ -22,6 +22,18 @@ it('起動すると最初のチャンネルの発言が出る。割り振りの�
   expect(articles().length).toBeGreaterThan(0);
   expect(logText()).toMatch(/割り振り\s*\d+ 件中 \d+ 件完了/);
   expect(logText()).not.toMatch(/```\s*tasks/i);
+});
+
+it('チャンネルヘッダーの運用統計で、既存の割り振りを表示する', async () => {
+  fireEvent.click(screen.getByRole('button', { name: '運用統計' }));
+  await advance(500);
+  const dialog = within(openDialog());
+  expect(dialog.getByRole('heading', { name: '運用統計' })).toBeTruthy();
+  expect(dialog.getByText('# ロビー · 全期間')).toBeTruthy();
+  expect(dialog.getByText('50%')).toBeTruthy();
+  expect(dialog.getByText('1 / 2 件')).toBeTruthy();
+  expect(dialog.getByText(/まだ実行記録がありません/)).toBeTruthy();
+  fireEvent.click(dialog.getByRole('button', { name: '閉じる' }));
 });
 
 it('送信すると入力欄が空になって自分の発言が出て、呼んだエージェントが返答する', async () => {

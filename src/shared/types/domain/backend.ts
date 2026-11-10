@@ -3,7 +3,7 @@ import type { PermissionKey, Permissions } from './permissions';
 /** バックエンドID。ランナーが申告したもの（'claude' | 'codex' | 将来の追加分） */
 export type BackendId = string;
 
-export type BackendStatus = 'ready' | 'needs_auth' | 'unavailable';
+export type BackendStatus = 'ready' | 'needs_auth' | 'stopped' | 'unavailable';
 
 /** バックエンド固有設定の項目定義。React はこれから汎用フォームを描く */
 export interface OptionSpec {

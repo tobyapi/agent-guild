@@ -11,6 +11,7 @@ mod lanes;
 mod progress;
 mod scheduling;
 mod skill_library;
+mod statistics;
 mod stopping;
 mod storage;
 mod support;

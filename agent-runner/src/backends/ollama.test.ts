@@ -63,11 +63,29 @@ describe('Ollama', () => {
     expect(empty?.statusMessage).toContain('会話用のローカルモデルを追加');
   });
 
+  it.each([
+    ['darwin', 'stopped'],
+    ['win32', 'unavailable'],
+  ] as const)('接続を拒否されたとき、%s では %s と申告する', async (platform, status) => {
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: platform });
+    try {
+      const registry = new BackendRegistry([ollamaAdapter]);
+      http.mockRejectedValueOnce(Object.assign(new Error('connection refused'), { code: 'ECONNREFUSED' }));
+      expect(await registry.describe()).toMatchObject([{ id: 'ollama', status, models: [] }]);
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform });
+    }
+  });
+
   it('選んだ画像対応モデルへローカル限定で会話と画像を渡す', async () => {
     reply({ models: [deepseek, gemma] });
-    reply({ message: { content: '  返答  ', thinking: '考え中' } });
+    reply({ message: { content: '  返答  ', thinking: '考え中' }, prompt_eval_count: 48, eval_count: 0 });
     const request = { ...runRequest('ollama'), model: gemma.model, images };
-    await expect(ollamaAdapter.run(request, runContext())).resolves.toBe('返答');
+    const context = runContext();
+    await expect(ollamaAdapter.run(request, context)).resolves.toBe('返答');
+    expect(context.onUsage).toHaveBeenNthCalledWith(1, { model: gemma.model });
+    expect(context.onUsage).toHaveBeenNthCalledWith(2, { inputTokens: 48, outputTokens: 0 });
     const [path, , body] = http.mock.calls[1] ?? [];
     expect(path).toBe('/api/chat');
     expect(JSON.parse(body ?? '{}')).toEqual({

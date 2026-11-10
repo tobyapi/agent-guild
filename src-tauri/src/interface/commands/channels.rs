@@ -3,10 +3,19 @@
 use guild_domain::author::MemberId;
 use guild_domain::channel::Channel;
 use guild_domain::ids::ChannelId;
+use guild_domain::statistics::ChannelStatistics;
 use tauri::State;
 
 use super::{reject, CommandResult};
 use crate::interface::state::AppState;
+
+#[tauri::command]
+pub async fn get_channel_statistics(
+    state: State<'_, AppState>,
+    channel_id: ChannelId,
+) -> CommandResult<ChannelStatistics> {
+    state.services()?.channels.statistics(&channel_id).map_err(reject)
+}
 
 /// 人間は常にメンバーに入る
 #[tauri::command]

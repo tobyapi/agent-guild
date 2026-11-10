@@ -114,6 +114,7 @@ export class Dispatcher {
         signal,
         onActivity: (detail) => send({ type: 'activity', id, detail }),
         onPost: (text) => send({ type: 'post', id, text }),
+        onUsage: (usage) => send({ type: 'usage', id, usage }),
       });
     });
   }

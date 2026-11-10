@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use async_trait::async_trait;
 use guild_domain::agent::Permissions;
 use guild_domain::backend::{BackendInfo, RuntimeStatus};
+use guild_domain::statistics::RunUsage;
 use serde_json::{Map, Value};
 
 /// ランナーに渡すスキル（SDK ごとの置き場所への展開はランナーのアダプタの責務）
@@ -56,6 +57,8 @@ pub enum RunUpdate {
     Activity(String),
     /// 作業の途中の投稿（チャットに出す文章）
     Post(String),
+    /// 実際のモデル名や、この実行で取得できた使用量の増分。
+    Usage(RunUsage),
 }
 
 /// 実行中の知らせ（途中経過・途中の投稿）を受け取る
@@ -85,6 +88,12 @@ pub trait AgentRuntime: Send + Sync {
     /// 利用者の操作でバックエンドの CLI をインストールする。
     async fn install_cli(&self, _backend: &str) -> Result<(), RuntimeError> {
         Err(RuntimeError::Failed("この環境ではアプリからセットアップできません".to_owned()))
+    }
+    /// 利用者の操作で Ollama アプリを開く。
+    async fn open_ollama(&self) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed(
+            "この環境では Ollama を直接起動できません。Ollama を開いて再確認してください。".to_owned(),
+        ))
     }
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わると状態の確認し直しが届く。
     /// ログインできなければ Failed

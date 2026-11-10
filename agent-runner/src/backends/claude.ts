@@ -62,7 +62,7 @@ const INFO: BackendDescriptor = {
   midRunPost: 'tool',
 };
 
-async function run(request: RunRequest, { signal, onActivity, onPost }: RunContext): Promise<string> {
+async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }: RunContext): Promise<string> {
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const executable = findClaude();
   if (executable === null) throw new BackendError('internal', CLAUDE_NOT_FOUND);
@@ -71,9 +71,10 @@ async function run(request: RunRequest, { signal, onActivity, onPost }: RunConte
   else signal.addEventListener('abort', () => abortController.abort(), { once: true });
   try {
     const pluginDir = request.permissions.skills ? await writeSkillPlugin(request.stateDir, request.skills) : null;
-    const options = claudeOptions(request, { abortController, pluginDir, onPost, executable });
+    const options = claudeOptions(request, { abortController, pluginDir, onPost, onUsage, executable });
     const prompt = await claudePrompt(request.prompt, request.images);
-    return await consumeMessages(query({ prompt, options }), onActivity);
+    if (options.model) onUsage({ model: options.model });
+    return await consumeMessages(query({ prompt, options }), onActivity, onUsage);
   } catch (error) {
     if (error instanceof BackendError || signal.aborted) throw error;
     const detail = errorMessage(error);

@@ -6,6 +6,8 @@
 mod cli_installer;
 mod convert;
 mod launch;
+#[cfg(target_os = "macos")]
+mod ollama_launcher;
 #[cfg(test)]
 mod tests;
 mod user_path;
@@ -88,6 +90,11 @@ impl AgentRuntime for RunnerRuntime {
     #[cfg(target_os = "macos")]
     async fn install_cli(&self, backend: &str) -> Result<(), RuntimeError> {
         cli_installer::install(backend).await
+    }
+
+    #[cfg(target_os = "macos")]
+    async fn open_ollama(&self) -> Result<(), RuntimeError> {
+        ollama_launcher::open().await
     }
 
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {

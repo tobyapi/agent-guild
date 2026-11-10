@@ -7,6 +7,7 @@ mod delegate;
 mod ending;
 mod history;
 mod interim;
+mod measurement;
 mod request;
 
 pub(crate) use commit::commit;
@@ -79,8 +80,11 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
         Ok(None) => return RunOutcome::Skipped,
         Err(error) => return RunOutcome::Failed(error.to_string()),
     };
-    let sink = Box::new(move |event: RunUpdate| update(event));
-    match tokio::time::timeout(JOB_TIMEOUT, ports.runtime.run(job_id, request, sink)).await {
+    let measurement = measurement::Measurement::new(ports, job_id, &job.channel_id, &request);
+    let sink = measurement.sink(update);
+    let result = tokio::time::timeout(JOB_TIMEOUT, ports.runtime.run(job_id, request, sink)).await;
+    measurement.save(ports);
+    match result {
         Ok(Ok(text)) => RunOutcome::Reply(text),
         Ok(Err(RuntimeError::Cancelled)) => RunOutcome::Cancelled,
         Ok(Err(RuntimeError::Failed(message))) => RunOutcome::Failed(message),

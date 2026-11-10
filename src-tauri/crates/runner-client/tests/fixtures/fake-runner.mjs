@@ -34,6 +34,7 @@ function startJob(request, waiting) {
     case 'echo':
       send({ type: 'activity', id: request.id, detail: `working:${argument}`, addedLater: 1 });
       send({ type: 'post', id: request.id, text: `posted:${argument}` });
+      send({ type: 'usage', id: request.id, usage: { model: 'fixture-model', inputTokens: 8, outputTokens: 0 } });
       return reply(argument);
     case 'pid':
       return reply(String(process.pid));

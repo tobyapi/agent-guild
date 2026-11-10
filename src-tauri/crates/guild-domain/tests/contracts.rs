@@ -15,6 +15,7 @@ use guild_domain::error::CommandError;
 use guild_domain::message::Message;
 use guild_domain::skill::{LibraryAddMode, Skill, SkillInput, SkillLibrary, SkillSource, SkillsChanged};
 use guild_domain::snapshot::Snapshot;
+use guild_domain::statistics::ChannelStatistics;
 use guild_domain::storage::StorageInfo;
 
 fn fixture(name: &str) -> Value {
@@ -34,6 +35,11 @@ fn assert_round_trip<T: DeserializeOwned + Serialize>(name: &str) {
 #[test]
 fn snapshot() {
     assert_round_trip::<Snapshot>("snapshot.json");
+}
+
+#[test]
+fn channel_statistics() {
+    assert_round_trip::<ChannelStatistics>("channel-statistics.json");
 }
 
 #[test]

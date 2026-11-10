@@ -8,6 +8,7 @@ use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SkillId};
 use guild_domain::message::{Message, MessageKind, NewMessage};
 use guild_domain::profile::Profile;
 use guild_domain::skill::Skill;
+use guild_domain::statistics::{ChannelStatistics, RunMeasurement};
 
 use crate::error::AppResult;
 
@@ -102,6 +103,11 @@ pub trait DelegationRepository: Send + Sync {
     /// running / reporting の割り振りを、未決着のサブタスクごと cancelled にする（起動時。実行中のジョブは残っていない）。
     /// 打ち切った数を返す
     fn cancel_unfinished(&self, now: i64) -> AppResult<usize>;
+}
+
+pub trait StatisticsRepository: Send + Sync {
+    fn record_run(&self, run: &RunMeasurement) -> AppResult<()>;
+    fn for_channel(&self, channel: &ChannelId) -> AppResult<ChannelStatistics>;
 }
 
 pub trait ProfileRepository: Send + Sync {
