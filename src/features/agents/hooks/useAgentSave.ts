@@ -9,7 +9,7 @@ import type { AgentDraft } from '../model/draft';
 import { agentErrorField, validateAgentDraft } from '../model/validation';
 import type { AgentField } from '../model/validation';
 import { closeAgentEditor, createAgent, openAgentEditor, updateAgent } from '../store';
-import { useAllAgents } from './useAgents';
+import { useAllAgents, useTemplates } from './useAgents';
 
 interface ServerError {
   field: AgentField | null;
@@ -39,6 +39,7 @@ function focusFirstError(form: HTMLFormElement): void {
 /** 検証と保存（docs/ui-design.md §5.10 の 2 段構えのエラー表示） */
 export function useAgentSave(agent: Agent | null, draft: AgentDraft) {
   const agents = useAllAgents();
+  const templates = useTemplates();
   const backends = useBackends();
   const me = useProfile();
   const [serverError, setServerError] = useState<ServerError | null>(null);
@@ -50,7 +51,7 @@ export function useAgentSave(agent: Agent | null, draft: AgentDraft) {
     ],
     [agents, agent, me.name],
   );
-  const result = validateAgentDraft(draft, { backends, takenNames });
+  const result = validateAgentDraft(draft, { backends, takenNames, templates });
   const { visible, touch, markSubmitted } = useFieldErrors<AgentField>(result.ok ? {} : result.errors);
 
   const save = async (form: HTMLFormElement) => {

@@ -8,7 +8,8 @@ import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
 import { checkIntervalMin, DEFAULT_INTERVAL_MIN, parseIntervalMin } from './autonomy';
 import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
-import { permissionRuleProblem } from './permissions';
+import { rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
+import type { AgentTemplate } from '@/shared/types/domain';
 
 export type AgentField =
   'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
@@ -26,6 +27,7 @@ export type AgentErrors = Partial<Record<AgentField, string>>;
 
 export interface ValidationContext {
   backends: readonly BackendInfo[];
+  templates: readonly AgentTemplate[];
   /** 重複してはいけない名前（削除されていない他のエージェントと人間のプロフィール名） */
   takenNames: readonly string[];
 }
@@ -35,18 +37,13 @@ export type DraftResult =
 
 function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
-  const rule = permissionRuleProblem(backend, draft.permissions);
   const entries: Array<[AgentField, string | null]> = [
     ['name', checkMemberName(draft.name, ctx.takenNames)],
     ['avatar', checkAvatar(draft.avatar)],
     ['color', isHexColor(draft.color) ? null : '色を選んでください'],
     ['tags', checkTags(draft.tags)],
-    [
-      'backend',
-      draft.backend === '' ? 'バックエンドを選んでください' : rule?.field === 'backend' ? rule.message : null,
-    ],
+    ['backend', draft.backend === '' ? 'バックエンドを選んでください' : null],
     ['effort', checkEffort(backend, draft.model.trim(), draft.effort)],
-    ['permissions', rule?.field === 'permissions' ? rule.message : null],
     ['autonomyIntervalMin', checkIntervalMin(draft.autonomyIntervalMin)],
   ];
   return Object.fromEntries(entries.filter((entry): entry is [AgentField, string] => entry[1] !== null));
@@ -78,6 +75,13 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
 
 /** 入力を検証し、問題がなければ保存する形（AgentInput）にする */
 export function validateAgentDraft(draft: AgentDraft, ctx: ValidationContext): DraftResult {
+  draft = {
+    ...draft,
+    permissions: supportedPermissions(
+      rolePermissions(ctx.templates, draft.tags),
+      ctx.backends.find((backend) => backend.id === draft.backend),
+    ),
+  };
   const errors = fieldErrors(draft, ctx);
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
   const parsed = backend ? parseOptionValues(backend.options, draft.optionValues) : null;

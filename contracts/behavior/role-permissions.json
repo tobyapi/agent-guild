@@ -1,0 +1,177 @@
+[
+  {
+    "name": "作業者 / claude",
+    "tags": [
+      "作業者"
+    ],
+    "backend": "claude",
+    "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
+    "name": "作業者 / codex",
+    "tags": [
+      "作業者"
+    ],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
+    "name": "作業者 / ollama",
+    "tags": [
+      "作業者"
+    ],
+    "backend": "ollama",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": false
+    }
+  },
+  {
+    "name": "専門家 / claude",
+    "tags": [
+      "専門家"
+    ],
+    "backend": "claude",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "専門家 / codex",
+    "tags": [
+      "専門家"
+    ],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
+    "name": "専門家 / ollama",
+    "tags": [
+      "専門家"
+    ],
+    "backend": "ollama",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": false
+    }
+  },
+  {
+    "name": "マネージャー / claude",
+    "tags": [
+      "マネージャー"
+    ],
+    "backend": "claude",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "マネージャー / codex",
+    "tags": [
+      "マネージャー"
+    ],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
+    "name": "マネージャー / ollama",
+    "tags": [
+      "マネージャー"
+    ],
+    "backend": "ollama",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": false
+    }
+  },
+  {
+    "name": "役割未設定 []",
+    "tags": [],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "役割未設定 ['独自タグ', '作業者']",
+    "tags": [
+      "独自タグ",
+      "作業者"
+    ],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  }
+]

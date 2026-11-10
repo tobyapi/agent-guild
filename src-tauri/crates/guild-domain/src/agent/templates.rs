@@ -1,5 +1,5 @@
-//! エージェント作成のテンプレート表（design.md §2）。作成時に値を一括で入れるだけのプリセットで、作成後の
-//! エージェントはテンプレートと結びつかない。テンプレートの ID を書いてよいのはこのファイルだけ（ハーネスが検査）。
+//! 役割の固定権限と、作成時に入れる既定値の表（design.md §2）。権限は作成後も役割に従う。
+//! テンプレートの ID を書いてよいのはこのファイルだけ（ハーネスが検査）。
 //! テンプレートを足すときは、ROWS に1行足すだけでよい（Snapshot.templates で React に届く）。
 
 use super::permissions::Permissions;
@@ -39,6 +39,10 @@ const READER: Permissions = Permissions {
     skills: true,
 };
 
+/// 作業フォルダでの読み書き・コマンド・スキルを許す。Web と外部への書き込みは許さない。
+const WORKSPACE_TOOLS: Permissions =
+    Permissions { web_search: false, web_fetch: false, write_files: true, run_commands: true, ..READER };
+
 /// UI に並べる順
 const ROWS: [Row; 7] = [
     Row {
@@ -47,7 +51,7 @@ const ROWS: [Row; 7] = [
         description: "頼まれた作業を、手を動かして進めます。メンションがなくても答えます。",
         role: "頼まれた作業を手を動かして進める",
         expertise: "",
-        permissions: Permissions { write_files: true, ..READER },
+        permissions: Permissions { write_files: true, write_anywhere: true, run_commands: true, ..READER },
         unmentioned: UnmentionedPolicy::Answer,
         flags: QUIET,
     },
@@ -57,7 +61,7 @@ const ROWS: [Row; 7] = [
         description: "得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。",
         role: "専門分野の相談とレビューに答える",
         expertise: "",
-        permissions: READER,
+        permissions: WORKSPACE_TOOLS,
         unmentioned: UnmentionedPolicy::Fallback,
         flags: Flags { consultable: true, ..QUIET },
     },
@@ -67,7 +71,7 @@ const ROWS: [Row; 7] = [
         description: "依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。",
         role: "依頼を分解して適任者に割り振り、結果をまとめて報告する",
         expertise: "段取りと進行管理",
-        permissions: Permissions { web_fetch: false, ..READER },
+        permissions: WORKSPACE_TOOLS,
         unmentioned: UnmentionedPolicy::Lead,
         flags: Flags { can_delegate: true, ..QUIET },
     },
@@ -87,7 +91,7 @@ const ROWS: [Row; 7] = [
         description: "議論をときどき要約して、決まったことと残った論点を書き残します。",
         role: "チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す",
         expertise: "議事の要約と記録",
-        permissions: Permissions { web_search: false, web_fetch: false, write_files: true, ..READER },
+        permissions: WORKSPACE_TOOLS,
         unmentioned: UnmentionedPolicy::Ignore,
         flags: Flags { autonomy: true, ..QUIET },
     },
@@ -107,7 +111,7 @@ const ROWS: [Row; 7] = [
         description: "初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。",
         role: "想定ユーザーとして、初めて見る立場で感想と困りごとを伝える",
         expertise: "初めて使う人の目線",
-        permissions: Permissions { web_search: false, web_fetch: false, skills: false, ..READER },
+        permissions: Permissions { web_search: false, web_fetch: false, ..READER },
         unmentioned: UnmentionedPolicy::Ignore,
         flags: Flags { consultable: true, ..QUIET },
     },

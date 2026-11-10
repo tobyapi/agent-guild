@@ -25,8 +25,8 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         return Ok(None);
     };
     let backends = ports.runtime.backends();
-    let capabilities = backends.iter().find(|b| b.id == agent.backend).map(|b| b.capabilities);
-    let permissions = effective_permissions(&agent, capabilities.as_ref());
+    let backend = backends.iter().find(|b| b.id == agent.backend);
+    let permissions = effective_permissions(&agent, backend);
     let paths = ports.workspace.prepare(&agent.id, &agent.backend)?;
     // エージェントの権限にかかわらず、既存の MEMORY.md は参照用に渡す。
     let memory = read_memory(ports, &agent);

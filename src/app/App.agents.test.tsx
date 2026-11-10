@@ -78,3 +78,48 @@ it('Ollama のモデルと選んだアバターを保存し、サイドバーに
   expect(nameField().hasAttribute('aria-invalid')).toBe(false);
   expect(within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' }).value).toBe('gemma4:26b');
 });
+
+const permissions = [
+  'Web 検索',
+  'Web ページを読む',
+  'ファイルを読む',
+  'ファイルを書く',
+  '作業フォルダの外にも書く',
+  'コマンドを実行',
+  'スキルを使う',
+];
+const enabledPermissions = () => {
+  const list = within(openDialog()).getByRole('list', { name: '役割で決まる権限', hidden: true });
+  return within(list)
+    .getAllByRole('listitem', { hidden: true })
+    .filter((item) => item.querySelector('[data-allowed]'))
+    .map((item) => item.firstElementChild?.textContent);
+};
+
+it('役割で権限が固定され、バックエンドを変えても個別スイッチや依存エラーを出さない', async () => {
+  fireEvent(openDialog(), new Event('cancel', { cancelable: true }));
+  fireEvent.click(screen.getByRole('button', { name: '作業者を作成' }));
+  expect(enabledPermissions()).toEqual(permissions);
+  for (const name of permissions) expect(within(openDialog()).queryByRole('switch', { name })).toBeNull();
+
+  const workspaceOnly = ['ファイルを読む', 'ファイルを書く', 'コマンドを実行', 'スキルを使う'];
+  for (const name of [/^マネージャー/, /^専門家/]) {
+    fireEvent.click(within(openDialog()).getByRole('radio', { name }));
+    expect(enabledPermissions()).toEqual(workspaceOnly);
+  }
+  fireEvent.change(within(openDialog()).getByRole('combobox', { name: 'バックエンド' }), {
+    target: { value: 'claude' },
+  });
+  expect(enabledPermissions()).toEqual(workspaceOnly.filter((name) => name !== 'コマンドを実行'));
+  expect(within(openDialog()).getByText(/Claudeでは、この役割の許可範囲/)).toBeTruthy();
+  fireEvent.change(within(openDialog()).getByPlaceholderText('タグを追加'), { target: { value: '作業者、' } });
+  expect(enabledPermissions()).toEqual(['ファイルを読む', 'ファイルを書く', 'スキルを使う']);
+  await submitName('コハク');
+  expect(within(openDialog()).getByRole('heading', { name: 'コハク を編集' })).toBeTruthy();
+  expect(enabledPermissions()).toEqual(['ファイルを読む', 'ファイルを書く', 'スキルを使う']);
+  fireEvent.click(within(openDialog()).getByRole('radio', { name: /^作業者/ }));
+  expect(enabledPermissions()).toEqual(permissions);
+  fireEvent.click(within(openDialog()).getByRole('button', { name: '保存' }));
+  await advance(1000);
+  expect(screen.queryByRole('dialog')).toBeNull();
+});

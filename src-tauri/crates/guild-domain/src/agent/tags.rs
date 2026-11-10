@@ -1,4 +1,4 @@
-//! タグの規則（design.md §2）。タグは表示と絞り込みだけに使い、振る舞いには影響しない。
+//! タグの規則（design.md §2）。先頭は役割とサイドバーの区分、残りは分類用。
 
 use super::name::name_key;
 use crate::error::ValidationError;

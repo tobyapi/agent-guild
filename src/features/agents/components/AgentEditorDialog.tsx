@@ -47,18 +47,8 @@ function AgentEditor({
   channels,
   onOpenSkillLibrarySettings,
 }: AgentEditorDialogProps & { target: EditorTarget }) {
-  const {
-    agent,
-    draft,
-    templateId,
-    replaced,
-    update,
-    setBackend,
-    setModel,
-    chooseTemplate,
-    choosePreset,
-    togglePermission,
-  } = useAgentDraft(target);
+  const { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset } =
+    useAgentDraft(target);
   const save = useAgentSave(agent, draft);
   const formId = useId();
   const sectionProps = { draft, update, errors: save.errors, touch: save.touch };
@@ -75,14 +65,13 @@ function AgentEditor({
         <div className={styles.main}>
           <form id={formId} className={styles.form} onSubmit={save.onSubmit} noValidate>
             {save.formError && <FormAlert>{save.formError}</FormAlert>}
-            {!agent && (
-              <TemplatePicker
-                templateId={templateId}
-                replaced={replaced}
-                onTemplate={chooseTemplate}
-                onPreset={choosePreset}
-              />
-            )}
+            <TemplatePicker
+              templateId={templateId}
+              replaced={replaced}
+              onTemplate={chooseTemplate}
+              onPreset={choosePreset}
+              editing={agent !== null}
+            />
             <BasicsFields {...sectionProps} />
             <PersonaFields draft={draft} update={update} />
             <BehaviorFields draft={draft} update={update} />
@@ -97,8 +86,8 @@ function AgentEditor({
             <PermissionFields
               backendId={draft.backend}
               permissions={draft.permissions}
+              tags={draft.tags}
               error={save.errors.permissions}
-              onToggle={togglePermission}
             />
             <AutonomyFields agent={agent} channels={channels} {...sectionProps} />
           </form>

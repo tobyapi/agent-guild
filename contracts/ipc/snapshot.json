@@ -338,8 +338,8 @@
           "webFetch": true,
           "readFiles": true,
           "writeFiles": true,
-          "writeAnywhere": false,
-          "runCommands": false,
+          "writeAnywhere": true,
+          "runCommands": true,
           "skills": true
         },
         "unmentioned": "answer",
@@ -360,12 +360,12 @@
         "role": "専門分野の相談とレビューに答える",
         "expertise": "",
         "permissions": {
-          "webSearch": true,
-          "webFetch": true,
+          "webSearch": false,
+          "webFetch": false,
           "readFiles": true,
-          "writeFiles": false,
+          "writeFiles": true,
           "writeAnywhere": false,
-          "runCommands": false,
+          "runCommands": true,
           "skills": true
         },
         "unmentioned": "fallback",
@@ -386,12 +386,12 @@
         "role": "依頼を分解して適任者に割り振り、結果をまとめて報告する",
         "expertise": "段取りと進行管理",
         "permissions": {
-          "webSearch": true,
+          "webSearch": false,
           "webFetch": false,
           "readFiles": true,
-          "writeFiles": false,
+          "writeFiles": true,
           "writeAnywhere": false,
-          "runCommands": false,
+          "runCommands": true,
           "skills": true
         },
         "unmentioned": "lead",
@@ -443,7 +443,7 @@
           "readFiles": true,
           "writeFiles": true,
           "writeAnywhere": false,
-          "runCommands": false,
+          "runCommands": true,
           "skills": true
         },
         "unmentioned": "ignore",
@@ -496,7 +496,7 @@
           "writeFiles": false,
           "writeAnywhere": false,
           "runCommands": false,
-          "skills": false
+          "skills": true
         },
         "unmentioned": "ignore",
         "consultable": true,

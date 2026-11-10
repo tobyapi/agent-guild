@@ -39,7 +39,7 @@ async fn a_consultation_goes_to_the_expert_and_comes_back() {
     let haru_work = PathBuf::from("/ws").join(haru.id.as_str()).join("work");
     assert_eq!(consult.readable_dirs, vec![haru_work]);
     assert!(consult.prompt.contains("これは ハル からの相談です"));
-    assert!(!consult.permissions.write_files, "専門家は書き込めない");
+    assert!(consult.permissions.write_files && !consult.permissions.write_anywhere, "専門家は作業フォルダにだけ書く");
     let back = &app.runtime.requests_for(haru.id.as_str())[1];
     assert!(back.prompt.contains("# 相談の結果が届きました"));
     assert!(back.prompt.contains("⚠️ 要修正"));

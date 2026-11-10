@@ -88,7 +88,7 @@ fn managers_learn_how_to_delegate_and_see_what_members_can_do() {
     let job = JobSpec::respond(AgentId::new("kaname"), &message(1, by("haru"), "依頼"), JobMode::Reply, Vec::new());
     let (system, _) = prompts("kaname", &job, None);
     assert!(system.contains("## 割り振りのしかた") && system.contains("```tasks\n@名前: 指示"));
-    assert!(system.contains("- @ソラ（タグ: 作業者／担当: ソラの役割／得意分野: ソラの専門／できること: Web 閲覧・ファイル作成・スキル）"), "実効権限で要約する");
+    assert!(system.contains("- @ソラ（タグ: 作業者／担当: ソラの役割／得意分野: ソラの専門／できること: Web 閲覧・ファイル作成（PC 全体）・コマンド実行・スキル）"), "実効権限で要約する");
     assert!(system.contains("チャンネルにいないエージェント（割り振ると自動で参加します）:\n- @ロジカ（"));
     let (worker, _) = prompts("haru", &job, None);
     assert!(!worker.contains("## 割り振りのしかた"), "canDelegate でなければ出さない");

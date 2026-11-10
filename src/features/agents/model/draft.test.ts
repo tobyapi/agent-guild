@@ -8,7 +8,7 @@ import {
   draftFromAgent,
   newDraft,
   putHeadTag,
-  setPermission,
+  changeRole,
 } from './draft';
 import { agentFixture, BACKENDS, TEMPLATES } from './fixtures.test-support';
 import { PERSONALITIES } from './personas/personalities';
@@ -62,7 +62,7 @@ describe('変更', () => {
       unmentioned: 'fallback',
     });
     expect(changed).toMatchObject({ consultable: true, canDelegate: false, personality: '寡黙', name: draft.name });
-    expect(changed.permissions.writeFiles).toBe(false);
+    expect(changed.permissions).toEqual(expert?.defaults.permissions);
     changed.tags.push('変更');
     changed.permissions.readFiles = false;
     expect(expert?.defaults.tags).toEqual(['専門家']);
@@ -118,9 +118,21 @@ describe('変更', () => {
     expect(changeModel(high, 'my-model', BACKENDS[0]).effort).toBe('high');
   });
 
-  it('権限を1つずつ付け外しする', () => {
-    expect(setPermission(draft, 'runCommands', true).permissions.runCommands).toBe(true);
-    expect(setPermission(draft, 'webSearch', false).permissions).toMatchObject({ webSearch: false, webFetch: true });
+  it('役割変更では人格・モデル・追加タグを保ち、権限と応答方法を切り替える', () => {
+    if (!expert) throw new Error('専門家がありません');
+    const changed = changeRole(
+      { ...draft, tags: ['作業者', '設計'], model: 'opus', personality: '丁寧' },
+      expert,
+      TEMPLATES,
+    );
+    expect(changed).toMatchObject({
+      tags: ['専門家', '設計'],
+      model: 'opus',
+      personality: '丁寧',
+      consultable: true,
+      unmentioned: 'fallback',
+    });
+    expect(changed.permissions).toEqual(expert.defaults.permissions);
   });
 });
 

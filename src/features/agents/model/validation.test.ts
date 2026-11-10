@@ -4,7 +4,7 @@ import type { AgentDraft } from './draft';
 import { allCapabilities, BACKENDS, TEMPLATES } from './fixtures.test-support';
 import { agentErrorField, validateAgentDraft } from './validation';
 
-const ctx = { backends: BACKENDS, takenNames: ['ハル', 'あなた'] };
+const ctx = { templates: TEMPLATES, backends: BACKENDS, takenNames: ['ハル', 'あなた'] };
 const draft = (overrides: Partial<AgentDraft>): AgentDraft => ({
   ...newDraft(TEMPLATES[0], BACKENDS, 0),
   name: 'ミライ',
@@ -62,10 +62,11 @@ describe('validateAgentDraft', () => {
     if (!result.ok) expect(result.optionErrors).toEqual({ maxTurns: '数値を入力してください' });
   });
 
-  it('バックエンドの権限の規則に反していれば、権限の問題として止める', () => {
-    const result = validateAgentDraft(draft({ backend: 'codex' }), ctx);
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.errors.permissions).toContain('「コマンドを実行」を許可してください');
+  it('個別の権限は無視し、役割の固定設定で保存する', () => {
+    const permissions = { ...allCapabilities, runCommands: false, writeAnywhere: false };
+    const result = validateAgentDraft(draft({ backend: 'codex', permissions }), ctx);
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.input.permissions).toEqual(allCapabilities);
     expect(validateAgentDraft(draft({ backend: 'codex', permissions: allCapabilities }), ctx).ok).toBe(true);
     const expert = newDraft(TEMPLATES[1], BACKENDS, 0);
     expect(validateAgentDraft({ ...expert, name: 'ミライ', backend: 'codex' }, ctx).ok).toBe(true);

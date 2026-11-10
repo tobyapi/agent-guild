@@ -1,9 +1,10 @@
 //! 権限（protocol.ts・TS の Permissions）と実効権限の計算。
-//! 権限はエージェント本人の設定で、ランナーにはその実効権限を渡す。
+//! 役割の固定権限をバックエンドの能力と依存関係で絞り、ランナーへ渡す。
 
 use serde::{Deserialize, Serialize};
 
-use super::Agent;
+use super::{supported_permissions, Agent};
+use crate::backend::BackendInfo;
 
 /// 権限の名前（TS の PermissionKey）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -60,6 +61,14 @@ impl Permissions {
     }
 
     pub fn allow(&mut self, key: PermissionKey) {
+        self.set(key, true);
+    }
+
+    pub fn deny(&mut self, key: PermissionKey) {
+        self.set(key, false);
+    }
+
+    fn set(&mut self, key: PermissionKey, value: bool) {
         let slot = match key {
             PermissionKey::WebSearch => &mut self.web_search,
             PermissionKey::WebFetch => &mut self.web_fetch,
@@ -69,7 +78,7 @@ impl Permissions {
             PermissionKey::RunCommands => &mut self.run_commands,
             PermissionKey::Skills => &mut self.skills,
         };
-        *slot = true;
+        *slot = value;
     }
 
     /// 両方で許されている権限だけ
@@ -86,11 +95,7 @@ impl Permissions {
     }
 }
 
-/// 実効権限 = 本人の permissions ∧ バックエンドの capabilities。
-/// バックエンドの情報がない（ランナー未起動など）ときは capabilities で絞らない
-pub fn effective_permissions(agent: &Agent, capabilities: Option<&Permissions>) -> Permissions {
-    match capabilities {
-        Some(capabilities) => agent.behavior().permissions.intersect(*capabilities),
-        None => agent.behavior().permissions,
-    }
+/// 役割の固定権限をバックエンドの能力と依存関係で絞る。保存済みの個別権限には依存しない。
+pub fn effective_permissions(agent: &Agent, backend: Option<&BackendInfo>) -> Permissions {
+    supported_permissions(agent.behavior().permissions, backend)
 }

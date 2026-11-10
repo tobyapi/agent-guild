@@ -27,8 +27,8 @@ pub(super) fn member_list(ctx: &PromptContext<'_>) -> String {
 
 /// メンバー一覧の1行: タグ・担当・得意分野と、実効権限の要約（割り振りの担当者を選ぶ手がかり）
 pub(super) fn profile_line(agent: &Agent, ctx: &PromptContext<'_>) -> String {
-    let capabilities = ctx.backends.iter().find(|backend| backend.id == agent.backend).map(|b| b.capabilities);
-    let permissions = effective_permissions(agent, capabilities.as_ref());
+    let backend = ctx.backends.iter().find(|backend| backend.id == agent.backend);
+    let permissions = effective_permissions(agent, backend);
     let mut parts: Vec<String> = Vec::new();
     let mut push = |label: &str, value: &str| {
         let value = value.trim();

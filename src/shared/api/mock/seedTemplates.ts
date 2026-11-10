@@ -17,6 +17,8 @@ const allow = (...keys: PermissionKey[]): Permissions => ({
   ...Object.fromEntries(keys.map((key) => [key, true])),
 });
 
+const WORKSPACE_TOOLS = allow('readFiles', 'writeFiles', 'runCommands', 'skills');
+
 type Settings = Omit<AgentTemplateDefaults, 'tags' | 'consultable' | 'canDelegate' | 'autonomyEnabled'> &
   Partial<Pick<AgentTemplateDefaults, 'consultable' | 'canDelegate' | 'autonomyEnabled'>>;
 
@@ -34,13 +36,13 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   template('worker', '作業者', '頼まれた作業を、手を動かして進めます。メンションがなくても答えます。', {
     role: '頼まれた作業を手を動かして進める',
     expertise: '',
-    permissions: allow('webSearch', 'webFetch', 'readFiles', 'writeFiles', 'skills'),
+    permissions: { ...WORKSPACE_TOOLS, webSearch: true, webFetch: true, writeAnywhere: true },
     unmentioned: 'answer',
   }),
   template('expert', '専門家', '得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。', {
     role: '専門分野の相談とレビューに答える',
     expertise: '',
-    permissions: allow('webSearch', 'webFetch', 'readFiles', 'skills'),
+    permissions: WORKSPACE_TOOLS,
     unmentioned: 'fallback',
     consultable: true,
   }),
@@ -51,7 +53,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
     {
       role: '依頼を分解して適任者に割り振り、結果をまとめて報告する',
       expertise: '段取りと進行管理',
-      permissions: allow('webSearch', 'readFiles', 'skills'),
+      permissions: WORKSPACE_TOOLS,
       unmentioned: 'lead',
       canDelegate: true,
     },
@@ -71,7 +73,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   template('scribe', '書記', '議論をときどき要約して、決まったことと残った論点を書き残します。', {
     role: 'チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す',
     expertise: '議事の要約と記録',
-    permissions: allow('readFiles', 'writeFiles', 'skills'),
+    permissions: WORKSPACE_TOOLS,
     unmentioned: 'ignore',
     autonomyEnabled: true,
   }),
@@ -89,7 +91,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
     {
       role: '想定ユーザーとして、初めて見る立場で感想と困りごとを伝える',
       expertise: '初めて使う人の目線',
-      permissions: allow('readFiles'),
+      permissions: allow('readFiles', 'skills'),
       unmentioned: 'ignore',
       consultable: true,
     },

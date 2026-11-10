@@ -16,31 +16,33 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 ## 2. ドメイン
 
-### エージェントは「種別」を持たない。振る舞いは本人の設定、見た目の区分はタグ
+### 権限は役割で固定し、会話の振る舞いは本人の設定で決める
 
-すべてのエージェントが同じ形をしていて、振る舞いは次の設定で決まる（「作業者」「専門家」はコードの概念ではない）。
+すべてのエージェントが同じ形を持つ。先頭タグに対応する役割の固定権限を使い、会話の応答方法は次の設定で決める。
 
 | 設定 | 意味 |
 |---|---|
-| `permissions` | 許す操作（webSearch / webFetch / readFiles / writeFiles / writeAnywhere / runCommands / skills）。writeAnywhere は書き込み（Claude では読み取りも）の範囲を作業場所の外（PC 全体）に広げる。runCommands もあれば、PATH などの OS の設定もコマンドで変えられる（Codex の writeAnywhere は規則により必ず runCommands を伴い、sandbox も外れる）。実効権限 = permissions ∧ バックエンドの capabilities |
+| `permissions` | 許す操作（webSearch / webFetch / readFiles / writeFiles / writeAnywhere / runCommands / skills）。writeAnywhere は書き込み（Claude では読み取りも）の範囲を作業場所の外（PC 全体）に広げる。runCommands もあれば、PATH などの OS の設定もコマンドで変えられる（Codex の writeAnywhere は規則により必ず runCommands を伴い、sandbox も外れる）。保存値の個別変更は採用せず、実効権限は役割表から算出してバックエンドの capabilities と permissionRules で絞る |
 | `unmentioned` | メンションのない人間の発言に `lead`（最初に受ける。lead がいれば他は答えない）/ `answer`（答える）/ `fallback`（lead も answer もいないときだけ答える）/ `ignore`（答えない） |
 | `consultable` | 他のエージェントにメンションされたら、チャンネル外からでも自動で参加して答える（相談相手になる） |
 | `canDelegate` | tasks ブロックでタスクを割り振れる（マネージャー。§7.1） |
 | `autonomyEnabled` | 自発活動をする |
 | スキル | どのエージェントにも付けられる |
-| `tags` | 表示と絞り込みだけに使う自由なタグ。振る舞いには一切影響しない。先頭のタグがサイドバーの区分 |
+| `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない |
 
-**テンプレート**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、作成時に値を一括で入れるプリセットにすぎない。作成後のエージェントはテンプレートと結びつかず、自由に組み合わせを変えられる。
+**役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
+バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。例: Claude の専門家・マネージャーはコマンド実行を外し、Web と作業場所外への書き込みを許可しない。Codex では作業場所内のコマンドを使える。Ollama は会話のみ。役割に一致しない先頭タグ・タグなしは参照とスキルだけの固定設定にする。
+作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
 |---|---|---|---|---|---|---|---|
-| `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, skills | answer | false | false | false | worker |
-| `expert` 専門家 | 専門家 | webSearch, webFetch, readFiles, skills | fallback | true | false | false | expert |
-| `manager` マネージャー | マネージャー | webSearch, readFiles, skills | lead | false | true | false | manager |
+| `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills | answer | false | false | false | worker |
+| `expert` 専門家 | 専門家 | readFiles, writeFiles, runCommands, skills | fallback | true | false | false | expert |
+| `manager` マネージャー | マネージャー | readFiles, writeFiles, runCommands, skills | lead | false | true | false | manager |
 | `researcher` 調査係 | 調査係 | webSearch, webFetch, readFiles, skills | ignore | true | false | false | researcher |
-| `scribe` 書記 | 書記 | readFiles, writeFiles, skills | ignore | false | false | true | scribe |
+| `scribe` 書記 | 書記 | readFiles, writeFiles, runCommands, skills | ignore | false | false | true | scribe |
 | `critic` 批判役 | 批判役 | webSearch, readFiles, skills | ignore | true | false | false | critic |
-| `enduser` エンドユーザー役 | エンドユーザー役 | readFiles | ignore | true | false | false | enduser |
+| `enduser` エンドユーザー役 | エンドユーザー役 | readFiles, skills | ignore | true | false | false | enduser |
 
 担当（role）と得意分野（expertise）の書き出し（defaults.role / defaults.expertise）:
 
@@ -56,7 +58,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 - 調査係は Web を読むがファイルを書かずコマンドも実行しない（Web の内容に紛れた指示で危険な操作をしないための分離）。書記は Web を見ない。
 - テンプレートを足すときは guild-domain の表に1行足すだけ（accent の色は `--kind-<accent>` トークンを足す）。Rust の他の部分・React・ランナーは変更不要。
-- コードがタグの文字列やテンプレート ID・accent の値で振る舞いを分岐することは禁止（テンプレートの表の中だけで使う）。
+- タグやテンプレート ID・accent をハードコードした条件分岐は禁止。権限の役割対応は表を引く共通ポリシーに集約する。
 - React はタグのチップに、そのタグを先頭に持つテンプレートの accent の色を付ける（CSS 変数 `--kind-<accent>` を組み立てるだけで、値による分岐はしない。トークンがない・一致しなければ中立）。
 
 ### 入力規則（保存時に検証し、違反は `validation`。`CommandError.field` にどの入力かを入れる）
@@ -64,7 +66,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 - スキル: name は Agent Skills 標準（64文字以内の英小文字・数字・ハイフン、先頭末尾にハイフン不可、ハイフンの連続 `--` も不可）。勝手に変換せず、違反は `validation`。description は必須・1024文字以内。(agentId, name) は一意（重複は `conflict`）。
 - `autonomyIntervalMin` は 5 以上。`backendOptions` は選んだバックエンドの OptionSpec に合う型だけ（未知のキーは保存時に捨てる）。推論の深さ `effort` は、モデル（空なら `defaultModel`）が `BackendInfo.models` にあれば、その `efforts` のどれかだけ（違反は field `backendOptions`）。一覧に無いモデル・一覧が分からないときは文字列なら残す（使えない値はアダプタが無視する）。
 - タグ: 0〜8個。各タグは前後の空白を除いて1〜16文字で、空白・`#`・`,`・`@` を含まない。NFKC＋大文字小文字無視で重複していたら1つにまとめる（エラーにはしない）。違反は field `tags`。
-- 実効権限は、選んだバックエンドの `permissionRules`（§5）を満たすこと。違反は field `permissions`（足りない権限を付けるか、別のバックエンドを選んでもらう）。
+- 権限は役割から算出し、選んだバックエンドの `permissionRules`（§5）を満たさない操作を無効にする。依存関係を利用者に解決させるエラーは出さない。
 - チャンネル: 名前は前後の空白と先頭の `#`（全角 `＃` を含む）を除いて1〜40文字、話題は前後の空白を除いて200文字まで（文字数はコードポイントで数える）。
 - 人間の発言: 前後の空白を除いて20000文字まで。添付がなければ1文字以上（違反は field `content`）。添付（画像・ファイル）は1回に10個まで。画像（PNG・JPEG・GIF・WebP）は1枚 5MB まで、ほかのファイルは種類を問わず1つ 10MB まで、合計 30MB まで。種類は MIME の形（type/subtype）であること（違反は field `attachments`。React は長辺 2560px か 5MB を超える画像を送る前に縮め、種類の分からないファイルは application/octet-stream で送る）。プロフィールの初期値は「ユーザー」（UI の「あなた」という表示と重ならない名前）。
 

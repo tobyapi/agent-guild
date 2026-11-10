@@ -1,6 +1,6 @@
 //! 全体像（Snapshot）の組み立て。
 
-use guild_domain::agent::templates;
+use guild_domain::agent::{effective_permissions, templates};
 use guild_domain::snapshot::Snapshot;
 
 use crate::conversation::ConversationService;
@@ -20,11 +20,17 @@ impl SnapshotService {
 
     /// エージェントは削除済みも含む
     pub fn get(&self) -> AppResult<Snapshot> {
+        let backends = self.ports.runtime.backends();
+        let mut agents = self.ports.agents.list()?;
+        for agent in &mut agents {
+            let backend = backends.iter().find(|backend| backend.id == agent.backend);
+            agent.permissions = effective_permissions(agent, backend);
+        }
         Ok(Snapshot {
             me: self.ports.profile.get()?,
-            agents: self.ports.agents.list()?,
+            agents,
             channels: self.ports.channels.list()?,
-            backends: self.ports.runtime.backends(),
+            backends,
             templates: templates(),
             runtime: self.ports.runtime.status(),
             activity: self.conversation.activity(),

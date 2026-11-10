@@ -10,6 +10,7 @@ import { EditorSection } from './EditorSection';
 import styles from './Editor.module.css';
 
 export interface TemplatePickerProps {
+  editing: boolean;
   templateId: string | null;
   /** 入力した内容を、選んだテンプレートの値で置き換えた（その旨を出す） */
   replaced: boolean;
@@ -20,7 +21,7 @@ export interface TemplatePickerProps {
 const STEPS: Readonly<Record<string, number>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
 
 /** 作成時だけ: テンプレートのカード（docs/ui-design.md §5.9。選ぶと既定値を一括で入れる）と、人格の書き出し例 */
-export function TemplatePicker({ templateId, replaced, onTemplate, onPreset }: TemplatePickerProps) {
+export function TemplatePicker({ templateId, replaced, onTemplate, onPreset, editing }: TemplatePickerProps) {
   const templates = useTemplates();
   const questionId = useId();
   if (templates.length === 0) return null;
@@ -41,10 +42,11 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset }: T
     if (preset) onPreset(preset);
   };
   return (
-    <EditorSection title="テンプレート">
+    <EditorSection title="役割">
       <p id={questionId} className={styles.question}>
-        どのテンプレートから始めますか
+        どんな役割を任せますか
       </p>
+      <p className={styles.help}>できることは役割ごとに決まります。細かい権限の設定は不要です。</p>
       <div className={styles.templates} role="radiogroup" aria-labelledby={questionId}>
         {templates.map((template, index) => (
           <button
@@ -66,7 +68,7 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset }: T
         ))}
       </div>
       {replaced && <p className={styles.help}>入力した内容は、選んだテンプレートの値に置き換わります</p>}
-      {presets.length > 0 && (
+      {!editing && presets.length > 0 && (
         <SelectField
           label="人格の例"
           optional

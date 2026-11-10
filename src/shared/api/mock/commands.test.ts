@@ -102,7 +102,7 @@ describe('モックのコマンド', () => {
     });
   });
 
-  it('create_agent: タグの規則と権限の規則（permissionRules）の違反は、その field の validation', async () => {
+  it('create_agent: タグを検証し、権限は個別の入力にかかわらず役割で固定する', async () => {
     const mock = await createHarness();
     const badTag = agentInput({ tags: ['#設計'] });
     await expect(mock.transport.invoke('create_agent', { input: badTag })).rejects.toMatchObject({ field: 'tags' });
@@ -111,11 +111,7 @@ describe('モックのコマンド', () => {
       backendOptions: {},
       permissions: { ...allowAll, webFetch: false, runCommands: false },
     });
-    await expect(mock.transport.invoke('create_agent', { input: codex })).rejects.toMatchObject({
-      code: 'validation',
-      field: 'permissions',
-      message: 'Codexで「ファイルを書く」を使うには「コマンドを実行」も必要です。「コマンドを実行」を許可してください',
-    });
+    expect((await mock.transport.invoke('create_agent', { input: codex })).permissions).toEqual(allowAll);
   });
 
   it('delete_agent は論理削除（一覧には残り、チャンネルからは外れる）', async () => {

@@ -133,6 +133,8 @@ fn return_mode_shows_notes_and_asks_to_continue() {
 fn autonomous_ideas_follow_the_effective_permissions() {
     let job = JobSpec::autonomous(AgentId::new("logica"), ChannelId::new("c1"));
     let prompt = prompt_for("logica", &[], &job, &[]);
-    assert!(prompt.contains("Webで最近の話題"));
-    assert!(!prompt.contains("作業場所にメモや下書きを作り"));
+    assert!(!prompt.contains("Webで最近の話題"));
+    assert!(prompt.contains("作業場所にメモや下書きを作り"));
+    let worker = JobSpec::autonomous(AgentId::new("haru"), ChannelId::new("c1"));
+    assert!(prompt_for("haru", &[], &worker, &[]).contains("Webで最近の話題"));
 }

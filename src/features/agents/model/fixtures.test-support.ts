@@ -21,7 +21,7 @@ export const TEMPLATES: AgentTemplate[] = [
       tags: ['作業者'],
       role: '頼まれた作業を手を動かして進める',
       expertise: '',
-      permissions: { ...allCapabilities, writeAnywhere: false, runCommands: false },
+      permissions: { ...allCapabilities },
       unmentioned: 'answer',
       consultable: false,
       canDelegate: false,
@@ -37,7 +37,7 @@ export const TEMPLATES: AgentTemplate[] = [
       tags: ['専門家'],
       role: '専門分野の相談とレビューに答える',
       expertise: '',
-      permissions: { ...allCapabilities, writeFiles: false, writeAnywhere: false, runCommands: false },
+      permissions: { ...allCapabilities, webSearch: false, webFetch: false, writeAnywhere: false },
       unmentioned: 'fallback',
       consultable: true,
       canDelegate: false,
@@ -92,7 +92,7 @@ export const BACKENDS: BackendInfo[] = [
   },
 ];
 
-/** テスト用のエージェント（作業者のテンプレートの既定値） */
+/** テスト用の保存済みエージェント */
 export function agentFixture(overrides: Partial<Agent> = {}): Agent {
   return {
     id: 'a1',

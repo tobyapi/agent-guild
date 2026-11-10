@@ -81,7 +81,7 @@ async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
     assert_eq!(worker.tags, ["作業者", "リサーチ"]);
     assert_eq!((worker.backend.as_str(), worker.model.as_str()), ("codex", ""));
     assert!(worker.avatar.starts_with("data:image/jpeg;base64,/9j/"));
-    assert!(worker.permissions.write_files && !worker.permissions.run_commands);
+    assert!(worker.permissions.write_files && worker.permissions.run_commands && worker.permissions.write_anywhere);
     assert_eq!(
         (worker.unmentioned, worker.consultable, worker.can_delegate),
         (UnmentionedPolicy::Answer, false, false)

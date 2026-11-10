@@ -22,16 +22,15 @@ fn skill(agent: &guild_domain::agent::Agent, name: &str) -> SkillInput {
 }
 
 #[tokio::test]
-async fn saving_checks_the_permission_rules_of_the_backend() {
+async fn saving_uses_the_fixed_role_permissions() {
     let app = TestApp::new();
     let rule = PermissionRule { when: PermissionKey::WriteFiles, requires: vec![PermissionKey::RunCommands] };
     app.runtime.backends.lock()[0].permission_rules = vec![rule];
-    let rejected = app.services.agents.create(input("worker", "ソラ")).expect_err("runCommands がない");
-    assert_eq!(rejected.to_command_error().field.as_deref(), Some("permissions"));
-    let mut allowed = input("worker", "ソラ");
-    allowed.permissions.run_commands = true;
-    assert!(app.services.agents.create(allowed).is_ok());
-    assert!(app.services.agents.create(input("expert", "ギア")).is_ok(), "書き込まないなら対象外");
+    let mut denied = input("worker", "ソラ");
+    denied.permissions.run_commands = false;
+    let saved = app.services.agents.create(denied).unwrap();
+    assert!(saved.permissions.run_commands);
+    assert!(app.services.agents.create(input("expert", "ギア")).is_ok());
 }
 
 #[tokio::test]

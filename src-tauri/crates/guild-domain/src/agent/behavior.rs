@@ -1,12 +1,12 @@
 //! 振る舞いの設定のまとめ。振り分け・プロンプト・自発活動・実効権限は、エージェントの振る舞いをここ（Agent::behavior）
-//! からだけ読む。設定の置き場所（いまは本人の設定）が変わっても、直すのはこの関数の中身だけで済む。
+//! からだけ読む。権限の役割表や設定の置き場所が変わっても、直すのはこの関数の中身だけで済む。
 
-use super::{Agent, Permissions, UnmentionedPolicy};
+use super::{role_permissions, Agent, Permissions, UnmentionedPolicy};
 
 /// エージェントの振る舞いを決める設定
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Behavior {
-    /// 許す操作（実効権限はバックエンドの capabilities との積）
+    /// 役割の固定権限（実効権限はバックエンドの能力と依存関係で絞る）
     pub permissions: Permissions,
     /// メンションのない人間の発言への反応
     pub unmentioned: UnmentionedPolicy,
@@ -21,7 +21,7 @@ pub struct Behavior {
 impl Agent {
     pub fn behavior(&self) -> Behavior {
         Behavior {
-            permissions: self.permissions,
+            permissions: role_permissions(&self.tags),
             unmentioned: self.unmentioned,
             consultable: self.consultable,
             can_delegate: self.can_delegate,

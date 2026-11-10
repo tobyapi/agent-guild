@@ -1,96 +1,70 @@
-import { useId } from 'react';
 import { useBackend } from '@/features/runtime';
-import { Icon, Switch } from '@/shared/ui';
-import type { PermissionKey, Permissions } from '@/shared/types/domain';
-import { leakRisk, PERMISSION_ORDER, permissionRuleProblem, permissionText } from '../../model/permissions';
+import { permissionRole, rolePermissions } from '@/shared/lib/permissionPolicy';
+import { Icon } from '@/shared/ui';
+import type { Permissions } from '@/shared/types/domain';
+import { useTemplates } from '../../hooks/useAgents';
+import { PERMISSION_ORDER, permissionText } from '../../model/permissions';
 import { EditorSection } from './EditorSection';
 import styles from './PermissionFields.module.css';
 
 export interface PermissionFieldsProps {
   backendId: string;
+  tags: readonly string[];
   permissions: Permissions;
-  /** 保存で返った権限の問題（入力を変えるまで出す） */
   error?: string;
-  onToggle: (key: PermissionKey, on: boolean) => void;
 }
 
-/**
- * できること: 権限のトグル（docs/ui-design.md §6.3）。バックエンドの権限の規則に反していれば先に知らせる。
- * 持ち出しの危険がある組み合わせ（leakRisks）も知らせる（保存は止めない）
- */
-export function PermissionFields({ backendId, permissions, error, onToggle }: PermissionFieldsProps) {
+/** 役割の固定設定を説明する。個別の権限スイッチや、依存関係を利用者に解かせる表示は置かない。 */
+export function PermissionFields({ backendId, tags, permissions, error }: PermissionFieldsProps) {
   const backend = useBackend(backendId);
-  // 規則に反していれば保存する前から知らせる（保存も validation で止まる）。backend の問題は頭脳の区画に出る
-  const rule = permissionRuleProblem(backend, permissions);
-  const notice = rule?.field === 'permissions' ? rule.message : error;
-  const leak = leakRisk(backend, permissions);
+  const templates = useTemplates();
+  const role = permissionRole(templates, tags);
+  const requested = rolePermissions(templates, tags);
+  const available = PERMISSION_ORDER.filter((key) => permissions[key]);
+  const restricted = PERMISSION_ORDER.filter((key) => requested[key] && !permissions[key]);
   return (
     <EditorSection title="できること">
-      {notice && <Notice>{notice}</Notice>}
-      {leak && <Notice>{leak}</Notice>}
-      <ul className={styles.list}>
-        {PERMISSION_ORDER.map((key) => (
-          <PermissionToggle
-            key={key}
-            permission={key}
-            on={permissions[key]}
-            supported={backend?.capabilities[key] ?? true}
-            onChange={(on) => onToggle(key, on)}
-          />
-        ))}
-      </ul>
-    </EditorSection>
-  );
-}
-
-function Notice({ children }: { children: string }) {
-  return (
-    <p className={styles.notice} role="note">
-      <Icon name="alert" className={styles.warningIcon} />
-      {children}
-    </p>
-  );
-}
-
-interface PermissionToggleProps {
-  permission: PermissionKey;
-  on: boolean;
-  supported: boolean;
-  onChange: (on: boolean) => void;
-}
-
-/** 権限の行。注意書きのある権限はオンにすると行全体が注意の姿になる。バックエンドが使えない権限はオフで固定 */
-function PermissionToggle({ permission, on, supported, onChange }: PermissionToggleProps) {
-  const id = useId();
-  const text = permissionText(permission);
-  const risky = text.warning !== '';
-  const active = on && supported;
-  const showWarning = active && risky;
-  const describedBy = [`${id}-description`, showWarning ? `${id}-warning` : null].filter(Boolean).join(' ');
-  return (
-    <li className={styles.grant} data-on={active ? '' : undefined} data-risky={risky ? '' : undefined}>
-      <b id={`${id}-label`} className={styles.grantLabel} data-off={supported ? undefined : ''}>
-        {text.label}
-      </b>
-      <p id={`${id}-description`} className={styles.grantDescription}>
-        {supported ? text.description : 'このバックエンドでは使えません。'}
+      <p>
+        {role
+          ? `${role.label}の固定設定です。役割を変えると、自動で切り替わります。`
+          : '役割が未設定のため、参照とスキルだけに制限しています。上のカードで役割を選べます。'}
       </p>
-      <div className={styles.grantSwitch}>
-        <Switch
-          checked={active}
-          onChange={onChange}
-          labelledBy={`${id}-label`}
-          describedBy={describedBy}
-          disabled={!supported}
-          tone={risky ? 'warning' : 'accent'}
-        />
-      </div>
-      {showWarning && (
-        <p id={`${id}-warning`} className={styles.warning}>
-          <Icon name="alert" className={styles.warningIcon} />
-          {text.warning}
+      <p className={styles.description}>
+        {available.length > 0
+          ? `利用できる機能：${available.map((key) => permissionText(key).label).join('・')}`
+          : 'このバックエンドでは会話による回答ができます。ファイル操作などのツールは使えません。'}
+      </p>
+      {restricted.length > 0 && backend && (
+        <p className={styles.description} role="note">
+          {backend.label}では、この役割の許可範囲で使えない機能（
+          {restricted.map((key) => permissionText(key).label).join('・')}）を自動で無効にしています。
         </p>
       )}
-    </li>
+      {!backend && <p className={styles.description}>バックエンドの準備ができると、利用できる機能を確認します。</p>}
+      {permissions.writeAnywhere && (
+        <p className={styles.notice} role="note">
+          <Icon name="alert" className={styles.warningIcon} />
+          この役割は、パソコン内のファイル変更・削除、ソフトのインストール、外部への通信も行えます。
+        </p>
+      )}
+      {error && (
+        <p className={styles.notice} role="alert">
+          {error}
+        </p>
+      )}
+      <details className={styles.details}>
+        <summary>機能の一覧を見る</summary>
+        <ul className={styles.list} aria-label="役割で決まる権限">
+          {PERMISSION_ORDER.map((key) => (
+            <li key={key} className={styles.grant}>
+              <span>{permissionText(key).label}</span>
+              <span className={styles.status} data-allowed={permissions[key] ? '' : undefined}>
+                {permissions[key] ? '利用可' : requested[key] ? 'このバックエンドでは利用不可' : 'この役割では利用不可'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </EditorSection>
   );
 }

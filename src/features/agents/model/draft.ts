@@ -1,16 +1,16 @@
 // エージェント編集画面の入力中の値（AgentDraft）と、その作り方・変え方。
 import { presetColor } from '@/shared/lib/colors';
 import { checkEffort, effortFrom } from '@/shared/lib/models';
+import { PERMISSION_ORDER, permissionRuleProblem } from '@/shared/lib/permissions';
 import type {
   Agent,
   AgentTemplate,
   AgentTemplateDefaults,
   BackendInfo,
-  PermissionKey,
   Permissions,
   UnmentionedPolicy,
 } from '@/shared/types/domain';
-import { tagKey } from './accent';
+import { tagKey, templateOfTag } from './accent';
 import { DEFAULT_INTERVAL_MIN } from './autonomy';
 import { optionValuesFrom } from './backendOptions';
 import type { OptionValues } from './backendOptions';
@@ -71,17 +71,49 @@ function fromDefaults(defaults: AgentTemplateDefaults): Pick<AgentDraft, keyof A
   return { ...defaults, tags: [...defaults.tags], permissions: { ...defaults.permissions } };
 }
 
-/** 新しいエージェントのバックエンド: 準備のできている最初のもの → なければ最初のもの */
-function defaultBackend(backends: readonly BackendInfo[]): string {
-  return (backends.find((backend) => backend.status === 'ready') ?? backends[0])?.id ?? '';
+/** 権限をそのまま使えるバックエンドを優先し、その中で準備済みのものから選ぶ。 */
+function withCompatibleBackend(draft: AgentDraft, backends: readonly BackendInfo[]): AgentDraft {
+  const compatible = backends.filter(
+    (backend) =>
+      PERMISSION_ORDER.every((key) => !draft.permissions[key] || backend.capabilities[key]) &&
+      permissionRuleProblem(backend, draft.permissions) === null,
+  );
+  const choices = compatible.length > 0 ? compatible : backends;
+  const backend = choices.find((candidate) => candidate.status === 'ready') ?? choices[0];
+  return backend ? changeBackend(draft, backend.id) : draft;
 }
 
 /**
  * テンプレートの既定値（タグ・担当・得意分野・権限・振る舞い・自発活動）を一括で入れる。入力済みの値も上書きする。
- * 作成時だけ使い、作成後のエージェントはテンプレートと結びつかない
+ * 作成時だけ使い、固定権限は先頭タグに対応する役割から別途求める
  */
-export function applyTemplate(draft: AgentDraft, template: AgentTemplate | undefined): AgentDraft {
-  return { ...draft, ...fromDefaults(template?.defaults ?? BLANK_DEFAULTS) };
+export function applyTemplate(
+  draft: AgentDraft,
+  template: AgentTemplate | undefined,
+  backends: readonly BackendInfo[] = [],
+): AgentDraft {
+  return withCompatibleBackend({ ...draft, ...fromDefaults(template?.defaults ?? BLANK_DEFAULTS) }, backends);
+}
+
+/** 編集時の役割変更。人格・モデル・追加タグは保ち、役割の権限と基本の応答方法を切り替える。 */
+export function changeRole(
+  draft: AgentDraft,
+  template: AgentTemplate,
+  templates: readonly AgentTemplate[],
+): AgentDraft {
+  const extras = templateOfTag(templates, draft.tags[0] ?? '') ? draft.tags.slice(1) : draft.tags;
+  const { permissions, unmentioned, consultable, canDelegate } = template.defaults;
+  return {
+    ...draft,
+    permissions: { ...permissions },
+    unmentioned,
+    consultable,
+    canDelegate,
+    tags: [
+      ...template.defaults.tags,
+      ...extras.filter((tag) => tagKey(tag) !== tagKey(template.defaults.tags[0] ?? '')),
+    ],
+  };
 }
 
 export function newDraft(
@@ -95,7 +127,7 @@ export function newDraft(
     color: presetColor(colorIndex),
     personality: '',
     tone: '',
-    backend: defaultBackend(backends),
+    backend: '',
     model: '',
     effort: '',
     optionValues: {},
@@ -104,7 +136,7 @@ export function newDraft(
     autonomyChannelId: null,
     ...fromDefaults(BLANK_DEFAULTS),
   };
-  return applyTemplate(blank, template);
+  return applyTemplate(blank, template, backends);
 }
 
 export function draftFromAgent(agent: Agent, backends: readonly BackendInfo[]): AgentDraft {
@@ -154,8 +186,4 @@ export function changeBackend(draft: AgentDraft, backend: string): AgentDraft {
 export function changeModel(draft: AgentDraft, model: string, backend: BackendInfo | undefined): AgentDraft {
   const effort = checkEffort(backend, model, draft.effort) === null ? draft.effort : '';
   return { ...draft, model, effort };
-}
-
-export function setPermission(draft: AgentDraft, key: PermissionKey, on: boolean): AgentDraft {
-  return { ...draft, permissions: { ...draft.permissions, [key]: on } };
 }

@@ -17,7 +17,7 @@ export interface Agent {
   /** 絵文字、または data:image/... の画像 */
   avatar: string;
   color: string;
-  /** 表示と絞り込み用の自由なタグ（0〜8個、各1〜16文字）。振る舞いには影響しない。先頭のタグがサイドバーの区分になる */
+  /** 先頭は固定権限を決める役割とサイドバーの区分。残りは分類用（全体で0〜8個、各1〜16文字） */
   tags: string[];
   role: string;
   personality: string;
@@ -29,7 +29,7 @@ export interface Agent {
   model: string;
   /** バックエンド固有の設定。キーと型は BackendInfo.options が定める */
   backendOptions: Record<string, unknown>;
-  /** このエージェントに許す操作。バックエンドの capabilities と permissionRules で検証される */
+  /** 役割から算出する固定権限。保存・Snapshot・実行時にバックエンドの能力と依存関係で絞る */
   permissions: Permissions;
   unmentioned: UnmentionedPolicy;
   /** 他のエージェントにメンションされたら、チャンネル外からでも参加して答える（相談相手になる） */
@@ -56,7 +56,7 @@ export type TemplateAccent = string | null;
 
 /**
  * エージェント作成時のテンプレート（Rust の guild-domain が唯一の定義。Snapshot.templates で届く）。
- * 作成時に値を一括で入れるだけで、作成後のエージェントはテンプレートと結びつかない。
+ * 権限は作成後も先頭タグに対応する役割で固定する。他の項目は作成時の既定値。
  */
 export interface AgentTemplate {
   id: string;

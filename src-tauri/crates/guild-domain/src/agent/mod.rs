@@ -1,9 +1,10 @@
-//! エージェントのモデル。「種別」はなく、振る舞いは本人の設定（permissions・unmentioned・consultable・
-//! canDelegate・autonomyEnabled）で決まる。タグは表示と絞り込みだけに使い、振る舞いを分岐しない（design.md §2）。
+//! エージェントのモデル。権限は先頭タグに対応する役割の表から固定し、その他の振る舞いは本人の設定で決める。
+//! テンプレート ID やタグの文字列をハードコードせず、役割表を共通のポリシーで引く（design.md §2）。
 
 mod behavior;
 mod model;
 mod name;
+mod permission_policy;
 mod permissions;
 mod tags;
 mod template_model;
@@ -13,6 +14,7 @@ mod validation;
 pub use behavior::Behavior;
 pub use model::{Agent, AgentInput};
 pub use name::{ensure_unique_name, name_key, normalize_name, NAME_MAX_CHARS};
+pub use permission_policy::{role_permissions, supported_permissions};
 pub use permissions::{effective_permissions, PermissionKey, Permissions};
 pub use tags::{normalize_tags, TAG_MAX_CHARS, TAG_MAX_COUNT};
 pub use template_model::{AgentTemplate, AgentTemplateDefaults};

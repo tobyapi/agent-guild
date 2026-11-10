@@ -7,7 +7,7 @@ use guild_domain::agent::{
 use guild_domain::backend::PermissionRule;
 use guild_domain::ids::AgentId;
 
-use super::support::{agent, backend, input};
+use super::support::{agent, backend, input, ALL};
 
 #[test]
 fn trims_and_accepts_a_valid_input() {
@@ -38,34 +38,31 @@ fn rejects_short_intervals_and_missing_backend() {
 }
 
 #[test]
-fn permission_rules_of_the_backend_are_checked_with_effective_permissions() {
+fn role_permissions_replace_individual_settings_and_resolve_backend_rules() {
     let mut codex = backend("codex");
     codex.permission_rules =
         vec![PermissionRule { when: PermissionKey::WriteFiles, requires: vec![PermissionKey::RunCommands] }];
-    let error = normalize_agent_input(input("worker", "ソラ"), Some(&codex)).expect_err("runCommands がない");
-    assert_eq!(error.field(), Some("permissions"));
-    assert!(error.message().ends_with("「コマンドを実行」を許可してください"), "{}", error.message());
-    let mut allowed = input("worker", "ソラ");
-    allowed.permissions.run_commands = true;
-    assert!(normalize_agent_input(allowed, Some(&codex)).is_ok());
-    assert!(normalize_agent_input(input("expert", "ギア"), Some(&codex)).is_ok(), "書き込まないなら関係ない");
+    let mut raw = input("worker", "ソラ");
+    raw.permissions.run_commands = false;
+    assert_eq!(normalize_agent_input(raw, Some(&codex)).unwrap().permissions, ALL);
     codex.capabilities.run_commands = false;
-    let error = normalize_agent_input(input("worker", "ソラ"), Some(&codex)).expect_err("バックエンドが提供しない");
-    assert_eq!(error.field(), Some("permissions"));
-    assert!(error.message().contains("別のバックエンド"), "{}", error.message());
+    let permissions = normalize_agent_input(input("worker", "ソラ"), Some(&codex)).unwrap().permissions;
+    assert!(!permissions.write_files && !permissions.run_commands);
 }
 
 #[test]
-fn rules_can_require_writing_outside_the_workspace() {
+fn restricted_roles_never_gain_outside_access_to_enable_commands() {
     let mut claude = backend("claude");
     claude.permission_rules =
         vec![PermissionRule { when: PermissionKey::RunCommands, requires: vec![PermissionKey::WriteAnywhere] }];
-    let mut commands = input("worker", "ハル");
-    commands.permissions.run_commands = true;
-    let error = normalize_agent_input(commands.clone(), Some(&claude)).expect_err("作業フォルダの外への書き込みがない");
-    assert!(error.message().ends_with("「作業フォルダの外にも書く」を許可してください"), "{}", error.message());
-    commands.permissions.allow(PermissionKey::WriteAnywhere);
-    assert!(normalize_agent_input(commands, Some(&claude)).is_ok());
+    for role in ["expert", "manager"] {
+        let mut raw = input(role, "ハル");
+        raw.permissions = ALL;
+        let permissions = normalize_agent_input(raw, Some(&claude)).unwrap().permissions;
+        assert!(!permissions.run_commands && !permissions.write_anywhere && !permissions.web_fetch);
+        assert!(permissions.write_files && permissions.read_files && permissions.skills);
+    }
+    assert_eq!(normalize_agent_input(input("worker", "ハル"), Some(&claude)).unwrap().permissions, ALL);
 }
 
 #[test]
@@ -101,8 +98,11 @@ fn templates_match_the_design_table() {
     assert_eq!(ids, ["worker", "expert", "manager", "researcher", "scribe", "critic", "enduser"]);
     let defaults = |id: &str| find_template(id).map(|t| t.defaults).unwrap();
     let (worker, expert, manager) = (defaults("worker"), defaults("expert"), defaults("manager"));
-    assert!(worker.permissions.write_files && !worker.permissions.run_commands && worker.permissions.web_search);
-    assert!(!expert.permissions.write_files && expert.permissions.read_files && expert.permissions.skills);
+    assert_eq!(worker.permissions, ALL);
+    let workspace_only =
+        guild_domain::agent::Permissions { web_search: false, web_fetch: false, write_anywhere: false, ..ALL };
+    assert_eq!(expert.permissions, workspace_only);
+    assert_eq!(manager.permissions, workspace_only);
     assert_eq!((worker.unmentioned, worker.consultable), (UnmentionedPolicy::Answer, false));
     assert_eq!((expert.unmentioned, expert.consultable), (UnmentionedPolicy::Fallback, true));
     assert_eq!(
@@ -121,7 +121,6 @@ fn templates_match_the_design_table() {
         "書記は Web を見ない"
     );
     for template in templates() {
-        assert!(!template.defaults.permissions.write_anywhere, "作業フォルダの外への書き込みは既定では許さない");
         assert_eq!(template.accent.as_deref(), Some(template.id.as_str()), "accent はテンプレート ID と同じ名前");
         assert_eq!(template.defaults.tags, vec![template.label.clone()]);
     }
@@ -130,16 +129,14 @@ fn templates_match_the_design_table() {
 
 #[test]
 fn effective_permissions_are_own_permissions_within_capabilities() {
-    let mut sora = agent("sora", "worker", "ソラ");
-    assert!(!effective_permissions(&sora, None).run_commands);
-    sora.permissions.run_commands = true;
-    sora.permissions.write_anywhere = true;
+    let sora = agent("sora", "worker", "ソラ");
     assert!(effective_permissions(&sora, None).run_commands);
-    let mut capabilities = backend("codex").capabilities;
+    let mut info = backend("codex");
+    let capabilities = &mut info.capabilities;
     capabilities.web_fetch = false;
     capabilities.run_commands = false;
     capabilities.write_anywhere = false;
-    let effective = effective_permissions(&sora, Some(&capabilities));
+    let effective = effective_permissions(&sora, Some(&info));
     assert!(!effective.web_fetch && !effective.run_commands, "バックエンドにない能力は使えない");
     assert!(!effective.write_anywhere);
     assert!(effective.write_files);

@@ -1,4 +1,4 @@
-// 権限のトグルの表示（docs/ui-design.md §6.3）。実効権限と権限の規則の判定は shared/lib/permissions（モックと共有）。
+// 固定権限の説明（docs/ui-design.md §6.3）。実効権限と権限の規則の判定は shared/lib/permissions（モックと共有）。
 import { PERMISSION_LABELS, PERMISSION_ORDER } from '@/shared/lib/permissions';
 import type { PermissionKey, Permissions } from '@/shared/types/domain';
 
@@ -14,7 +14,7 @@ export type { RuleProblem } from '@/shared/lib/permissions';
 export interface PermissionText {
   label: string;
   description: string;
-  /** オンにしたときに出す注意書き（空なら出さない。あれば行全体を注意の姿にする） */
+  /** 許可されているときに使う注意書き（空なら注意なし） */
   warning: string;
 }
 
@@ -37,7 +37,7 @@ const WARNINGS: Partial<Record<PermissionKey, string>> = {
     'コマンドはこのパソコンの上で、あなたと同じ権限で動きます。ファイルの削除や外部への送信もできてしまうため、任せられる役割のエージェントにだけ許可してください。',
 };
 
-/** 権限のトグルの文言 */
+/** 権限の機能名と説明 */
 export function permissionText(key: PermissionKey): PermissionText {
   return { label: PERMISSION_LABELS[key], description: DESCRIPTIONS[key], warning: WARNINGS[key] ?? '' };
 }

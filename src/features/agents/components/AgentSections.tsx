@@ -21,7 +21,7 @@ export function AgentSections() {
   return (
     <>
       {groups.map((group) => (
-        <AgentSection key={group.key ?? ''} group={group} fallbackTemplateId={templates[0]?.id ?? null} />
+        <AgentSection key={group.key ?? ''} group={group} />
       ))}
       <Button variant="ghost" size="sm" className={styles.add} onClick={() => openAgentCreator(null)}>
         <Icon name="plus" />
@@ -31,20 +31,20 @@ export function AgentSections() {
   );
 }
 
-/** 区画の「＋」: テンプレートの区画はそのテンプレート、ほかのタグは最初のテンプレートにそのタグを先頭に入れる（タグなしは出さない） */
-function addAction(group: TagGroup, fallbackTemplateId: string | null): { run: () => void; label: string } | undefined {
+/** 区画の「＋」: 対応するテンプレートがなければタグだけを入れる（タグなしは出さない） */
+function addAction(group: TagGroup): { run: () => void; label: string } | undefined {
   const { template } = group;
   if (template) return { run: () => openAgentCreator(template.id), label: `${template.label}を作成` };
   if (group.key === null) return undefined;
   return {
-    run: () => openAgentCreator(fallbackTemplateId, group.label),
+    run: () => openAgentCreator(null, group.label),
     label: `タグ「${group.label}」のエージェントを作成`,
   };
 }
 
-function AgentSection({ group, fallbackTemplateId }: { group: TagGroup; fallbackTemplateId: string | null }) {
+function AgentSection({ group }: { group: TagGroup }) {
   const { agents } = group;
-  const add = addAction(group, fallbackTemplateId);
+  const add = addAction(group);
   return (
     <SideSection
       title={group.label}

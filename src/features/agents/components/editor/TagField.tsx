@@ -3,7 +3,7 @@ import { TAG_COUNT_MAX } from '@/shared/lib/tags';
 import { useTemplates } from '../../hooks/useAgents';
 import { useTagInput } from '../../hooks/useTagInput';
 import { tagAccent } from '../../model/accent';
-import { promoteTag, removeTag } from '../../model/tagInput';
+import { removeTag } from '../../model/tagInput';
 import styles from './TagField.module.css';
 
 export interface TagFieldProps {
@@ -14,7 +14,7 @@ export interface TagFieldProps {
   onBlur: () => void;
 }
 
-/** タグの札の入力（docs/ui-design.md §5.11）: Enter・読点・カンマで札にし、× で外す。先頭のタグがサイドバーの区分になる */
+/** タグの札の入力（docs/ui-design.md §5.11）: Enter・読点・カンマで札にし、× で外す。先頭は役割のカードで変更し、それ以外は分類用 */
 export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
   const input = useTagInput(tags, onChange);
   const full = tags.length >= TAG_COUNT_MAX;
@@ -25,7 +25,7 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
       hint={
         full
           ? `タグは ${TAG_COUNT_MAX} 個までです`
-          : '先頭のタグがサイドバーの区分になります。Enter・読点・カンマで札にし、札を押すと先頭にできます。'
+          : '役割は上のカードで変更できます。追加のタグは分類用です。Enter・読点・カンマで追加できます。'
       }
       error={input.problem ?? error}
     >
@@ -54,37 +54,28 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
   );
 }
 
-/** 付けたタグの札。色はそのタグを先頭に持つテンプレートの accent。先頭の札の前に「区分」、先頭以外は押すと先頭にする */
+/** 付けたタグの札。色はそのタグを先頭に持つテンプレートの accent。先頭の役割はここでは変更・削除しない */
 function TagChips({ tags, onChange }: Pick<TagFieldProps, 'tags' | 'onChange'>) {
   const templates = useTemplates();
   return (
     <ul className={styles.chips} aria-label="付けたタグ">
       <li className={styles.lead} aria-hidden="true">
-        区分
+        役割
       </li>
       {tags.map((tag, index) => (
         <li key={`${index}-${tag}`}>
           <Badge accent={tagAccent(templates, tag)}>
-            {index === 0 ? (
-              <span title="先頭のタグ（サイドバーの区分と札）">{tag}</span>
-            ) : (
+            <span>{tag}</span>
+            {index > 0 && (
               <button
                 type="button"
-                className={styles.promote}
-                title="先頭にする"
-                onClick={() => onChange(promoteTag(tags, index))}
+                className={styles.remove}
+                aria-label={`タグ「${tag}」を外す`}
+                onClick={() => onChange(removeTag(tags, index))}
               >
-                {tag}
+                <Icon name="close" />
               </button>
             )}
-            <button
-              type="button"
-              className={styles.remove}
-              aria-label={`タグ「${tag}」を外す`}
-              onClick={() => onChange(removeTag(tags, index))}
-            >
-              <Icon name="close" />
-            </button>
           </Badge>
         </li>
       ))}

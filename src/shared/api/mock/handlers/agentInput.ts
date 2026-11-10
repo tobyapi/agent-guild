@@ -2,7 +2,7 @@
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
 import { checkEffort, effortFrom, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
-import { permissionRuleProblem } from '@/shared/lib/permissions';
+import { rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, OptionSpec } from '@/shared/types/domain';
 import { activeAgents, fail } from '../runtime';
@@ -44,12 +44,11 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
   if (input.autonomyIntervalMin < AUTONOMY_INTERVAL_MIN) {
     fail('validation', `自発活動の間隔は${AUTONOMY_INTERVAL_MIN}分以上にしてください`, 'autonomyIntervalMin');
   }
-  const rule = permissionRuleProblem(backend, input.permissions);
-  if (rule !== null) fail('validation', rule.message, rule.field);
   return {
     ...input,
     name: input.name.trim(),
     tags: cleanTags(input.tags),
+    permissions: supportedPermissions(rolePermissions(core.state.templates, input.tags), backend),
     backendOptions: pickOptions(backend, input),
   };
 }

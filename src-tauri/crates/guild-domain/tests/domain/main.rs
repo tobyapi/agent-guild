@@ -8,6 +8,7 @@ mod behavior;
 mod delegation;
 mod job_merge;
 mod mentions;
+mod permission_policy;
 mod prompt_conversation;
 mod prompt_delegation;
 mod prompt_intent;

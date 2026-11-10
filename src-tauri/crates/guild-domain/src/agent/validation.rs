@@ -2,7 +2,7 @@
 
 use super::name::normalize_name;
 use super::tags::normalize_tags;
-use super::AgentInput;
+use super::{role_permissions, supported_permissions, AgentInput};
 use crate::backend::{sanitize_backend_options, BackendInfo};
 use crate::error::ValidationError;
 
@@ -12,13 +12,14 @@ pub const AUTONOMY_INTERVAL_MIN: u32 = 5;
 pub const AVATAR_MAX_BYTES: usize = 2 * 1024 * 1024;
 
 /// 入力を検証して正規化する。backend は選んだバックエンドの情報（ランナーが未起動で分からなければ None。
-/// そのときは backendOptions をそのまま残し、権限の組み合わせ規則は実行時の拒否に任せる）
+/// そのときは backendOptions を保ち、役割の権限を実行時にバックエンド情報で絞る）
 pub fn normalize_agent_input(
     mut input: AgentInput,
     backend: Option<&BackendInfo>,
 ) -> Result<AgentInput, ValidationError> {
     input.name = normalize_name(&input.name)?;
     input.tags = normalize_tags(&input.tags)?;
+    input.permissions = supported_permissions(role_permissions(&input.tags), backend);
     input.backend = input.backend.trim().to_owned();
     input.model = input.model.trim().to_owned();
     if input.backend.is_empty() {
@@ -32,33 +33,6 @@ pub fn normalize_agent_input(
     }
     if let Some(info) = backend {
         input.backend_options = sanitize_backend_options(input.backend_options, info, &input.model)?;
-        ensure_permission_rules(&input, info)?;
     }
     Ok(input)
-}
-
-/// 実効権限（permissions ∧ capabilities）がバックエンドの権限の規則（permissionRules）を満たすこと。違反は field permissions。
-/// 足りない権限をバックエンドが提供できるなら許可を促し、できないなら別のバックエンドか、その権限を外すよう促す
-fn ensure_permission_rules(input: &AgentInput, info: &BackendInfo) -> Result<(), ValidationError> {
-    let effective = input.permissions.intersect(info.capabilities);
-    for rule in &info.permission_rules {
-        let missing = rule.missing(&effective);
-        if missing.is_empty() {
-            continue;
-        }
-        let names = missing.iter().map(|key| format!("「{}」", key.label())).collect::<Vec<_>>().join("と");
-        let when = rule.when.label();
-        let head = format!("{}で「{when}」を使うには{names}も必要です", info.label);
-        let available = missing.iter().all(|key| info.capabilities.get(*key));
-        let message = if available {
-            format!("{head}。{names}を許可してください")
-        } else {
-            format!(
-                "{head}。{}では{names}を使えないので、「{when}」を外すか別のバックエンドを選んでください",
-                info.label
-            )
-        };
-        return Err(ValidationError::on("permissions", message));
-    }
-    Ok(())
 }

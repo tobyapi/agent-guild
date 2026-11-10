@@ -51,7 +51,6 @@ const DEMO_AGENTS: AgentSeed[] = [
     personality: '寡黙で職人肌',
     tone: '簡潔な常体',
     backend: 'codex',
-    permissions: { ...templateOf('worker').defaults.permissions, runCommands: true },
   },
   {
     id: SEED_IDS.logica,
@@ -66,6 +65,7 @@ const DEMO_AGENTS: AgentSeed[] = [
     expertise: '文章・企画の論理チェックとレビュー',
     backend: 'claude',
     model: 'sonnet',
+    permissions: { ...templateOf('expert').defaults.permissions, runCommands: false },
   },
   {
     id: SEED_IDS.gear,

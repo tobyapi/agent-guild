@@ -1,5 +1,5 @@
 // 見た目の区分: タグの色（そのタグを先頭に持つテンプレートの accent）と人間の印。
-// 振る舞いはタグやテンプレートで変えない（docs/design.md §2）。色を決めるのはここだけ。
+// 権限の役割との対応は shared/lib/permissionPolicy。ここでは見た目だけを扱う。
 import { normalizeName } from '@/shared/lib/names';
 import type { Agent, AgentTemplate, TemplateAccent } from '@/shared/types/domain';
 

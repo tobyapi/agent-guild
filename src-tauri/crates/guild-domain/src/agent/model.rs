@@ -39,7 +39,7 @@ pub struct Agent {
     /// 絵文字、または data:image/... の画像
     pub avatar: String,
     pub color: String,
-    /// 表示と絞り込み用の自由なタグ。振る舞いには影響しない
+    /// 先頭は固定権限を決める役割。残りは表示と絞り込み用の自由なタグ
     pub tags: Vec<String>,
     pub role: String,
     pub personality: String,
@@ -52,7 +52,7 @@ pub struct Agent {
     pub model: String,
     /// バックエンド固有の設定（キーと型は BackendInfo.options が定める）
     pub backend_options: Map<String, Value>,
-    /// このエージェントに許す操作（実効権限はバックエンドの capabilities との積）
+    /// 役割から算出した権限。保存・Snapshot・実行時に能力と依存関係で絞り直す
     pub permissions: Permissions,
     pub unmentioned: UnmentionedPolicy,
     /// 他のエージェントにメンションされたら、チャンネル外からでも参加して答える
