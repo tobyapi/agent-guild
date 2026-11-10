@@ -39,14 +39,14 @@ npm install
 npm run app
 ```
 
-初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。
+初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「白龙娘」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
 
 ### コマンド
 
 | コマンド | 内容 |
 |---|---|
 | `npm run app` | アプリを開発モードで起動する |
-| `npm run dev` | 画面だけをブラウザで起動する（バックエンドはモック。`?mockSetup=1` で初回起動のダイアログ、`?mockBoot=missing` で復旧画面を確かめられる） |
+| `npm run dev` | 画面だけをブラウザで起動する（バックエンドはモック。`?mockSetup=1` で初回設定、`?mockDemo=1` でサンプル会話、`?mockBoot=missing` で復旧画面を表示） |
 | `npm run bundle` | 配布用のアプリとインストーラーを作る |
 | `npm run format` | コードを整形する（TS・CSS は Prettier、Rust は cargo fmt） |
 | `npm run check` | 整形の確認・型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
@@ -77,4 +77,12 @@ GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）�
 
 ## ライセンス
 
-[MIT](LICENSE)
+ソフトウェアは [MIT](LICENSE) です。同梱のイラストには作者の利用条件が適用されます。
+
+## 謝辞
+
+エージェントの「キャラ図鑑」は Gender Swap AI のキャラクター図鑑を参照しています。キャラクターイラストを公開している ZipZipPipe さんと、DeepSeek の原キャラクターを制作した上善无形さんに感謝します。[AI 擬人化キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
+
+図鑑の画像は選択画面を開いたときに取得し、選んだ画像の顔を正方形に切り抜いて端末に保存します。画像の作者・出典・利用条件は図鑑の各作品に記載されています。[DeepSeek の出典](https://genderswapai.com/ja/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
+
+白龙娘の初期アイコンは、ZipZipPipe さんの [GPT のドラゴン少女](https://genderswapai.com/ja/ai-gijinka/gpt) の顔を切り抜き、256 × 256 ピクセルに縮小したものです。[作者の投稿](https://www.bilibili.com/opus/1233069202138464289) · [素材の利用条件と出典](src/shared/assets/gpt-avatar.NOTICE.txt)

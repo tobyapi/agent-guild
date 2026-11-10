@@ -7,4 +7,5 @@ export const agentsApi = {
   remove: (id: string) => invoke('delete_agent', { id }),
   runAutonomous: (agentId: string) => invoke('run_autonomous', { agentId }),
   openWorkspace: (agentId: string) => invoke('open_agent_workspace', { agentId }),
+  openUrl: (url: string) => invoke('open_url', { url }),
 };

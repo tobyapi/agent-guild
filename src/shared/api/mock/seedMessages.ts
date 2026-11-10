@@ -1,5 +1,5 @@
-// ロビーの初期メッセージ。Rust の初期データは歓迎のシステム発言だけだが、モックでは
-// 見た目の確認用に、表示のパターン（Markdown・メンション・まとめ表示・自発・エラー・システム）をひととおり入れる。
+// ロビーの歓迎メッセージと、表示パターンを確かめるためのデモ会話。
+import starter from '@/shared/assets/starter.json';
 import { HUMAN_ID, SYSTEM_ID } from '@/shared/types/domain';
 import type { Message, MessageKind } from '@/shared/types/domain';
 import { SEED_IDS } from './seedIds';
@@ -109,23 +109,28 @@ const ENTRIES: DemoEntry[] = [
   },
 ];
 
+function toMessage(id: string, seq: number, entry: DemoEntry, now: number): Message {
+  return {
+    id,
+    seq,
+    channelId: SEED_IDS.lobby,
+    authorId: entry.authorId,
+    content: entry.content,
+    attachments: [],
+    kind: entry.kind,
+    mentions: entry.mentions ?? [],
+    replyToId: entry.rootId ?? null,
+    rootId: entry.rootId ?? id,
+    depth: entry.depth ?? 0,
+    delegationId: null,
+    createdAt: now - entry.minutesAgo * MINUTE_MS,
+  };
+}
+
+export function welcomeMessage(now: number): Message {
+  return toMessage('welcome', 1, { authorId: SYSTEM_ID, content: starter.welcome, kind: 'system', minutesAgo: 0 }, now);
+}
+
 export function demoMessages(now: number): Message[] {
-  return ENTRIES.map((entry, index) => {
-    const id = `demo-${index + 1}`;
-    return {
-      id,
-      seq: index + 1,
-      channelId: SEED_IDS.lobby,
-      authorId: entry.authorId,
-      content: entry.content,
-      attachments: [],
-      kind: entry.kind,
-      mentions: entry.mentions ?? [],
-      replyToId: entry.rootId ?? null,
-      rootId: entry.rootId ?? id,
-      depth: entry.depth ?? 0,
-      delegationId: null,
-      createdAt: now - entry.minutesAgo * MINUTE_MS,
-    };
-  });
+  return ENTRIES.map((entry, index) => toMessage(`demo-${index + 1}`, index + 1, entry, now));
 }

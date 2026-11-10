@@ -1,10 +1,12 @@
 import { AvatarInput, ColorInput, TextField } from '@/shared/ui';
+import { AvatarPresetPicker } from './AvatarPresetPicker';
 import { EditorSection } from './EditorSection';
 import type { SectionProps } from './EditorSection';
 import { TagField } from './TagField';
 
 /** 基本: 名前・タグ・アバター・個人色 */
 export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
+  const setAvatar = (avatar: string) => update('avatar', avatar);
   return (
     <EditorSection title="基本">
       <TextField
@@ -24,7 +26,12 @@ export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
         error={errors.tags}
         onBlur={() => touch('tags')}
       />
-      <AvatarInput value={draft.avatar} onChange={(value) => update('avatar', value)} error={errors.avatar} />
+      <AvatarInput
+        value={draft.avatar}
+        onChange={setAvatar}
+        error={errors.avatar}
+        imageActions={<AvatarPresetPicker onChoose={setAvatar} />}
+      />
       <ColorInput value={draft.color} onChange={(value) => update('color', value)} />
     </EditorSection>
   );

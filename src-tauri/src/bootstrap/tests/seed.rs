@@ -68,49 +68,32 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
 }
 
 #[tokio::test]
-async fn seeds_the_lobby_five_agents_and_their_skills_once() {
+async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
     let dir = TempDir::new("seed");
     let (services, meta) = services(&dir);
     run_once(&services, meta.as_ref()).unwrap();
     run_once(&services, meta.as_ref()).unwrap();
 
     let snapshot = services.snapshot.get().unwrap();
-    let names: Vec<&str> = snapshot.agents.iter().map(|a| a.name.as_str()).collect();
-    assert_eq!(names, vec!["ハル", "ソラ", "ロジカ", "ギア", "カナメ"], "2回目は入れない");
-    let colors: Vec<&str> = snapshot.agents.iter().map(|a| a.color.as_str()).collect();
-    assert_eq!(colors, vec!["#cb9d2a", "#22b5e1", "#7ca2f6", "#e28d4f", "#d285cb"]);
-    let tags: Vec<Vec<String>> = snapshot.agents.iter().map(|a| a.tags.clone()).collect();
-    let expected: [&[&str]; 5] =
-        [&["作業者", "リサーチ"], &["作業者", "実装"], &["専門家", "レビュー"], &["専門家", "設計"], &["マネージャー"]];
-    assert_eq!(tags, expected.map(|tags| tags.iter().map(|tag| (*tag).to_owned()).collect::<Vec<_>>()));
-    let (haru, sora, logica) = (&snapshot.agents[0], &snapshot.agents[1], &snapshot.agents[2]);
-    assert_eq!(sora.backend, "codex");
-    assert!(sora.permissions.run_commands && sora.permissions.write_files, "ソラはテンプレート＋コマンド実行");
-    assert!(!haru.permissions.run_commands);
-    assert_eq!((haru.unmentioned, haru.consultable), (UnmentionedPolicy::Answer, false));
-    assert_eq!((logica.unmentioned, logica.consultable), (UnmentionedPolicy::Fallback, true));
-    assert!(!logica.permissions.write_files);
-    let kaname = &snapshot.agents[4];
-    assert_eq!((kaname.backend.as_str(), kaname.avatar.as_str()), ("codex", "🧭"));
+    assert_eq!(snapshot.agents.len(), 1);
+    let worker = &snapshot.agents[0];
+    assert_eq!(worker.name, "白龙娘");
+    assert_eq!(worker.tags, ["作業者", "リサーチ"]);
+    assert_eq!((worker.backend.as_str(), worker.model.as_str()), ("codex", ""));
+    assert!(worker.avatar.starts_with("data:image/jpeg;base64,/9j/"));
+    assert!(worker.permissions.write_files && !worker.permissions.run_commands);
     assert_eq!(
-        (kaname.unmentioned, kaname.can_delegate),
-        (UnmentionedPolicy::Lead, true),
-        "マネージャーのテンプレート"
+        (worker.unmentioned, worker.consultable, worker.can_delegate),
+        (UnmentionedPolicy::Answer, false, false)
     );
-    assert_eq!(kaname.expertise, "段取りと進行管理", "省いた得意分野はテンプレートの書き出し");
-    assert_eq!(snapshot.me.color, "#f0ba5f");
+    assert!(services.skills.list(&worker.id).unwrap().is_empty());
 
+    assert_eq!(snapshot.channels.len(), 1);
     let lobby = &snapshot.channels[0];
     assert_eq!((lobby.name.as_str(), lobby.topic.as_str()), ("ロビー", "みんなの雑談と相談の場"));
-    assert_eq!(lobby.member_ids.len(), 6);
-    assert_eq!(lobby.member_ids[0], MemberId::Human);
-
-    let logica_skills = services.skills.list(&snapshot.agents[2].id).unwrap();
-    assert_eq!(logica_skills[0].name, "review-checklist");
-    assert!(logica_skills[0].body.contains("## 2. 根拠を確かめる"));
-    assert_eq!(services.skills.list(&snapshot.agents[3].id).unwrap()[0].name, "code-review");
+    assert_eq!(lobby.member_ids, [MemberId::Human, MemberId::Agent(worker.id.clone())]);
 
     let welcome = services.conversation.list_messages(&lobby.id, None, None).unwrap();
     assert_eq!(welcome.len(), 1);
-    assert!(welcome[0].content.starts_with("AIギルドへようこそ"));
+    assert!(welcome[0].content.contains("白龙娘"));
 }

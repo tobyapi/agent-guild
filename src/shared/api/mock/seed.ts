@@ -1,11 +1,13 @@
-// 初期データ（docs/design.md §13 の5人とロビー）と、起動状態（通常 / 復旧モード）。
+// 初期データ（docs/design.md §13）、画面確認用のデモ、復旧モード。
+import gptAvatar from '@/shared/assets/gpt-avatar.jpg?inline';
+import starter from '@/shared/assets/starter.json';
 import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, AgentTemplate, BootReason } from '@/shared/types/domain';
 import { MOCK_LIBRARY_DIRS } from './library';
 import { MOCK_BACKENDS } from './seedCatalog';
 import { demoDelegation } from './seedDelegation';
 import { MOCK_BROKEN_DATA_DIR, MOCK_DEFAULT_DATA_DIR, SEED_IDS } from './seedIds';
-import { demoMessages } from './seedMessages';
+import { demoMessages, welcomeMessage } from './seedMessages';
 import { seedSkills } from './seedSkills';
 import { MOCK_TEMPLATES } from './seedTemplates';
 import type { MockState } from './state';
@@ -22,7 +24,9 @@ function templateOf(id: AgentTemplate['id']): AgentTemplate {
   return template;
 }
 
-const AGENTS: AgentSeed[] = [
+const STARTER_AGENT: AgentSeed = { ...starter.agent, id: SEED_IDS.starter, avatar: gptAvatar };
+
+const DEMO_AGENTS: AgentSeed[] = [
   {
     id: SEED_IDS.hal,
     template: 'worker',
@@ -112,12 +116,16 @@ function toAgent({ template, ...seed }: AgentSeed, index: number, createdAt: num
 }
 
 /** bootFailure を渡すと復旧モード（データフォルダを開けなかった状態）で起動する */
-export function createSeedState(now: number, bootFailure: Exclude<BootReason, 'none'> | null): MockState {
+export function createSeedState(
+  now: number,
+  bootFailure: Exclude<BootReason, 'none'> | null,
+  demo: boolean,
+): MockState {
   const createdAt = now - 2 * HOUR_MS;
-  const agents = AGENTS.map((seed, index) => toAgent(seed, index, createdAt));
-  const demo = demoMessages(now);
-  const delegation = demoDelegation(now, demo.length + 1);
-  const messages = [...demo, ...delegation.messages];
+  const agents = (demo ? DEMO_AGENTS : [STARTER_AGENT]).map((seed, index) => toAgent(seed, index, createdAt));
+  const messages = demo ? demoMessages(now) : [welcomeMessage(now)];
+  const delegation = demo ? demoDelegation(now, messages.length + 1) : null;
+  if (delegation) messages.push(...delegation.messages);
   return {
     boot: bootFailure
       ? {
@@ -141,9 +149,9 @@ export function createSeedState(now: number, bootFailure: Exclude<BootReason, 'n
     ],
     messages,
     attachmentData: {},
-    delegations: [delegation.delegation],
-    skills: seedSkills(createdAt),
-    skillLibraryDirs: [MOCK_LIBRARY_DIRS.personal, MOCK_LIBRARY_DIRS.team, MOCK_LIBRARY_DIRS.usb],
+    delegations: delegation ? [delegation.delegation] : [],
+    skills: demo ? seedSkills(createdAt) : [],
+    skillLibraryDirs: demo ? [MOCK_LIBRARY_DIRS.personal, MOCK_LIBRARY_DIRS.team, MOCK_LIBRARY_DIRS.usb] : [],
     backends: structuredClone(MOCK_BACKENDS),
     templates: structuredClone(MOCK_TEMPLATES),
     runtime: { state: 'starting', message: '' },

@@ -26,6 +26,7 @@ export async function createHarness(options: MockTransportOptions = {}): Promise
   const transport = createMockTransport({
     latencyMs: 0,
     runtimeStartupMs: 0,
+    demo: true,
     ...options,
     env: { newId: () => `id-${++counter}`, restart, ...options.env },
   });

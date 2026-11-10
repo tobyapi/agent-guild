@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, ReactNode } from 'react';
 import { isImageAvatar } from '@/shared/lib/avatar';
 import { AVATAR_IMAGE_ACCEPT, AVATAR_IMAGE_SIZE, checkAvatarImageFile } from '@/shared/lib/image';
 import { AvatarCropDialog } from './avatarCrop/AvatarCropDialog';
@@ -15,10 +15,11 @@ export interface AvatarInputProps {
   error?: string | null;
   /** 人間のアバター（切り抜きの形を円にする。エージェントは角丸） */
   human?: boolean;
+  imageActions?: ReactNode;
 }
 
 /** アバターの入力: 絵文字を打つか、画像を選んで切り抜く（キャンセルしたら元のまま） */
-export function AvatarInput({ value, onChange, error, human = false }: AvatarInputProps) {
+export function AvatarInput({ value, onChange, error, human = false, imageActions }: AvatarInputProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [cropping, setCropping] = useState<File | null>(null);
   const usingImage = isImageAvatar(value);
@@ -52,6 +53,7 @@ export function AvatarInput({ value, onChange, error, human = false }: AvatarInp
             <Icon name="image" />
             画像を選ぶ
           </Button>
+          {imageActions}
           {usingImage && (
             <Button size="sm" variant="ghost" onClick={() => onChange('')}>
               画像を外す

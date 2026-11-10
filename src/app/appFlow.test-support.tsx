@@ -31,6 +31,7 @@ function polyfillDialog(): void {
 export async function bootApp(): Promise<void> {
   // モックのバックエンドは最初に使うときに読み込まれる。偽のタイマーのもとでは読み込みが進まないので、先に済ませておく
   await import('@/shared/api/mock');
+  window.history.replaceState(null, '', '?mockDemo=1');
   polyfillDialog();
   vi.useFakeTimers();
   render(<App />);
@@ -41,6 +42,7 @@ export async function bootApp(): Promise<void> {
 /** 画面を片づけ、タイマーを本物に戻す */
 export function closeApp(): void {
   cleanup();
+  window.history.replaceState(null, '', '/');
   vi.useRealTimers();
 }
 

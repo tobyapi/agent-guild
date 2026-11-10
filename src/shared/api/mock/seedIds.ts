@@ -1,6 +1,7 @@
 /** 初期データの固定 ID（テストと初期メッセージから参照する） */
 export const SEED_IDS = {
   lobby: 'channel-lobby',
+  starter: 'agent-starter',
   hal: 'agent-hal',
   sora: 'agent-sora',
   logica: 'agent-logica',

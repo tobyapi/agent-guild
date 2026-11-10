@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { objectOf } from '@/shared/types/schema';
 import { snapshotSchema } from '@/shared/types/schemas/system';
+import { HUMAN_ID } from '@/shared/types/domain';
 import type { AgentInput } from '@/shared/types/domain';
+import { createMockTransport } from './index';
 import { SEED_IDS } from './seedIds';
 import { createHarness } from './harness.test-support';
 
@@ -41,19 +43,28 @@ const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => ({
 });
 
 describe('モックのコマンド', () => {
-  it('get_snapshot は契約に合い、初期データ（5人とロビー・テンプレート7つ・Codex は要ログイン）を返す', async () => {
-    const mock = await createHarness();
-    const snapshot = await mock.transport.invoke('get_snapshot', {});
+  it('get_snapshot は契約に合い、ロビーに画像アバターを持つ作業者1人を返す', async () => {
+    const transport = createMockTransport({ latencyMs: 0, runtimeStartupMs: 0 });
+    const snapshot = await transport.invoke('get_snapshot', {});
     expect(objectOf(snapshotSchema)(snapshot, 'snapshot')).toEqual([]);
-    expect(snapshot.agents.map((agent) => agent.name)).toEqual(['ハル', 'ソラ', 'ロジカ', 'ギア', 'カナメ']);
-    expect(snapshot.agents.find((agent) => agent.name === 'カナメ')).toMatchObject({
-      unmentioned: 'lead',
-      canDelegate: true,
-      backend: 'codex',
-    });
+    expect(snapshot.agents).toMatchObject([
+      {
+        id: SEED_IDS.starter,
+        name: '白龙娘',
+        tags: ['作業者', 'リサーチ'],
+        unmentioned: 'answer',
+        canDelegate: false,
+        backend: 'codex',
+        model: '',
+      },
+    ]);
+    expect(snapshot.agents[0]?.avatar).toMatch(/^data:image\/jpeg;base64,\/9j\//);
     expect(snapshot.templates).toHaveLength(7);
-    expect(snapshot.channels.map((channel) => channel.name)).toEqual(['ロビー']);
+    expect(snapshot.channels).toMatchObject([{ name: 'ロビー', memberIds: [HUMAN_ID, SEED_IDS.starter] }]);
     expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
+    const messages = await transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 20 });
+    expect(messages).toMatchObject([{ kind: 'system' }]);
+    expect(messages[0]?.content).toContain('白龙娘');
   });
 
   it('list_messages は beforeSeq で古いほうへページングし、seq の昇順で返す', async () => {

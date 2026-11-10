@@ -9,7 +9,7 @@ import { NO_RESPONDER } from '../notices';
 import { defaultResponders, routeAgentReply, routeHumanMessage } from './routing';
 import type { MockJob, RoutingContext } from './routing';
 
-const state = createSeedState(0, null);
+const state = createSeedState(0, null, true);
 const lobby = state.channels[0]!;
 const context = (overrides: Partial<RoutingContext> = {}): RoutingContext => ({
   channel: lobby,
