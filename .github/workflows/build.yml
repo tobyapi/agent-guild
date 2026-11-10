@@ -1,5 +1,5 @@
 # Windows（x64）と macOS（Apple Silicon）向けのアプリとインストーラーを作る。
-# インストーラーには agent-runner を同梱し、Claude Code・Codex CLI・Node.js は利用者の環境のものを使う（docs/design.md §5）。
+# インストーラーには agent-runner と Node.js を同梱し、Claude Code・Codex CLI は利用者の環境のものを使う（docs/design.md §5）。
 # 動くのは、Actions の画面からの手動実行（Run workflow）と、v で始まるタグの push のとき。
 # できたインストーラーは成果物（Artifacts）に置き、タグのときは下書きのリリースにも添付する。
 # 署名はしない（macOS はアドホック署名のみ）ので、初回の起動で OS の警告が出る。
@@ -55,6 +55,10 @@ jobs:
       # 画面のビルド → agent-runner をまとめる（scripts/stage-runner.mjs）→ アプリとインストーラー
       - name: Build the app and the installer
         run: npm run bundle -- --bundles ${{ matrix.bundles }}
+
+      - name: Check the signed macOS bundle without Node.js on PATH
+        if: runner.os == 'macOS'
+        run: node scripts/check-macos-bundle.mjs src-tauri/target/release/bundle/macos/agent-guild.app
 
       # 製品名（AIギルド）がファイル名に入るので、配りやすい英数字の名前にそろえる
       - name: Collect the installers

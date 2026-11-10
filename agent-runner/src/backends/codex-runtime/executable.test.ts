@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -6,7 +6,7 @@ import { findCodex } from './executable.ts';
 
 /** ファイルを並べたフォルダ（package.json は中身のある JSON、ほかは空。/ で終わるものはフォルダ） */
 function tree(files: readonly string[]): string {
-  const root = mkdtempSync(join(tmpdir(), 'guild-codex-'));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'guild-codex-')));
   for (const file of files) {
     if (file.endsWith('/')) {
       mkdirSync(join(root, file), { recursive: true });
@@ -60,6 +60,15 @@ describe('使う Codex CLI を探す', () => {
     ).toEqual({
       path: join(root, VENDOR, 'codex', 'codex.exe'),
       pathDirs: [join(root, VENDOR, 'path')],
+    });
+  });
+
+  it('Windows の公式インストーラーで入れた CLI は PATH の反映を待たずに見つける', () => {
+    const root = tree(['app-data/Programs/OpenAI/Codex/bin/codex.exe']);
+    const localAppData = join(root, 'app-data');
+    expect(findCodex({ env: { LOCALAPPDATA: localAppData }, platform: 'win32', home: root, bundled: none })).toEqual({
+      path: join(localAppData, 'Programs', 'OpenAI', 'Codex', 'bin', 'codex.exe'),
+      pathDirs: [],
     });
   });
 

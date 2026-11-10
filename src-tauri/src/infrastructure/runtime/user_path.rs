@@ -2,7 +2,6 @@
 //! シェルの設定（Homebrew・nvm など）の PATH が渡らないので、ログインシェルに PATH を聞いて、よく入れる場所も足す。
 
 use std::io::Read;
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
@@ -27,13 +26,6 @@ pub fn search_path() -> Option<String> {
         format!("{home}/.volta/bin"),
     ];
     Some(merge_paths(&base, &common, ':'))
-}
-
-/// path（None ならいまの PATH）の中の name の場所（Windows は name.exe）。見つからなければ None
-pub fn find_program(name: &str, path: Option<&str>) -> Option<PathBuf> {
-    let file = if cfg!(windows) { format!("{name}.exe") } else { name.to_owned() };
-    let value = path.map(std::ffi::OsString::from).or_else(|| std::env::var_os("PATH"))?;
-    std::env::split_paths(&value).map(|dir| dir.join(&file)).find(|candidate| candidate.is_file())
 }
 
 /// base の PATH のあとに、まだ入っていない extra を足す（空の要素は除く）

@@ -10,4 +10,5 @@ export const settingsApi = {
   changeDataDir: (path: string, mode: DataDirMode) => invoke('change_data_dir', { path, mode }),
   revealDataDir: () => invoke('reveal_data_dir'),
   completeSetup: () => invoke('complete_setup'),
+  openUrl: (url: string) => invoke('open_url', { url }),
 };

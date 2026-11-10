@@ -3,10 +3,13 @@
     "beforeBuildCommand": "npm run build && node scripts/stage-runner.mjs"
   },
   "bundle": {
+    "externalBin": ["bundled-node/guild-node"],
     "resources": {
       "bundled-runner/": "runner/"
     },
     "macOS": {
+      "entitlements": "Entitlements.plist",
+      "minimumSystemVersion": "11.0",
       "signingIdentity": "-"
     }
   }

@@ -19,12 +19,10 @@ Claude（Claude Code）と Codex（Codex CLI）のエージェントを「仲間
 
 ## 必要なもの
 
-AIギルドは、エージェントを動かすのにあなたの PC に入っているツールを使います（インストーラーには含めていません）。
+配布版にはランナー用の Node.js が入っています。エージェントを動かすには、使うバックエンドの CLI と、そのログインが必要です。
 
-- **Node.js 20 以降**
-- 使うバックエンドの CLI と、そのログイン
-  - Claude: [Claude Code](https://docs.claude.com/en/docs/claude-code)（`claude auth login`、または環境変数 `ANTHROPIC_API_KEY`）
-  - Codex: [Codex CLI](https://github.com/openai/codex)（`codex login`、または環境変数 `OPENAI_API_KEY`）
+- Claude: [Claude Code](https://docs.claude.com/en/docs/claude-code)（`claude auth login`、または環境変数 `ANTHROPIC_API_KEY`）
+- Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex)（`codex login`、または環境変数 `OPENAI_API_KEY`）。CLI が見つからないときは「設定 → バックエンド → Codex」でインストール手順を開けます。
 
 エージェントの実行にかかる利用料は、それぞれのサービスのアカウントに対して発生します。
 
@@ -32,7 +30,7 @@ AIギルドは、エージェントを動かすのにあなたの PC に入っ�
 
 配布用のインストーラーはまだ公開していません。ソースからビルドして動かします。
 
-ビルドには [Rust](https://www.rust-lang.org/)（1.89 以降）と、[Tauri の前提ソフト](https://tauri.app/start/prerequisites/)（Windows なら WebView2 と Visual Studio Build Tools、macOS なら Xcode Command Line Tools）が要ります。
+ビルドには Node.js 24、[Rust](https://www.rust-lang.org/)（1.89 以降）、[Tauri の前提ソフト](https://tauri.app/start/prerequisites/)（Windows なら WebView2 と Visual Studio Build Tools、macOS なら Xcode Command Line Tools）が要ります。
 
 ```bash
 npm install

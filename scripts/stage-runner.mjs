@@ -9,6 +9,7 @@ import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { stageNode } from './stage-node.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'src-tauri', 'bundled-runner');
@@ -93,4 +94,5 @@ const trimmed = { name: manifest.name, version: manifest.version, type: manifest
 writeFileSync(manifestPath, `${JSON.stringify(trimmed, null, 2)}\n`);
 
 verifyImports(specifiers);
+await stageNode(OUT);
 console.log(`agent-runner を ${OUT} にまとめました（パッケージ ${packages.length} 個: ${packages.join(', ')}）`);

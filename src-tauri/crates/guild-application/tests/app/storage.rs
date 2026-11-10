@@ -10,7 +10,7 @@ use guild_domain::storage::{DataDirMode, StorageSource};
 
 use crate::support::TestApp;
 
-const TARGET: &str = "D:\\GuildData";
+const TARGET: &str = if cfg!(windows) { r"D:\GuildData" } else { "/GuildData" };
 const SKILLS: &str = "D:\\skills";
 
 fn answer(app: &TestApp, state: FolderState) {

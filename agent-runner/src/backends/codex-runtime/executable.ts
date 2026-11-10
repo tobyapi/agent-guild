@@ -10,7 +10,7 @@ import { findInDirs, isDirectory, isFile, overridePath, pathDirs } from '../exec
 
 /** 見つからないときの案内 */
 export const CODEX_NOT_FOUND =
-  'Codex CLI が見つかりません。`npm install -g @openai/codex` などで Codex CLI をインストールしてください。別の場所に入れた場合は、環境変数 GUILD_CODEX_PATH にその実行ファイルのパスを設定してください。';
+  'Codex CLI が見つかりません。AIギルドの「設定 → バックエンド → Codex」でインストール手順を確認できます。別の場所に入れた場合は、環境変数 GUILD_CODEX_PATH に実行ファイルのパスを設定してください。';
 
 export interface CodexExecutable {
   path: string;
@@ -45,7 +45,9 @@ export function findCodex(lookup: CodexLookup = {}): CodexExecutable | null {
   const platform = lookup.platform ?? process.platform;
   const found = fromPath(pathDirs(env), platform, lookup.arch ?? process.arch);
   if (found !== null) return found;
-  const installed = findInDirs(commonDirs(platform, lookup.home ?? homedir()), [binaryName(platform)]);
+  const installed = findInDirs(commonDirs(platform, lookup.home ?? homedir(), env.LOCALAPPDATA), [
+    binaryName(platform),
+  ]);
   return installed === null ? (lookup.bundled ?? bundledCodex)() : plain(installed);
 }
 
@@ -58,9 +60,10 @@ function fromPath(dirs: readonly string[], platform: NodeJS.Platform, arch: stri
 }
 
 /** PATH になくても見る、Codex CLI をよく入れる場所 */
-function commonDirs(platform: NodeJS.Platform, home: string): string[] {
+function commonDirs(platform: NodeJS.Platform, home: string, localAppData: string | undefined): string[] {
   const local = join(home, '.local', 'bin');
-  return platform === 'win32' ? [local] : ['/opt/homebrew/bin', '/usr/local/bin', local];
+  if (platform !== 'win32') return ['/opt/homebrew/bin', '/usr/local/bin', local];
+  return localAppData ? [local, join(localAppData, 'Programs', 'OpenAI', 'Codex', 'bin')] : [local];
 }
 
 function binaryName(platform: string): string {

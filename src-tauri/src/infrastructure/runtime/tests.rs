@@ -1,5 +1,4 @@
-//! ランナーの起動方法: リソースに同梱の runner があればそれを node で動かし、なければ開発用のスクリプト。
-//! macOS 向けの PATH の組み立て（ログインシェルの出力の読み取り・足し合わせ）と、node の探し方。
+//! ランナーの起動方法と、macOS 向けの PATH の組み立て。
 
 use std::fs;
 use std::path::Path;
@@ -7,7 +6,7 @@ use std::path::Path;
 use runner_client::Launch;
 
 use super::launch::{plain_path, runner_config, BUNDLED_DIR};
-use super::user_path::{find_program, merge_paths, parse_marked};
+use super::user_path::{merge_paths, parse_marked};
 use crate::infrastructure::tests::TempDir;
 
 #[test]
@@ -17,7 +16,9 @@ fn the_bundled_runner_is_used_when_the_resources_have_it() {
     fs::create_dir_all(script.parent().unwrap()).unwrap();
     fs::write(&script, "").unwrap();
     let config = runner_config(Some(&resources.0));
-    assert!(matches!(&config.launch, Launch::Node { script: used, .. } if used == &script));
+    let node = std::env::current_exe().unwrap().with_file_name(format!("guild-node{}", std::env::consts::EXE_SUFFIX));
+    assert!(matches!(&config.launch, Launch::Node { script: used, node: executable }
+        if used == &script && executable == &plain_path(&node)));
     assert_eq!(config.cwd, Some(resources.0.join(BUNDLED_DIR)));
 }
 
@@ -49,14 +50,4 @@ fn the_login_shell_path_is_read_after_the_marker_and_common_dirs_are_added() {
         merge_paths("/opt/homebrew/bin::/usr/bin", &extra, ':'),
         "/opt/homebrew/bin:/usr/bin:/Users/me/.local/bin"
     );
-}
-
-#[test]
-fn node_is_looked_up_in_the_given_path() {
-    let dir = TempDir::new("bin");
-    let file = if cfg!(windows) { "node.exe" } else { "node" };
-    fs::write(dir.0.join(file), "").unwrap();
-    let path = dir.0.display().to_string();
-    assert_eq!(find_program("node", Some(&path)), Some(dir.0.join(file)));
-    assert_eq!(find_program("no-such-program", Some(&path)), None);
 }

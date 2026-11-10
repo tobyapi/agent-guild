@@ -1,5 +1,5 @@
 //! ランナーの起動方法の組み立て。配布版はアプリに同梱した runner（リソースの runner/agent-runner/src/main.js。
-//! scripts/stage-runner.mjs が作る）を、開発中はリポジトリの agent-runner/src/main.ts を、どちらも利用者の環境の node で動かす。
+//! scripts/stage-runner.mjs が作る）を同梱の Node.js で動かす。開発中は利用者の node で TypeScript を直接動かす。
 //! Claude Code と Codex CLI は同梱しない（ランナーが利用者の環境のものを探す）。
 
 use std::path::{Path, PathBuf};
@@ -29,13 +29,21 @@ pub fn runner_config(resource_dir: Option<&Path>) -> RunnerConfig {
     }
 }
 
-/// 同梱の runner を、利用者の環境の node で動かす（macOS ではログインシェルの PATH を渡す）。
+/// 同梱の runner を、アプリの実行ファイルと同じフォルダにある Node.js で動かす。
+/// macOS では CLI を探せるよう、ログインシェルの PATH をランナーに渡す。
 /// Windows ではリソースのフォルダが `\\?\C:\...`（verbatim）で届くことがあり、Node はそれを扱えない（lstat 'C:' で落ちる）ので直す
 fn bundled_config(root: &Path) -> RunnerConfig {
     let root = plain_path(root);
     let root = root.as_path();
+    let node_name = format!("guild-node{}", std::env::consts::EXE_SUFFIX);
+    let node = match std::env::current_exe() {
+        Ok(app) => plain_path(&app.with_file_name(&node_name)),
+        Err(error) => {
+            log::warn!("アプリの実行ファイルの場所を取得できませんでした: {error}");
+            root.join(node_name)
+        }
+    };
     let path = user_path::search_path();
-    let node = user_path::find_program("node", path.as_deref()).unwrap_or_else(|| PathBuf::from("node"));
     RunnerConfig {
         launch: Launch::Node { node, script: bundled_script(root) },
         args: Vec::new(),

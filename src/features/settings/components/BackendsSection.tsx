@@ -1,6 +1,7 @@
 import { BackendStatus, refreshBackends, useBackends, useCheckingBackends } from '@/features/runtime';
 import { Button, reportError, Tag } from '@/shared/ui';
 import { ApiKeySettings } from './ApiKeySettings';
+import { CodexInstallGuide } from './CodexInstallGuide';
 import styles from './SettingsDialog.module.css';
 
 /** バックエンド: すべてのバックエンドの状態と［すべて再確認］（docs/ui-design.md §6.2） */
@@ -23,6 +24,7 @@ export function BackendsSection() {
               <Tag>{backend.id}</Tag>
             </div>
             <BackendStatus backend={backend} />
+            {backend.id === 'codex' && backend.status === 'unavailable' && <CodexInstallGuide />}
             {(backend.id === 'grok' || backend.id === 'muse') && <ApiKeySettings backendId={backend.id} />}
           </li>
         ))}

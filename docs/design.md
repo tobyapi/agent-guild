@@ -12,7 +12,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 ```
 
 - Rust がアプリの頭脳。ランナーは「プロンプト・権限・スキルを渡すと LLM エージェントを1回走らせて結果を返す」だけの薄い sidecar。SDK ごとの知識（スキルの置き場所・権限の対応づけ・認証状態の確認）はランナーのアダプタに閉じ込める。
-- ランナーの起動方法は差し替え可能（runner-client の `Launch`）。開発では `node agent-runner/src/main.ts`（スクリプトの場所は `GUILD_RUNNER_SCRIPT`、なければ `<CARGO_MANIFEST_DIR>/../agent-runner/src/main.ts`）。配布では単一バイナリを Tauri の `bundle.externalBin` で同梱する（後続タスク。SDK が起動するネイティブ実行ファイルの同梱とパス指定を含む）。
+- ランナーの起動方法は差し替え可能（runner-client の `Launch`）。開発では `node agent-runner/src/main.ts`（スクリプトの場所は `GUILD_RUNNER_SCRIPT`、なければ `<CARGO_MANIFEST_DIR>/../agent-runner/src/main.ts`）。配布ではアプリに同梱した Node.js でコンパイル済みのランナーを動かす（§5）。
 
 ## 2. ドメイン
 
@@ -132,10 +132,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 プロトコルの正は `agent-runner/src/protocol.ts`（同梱の内部契約。protocolVersion の完全一致）。
 
-- **起動のしかた**: どちらも利用者の環境の `node` で動かす（Node.js 20 以降）。
+- **起動のしかた**
   - **開発中**（`npm run app`）: リポジトリの `agent-runner/src/main.ts` を直接動かす（Node の型ストリップ）。環境変数 `GUILD_RUNNER_SCRIPT` で別のスクリプトにできる。
-  - **配布版**（`npm run bundle` = `tauri build --config src-tauri/tauri.bundle.conf.json`）: `scripts/stage-runner.mjs` が runner を JS にして（`agent-runner/tsconfig.build.json`）、実行に要る npm パッケージ（まとめた JS が読み込むパッケージと、その dependencies・peerDependencies をたどったもの。OS ごとの実行ファイルのパッケージは除く。最後に実際に読み込めるかを確かめ、足りなければビルドを失敗させる）と一緒に `src-tauri/bundled-runner/` にまとめ、アプリのリソースの `runner/` として同梱する。Rust はリソースに `runner/agent-runner/src/main.js` があればそれを使う（なければ開発用）。macOS では Finder から起動したアプリにシェルの PATH が渡らないので、ログインシェル（`$SHELL -ilc`）に PATH を聞き、Homebrew などのよく入れる場所も足して、`node` を探し、ランナーに PATH を渡す。
-  - **Claude Code と Codex CLI は同梱しない**（OS ごとの実行ファイルのパッケージは入れない）。アダプタが利用者の環境のものを探す: 環境変数 `GUILD_CLAUDE_PATH`・`GUILD_CODEX_PATH` > PATH（Windows の npm の `.cmd` は起動できないので、Claude は隣の `cli.js`、Codex は隣のパッケージの中の `codex.exe` とその ripgrep のフォルダ）> よく入れる場所（`~/.local/bin`・`/opt/homebrew/bin` など）> SDK の同梱（開発中に node_modules にあるときだけ）。見つからなければ、そのバックエンドは `unavailable` で、入れ方を `statusMessage` で伝える。
+  - **配布版**（`npm run bundle` = `tauri build --config src-tauri/tauri.bundle.conf.json`）: `scripts/stage-runner.mjs` が runner を JS にし、実行に要る npm パッケージ（JS が読み込むパッケージとその dependencies・peerDependencies。OS ごとの CLI パッケージは除く）と一緒にアプリのリソースの `runner/` に同梱する。`scripts/stage-node.mjs` がビルド対象に合った公式 Node.js の配布物を SHA-256 で検証し、Node.js を Tauri の `bundle.externalBin` で `guild-node`（Windows は `guild-node.exe`）として、ライセンスを `runner/LICENSE.node.txt` として同梱する。Rust は `runner/agent-runner/src/main.js` があれば、アプリ本体の隣にある `guild-node` を絶対パスで起動する。macOS では CLI を探すために、ログインシェルの PATH に Homebrew などのよく使う場所を足してランナーに渡す。
+  - **Claude Code と Codex CLI は同梱しない**（OS ごとの実行ファイルのパッケージは入れない）。アダプタが利用者の環境のものを探す: 環境変数 `GUILD_CLAUDE_PATH`・`GUILD_CODEX_PATH` > PATH（Windows の npm の `.cmd` は起動できないので、Claude は隣の `cli.js`、Codex は隣のパッケージの中の `codex.exe` とその ripgrep のフォルダ）> よく入れる場所（`~/.local/bin`・`/opt/homebrew/bin` や Windows の公式 Codex CLI インストール先 `%LOCALAPPDATA%\Programs\OpenAI\Codex\bin`）> SDK の同梱（開発中に node_modules にあるときだけ）。見つからなければ、そのバックエンドは `unavailable` で、入れ方を `statusMessage` で伝える。
 - **配布の名前とログ**: インストール先のフォルダ名・実行ファイル・macOS の .app は製品名の `agent-guild`（英数字だけにする）。ウィンドウのタイトルは「AIギルド」。配布版のログは `<app_log_dir>/agent-guild.log`（Windows は `%LOCALAPPDATA%\com.agentguild.app\logs`、起動のたびに前回のものを `agent-guild.old.log` に回す）で、ランナーの stderr もここに入る。Windows ではリソースのフォルダが `\\?\C:\...` の形で届くことがあり、Node はそれを扱えないので、ランナーに渡す前にふつうのパスに直す。
 - **配布のビルド**: `.github/workflows/build.yml` が、手動実行か `v*` のタグの push で、Windows（x64、NSIS のインストーラー）と macOS（Apple Silicon、.app と .dmg）を作る。署名はしない（macOS はアドホック署名）。
 - **CI の確認**: `.github/workflows/check.yml` が、main への push・プルリクエスト・手動実行で `npm run check` を走らせる。開発している環境に合わせて Windows で動かし、改行は LF のまま取り出す（Windows の runner の git は既定で CRLF に変えるため、取り出す前に `core.autocrlf` を false にする）。
