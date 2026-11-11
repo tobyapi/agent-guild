@@ -31,8 +31,8 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない |
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
-バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。例: Claude の発想役・専門家・マネージャーはコマンド実行を外し、Web と作業場所外への書き込みを許可しない。Codex では作業場所内のコマンドを使える。Ollama もファイル操作・コマンド実行・スキルを使える。役割に一致しない先頭タグ・タグなしは参照とスキルだけの固定設定にする。
-専門家・マネージャーの readAnywhere は Claude・Codex で読み取りだけを PC 全体へ広げる。作業者の読み取りは従来どおり writeAnywhere で許可する。発想役の固定権限は変えない。秘密鍵・.env などのパスを除外するアプリ独自の仕組みはない。
+バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
+専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
@@ -171,7 +171,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 ### バックエンドごとの権限の実装（ランナーのアダプタ）
 
-Ollama はローカルモデルの作業用バックエンド。`/api/chat` に `:local` を指定し、会話と `vision` 対応モデルへの添付画像をこの PC 内で処理する。文章のみのモデルには画像を渡さず、返答にその旨を添える。JSON形式の操作要求をアプリが実行し、結果をモデルへ返す（ネイティブのツール呼び出し非対応モデルも利用可）。ファイルの読み書き・一覧、スキル参照、途中投稿、コマンド実行を提供する。ファイル操作は権限とパスを検査し、MEMORY.mdのみ常に読み書きできる。コマンドはCodex CLI 0.167以降の `sandbox` を使用し、未導入・隔離失敗時は無制限実行へ切り替えない。読み取りはCodexと同様、コマンド経由では範囲外も可能。書き込みはwriteFiles/writeAnywhere、ネットワークはwebFetchに従う。Web検索専用ツールは未対応。詳細と検証範囲は `docs/ollama-worker.md`。
+Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` を指定し、会話と `vision` 対応モデルへの添付画像をこの PC 内で処理する。文章のみのモデルには画像を渡さず、返答にその旨を添える。`enableTools` の既定はfalse。macOSで明示的に有効化した場合だけ、ネイティブの `tool_calls` またはJSON操作を実行する。DeepSeekなどで操作を呼ばない場合は `toolProtocol: json` を保存する。両経路とも同じSeatbeltとファイル実行処理を使い、隔離失敗時に通常シェルへ切り替えない。コマンドは単一プロセスだけを許可し、ネットワークは禁止する。MEMORY.mdの読み書き例外、スキル参照、途中投稿も有効化後に利用できる。指定フォルダではコマンドとスキルを許可せず、相談相手のMEMORY.mdを保護する。詳細と検証範囲は `docs/ollama-tools.md` と `docs/ollama-worker.md`。
 
 | | Claude | Codex |
 |---|---|---|
@@ -364,3 +364,16 @@ Ollama はローカルモデルの作業用バックエンド。`/api/chat` に 
 `backend_api_key({ backendId, action, key? })` returns a JSON string containing only
 `source` (saved/environment/unset) and `supported` (boolean). Actions: status/set/delete.
 Only Grok and Muse are supported. See [backend-api-keys.md](backend-api-keys.md).
+
+
+## チャンネルの作業範囲（2026-11-11 追加）
+
+`Channel.workspace` は `{ mode: "legacy" | "folder" | "global", folder: string | null, revision: number, afterSeq: number }`。SQLite の `channels.workspace_json` に保存し、migration 0005 で既存行を legacy・revision 0 にする。既存移行は変更しない。
+
+`set_channel_workspace({ id, mode, folder }) -> Channel` は実行管理のアクターで直列化する。実行中・待機中のジョブまたは未完了の割り振りがあれば拒否する。フォルダは実在する絶対パスを正規化し、アプリ保存領域とその祖先・子孫は拒否する。同じ設定の再保存は revision を増やさない。名前・話題の保存は作業範囲を更新しない。
+
+変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。以前の MEMORY.md とセッションは自動投入しない。legacy に戻す場合も新しい revision を使う。
+
+folder モードではランナープロトコル v2 の `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・コマンド・スキルは無効。Ollama は macOS Seatbelt と開いたファイルの実体確認を併用する。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。Codex・Grok・Muse など未対応のバックエンドも理由を示して実行を停止する。
+
+今回の統合検証は `docs/ollama-channel-validation-20261111.md`。`docs/ollama-tools-validation.md` は過去試作の記録として区別する。

@@ -51,6 +51,7 @@ export const modelSpecSchema = {
   description: string,
   efforts: arrayOf(string),
   defaultEffort: nullable(string),
+  tools: (value, path) => (value === undefined ? [] : boolean(value, path)),
 } satisfies Schema<ModelSpec>;
 
 export const backendInfoSchema = {

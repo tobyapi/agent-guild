@@ -8,7 +8,7 @@ import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
 import { checkIntervalMin, DEFAULT_INTERVAL_MIN, parseIntervalMin } from './autonomy';
 import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
-import { rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
 import type { AgentTemplate } from '@/shared/types/domain';
 
 export type AgentField =
@@ -77,12 +77,17 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
 export function validateAgentDraft(draft: AgentDraft, ctx: ValidationContext): DraftResult {
   draft = {
     ...draft,
-    permissions: supportedPermissions(
+    permissions: modelPermissions(
       rolePermissions(ctx.templates, draft.tags),
       ctx.backends.find((backend) => backend.id === draft.backend),
+      draft.model,
+      draft.optionValues,
+      draft.backend,
     ),
   };
   const errors = fieldErrors(draft, ctx);
+  const toolError = toolModelError(draft, ctx);
+  if (toolError) errors.permissions = toolError;
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
   const parsed = backend ? parseOptionValues(backend.options, draft.optionValues) : null;
   const optionErrors = parsed?.errors ?? {};
@@ -96,4 +101,12 @@ export function validateAgentDraft(draft: AgentDraft, ctx: ValidationContext): D
 export function agentErrorField(code: ErrorCode | null, field: string | null): AgentField | null {
   if (code !== 'validation') return null;
   return AGENT_FIELDS.find((known) => known === field) ?? null;
+}
+
+function toolModelError(draft: AgentDraft, ctx: ValidationContext): string | null {
+  if (draft.backend !== 'ollama' || draft.optionValues.enableTools !== true) return null;
+  const info = ctx.backends.find((candidate) => candidate.id === draft.backend);
+  return info?.models.find((model) => model.id === (draft.model || info.defaultModel))?.tools === true
+    ? null
+    : '道具に対応したモデルを選んでください';
 }

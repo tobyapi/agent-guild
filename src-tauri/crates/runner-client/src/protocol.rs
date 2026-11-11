@@ -107,6 +107,8 @@ pub struct ModelSpec {
     pub description: String,
     pub efforts: Vec<String>,
     pub default_effort: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tools: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -177,6 +179,8 @@ pub struct RunRequest {
     pub state_dir: PathBuf,
     /// 追加で読み取りを許すフォルダ（相談元の作業場所など）
     pub readable_dirs: Vec<PathBuf>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub writable_dirs: Option<Vec<PathBuf>>,
     pub system_prompt: String,
     pub prompt: String,
     /// 操作の確認に使う、信頼できる依頼の情報（使わないアダプタは無視する）

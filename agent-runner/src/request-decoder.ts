@@ -93,6 +93,8 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     return reject(id, 'run の images は path・mediaType（文字列）を持つ要素の配列である必要があります');
   if (readableDirs === null) return reject(id, 'run の readableDirs は文字列の配列である必要があります');
   if (!isJsonObject(value.options)) return reject(id, 'run の options はオブジェクトである必要があります');
+  if (value.writableDirs !== undefined && decodeStrings(value.writableDirs) === null)
+    return reject(id, 'run の writableDirs は文字列の配列である必要があります');
   const request: RunRequest = {
     type: 'run',
     id,
@@ -100,6 +102,7 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     workspace: value.workspace,
     stateDir: value.stateDir,
     readableDirs,
+    ...(value.writableDirs === undefined ? {} : { writableDirs: decodeStrings(value.writableDirs)! }),
     systemPrompt: value.systemPrompt,
     prompt: value.prompt,
     intent: value.intent,

@@ -106,3 +106,21 @@ fn the_profile_defaults_until_saved_and_meta_stores_records() {
     meta.set("seeded", "2").unwrap();
     assert_eq!(meta.get("seeded").unwrap(), Some("2".to_owned()));
 }
+
+#[test]
+fn ollama_tool_opt_in_round_trips_without_enabling_existing_agents() {
+    let db = memory();
+    let repository = SqliteAgentRepository::new(db);
+    let mut agent = Agent::new(AgentId::new("ollama"), input("worker", "ローカル"), 1);
+    agent.backend = "ollama".to_owned();
+    repository.insert(&agent).unwrap();
+    assert!(!repository.get(&agent.id).unwrap().unwrap().backend_options.contains_key("enableTools"));
+    for enabled in [false, true, false] {
+        agent.backend_options.insert("enableTools".to_owned(), json!(enabled));
+        repository.update(&agent).unwrap();
+        assert_eq!(
+            repository.get(&agent.id).unwrap().unwrap().backend_options.get("enableTools"),
+            Some(&json!(enabled))
+        );
+    }
+}

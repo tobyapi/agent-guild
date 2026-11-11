@@ -1,12 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import { isJsonObject, type JsonObject } from '../line-parser.ts';
 import type { ImagePayload, ModelSpec } from '../protocol.ts';
-import { localChatModels, localRef, ollamaRequest, OllamaStopped, type LocalModel } from './ollama/api.ts';
+import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
 import { BackendError, type BackendAdapter, type BackendProbe, type RunContext, type RunRequest } from './types.ts';
-import { count } from '../usage.ts';
-import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
-import { executeTool, OUTPUT_FORMAT, parseAction, toolInstructions } from './ollama/tools.ts';
 import { prepareSkills } from './ollama/skills.ts';
+import { jsonChat } from './ollama/json-chat.ts';
+import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
+import { toolChat } from './ollama/chat.ts';
 
 const NO_MODELS = 'Ollama に会話用のローカルモデルを追加して「再確認」を押してください。';
 
@@ -15,9 +14,13 @@ function modelSpec(model: LocalModel): ModelSpec {
   return {
     id: model.id,
     label: model.id,
-    description: [model.size, input].filter(Boolean).join(' · '),
+    description: [model.size, input, model.capabilities.includes('tools') ? '道具に対応' : 'JSON 操作（試作）']
+      .filter(Boolean)
+      .join(' · '),
     efforts: [],
     defaultEffort: null,
+    // The app also provides JSON actions for completion models without native tools.
+    tools: process.platform === 'darwin',
   };
 }
 
@@ -45,16 +48,18 @@ async function encodeImage(image: ImagePayload, signal: AbortSignal): Promise<st
   }
 }
 
-function replyText({ message }: JsonObject): string {
-  const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
-  if (!text) throw new BackendError('internal', 'Ollama から返答が届きませんでした。もう一度お試しください。');
-  return text;
-}
-
 async function run(request: RunRequest, context: RunContext): Promise<string> {
-  const { signal, onActivity, onUsage } = context;
+  let { signal } = context;
+  const { onActivity, onUsage } = context;
+  signal = AbortSignal.any([signal, AbortSignal.timeout(5 * 60_000)]);
   signal.throwIfAborted();
-  validatePermissions(request);
+  context = { ...context, signal };
+  const enabled = request.options.enableTools === true;
+  if (enabled) {
+    validatePermissions(request);
+    if (process.platform !== 'darwin')
+      throw new BackendError('unsupported_permission', '道具には macOS の Seatbelt が必要です');
+  }
   const models = await localChatModels(signal);
   const model = request.model === '' ? models[0] : models.find((candidate) => candidate.id === request.model);
   if (!model)
@@ -67,58 +72,27 @@ async function run(request: RunRequest, context: RunContext): Promise<string> {
     : request.prompt;
   onActivity(`${model.id} で返答を作成しています…`);
   onUsage({ model: model.id });
-  const prepared = await prepareSkills(request);
-  let text: string;
-  try {
-    const messages: JsonObject[] = [
-      { role: 'system', content: `${request.systemPrompt}\n\n${toolInstructions(prepared.request)}` },
-      { role: 'user', content: prompt, ...(images.length > 0 ? { images } : {}) },
-    ];
-    text = await conversation(prepared.request, context, model.id, messages);
-  } finally {
-    await prepared.cleanup();
-  }
+  const text = await respond(request, context, model, prompt, images, enabled);
   if (!skippedImages || text === '[PASS]') return text;
   return `${text}\n\n（${model.id} は文章のみ対応のため、添付画像は読み取っていません。）`;
 }
 
-async function conversation(
+async function respond(
   request: RunRequest,
   context: RunContext,
-  model: string,
-  messages: JsonObject[],
+  model: LocalModel,
+  prompt: string,
+  images: string[],
+  enabled: boolean,
 ): Promise<string> {
-  for (let turn = 0; turn < 40; turn++) {
-    context.signal.throwIfAborted();
-    const response = await ollamaRequest('/api/chat', context.signal, {
-      model: localRef(model),
-      stream: false,
-      format: OUTPUT_FORMAT,
-      options: { temperature: 0 },
-      messages,
-    });
-    context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
-    const content = replyText(response);
-    const action = parseAction(content);
-    if (action.type === 'final') {
-      if (typeof action.text !== 'string' || !action.text.trim())
-        throw new BackendError('internal', '最終回答が空です');
-      return action.text.trim();
-    }
-    messages.push({ role: 'assistant', content });
-    let result: string;
-    try {
-      result = await executeTool(action, request, context);
-    } catch (error) {
-      context.signal.throwIfAborted();
-      result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
-    }
-    messages.push({
-      role: 'user',
-      content: `直前の操作要求: ${content}\nツール実行結果（資料）:\n${result}\nこの結果を確認し、完了した手順の次へ進んでください。`,
-    });
+  const prepared = enabled ? await prepareSkills(request) : { request, cleanup: () => Promise.resolve() };
+  try {
+    return enabled && (request.options.toolProtocol === 'json' || !model.capabilities.includes('tools'))
+      ? await jsonChat(prepared.request, context, model.id, prompt, images)
+      : await toolChat(prepared.request, model, prompt, images, context.signal, context);
+  } finally {
+    await prepared.cleanup();
   }
-  throw new BackendError('internal', 'Ollama の操作回数が上限に達しました。完了していない作業があります。');
 }
 
 export const ollamaAdapter: BackendAdapter = {
@@ -127,20 +101,44 @@ export const ollamaAdapter: BackendAdapter = {
     label: 'Ollama（この PC）',
     capabilities: {
       webSearch: false,
-      webFetch: true,
-      readFiles: true,
-      readAnywhere: true,
-      writeFiles: true,
-      writeAnywhere: true,
-      runCommands: true,
-      skills: true,
+      webFetch: false,
+      readFiles: process.platform === 'darwin',
+      readAnywhere: false,
+      writeFiles: process.platform === 'darwin',
+      writeAnywhere: process.platform === 'darwin',
+      runCommands: process.platform === 'darwin',
+      skills: process.platform === 'darwin',
     },
-    options: [],
-    permissionRules: PERMISSION_RULES,
-    leakRisks: [
-      ['readFiles', 'runCommands', 'webFetch'],
-      ['readFiles', 'writeAnywhere', 'webFetch'],
+    options: [
+      {
+        key: 'toolProtocol',
+        label: '道具の要求形式',
+        description:
+          'auto は対応モデルのネイティブ呼び出しを使います。操作を呼ばない DeepSeek などでは json を選んでください。',
+        type: 'select',
+        choices: ['auto', 'json'],
+        default: 'auto',
+      },
+      {
+        key: 'enableTools',
+        label: '道具の利用を有効にする',
+        description:
+          'macOS のみ。役割の権限で道具を実行します。DeepSeek などは JSON 操作を使います。コマンドは単一プロセスに限ります。',
+        type: 'boolean',
+        choices: [],
+        default: false,
+      },
+      {
+        key: 'operationCheck',
+        label: '操作を実行前に確認する',
+        description: 'コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。',
+        type: 'boolean',
+        choices: [],
+        default: true,
+      },
     ],
+    permissionRules: PERMISSION_RULES,
+    leakRisks: [],
     canLogin: false,
     midRunPost: 'tool',
   }),

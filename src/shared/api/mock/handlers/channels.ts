@@ -10,6 +10,7 @@ type ChannelCommands =
   | 'create_channel'
   | 'get_channel_statistics'
   | 'update_channel'
+  | 'set_channel_workspace'
   | 'delete_channel'
   | 'add_channel_member'
   | 'remove_channel_member';
@@ -61,6 +62,22 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
   update_channel({ id, name, topic }, runtime) {
     const channel = requireChannel(runtime, id);
     Object.assign(channel, cleanFields(name, topic));
+    emitStateChanged(runtime);
+    return channel;
+  },
+
+  set_channel_workspace({ id, mode, folder }, runtime) {
+    const channel = requireChannel(runtime, id);
+    if (!['legacy', 'folder', 'global'].includes(mode)) fail('validation', '作業範囲を選んでください');
+    if (mode === 'folder' && (!folder?.trim() || !/^(?:\/|[A-Za-z]:[\\/])/.test(folder)))
+      fail('validation', '作業フォルダの絶対パスを入力してください');
+    if (mode !== 'folder' && folder !== null) fail('validation', 'フォルダモード以外では割り当てを空にしてください');
+    channel.workspace = {
+      mode,
+      folder,
+      revision: (channel.workspace?.revision ?? 0) + 1,
+      afterSeq: Math.max(0, ...runtime.state.messages.filter((m) => m.channelId === id).map((m) => m.seq)),
+    };
     emitStateChanged(runtime);
     return channel;
   },

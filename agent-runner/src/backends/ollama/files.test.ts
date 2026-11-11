@@ -15,7 +15,12 @@ beforeEach(async () => {
 afterEach(async () => {
   await rm(root, { recursive: true, force: true });
 });
-const request = () => ({ ...runRequest('ollama'), workspace: join(root, 'work'), stateDir: join(root, 'state') });
+const request = () => ({
+  ...runRequest('ollama'),
+  options: { enableTools: true, operationCheck: false },
+  workspace: join(root, 'work'),
+  stateDir: join(root, 'state'),
+});
 
 describe('Ollama file permissions', () => {
   it('書き込み権限がなくてもMEMORY.mdだけは保存できる', async () => {
@@ -59,13 +64,19 @@ describe('Ollama file permissions', () => {
     req.permissions.writeAnywhere = true;
     await fileTool(req, 'write_file', '../allowed', 'ok', signal);
     expect(await readFile(join(root, 'allowed'), 'utf8')).toBe('ok');
-    await expect(fileTool(req, 'write_file', req.stateDir + '/config', 'bad', signal)).rejects.toThrow('許可');
+    await expect(fileTool(req, 'write_file', req.stateDir + '/config', 'bad', signal)).rejects.toHaveProperty(
+      'code',
+      'unsupported_permission',
+    );
   });
 
   it('読み取りの追加範囲は書き込み許可にならない', async () => {
     await writeFile(join(root, 'state/data'), 'data');
     const req = { ...request(), readableDirs: [join(root, 'state')] };
     expect(await fileTool(req, 'read_file', '../state/data', '', signal)).toBe('data');
-    await expect(fileTool(req, 'write_file', '../state/data', 'bad', signal)).rejects.toThrow('許可');
+    await expect(fileTool(req, 'write_file', '../state/data', 'bad', signal)).rejects.toHaveProperty(
+      'code',
+      'unsupported_permission',
+    );
   });
 });

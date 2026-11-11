@@ -27,6 +27,7 @@ export async function ollamaRequest(
 ): Promise<JsonObject> {
   const { status, text } = await localHttp(path, signal, body === undefined ? undefined : JSON.stringify(body)).catch(
     (error: unknown) => {
+      signal.throwIfAborted();
       if (path === '/api/tags' && isJsonObject(error) && error.code === 'ECONNREFUSED') throw new OllamaStopped();
       throw new BackendError('internal', `Ollama に接続できませんでした。${CONNECTION_HELP}`);
     },
@@ -64,7 +65,7 @@ async function chatModel(entry: unknown, signal: AbortSignal): Promise<LocalMode
   if (!isJsonObject(entry) || isRemote(entry)) return null;
   const id = typeof entry.model === 'string' ? entry.model : entry.name;
   if (typeof id !== 'string' || !id.trim() || /:(?:cloud|local|[^:/]*-cloud)$/i.test(id)) return null;
-  const caps = capabilities(entry.capabilities) ?? (await readCapabilities(id, signal));
+  const caps = await verifiedCapabilities(entry, id, signal);
   if (!caps.includes('completion')) return null;
   const size = isJsonObject(entry.details) ? entry.details.parameter_size : undefined;
   return { id, size: typeof size === 'string' ? size : '', capabilities: caps };
@@ -86,4 +87,10 @@ export async function localChatModels(cancel?: AbortSignal): Promise<LocalModel[
   if (!Array.isArray(models)) throw new BackendError('internal', 'Ollama のモデル一覧を読み取れませんでした。');
   const found = await Promise.all(models.map((entry: unknown) => chatModel(entry, signal)));
   return found.filter((model) => model !== null).sort((a, b) => a.id.localeCompare(b.id, 'en'));
+}
+
+async function verifiedCapabilities(entry: JsonObject, id: string, signal: AbortSignal): Promise<string[]> {
+  const declared = capabilities(entry.capabilities);
+  if (!declared || declared.includes('tools')) return readCapabilities(id, signal);
+  return declared;
 }

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useBackends } from '@/features/runtime';
-import { permissionRole, rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
+import { permissionRole, rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
 import type { Agent, AgentTemplate } from '@/shared/types/domain';
 import {
   applyPreset,
@@ -77,7 +77,13 @@ export function useAgentDraft(target: EditorTarget) {
   const draft = useMemo(
     () => ({
       ...values,
-      permissions: supportedPermissions(rolePermissions(templates, values.tags), backend),
+      permissions: modelPermissions(
+        rolePermissions(templates, values.tags),
+        backend,
+        values.model,
+        values.optionValues,
+        values.backend,
+      ),
     }),
     [values, templates, backend],
   );

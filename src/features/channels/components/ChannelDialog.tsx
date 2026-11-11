@@ -4,6 +4,7 @@ import type { Channel } from '@/shared/types/domain';
 import { useChannel, useChannelDialog } from '../hooks/useChannels';
 import { useChannelForm } from '../hooks/useChannelForm';
 import { closeChannelDialog, deleteChannel } from '../store';
+import { ChannelWorkspaceFields } from './ChannelWorkspaceFields';
 import { MemberPicker } from './MemberPicker';
 import styles from './ChannelDialog.module.css';
 
@@ -61,6 +62,7 @@ function ChannelForm({ channel }: { channel: Channel | null }) {
           error={form.errors.topic}
           hint="エージェントは話題を見て、何のための場所かを知ります。"
         />
+        <ChannelWorkspaceFields form={form} />
         {!channel && <MemberPicker selected={form.draft.memberIds} onChange={(ids) => form.update('memberIds', ids)} />}
       </form>
       {deleting && channel && <DeleteChannelDialog channel={channel} onClose={() => setDeleting(false)} />}

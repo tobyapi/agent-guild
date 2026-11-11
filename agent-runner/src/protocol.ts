@@ -16,7 +16,7 @@
 //   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
 //   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
 
-export const PROTOCOL_VERSION = 1;
+export const PROTOCOL_VERSION = 2;
 
 export type PermissionKey =
   'webSearch' | 'webFetch' | 'readFiles' | 'readAnywhere' | 'writeFiles' | 'writeAnywhere' | 'runCommands' | 'skills';
@@ -56,6 +56,8 @@ export interface ModelSpec {
   description: string;
   efforts: string[];
   defaultEffort: string | null;
+  /** アプリがOllamaへ道具を提供できるか（native または JSON）。省略時は非対応。 */
+  tools?: boolean;
 }
 
 /** backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか） */
@@ -134,6 +136,8 @@ export type RunnerRequest =
       stateDir: string;
       /** 追加で読み取りを許すフォルダ（相談元の作業場所など） */
       readableDirs: string[];
+      /** Present only for a restricted folder channel. Additional writable roots. */
+      writableDirs?: string[];
       systemPrompt: string;
       prompt: string;
       /** 操作の確認に使う、信頼できる依頼の情報（人間の依頼・エージェントの役割とできること。資料や仲間の発言は入らない） */

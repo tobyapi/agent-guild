@@ -127,7 +127,13 @@
         "a0000000-0000-4000-8000-000000000002"
       ],
       "createdAt": 1793320000000,
-      "isLobby": false
+      "isLobby": false,
+      "workspace": {
+        "mode": "legacy",
+        "folder": null,
+        "revision": 0,
+        "afterSeq": 0
+      }
     }
   ],
   "backends": [
@@ -301,24 +307,26 @@
         {
           "id": "deepseek-r1:8b",
           "label": "deepseek-r1:8b",
-          "description": "8.2B · 文章に対応",
+          "description": "8.2B · 文章に対応 · JSON 操作（試作）",
           "efforts": [],
-          "defaultEffort": null
+          "defaultEffort": null,
+          "tools": true
         },
         {
           "id": "gemma4:26b",
           "label": "gemma4:26b",
-          "description": "画像と文章に対応",
+          "description": "画像と文章に対応 · JSON 操作（試作）",
           "efforts": [],
-          "defaultEffort": null
+          "defaultEffort": null,
+          "tools": true
         }
       ],
       "defaultModel": "deepseek-r1:8b",
       "capabilities": {
         "webSearch": false,
-        "webFetch": true,
+        "webFetch": false,
         "readFiles": true,
-        "readAnywhere": true,
+        "readAnywhere": false,
         "writeFiles": true,
         "writeAnywhere": true,
         "runCommands": true,
@@ -326,41 +334,50 @@
       },
       "status": "ready",
       "statusMessage": "この PC のモデルを使います。",
-      "options": [],
+      "options": [
+        {
+          "key": "toolProtocol",
+          "label": "道具の要求形式",
+          "description": "auto は対応モデルのネイティブ呼び出しを使います。操作を呼ばない DeepSeek などでは json を選んでください。",
+          "type": "select",
+          "choices": [
+            "auto",
+            "json"
+          ],
+          "default": "auto"
+        },
+        {
+          "key": "enableTools",
+          "label": "道具の利用を有効にする",
+          "description": "macOS のみ。役割の権限で道具を実行します。DeepSeek などは JSON 操作を使います。コマンドは単一プロセスに限ります。",
+          "type": "boolean",
+          "choices": [],
+          "default": false
+        },
+        {
+          "key": "operationCheck",
+          "label": "操作を実行前に確認する",
+          "description": "コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。",
+          "type": "boolean",
+          "choices": [],
+          "default": true
+        }
+      ],
       "permissionRules": [
-        {
-          "when": "runCommands",
-          "requires": [
-            "readFiles",
-            "skills"
-          ]
-        },
-        {
-          "when": "webFetch",
-          "requires": [
-            "runCommands"
-          ]
-        },
         {
           "when": "writeAnywhere",
           "requires": [
-            "writeFiles",
-            "webFetch"
+            "writeFiles"
+          ]
+        },
+        {
+          "when": "runCommands",
+          "requires": [
+            "readFiles"
           ]
         }
       ],
-      "leakRisks": [
-        [
-          "readFiles",
-          "runCommands",
-          "webFetch"
-        ],
-        [
-          "readFiles",
-          "writeAnywhere",
-          "webFetch"
-        ]
-      ],
+      "leakRisks": [],
       "canLogin": false,
       "midRunPost": "tool"
     }

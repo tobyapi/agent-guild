@@ -85,3 +85,31 @@ fn memory_is_empty_until_written_and_removal_deletes_everything() {
     assert!(!data.0.join("agents").join("a1").exists());
     workspace.remove(&agent).unwrap();
 }
+
+#[test]
+fn scoped_workspaces_separate_agents_channels_revisions_and_memories() {
+    use guild_domain::channel::{ChannelWorkspace, WorkspaceMode};
+    use guild_domain::ids::ChannelId;
+    let data = TempDir::new("scoped-data");
+    let project = TempDir::new("scoped-project");
+    let workspace = FsWorkspace::new(&data.0);
+    let a = AgentId::new("a");
+    let channel = ChannelId::new("c");
+    let folder = workspace.validate_folder(project.0.to_str().unwrap()).unwrap();
+    let mut scope = ChannelWorkspace { mode: WorkspaceMode::Folder, folder: Some(folder), revision: 1, after_seq: 0 };
+    let first = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
+    fs::write(first.work.join("MEMORY.md"), "channel memory").unwrap();
+    fs::write(first.state.join("session"), "old state").unwrap();
+    let again = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
+    assert!(!again.state.join("session").exists());
+    assert_eq!(workspace.read_scoped_memory(&a, &channel, 1).unwrap(), "channel memory");
+    scope.revision = 2;
+    let second = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
+    assert_ne!(first.work, second.work);
+    assert_eq!(workspace.read_scoped_memory(&a, &channel, 2).unwrap(), "");
+    assert_ne!(workspace.scoped_work_dir(&AgentId::new("b"), &channel, 2), second.work);
+    assert_ne!(workspace.scoped_work_dir(&a, &ChannelId::new("other"), 2), second.work);
+    assert!(workspace.validate_folder(data.0.to_str().unwrap()).is_err());
+    assert!(workspace.validate_folder(data.0.parent().unwrap().to_str().unwrap()).is_err());
+    assert!(workspace.validate_folder("relative").is_err());
+}

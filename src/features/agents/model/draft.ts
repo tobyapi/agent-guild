@@ -76,6 +76,8 @@ function fromDefaults(defaults: AgentTemplateDefaults): Pick<AgentDraft, keyof A
 function withCompatibleBackend(draft: AgentDraft, backends: readonly BackendInfo[]): AgentDraft {
   const compatible = backends.filter(
     (backend) =>
+      // Ollama starts conversation-only; never select it as if opt-in tools were already enabled.
+      (backend.id !== 'ollama' || !PERMISSION_ORDER.some((key) => draft.permissions[key])) &&
       PERMISSION_ORDER.every((key) => !draft.permissions[key] || backend.capabilities[key]) &&
       permissionRuleProblem(backend, draft.permissions) === null,
   );

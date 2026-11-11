@@ -59,3 +59,5 @@ pub(super) fn saved_agent(db: &Arc<Database>, id: &str, name: &str, created_at: 
     repository.insert(&agent).unwrap_or_else(|e| panic!("{e}"));
     agent
 }
+
+mod channel_workspace;

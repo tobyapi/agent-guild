@@ -86,6 +86,9 @@ pub struct ModelSpec {
     pub description: String,
     pub efforts: Vec<String>,
     pub default_effort: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    /// アプリ側の道具対応（OllamaのnativeまたはJSON操作）。
+    pub tools: Option<bool>,
 }
 
 /// TS の BackendInfo

@@ -39,8 +39,8 @@ describe('Ollama', () => {
         status: 'ready',
         defaultModel: deepseek.model,
         models: [
-          { id: deepseek.model, description: '8.2B · 文章に対応' },
-          { id: gemma.model, description: '画像と文章に対応' },
+          { id: deepseek.model, description: '8.2B · 文章に対応 · JSON 操作（試作）', tools: true },
+          { id: gemma.model, description: '画像と文章に対応 · JSON 操作（試作）', tools: true },
         ],
         canLogin: false,
       },

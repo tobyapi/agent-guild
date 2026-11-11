@@ -10,8 +10,9 @@ use guild_domain::message::{MessageKind, NewMessage};
 use super::memory;
 use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteMessageRepository};
 
-fn lobby() -> Channel {
+pub(super) fn lobby() -> Channel {
     Channel {
+        workspace: Default::default(),
         is_lobby: false,
         id: ChannelId::new("c1"),
         name: "ロビー".to_owned(),

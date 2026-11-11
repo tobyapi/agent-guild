@@ -24,7 +24,12 @@ beforeEach(async () => {
 afterEach(async () => {
   await rm(root, { recursive: true, force: true });
 });
-const request = () => ({ ...runRequest('ollama'), workspace: join(root, 'work'), stateDir: join(root, 'state') });
+const request = () => ({
+  ...runRequest('ollama'),
+  options: { enableTools: true, operationCheck: false },
+  workspace: join(root, 'work'),
+  stateDir: join(root, 'state'),
+});
 
 describe('Ollama worker', () => {
   it('ネイティブツール非対応のDeepSeekでも実ファイルを変更し、結果を読んで回答する', async () => {
@@ -41,10 +46,9 @@ describe('Ollama worker', () => {
 
   it('拒否した範囲外操作を成功として返さない', async () => {
     action({ type: 'tool', tool: 'write_file', path: '../outside.txt', content: '拒否' });
-    action({ type: 'final', text: '権限がありません' });
-    await ollamaAdapter.run(request(), runContext());
+    await expect(ollamaAdapter.run(request(), runContext())).rejects.toHaveProperty('code', 'unsupported_permission');
     await expect(readFile(join(root, 'outside.txt'))).rejects.toHaveProperty('code', 'ENOENT');
-    expect(http.mock.calls[2]?.[2]).toContain('失敗:');
+    expect(http).toHaveBeenCalledTimes(2);
   });
 
   it('コマンドの実行結果と途中投稿を往復させる', async () => {
@@ -56,7 +60,7 @@ describe('Ollama worker', () => {
     const req = request();
     await ollamaAdapter.run(req, context);
     expect(context.onPost).toHaveBeenCalledWith('確認中です');
-    expect(runLocalCommand).toHaveBeenCalledWith(req, 'git diff --stat', context.signal);
+    expect(runLocalCommand).toHaveBeenCalledWith(req, 'git diff --stat', expect.any(AbortSignal));
     expect(http.mock.calls[3]?.[2]).toContain('exitCode');
   });
 

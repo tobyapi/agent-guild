@@ -1,3 +1,4 @@
+import { assertFolderScope } from './backends/folder-scope.ts';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
@@ -110,6 +111,7 @@ export class Dispatcher {
       const send = (event: RunnerEvent): void => {
         if (isCurrent()) this.#options.send(event);
       };
+      assertFolderScope(request);
       return adapter.run(request, {
         signal,
         onActivity: (detail) => send({ type: 'activity', id, detail }),

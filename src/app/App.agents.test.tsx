@@ -70,12 +70,19 @@ it('Ollama のモデルと選んだアバターを保存し、サイドバーに
   const modelField = within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' });
   expect(Array.from(modelField.options, (option) => option.value)).toEqual(['', 'deepseek-r1:8b', 'gemma4:26b']);
   fireEvent.change(modelField, { target: { value: 'gemma4:26b' } });
-  expect(within(openDialog()).getByText('画像と文章に対応')).toBeTruthy();
+  expect(within(openDialog()).getByText('画像と文章に対応 · JSON 操作（試作）')).toBeTruthy();
+  expect(enabledPermissions()).toEqual([]);
+  fireEvent.click(within(openDialog()).getByRole('switch', { name: '道具の利用を有効にする' }));
+  expect(enabledPermissions()).toContain('スキルを使う');
   await submitName('ミナ');
   expect(sidebarText()).toContain('ミナ');
   const sidebar = screen.getByRole('navigation', { name: 'チャンネルとエージェント' });
   expect(sidebar.querySelector(`img[src="${presetAvatar}"]`)).toBeTruthy();
   expect(nameField().hasAttribute('aria-invalid')).toBe(false);
+  expect(
+    within(openDialog()).getByRole('switch', { name: '道具の利用を有効にする' }).getAttribute('aria-checked'),
+  ).toBe('true');
+  expect(enabledPermissions()).toContain('スキルを使う');
   expect(within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' }).value).toBe('gemma4:26b');
 });
 

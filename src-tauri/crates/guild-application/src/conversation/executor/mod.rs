@@ -9,6 +9,7 @@ mod history;
 mod interim;
 mod measurement;
 mod request;
+mod request_scope;
 
 pub(crate) use commit::commit;
 pub(crate) use ending::{Committed, Ending};

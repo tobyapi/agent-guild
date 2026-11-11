@@ -60,7 +60,7 @@ function cancelJob(id, waiting) {
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
 }
 
-export function startFakeRunner({ protocolVersion = 1, sendReady = true, probeMode = 'reply' } = {}) {
+export function startFakeRunner({ protocolVersion = 2, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
   const handlers = {
     run: (request) => {

@@ -5,18 +5,29 @@ import { hasErrors, notifyInfo, reportError, useFieldErrors } from '@/shared/ui'
 import type { Channel } from '@/shared/types/domain';
 import { channelErrorField, cleanChannelName, validateChannelDraft } from '../model/channels';
 import type { ChannelDraft, ChannelField } from '../model/channels';
-import { closeChannelDialog, createChannel, updateChannel } from '../store';
+import { closeChannelDialog, createChannel, updateChannel, setChannelWorkspace } from '../store';
 
-async function persist(channel: Channel | null, draft: ChannelDraft): Promise<void> {
+async function persist(
+  channel: Channel | null,
+  draft: ChannelDraft,
+  onCreated: (created: Channel) => void,
+): Promise<void> {
   const name = cleanChannelName(draft.name);
   const topic = draft.topic.trim();
+  let saved: Channel;
   if (channel) {
-    await updateChannel(channel.id, name, topic);
-    notifyInfo('保存しました');
+    saved = await updateChannel(channel.id, name, topic);
   } else {
     const created = await createChannel(name, topic, draft.memberIds);
-    notifyInfo(`#${created.name} を作成しました`);
+    saved = created;
+    onCreated(created);
   }
+  const mode = draft.workspaceMode ?? 'legacy';
+  const folder = mode === 'folder' ? (draft.workspaceFolder ?? '').trim() : null;
+  if (mode !== (saved.workspace?.mode ?? 'legacy') || folder !== (saved.workspace?.folder ?? null)) {
+    await setChannelWorkspace(saved.id, mode, folder);
+  }
+  notifyInfo(channel ? '保存しました' : `#${saved.name} を作成しました`);
   closeChannelDialog();
 }
 
@@ -26,7 +37,10 @@ export function useChannelForm(channel: Channel | null) {
     name: channel?.name ?? '',
     topic: channel?.topic ?? '',
     memberIds: [],
+    workspaceMode: channel?.workspace?.mode ?? 'legacy',
+    workspaceFolder: channel?.workspace?.folder ?? '',
   }));
+  const [persisted, setPersisted] = useState<Channel | null>(channel);
   const [serverError, setServerError] = useState<{ field: ChannelField | null; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const errors = validateChannelDraft(draft);
@@ -42,7 +56,7 @@ export function useChannelForm(channel: Channel | null) {
     if (hasErrors(errors)) return;
     setSaving(true);
     try {
-      await persist(channel, draft);
+      await persist(persisted, draft, setPersisted);
     } catch (error) {
       if (errorCode(error) === 'validation')
         setServerError({ field: channelErrorField(errorField(error)), message: errorMessage(error) });

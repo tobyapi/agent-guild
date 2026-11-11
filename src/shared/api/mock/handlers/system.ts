@@ -1,4 +1,4 @@
-import { rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
 // 起動状態・スナップショット・プロフィール・バックエンドの再確認・再起動・リンクを開く。
 import { isExternalUrl } from '@/shared/lib/links';
 import { checkMemberName } from '@/shared/lib/names';
@@ -39,9 +39,12 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     me: state.me,
     agents: state.agents.map((agent) => ({
       ...agent,
-      permissions: supportedPermissions(
+      permissions: modelPermissions(
         rolePermissions(state.templates, agent.tags),
         state.backends.find((backend) => backend.id === agent.backend),
+        agent.model,
+        agent.backendOptions,
+        agent.backend,
       ),
     })),
     channels: state.channels,

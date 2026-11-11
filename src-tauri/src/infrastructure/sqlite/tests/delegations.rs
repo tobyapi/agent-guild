@@ -11,6 +11,7 @@ use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteDelegationRep
 
 fn channel(id: &str) -> Channel {
     Channel {
+        workspace: Default::default(),
         is_lobby: false,
         id: ChannelId::new(id),
         name: id.to_owned(),

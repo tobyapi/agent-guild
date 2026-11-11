@@ -23,7 +23,15 @@ export function localHttp(
       (res) => {
         const chunks: string[] = [];
         res.setEncoding('utf8');
-        res.on('data', (chunk: string) => chunks.push(chunk));
+        let bytes = 0;
+        res.on('data', (chunk: string) => {
+          bytes += Buffer.byteLength(chunk);
+          if (bytes > 2 * 1024 * 1024) {
+            req.destroy(new Error('Ollama response exceeds 2MiB'));
+            return;
+          }
+          chunks.push(chunk);
+        });
         res.once('error', reject);
         res.once('end', () => resolve({ status: res.statusCode ?? 0, text: chunks.join('') }));
       },

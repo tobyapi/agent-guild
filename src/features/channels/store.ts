@@ -75,6 +75,16 @@ export async function updateChannel(id: string, name: string, topic: string): Pr
   return channel;
 }
 
+export async function setChannelWorkspace(
+  id: string,
+  mode: 'legacy' | 'folder' | 'global',
+  folder: string | null,
+): Promise<Channel> {
+  const channel = await channelsApi.workspace(id, mode, folder);
+  upsert(channel);
+  return channel;
+}
+
 export async function deleteChannel(id: string): Promise<void> {
   await channelsApi.remove(id);
   applyChannelsSnapshot(useChannelsStore.getState().channels.filter((channel) => channel.id !== id));

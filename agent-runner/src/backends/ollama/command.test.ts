@@ -1,36 +1,28 @@
-import { describe, expect, it } from 'vitest';
-import { commandArguments, runLocalCommand } from './command.ts';
+import { describe, expect, it, vi } from 'vitest';
+import { runLocalCommand } from './command.ts';
+import { executeTool, sandbox } from './tools.ts';
 import { runRequest } from '../run.test-support.ts';
+vi.mock('./tools.ts', () => ({
+  sandbox: vi.fn(() => Promise.resolve({ profile: 'restricted', workspace: '/work' })),
+  executeTool: vi.fn(),
+}));
 
-describe('local command sandbox', () => {
-  it('範囲内の書き込みとネットワーク拒否をCLIへ明示する', () => {
-    const args = commandArguments(runRequest('ollama'), 'echo ok');
-    expect(args).toContain('sandbox_mode="workspace-write"');
-    expect(args).toContain('sandbox_workspace_write.writable_roots=[]');
-    expect(args).toContain('sandbox_workspace_write.network_access=false');
-    expect(args).toContain('sandbox_workspace_write.exclude_slash_tmp=true');
-    expect(args.at(-1)).toBe('echo ok');
+describe('shared command executor', () => {
+  it('Seatbelt内の実行結果の終了コードと本文をJSON操作へ返す', async () => {
+    vi.mocked(executeTool).mockResolvedValueOnce('exit=3\nmessage');
+    const request = runRequest('ollama');
+    expect(JSON.parse(await runLocalCommand(request, 'echo ok', new AbortController().signal))).toEqual({
+      exitCode: 3,
+      output: 'message',
+      stopped: false,
+    });
   });
-
-  it('書き込み権限なしの場合はread-onlyにする', () => {
-    const req = runRequest('ollama');
-    req.permissions.writeFiles = false;
-    expect(commandArguments(req, 'echo ok')).toContain('sandbox_mode="read-only"');
-  });
-
-  it('範囲外への書き込み権限を付けた場合だけ隔離を外す', () => {
-    const req = runRequest('ollama');
-    req.permissions.writeAnywhere = true;
-    req.permissions.webFetch = true;
-    expect(commandArguments(req, 'echo ok')).toContain('sandbox_mode="danger-full-access"');
-  });
-
-  it('実行権限がなければ子プロセスを作らず拒否する', async () => {
-    const req = runRequest('ollama');
-    req.permissions.runCommands = false;
-    await expect(runLocalCommand(req, 'echo ok', new AbortController().signal)).rejects.toHaveProperty(
-      'code',
-      'unsupported_permission',
+  it('隔離の準備に失敗したら実行せず終了する', async () => {
+    vi.mocked(executeTool).mockClear();
+    vi.mocked(sandbox).mockRejectedValueOnce(new Error('sandbox failed'));
+    await expect(runLocalCommand(runRequest('ollama'), 'bad', new AbortController().signal)).rejects.toThrow(
+      'sandbox failed',
     );
+    expect(executeTool).not.toHaveBeenCalled();
   });
 });

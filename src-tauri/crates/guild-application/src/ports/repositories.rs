@@ -30,6 +30,8 @@ pub trait ChannelRepository: Send + Sync {
     fn insert(&self, channel: &Channel) -> AppResult<()>;
     /// 名前と話題を更新する
     fn update(&self, channel: &Channel) -> AppResult<()>;
+    /// 作業範囲だけを保存する。名前・話題の同時更新で境界を巻き戻さない。
+    fn set_workspace(&self, id: &ChannelId, scope: &guild_domain::channel::ChannelWorkspace) -> AppResult<()>;
     /// チャンネル・メンバー・発言を物理削除する
     fn delete(&self, id: &ChannelId) -> AppResult<()>;
     fn add_member(&self, id: &ChannelId, member: &MemberId) -> AppResult<()>;
