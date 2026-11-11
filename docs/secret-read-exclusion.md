@@ -45,18 +45,29 @@
 
 Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒否する。ホームや Library を起点にした検索も該当する。その後、配下のディレクトリ名・エントリのメタデータを点検する。秘密ファイルの内容は開かない。.env等が1つでもあれば検索自体を拒否し、SDK に渡す入力の glob による除外には頼らない。既存の除外設定や隠しファイルの扱いにも依存しない。
 
-検索配下のリンクは安全な行き先でも拒否する。点検は起点を含め10,000エントリ、深さ64までとし、上限超過・アクセス不可・特殊ファイルは拒否する。node_modules のリンク、件数上限、.env.example のいずれかがあればリポジトリ直下の検索も拒否される。Glob の絶対パス pattern は元の作業範囲を許可する前に拒否する。外部 Glob はさらに ..、バックスラッシュ、波括弧、~ を拒否する。
+検索配下のリンクは安全な行き先でも拒否する。点検は起点を含め10,000エントリ、深さ64までとし、上限超過・アクセス不可・特殊ファイルは拒否する。node_modules のリンク、件数上限、.env.example のいずれかがあればリポジトリ直下の検索も拒否される。Glob の絶対パス pattern は、writeAnywhere のないすべての Claude の役割で、元の作業範囲を許可する前に拒否する。readAnywhere の有無には依存しない。外部 Glob はさらに ..、バックスラッシュ、波括弧、~ を拒否する。
 
 拒否時は、除外対象、子リンク、件数上限、深さ上限、特殊項目、解決・点検不能などの理由と、狭い起点または公開ファイルの個別 Read を案内する。事前点検で見つけた子の名前・パスは返さない。拒否メッセージには従来どおり呼び出し元が指定した起点が入る。
 
 ## 残る制約
 
 - Codex は今回対象外。既存の workspace-write sandbox は読み取りを絞らず、同じ役割名でもこの除外は効かない。
-- 作業者の writeAnywhere、発想役の既存権限は維持する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
+- 作業者の writeAnywhere は維持する。発想役等の writeAnywhere のない役割では、従来通っていた絶対 Glob pattern を拒否する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
 - パスの事前判定なので、判定後・検索点検後に別プロセスがファイルやリンクを差し替える競合（TOCTOU）を OS の境界として止められない。除外先の実体の変更もポリシー再作成までは追従しない。ハードリンク、別名コピー、別マウントによる別経路は内容の由来を判別できない。
 - 一覧外のブラウザ・独自プロファイル、別名の認証ファイル、認証設定のバックアップ等を網羅する保証はない。
-- Chrome Beta/Canary、シェル履歴、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の保存先の一覧もない。共通の ~/.xxx と秘密名の規則はあるが、他OSを網羅する除外ではない。
+- Chrome Beta/Canary の標準プロファイルと、~/.zsh_history・.zsh_history.new・.bash_history・.zsh_sessions・.bash_sessions は追加済み。履歴の任意の移動先（HISTFILE・ZDOTDIR）や別名のバックアップ、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の保存先の一覧もない。共通の ~/.xxx と秘密名の規則はあるが、他OSを網羅する除外ではない。
 - アプリの attachments/<channelId> と agents/*/state は場所で除外していない。会話・添付を含む可能性があり、今回の追加可否は未決。MEMORY.md 等の共有とも合わせて A で分離が必要。
 - Grep 等に複数のパス項目を渡した場合の SDK による検証は未確認（レビュー R5）。道具別の入力制限は今回追加していない。
 - エージェント間の作業フォルダとメモは共有状態のまま。会話本文や、マネージャーからWebを使える作業者への依頼文を通じた持ち出しも残る。
 - canUseTool の経路のテストであり、SDK/CLI による暗黙の読み取りを OS レベルで拒否する検証ではない。実モデルを使った有料の通し実行、Windows実機検証は未実施。
+
+## 2026-11-11 全役割の Glob 修正と除外追加
+
+絶対 pattern の拒否理由は path に起点、pattern に相対パターンを書く案内だけを返し、狭い検索範囲への一般案内は付けない。writeAnywhere のある Claude、Codex、Ollama の処理は変更しない。作業者の既定は writeAnywhere=true なので維持される。writeAnywhere を外した作業者の構成も、発想役と同じ拒否判定を通る。
+
+追加場所の根拠（履歴の内容は閲覧していない）:
+- Chrome Beta/Canary: [Chromium公式 user_data_dir.md](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/user_data_dir.md) の Mac OS X。~/Library/Application Support/Google/Chrome Beta と Chrome Canary。独自 --user-data-dir の移動先は網羅しない。
+- zsh: このmacOSの /etc/zshrc:15-18 で HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history。今回の既知標準位置はホーム直下。書換え時の .new は [zsh公式 HIST_SAVE_BY_COPY](https://zsh.sourceforge.io/Doc/Release/Options.html#History)。
+- Bash: このmacOSの /bin/bash --noprofile --norc -ic で設定だけを確認した標準 HISTFILE（値はホーム直下 .bash_history）。表示したのは HISTFILE の保存先だけで、履歴本文は表示・収集していない。対話シェル自身の起動時読み込みはこの確認から除外できない。
+- Terminal のセッション履歴: /etc/zshrc_Apple_Terminal:102,190-192 と /etc/bashrc_Apple_Terminal:99,187-189。.zsh_sessions と .bash_sessions 全体を除外する（履歴のほかセッション復元用の状態も入りうるため）。
+- 他のシェル、履歴の独自保存先、Chrome Dev/Testing は今回の依頼対象に足していない。

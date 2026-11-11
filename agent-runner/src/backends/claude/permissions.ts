@@ -4,7 +4,7 @@ import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { writableInWorkspace } from './writable-path.ts';
-import { expandedReadPolicy } from './secret-read.ts';
+import { absoluteGlobDenial, expandedReadPolicy } from './secret-read.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
 export const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
@@ -47,23 +47,26 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
       WRITE_TOOLS.has(toolName) &&
       (isMemory || permissions.writeFiles) &&
       (anywhere || (await writableInWorkspace(target, workspace)));
+    const patternReason = anywhere ? null : absoluteGlobDenial(toolName, input);
     const inScope = readableByScope(toolName, target, isMemory);
-    const reason = inScope && expandedRead !== null ? await expandedRead(toolName, target, input) : null;
+    const reason =
+      patternReason ?? (inScope && expandedRead !== null ? await expandedRead(toolName, target, input) : null);
     const readable = inScope && reason === null;
     const result: PermissionResult =
       writable || readable
         ? { behavior: 'allow', updatedInput: input }
-        : { behavior: 'deny', message: denialMessage(toolName, target, reason) };
+        : { behavior: 'deny', message: denialMessage(toolName, target, reason, patternReason !== null) };
     return Promise.resolve(result);
   };
 }
 
-function denialMessage(tool: string, target: string, reason: string | null): string {
+function denialMessage(tool: string, target: string, reason: string | null, patternDenied: boolean): string {
   const base = `${tool} は許可されていません（${target}）`;
   if (!reason) return base;
-  const hint = ['Grep', 'Glob', 'LS'].includes(tool)
-    ? 'src など狭いフォルダを起点にするか、公開ファイルを個別に Read してください。'
-    : '';
+  const hint =
+    !patternDenied && ['Grep', 'Glob', 'LS'].includes(tool)
+      ? 'src など狭いフォルダを起点にするか、公開ファイルを個別に Read してください。'
+      : '';
   return `${base}: ${reason}。${hint}`;
 }
 

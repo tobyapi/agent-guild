@@ -1,4 +1,4 @@
-// readAnywhere の拡張範囲を点検する。絶対 Glob pattern は元の範囲でも拒否。writeAnywhere は対象外。
+// readAnywhere の拡張範囲を点検し、共通の Glob 絶対パス拒否理由を提供する。writeAnywhere は対象外。
 import { lstat, opendir, realpath } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
@@ -60,6 +60,11 @@ function secretRoots(): string[] {
       '.pypirc',
       '.git-credentials',
       '.claude.json',
+      '.zsh_history',
+      '.zsh_history.new',
+      '.bash_history',
+      '.zsh_sessions',
+      '.bash_sessions',
     ].map((path) => join(home, path)),
     ...[join(home, '.codex'), codex].flatMap((dir) => ['auth.json', 'config.toml'].map((file) => join(dir, file))),
     ...[join(home, '.claude'), claude].flatMap((dir) =>
@@ -80,6 +85,8 @@ function secretRoots(): string[] {
       'Group Containers/group.com.apple.messages',
       'Group Containers/group.com.apple.Safari',
       'Application Support/Google/Chrome',
+      'Application Support/Google/Chrome Beta',
+      'Application Support/Google/Chrome Canary',
       'Application Support/Chromium',
       'Application Support/Microsoft Edge',
       'Application Support/BraveSoftware',
@@ -113,8 +120,11 @@ function safeSearchPattern(tool: string, input: Record<string, unknown>): boolea
   return typeof pattern === 'string' && !isAbsolute(pattern) && !/\.\.|[\\{}~]/.test(pattern);
 }
 
-function absoluteGlob(tool: string, input: Record<string, unknown>): boolean {
-  return tool === 'Glob' && typeof input.pattern === 'string' && isAbsolute(input.pattern);
+/** Glob は絶対 pattern で path を無視できるため、読み取り範囲の許可より前に使う。 */
+export function absoluteGlobDenial(tool: string, input: Record<string, unknown>): string | null {
+  return tool === 'Glob' && typeof input.pattern === 'string' && isAbsolute(input.pattern)
+    ? 'Glob の絶対パス pattern は使えません。path に起点、pattern に相対パターンを指定してください'
+    : null;
 }
 
 /** 拒否理由に子の名前やパスを含めない。検索の点検は内容を開かない。 */
@@ -160,10 +170,6 @@ export function expandedReadPolicy(readableRoots: readonly string[]) {
   };
   return async (tool: string, target: string, input: Record<string, unknown>): Promise<string | null> => {
     try {
-      // 絶対 pattern は path を無視できるため、元の範囲を許可する前に拒否する。
-      if (absoluteGlob(tool, input)) {
-        return 'Glob の絶対パス pattern は使えません。path に起点、pattern に相対パターンを指定してください';
-      }
       const actual = await physical(target);
       // 元の読み取り範囲は維持するが、そこから外へ出るリンクは拡張範囲として判定する。
       if (await originalReadable(target, actual, readableRoots)) return null;
