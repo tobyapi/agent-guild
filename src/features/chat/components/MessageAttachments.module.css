@@ -1,8 +1,10 @@
 /* 発言に添えられたもの（本文の下。docs/ui-design.md §5.4）: 画像の列、その下にファイルの札を縦に */
 .attachments {
   display: flex;
+  grid-column: 2;
   flex-direction: column;
   align-items: flex-start;
+  min-inline-size: 0;
   gap: var(--space-2);
   margin-block-start: var(--space-1);
 }

@@ -24,7 +24,8 @@
       "csp": {
         "default-src": "'self' ipc: http://ipc.localhost",
         "connect-src": "'self' ipc: http://ipc.localhost https://genderswapai.com/images/ai-gijinka/",
-        "img-src": "'self' data: blob:",
+        "img-src": "'self' data: blob: https:",
+        "media-src": "'self' data: blob: https:",
         "style-src": "'self' 'unsafe-inline'",
         "font-src": "'self' data:",
         "object-src": "'none'",

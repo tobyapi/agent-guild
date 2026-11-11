@@ -3,17 +3,20 @@ import { Dialog, Icon, reportError } from '@/shared/ui';
 import type { Attachment, Message } from '@/shared/types/domain';
 import { revealAttachment } from '../attachmentStore';
 import { useAttachmentSrc } from '../hooks/useAttachmentSrc';
+import { isVideoType } from '../model/mediaUrl';
 import { isImageType, sizeLabel } from '../model/pendingAttachments';
+import { AttachmentVideo } from './AttachmentVideo';
 import styles from './MessageAttachments.module.css';
 
 /**
- * 発言に添えられたもの（docs/ui-design.md §5.4）: 画像はサムネイル（押すと大きく見る）、
+ * 発言に添えられたもの（docs/ui-design.md §5.4）: 画像はサムネイル（押すと大きく見る）、動画は欄の中で再生、
  * ファイルは名前と大きさの札（押すとファイラでそのファイルを表示する）
  */
 export function MessageAttachments({ message }: { message: Message }) {
   if (message.attachments.length === 0) return null;
   const images = message.attachments.filter((attachment) => isImageType(attachment.mediaType));
-  const files = message.attachments.filter((attachment) => !isImageType(attachment.mediaType));
+  const videos = message.attachments.filter((attachment) => isVideoType(attachment.mediaType));
+  const files = message.attachments.filter(({ mediaType }) => !isImageType(mediaType) && !isVideoType(mediaType));
   return (
     <div className={styles.attachments}>
       {images.length > 0 && (
@@ -23,6 +26,9 @@ export function MessageAttachments({ message }: { message: Message }) {
           ))}
         </div>
       )}
+      {videos.map((attachment) => (
+        <AttachmentVideo key={attachment.id} messageId={message.id} attachment={attachment} />
+      ))}
       {files.map((attachment) => (
         <button
           key={attachment.id}

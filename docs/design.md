@@ -110,7 +110,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `remove_channel_member` | `{ channelId, memberId }` | `null` | state-changed, activity-changed | not_found, validation（人間は外せない） |
 | `list_messages` | `{ channelId, beforeSeq: number \| null, limit: number \| null }` | `Message[]`（seq の昇順。limit 既定 50・上限 200） | – | not_found |
 | `send_message` | `{ channelId, content, attachments: AttachmentInput[] }`（data は画像・ファイルの base64） | `Message` | message-created, activity-changed | not_found, validation（本文も添付もない・添付の種類・数・大きさ）, unavailable（保存先変更中） |
-| `get_attachment` | `{ messageId, attachmentId }` | `string`（添えた画像の data URL。CSP の img-src は data: を許している） | – | not_found |
+| `get_attachment` | `{ messageId, attachmentId }` | `string`（添えた画像・動画の data URL。CSP の img-src・media-src は data: を許している。動画は再生を押したときに取る） | – | not_found |
 | `reveal_attachment` | `{ messageId, attachmentId }` | `null`（添えたファイルを OS のファイラで、そのファイルを選んだ状態で開く。ファイルそのものは開かない） | – | not_found, storage |
 | `stop_channel` | `{ channelId }` | `null`（実行中の割り振りも打ち切る） | activity-changed, message-created, delegation-changed | not_found |
 | `list_delegations` | `{ channelId }` | `Delegation[]`（そのチャンネルの割り振り。createdAt の昇順、新しい方から最大200件） | – | not_found |
@@ -128,6 +128,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 復旧モード（§11）では `get_boot_status`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url` だけが動き、他は `unavailable` を返す。
 
+- 発言の本文は信頼できない入力として描く（`src/features/chat/model/`）: 生の HTML は文字として見せ、できた HTML は DOMPurify に通す（img・video・iframe などの要素は通さない）。画像・動画・コードブロックの操作・図は、HTML に置いた差し込み口（`data-embed`）へ React の部品として足す。
+  - 本文の中の画像・動画（`![名前](URL)`）: https のものは、利用者が札を押してから読み込む（発言を開いただけでは外へ通信しない。URL に情報を載せた持ち出しを防ぐため。Referer は送らない）。data: の画像（PNG・JPEG・GIF・WebP の base64）はそのまま見せる。http はリンクのまま、ほかのスキームは文字だけ。CSP は img-src・media-src に `https:` と `data:` を許す（押す前に読み込まないのは描画側の決まりで、CSP は種類を絞るだけ）。
+  - コードブロックは highlight.js で色分けする（言語が書かれていて分かるときだけ。出力は中身をエスケープした span だけ）。
+  - ```mermaid の図は `securityLevel: 'strict'` で描く（ラベルの HTML・クリックの動作は無効）。本体は最初の図が出るまで読み込まない。文法の誤り・閉じていないフェンス（書きかけ）は図にせず、ソースを見せる。
 - 発言の本文のリンクは http・https だけをリンクにする（`javascript:`・`mailto:` などは文字だけ）。クリックしても WebView の中では遷移させず、`open_url` で OS の既定のブラウザに渡す。Rust も http・https 以外は開かない（`tauri-plugin-opener` の Rust の API だけを使い、JS には opener の権限を渡さない）。
 
 ## 4. イベントと同期の規約

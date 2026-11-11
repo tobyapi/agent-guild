@@ -36,7 +36,7 @@ pub async fn send_message(
     state.services()?.conversation.send_human_message(&channel_id, &content, &images).map_err(reject)
 }
 
-/// 発言に貼った画像を data URL で返す（img にそのまま渡せる。CSP の img-src は data: を許している）
+/// 発言に添えた画像・動画を data URL で返す（img・video にそのまま渡せる。CSP の img-src・media-src は data: を許している）
 #[tauri::command]
 pub async fn get_attachment(
     state: State<'_, AppState>,

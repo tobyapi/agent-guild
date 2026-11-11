@@ -69,9 +69,47 @@ describe('createMarkdownRenderer: 安全性', () => {
     expect(render('[メール](mailto:a@example.com)')).not.toContain('<a');
   });
 
-  it('画像は読み込まずにリンクにする', () => {
-    const html = render('![図](https://example.com/a.png)');
+  it('画像・動画は読み込まず、差し込み口にする（https と data: の画像だけ。http はリンク、ほかは文字）', () => {
+    const html = render('![図](https://example.com/a.png) ![録画](https://example.com/b.mp4?t=1)');
     expect(html).not.toContain('<img');
-    expect(html).toContain('画像: 図');
+    expect(html).toContain('<span class="bodyMedia" data-embed="image" data-src="https://example.com/a.png"');
+    expect(html).toContain('data-embed="video" data-src="https://example.com/b.mp4?t=1" data-alt="録画"');
+    const plain = render('![図](http://example.com/a.png)');
+    expect(plain).not.toContain('data-embed');
+    expect(plain).toContain('<a href="http://example.com/a.png"');
+    expect(render('![図](javascript:alert(1))')).not.toMatch(/data-embed|<a/);
+  });
+
+  it('属性に入る文字はエスケープする（alt から属性を足せない）', () => {
+    const html = render('![" onerror="x](https://example.com/a.png)');
+    expect(html).toContain('data-alt="&quot; onerror=&quot;x"');
+  });
+});
+
+describe('createMarkdownRenderer: コードブロック', () => {
+  it('言語の名前を見出しに出し、色分けする', () => {
+    const html = render('```ts\nconst a = 1;\n```');
+    expect(html).toContain('<div class="codeBlock" data-embed="code" data-lang="ts">');
+    expect(html).toContain('<span class="codeLang">ts</span>');
+    expect(html).toContain('<span class="hljs-keyword">const</span>');
+  });
+
+  it('コードの中の HTML はエスケープする（知らない言語・言語なしでも）', () => {
+    for (const fence of ['```html', '```nazo', '```']) {
+      const html = render(`${fence}\n<img src=x onerror=alert(1)>\n\`\`\``);
+      expect(html).not.toContain('<img');
+      expect(html).toContain('&lt;');
+    }
+  });
+
+  it('閉じた mermaid は図の差し込み口にし、書きかけ（閉じていない）はコードのままにする', () => {
+    expect(render('```mermaid\ngraph TD\n  A-->B\n```')).toContain('data-embed="mermaid" data-lang="mermaid"');
+    const open = render('```mermaid\ngraph TD\n  A-->');
+    expect(open).toContain('data-embed="code" data-lang="mermaid"');
+    expect(open).toContain('A--&gt;');
+  });
+
+  it('箇条書きの中のコードブロックも同じ形にする', () => {
+    expect(render('1. 実行\n   ```sh\n   npm test\n   ```')).toContain('data-embed="code" data-lang="sh"');
   });
 });

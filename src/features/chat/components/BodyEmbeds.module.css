@@ -1,0 +1,125 @@
+/* 本文に差し込む部品（コピーのボタン・図・画像・動画）。docs/ui-design.md §5.4 */
+
+/* コードブロックの見出しの右端。文字だけの小さなボタン */
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  block-size: calc(var(--control-sm) - var(--space-1));
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.copy:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.copy[data-copied] {
+  color: var(--success);
+}
+
+/* 図: 幅に収め、中央に置く */
+.diagram {
+  overflow-x: auto;
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+}
+
+.diagram svg {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.note {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* 外の画像・動画を読み込む前の札: 押すと読み込む。どこから読むかを見せる */
+.mediaGate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-inline-size: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  font-size: var(--text-sm);
+  text-align: start;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.mediaGate:hover {
+  background: var(--bg-hover);
+}
+
+.mediaIcon {
+  flex: none;
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.mediaLabel {
+  overflow: hidden;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mediaHost {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.mediaFailed {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* 読み込んだ画像: 押すと大きく見る（添えた画像と同じ姿） */
+.mediaThumb {
+  display: block;
+  overflow: hidden;
+  max-inline-size: 100%;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  cursor: zoom-in;
+}
+
+/* 幅は % で決めない（行の中の箱は中身の幅に縮むので、% だと 0 になる） */
+.mediaImage {
+  display: block;
+  max-inline-size: min(480px, 50vw);
+  max-block-size: 320px;
+  object-fit: contain;
+}
+
+.video {
+  display: block;
+  max-inline-size: min(480px, 50vw);
+  max-block-size: 320px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+/* 大きく見る（ダイアログの中） */
+.full {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 70vh;
+  margin-inline: auto;
+  object-fit: contain;
+}

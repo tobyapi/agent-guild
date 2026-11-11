@@ -6,6 +6,9 @@ import { SEED_IDS } from './seedIds';
 
 const MINUTE_MS = 60 * 1000;
 const QUESTION_ID = 'demo-2';
+/** 本文に埋め込んだ画像の見本（菱の紋。48px の PNG） */
+const CREST_PNG =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAAmklEQVR42u3Y2wmAQAxE0anGLyuwGfu0KktQEPzeRxKuOJACDstuklkt64YqGWSQQQYZ9BfQeewg0K15CgF6NSEmxWrmTQrXTJqUoZkxKUkzbFKeZsykVM2ASdmaXpMKNF0m1WjaTSrTNJpUqWkxffCEiHeI+MqIfYjYqYmzjDjtifsQcWMk7tTE1EHMZcTk6s8GgwwyyKC8ugBuNgujY+mhuwAAAABJRU5ErkJggg==';
 
 interface DemoEntry {
   minutesAgo: number;
@@ -98,6 +101,36 @@ const ENTRIES: DemoEntry[] = [
       'npm run check',
       '```',
       '型チェックを並列にすれば半分になる。',
+    ].join('\n'),
+  },
+  {
+    minutesAgo: 12,
+    authorId: SEED_IDS.sora,
+    kind: 'chat',
+    depth: 1,
+    content: [
+      '## 並列化の案',
+      '',
+      '流れはこうなる。詳しくは [Vitest の説明](https://vitest.dev/guide/) を参照。',
+      '',
+      '```mermaid',
+      'flowchart LR',
+      '  A[変更] --> B{種類}',
+      '  B -->|TS| C[型チェック]',
+      '  B -->|Rust| D[clippy]',
+      '  C --> E[テスト]',
+      '  D --> E',
+      '```',
+      '',
+      '```ts',
+      '// 型チェックとテストを同時に走らせる',
+      'export async function check(tasks: Array<() => Promise<number>>): Promise<boolean> {',
+      '  const codes = await Promise.all(tasks.map((task) => task()));',
+      "  return codes.every((code) => code === 0) || fail('失敗');",
+      '}',
+      '```',
+      '',
+      `紋の画像も置いておく: ![菱の紋](${CREST_PNG})`,
     ].join('\n'),
   },
   {

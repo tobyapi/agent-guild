@@ -40,22 +40,6 @@
   box-decoration-break: clone;
 }
 
-.markdown :global(pre) {
-  overflow-x: auto;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--bg-sunken);
-  font-size: var(--text-code);
-  line-height: 1.6;
-}
-
-.markdown :global(pre code) {
-  padding: 0;
-  background: none;
-  font-size: inherit;
-}
-
 .markdown :global(blockquote) {
   margin-inline: 0;
   padding-inline-start: 0.9em;

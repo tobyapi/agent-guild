@@ -1,6 +1,7 @@
 // メッセージ本文（Markdown）を HTML にする。表示する前に必ず sanitizeHtml を通すこと。
 // - 生の HTML は文字としてそのまま見せる（タグとして解釈しない）
-// - リンクは http / https だけ（クリックすると OS の既定のブラウザで開く）。画像は読み込まず、リンクとして出す
+// - リンクは http / https だけ（クリックすると OS の既定のブラウザで開く）
+// - 画像・動画とコードブロックは、あとから部品を差し込む口にする（markdownEmbeds.ts）。画像はここでは読み込まない
 // - 「@名前」はメンションのチップにする（コードの中は対象外。NFKC・大文字小文字無視、名前の長い順に照合）
 import { Marked } from 'marked';
 import type { Tokens, TokenizerAndRendererExtension } from 'marked';
@@ -8,6 +9,7 @@ import { accentStyleText } from '@/shared/lib/accent';
 import { escapeHtml } from '@/shared/lib/html';
 import { matchMentionAt, sortByNameLength } from '@/shared/lib/mentions';
 import type { MentionTarget } from '@/shared/lib/mentions';
+import { codeBlockHtml, mediaHtml } from './markdownEmbeds';
 
 /** チップにする相手。kind は data-kind、accent は色（--kind-<accent> の CSS 変数。null なら既定の色） */
 export interface ChipTarget extends MentionTarget {
@@ -72,7 +74,10 @@ export function createMarkdownRenderer(targets: readonly ChipTarget[]): (markdow
         const label = this.parser.parseInline(tokens);
         return SAFE_URL.test(href) ? externalLink(href, label, title) : label;
       },
+      code: ({ text, lang, raw }) => codeBlockHtml(text, lang, raw),
       image({ href, text }) {
+        const embed = mediaHtml(href, text);
+        if (embed !== null) return embed;
         const label = `画像: ${escapeHtml(text || href)}`;
         return SAFE_URL.test(href) ? externalLink(href, label) : label;
       },

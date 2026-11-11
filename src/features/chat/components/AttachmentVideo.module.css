@@ -1,0 +1,76 @@
+/* 発言に添えた動画（docs/ui-design.md §5.4）: 再生の面と、その下に名前と大きさ */
+.video {
+  overflow: hidden;
+  inline-size: 480px;
+  max-inline-size: 100%;
+  margin: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+.player {
+  display: block;
+  inline-size: 100%;
+  max-block-size: 320px;
+}
+
+/* 再生する前の面（16:9）。押すと読み込んで再生する */
+.poster {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  padding: var(--space-3);
+  color: var(--text-secondary);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.poster:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.poster:disabled {
+  cursor: progress;
+}
+
+.play {
+  font-size: var(--text-2xl);
+}
+
+.failed {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.caption {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.name {
+  overflow: hidden;
+  min-inline-size: 0;
+  padding: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.size {
+  flex: none;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
