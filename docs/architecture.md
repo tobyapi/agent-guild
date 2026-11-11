@@ -115,7 +115,7 @@ agent-runner/src/
     types.ts           BackendAdapter インターフェース（info()・probe()・run(request, ctx)・任意の login(ctx)）
     registry.ts        アダプタの登録表
     claude.ts, claude/ Claude Agent SDK（権限 → tools、settingSources: []、スキルは stateDir のローカルプラグイン、readableDirs → additionalDirectories、
-                       画像は1件だけ流すユーザーメッセージ、ログインは同梱の claude.exe の auth login を別ウィンドウで。操作の確認は claude/check.ts と judge.ts）
+                       画像は1件だけ流すユーザーメッセージ、ログインは同梱の claude.exe の auth login を別ウィンドウで。操作の確認は claude/check.ts と judge.ts。コマンドの渡し方は claude/rules.ts、隔離の中で動くコマンドの道具は claude/command.ts）
     codex.ts, codex/   Codex SDK（権限 → sandbox・ネットワーク・Web検索、人格とスキルの渡し方は SDK の都合に合わせて stateDir か毎回作り直し、
                        画像は local_image の入力）
     codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション）。codex・grok・muse が使う

@@ -13,6 +13,9 @@ const DESCRIPTION =
   '作業の途中で、今いるチャンネルにメッセージを投稿します（進捗状況や困っていること）。' +
   '投稿しても作業は続きます。最後の返答は、これまでどおり普通に書いてください。ここでのメンションは相手に通知されません。';
 
+/** guild サーバーに足せる道具（SDK の tool() が返すもの） */
+export type GuildTool = NonNullable<Parameters<typeof createSdkMcpServer>[0]['tools']>[number];
+
 /** モデルに返すツールの結果（MCP の CallToolResult の形） */
 export interface PostResult {
   [key: string]: unknown;
@@ -28,8 +31,12 @@ export function handlePost(onPost: (text: string) => void, text: string): PostRe
   return { content: [{ type: 'text', text: '投稿しました。作業を続けてください。' }] };
 }
 
-export function postServer(onPost: (text: string) => void): McpSdkServerConfigWithInstance {
+/** guild サーバー。投稿の道具と、渡されたほかの道具（隔離の中で動くコマンド。command.ts）を持つ */
+export function postServer(
+  onPost: (text: string) => void,
+  extraTools: readonly GuildTool[] = [],
+): McpSdkServerConfigWithInstance {
   const schema = { text: z.string().describe('投稿する文章（Markdown が使えます）') };
   const post = tool('post', DESCRIPTION, schema, ({ text }) => Promise.resolve(handlePost(onPost, text)));
-  return createSdkMcpServer({ name: POST_SERVER, version: '1.0.0', tools: [post], alwaysLoad: true });
+  return createSdkMcpServer({ name: POST_SERVER, version: '1.0.0', tools: [post, ...extraTools], alwaysLoad: true });
 }

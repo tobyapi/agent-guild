@@ -1,6 +1,6 @@
 # Claude の外部連携の抑止
 
-Claude の全役割で、アプリが明示した組み込みツールと `mcp__guild__post` だけを使う。
+Claude の全役割で、アプリが明示した組み込みツールと、アプリが作る guild サーバーの道具（`mcp__guild__post` と、隔離の中で動くコマンド `mcp__guild__run_command`）だけを使う。guild サーバーの道具は、出自が `source: sdk, name: guild` のものだけを通す。
 権限を全許可した作業者も対象。`operationCheck` の省略・true・false で解除されない。
 
 ## 読み込みと実行の判定

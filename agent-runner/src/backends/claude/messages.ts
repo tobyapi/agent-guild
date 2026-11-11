@@ -9,6 +9,7 @@ import type {
 import type { ErrorCode, RunUsage } from '../../protocol.ts';
 import { activity, describeTool } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
+import { COMMAND_TOOL } from './command.ts';
 import { POST_TOOL } from './post.ts';
 import { claudeUsage } from './usage.ts';
 
@@ -47,13 +48,16 @@ function assistantError(message: SDKAssistantMessage, error: SDKAssistantMessage
   return new BackendError(code, hint ? `${hint}（${detail}）` : `Claude でエラーが発生しました（${detail}）`);
 }
 
+/** 隔離の中のコマンドは、進捗の表示では内蔵の Bash と同じ「コマンド実行」にする */
+const toolName = (name: string): string => (name === COMMAND_TOOL ? 'Bash' : name);
+
 /** assistant メッセージを途中経過として流し、本文があれば返す */
 function readAssistant(message: SDKAssistantMessage, onActivity: (detail: string) => void): string | undefined {
   if (message.error) throw assistantError(message, message.error);
   let text: string | undefined;
   for (const block of message.message.content) {
     if (block.type === 'tool_use') {
-      onActivity(block.name === POST_TOOL ? activity.posting() : describeTool(block.name, block.input));
+      onActivity(block.name === POST_TOOL ? activity.posting() : describeTool(toolName(block.name), block.input));
     } else if (block.type === 'text' && block.text.trim() !== '') {
       text = block.text;
       onActivity(activity.writing());

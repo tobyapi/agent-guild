@@ -1,15 +1,14 @@
-// Claude で権限を守る仕組み: ファイル操作をパスで判定する canUseTool と、守れない権限の組み合わせの判定。
+// Claude で権限を守る仕組み: ファイル操作をパスで判定する canUseTool（守れない権限の組み合わせは rules.ts）。
 
 import { folderFileResult } from '../folder-scope.ts';
 import { globEscapeReason, strayPathField, toolPath, unsafePathForm } from '../tool-paths.ts';
 import { relative, resolve } from 'node:path';
 import type { CanUseTool, HookCallback, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import { isJsonObject } from '../../line-parser.ts';
-import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { insideRoots } from './writable-path.ts';
 import { registeredToolResult } from './tool-policy.ts';
 import { expandedReadPolicy } from './secret-read.ts';
-import { brokenRule, declaredRules, type ExplainedRule, type RunRequest } from '../types.ts';
+import type { RunRequest } from '../types.ts';
 
 export const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const READ_TOOLS = new Set(['Read', 'Glob', 'Grep', 'LS']);
@@ -119,39 +118,4 @@ function denialMessage(tool: string, target: string, reason: string | null, form
       ? 'src など狭いフォルダを起点にするか、公開ファイルを個別に Read してください。'
       : '';
   return `${base}: ${reason}。${hint}`;
-}
-
-/**
- * 守れない権限の組み合わせ。作業場所の外への書き込みは、書き込みの範囲を広げるもの。
- * Bash はファイルとネットワークを自由に使える（Windows には Bash の sandbox がない）ので、
- * コマンドの実行には読み書き（作業場所の外も）と Web の権限が要る。
- */
-const RULES: readonly ExplainedRule[] = [
-  {
-    when: 'writeAnywhere',
-    requires: ['writeFiles'],
-    reason: '作業場所の外への書き込みを許すなら、ファイルの書き込みも許してください',
-  },
-  {
-    when: 'runCommands',
-    requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'],
-    reason: 'コマンドの実行を許すと、作業場所の外も含めたファイルの読み書きやネットワークアクセスを止められません',
-  },
-];
-
-/** 申告する権限の規則（BackendInfo.permissionRules） */
-export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
-
-/**
- * 持ち出しの危険がある組（BackendInfo.leakRisks）。作業場所の外にも書けるなら読み取りもどこでもでき（fileAccessPolicy）、
- * Web 閲覧は URL に情報を入れて外へ送れる。コマンドの実行（Bash）を許すときは、必ずこの組もそろう（RULES）
- */
-export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [
-  ['readFiles', 'writeAnywhere', 'webFetch'],
-  ['readFiles', 'readAnywhere', 'webFetch'],
-];
-
-/** Claude で守れない権限の組み合わせなら、その理由 */
-export function unenforceableReason(permissions: Permissions): string | null {
-  return brokenRule(RULES, permissions)?.reason ?? null;
 }

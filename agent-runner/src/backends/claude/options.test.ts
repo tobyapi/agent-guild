@@ -49,7 +49,9 @@ describe('toolsFor', () => {
       toolsFor({ ...EXPERT, readFiles: false, readAnywhere: false, skills: false }),
       'MEMORY.md のための読み書き',
     ).toEqual(['WebSearch', 'WebFetch', 'Read', 'Write', 'Edit']);
-    expect(toolsFor({ ...WORKER, runCommands: true })).toContain('Bash');
+    // 内蔵の Bash は隔離に入れられないので、読み書き（外も）と Web をすべて許す役割にだけ渡す
+    expect(toolsFor({ ...WORKER, writeAnywhere: true, runCommands: true })).toContain('Bash');
+    expect(toolsFor({ ...WORKER, runCommands: true })).not.toContain('Bash');
   });
 });
 

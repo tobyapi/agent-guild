@@ -93,7 +93,7 @@ export async function executeTool(
   const value = toolValue(name, args);
   if (name === 'run_command') {
     // Seatbelt がなければ、Windows の隔離の中で動かす（使えない PC では実行しない）
-    if (!prepared.isolated) return windowsCommand(request, prepared.workspace, value, signal);
+    if (!prepared.isolated) return windowsCommand(request, value, signal);
     return sandboxProcess(prepared.profile, prepared.workspace, '/bin/sh', ['-c', value], signal);
   }
   return executeFile(request, name, args, value, signal, prepared);

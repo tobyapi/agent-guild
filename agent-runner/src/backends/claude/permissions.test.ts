@@ -4,7 +4,8 @@ import { join, resolve } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { Permissions } from '../../protocol.ts';
 import type { RunRequest } from '../types.ts';
-import { fileAccessPolicy, unenforceableReason } from './permissions.ts';
+import { fileAccessPolicy } from './permissions.ts';
+import { unenforceableReason } from './rules.ts';
 
 const ROOT = realpathSync(mkdtempSync(join(tmpdir(), 'guild-policy-')));
 const WORK = join(ROOT, 'a1', 'work');

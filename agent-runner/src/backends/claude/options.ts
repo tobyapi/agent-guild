@@ -7,8 +7,10 @@ import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
 import { CHECKED_TOOLS, checkedPolicy, checksOperations } from './check.ts';
 import { claudeEnv } from './env.ts';
 import { claudeJudge } from './judge.ts';
+import { COMMAND_TOOL, commandTool } from './command.ts';
 import { fileAccessHook, fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
+import { commandMode } from './rules.ts';
 import { isolatedToolOptions, toolsFor } from './tool-policy.ts';
 export { toolsFor } from './tool-policy.ts';
 
@@ -42,9 +44,13 @@ export function claudeOptions(
   // 操作の確認をするなら、コマンドと Web ページを開くことも canUseTool を通す（judge.ts のモデルに確かめる）
   const checking = checksOperations(request);
   const preApproved = (tool: string) => PATHLESS_TOOLS.has(tool) && !(checking && tool in CHECKED_TOOLS);
+  // 作業者以外の役割のコマンドは、内蔵の Bash ではなく、隔離の中で動くアプリ側の道具として渡す（使える PC でだけ）。
+  // 隔離の外には影響できないので、作業フォルダの中への書き込みと同じく、操作の確認にはかけない
+  const sandboxed = commandMode(permissions) === 'sandbox';
+  const guildTools = sandboxed ? [POST_TOOL, COMMAND_TOOL] : [POST_TOOL];
   return {
     // ファイル道具のパスの判定は、canUseTool が呼ばれない（Claude Code が確認なしで通す）呼び出しにも PreToolUse で適用する
-    ...isolatedToolOptions([...tools, POST_TOOL], request, [fileAccessHook(request)]),
+    ...isolatedToolOptions([...tools, ...guildTools], request, [fileAccessHook(request)]),
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],
@@ -54,9 +60,11 @@ export function claudeOptions(
     systemPrompt: request.systemPrompt,
     // tools は使える組み込みツールの集合。ファイル操作は canUseTool がパスで判定する
     tools,
-    // 途中の投稿ツールはパスを扱わないので、確認なしで許す
-    allowedTools: [...tools.filter(preApproved), POST_TOOL],
-    mcpServers: { [POST_SERVER]: postServer(onPost) },
+    // 途中の投稿と隔離の中のコマンドはパスの判定が要らないので、確認なしで許す
+    allowedTools: [...tools.filter(preApproved), ...guildTools],
+    mcpServers: {
+      [POST_SERVER]: postServer(onPost, sandboxed ? [commandTool(request, abortController.signal)] : []),
+    },
     canUseTool: checking
       ? checkedPolicy(request, claudeJudge(request, executable, abortController.signal, onUsage), onPost)
       : fileAccessPolicy(request),

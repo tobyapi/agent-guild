@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import cases from '../../../contracts/behavior/role-permissions.json' with { type: 'json' };
 import type { PermissionKey, Permissions } from '../protocol.ts';
-import { unenforceableReason as claudeReason } from './claude/permissions.ts';
+import { unenforceableReason as claudeReason } from './claude/rules.ts';
 import { unenforceableReason as codexReason } from './codex-runtime/options.ts';
 import { validatePermissions as validateOllama } from './ollama/policy.ts';
 import { createBuiltinRegistry } from './registry.ts';

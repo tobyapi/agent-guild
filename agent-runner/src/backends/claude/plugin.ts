@@ -5,7 +5,8 @@ import { join } from 'node:path';
 import type { SkillPayload } from '../../protocol.ts';
 import { writeSkills } from '../skill-files.ts';
 
-const PLUGIN_NAME = 'guild-skills';
+/** stateDir の中の、スキルを置くフォルダの名前 */
+export const PLUGIN_NAME = 'guild-skills';
 
 /** <stateDir>/guild-skills/ を毎回作り直し、そのパスを返す（.claude-plugin/plugin.json と skills/<name>/SKILL.md） */
 export async function writeSkillPlugin(stateDir: string, skills: readonly SkillPayload[]): Promise<string> {

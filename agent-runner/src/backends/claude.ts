@@ -4,6 +4,7 @@
 
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
+import { prepareCommandSandbox } from './command-sandbox.ts';
 import { OPERATION_CHECK_OPTION } from './claude/check.ts';
 import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
@@ -11,7 +12,7 @@ import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
 import { claudeCatalog } from './claude/models.ts';
 import { claudeOptions, DEFAULT_MAX_TURNS } from './claude/options.ts';
-import { LEAK_RISKS, PERMISSION_RULES, unenforceableReason } from './claude/permissions.ts';
+import { LEAK_RISKS, permissionRules, unenforceableReason } from './claude/rules.ts';
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
 import {
@@ -25,7 +26,7 @@ import {
   type RunRequest,
 } from './types.ts';
 
-const INFO: BackendDescriptor = {
+const INFO: Omit<BackendDescriptor, 'permissionRules'> = {
   id: 'claude',
   label: 'Claude',
   capabilities: {
@@ -57,7 +58,6 @@ const INFO: BackendDescriptor = {
       default: true,
     },
   ],
-  permissionRules: [...PERMISSION_RULES],
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   unrestricted: [],
   canLogin: CAN_LOGIN,
@@ -65,6 +65,7 @@ const INFO: BackendDescriptor = {
 };
 
 async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }: RunContext): Promise<string> {
+  await prepareCommandSandbox();
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const executable = findClaude();
   if (executable === null) throw new BackendError('internal', CLAUDE_NOT_FOUND);
@@ -98,8 +99,13 @@ async function login(context: LoginContext): Promise<void> {
 }
 
 export const claudeAdapter: BackendAdapter = {
-  info: () => INFO,
-  probe: probeClaude,
+  // コマンドの規則は、隔離が使える PC では要らなくなる（作業者以外の役割も、隔離の中でコマンドを使える）
+  info: () => ({ ...INFO, permissionRules: permissionRules() }),
+  // コマンドの隔離が使えるかを先に確かめる（info() の規則が、この結果を使う）
+  probe: async () => {
+    await prepareCommandSandbox();
+    return probeClaude();
+  },
   catalog: claudeCatalog,
   run,
   login,

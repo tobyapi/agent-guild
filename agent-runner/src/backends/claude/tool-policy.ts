@@ -3,14 +3,15 @@ import type { HookCallback, Options, PermissionResult } from '@anthropic-ai/clau
 import type { Permissions } from '../../protocol.ts';
 import { folderFileHook } from '../folder-scope.ts';
 import type { RunRequest } from '../types.ts';
+import { COMMAND_TOOL } from './command.ts';
 import { POST_SERVER, POST_TOOL } from './post.ts';
+import { commandMode } from './rules.ts';
 
 const PERMISSION_TOOLS: readonly (readonly [keyof Permissions, readonly string[]])[] = [
   ['webSearch', ['WebSearch']],
   ['webFetch', ['WebFetch']],
   ['readFiles', ['Read', 'Glob', 'Grep']],
   ['writeFiles', ['Write', 'Edit']],
-  ['runCommands', ['Bash']],
   ['skills', ['Skill']],
 ];
 const MEMORY_TOOLS = ['Read', 'Write', 'Edit'];
@@ -20,11 +21,21 @@ const REGISTERED_TOOLS = new Set([
   'LS',
   'MultiEdit',
   'NotebookEdit',
+  'Bash',
   POST_TOOL,
+  COMMAND_TOOL,
 ]);
 
+/** guild サーバー（アプリが作るプロセス内の MCP）の道具。同じ名前でも、出自が違えば使わせない */
+const GUILD_TOOLS = new Set([POST_TOOL, COMMAND_TOOL]);
+
+/**
+ * 渡す組み込みツール。Bash は、隔離なしで渡してよい役割（rules.ts の commandMode が bash）だけ。
+ * 隔離の中で動くコマンドの道具は組み込みではないので、ここには入らない（options.ts が guild サーバーに足す）
+ */
 export function toolsFor(permissions: Permissions): string[] {
-  const granted = PERMISSION_TOOLS.flatMap(([permission, tools]) => (permissions[permission] ? [...tools] : []));
+  const files = PERMISSION_TOOLS.flatMap(([permission, tools]) => (permissions[permission] ? [...tools] : []));
+  const granted = commandMode(permissions) === 'bash' ? [...files, 'Bash'] : files;
   return [...granted, ...MEMORY_TOOLS.filter((tool) => !granted.includes(tool))];
 }
 
@@ -45,6 +56,7 @@ export function registeredToolResult(
   if (denied) return denied;
   const allowed =
     toolName === POST_TOOL ||
+    (toolName === COMMAND_TOOL && commandMode(permissions) === 'sandbox') ||
     (toolName === 'WebSearch' && permissions.webSearch) ||
     (toolName === 'Skill' && permissions.skills);
   return allowed ? { behavior: 'allow', updatedInput: input } : null;
@@ -55,9 +67,10 @@ export function registeredToolsHook(tools: readonly string[]): HookCallback {
   const offered = new Set(tools);
   return (input) => {
     if (input.hook_event_name !== 'PreToolUse') return Promise.resolve({});
-    const trustedPost =
-      input.tool_name !== POST_TOOL || (input.mcp_server?.source === 'sdk' && input.mcp_server.name === POST_SERVER);
-    if (offered.has(input.tool_name) && trustedPost) return Promise.resolve({});
+    const trusted =
+      !GUILD_TOOLS.has(input.tool_name) ||
+      (input.mcp_server?.source === 'sdk' && input.mcp_server.name === POST_SERVER);
+    if (offered.has(input.tool_name) && trusted) return Promise.resolve({});
     return Promise.resolve({
       hookSpecificOutput: {
         hookEventName: 'PreToolUse' as const,
