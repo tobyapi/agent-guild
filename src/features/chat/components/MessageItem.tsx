@@ -1,19 +1,18 @@
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { TagBadge } from '@/features/agents';
 import { BackendTag } from '@/features/runtime';
 import { removeTasksBlock } from '@/shared/lib/tasksBlock';
 import { formatDateTime, formatTime, isoTime } from '@/shared/lib/time';
 import { Avatar, Badge, Icon } from '@/shared/ui';
 import type { Delegation, Message } from '@/shared/types/domain';
-import { handleLinkClick } from '../hooks/linkClicks';
 import { jumpToMessage, messageElementId } from '../jump';
 import type { HighlightPhase } from '../jump';
 import type { AuthorView } from '../model/authors';
 import type { TaskLink } from '../model/delegations';
 import { MessageAttachments } from './MessageAttachments';
+import { MessageBody } from './MessageBody';
 import { TaskCard } from './TaskCard';
 import styles from './Message.module.css';
-import markdownStyles from './Markdown.module.css';
 
 const TASK_LINK_TEXT: Readonly<Record<TaskLink['kind'], string>> = {
   result: '割り振りの結果',
@@ -120,19 +119,6 @@ function MessageHeader({
         {formatTime(message.createdAt)}
       </time>
     </header>
-  );
-}
-
-/** 本文（Markdown をサニタイズした HTML）。リンクは OS の既定のブラウザで開く */
-function MessageBody({ content, render }: { content: string; render: (content: string) => string }) {
-  const html = useMemo(() => render(content), [render, content]);
-  return (
-    <div
-      className={markdownStyles.markdown}
-      onClick={handleLinkClick}
-      onAuxClick={handleLinkClick}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
   );
 }
 

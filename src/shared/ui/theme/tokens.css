@@ -77,6 +77,14 @@
   --autonomous: #f3d268; /* 山吹：💡 自発 */
   --autonomous-soft: rgba(243, 210, 104, 0.14);
 
+  /* コードの色分け（面は --bg-sunken）。新しい色相は足さず、役割と人の色を借りる。ライトでも元の色に追従する */
+  --syntax-keyword: var(--kind-manager);
+  --syntax-string: var(--kind-ideator);
+  --syntax-number: var(--kind-human);
+  --syntax-title: var(--kind-worker);
+  --syntax-type: var(--kind-expert);
+  --syntax-comment: var(--text-muted);
+
   /* アバター（タイル = 個人色を面に溶かす） */
   --avatar-tint: 30%;
   --avatar-tint-base: var(--bg-elevated);

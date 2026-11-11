@@ -80,9 +80,9 @@ describe('モックのコマンド', () => {
       beforeSeq: null,
       limit: 3,
     });
-    expect(latest.map((message) => message.seq)).toEqual([10, 11, 12]);
-    const older = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: 10, limit: 3 });
-    expect(older.map((message) => message.seq)).toEqual([7, 8, 9]);
+    expect(latest.map((message) => message.seq)).toEqual([11, 12, 13]);
+    const older = await mock.transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: 11, limit: 3 });
+    expect(older.map((message) => message.seq)).toEqual([8, 9, 10]);
   });
 
   it('create_agent: フラグなしの同名チャンネルには参加しない', async () => {

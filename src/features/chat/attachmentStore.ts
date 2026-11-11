@@ -18,6 +18,11 @@ export function revealAttachment(messageId: string, attachmentId: string): Promi
   return chatApi.reveal(messageId, attachmentId);
 }
 
+/** 動画などの大きな中身の data URL。キャッシュしない（再生するたびに取る。大きな文字列を持ち続けない） */
+export function fetchAttachment(messageId: string, attachmentId: string): Promise<string> {
+  return chatApi.attachment(messageId, attachmentId);
+}
+
 /** 画像の data URL（取得中のものは同じ取得を待つ） */
 export function loadAttachment(messageId: string, attachmentId: string): Promise<string> {
   const ready = loaded.get(attachmentId);

@@ -1,0 +1,81 @@
+/* 本文のコードブロックと差し込み口（model/markdownEmbeds.ts が書く HTML）。docs/ui-design.md §5.4。
+   中身は sanitize 済みの HTML なので、要素とクラスは :global で指す */
+.code :global(.codeBlock) {
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+/* 見出し: 言語の名前（左）とコピーのボタン（右。React が差し込む） */
+.code :global(.codeHead) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-block-size: var(--control-sm);
+  padding-inline: var(--space-4) var(--space-1);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.code :global(.codeLang) {
+  margin-inline-end: auto;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0;
+}
+
+.code :global(pre) {
+  overflow-x: auto;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-code);
+  line-height: 1.6;
+}
+
+.code :global(pre code) {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+/* 図が描けたら、ソースは畳む（コピーは見出しのボタンから） */
+.code :global([data-embed='mermaid'][data-rendered] > pre) {
+  display: none;
+}
+
+/* 色分け（highlight.js のクラス）。色は --syntax-*（tokens.css） */
+.code :global(:is(.hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag, .hljs-meta .hljs-keyword)) {
+  color: var(--syntax-keyword);
+}
+
+.code :global(:is(.hljs-string, .hljs-regexp, .hljs-addition, .hljs-meta .hljs-string)) {
+  color: var(--syntax-string);
+}
+
+.code :global(:is(.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-variable, .hljs-template-variable)) {
+  color: var(--syntax-number);
+}
+
+.code :global(:is(.hljs-title, .hljs-section, .hljs-name, .hljs-selector-id, .hljs-selector-class)) {
+  color: var(--syntax-title);
+}
+
+.code :global(:is(.hljs-type, .hljs-built_in, .hljs-attr, .hljs-attribute, .hljs-tag)) {
+  color: var(--syntax-type);
+}
+
+.code :global(:is(.hljs-comment, .hljs-quote, .hljs-meta, .hljs-deletion)) {
+  color: var(--syntax-comment);
+}
+
+.code :global(:is(.hljs-emphasis, .hljs-strong)) {
+  font-weight: var(--weight-semibold);
+}
+
+/* 本文の中の画像・動画（React が中身を差し込む）。行の中に置けるよう inline-block にする */
+.code :global(.bodyMedia) {
+  display: inline-block;
+  max-inline-size: 100%;
+  vertical-align: top;
+}
