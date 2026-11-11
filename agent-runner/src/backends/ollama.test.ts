@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from './ollama.ts';
 import { localHttp } from './ollama/http.ts';
 import { BackendRegistry } from './registry.ts';
-import { runContext, runRequest } from './run.test-support.ts';
+import { pretendMacOS, runContext, runRequest } from './run.test-support.ts';
 
 vi.mock('./ollama/http.ts', () => ({ localHttp: vi.fn() }));
 const http = vi.mocked(localHttp);
@@ -18,6 +18,7 @@ function reply(body: object): void {
 }
 
 beforeEach(() => http.mockReset());
+pretendMacOS();
 
 describe('Ollama', () => {
   it('ローカルの会話モデルだけを選べる。能力が一覧にないときは詳細から取得する', async () => {

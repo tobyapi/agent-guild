@@ -2,7 +2,7 @@ import { link, mkdir, mkdtemp, readFile, realpath, rm, symlink, writeFile } from
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { runRequest } from '../run.test-support.ts';
+import { REAL_MACOS, runRequest } from '../run.test-support.ts';
 import { fileTool } from './files.ts';
 
 let root: string;
@@ -22,7 +22,8 @@ const request = () => ({
   stateDir: join(root, 'state'),
 });
 
-describe('Ollama file permissions', () => {
+// 本物の Seatbelt でファイルを読み書きする。ほかの OS では隔離を用意できず、どの操作も同じ理由で拒否されてしまう
+describe.skipIf(!REAL_MACOS)('Ollama file permissions', () => {
   it('書き込み権限がなくてもMEMORY.mdだけは保存できる', async () => {
     const req = request();
     req.permissions.writeFiles = false;

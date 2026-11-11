@@ -2,6 +2,9 @@ use crate::support::runtime::{ready_backend, reply, Script};
 use crate::support::TestApp;
 use guild_domain::channel::WorkspaceMode;
 
+/// 割り当てるフォルダ（その OS の絶対パス。"/project" は Windows では絶対パスにならず、検証で落ちる）
+const PROJECT: &str = if cfg!(windows) { r"C:\project" } else { "/project" };
+
 #[tokio::test]
 async fn scope_changes_separate_history_memory_state_and_restore_without_old_context() {
     let app = TestApp::new();
@@ -14,14 +17,14 @@ async fn scope_changes_separate_history_memory_state_and_restore_without_old_con
     let changed = app
         .services
         .conversation
-        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some("/project".to_owned()))
+        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
         .await
         .unwrap();
     assert_eq!(changed.workspace.revision, 1);
     let unchanged = app
         .services
         .conversation
-        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some("/project".to_owned()))
+        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
         .await
         .unwrap();
     assert_eq!(unchanged.workspace, changed.workspace);
@@ -32,7 +35,7 @@ async fn scope_changes_separate_history_memory_state_and_restore_without_old_con
     assert!(scoped.prompt.contains("NEW_TASK"));
     assert!(!scoped.prompt.contains("OLD_PRIVATE_TASK"));
     assert!(!scoped.system_prompt.contains("LEGACY_PRIVATE_MEMORY"));
-    assert_eq!(scoped.writable_dirs.as_ref().unwrap(), &vec![std::path::PathBuf::from("/project")]);
+    assert_eq!(scoped.writable_dirs.as_ref().unwrap(), &vec![std::path::PathBuf::from(PROJECT)]);
     assert!(scoped.permissions.read_files && scoped.permissions.write_files);
     assert_ne!(scoped.workspace, requests[0].workspace);
     assert_ne!(scoped.state_dir, requests[0].state_dir);
@@ -70,7 +73,7 @@ async fn scope_cannot_change_while_jobs_are_running() {
     assert!(app
         .services
         .conversation
-        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some("/project".to_owned()))
+        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
         .await
         .is_err());
     app.services.conversation.stop(&channel.id).await.unwrap();
@@ -78,7 +81,7 @@ async fn scope_cannot_change_while_jobs_are_running() {
     assert!(app
         .services
         .conversation
-        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some("/project".to_owned()))
+        .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
         .await
         .is_ok());
 }
@@ -94,7 +97,7 @@ async fn unsupported_folder_backends_stop_before_runtime() {
         let channel = app.channel("作業", &[&agent]);
         app.services
             .conversation
-            .configure_workspace(&channel.id, WorkspaceMode::Folder, Some("/project".to_owned()))
+            .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
             .await
             .unwrap();
         app.services.conversation.send_human_message(&channel.id, "@ハル FILE_TASK", &[]).unwrap();

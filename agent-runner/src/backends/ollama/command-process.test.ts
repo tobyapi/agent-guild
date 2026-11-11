@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { spawn } from 'node:child_process';
-import { runRequest } from '../run.test-support.ts';
+import { REAL_MACOS, runRequest } from '../run.test-support.ts';
 import { runLocalCommand } from './command.ts';
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }));
@@ -33,7 +33,8 @@ const request = () => ({
   stateDir: join(root, 'state'),
 });
 
-describe('sandbox process', () => {
+// spawn はモックだが、隔離の用意（sandbox-exec があることの確認）は本物なので macOS だけで行う
+describe.skipIf(!REAL_MACOS)('sandbox process', () => {
   it('秘密の環境変数を渡さず、終了コードと出力を返す', async () => {
     const proc = child();
     vi.stubEnv('EXAMPLE_API_KEY', 'private');

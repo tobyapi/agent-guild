@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
-import { runContext, runRequest } from '../run.test-support.ts';
+import { pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
 import { localHttp } from './http.ts';
 import { fileTool } from './files.ts';
 import { runLocalCommand } from './command.ts';
@@ -12,6 +12,8 @@ const http = vi.mocked(localHttp);
 const response = (body: object) => http.mockResolvedValueOnce({ status: 200, text: JSON.stringify(body) });
 const action = (body: object) => response({ message: { content: JSON.stringify(body) } });
 let root: string;
+// 道具は呼ぶたびに本物の sandbox-exec を確かめるので、実際に道具を動かすテストは macOS だけで行う
+pretendMacOS();
 beforeEach(async () => {
   http.mockReset();
   root = await realpath(await mkdtemp(join(tmpdir(), 'ollama-merge-')));
@@ -46,7 +48,7 @@ it('JSONコマンドでも既定の操作確認が拒否したら実行しない
   expect(await readdir(join(root, 'work'))).toEqual([]);
 });
 
-it('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
+it.skipIf(!REAL_MACOS)('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
   const project = join(root, 'project');
   const peer = join(root, 'peer');
   await mkdir(project);
@@ -78,7 +80,7 @@ it.each(['runCommands', 'skills'] as const)(
   },
 );
 
-it('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {
+it.skipIf(!REAL_MACOS)('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {
   const req = request();
   req.permissions.writeFiles = false;
   await writeFile(join(req.workspace, 'keep'), 'keep');
@@ -90,7 +92,7 @@ it('MEMORY例外をリンク先の別ファイルの書き換えに使えない'
   expect(await readFile(join(req.workspace, 'keep'), 'utf8')).toBe('keep');
 });
 
-it('ネイティブ経路でもスキル参照と途中投稿を提供する', async () => {
+it.skipIf(!REAL_MACOS)('ネイティブ経路でもスキル参照と途中投稿を提供する', async () => {
   response({ models: [{ model: 'native', capabilities: ['completion', 'tools'] }] });
   response({ capabilities: ['completion', 'tools'] });
   response({
@@ -113,7 +115,7 @@ it('ネイティブ経路でもスキル参照と途中投稿を提供する', a
   expect(http.mock.calls[3]?.[2]).toContain('CODE-7319');
 });
 
-it('展開したスキルの付属ファイルをJSON経路から読み、終了時に片付ける', async () => {
+it.skipIf(!REAL_MACOS)('展開したスキルの付属ファイルをJSON経路から読み、終了時に片付ける', async () => {
   startJson();
   http.mockImplementationOnce((_path, _signal, body) => {
     const text = (JSON.parse(body ?? '{}') as { messages: { content: string }[] }).messages[0]!.content;
@@ -155,7 +157,7 @@ it('展開したスキルの付属ファイルをJSON経路から読み、終了
   expect(await readdir(req.stateDir)).toEqual([]);
 });
 
-it('tools対応を申告するモデルでもJSON操作を明示して実ファイルを保存できる', async () => {
+it.skipIf(!REAL_MACOS)('tools対応を申告するモデルでもJSON操作を明示して実ファイルを保存できる', async () => {
   response({ models: [{ model: 'deepseek', capabilities: ['completion', 'tools'] }] });
   response({ capabilities: ['completion', 'tools'] });
   action({ type: 'tool', tool: 'write_file', path: 'forced-json', content: 'verified' });
@@ -168,7 +170,7 @@ it('tools対応を申告するモデルでもJSON操作を明示して実ファ�
   expect(await readFile(join(req.workspace, 'forced-json'), 'utf8')).toBe('verified');
 });
 
-it('MEMORYのファイル例外をコマンドの書き込み権限へ広げない', async () => {
+it.skipIf(!REAL_MACOS)('MEMORYのファイル例外をコマンドの書き込み権限へ広げない', async () => {
   const req = request();
   req.permissions.writeFiles = false;
   const result = JSON.parse(await runLocalCommand(req, 'printf bad > MEMORY.md', new AbortController().signal)) as {

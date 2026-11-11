@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
 import { localHttp } from './http.ts';
 import { sandbox, executeTool } from './tools.ts';
-import { runContext, runRequest } from '../run.test-support.ts';
+import { pretendMacOS, runContext, runRequest } from '../run.test-support.ts';
 vi.mock('./http.ts', () => ({ localHttp: vi.fn() }));
 vi.mock('./tools.ts', async (original) => ({
   ...(await original<typeof import('./tools.ts')>()),
@@ -15,6 +15,7 @@ function reply(body: object): void {
   http.mockResolvedValueOnce({ status: 200, text: JSON.stringify(body) });
 }
 beforeEach(() => http.mockReset());
+pretendMacOS();
 describe('Ollama tool loop', () => {
   const toolModel = { model: 'small:1b', capabilities: ['completion', 'tools'] };
   function start() {
