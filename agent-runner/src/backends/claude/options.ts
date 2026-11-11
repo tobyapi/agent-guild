@@ -2,13 +2,15 @@
 
 import type { Options } from '@anthropic-ai/claude-agent-sdk';
 import { logInfo } from '../../log.ts';
-import { EFFORT_OPTION, type Permissions, type RunUsage } from '../../protocol.ts';
+import { EFFORT_OPTION, type RunUsage } from '../../protocol.ts';
 import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
 import { CHECKED_TOOLS, checkedPolicy, checksOperations } from './check.ts';
 import { claudeEnv } from './env.ts';
 import { claudeJudge } from './judge.ts';
 import { fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
+import { isolatedToolOptions, toolsFor } from './tool-policy.ts';
+export { toolsFor } from './tool-policy.ts';
 
 export const DEFAULT_MODEL = 'sonnet';
 /** Claude Code の推論の深さ（浅い順）。backendOptions の effort はこのどれか */
@@ -16,25 +18,8 @@ export const CLAUDE_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const
 /** 暴走を防ぐ既定のターン上限（options.maxTurns で上書きできる） */
 export const DEFAULT_MAX_TURNS = 30;
 
-/** 権限ごとに使える組み込みツール */
-const PERMISSION_TOOLS: readonly (readonly [keyof Permissions, readonly string[]])[] = [
-  ['webSearch', ['WebSearch']],
-  ['webFetch', ['WebFetch']],
-  ['readFiles', ['Read', 'Glob', 'Grep']],
-  ['writeFiles', ['Write', 'Edit']],
-  ['runCommands', ['Bash']],
-  ['skills', ['Skill']],
-];
 /** パスを扱わないので、確認なしで許すツール（Skill は skills オプションが許す） */
 const PATHLESS_TOOLS = new Set(['WebSearch', 'WebFetch', 'Bash']);
-
-/** 読み書きの権限がなくても、作業場所の MEMORY.md のために使えるツール（canUseTool が MEMORY.md だけに絞る） */
-const MEMORY_TOOLS = ['Read', 'Write', 'Edit'];
-
-export function toolsFor(permissions: Permissions): string[] {
-  const granted = PERMISSION_TOOLS.flatMap(([permission, tools]) => (permissions[permission] ? [...tools] : []));
-  return [...granted, ...MEMORY_TOOLS.filter((tool) => !granted.includes(tool))];
-}
 
 /** 1回の実行に固有のもの */
 export interface ClaudeRun {
@@ -58,6 +43,7 @@ export function claudeOptions(
   const checking = checksOperations(request);
   const preApproved = (tool: string) => PATHLESS_TOOLS.has(tool) && !(checking && tool in CHECKED_TOOLS);
   return {
+    ...isolatedToolOptions([...tools, POST_TOOL]),
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],

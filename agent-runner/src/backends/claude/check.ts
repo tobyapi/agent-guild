@@ -7,6 +7,7 @@ import type { Permissions } from '../../protocol.ts';
 import { isInside, optionBoolean, type RunRequest } from '../types.ts';
 import type { Judge, Operation, Verdict } from './judge.ts';
 import { fileAccessPolicy, targetOf, WRITE_TOOLS } from './permissions.ts';
+import { unregisteredToolDenial } from './tool-policy.ts';
 
 /** backendOptions のキー（真偽値。なければ確かめる） */
 export const OPERATION_CHECK_OPTION = 'operationCheck';
@@ -58,6 +59,8 @@ export function operationOf(toolName: string, input: Record<string, unknown>, wo
 export function checkedPolicy(request: RunRequest, judge: Judge, onBlocked: (notice: string) => void): CanUseTool {
   const files = fileAccessPolicy(request);
   return async (toolName, input, options) => {
+    const denied = unregisteredToolDenial(toolName);
+    if (denied) return denied;
     const decided =
       toolName in CHECKED_TOOLS ? pathless(request, toolName, input) : await files(toolName, input, options);
     if (decided?.behavior !== 'allow') return decided;

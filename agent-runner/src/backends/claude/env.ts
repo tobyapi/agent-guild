@@ -12,5 +12,8 @@ const PROVIDER_PREFIXES: readonly (readonly [string, readonly string[]])[] = [
 
 export function claudeEnv(env: NodeJS.ProcessEnv): Record<string, string> {
   const prefixes = ['ANTHROPIC_', 'CLAUDE_', ...PROVIDER_PREFIXES.flatMap(([flag, kept]) => (env[flag] ? kept : []))];
-  return withoutSecrets(env, (name) => prefixes.some((prefix) => name.toUpperCase().startsWith(prefix)));
+  return {
+    ...withoutSecrets(env, (name) => prefixes.some((prefix) => name.toUpperCase().startsWith(prefix))),
+    ENABLE_CLAUDEAI_MCP_SERVERS: 'false',
+  };
 }

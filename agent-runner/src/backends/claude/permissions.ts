@@ -4,6 +4,7 @@ import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { writableInWorkspace } from './writable-path.ts';
+import { registeredToolResult } from './tool-policy.ts';
 import { absoluteGlobDenial, expandedReadPolicy } from './secret-read.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
@@ -40,13 +41,16 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
     (isMemory ||
       (permissions.readFiles &&
         (permissions.readAnywhere || anywhere || readableRoots.some((root) => isInside(target, root)))));
+  const writableByScope = async (toolName: string, target: string, isMemory: boolean): Promise<boolean> =>
+    WRITE_TOOLS.has(toolName) &&
+    (isMemory || permissions.writeFiles) &&
+    (anywhere || (await writableInWorkspace(target, workspace)));
   return async (toolName, input) => {
+    const registered = registeredToolResult(toolName, permissions, input);
+    if (registered) return registered;
     const target = targetOf(input, workspace);
     const isMemory = relative(memory, target) === '';
-    const writable =
-      WRITE_TOOLS.has(toolName) &&
-      (isMemory || permissions.writeFiles) &&
-      (anywhere || (await writableInWorkspace(target, workspace)));
+    const writable = await writableByScope(toolName, target, isMemory);
     const patternReason = anywhere ? null : absoluteGlobDenial(toolName, input);
     const inScope = readableByScope(toolName, target, isMemory);
     const reason =

@@ -8,6 +8,7 @@ import type { RunUsage } from '../../protocol.ts';
 import type { RunRequest } from '../types.ts';
 import { claudeEnv } from './env.ts';
 import { claudeUsage } from './usage.ts';
+import { isolatedToolOptions } from './tool-policy.ts';
 
 /** 確かめる操作 */
 export interface Operation {
@@ -93,6 +94,7 @@ async function askClaude(
   const timer = setTimeout(abort, JUDGE_TIMEOUT_MS);
   try {
     const options = {
+      ...isolatedToolOptions([]),
       pathToClaudeCodeExecutable: executable,
       model: JUDGE_MODEL,
       systemPrompt: JUDGE_RULES,
