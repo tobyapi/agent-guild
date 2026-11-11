@@ -16,6 +16,12 @@ describe('モックの内蔵スキル', () => {
     expect(names).toEqual([...names].sort());
     expect(names).toContain('code-review');
     expect(builtins.every((skill) => skill.description !== '' && !skill.body.startsWith('---'))).toBe(true);
+    expect(builtins.every((skill) => !skill.description.startsWith('"') && !skill.description.startsWith("'"))).toBe(
+      true,
+    );
+    const critique = builtins.find((skill) => skill.name === 'universal-critique');
+    expect(critique?.files).toContain('references/classical-methods.md');
+    expect(builtins.find((skill) => skill.name === 'code-review')?.files).toEqual([]);
   });
 
   it('add_builtin_skill（link）: 内蔵スキルを参照し、編集はできず、一覧では同梱の内容を読み直す', async () => {

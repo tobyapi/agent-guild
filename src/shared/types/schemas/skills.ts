@@ -27,6 +27,7 @@ export const builtinSkillSchema = {
   name: string,
   description: string,
   body: string,
+  files: arrayOf(string),
 } satisfies Schema<BuiltinSkill>;
 
 export const skillSchema = {

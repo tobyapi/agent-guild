@@ -27,6 +27,7 @@ const REVIEW: SkillPayload = {
   description: 'レビュー: 論理の穴を探す "手順"',
   body: '# 手順\n1. 主張を1文で言う',
   dir: null,
+  files: [],
 };
 
 describe('skillMarkdown', () => {
@@ -58,6 +59,7 @@ describe('writeSkills', () => {
       description: 'Unity',
       body: '# 新しい本文',
       dir: library,
+      files: [],
     };
     const dir = join(tempDir(), 'skills');
     await writeSkills(dir, [REVIEW, linked]);
@@ -67,6 +69,29 @@ describe('writeSkills', () => {
     expect(readFileSync(join(skillDir, 'references', 'gc.md'), 'utf8')).toBe('# GC');
     expect(readFileSync(join(library, 'SKILL.md'), 'utf8')).toContain('古い本文');
   });
+
+  it('内蔵スキルの付属ファイル（files）を相対パスのとおりに書く', async () => {
+    const files = [
+      { path: 'references/patterns.md', content: '# パターン' },
+      { path: 'notes.md', content: 'メモ' },
+    ];
+    const dir = join(tempDir(), 'skills');
+    await writeSkills(dir, [{ ...REVIEW, files }]);
+    const skillDir = join(dir, 'review-checklist');
+    expect(readFileSync(join(skillDir, 'references', 'patterns.md'), 'utf8')).toBe('# パターン');
+    expect(readFileSync(join(skillDir, 'notes.md'), 'utf8')).toBe('メモ');
+    expect(readFileSync(join(skillDir, 'SKILL.md'), 'utf8')).toBe(skillMarkdown(REVIEW));
+  });
+
+  it.each(['../escape.md', '/abs.md', 'C:/x.md', 'a\\b.md', 'a//b.md', './a.md', 'SKILL.md', ''])(
+    '付属ファイルのパスが不正（%s）なら bad_request で何も書かない',
+    async (path) => {
+      const dir = join(tempDir(), 'skills');
+      const failure = writeSkills(dir, [{ ...REVIEW, files: [{ path, content: 'x' }] }]);
+      await expect(failure).rejects.toMatchObject({ code: 'bad_request' });
+      expect(existsSync(dir)).toBe(false);
+    },
+  );
 
   it('付属ファイルが上限を超えたら bad_request で、前回の展開も含めて何も書き換えない', async () => {
     const library = join(tempDir(), 'big');

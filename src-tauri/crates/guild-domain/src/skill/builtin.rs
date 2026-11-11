@@ -1,19 +1,21 @@
-//! 内蔵スキル: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/SKILL.md`。ブラウザのモックも同じファイルを読む）。
-//! エージェントに付けると `SkillSource::Builtin` で参照し、一覧と実行のたびにここから読み直す（アプリの更新に追従する）。
+//! 内蔵スキル: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/`。ブラウザのモックも同じファイルを読む）。
+//! build.rs がフォルダの SKILL.md と付属ファイル（references/ など）を埋め込む。エージェントに付けると
+//! `SkillSource::Builtin` で参照し、一覧と実行のたびにここから読み直す（アプリの更新に追従する）。
 
 use serde::{Deserialize, Serialize};
 
 use super::file::parse_skill_file;
 
-/// 同梱する SKILL.md（フォルダ名, 中身）。足すときはフォルダ名と frontmatter の name をそろえる
-const FILES: &[(&str, &str)] = &[
-    ("code-review", include_str!("../../../../../src/shared/assets/skills/code-review/SKILL.md")),
-    ("bug-investigation", include_str!("../../../../../src/shared/assets/skills/bug-investigation/SKILL.md")),
-    ("research-report", include_str!("../../../../../src/shared/assets/skills/research-report/SKILL.md")),
-    ("task-breakdown", include_str!("../../../../../src/shared/assets/skills/task-breakdown/SKILL.md")),
-    ("meeting-minutes", include_str!("../../../../../src/shared/assets/skills/meeting-minutes/SKILL.md")),
-    ("proofreading", include_str!("../../../../../src/shared/assets/skills/proofreading/SKILL.md")),
-];
+/// 同梱する内蔵スキル1つ（フォルダ名・SKILL.md・付属ファイル）
+pub struct BundledSkill {
+    /// フォルダ名（frontmatter の name とそろえる）
+    pub folder: &'static str,
+    pub skill_md: &'static str,
+    /// SKILL.md 以外のファイル（フォルダからの相対パス（/ 区切り）, 中身）
+    pub files: &'static [(&'static str, &'static str)],
+}
+
+const BUNDLED: &[BundledSkill] = include!(concat!(env!("OUT_DIR"), "/builtin_skills.rs"));
 
 /// TS の BuiltinSkill
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -22,15 +24,30 @@ pub struct BuiltinSkill {
     pub name: String,
     pub description: String,
     pub body: String,
+    /// 付属ファイルのスキルのフォルダからの相対パス（/ 区切り、パスの順）
+    pub files: Vec<String>,
+}
+
+/// 付属ファイル1つ（実行のときにスキルのフォルダへ書き出す）
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BuiltinSkillFile {
+    /// スキルのフォルダからの相対パス（/ 区切り）
+    pub path: String,
+    pub content: String,
 }
 
 /// 内蔵スキルの一覧（name の順）。標準に合わないものは出さない（テストで全件が合うことを確かめる）
 pub fn builtin_skills() -> Vec<BuiltinSkill> {
-    let mut skills: Vec<BuiltinSkill> = FILES
+    let mut skills: Vec<BuiltinSkill> = BUNDLED
         .iter()
-        .map(|(folder, text)| parse_skill_file(text, folder))
-        .filter(|file| file.problem.is_none())
-        .map(|file| BuiltinSkill { name: file.name, description: file.description, body: file.body })
+        .map(|bundled| (parse_skill_file(bundled.skill_md, bundled.folder), bundled))
+        .filter(|(file, _)| file.problem.is_none())
+        .map(|(file, bundled)| BuiltinSkill {
+            name: file.name,
+            description: file.description,
+            body: file.body,
+            files: bundled.files.iter().map(|(path, _)| (*path).to_owned()).collect(),
+        })
         .collect();
     skills.sort_by(|a, b| a.name.cmp(&b.name));
     skills
@@ -41,7 +58,21 @@ pub fn find_builtin_skill(name: &str) -> Option<BuiltinSkill> {
     builtin_skills().into_iter().find(|skill| skill.name == name)
 }
 
-/// 同梱する SKILL.md の生の中身（フォルダ名, 中身）。テストで標準に合うことを確かめる
-pub fn builtin_skill_files() -> &'static [(&'static str, &'static str)] {
-    FILES
+/// name の内蔵スキルの付属ファイル（この版のアプリになければ空）
+pub fn builtin_skill_files(name: &str) -> Vec<BuiltinSkillFile> {
+    let bundled = BUNDLED.iter().find(|bundled| parse_skill_file(bundled.skill_md, bundled.folder).name == name);
+    bundled
+        .map(|bundled| {
+            bundled
+                .files
+                .iter()
+                .map(|(path, content)| BuiltinSkillFile { path: (*path).to_owned(), content: (*content).to_owned() })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// 同梱する内蔵スキルの生の中身。テストで標準に合うことを確かめる
+pub fn bundled_skills() -> &'static [BundledSkill] {
+    BUNDLED
 }

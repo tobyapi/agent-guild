@@ -119,7 +119,12 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
 }
 
 fn skill(skill: SkillPayload) -> runner::SkillPayload {
-    runner::SkillPayload { name: skill.name, description: skill.description, body: skill.body, dir: skill.dir }
+    let files = skill
+        .files
+        .into_iter()
+        .map(|file| runner::SkillFilePayload { path: file.path, content: file.content })
+        .collect();
+    runner::SkillPayload { name: skill.name, description: skill.description, body: skill.body, dir: skill.dir, files }
 }
 
 fn image(image: ImagePayload) -> runner::ImagePayload {

@@ -5,8 +5,8 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use runner_client::{
-    ImagePayload, Launch, Permissions, RunRequest, RunUpdate, RunnerClient, RunnerConfig, RunnerStatus, SkillPayload,
-    UpdateFn,
+    ImagePayload, Launch, Permissions, RunRequest, RunUpdate, RunnerClient, RunnerConfig, RunnerStatus,
+    SkillFilePayload, SkillPayload, UpdateFn,
 };
 use tokio::sync::mpsc;
 
@@ -57,6 +57,7 @@ pub fn request(prompt: &str) -> RunRequest {
             description: "レビューのチェックリスト".to_owned(),
             body: "# 手順\n1. 主張は1文で言えるか\n".to_owned(),
             dir: None,
+            files: vec![SkillFilePayload { path: "references/examples.md".to_owned(), content: "# 例\n".to_owned() }],
         }],
         options,
     }

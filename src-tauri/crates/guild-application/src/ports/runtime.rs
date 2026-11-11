@@ -16,6 +16,17 @@ pub struct SkillPayload {
     pub body: String,
     /// linked のスキルの参照先（付属ファイルをアダプタがコピーする）。アプリ内のスキルは None
     pub dir: Option<PathBuf>,
+    /// 内蔵スキルの付属ファイル（アダプタがスキルのフォルダへ書き出す）。ほかのスキルは空
+    pub files: Vec<SkillFilePayload>,
+}
+
+/// ランナーに渡すスキルの付属ファイル（中身ごと渡す）
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkillFilePayload {
+    /// スキルのフォルダからの相対パス（/ 区切り）
+    pub path: String,
+    /// UTF-8 のテキスト
+    pub content: String,
 }
 
 /// ランナーに渡す画像（会話に貼られたもの）

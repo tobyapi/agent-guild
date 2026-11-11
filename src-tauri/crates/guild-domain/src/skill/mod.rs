@@ -12,7 +12,10 @@ use serde::{Deserialize, Serialize};
 use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, SkillId};
 
-pub use builtin::{builtin_skill_files, builtin_skills, find_builtin_skill, BuiltinSkill};
+pub use builtin::{
+    builtin_skill_files, builtin_skills, bundled_skills, find_builtin_skill, BuiltinSkill, BuiltinSkillFile,
+    BundledSkill,
+};
 pub use file::{parse_skill_file, SkillFile, SKILL_FILE};
 pub use library::{
     validate_library_dirs, LibraryAddMode, LibrarySkill, SkillLibrary, LIBRARY_SCAN_DEPTH, LIBRARY_SKILL_LIMIT,

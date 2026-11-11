@@ -124,6 +124,7 @@ agent-runner/src/
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
     agent-env.ts       エージェントに渡す環境変数（秘密らしい名前の変数はコマンドから除く）
     skill-files.ts     スキルを Agent Skills 標準のフォルダ（<name>/SKILL.md と付属ファイル）として書き出す
+                       （リンク先からのコピーは skill-files/assets.ts、内蔵スキルの files は skill-files/bundled.ts）
 ```
 
 ## React（src/）: feature-based

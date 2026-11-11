@@ -23,6 +23,8 @@ export interface BuiltinSkill {
   name: string;
   description: string;
   body: string;
+  /** 付属ファイルのスキルのフォルダからの相対パス（/ 区切り、パスの順。references/ など）。実行のときにいっしょに渡す */
+  files: string[];
 }
 
 export interface Skill {

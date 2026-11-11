@@ -139,6 +139,18 @@ pub struct SkillPayload {
     pub body: String,
     /// linked のスキルの参照先（付属ファイルをアダプタがコピーする）。None でも必ず `"dir": null` を送る
     pub dir: Option<PathBuf>,
+    /// 内蔵スキルの付属ファイル（アダプタがスキルのフォルダへ書き出す）。なければ `[]`
+    pub files: Vec<SkillFilePayload>,
+}
+
+/// スキルの付属ファイル（中身ごと渡す）
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillFilePayload {
+    /// スキルのフォルダからの相対パス（/ 区切り。.. や絶対パスは不可）
+    pub path: String,
+    /// UTF-8 のテキスト
+    pub content: String,
 }
 
 /// run に添える画像（会話に貼られたもの）

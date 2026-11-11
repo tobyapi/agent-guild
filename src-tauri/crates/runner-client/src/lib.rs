@@ -26,7 +26,7 @@ pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
     BackendInfo, BackendStatus, ImagePayload, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey,
-    PermissionRule, Permissions, RunRequest, RunUsage, SkillPayload,
+    PermissionRule, Permissions, RunRequest, RunUsage, SkillFilePayload, SkillPayload,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。

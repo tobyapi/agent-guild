@@ -4,7 +4,14 @@
 import { isKeyBackend } from './credentials/store.ts';
 import type { RunRequest } from './backends/types.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
-import type { ImagePayload, PermissionKey, Permissions, RunnerRequest, SkillPayload } from './protocol.ts';
+import type {
+  ImagePayload,
+  PermissionKey,
+  Permissions,
+  RunnerRequest,
+  SkillFilePayload,
+  SkillPayload,
+} from './protocol.ts';
 
 export type DecodeResult = { ok: true; request: RunnerRequest } | { ok: false; id: string | null; message: string };
 
@@ -19,6 +26,7 @@ const PERMISSION_KEYS = [
   'skills',
 ] as const satisfies readonly PermissionKey[];
 const SKILL_FIELDS = ['name', 'description', 'body'] as const;
+const SKILL_FILE_FIELDS = ['path', 'content'] as const;
 const IMAGE_FIELDS = ['path', 'mediaType'] as const;
 
 const isString = (field: unknown): field is string => typeof field === 'string';
@@ -115,12 +123,27 @@ const isSkillDir = (field: unknown): field is string | null => field === null ||
 function decodeSkills(value: unknown): SkillPayload[] | null {
   if (!Array.isArray(value)) return null;
   const skills: unknown[] = value;
-  const valid = skills.filter(
-    (skill): skill is JsonObject & Record<(typeof SKILL_FIELDS)[number], string> & { dir: string | null } =>
-      isJsonObject(skill) && hasFields(skill, SKILL_FIELDS, isString) && isSkillDir(skill.dir),
+  const decoded: SkillPayload[] = [];
+  for (const skill of skills) {
+    if (!isJsonObject(skill) || !hasFields(skill, SKILL_FIELDS, isString) || !isSkillDir(skill.dir)) return null;
+    const files = decodeSkillFiles(skill.files);
+    if (files === null) return null;
+    const { name, description, body, dir } = skill;
+    decoded.push({ name, description, body, dir, files });
+  }
+  return decoded;
+}
+
+/** 内蔵スキルの付属ファイル（path と content の文字列）。欠けていれば不正 */
+function decodeSkillFiles(value: unknown): SkillFilePayload[] | null {
+  if (!Array.isArray(value)) return null;
+  const files: unknown[] = value;
+  const valid = files.filter(
+    (file): file is JsonObject & Record<(typeof SKILL_FILE_FIELDS)[number], string> =>
+      isJsonObject(file) && hasFields(file, SKILL_FILE_FIELDS, isString),
   );
-  if (valid.length !== skills.length) return null;
-  return valid.map(({ name, description, body, dir }) => ({ name, description, body, dir }));
+  if (valid.length !== files.length) return null;
+  return valid.map(({ path, content }) => ({ path, content }));
 }
 
 function decodeImages(value: unknown): ImagePayload[] | null {

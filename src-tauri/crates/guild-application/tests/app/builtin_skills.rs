@@ -84,3 +84,25 @@ async fn listing_and_runs_reread_builtins_and_skip_ones_this_version_lacks() {
         request.skills.iter().map(|s| (s.name.as_str(), s.description.as_str(), s.dir.is_none())).collect();
     assert_eq!(skills, [("task-breakdown", fresh.description.as_str(), true)], "読めない内蔵スキルは外す");
 }
+
+#[tokio::test]
+async fn runs_pass_the_bundled_files_of_builtins() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let lobby = app.channel("ロビー", &[&haru]);
+    app.services.skills.add_builtin(&haru.id, "universal-critique", LibraryAddMode::Link).unwrap();
+    app.services.skills.add_builtin(&haru.id, "concept-shift", LibraryAddMode::Copy).unwrap();
+    app.runtime.script(haru.id.as_str(), reply("はい"));
+
+    app.services.conversation.send_human_message(&lobby.id, "お願い", &[]).unwrap();
+    app.settle().await;
+
+    let request = &app.runtime.requests_for(haru.id.as_str())[0];
+    let files_of = |name: &str| -> Vec<String> {
+        let skill = request.skills.iter().find(|skill| skill.name == name).unwrap();
+        skill.files.iter().map(|file| file.path.clone()).collect()
+    };
+    assert_eq!(files_of("universal-critique"), find_builtin_skill("universal-critique").unwrap().files);
+    assert!(files_of("universal-critique").iter().any(|path| path == "references/classical-methods.md"));
+    assert!(files_of("concept-shift").is_empty(), "コピーしたスキルは本文だけ（付属ファイルは持たない）");
+}

@@ -13,6 +13,8 @@ pub use repositories::{
     AgentRepository, ChannelRepository, DelegationRepository, MessageFilter, MessageRepository, MetaRepository,
     ProfileRepository, SkillRepository, StatisticsRepository,
 };
-pub use runtime::{AgentRuntime, ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload, UpdateSink};
+pub use runtime::{
+    AgentRuntime, ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillFilePayload, SkillPayload, UpdateSink,
+};
 pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsStore, TargetFolder};
 pub use system::{AppControl, BoxTask, Clock, EventPublisher, IdGenerator, Spawner, Workspace, WorkspacePaths};

@@ -35,7 +35,8 @@ export function BuiltinPicker({ agentId, existing, onClose }: BuiltinPickerProps
         </IconButton>
       </div>
       <p className={styles.help}>
-        アプリに入っている手引きです。「追加」は内蔵スキルを参照し、アプリを更新すると内容も新しくなります（アプリでは編集できません）。「コピーして追加」は本文を取り込み、アプリで編集できます。
+        アプリに入っている手引きです。「追加」は内蔵スキルを参照し、アプリを更新すると内容も新しくなります（アプリでは編集できません）。「コピーして追加」は
+        SKILL.md の本文だけを取り込み、アプリで編集できます（付属ファイルは持ち込みません）。
       </p>
       {builtins === null ? (
         <p className={styles.help}>読み込み中…</p>
@@ -75,6 +76,9 @@ function BuiltinEntry({ agentId, entry, existing }: BuiltinEntryProps) {
       <div className={styles.entryText}>
         <span className={styles.entryHead}>
           <code className={styles.entryName}>{entry.name}</code>
+          <span className={styles.meta} title={entry.files.join('\n')}>
+            {entry.files.length > 0 ? `付属ファイル ${entry.files.length} 個` : '付属ファイルなし'}
+          </span>
         </span>
         <span className={styles.description}>{entry.description}</span>
         {taken && (
@@ -95,7 +99,17 @@ function BuiltinEntry({ agentId, entry, existing }: BuiltinEntryProps) {
             <Button size="sm" variant="primary" onClick={() => add('link')} disabled={busy || taken}>
               追加
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => add('copy')} disabled={busy || taken}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => add('copy')}
+              disabled={busy || taken}
+              title={
+                entry.files.length > 0
+                  ? `SKILL.md の本文だけを取り込みます（付属ファイル ${entry.files.length} 個は持ち込みません）`
+                  : 'SKILL.md の本文を取り込みます'
+              }
+            >
               コピーして追加
             </Button>
           </>

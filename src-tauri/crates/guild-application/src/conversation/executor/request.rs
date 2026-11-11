@@ -11,11 +11,11 @@ use guild_domain::message::Message;
 use guild_domain::prompt::{
     build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext,
 };
-use guild_domain::skill::Skill;
+use guild_domain::skill::{builtin_skill_files, Skill};
 
 use super::history::history;
 use crate::error::AppResult;
-use crate::ports::{ImagePayload, RuntimeRequest, SkillPayload};
+use crate::ports::{ImagePayload, RuntimeRequest, SkillFilePayload, SkillPayload};
 use crate::services::Ports;
 use crate::skills::sources;
 
@@ -139,5 +139,12 @@ fn payload(skill: &Skill) -> SkillPayload {
         description: skill.description.clone(),
         body: skill.body.clone(),
         dir: skill.linked_path().map(PathBuf::from),
+        files: skill
+            .builtin_name()
+            .map(builtin_skill_files)
+            .unwrap_or_default()
+            .into_iter()
+            .map(|file| SkillFilePayload { path: file.path, content: file.content })
+            .collect(),
     }
 }

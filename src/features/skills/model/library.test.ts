@@ -24,7 +24,7 @@ const skill = (name: string, linkedPath: string | null = null): Skill => ({
 });
 
 describe('builtinEntryState', () => {
-  const builtin: BuiltinSkill = { name: 'code-review', description: 'レビュー', body: '' };
+  const builtin: BuiltinSkill = { name: 'code-review', description: 'レビュー', body: '', files: [] };
   const referencing: Skill = { ...skill('code-review'), source: { kind: 'builtin', name: 'code-review' } };
 
   it('同じ内蔵スキルを参照済みなら追加済み、同じ名前の別のスキルがあれば追加できない', () => {
