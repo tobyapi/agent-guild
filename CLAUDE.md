@@ -12,7 +12,17 @@
 - `npm run dev` … フロントだけ起動（ブラウザではモックのバックエンドで動く）
 - `npm run bundle` … 配布用のアプリとインストーラーを作る（agent-runner と Node.js を同梱。Claude Code・Codex CLI は利用者の環境のものを使う）。CI は `.github/workflows/build.yml`
 - `npm run format` … コードを整形する（TS・CSS は Prettier、Rust は cargo fmt。どちらも幅120）
-- `npm run check` … 整形の確認・型チェック・lint・ハーネス・テスト・clippy・Rust テストを全部実行。**作業の最後に必ず通す**。CI（`.github/workflows/check.yml`）でも、main への push とプルリクエストで同じものが走る
+- `npm run check` … 整形の確認・型チェック・lint・ハーネス・テスト・clippy・Rust テストを全部実行。全体検証用。ローカルで毎回実行する必要はない。CI（`.github/workflows/check.yml`）では、main への push とプルリクエストで実行する
+
+## ローカルでの検証
+
+- **変更に関係するチェックだけを選ぶ。毎回の全テスト実行を既定にしない。** 実装中は対象を絞り、通過後は新しい変更・失敗・未解決の懸念がある場合だけ再実行する。commit・push・pull 自体を理由に全チェックを繰り返さない。
+- 文書・コメントだけの変更は差分の確認でよい。単純な文言・見た目の変更は該当箇所の確認を中心にし、動作に影響するときだけ関連テストを選ぶ。
+- TS / React / ランナー: `npx vitest run <関連するテストファイル>` を使う。型を変えた場合は対応する tsconfig の型チェック、コードを変えた場合は変更ファイルの ESLint・Prettier を必要に応じて実行する。
+- Rust: `cargo test --manifest-path src-tauri/Cargo.toml -p <クレート> <テスト名のフィルター>` などで影響する範囲を検証する。整形と clippy も変更したクレートを中心に確認する。
+- IPC・共通ルールを変えた場合は Rust と TS の両側の契約テストを選ぶ。依存の向きやファイル構成を変えた場合は対応する保守性ハーネスを実行する。
+- 全体に及ぶ変更、依存関係・ビルド設定の変更、影響範囲を絞れない不具合、利用者から全検証を依頼された場合は `npm run check` を実行する。通常の変更の全体検証は CI に任せる。
+- 完了報告では、実行した検証と、検証できていない重要な点を簡潔に伝える。
 
 ## 開発方針
 
@@ -25,7 +35,7 @@
 
 ### 共通
 - **コードは整形済みであること**（`npm run format`。設定は `.prettierrc.json` と `src-tauri/rustfmt.toml`）。行を手で詰めて行数を減らさない。
-- **1ファイルの空行を除いた行数は200行未満**（.ts / .tsx / .css / .mjs / .rs）。超えそうなら責務で分割する。対象は src/・agent-runner/src/・scripts/・src-tauri/src/・src-tauri/crates/*/（src・tests）。.old/・node_modules・target・dist は対象外。
+- **1ファイルの空行を除いた行数は200行未満**（.ts / .tsx / .css / .mjs / .rs）。超えそうなら責務で分割する。対象は src/・agent-runner/src/・scripts/・src-tauri/src/・src-tauri/crates/*/（src・tests）。node_modules・target・dist は対象外。
 - 1ファイル・1モジュールは1つの責務。名前を見れば中身が分かるようにする。
 
 ### React（`src/`）: feature-based

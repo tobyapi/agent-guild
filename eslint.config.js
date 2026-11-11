@@ -12,7 +12,7 @@ import tseslint from 'typescript-eslint';
 const TYPED_SOURCES = ['src/**/*.{ts,tsx}', 'agent-runner/src/**/*.ts'];
 
 export default defineConfig([
-  globalIgnores(['dist/', 'node_modules/', 'src-tauri/', '.old/', 'coverage/']),
+  globalIgnores(['dist/', 'node_modules/', 'src-tauri/', 'coverage/']),
   {
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     extends: [js.configs.recommended],

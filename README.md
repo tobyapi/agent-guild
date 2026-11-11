@@ -54,6 +54,8 @@ npm run app
 
 GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
 
+ローカルでは変更に関係するテスト・型チェック・lint だけを選びます。文書だけの変更は差分の確認で十分です。全チェックは CI を基本とし、広範囲の変更など必要なときに実行します。詳しくは [CLAUDE.md](CLAUDE.md) の「ローカルでの検証」を参照してください。
+
 ## 安全について
 
 エージェントは、あなたの PC の上で、あなたと同じ権限で動きます。許可する権限は、任せる仕事に必要な分だけにしてください。

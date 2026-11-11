@@ -6,7 +6,6 @@
 *.yml
 *.yaml
 *.html
-.old/
 .claude/
 contracts/
 docs/

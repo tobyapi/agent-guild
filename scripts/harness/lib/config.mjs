@@ -29,7 +29,7 @@ export const TS_SCAN_ROOTS = ['src', 'agent-runner/src', 'scripts'];
 export const TS_SCAN_EXTENSIONS = ['.ts', '.tsx', '.css', '.mjs'];
 
 /** どこにあっても検査しないディレクトリ名 */
-export const EXCLUDED_DIRS = new Set(['node_modules', 'dist', 'target', '.git', '.old', 'coverage']);
+export const EXCLUDED_DIRS = new Set(['node_modules', 'dist', 'target', '.git', 'coverage']);
 
 /** import を解決するときに補う拡張子と index ファイル */
 export const RESOLVE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.js', '.mjs'];
