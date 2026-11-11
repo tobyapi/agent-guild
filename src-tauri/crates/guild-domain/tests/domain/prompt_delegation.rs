@@ -90,6 +90,8 @@ fn managers_learn_how_to_delegate_and_see_what_members_can_do() {
     assert!(system.contains("## 割り振りのしかた") && system.contains("```tasks\n@名前: 指示"));
     assert!(system.contains("- @ソラ（タグ: 作業者／担当: ソラの役割／得意分野: ソラの専門／できること: Web 閲覧・ファイル作成（PC 全体）・コマンド実行・スキル）"), "実効権限で要約する");
     assert!(system.contains("チャンネルにいないエージェント（割り振ると自動で参加します）:\n- @ロジカ（"));
+    assert!(system.contains("分担が必要かを判断") && system.contains("一連の仕事は1人に任せ"));
+    assert!(system.contains("完成条件と根拠を確認してから"));
     let (worker, _) = prompts("haru", &job, None);
     assert!(!worker.contains("## 割り振りのしかた"), "canDelegate でなければ出さない");
 }

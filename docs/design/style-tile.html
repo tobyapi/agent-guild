@@ -69,21 +69,15 @@
   --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--focus-color);
 
   /* 役割の色 --kind-<テンプレートの accent>。暖色側（赤〜金）は人と状態に取っておき、役割は寒色側に
-     金（あなた）に近い順に並べる: 若葉 → 若竹 → 青磁 → 露草 → 群青 → 藤 → 牡丹。文字にも点にも使える明度 */
-  --kind-enduser: #bfdc73; /* 若葉: エンドユーザー役 */
-  --kind-enduser-soft: rgba(191, 220, 115, 0.14);
+     金（あなた）に近い順に並べる: 若葉 → 若竹 → 群青 → 藤。文字にも点にも使える明度 */
+  --kind-ideator: #bfdc73; /* 若葉: 発想役 */
+  --kind-ideator-soft: rgba(191, 220, 115, 0.14);
   --kind-worker: #67dab2; /* 若竹: 作業者 */
   --kind-worker-soft: rgba(103, 218, 178, 0.14);
-  --kind-scribe: #92d1d8; /* 青磁: 書記（控えめな彩度） */
-  --kind-scribe-soft: rgba(146, 209, 216, 0.14);
-  --kind-researcher: #74c8fc; /* 露草: 調査係 */
-  --kind-researcher-soft: rgba(116, 200, 252, 0.14);
   --kind-manager: #98afff; /* 群青: マネージャー */
   --kind-manager-soft: rgba(152, 175, 255, 0.14);
   --kind-expert: #c6aafa; /* 藤: 専門家 */
   --kind-expert-soft: rgba(198, 170, 250, 0.14);
-  --kind-critic: #f195cd; /* 牡丹: 批判役 */
-  --kind-critic-soft: rgba(241, 149, 205, 0.14);
   --kind-neutral: var(--text-secondary); /* テンプレートに無いタグ・タグなし */
   --kind-neutral-soft: var(--bg-active);
   --kind-human: #f0ba5f; /* 金（あなた） */
@@ -264,20 +258,14 @@
   --focus-glow: rgba(173, 104, 0, 0.16);
 
   /* 意味づけ */
-  --kind-enduser: #496009;
-  --kind-enduser-soft: rgba(73, 96, 9, 0.1);
+  --kind-ideator: #496009;
+  --kind-ideator-soft: rgba(73, 96, 9, 0.1);
   --kind-worker: #136a55;
   --kind-worker-soft: rgba(19, 106, 85, 0.1);
-  --kind-scribe: #2a6274;
-  --kind-scribe-soft: rgba(42, 98, 116, 0.1);
-  --kind-researcher: #125f94;
-  --kind-researcher-soft: rgba(18, 95, 148, 0.1);
   --kind-manager: #4650a8;
   --kind-manager-soft: rgba(70, 80, 168, 0.1);
   --kind-expert: #6c44a4;
   --kind-expert-soft: rgba(108, 68, 164, 0.1);
-  --kind-critic: #9d2f70;
-  --kind-critic-soft: rgba(157, 47, 112, 0.1);
   --kind-human: #845001;
   --kind-human-soft: rgba(241, 176, 71, 0.2);
   --mention-self-bg: rgba(241, 176, 71, 0.12);
@@ -630,13 +618,10 @@ body { overflow: auto; background: var(--bg-sidebar); }
 .mark[data-accent='human'] { border-radius: var(--radius-full); transform: none; }
 /* 役割の色: data-accent（実装では style 属性で --tag-fg / --tag-bg を渡す。無ければ中立） */
 [data-accent] { --tag-fg: var(--kind-neutral); --tag-bg: var(--kind-neutral-soft); }
-[data-accent='enduser'] { --tag-fg: var(--kind-enduser); --tag-bg: var(--kind-enduser-soft); }
+[data-accent='ideator'] { --tag-fg: var(--kind-ideator); --tag-bg: var(--kind-ideator-soft); }
 [data-accent='worker'] { --tag-fg: var(--kind-worker); --tag-bg: var(--kind-worker-soft); }
-[data-accent='scribe'] { --tag-fg: var(--kind-scribe); --tag-bg: var(--kind-scribe-soft); }
-[data-accent='researcher'] { --tag-fg: var(--kind-researcher); --tag-bg: var(--kind-researcher-soft); }
 [data-accent='manager'] { --tag-fg: var(--kind-manager); --tag-bg: var(--kind-manager-soft); }
 [data-accent='expert'] { --tag-fg: var(--kind-expert); --tag-bg: var(--kind-expert-soft); }
-[data-accent='critic'] { --tag-fg: var(--kind-critic); --tag-bg: var(--kind-critic-soft); }
 [data-accent='human'] { --tag-fg: var(--kind-human); --tag-bg: var(--kind-human-soft); }
 
 /* アバター: 丸は人、角は AI。個人色はタイルに溶かす */
@@ -1083,8 +1068,8 @@ textarea.input { height: auto; min-height: 76px; padding: var(--space-2) var(--s
             <a class="srow" href="#"><span class="av sm" style="--c:#e28d4f">⚙️</span><span class="name">ギア</span><span class="tag">codex</span></a>
           </div>
           <div class="section">
-            <div class="section-head"><i class="mark" data-accent="critic"></i><span>批判役</span><span class="count">1</span><button class="icon-btn" type="button" aria-label="批判役を作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
-            <a class="srow" href="#"><span class="av sm" style="--c:#9199a5">🦉</span><span class="name">クロ</span><span class="tag">claude</span></a>
+            <div class="section-head"><i class="mark" data-accent="ideator"></i><span>発想役</span><span class="count">1</span><button class="icon-btn" type="button" aria-label="発想役を作成"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <a class="srow" href="#"><span class="av sm" style="--c:#9199a5">🦉</span><span class="name">ヒラメ</span><span class="tag">claude</span></a>
           </div>
         </nav>
         <div class="me">
@@ -1210,19 +1195,16 @@ textarea.input { height: auto; min-height: 76px; padding: var(--space-2) var(--s
         </div>
       </div>
       <div class="hue-group">
-        <p class="hue-label">エージェントの役割（寒色の半分。あなたに近い役ほど金の近く）</p>
+        <p class="hue-label">エージェントの役割（寒色の半分。役割ごとの色）</p>
         <div class="hue-strip">
-          <div class="hue" data-accent="enduser"><i></i><b>若葉</b><span>エンドユーザー役</span><code>--kind-enduser · 122°</code></div>
+          <div class="hue" data-accent="ideator"><i></i><b>若葉</b><span>発想役</span><code>--kind-ideator · 122°</code></div>
           <div class="hue" data-accent="worker"><i></i><b>若竹</b><span>作業者</span><code>--kind-worker · 168°</code></div>
-          <div class="hue" data-accent="scribe"><i></i><b>青磁</b><span>書記</span><code>--kind-scribe · 205°</code></div>
-          <div class="hue" data-accent="researcher"><i></i><b>露草</b><span>調査係</span><code>--kind-researcher · 237°</code></div>
           <div class="hue" data-accent="manager"><i></i><b>群青</b><span>マネージャー</span><code>--kind-manager · 272°</code></div>
           <div class="hue" data-accent="expert"><i></i><b>藤</b><span>専門家</span><code>--kind-expert · 300°</code></div>
-          <div class="hue" data-accent="critic"><i></i><b>牡丹</b><span>批判役</span><code>--kind-critic · 343°</code></div>
           <div class="hue" data-accent="none"><i></i><b>中立</b><span>テンプレートに無いタグ</span><code>--kind-neutral</code></div>
         </div>
       </div>
-      <p class="note">役割の色はタグの札・メンションのチップ・区分の菱にだけ使う。リンクは色ではなく下線で示す（青は調査係とマネージャーの色）。</p>
+      <p class="note">役割の色はタグの札・メンションのチップ・区分の菱にだけ使う。リンクは色ではなく下線で示す（青はマネージャーの色）。</p>
     </div>
     <div class="board">
       <p class="board-title">個人色（エージェント編集の色見本 12 色。タイルには面に溶かして使う）</p>
@@ -1307,9 +1289,9 @@ textarea.input { height: auto; min-height: 76px; padding: var(--space-2) var(--s
       <div class="board">
         <p class="board-title">札・チップ・灯</p>
         <div class="stack">
-          <div class="cluster"><span class="badge" data-accent="enduser">エンドユーザー役</span><span class="badge" data-accent="worker">作業者</span><span class="badge" data-accent="scribe">書記</span><span class="badge" data-accent="researcher">調査係</span><span class="badge" data-accent="manager">マネージャー</span><span class="badge" data-accent="expert">専門家</span><span class="badge" data-accent="critic">批判役</span><span class="badge" data-accent="none">リサーチ</span></div>
+          <div class="cluster"><span class="badge" data-accent="worker">作業者</span><span class="badge" data-accent="ideator">発想役</span><span class="badge" data-accent="expert">専門家</span><span class="badge" data-accent="manager">マネージャー</span><span class="badge" data-accent="none">リサーチ</span></div>
           <div class="cluster"><span class="badge auto"><span class="emoji">💡</span>自発</span><span class="tag">claude</span><span class="tag">codex</span><span class="tag">gemini-cli</span><span class="ref"><svg class="i"><use href="#i-return"/></svg>割り振りの結果</span><span class="you">あなた</span></div>
-          <div class="cluster" style="font-size:var(--text-body)"><span class="mention" data-accent="worker">@ハル</span><span class="mention" data-accent="manager">@カナメ</span><span class="mention" data-accent="expert">@ロジカ</span><span class="mention" data-accent="critic">@クロ</span><span class="mention" data-accent="human">@ユウ</span><span class="mention">@ミライ（タグがテンプレートに無い・削除済み）</span></div>
+          <div class="cluster" style="font-size:var(--text-body)"><span class="mention" data-accent="worker">@ハル</span><span class="mention" data-accent="manager">@カナメ</span><span class="mention" data-accent="expert">@ロジカ</span><span class="mention" data-accent="ideator">@ヒラメ</span><span class="mention" data-accent="human">@ユウ</span><span class="mention">@ミライ（タグがテンプレートに無い・削除済み）</span></div>
           <div class="cluster"><span class="lamp solo"></span><span class="help">動作中（2 秒で呼吸）</span><span class="lamp solo still"></span><span class="help">動きを減らす設定のとき（静止）</span></div>
         </div>
         <p class="note">役割（先頭タグ）は塗りの札、バックエンドは線の札、割り振りへの導線は中立の線の札。テンプレートに無いタグ（「リサーチ」）は中立の札。</p>
@@ -1362,15 +1344,12 @@ textarea.input { height: auto; min-height: 76px; padding: var(--space-2) var(--s
     </div>
 
     <div class="board">
-      <p class="board-title">テンプレートの選択（エージェント作成の最初。選ぶと既定値が入る）</p>
-      <div class="tpl-grid" role="radiogroup" aria-label="テンプレート">
-        <button class="tpl" type="button" role="radio" aria-checked="true"><i class="mark" data-accent="worker"></i><b>作業者</b><span>頼まれた作業を、手を動かして進めます。メンションがなくても答えます。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="expert"></i><b>専門家</b><span>得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="manager"></i><b>マネージャー</b><span>依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="researcher"></i><b>調査係</b><span>Web で調べて、出典つきで要点をまとめます。ファイルは書かず、コマンドも使いません。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="scribe"></i><b>書記</b><span>議論をときどき要約して、決まったことと残った論点を書き残します。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="critic"></i><b>批判役</b><span>案の弱点やリスクを、あえて率直に指摘します。呼ばれたときだけ話します。</span></button>
-        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="enduser"></i><b>エンドユーザー役</b><span>初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。</span></button>
+      <p class="board-title">役割の選択（作成・編集共通。できることは役割で決まる）</p>
+      <div class="tpl-grid" role="radiogroup" aria-label="役割">
+        <button class="tpl" type="button" role="radio" aria-checked="true"><i class="mark" data-accent="worker"></i><b>作業者</b><span>必要なことを調べ、作り、試して、仕事を完成させます。メンションがなくても答えます。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="ideator"></i><b>発想役</b><span>複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="expert"></i><b>専門家</b><span>専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。</span></button>
+        <button class="tpl" type="button" role="radio" aria-checked="false"><i class="mark" data-accent="manager"></i><b>マネージャー</b><span>分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。</span></button>
       </div>
       <p class="note">役割の色は菱にだけ。選択中の枠と地は金（ほかのラジオカードと同じ）。入力したあとで別のテンプレートを選んだときだけ「入力した内容は、選んだテンプレートの値に置き換わります」と添える。</p>
     </div>

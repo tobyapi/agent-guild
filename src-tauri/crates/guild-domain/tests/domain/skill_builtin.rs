@@ -28,7 +28,8 @@ fn builtins_are_sorted_unique_and_found_by_name() {
     sorted.sort();
     sorted.dedup();
     assert_eq!(names, sorted, "name の順で重なりがない");
-    assert_eq!(find_builtin_skill("code-review").map(|skill| skill.name).as_deref(), Some("code-review"));
+    assert_eq!(names, ["ambiguous-word-rewrite", "concept-shift", "introspection", "universal-critique"]);
+    assert_eq!(find_builtin_skill("introspection").map(|skill| skill.name).as_deref(), Some("introspection"));
     assert_eq!(find_builtin_skill("nothing"), None);
 }
 
@@ -39,6 +40,6 @@ fn referenced_files_are_bundled_with_their_skill() {
     let files = builtin_skill_files("universal-critique");
     assert_eq!(files.iter().map(|file| file.path.clone()).collect::<Vec<_>>(), critique.files);
     assert!(files.iter().all(|file| !file.content.is_empty()));
-    assert!(find_builtin_skill("code-review").expect("code-review").files.is_empty());
+    assert!(find_builtin_skill("introspection").expect("introspection").files.is_empty());
     assert!(builtin_skill_files("nothing").is_empty());
 }

@@ -48,20 +48,14 @@
   --focus-glow: rgba(173, 104, 0, 0.16);
 
   /* 意味づけ */
-  --kind-enduser: #496009;
-  --kind-enduser-soft: rgba(73, 96, 9, 0.1);
+  --kind-ideator: #496009;
+  --kind-ideator-soft: rgba(73, 96, 9, 0.1);
   --kind-worker: #136a55;
   --kind-worker-soft: rgba(19, 106, 85, 0.1);
-  --kind-scribe: #2a6274;
-  --kind-scribe-soft: rgba(42, 98, 116, 0.1);
-  --kind-researcher: #125f94;
-  --kind-researcher-soft: rgba(18, 95, 148, 0.1);
   --kind-manager: #4650a8;
   --kind-manager-soft: rgba(70, 80, 168, 0.1);
   --kind-expert: #6c44a4;
   --kind-expert-soft: rgba(108, 68, 164, 0.1);
-  --kind-critic: #9d2f70;
-  --kind-critic-soft: rgba(157, 47, 112, 0.1);
   --kind-human: #845001;
   --kind-human-soft: rgba(241, 176, 71, 0.2);
   --mention-self-bg: rgba(241, 176, 71, 0.12);

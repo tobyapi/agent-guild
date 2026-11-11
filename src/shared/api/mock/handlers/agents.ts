@@ -1,4 +1,6 @@
 // エージェントの作成・更新・削除（論理削除）・自発活動・作業フォルダ。
+import { permissionRole } from '@/shared/lib/permissionPolicy';
+import { addRoleSkills } from '../defaultSkills';
 import type { Agent, Channel } from '@/shared/types/domain';
 import { emitStateChanged, fail, requireAgent } from '../runtime';
 import type { MockCore } from '../runtime';
@@ -23,13 +25,16 @@ export const agentHandlers: HandlerGroup<AgentCommands> = {
       deletedAt: null,
     };
     runtime.state.agents.push(agent);
+    addRoleSkills(runtime, agent);
     emitStateChanged(runtime);
     return agent;
   },
 
   update_agent({ id, input }, runtime) {
     const agent = requireAgent(runtime, id);
+    const oldRole = permissionRole(runtime.state.templates, agent.tags);
     Object.assign(agent, validateAgentInput(runtime, input, id));
+    if (oldRole !== permissionRole(runtime.state.templates, agent.tags)) addRoleSkills(runtime, agent);
     emitStateChanged(runtime);
     return agent;
   },

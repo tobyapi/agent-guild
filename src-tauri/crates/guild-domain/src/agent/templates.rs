@@ -4,7 +4,7 @@
 
 use super::permissions::Permissions;
 use super::template_model::{AgentTemplate, AgentTemplateDefaults};
-use super::UnmentionedPolicy;
+use super::{name_key, UnmentionedPolicy};
 
 /// 表の1行。accent はテンプレート ID と同じ名前、タグは表示名と同じ1つ（サイドバーの区分になる）
 struct Row {
@@ -13,6 +13,7 @@ struct Row {
     description: &'static str,
     role: &'static str,
     expertise: &'static str,
+    builtin_skills: &'static [&'static str],
     permissions: Permissions,
     unmentioned: UnmentionedPolicy,
     flags: Flags,
@@ -28,38 +29,51 @@ struct Flags {
 
 const QUIET: Flags = Flags { consultable: false, can_delegate: false, autonomy: false };
 
-/// 読む・調べる・スキルを使う（書き込みとコマンドなし）
-const READER: Permissions = Permissions {
+/// 作業者は対応する全機能を使う。
+const FULL_ACCESS: Permissions = Permissions {
     web_search: true,
     web_fetch: true,
     read_files: true,
-    write_files: false,
-    write_anywhere: false,
-    run_commands: false,
+    write_files: true,
+    write_anywhere: true,
+    run_commands: true,
     skills: true,
 };
 
-/// 作業フォルダでの読み書き・コマンド・スキルを許す。Web と外部への書き込みは許さない。
+/// 発想・評価・進行管理は作業フォルダ内の操作とスキル。Web と外部への書き込みは許さない。
 const WORKSPACE_TOOLS: Permissions =
-    Permissions { web_search: false, web_fetch: false, write_files: true, run_commands: true, ..READER };
+    Permissions { web_search: false, web_fetch: false, write_anywhere: false, ..FULL_ACCESS };
 
-/// UI に並べる順
-const ROWS: [Row; 7] = [
+/// UI に並べる順。役割はこの4つだけ。調査や利用者目線は担当・得意分野で表す。
+const ROWS: [Row; 4] = [
     Row {
         id: "worker",
+        builtin_skills: &[],
         label: "作業者",
-        description: "頼まれた作業を、手を動かして進めます。メンションがなくても答えます。",
-        role: "頼まれた作業を手を動かして進める",
+        description: "必要なことを調べ、作り、試して、仕事を完成させます。メンションがなくても答えます。",
+        role: "必要な調査・制作・実装・動作確認を一連の仕事として進め、完成させる",
         expertise: "",
-        permissions: Permissions { write_files: true, write_anywhere: true, run_commands: true, ..READER },
+        permissions: FULL_ACCESS,
         unmentioned: UnmentionedPolicy::Answer,
         flags: QUIET,
     },
     Row {
+        id: "ideator",
+        builtin_skills: &["concept-shift", "introspection"],
+        label: "発想役",
+        description: "複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。",
+        role: "目的に合う複数のアイデアや別の切り口を考える。案ごとの狙いと違いを示し、未確認の仮説は事実と区別して、選べる形でまとめて返す",
+        expertise: "アイデア出し・企画・視点の転換",
+        permissions: WORKSPACE_TOOLS,
+        unmentioned: UnmentionedPolicy::Ignore,
+        flags: Flags { consultable: true, ..QUIET },
+    },
+    Row {
         id: "expert",
+        builtin_skills: &["universal-critique"],
         label: "専門家",
-        description: "得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。",
-        role: "専門分野の相談とレビューに答える",
+        description: "専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。",
+        role: "専門知識や指定された目線で相談とレビューに答え、完成条件を満たすかを根拠とともに確認し、改善案を示す",
         expertise: "",
         permissions: WORKSPACE_TOOLS,
         unmentioned: UnmentionedPolicy::Fallback,
@@ -67,53 +81,14 @@ const ROWS: [Row; 7] = [
     },
     Row {
         id: "manager",
+        builtin_skills: &[],
         label: "マネージャー",
-        description: "依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。",
-        role: "依頼を分解して適任者に割り振り、結果をまとめて報告する",
-        expertise: "段取りと進行管理",
+        description: "分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。",
+        role: "目的と完成条件を整理し、分担が必要かを判断する。一連の仕事は1人に任せ、独立して進められる部分だけを分担し、結果を検証してまとめる",
+        expertise: "方針・優先順位・分担の判断と結果の統合",
         permissions: WORKSPACE_TOOLS,
         unmentioned: UnmentionedPolicy::Lead,
         flags: Flags { can_delegate: true, ..QUIET },
-    },
-    Row {
-        id: "researcher",
-        label: "調査係",
-        description: "Web で調べて、出典つきで要点をまとめます。ファイルは書かず、コマンドも使いません。",
-        role: "Web で調べて、出典つきで要点をまとめる",
-        expertise: "Web 調査と情報の整理",
-        permissions: READER,
-        unmentioned: UnmentionedPolicy::Ignore,
-        flags: Flags { consultable: true, ..QUIET },
-    },
-    Row {
-        id: "scribe",
-        label: "書記",
-        description: "議論をときどき要約して、決まったことと残った論点を書き残します。",
-        role: "チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す",
-        expertise: "議事の要約と記録",
-        permissions: WORKSPACE_TOOLS,
-        unmentioned: UnmentionedPolicy::Ignore,
-        flags: Flags { autonomy: true, ..QUIET },
-    },
-    Row {
-        id: "critic",
-        label: "批判役",
-        description: "案の弱点やリスクを、あえて率直に指摘します。呼ばれたときだけ話します。",
-        role: "案の弱点・リスク・反対意見をあえて率直に出す",
-        expertise: "リスクの洗い出しと反論",
-        permissions: Permissions { web_fetch: false, ..READER },
-        unmentioned: UnmentionedPolicy::Ignore,
-        flags: Flags { consultable: true, ..QUIET },
-    },
-    Row {
-        id: "enduser",
-        label: "エンドユーザー役",
-        description: "初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。",
-        role: "想定ユーザーとして、初めて見る立場で感想と困りごとを伝える",
-        expertise: "初めて使う人の目線",
-        permissions: Permissions { web_search: false, web_fetch: false, ..READER },
-        unmentioned: UnmentionedPolicy::Ignore,
-        flags: Flags { consultable: true, ..QUIET },
     },
 ];
 
@@ -125,6 +100,7 @@ pub fn templates() -> Vec<AgentTemplate> {
             label: row.label.to_owned(),
             description: row.description.to_owned(),
             accent: Some(row.id.to_owned()),
+            builtin_skills: row.builtin_skills.iter().map(|name| (*name).to_owned()).collect(),
             defaults: AgentTemplateDefaults {
                 tags: vec![row.label.to_owned()],
                 role: row.role.to_owned(),
@@ -142,4 +118,10 @@ pub fn templates() -> Vec<AgentTemplate> {
 /// ID でテンプレートを引く（初期データの組み立てなどに使う）
 pub fn find_template(id: &str) -> Option<AgentTemplate> {
     templates().into_iter().find(|template| template.id == id)
+}
+
+/// 先頭タグに対応する役割。権限とプロンプトの基本の仕事で共通に使う。
+pub fn role_template(tags: &[String]) -> Option<AgentTemplate> {
+    let head = tags.first().map(|tag| name_key(tag.trim()));
+    templates().into_iter().find(|template| template.defaults.tags.first().map(|tag| name_key(tag)) == head)
 }

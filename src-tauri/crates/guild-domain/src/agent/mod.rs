@@ -18,7 +18,7 @@ pub use permission_policy::{role_permissions, supported_permissions};
 pub use permissions::{effective_permissions, PermissionKey, Permissions};
 pub use tags::{normalize_tags, TAG_MAX_CHARS, TAG_MAX_COUNT};
 pub use template_model::{AgentTemplate, AgentTemplateDefaults};
-pub use templates::{find_template, templates};
+pub use templates::{find_template, role_template, templates};
 pub use validation::{normalize_agent_input, AUTONOMY_INTERVAL_MIN, AVATAR_MAX_BYTES};
 
 use serde::{Deserialize, Serialize};

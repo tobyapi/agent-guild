@@ -7,6 +7,20 @@ use super::{ensure_name_free, require_agent, SkillService};
 use crate::error::{AppError, AppResult};
 
 impl SkillService {
+    /// 役割の既定スキルを追加する。同名の手動スキルやコピーは上書きしない。
+    pub(crate) fn add_role_defaults(&self, agent: &guild_domain::agent::Agent) -> AppResult<()> {
+        let Some(template) = guild_domain::agent::role_template(&agent.tags) else {
+            return Ok(());
+        };
+        let existing = self.ports.skills.list_for_agent(&agent.id)?;
+        for name in template.builtin_skills {
+            if !existing.iter().any(|skill| skill.name == name) {
+                self.add_builtin(&agent.id, &name, LibraryAddMode::Link)?;
+            }
+        }
+        Ok(())
+    }
+
     /// アプリに同梱した内蔵スキル（name の順）
     pub fn builtins(&self) -> Vec<BuiltinSkill> {
         builtin_skills()

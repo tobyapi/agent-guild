@@ -1,6 +1,6 @@
 # AIギルド
 
-人間と AI エージェント（作業者・専門家）がチャンネルで会話する Tauri + React デスクトップアプリ。
+人間と AI エージェント（作業者・発想役・専門家・マネージャー）がチャンネルで会話する Tauri + React デスクトップアプリ。
 - 仕様・IPC 契約・実行モデル・振り分け規則・データフォルダ・互換性方針: `docs/design.md`
 - コード構造と拡張のしかた: `docs/architecture.md`
 - 型の正: `src/shared/types/domain/`（React ⇄ Rust。import は `@/shared/types/domain` から）、`agent-runner/src/protocol.ts`（Rust ⇄ ランナー）。実例: `contracts/`
@@ -45,7 +45,7 @@
 - 依存の向き `guild-domain` ← `guild-application` ← 本体（infrastructure / interface / bootstrap）は**クレートの依存で強制**する。guild-domain と guild-application の依存は architecture.md の許可リストの範囲だけ（arch-harness が Cargo.toml を検査）。
 - 本体の中: `interface` は `infrastructure`・`bootstrap` を参照しない。`infrastructure` は `interface`・`bootstrap` を参照しない。組み立ては `bootstrap/`・`lib.rs`・`main.rs` だけ。
 - `#[tauri::command]` は `src/interface/commands/` だけ。`rusqlite` は `src/infrastructure/sqlite/` だけ。`runner_client` は `src/infrastructure/runtime/` だけ。
-- 権限は先頭タグに対応する役割の表から固定する（`agent/permission_policy.rs`）。バックエンドの制約は許可を広げず解決する。会話の振り分けは本人の設定（unmentioned・consultable・canDelegate・autonomyEnabled）で決める。タグの文字列やテンプレート ID をハードコードして分岐しない（ID は `agent/templates.rs` の表だけ。arch-harness が検査）。
+- 権限と基本の役割の指示は先頭タグに対応する役割の表から決める（`agent/permission_policy.rs`）。バックエンドの制約は許可を広げず解決する。会話の振り分けは本人の設定（unmentioned・consultable・canDelegate・autonomyEnabled）で決める。タグの文字列やテンプレート ID をハードコードして分岐しない（ID は `agent/templates.rs` の表だけ。arch-harness が検査）。
 - コマンドはすべて async。タスクの生成は Spawner ポート経由。parking_lot のガードを await をまたいで持たない。
 - 本番コードで `unwrap()` / `expect()` を使わない（テストは可）。
 - clippy: 関数60行まで、認知的複雑度15まで（src-tauri/clippy.toml）。`cargo clippy --workspace --all-targets -- -D warnings` が通ること。

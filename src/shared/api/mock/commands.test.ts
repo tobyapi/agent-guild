@@ -59,7 +59,12 @@ describe('モックのコマンド', () => {
       },
     ]);
     expect(snapshot.agents[0]?.avatar).toMatch(/^data:image\/jpeg;base64,\/9j\//);
-    expect(snapshot.templates).toHaveLength(7);
+    expect(snapshot.templates.map((template) => template.label)).toEqual([
+      '作業者',
+      '発想役',
+      '専門家',
+      'マネージャー',
+    ]);
     expect(snapshot.channels).toMatchObject([{ name: 'ロビー', memberIds: [HUMAN_ID, SEED_IDS.starter] }]);
     expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
     const messages = await transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 20 });

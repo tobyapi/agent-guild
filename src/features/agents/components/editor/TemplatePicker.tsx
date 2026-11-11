@@ -20,7 +20,7 @@ export interface TemplatePickerProps {
 
 const STEPS: Readonly<Record<string, number>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
 
-/** 作成時だけ: テンプレートのカード（docs/ui-design.md §5.9。選ぶと既定値を一括で入れる）と、人格の書き出し例 */
+/** 作成・編集共通の役割カード（docs/ui-design.md §5.9）と、作成時の人格の書き出し例。 */
 export function TemplatePicker({ templateId, replaced, onTemplate, onPreset, editing }: TemplatePickerProps) {
   const templates = useTemplates();
   const questionId = useId();
@@ -46,7 +46,9 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset, edi
       <p id={questionId} className={styles.question}>
         どんな役割を任せますか
       </p>
-      <p className={styles.help}>できることは役割ごとに決まります。細かい権限の設定は不要です。</p>
+      <p className={styles.help}>
+        まずは作業者1人から。案出し・専門的な確認・進行管理が必要になったら仲間を加えられます。できることは役割ごとに決まります。作成・役割変更時に、その役割に合う内蔵スキルも追加します。不要なスキルは後から外せます。
+      </p>
       <div className={styles.templates} role="radiogroup" aria-labelledby={questionId}>
         {templates.map((template, index) => (
           <button

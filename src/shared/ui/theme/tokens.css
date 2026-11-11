@@ -56,21 +56,15 @@
   --focus-ring: 0 0 0 2px var(--bg-app), 0 0 0 4px var(--focus-color);
 
   /* 役割の色 --kind-<テンプレートの accent>。暖色側（赤〜金）は人と状態に取っておき、役割は寒色側に
-     金（あなた）に近い順に並べる: 若葉 → 若竹 → 青磁 → 露草 → 群青 → 藤 → 牡丹。文字にも点にも使える明度 */
-  --kind-enduser: #bfdc73; /* 若葉: エンドユーザー役 */
-  --kind-enduser-soft: rgba(191, 220, 115, 0.14);
+     金（あなた）に近い順に並べる: 若葉 → 若竹 → 群青 → 藤。文字にも点にも使える明度 */
+  --kind-ideator: #bfdc73; /* 若葉: 発想役 */
+  --kind-ideator-soft: rgba(191, 220, 115, 0.14);
   --kind-worker: #67dab2; /* 若竹: 作業者 */
   --kind-worker-soft: rgba(103, 218, 178, 0.14);
-  --kind-scribe: #92d1d8; /* 青磁: 書記（控えめな彩度） */
-  --kind-scribe-soft: rgba(146, 209, 216, 0.14);
-  --kind-researcher: #74c8fc; /* 露草: 調査係 */
-  --kind-researcher-soft: rgba(116, 200, 252, 0.14);
   --kind-manager: #98afff; /* 群青: マネージャー */
   --kind-manager-soft: rgba(152, 175, 255, 0.14);
   --kind-expert: #c6aafa; /* 藤: 専門家 */
   --kind-expert-soft: rgba(198, 170, 250, 0.14);
-  --kind-critic: #f195cd; /* 牡丹: 批判役 */
-  --kind-critic-soft: rgba(241, 149, 205, 0.14);
   --kind-neutral: var(--text-secondary); /* テンプレートに無いタグ・タグなし */
   --kind-neutral-soft: var(--bg-active);
   --kind-human: #f0ba5f; /* 金（あなた） */

@@ -68,7 +68,11 @@ describe('validateAgentDraft', () => {
     expect(result.ok).toBe(true);
     expect(result.ok && result.input.permissions).toEqual(allCapabilities);
     expect(validateAgentDraft(draft({ backend: 'codex', permissions: allCapabilities }), ctx).ok).toBe(true);
-    const expert = newDraft(TEMPLATES[1], BACKENDS, 0);
+    const expert = newDraft(
+      TEMPLATES.find((template) => template.id === 'expert'),
+      BACKENDS,
+      0,
+    );
     expect(validateAgentDraft({ ...expert, name: 'ミライ', backend: 'codex' }, ctx).ok).toBe(true);
   });
 

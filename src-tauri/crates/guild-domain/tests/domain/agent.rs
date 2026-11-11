@@ -55,7 +55,7 @@ fn restricted_roles_never_gain_outside_access_to_enable_commands() {
     let mut claude = backend("claude");
     claude.permission_rules =
         vec![PermissionRule { when: PermissionKey::RunCommands, requires: vec![PermissionKey::WriteAnywhere] }];
-    for role in ["expert", "manager"] {
+    for role in ["ideator", "expert", "manager"] {
         let mut raw = input(role, "ハル");
         raw.permissions = ALL;
         let permissions = normalize_agent_input(raw, Some(&claude)).unwrap().permissions;
@@ -95,7 +95,16 @@ fn apply_keeps_identity_history_and_deletion() {
 #[test]
 fn templates_match_the_design_table() {
     let ids: Vec<String> = templates().into_iter().map(|t| t.id).collect();
-    assert_eq!(ids, ["worker", "expert", "manager", "researcher", "scribe", "critic", "enduser"]);
+    assert_eq!(ids, ["worker", "ideator", "expert", "manager"]);
+    for template in templates() {
+        assert_eq!(template.accent.as_deref(), Some(template.id.as_str()), "accent はテンプレート ID と同じ名前");
+        assert_eq!(template.defaults.tags, vec![template.label.clone()]);
+    }
+    assert!(find_template("unknown").is_none());
+}
+
+#[test]
+fn roles_start_with_their_fixed_permissions_and_response_policy() {
     let defaults = |id: &str| find_template(id).map(|t| t.defaults).unwrap();
     let (worker, expert, manager) = (defaults("worker"), defaults("expert"), defaults("manager"));
     assert_eq!(worker.permissions, ALL);
@@ -110,21 +119,11 @@ fn templates_match_the_design_table() {
         (UnmentionedPolicy::Lead, true, false)
     );
     assert_eq!(templates().iter().filter(|t| t.defaults.can_delegate).count(), 1, "割り振れるのはマネージャーだけ");
-    let researcher = defaults("researcher").permissions;
-    assert!(
-        researcher.web_fetch && !researcher.write_files && !researcher.run_commands,
-        "調査係は Web を読むが書かない"
-    );
-    let scribe = defaults("scribe");
-    assert!(
-        !scribe.permissions.web_search && !scribe.permissions.web_fetch && scribe.autonomy_enabled,
-        "書記は Web を見ない"
-    );
-    for template in templates() {
-        assert_eq!(template.accent.as_deref(), Some(template.id.as_str()), "accent はテンプレート ID と同じ名前");
-        assert_eq!(template.defaults.tags, vec![template.label.clone()]);
-    }
-    assert!(find_template("unknown").is_none());
+    let ideator = defaults("ideator");
+    assert_eq!(ideator.permissions, workspace_only);
+    assert_eq!((ideator.unmentioned, ideator.consultable), (UnmentionedPolicy::Ignore, true));
+    assert!(!ideator.can_delegate && !ideator.autonomy_enabled);
+    assert!(templates().iter().all(|t| !t.defaults.autonomy_enabled), "勝手に会話を増やさない");
 }
 
 #[test]

@@ -105,7 +105,12 @@ impl TestApp {
 
     /// エージェントを作る（template はテンプレート ID、ID は作成後に決まる）
     pub fn agent(&self, template: &str, name: &str) -> Agent {
-        self.services.agents.create(input(template, name)).unwrap_or_else(|e| panic!("{name}: {e}"))
+        let events_before = self.events.skills_changed.lock().len();
+        let agent = self.services.agents.create(input(template, name)).unwrap_or_else(|e| panic!("{name}: {e}"));
+        // この汎用フィクスチャはスキルなし。既定スキルは role_skills.rs で作成から検証する。
+        self.store.skills.lock().retain(|skill| skill.agent_id != agent.id);
+        self.events.skills_changed.lock().truncate(events_before);
+        agent
     }
 
     pub fn channel(&self, name: &str, members: &[&Agent]) -> Channel {

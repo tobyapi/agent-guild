@@ -1,3 +1,4 @@
+import snapshot from '../../../../contracts/ipc/snapshot.json';
 // agents/model のテスト用の値（契約の実例 contracts/ipc/snapshot.json に合わせる）。
 import type { Agent, AgentTemplate, BackendInfo } from '@/shared/types/domain';
 
@@ -11,40 +12,7 @@ export const allCapabilities = {
   skills: true,
 };
 
-export const TEMPLATES: AgentTemplate[] = [
-  {
-    id: 'worker',
-    label: '作業者',
-    description: '',
-    accent: 'worker',
-    defaults: {
-      tags: ['作業者'],
-      role: '頼まれた作業を手を動かして進める',
-      expertise: '',
-      permissions: { ...allCapabilities },
-      unmentioned: 'answer',
-      consultable: false,
-      canDelegate: false,
-      autonomyEnabled: false,
-    },
-  },
-  {
-    id: 'expert',
-    label: '専門家',
-    description: '',
-    accent: 'expert',
-    defaults: {
-      tags: ['専門家'],
-      role: '専門分野の相談とレビューに答える',
-      expertise: '',
-      permissions: { ...allCapabilities, webSearch: false, webFetch: false, writeAnywhere: false },
-      unmentioned: 'fallback',
-      consultable: true,
-      canDelegate: false,
-      autonomyEnabled: false,
-    },
-  },
-];
+export const TEMPLATES = snapshot.templates as AgentTemplate[];
 
 export const BACKENDS: BackendInfo[] = [
   {

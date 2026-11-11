@@ -8,6 +8,7 @@ import { MOCK_BACKENDS } from './seedCatalog';
 import { demoDelegation } from './seedDelegation';
 import { MOCK_BROKEN_DATA_DIR, MOCK_DEFAULT_DATA_DIR, SEED_IDS } from './seedIds';
 import { demoMessages, welcomeMessage } from './seedMessages';
+import { roleSkills } from './defaultSkills';
 import { seedSkills } from './seedSkills';
 import { MOCK_TEMPLATES } from './seedTemplates';
 import type { MockState } from './state';
@@ -150,7 +151,12 @@ export function createSeedState(
     messages,
     attachmentData: {},
     delegations: delegation ? [delegation.delegation] : [],
-    skills: demo ? seedSkills(createdAt) : [],
+    skills: demo
+      ? seedSkills(createdAt)
+      : agents.flatMap((agent) => {
+          let index = 0;
+          return roleSkills(agent, MOCK_TEMPLATES, () => `default-${agent.id}-${index++}`, createdAt);
+        }),
     skillLibraryDirs: demo ? [MOCK_LIBRARY_DIRS.personal, MOCK_LIBRARY_DIRS.team, MOCK_LIBRARY_DIRS.usb] : [],
     backends: structuredClone(MOCK_BACKENDS),
     templates: structuredClone(MOCK_TEMPLATES),

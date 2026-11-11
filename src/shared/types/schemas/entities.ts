@@ -86,6 +86,7 @@ export const agentTemplateSchema = {
   label: string,
   description: string,
   accent: nullable(string),
+  builtinSkills: arrayOf(string),
   defaults: objectOf(templateDefaultsSchema),
 } satisfies Schema<AgentTemplate>;
 

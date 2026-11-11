@@ -64,6 +64,22 @@
     }
   },
   {
+    "name": "発想役 / claude",
+    "tags": [
+      "発想役"
+    ],
+    "backend": "claude",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
     "name": "専門家 / codex",
     "tags": [
       "専門家"
@@ -80,9 +96,41 @@
     }
   },
   {
+    "name": "発想役 / codex",
+    "tags": [
+      "発想役"
+    ],
+    "backend": "codex",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
     "name": "専門家 / ollama",
     "tags": [
       "専門家"
+    ],
+    "backend": "ollama",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": false
+    }
+  },
+  {
+    "name": "発想役 / ollama",
+    "tags": [
+      "発想役"
     ],
     "backend": "ollama",
     "permissions": {

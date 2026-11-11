@@ -1,6 +1,6 @@
 # AIギルド 設計書（仕様と契約）— 改訂2
 
-人間と AI エージェント（作業者・専門家）がチャンネルで会話する Tauri デスクトップアプリ。
+人間と AI エージェント（作業者・発想役・専門家・マネージャー）がチャンネルで会話する Tauri デスクトップアプリ。
 エージェントごとにバックエンド（Claude / Codex / Ollama など）を選べ、異なるバックエンドのエージェント同士も同じチャンネルで会話する。
 コード構造は `docs/architecture.md`。型の正は `src/shared/types/domain/` と `agent-runner/src/protocol.ts`。実例は `contracts/`。
 
@@ -31,32 +31,40 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない |
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
-バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。例: Claude の専門家・マネージャーはコマンド実行を外し、Web と作業場所外への書き込みを許可しない。Codex では作業場所内のコマンドを使える。Ollama は会話のみ。役割に一致しない先頭タグ・タグなしは参照とスキルだけの固定設定にする。
+バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。例: Claude の発想役・専門家・マネージャーはコマンド実行を外し、Web と作業場所外への書き込みを許可しない。Codex では作業場所内のコマンドを使える。Ollama は会話のみ。役割に一致しない先頭タグ・タグなしは参照とスキルだけの固定設定にする。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
 |---|---|---|---|---|---|---|---|
 | `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills | answer | false | false | false | worker |
+| `ideator` 発想役 | 発想役 | readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
 | `expert` 専門家 | 専門家 | readFiles, writeFiles, runCommands, skills | fallback | true | false | false | expert |
 | `manager` マネージャー | マネージャー | readFiles, writeFiles, runCommands, skills | lead | false | true | false | manager |
-| `researcher` 調査係 | 調査係 | webSearch, webFetch, readFiles, skills | ignore | true | false | false | researcher |
-| `scribe` 書記 | 書記 | readFiles, writeFiles, runCommands, skills | ignore | false | false | true | scribe |
-| `critic` 批判役 | 批判役 | webSearch, readFiles, skills | ignore | true | false | false | critic |
-| `enduser` エンドユーザー役 | エンドユーザー役 | readFiles, skills | ignore | true | false | false | enduser |
 
 担当（role）と得意分野（expertise）の書き出し（defaults.role / defaults.expertise）:
 
 | テンプレート | role | expertise |
 |---|---|---|
-| worker | 頼まれた作業を手を動かして進める | （空） |
-| expert | 専門分野の相談とレビューに答える | （空） |
-| manager | 依頼を分解して適任者に割り振り、結果をまとめて報告する | 段取りと進行管理 |
-| researcher | Web で調べて、出典つきで要点をまとめる | Web 調査と情報の整理 |
-| scribe | チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す | 議事の要約と記録 |
-| critic | 案の弱点・リスク・反対意見をあえて率直に出す | リスクの洗い出しと反論 |
-| enduser | 想定ユーザーとして、初めて見る立場で感想と困りごとを伝える | 初めて使う人の目線 |
+| worker | 必要な調査・制作・実装・動作確認を一連の仕事として進め、完成させる | （空） |
+| ideator | 目的に合う複数のアイデアや別の切り口を考える。案ごとの狙いと違いを示し、未確認の仮説は事実と区別して、選べる形でまとめて返す | アイデア出し・企画・視点の転換 |
+| expert | 専門知識や指定された目線で相談とレビューに答え、完成条件を満たすかを根拠とともに確認し、改善案を示す | （空） |
+| manager | 目的と完成条件を整理し、分担が必要かを判断する。一連の仕事は1人に任せ、独立して進められる部分だけを分担し、結果を検証してまとめる | 方針・優先順位・分担の判断と結果の統合 |
 
-- 調査係は Web を読むがファイルを書かずコマンドも実行しない（Web の内容に紛れた指示で危険な操作をしないための分離）。書記は Web を見ない。
+- `AgentTemplate.builtinSkills` は作成・役割変更時に参照として追加する内蔵スキルの name 一覧。初期エージェントも同じ作成処理を通す。同名スキルは上書きせず、以前の役割のスキルも保持する。通常の保存では追加し直さないので、不要な既定スキルを外せる。既存エージェントへの一括遡及追加はしない。
+
+| 役割 | 既定の内蔵スキル |
+|---|---|
+| 作業者 | なし |
+| 発想役 | concept-shift, introspection |
+| 専門家 | universal-critique |
+| マネージャー | なし |
+
+- 標準の役割は「作業者・発想役・専門家・マネージャー」の4つ。調査・議事録は作業者の人格例、反対意見・利用者目線は専門家の人格例にまとめる。追加タグ・担当・得意分野で視点を表現できる。
+- 発想役は指名・相談・割り振りがあったときにだけ答え、自発活動は既定で無効。案ごとの狙いと違いをまとめて返す。
+- 作業者は必要な調査・制作・動作確認を続けて行う。マネージャーは分担の必要性を判断し、独立した部分だけ分ける。全員を順番に呼び出す固定の手順は設けない。
+- システムプロンプトの「基本の役割」は現在の先頭タグに対応する表から毎回組み立てる。個別の担当・人格・得意分野を保ちながら、役割変更を次回の実行に反映する。
+- 表に存在しないタグは役割未設定として扱う。旧役割名を別の役割へ自動変換せず、編集画面で4種類から選べる。既存データや履歴は削除しない。
+
 - テンプレートを足すときは guild-domain の表に1行足すだけ（accent の色は `--kind-<accent>` トークンを足す）。Rust の他の部分・React・ランナーは変更不要。
 - タグやテンプレート ID・accent をハードコードした条件分岐は禁止。権限の役割対応は表を引く共通ポリシーに集約する。
 - React はタグのチップに、そのタグを先頭に持つテンプレートの accent の色を付ける（CSS 変数 `--kind-<accent>` を組み立てるだけで、値による分岐はしない。トークンがない・一致しなければ中立）。
@@ -344,7 +352,7 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
   - `link`（既定）: スキルは `source = { kind: 'linked', path }` で保存する。DB には name・description・本文の写しも入れるが、**実行のたびに SKILL.md を読み直したものが正**。読めなければそのスキルを外して実行し、警告ログを残す（`list_skills` の `problem` にも理由が出る）。アプリ内では編集できない（`save_skill` は validation）。付属ファイルはランナーのアダプタが実行のたびにリンク先からコピーする（SkillPayload.dir）。
   - `copy`: いまの SKILL.md を読んで、ふつうのスキル（source = null）として保存する。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - どちらも、同じエージェントに同じ name のスキルがあれば `conflict`。
-- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。いまは code-review・bug-investigation・research-report・task-breakdown・meeting-minutes・proofreading と、使用者のスキル集から取り込んだ ambiguous-word-rewrite・concept-shift・introspection・universal-critique（元のフォルダの README.md と、個人用の保存版の references/source-cache/・source-files/ は同梱しない）。
+- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。使用者のスキル集から取り込んだ4つだけを同梱する: ambiguous-word-rewrite・concept-shift・introspection・universal-critique（元のフォルダの README.md と、個人用の保存版の references/source-cache/・source-files/ は同梱しない）。
   - `list_builtin_skills` で一覧し、`add_builtin_skill` でエージェントに付ける。`link`（既定）は `source = { kind: 'builtin', name }` で保存し、**一覧と実行のたびに同梱の SKILL.md を読み直したものが正**（アプリの更新に追従する）。この版にない name なら、そのスキルを外して実行し、`problem` に理由を出す。アプリ内では編集できない。付属ファイルは実行のたびに中身ごとランナーへ渡し（SkillPayload.files）、アダプタがスキルのフォルダへ書き出す。`copy` はふつうのスキル（source = null）として取り込む。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - DB の `skills.source` は SkillSource の JSON（アプリ内のスキルは NULL）。
 - **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。内蔵スキルには「内蔵」の印を出し、本文を見られるようにする。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。

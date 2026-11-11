@@ -7,8 +7,8 @@ describe('accentVars / accentStyleText', () => {
       '--tag-fg': 'var(--kind-manager, var(--kind-neutral))',
       '--tag-bg': 'var(--kind-manager-soft, var(--kind-neutral-soft))',
     });
-    expect(accentStyleText('enduser')).toBe(
-      '--tag-fg: var(--kind-enduser, var(--kind-neutral)); --tag-bg: var(--kind-enduser-soft, var(--kind-neutral-soft))',
+    expect(accentStyleText('ideator')).toBe(
+      '--tag-fg: var(--kind-ideator, var(--kind-neutral)); --tag-bg: var(--kind-ideator-soft, var(--kind-neutral-soft))',
     );
   });
 

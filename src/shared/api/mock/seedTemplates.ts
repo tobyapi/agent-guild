@@ -1,99 +1,105 @@
-// モックの「Rust のテンプレートの表」（contracts/ipc/snapshot.json と docs/design.md §2 の表に合わせる）。
-// テンプレート ID と accent はこの表の中だけで使い、コードの振る舞いを分けない。
-import type { AgentTemplate, AgentTemplateDefaults, PermissionKey, Permissions } from '@/shared/types/domain';
-
-const NONE: Permissions = {
-  webSearch: false,
-  webFetch: false,
-  readFiles: false,
-  writeFiles: false,
-  writeAnywhere: false,
-  runCommands: false,
-  skills: false,
-};
-
-const allow = (...keys: PermissionKey[]): Permissions => ({
-  ...NONE,
-  ...Object.fromEntries(keys.map((key) => [key, true])),
-});
-
-const WORKSPACE_TOOLS = allow('readFiles', 'writeFiles', 'runCommands', 'skills');
-
-type Settings = Omit<AgentTemplateDefaults, 'tags' | 'consultable' | 'canDelegate' | 'autonomyEnabled'> &
-  Partial<Pick<AgentTemplateDefaults, 'consultable' | 'canDelegate' | 'autonomyEnabled'>>;
-
-function template(id: string, label: string, description: string, settings: Settings): AgentTemplate {
-  return {
-    id,
-    label,
-    description,
-    accent: id,
-    defaults: { tags: [label], consultable: false, canDelegate: false, autonomyEnabled: false, ...settings },
-  };
-}
+// Rust の役割表と contracts/ipc/snapshot.json に合わせたモックの固定設定。
+import type { AgentTemplate } from '@/shared/types/domain';
 
 export const MOCK_TEMPLATES: AgentTemplate[] = [
-  template('worker', '作業者', '頼まれた作業を、手を動かして進めます。メンションがなくても答えます。', {
-    role: '頼まれた作業を手を動かして進める',
-    expertise: '',
-    permissions: { ...WORKSPACE_TOOLS, webSearch: true, webFetch: true, writeAnywhere: true },
-    unmentioned: 'answer',
-  }),
-  template('expert', '専門家', '得意分野の相談とレビューに答えます。ほかのエージェントに呼ばれると参加します。', {
-    role: '専門分野の相談とレビューに答える',
-    expertise: '',
-    permissions: WORKSPACE_TOOLS,
-    unmentioned: 'fallback',
-    consultable: true,
-  }),
-  template(
-    'manager',
-    'マネージャー',
-    '依頼を分けて、適任のメンバーに割り振ります。結果がそろったら、まとめて報告します。',
-    {
-      role: '依頼を分解して適任者に割り振り、結果をまとめて報告する',
-      expertise: '段取りと進行管理',
-      permissions: WORKSPACE_TOOLS,
+  {
+    id: 'worker',
+    builtinSkills: [],
+    label: '作業者',
+    description: '必要なことを調べ、作り、試して、仕事を完成させます。メンションがなくても答えます。',
+    accent: 'worker',
+    defaults: {
+      tags: ['作業者'],
+      role: '必要な調査・制作・実装・動作確認を一連の仕事として進め、完成させる',
+      expertise: '',
+      permissions: {
+        webSearch: true,
+        webFetch: true,
+        readFiles: true,
+        writeFiles: true,
+        writeAnywhere: true,
+        runCommands: true,
+        skills: true,
+      },
+      unmentioned: 'answer',
+      consultable: false,
+      canDelegate: false,
+      autonomyEnabled: false,
+    },
+  },
+  {
+    id: 'ideator',
+    builtinSkills: ['concept-shift', 'introspection'],
+    label: '発想役',
+    description: '複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。',
+    accent: 'ideator',
+    defaults: {
+      tags: ['発想役'],
+      role: '目的に合う複数のアイデアや別の切り口を考える。案ごとの狙いと違いを示し、未確認の仮説は事実と区別して、選べる形でまとめて返す',
+      expertise: 'アイデア出し・企画・視点の転換',
+      permissions: {
+        webSearch: false,
+        webFetch: false,
+        readFiles: true,
+        writeFiles: true,
+        writeAnywhere: false,
+        runCommands: true,
+        skills: true,
+      },
+      unmentioned: 'ignore',
+      consultable: true,
+      canDelegate: false,
+      autonomyEnabled: false,
+    },
+  },
+  {
+    id: 'expert',
+    builtinSkills: ['universal-critique'],
+    label: '専門家',
+    description: '専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。',
+    accent: 'expert',
+    defaults: {
+      tags: ['専門家'],
+      role: '専門知識や指定された目線で相談とレビューに答え、完成条件を満たすかを根拠とともに確認し、改善案を示す',
+      expertise: '',
+      permissions: {
+        webSearch: false,
+        webFetch: false,
+        readFiles: true,
+        writeFiles: true,
+        writeAnywhere: false,
+        runCommands: true,
+        skills: true,
+      },
+      unmentioned: 'fallback',
+      consultable: true,
+      canDelegate: false,
+      autonomyEnabled: false,
+    },
+  },
+  {
+    id: 'manager',
+    builtinSkills: [],
+    label: 'マネージャー',
+    description: '分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。',
+    accent: 'manager',
+    defaults: {
+      tags: ['マネージャー'],
+      role: '目的と完成条件を整理し、分担が必要かを判断する。一連の仕事は1人に任せ、独立して進められる部分だけを分担し、結果を検証してまとめる',
+      expertise: '方針・優先順位・分担の判断と結果の統合',
+      permissions: {
+        webSearch: false,
+        webFetch: false,
+        readFiles: true,
+        writeFiles: true,
+        writeAnywhere: false,
+        runCommands: true,
+        skills: true,
+      },
       unmentioned: 'lead',
+      consultable: false,
       canDelegate: true,
+      autonomyEnabled: false,
     },
-  ),
-  template(
-    'researcher',
-    '調査係',
-    'Web で調べて、出典つきで要点をまとめます。ファイルは書かず、コマンドも使いません。',
-    {
-      role: 'Web で調べて、出典つきで要点をまとめる',
-      expertise: 'Web 調査と情報の整理',
-      permissions: allow('webSearch', 'webFetch', 'readFiles', 'skills'),
-      unmentioned: 'ignore',
-      consultable: true,
-    },
-  ),
-  template('scribe', '書記', '議論をときどき要約して、決まったことと残った論点を書き残します。', {
-    role: 'チャンネルの議論を定期的に要約し、決定事項と未解決の論点を残す',
-    expertise: '議事の要約と記録',
-    permissions: WORKSPACE_TOOLS,
-    unmentioned: 'ignore',
-    autonomyEnabled: true,
-  }),
-  template('critic', '批判役', '案の弱点やリスクを、あえて率直に指摘します。呼ばれたときだけ話します。', {
-    role: '案の弱点・リスク・反対意見をあえて率直に出す',
-    expertise: 'リスクの洗い出しと反論',
-    permissions: allow('webSearch', 'readFiles', 'skills'),
-    unmentioned: 'ignore',
-    consultable: true,
-  }),
-  template(
-    'enduser',
-    'エンドユーザー役',
-    '初めて使う人の目線で、感想と困りごとを伝えます。呼ばれたときだけ話します。',
-    {
-      role: '想定ユーザーとして、初めて見る立場で感想と困りごとを伝える',
-      expertise: '初めて使う人の目線',
-      permissions: allow('readFiles', 'skills'),
-      unmentioned: 'ignore',
-      consultable: true,
-    },
-  ),
+  },
 ];

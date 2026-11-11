@@ -30,5 +30,7 @@ pub struct AgentTemplate {
     pub description: String,
     /// 見た目のアクセント。React はトークン `--kind-<accent>` を組み立てるだけ（値で分岐しない）。None なら中立
     pub accent: Option<String>,
+    /// 作成・役割変更時に参照として追加する内蔵スキル
+    pub builtin_skills: Vec<String>,
     pub defaults: AgentTemplateDefaults,
 }

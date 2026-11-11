@@ -16,7 +16,8 @@ import { findPreset } from './personas/presetText';
 import { TONES } from './personas/tones';
 import { AGENT_PRESETS, presetPersona, presetsFor } from './presets';
 
-const [worker, expert] = TEMPLATES;
+const worker = TEMPLATES.find((template) => template.id === 'worker');
+const expert = TEMPLATES.find((template) => template.id === 'expert');
 const agent = agentFixture({ model: 'opus', backendOptions: { maxTurns: 12, unknown: 'x' }, autonomyIntervalMin: 30 });
 
 describe('newDraft / draftFromAgent', () => {
@@ -56,7 +57,7 @@ describe('変更', () => {
   it('テンプレートを選ぶと、タグ・担当・得意分野・権限・振る舞い・自発活動を一括で入れ替える（入力済みでも上書き）', () => {
     const changed = applyTemplate({ ...draft, role: '実装', expertise: 'Rust', personality: '寡黙' }, expert);
     expect(changed).toMatchObject({
-      role: '専門分野の相談とレビューに答える',
+      role: expert?.defaults.role,
       expertise: '',
       tags: ['専門家'],
       unmentioned: 'fallback',
@@ -103,6 +104,18 @@ describe('変更', () => {
   it('人格の例はテンプレートごとに引く', () => {
     expect(presetsFor('worker').every((preset) => preset.templateId === 'worker')).toBe(true);
     expect(presetsFor('unknown')).toEqual([]);
+  });
+
+  it('人格の例は4役のいずれかに属し、調査・記録・利用者目線も選べる', () => {
+    for (const preset of AGENT_PRESETS)
+      expect(TEMPLATES.some((template) => template.id === preset.templateId)).toBe(true);
+    expect(presetsFor('worker').map((preset) => preset.id)).toEqual(
+      expect.arrayContaining(['web-researcher', 'minutes']),
+    );
+    expect(presetsFor('expert').map((preset) => preset.id)).toEqual(
+      expect.arrayContaining(['devils-advocate', 'first-timer']),
+    );
+    expect(presetsFor('ideator').map((preset) => preset.id)).toEqual(['idea-maker', 'new-angle']);
   });
 
   it('バックエンドを変えるとモデル・推論の深さ・固有設定を既定に戻す', () => {

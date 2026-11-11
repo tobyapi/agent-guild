@@ -15,8 +15,10 @@ fn agents() -> Vec<Agent> {
     let haru = agent("haru", "worker", "ハル");
     let mut sora = agent("sora", "worker", "ソラ");
     sora.tags.push("実装".to_owned());
-    let logica = agent("logica", "researcher", "ロジカ");
-    vec![haru, sora, logica, agent("gear", "expert", "ギア"), ghost]
+    let logica = agent("logica", "expert", "ロジカ");
+    let mut reader = agent("reader", "expert", "参照係");
+    reader.tags.clear();
+    vec![haru, sora, logica, agent("gear", "expert", "ギア"), ghost, reader]
 }
 
 fn skill(name: &str) -> Skill {
@@ -111,9 +113,9 @@ fn everyone_sees_the_active_consultants_and_the_return_flow() {
 
 #[test]
 fn a_consultable_reader_answers_consultations_and_keeps_memory_md_only() {
-    let prompt = system_prompt("logica", &[], "前回のメモ");
+    let prompt = system_prompt("reader", &[], "前回のメモ");
     assert!(prompt.contains("## 相談・レビューへの答え方"));
-    assert!(prompt.contains("- 得意分野: ロジカの専門"));
+    assert!(prompt.contains("- 得意分野: 参照係の専門"));
     assert!(prompt.contains("ファイルの読み取り"));
     assert!(prompt.contains("ファイルの作成・編集はできません"));
     assert!(prompt.contains("作業場所の MEMORY.md だけは例外として、いつでも読み書きしてかまいません"));
@@ -123,7 +125,7 @@ fn a_consultable_reader_answers_consultations_and_keeps_memory_md_only() {
     );
     assert!(prompt.contains("### MEMORY.md の現在の内容（末尾）\n前回のメモ"), "書けなくても前回のメモは届く");
     assert!(!prompt.contains("自由にファイルを置けます"), "作業場所に自由に置けるのは書き込める人だけ");
-    assert!(prompt.contains("- @ギア: ギアの専門") && !prompt.contains("- @ロジカ: "), "自分以外の相談相手だけ");
+    assert!(prompt.contains("- @ギア: ギアの専門") && !prompt.contains("- @参照係: "), "自分以外の相談相手だけ");
     assert!(prompt.contains("✅ 問題なし / ⚠️ 要修正 / ❌ 作り直し推奨"));
 }
 
@@ -141,7 +143,7 @@ fn shows_place_members_and_rules() {
     assert!(prompt.contains("現在日時: 2026年11月8日(日) 15:30"));
     assert!(prompt.contains("- ユーザー（人間・このアプリの使用者）"));
     assert!(prompt.contains("- @ソラ（タグ: 作業者・実装／担当: ソラの役割／得意分野: ソラの専門／できること: Web 検索・Web 閲覧・ファイル作成（PC 全体）・コマンド実行・スキル）"));
-    assert!(prompt.contains("- @ロジカ（タグ: 調査係／担当: ロジカの役割／得意分野: ロジカの専門／できること: Web 検索・Web 閲覧・ファイルの読み取り・スキル）"));
+    assert!(prompt.contains("- @ロジカ（タグ: 専門家／担当: ロジカの役割／得意分野: ロジカの専門／できること: ファイル作成・コマンド実行・スキル）"));
     assert!(!prompt.contains("- @ハル（"), "自分自身はメンバー一覧に出さない");
     assert!(!prompt.contains("- @ゴースト（"), "削除済みはメンバー一覧に出さない");
     assert!(prompt.contains("名前の接頭辞（「ハル:」など）はつけないでください"));

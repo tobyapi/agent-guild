@@ -63,6 +63,7 @@ export interface AgentTemplate {
   label: string;
   description: string;
   accent: TemplateAccent;
+  builtinSkills: string[];
   defaults: AgentTemplateDefaults;
 }
 

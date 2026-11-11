@@ -73,7 +73,7 @@ fn builtin_skill_and_catalog() {
     assert_round_trip::<Skill>("skill-builtin.json");
     assert_round_trip::<Vec<BuiltinSkill>>("builtin-skills.json");
     let builtin: Skill = serde_json::from_value(fixture("skill-builtin.json")).expect("Skill");
-    assert_eq!(builtin.builtin_name(), Some("code-review"));
+    assert_eq!(builtin.builtin_name(), Some("introspection"));
 }
 
 #[test]

@@ -7,6 +7,7 @@ use guild_domain::ids::AgentId;
 use crate::conversation::ConversationService;
 use crate::error::{AppError, AppResult};
 use crate::services::Ports;
+use crate::skills::SkillService;
 
 #[derive(Clone)]
 pub struct AgentService {
@@ -23,6 +24,7 @@ impl AgentService {
         let input = self.validate(input, None)?;
         let agent = Agent::new(AgentId::new(self.ports.ids.new_id()), input, self.ports.clock.now_ms());
         self.ports.agents.insert(&agent)?;
+        SkillService::new(self.ports.clone()).add_role_defaults(&agent)?;
         self.ports.events.state_changed();
         Ok(agent)
     }
@@ -31,8 +33,13 @@ impl AgentService {
     pub fn update(&self, id: &AgentId, input: AgentInput) -> AppResult<Agent> {
         let mut agent = self.require(id)?;
         let input = self.validate(input, Some(id))?;
+        let changed_role =
+            guild_domain::agent::role_template(&agent.tags) != guild_domain::agent::role_template(&input.tags);
         agent.apply(input);
         self.ports.agents.update(&agent)?;
+        if changed_role {
+            SkillService::new(self.ports.clone()).add_role_defaults(&agent)?;
+        }
         self.ports.events.state_changed();
         Ok(agent)
     }
