@@ -11,8 +11,6 @@ vi.mock('./http.ts', () => ({ localHttp: vi.fn() }));
 vi.mock('./command.ts', () => ({ runLocalCommand: vi.fn() }));
 const http = vi.mocked(localHttp);
 let root: string;
-// 道具は呼ぶたびに本物の sandbox-exec を確かめるので、実際に道具を動かすテストは macOS だけで行う
-pretendMacOS();
 const response = (content: object) => http.mockResolvedValueOnce({ status: 200, text: JSON.stringify(content) });
 const action = (value: object) =>
   response({ message: { content: JSON.stringify(value) }, prompt_eval_count: 10, eval_count: 5 });
@@ -34,7 +32,7 @@ const request = () => ({
 });
 
 describe('Ollama worker', () => {
-  it.skipIf(!REAL_MACOS)('ネイティブツール非対応のDeepSeekでも実ファイルを変更し、結果を読んで回答する', async () => {
+  it('ネイティブツール非対応のDeepSeekでも実ファイルを変更し、結果を読んで回答する', async () => {
     action({ type: 'tool', tool: 'write_file', path: 'result.txt', content: '実際の成果物' });
     action({ type: 'tool', tool: 'read_file', path: 'result.txt' });
     action({ type: 'final', text: '保存と確認が完了しました' });
@@ -46,13 +44,14 @@ describe('Ollama worker', () => {
     expect(context.onUsage).toHaveBeenCalledTimes(4);
   });
 
-  it.skipIf(!REAL_MACOS)('拒否した範囲外操作を成功として返さない', async () => {
+  it('拒否した範囲外操作を成功として返さない', async () => {
     action({ type: 'tool', tool: 'write_file', path: '../outside.txt', content: '拒否' });
     await expect(ollamaAdapter.run(request(), runContext())).rejects.toHaveProperty('code', 'unsupported_permission');
     await expect(readFile(join(root, 'outside.txt'))).rejects.toHaveProperty('code', 'ENOENT');
     expect(http).toHaveBeenCalledTimes(2);
   });
 
+  // コマンドは隔離できる macOS だけで使う（途中投稿も本物の準備を通る）
   it.skipIf(!REAL_MACOS)('コマンドの実行結果と途中投稿を往復させる', async () => {
     vi.mocked(runLocalCommand).mockResolvedValueOnce('{"exitCode":0,"output":"ok"}');
     action({ type: 'tool', tool: 'post', text: '確認中です' });
@@ -66,7 +65,7 @@ describe('Ollama worker', () => {
     expect(http.mock.calls[3]?.[2]).toContain('exitCode');
   });
 
-  it.skipIf(!REAL_MACOS)('スキル本文と付属ファイルを提供し、実行後に管理領域を片付ける', async () => {
+  it('スキル本文と付属ファイルを提供し、実行後に管理領域を片付ける', async () => {
     action({ type: 'tool', tool: 'read_skill', name: 'example' });
     action({ type: 'final', text: '参照しました' });
     const req = {
@@ -93,6 +92,16 @@ describe('Ollama worker', () => {
     expect(runLocalCommand).not.toHaveBeenCalled();
   });
 
+  it('操作を続けるモデルは上限で止め、完了したと報告しない', async () => {
+    for (let i = 0; i < 40; i++) action({ type: 'tool', tool: 'post', text: '作業中' });
+    await expect(ollamaAdapter.run(request(), runContext())).rejects.toThrow('上限');
+    expect(http).toHaveBeenCalledTimes(41);
+  });
+});
+
+// コマンドを使う分岐（macOS）。コマンドの実行そのものはモックなので、ほかの OS でも同じ分岐を通す
+describe('Ollama worker のコマンド', () => {
+  pretendMacOS();
   it('実行中のキャンセル後に次の操作を実行しない', async () => {
     const controller = new AbortController();
     vi.mocked(runLocalCommand).mockImplementationOnce(() => {
@@ -105,11 +114,5 @@ describe('Ollama worker', () => {
       'AbortError',
     );
     expect(http).toHaveBeenCalledTimes(2);
-  });
-
-  it('操作を続けるモデルは上限で止め、完了したと報告しない', async () => {
-    for (let i = 0; i < 40; i++) action({ type: 'tool', tool: 'post', text: '作業中' });
-    await expect(ollamaAdapter.run(request(), runContext())).rejects.toThrow('上限');
-    expect(http).toHaveBeenCalledTimes(41);
   });
 });

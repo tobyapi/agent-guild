@@ -1,5 +1,5 @@
 import { access, mkdir, realpath } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { assertFolderScope } from '../folder-scope.ts';
 import { BackendError, isInside, type RunRequest } from '../types.ts';
 const SANDBOX = '/usr/bin/sandbox-exec';
@@ -33,14 +33,35 @@ export function seatbeltProfile(request: RunRequest, workspace: string, readable
   return `(version 1)\n(deny default)\n(allow process-exec)\n(allow signal (target same-sandbox))\n(allow sysctl-read)\n(allow file-read-metadata)\n(allow file-read* (literal "/"))\n${reads}\n${writes}\n(allow file-read* file-write* (literal "/dev/null"))\n(deny file-write* (subpath ${literal(stateDir)}))\n${protectAncestors}\n${privateMemories}`;
 }
 
+/** 道具を動かす準備。isolated なら Seatbelt の中で動かし、そうでなければランナーの中でパスの判定だけで守る */
+export interface Prepared {
+  profile: string;
+  workspace: string;
+  isolated: boolean;
+}
+
+/** OS の隔離（Seatbelt）でコマンドと PC 全体への書き込みを閉じ込められるか。できない OS では、その2つを使わない */
+export function canIsolate(platform: NodeJS.Platform = process.platform): boolean {
+  return platform === 'darwin';
+}
+
+/**
+ * Seatbelt のない OS では、作業場所と追加の読み取りフォルダの中のファイル操作だけを、パスの判定で守って行う
+ * （local-file.ts）。リンクの差し替えを OS で止められないので、指定フォルダは扱わない。
+ */
+async function unisolated(request: RunRequest): Promise<Prepared> {
+  if (request.writableDirs !== undefined)
+    throw new BackendError('unsupported_permission', 'フォルダ制限には macOS の Seatbelt が必要です');
+  const workspace = await realpath(request.workspace);
+  if (isInside(workspace, resolve(request.stateDir)))
+    throw new BackendError('bad_request', '作業場所と管理領域が重なっています');
+  return { profile: '', workspace, isolated: false };
+}
+
 /** 制限を適用できなければ実行しない。フォールバックして通常のシェルを起動しない。 */
-export async function sandbox(request: RunRequest): Promise<{ profile: string; workspace: string }> {
+export async function sandbox(request: RunRequest): Promise<Prepared> {
   assertFolderScope(request);
-  if (process.platform !== 'darwin')
-    throw new BackendError(
-      'unsupported_permission',
-      'Ollama のファイル操作とコマンド実行は macOS の Seatbelt が必要です',
-    );
+  if (!canIsolate()) return unisolated(request);
   await access(SANDBOX);
   await mkdir(request.stateDir, { recursive: true });
   const workspace = await realpath(request.workspace);
@@ -54,5 +75,5 @@ export async function sandbox(request: RunRequest): Promise<{ profile: string; w
       : await Promise.all(request.writableDirs.map((path) => realpath(path)));
   const profile = seatbeltProfile({ ...request, writableDirs }, workspace, readable, stateDir);
   const helper = `\n(allow file-read* (literal ${literal(await realpath(process.execPath))}))`;
-  return { profile: profile + helper, workspace };
+  return { profile: profile + helper, workspace, isolated: true };
 }

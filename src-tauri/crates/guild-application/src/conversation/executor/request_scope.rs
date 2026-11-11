@@ -1,4 +1,4 @@
-//! チャンネルの範囲ごとの実効権限・作業場所・メモ・会話の境界。
+//! チャンネルの範囲ごとの権限・作業場所・メモ・会話の境界。
 use crate::error::{AppError, AppResult};
 use crate::ports::WorkspacePaths;
 use crate::services::Ports;
@@ -9,7 +9,11 @@ use guild_domain::conversation::JobSpec;
 use std::path::PathBuf;
 
 pub(super) struct RunScope {
+    /// ランナーに渡す権限: 役割の権限（バックエンドでは変わらない）を、チャンネルの作業範囲で絞ったもの。
+    /// 守れない操作を取り除くのはアダプタ（渡した権限を超えることはしない）
     pub permissions: Permissions,
+    /// そのうち、このバックエンドが実際に使える操作（プロンプトの「できること」とスキルの準備に使う）
+    pub usable: Permissions,
     pub paths: WorkspacePaths,
     pub memory: String,
     pub writable_dirs: Option<Vec<PathBuf>>,
@@ -32,7 +36,8 @@ pub(super) fn prepare(
     channel: &Channel,
     backend: Option<&BackendInfo>,
 ) -> AppResult<RunScope> {
-    let mut permissions = effective_permissions(agent, backend);
+    let mut permissions = agent.behavior().permissions;
+    let mut usable = effective_permissions(agent, backend);
     let scoped = channel.workspace.mode != WorkspaceMode::Legacy || channel.workspace.revision > 0;
     let writable_dirs = if channel.workspace.mode == WorkspaceMode::Folder {
         if agent.backend == "claude" {
@@ -45,11 +50,13 @@ pub(super) fn prepare(
                 "このバックエンドはフォルダ制限にまだ対応していません。macOSのOllamaを選んでください",
             ));
         }
-        permissions.read_anywhere = false;
-        permissions.write_anywhere = false;
-        permissions.skills = false;
-        // Shell commands bypass per-file hardlink and private-memory checks.
-        permissions.run_commands = false;
+        for scoped in [&mut permissions, &mut usable] {
+            scoped.read_anywhere = false;
+            scoped.write_anywhere = false;
+            scoped.skills = false;
+            // Shell commands bypass per-file hardlink and private-memory checks.
+            scoped.run_commands = false;
+        }
         let folder =
             channel.workspace.folder.as_ref().ok_or_else(|| AppError::validation("割り当てフォルダがありません"))?;
         Some(vec![PathBuf::from(folder)])
@@ -69,7 +76,7 @@ pub(super) fn prepare(
             String::new()
         })
     };
-    Ok(RunScope { permissions, paths, memory, writable_dirs })
+    Ok(RunScope { permissions, usable, paths, memory, writable_dirs })
 }
 
 pub(super) fn prompt(channel: &Channel) -> String {

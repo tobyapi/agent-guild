@@ -1,5 +1,10 @@
 import { useBackend } from '@/features/runtime';
-import { permissionRole, rolePermissions } from '@/shared/lib/permissionPolicy';
+import {
+  modelPermissions,
+  permissionRole,
+  unrestrictedPermissions,
+  unusablePermissions,
+} from '@/shared/lib/permissionPolicy';
 import { Icon } from '@/shared/ui';
 import type { Permissions } from '@/shared/types/domain';
 import { useTemplates } from '../../hooks/useAgents';
@@ -9,44 +14,64 @@ import styles from './PermissionFields.module.css';
 
 export interface PermissionFieldsProps {
   backendId: string;
+  model: string;
+  options: Readonly<Record<string, unknown>>;
   tags: readonly string[];
+  /** 役割で決まる権限（どのバックエンドでも同じ） */
   permissions: Permissions;
   error?: string;
 }
 
-/** 役割の固定設定を説明する。個別の権限スイッチや、依存関係を利用者に解かせる表示は置かない。 */
-export function PermissionFields({ backendId, tags, permissions, error }: PermissionFieldsProps) {
+const labels = (keys: readonly (keyof Permissions)[]) => keys.map((key) => permissionText(key).label).join('・');
+
+/**
+ * 役割で決まる権限を説明する。権限はどの AI でも同じで、AI によって違うのは「その AI では使わない操作」だけ
+ * （守れない操作を外すだけで、権限を広げて使えるようにはしない）。個別の権限スイッチは置かない。
+ */
+export function PermissionFields({ backendId, model, options, tags, permissions, error }: PermissionFieldsProps) {
   const backend = useBackend(backendId);
-  const templates = useTemplates();
-  const role = permissionRole(templates, tags);
-  const requested = rolePermissions(templates, tags);
-  const available = PERMISSION_ORDER.filter((key) => permissions[key]);
-  const restricted = PERMISSION_ORDER.filter((key) => requested[key] && !permissions[key]);
+  const role = permissionRole(useTemplates(), tags);
+  const granted = PERMISSION_ORDER.filter((key) => permissions[key]);
+  const usable = modelPermissions(permissions, backend, model, options, backendId);
+  const unusable = unusablePermissions(permissions, backend, model, options, backendId);
+  const unrestricted = unrestrictedPermissions(permissions, backend);
+  const reasonOf = (key: keyof Permissions) => unusable.find((item) => item.key === key)?.reason;
   return (
     <EditorSection title="できること">
       <p>
         {role
-          ? `${role.label}の固定設定です。役割を変えると、自動で切り替わります。`
-          : '役割が未設定のため、参照とスキルだけに制限しています。上のカードで役割を選べます。'}
+          ? `${role.label}の権限です。どの AI を選んでも同じで、役割を変えると切り替わります。`
+          : '役割が未設定のため、参照とスキルだけを許可しています。上のカードで役割を選べます。'}
       </p>
       <p className={styles.description}>
-        {available.length > 0
-          ? `利用できる機能：${available.map((key) => permissionText(key).label).join('・')}`
-          : 'このバックエンドでは会話による回答ができます。ファイル操作などのツールは使えません。'}
+        {granted.length > 0 ? `許可している操作：${labels(granted)}` : 'この役割は会話だけで答えます。'}
       </p>
-      {restricted.length > 0 && backend && (
-        <p className={styles.description} role="note">
-          {backend.label}では、この役割の許可範囲で使えない機能（
-          {restricted.map((key) => permissionText(key).label).join('・')}）を自動で無効にしています。
-        </p>
+      {unusable.length > 0 && backend && (
+        <div className={styles.description} role="note">
+          <p>{backend.label}では、このうち次の操作を使いません（権限は変えずに、守れない操作だけを外します）。</p>
+          <ul className={styles.reasons}>
+            {unusable.map(({ key, reason }) => (
+              <li key={key}>
+                {permissionText(key).label}: {reason}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
-      {!backend && <p className={styles.description}>バックエンドの準備ができると、利用できる機能を確認します。</p>}
-      {permissions.readAnywhere && !permissions.writeAnywhere && (
+      {unrestricted.length > 0 && backend && (
         <p className={styles.notice} role="note">
-          作業フォルダの外も読めます。秘密鍵や .env を除外する仕組みはありません。書き込みは作業フォルダ内だけです。
+          <Icon name="alert" className={styles.warningIcon} />
+          {backend.label}は仕組みの制約で、この役割で許可していない次の操作を止められません：{labels(unrestricted)}
+          。秘密を扱う仕事は、止められる AI に任せてください。
         </p>
       )}
-      {permissions.writeAnywhere && (
+      {!backend && <p className={styles.description}>AI の準備ができると、使える操作を確認します。</p>}
+      {usable.readAnywhere && !usable.writeAnywhere && (
+        <p className={styles.notice} role="note">
+          作業フォルダの外も読めます。書き込みは作業フォルダ内だけです。
+        </p>
+      )}
+      {usable.writeAnywhere && (
         <p className={styles.notice} role="note">
           <Icon name="alert" className={styles.warningIcon} />
           この役割は、パソコン内のファイル変更・削除、ソフトのインストール、外部への通信も行えます。
@@ -58,13 +83,13 @@ export function PermissionFields({ backendId, tags, permissions, error }: Permis
         </p>
       )}
       <details className={styles.details}>
-        <summary>機能の一覧を見る</summary>
+        <summary>操作の一覧を見る</summary>
         <ul className={styles.list} aria-label="役割で決まる権限">
           {PERMISSION_ORDER.map((key) => (
-            <li key={key} className={styles.grant}>
+            <li key={key} className={styles.grant} data-granted={permissions[key] ? '' : undefined}>
               <span>{permissionText(key).label}</span>
-              <span className={styles.status} data-allowed={permissions[key] ? '' : undefined}>
-                {permissions[key] ? '利用可' : requested[key] ? 'このバックエンドでは利用不可' : 'この役割では利用不可'}
+              <span className={styles.status} data-allowed={usable[key] ? '' : undefined} title={reasonOf(key)}>
+                {!permissions[key] ? 'この役割では許可なし' : usable[key] ? '許可' : '許可（この AI では使いません）'}
               </span>
             </li>
           ))}

@@ -10,9 +10,14 @@ export const REAL_MACOS = process.platform === 'darwin';
  * HTTP と OS の実行をモックしたテストを、ほかの OS（CI は Windows）でも同じ分岐で動かすために使う。
  */
 export function pretendMacOS(): void {
+  pretendPlatform('darwin');
+}
+
+/** そのファイル（または describe）のテストの間、OS を platform と申告する */
+export function pretendPlatform(platform: NodeJS.Platform): void {
   const original = process.platform;
   beforeAll(() => {
-    Object.defineProperty(process, 'platform', { value: 'darwin' });
+    Object.defineProperty(process, 'platform', { value: platform });
   });
   afterAll(() => {
     Object.defineProperty(process, 'platform', { value: original });

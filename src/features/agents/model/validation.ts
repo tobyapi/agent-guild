@@ -8,7 +8,7 @@ import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
 import { checkIntervalMin, DEFAULT_INTERVAL_MIN, parseIntervalMin } from './autonomy';
 import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
-import { rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions } from '@/shared/lib/permissionPolicy';
 import type { AgentTemplate } from '@/shared/types/domain';
 
 export type AgentField =
@@ -75,16 +75,8 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
 
 /** 入力を検証し、問題がなければ保存する形（AgentInput）にする */
 export function validateAgentDraft(draft: AgentDraft, ctx: ValidationContext): DraftResult {
-  draft = {
-    ...draft,
-    permissions: modelPermissions(
-      rolePermissions(ctx.templates, draft.tags),
-      ctx.backends.find((backend) => backend.id === draft.backend),
-      draft.model,
-      draft.optionValues,
-      draft.backend,
-    ),
-  };
+  // 権限は役割だけで決める（バックエンドでは変えない。Rust の保存時の正規化と同じ）
+  draft = { ...draft, permissions: rolePermissions(ctx.templates, draft.tags) };
   const errors = fieldErrors(draft, ctx);
   const toolError = toolModelError(draft, ctx);
   if (toolError) errors.permissions = toolError;

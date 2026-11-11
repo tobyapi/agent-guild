@@ -1,9 +1,10 @@
 //! 権限（protocol.ts・TS の Permissions）と実効権限の計算。
-//! 役割の固定権限をバックエンドの能力と依存関係で絞り、ランナーへ渡す。
+//! 権限は役割だけで決まり（Agent::behavior().permissions）、ランナーにもそのまま渡す。実効権限は、そのうち
+//! エージェントのバックエンドが実際に使える操作で、プロンプトの「できること」と画面の表示に使う。
 
 use serde::{Deserialize, Serialize};
 
-use super::{supported_permissions, Agent};
+use super::{usable_permissions, Agent};
 use crate::backend::BackendInfo;
 
 /// 権限の名前（TS の PermissionKey）
@@ -102,12 +103,13 @@ impl Permissions {
     }
 }
 
-/// 役割の固定権限をバックエンドの能力と依存関係で絞る。保存済みの個別権限には依存しない。
+/// 役割の権限のうち、このエージェントのバックエンドが実際に使える操作（役割の権限を超えない）。
+/// 保存済みの個別権限には依存しない。
 pub fn effective_permissions(agent: &Agent, backend: Option<&BackendInfo>) -> Permissions {
     if agent.backend == "ollama" && !ollama_tools_enabled(&agent.backend_options, &agent.model, backend) {
         return Permissions::default();
     }
-    supported_permissions(agent.behavior().permissions, backend)
+    usable_permissions(agent.behavior().permissions, backend)
 }
 
 /// 保存値がない既存エージェントは会話専用のまま。能力が不明なモデルも拒否する。

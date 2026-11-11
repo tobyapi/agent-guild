@@ -25,7 +25,7 @@ afterAll(async () => {
   await rm(root, { recursive: true, force: true });
 });
 function request(role: string, backend = 'claude'): RunRequest {
-  const permissions = cases.find((example) => example.name === `${role} / ${backend}`)!.permissions;
+  const permissions = cases.find((example) => example.name === `${role} / ${backend}`)!.usable;
   return {
     type: 'run',
     id: 'read-test',

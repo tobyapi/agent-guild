@@ -41,6 +41,7 @@ export const BACKENDS: BackendInfo[] = [
       { when: 'runCommands', requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'] },
     ],
     leakRisks: [['readFiles', 'writeAnywhere', 'webFetch']],
+    unrestricted: [],
   },
   {
     id: 'codex',
@@ -58,6 +59,7 @@ export const BACKENDS: BackendInfo[] = [
       { when: 'writeAnywhere', requires: ['writeFiles', 'webFetch'] },
     ],
     leakRisks: [['webFetch']],
+    unrestricted: ['readAnywhere', 'writeFiles', 'runCommands'],
   },
 ];
 

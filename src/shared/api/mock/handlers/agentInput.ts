@@ -2,7 +2,7 @@
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
 import { checkEffort, effortFrom, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
-import { rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions } from '@/shared/lib/permissionPolicy';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, OptionSpec } from '@/shared/types/domain';
 import { activeAgents, fail } from '../runtime';
@@ -54,12 +54,7 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
     ...input,
     name: input.name.trim(),
     tags: cleanTags(input.tags),
-    permissions: modelPermissions(
-      rolePermissions(core.state.templates, input.tags),
-      backend,
-      input.model,
-      input.backendOptions,
-    ),
+    permissions: rolePermissions(core.state.templates, input.tags),
     backendOptions: pickOptions(backend, input),
   };
 }

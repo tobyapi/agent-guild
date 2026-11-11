@@ -1,0 +1,67 @@
+# 役割で決まる権限と、バックエンドごとの守り方
+
+## 考え方
+
+- **権限は役割（先頭タグ）だけで決まる**。同じ役割なら、Claude・Codex・Grok・Muse・Ollama のどれを選んでも同じ権限になる。保存する値、Snapshot の `permissions`、ランナーへ渡す run の `permissions` のどれも、バックエンドでは変わらない。役割の表は guild-domain の `agent/templates.rs` だけにある。
+- **バックエンドは権限を広げない**。アダプタは渡された権限の範囲で動き、そのバックエンドが守れない操作は使わない（取り除く）。権限を足して使えるようにすることはしない。
+- **バックエンドで違ってよいのは次の2つだけ**で、どちらも権限とは別のものとして画面に出す。
+  - その AI では使わない操作（実効権限に入らないもの）: 道具がない（`capabilities`）、単独では守れない（`permissionRules`）、道具を有効にしていない（Ollama）。
+  - その AI では止められない操作（`unrestricted`）: 役割で許可していなくても、仕組みの制約で行えてしまうもの。
+
+| | 何で決まるか | 使う場所 |
+|---|---|---|
+| 権限 | 役割だけ | 保存・Snapshot・ランナーへの依頼・編集画面の「許可している操作」 |
+| 実効権限（使える操作） | 権限 ∩ バックエンドの `capabilities`、`permissionRules` で取り除いたもの。権限の部分集合 | プロンプトの「できること」・スキルの準備・編集画面の注意の札 |
+| 止められない操作 | バックエンドの `unrestricted` のうち、役割で許可していないもの | 編集画面の注意の帯 |
+
+同じ規則を3か所で使い、共有の実例（`contracts/behavior/role-permissions.json`）で一致を検査する: Rust（`usable_permissions`）・ランナー（`usablePermissions`。Dispatcher がアダプタに渡す前に絞る）・TypeScript（`supportedPermissions`）。ランナーは Rust の計算を信用せず、自分でも絞る。256通りの権限すべてについて、絞った結果が渡された権限を超えないことと、各アダプタが守れる組み合わせになることをテストしている（`agent-runner/src/backends/usable-permissions.test.ts`）。
+
+## 役割の権限
+
+| 役割 | Web 検索・閲覧 | 読み取り | 書き込み | コマンド | スキル |
+|---|---|---|---|---|---|
+| 作業者 | ○ | PC 全体 | PC 全体 | ○ | ○ |
+| 発想役 | – | 作業フォルダ | 作業フォルダ | ○ | ○ |
+| 専門家・マネージャー | – | PC 全体 | 作業フォルダ | ○ | ○ |
+| 役割なし | – | 作業フォルダ | – | – | ○ |
+
+作業者以外のコマンドは「作業フォルダへの書き込みだけ・ネットワークなし」に閉じ込められるときにだけ使う、という意味の許可。閉じ込められないバックエンドでは使わない。
+
+## バックエンドごとの守り方（2026-11-11 時点）
+
+| | 読み取りの範囲 | 書き込みの範囲 | ネットワーク | コマンド |
+|---|---|---|---|---|
+| Claude | パスの判定で守る（canUseTool と PreToolUse。秘密の場所は除く） | パスの判定で守る | 道具の有無で守る | **Windows では隔離できない**ので、全部を許す役割（作業者）でだけ使う。ほかの役割では使わない |
+| Codex・Grok・Muse | **Windows の標準の隔離では絞れない**（下記）。秘密の場所も読める | sandbox で守る（作業場所だけ。%TEMP% も除く） | sandbox で守る | 止められない（シェルが作業の手段）。sandbox の中でだけ動く |
+| Ollama | 道具の実装で守る（macOS は Seatbelt の中、ほかの OS はパスの判定。作業場所と readableDirs だけ） | 同左（作業場所だけ。PC 全体への書き込みは macOS だけ） | Web の道具がない。コマンドのネットワークも禁止 | macOS だけ。Seatbelt の中の単一プロセス |
+
+この PC（Windows）で確かめたこと:
+
+- Codex CLI 0.163 の `codex sandbox`（モデルは呼ばない）で、標準（unelevated）の隔離を試した。作業場所と %TEMP% への書き込みは通り、ネットワークは拒否され、**読み取りはどこでも通った**（ホームの設定ファイルも読めた）。読み取り先を絞る権限プロファイル（`[permissions.<name>.filesystem]` の `:minimal` や `"deny"`）を指定すると、`Restricted read-only access requires the elevated Windows sandbox backend` で起動を拒否された。読み取りを絞るには、管理者の設定が要る elevated 版の隔離が必要。
+- Claude Code の公式資料では、Bash の隔離（`sandbox`）は macOS・Linux・WSL2 が対象で、ネイティブの Windows ではコマンドは隔離されずに動く（`failIfUnavailable` を付けると起動時に終了する）。
+
+そのため Windows では、作業者以外の役割に次の差が残る。権限は同じだが、**使える操作と止められない操作が違う**。
+
+- Claude: コマンドを使わない（権限より狭い）。読み取りは権限どおりに守れる。
+- Codex 系: 作業フォルダの外も読める（発想役では権限より広い。専門家・マネージャーでも秘密の場所を除けない）。ネットワークは閉じているので、読んだ内容が外へ出る経路は、会話の本文と、Web を使える作業者への依頼に限られる。
+- Ollama: ファイルの読み書きとスキルは使える（道具を有効にしたとき）。コマンドと、作業者の作業フォルダの外への書き込みは使わない（権限より狭い）。
+
+## プロンプトに紛れた指示・暴走への備え
+
+- 権限を足して使えるようにする経路をなくした（以前は、守れない組み合わせを保存時に止めるかわりに、利用者が権限を足して通すことができた）。守れない操作は、権限を変えずに取り除く。
+- ランナーは、アダプタに渡す前に必ず絞る（Dispatcher）。新しいアダプタも、申告した `capabilities` と `permissionRules` を超える操作は受け取らない。絞ったあとにも守れない組み合わせが残れば、実行を拒否する。
+- プロンプトの「できること」には実効権限だけを書く（使えない操作を試させない）。
+- 役割で許可していないのに止められない操作は、隠さずに編集画面で知らせる。
+- 既存の備えはそのまま: Claude のパスの判定と秘密の場所の除外（secret-read-exclusion.md）、操作の確認、登録した道具だけを使う判定（connector-tool-policy.md）、秘密らしい環境変数の除外、Claude の最大ターン数。
+
+## Ollama の道具を Windows・Linux でも使う（実装済み）
+
+ファイルの読み書き・一覧とスキル・途中の投稿は、Seatbelt のない OS でも使う。Seatbelt 版と同じ確認（判定した実体そのものだけを開く・ハードリンクを断る）を、ランナーの中で行う（`ollama/local-file.ts`。詳しくは ollama-tools.md）。コマンドと PC 全体への書き込み、指定フォルダモードは、OS の隔離が前提なので使わない。
+
+## 残る差を縮めるには（未実装）
+
+どれも実機での検証が要るので、今回は入れていない。OS の隔離の作り方は [openai/codex](https://github.com/openai/codex)（Apache-2.0）の実装を参考にできる（macOS は Seatbelt、Linux は Landlock と seccomp、Windows は制限つきトークンと elevated 版。コードは転載しない）。
+
+1. **Codex 系の読み取りを絞る**: 権限プロファイル（`default_permissions` と `[permissions.<name>.filesystem]`）で、読み取りを作業場所と readableDirs（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）に限る。macOS・Linux と、elevated 版の隔離を設定した Windows で効く。効く環境では `unrestricted` から readAnywhere を外せる。`sandbox_mode` とは併用できないので、sandbox の指定をプロファイルに置き換える必要がある。
+2. **Claude のコマンドを隔離する**: macOS・Linux では SDK の `sandbox`（`enabled`・`allowUnsandboxedCommands: false`・`filesystem`・`network`）で、作業フォルダへの書き込みだけ・ネットワークなしにできる。そうすれば「コマンドは全部を許す役割でだけ」の規則を、その OS では外せる。Windows は Claude Code 側の対応待ち。
+3. **アプリ自身がコマンドの隔離を持つ**: Windows の制限つきトークンによる隔離を Codex の実装を参考に用意すれば、Claude・Ollama の作業者以外の役割でもコマンドを使える。読み取りを絞るには elevated 版に相当する仕組み（別ユーザーと ACL）が要る。

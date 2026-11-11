@@ -59,6 +59,7 @@ const INFO: BackendDescriptor = {
   ],
   permissionRules: [...PERMISSION_RULES],
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
+  unrestricted: [],
   canLogin: CAN_LOGIN,
   midRunPost: 'tool',
 };

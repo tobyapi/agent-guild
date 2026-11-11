@@ -6,7 +6,7 @@ use super::{role_permissions, Agent, Permissions, UnmentionedPolicy};
 /// エージェントの振る舞いを決める設定
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Behavior {
-    /// 役割の固定権限（実効権限はバックエンドの能力と依存関係で絞る）
+    /// 役割の権限（どのバックエンドでも同じ。そのバックエンドで実際に使える操作は effective_permissions）
     pub permissions: Permissions,
     /// メンションのない人間の発言への反応
     pub unmentioned: UnmentionedPolicy,

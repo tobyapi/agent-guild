@@ -2,6 +2,7 @@ import { BackendTag, useBackend } from '@/features/runtime';
 import { Avatar, Badge } from '@/shared/ui';
 import { behaviorSummary } from '../../model/behavior';
 import type { AgentDraft } from '../../model/draft';
+import { modelPermissions } from '@/shared/lib/permissionPolicy';
 import { leakRisk, PERMISSION_LABELS, riskyGrants } from '../../model/permissions';
 import { TagBadge } from '../TagBadge';
 import styles from './AgentPreview.module.css';
@@ -9,8 +10,11 @@ import styles from './AgentPreview.module.css';
 /** 編集ダイアログの左のプレビュー。入力するとすぐに変わる */
 export function AgentPreview({ draft }: { draft: AgentDraft }) {
   const name = draft.name.trim();
-  const risky = riskyGrants(draft.permissions);
-  const leaky = leakRisk(useBackend(draft.backend), draft.permissions) !== null;
+  // 注意の札は、役割の権限のうちこの AI で実際に使える操作について出す
+  const backend = useBackend(draft.backend);
+  const usable = modelPermissions(draft.permissions, backend, draft.model, draft.optionValues, draft.backend);
+  const risky = riskyGrants(usable);
+  const leaky = leakRisk(backend, usable) !== null;
   const behaviors = behaviorSummary(draft);
   return (
     <aside className={styles.preview} aria-label="プレビュー">

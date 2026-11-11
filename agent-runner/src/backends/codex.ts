@@ -1,6 +1,6 @@
 // Codex backend descriptor; execution is shared with Responses-compatible providers.
 import { codexCatalog } from './codex-runtime/models.ts';
-import { LEAK_RISKS, PERMISSION_RULES } from './codex-runtime/options.ts';
+import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex } from './codex-runtime.ts';
 import { CAN_LOGIN, loginCodex } from './codex/login.ts';
 import { probeCodex } from './codex/probe.ts';
@@ -23,6 +23,7 @@ const INFO: BackendDescriptor = {
   options: [],
   permissionRules: [...PERMISSION_RULES],
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
+  unrestricted: [...UNRESTRICTED],
   canLogin: CAN_LOGIN,
   midRunPost: 'text',
 };

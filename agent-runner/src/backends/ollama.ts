@@ -1,12 +1,23 @@
 import { readFile } from 'node:fs/promises';
-import type { ImagePayload, ModelSpec } from '../protocol.ts';
+import type { ImagePayload, ModelSpec, Permissions } from '../protocol.ts';
 import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
 import { BackendError, type BackendAdapter, type BackendProbe, type RunContext, type RunRequest } from './types.ts';
 import { prepareSkills } from './ollama/skills.ts';
 import { jsonChat } from './ollama/json-chat.ts';
 import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
 import { toolChat } from './ollama/chat.ts';
+import { canIsolate } from './ollama/sandbox.ts';
 
+const NO_TOOLS: Permissions = {
+  webSearch: false,
+  webFetch: false,
+  readFiles: false,
+  readAnywhere: false,
+  writeFiles: false,
+  writeAnywhere: false,
+  runCommands: false,
+  skills: false,
+};
 const NO_MODELS = 'Ollama に会話用のローカルモデルを追加して「再確認」を押してください。';
 
 function modelSpec(model: LocalModel): ModelSpec {
@@ -20,7 +31,7 @@ function modelSpec(model: LocalModel): ModelSpec {
     efforts: [],
     defaultEffort: null,
     // The app also provides JSON actions for completion models without native tools.
-    tools: process.platform === 'darwin',
+    tools: true,
   };
 }
 
@@ -55,11 +66,9 @@ async function run(request: RunRequest, context: RunContext): Promise<string> {
   signal.throwIfAborted();
   context = { ...context, signal };
   const enabled = request.options.enableTools === true;
-  if (enabled) {
-    validatePermissions(request);
-    if (process.platform !== 'darwin')
-      throw new BackendError('unsupported_permission', '道具には macOS の Seatbelt が必要です');
-  }
+  // 道具を有効にしていなければ会話だけ（役割の権限があっても、どの操作も使わない）
+  if (!enabled) request = { ...request, permissions: NO_TOOLS };
+  if (enabled) validatePermissions(request);
   const models = await localChatModels(signal);
   const model = request.model === '' ? models[0] : models.find((candidate) => candidate.id === request.model);
   if (!model)
@@ -102,12 +111,14 @@ export const ollamaAdapter: BackendAdapter = {
     capabilities: {
       webSearch: false,
       webFetch: false,
-      readFiles: process.platform === 'darwin',
+      // ファイルとスキルは、どの OS でも作業場所の範囲をパスの判定で守って使う。コマンドと PC 全体への書き込みは、
+      // OS の隔離（macOS の Seatbelt）で閉じ込められるときだけ使う
+      readFiles: true,
       readAnywhere: false,
-      writeFiles: process.platform === 'darwin',
-      writeAnywhere: process.platform === 'darwin',
-      runCommands: process.platform === 'darwin',
-      skills: process.platform === 'darwin',
+      writeFiles: true,
+      writeAnywhere: canIsolate(),
+      runCommands: canIsolate(),
+      skills: true,
     },
     options: [
       {
@@ -123,7 +134,7 @@ export const ollamaAdapter: BackendAdapter = {
         key: 'enableTools',
         label: '道具の利用を有効にする',
         description:
-          'macOS のみ。役割の権限で道具を実行します。DeepSeek などは JSON 操作を使います。コマンドは単一プロセスに限ります。',
+          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンド（単一プロセス）と作業フォルダの外への書き込みは、隔離できる macOS だけで使います。',
         type: 'boolean',
         choices: [],
         default: false,
@@ -139,6 +150,7 @@ export const ollamaAdapter: BackendAdapter = {
     ],
     permissionRules: PERMISSION_RULES,
     leakRisks: [],
+    unrestricted: [],
     canLogin: false,
     midRunPost: 'tool',
   }),

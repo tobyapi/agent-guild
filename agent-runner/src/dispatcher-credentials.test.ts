@@ -21,6 +21,7 @@ const adapter = (id: string): BackendAdapter => ({
     options: [],
     permissionRules: [],
     leakRisks: [],
+    unrestricted: [],
     capabilities: {
       webSearch: false,
       webFetch: false,

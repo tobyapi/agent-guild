@@ -38,16 +38,20 @@ fn rejects_short_intervals_and_missing_backend() {
 }
 
 #[test]
-fn role_permissions_replace_individual_settings_and_resolve_backend_rules() {
+fn role_permissions_replace_individual_settings_and_ignore_the_backend() {
     let mut codex = backend("codex");
     codex.permission_rules =
         vec![PermissionRule { when: PermissionKey::WriteFiles, requires: vec![PermissionKey::RunCommands] }];
     let mut raw = input("worker", "ソラ");
     raw.permissions.run_commands = false;
     assert_eq!(normalize_agent_input(raw, Some(&codex)).unwrap().permissions, ALL);
+    // バックエンドに道具がなくても、権限（役割で決まる）は変わらない。変わるのは実際に使える操作だけ
     codex.capabilities.run_commands = false;
-    let permissions = normalize_agent_input(input("worker", "ソラ"), Some(&codex)).unwrap().permissions;
-    assert!(!permissions.write_files && !permissions.run_commands);
+    assert_eq!(normalize_agent_input(input("worker", "ソラ"), Some(&codex)).unwrap().permissions, ALL);
+    let mut sora = agent("sora", "worker", "ソラ");
+    sora.backend = "codex".to_owned();
+    let usable = effective_permissions(&sora, Some(&codex));
+    assert!(!usable.write_files && !usable.run_commands);
 }
 
 #[test]
@@ -59,8 +63,12 @@ fn restricted_roles_never_gain_outside_access_to_enable_commands() {
         let mut raw = input(role, "ハル");
         raw.permissions = ALL;
         let permissions = normalize_agent_input(raw, Some(&claude)).unwrap().permissions;
-        assert!(!permissions.run_commands && !permissions.write_anywhere && !permissions.web_fetch);
+        assert!(!permissions.write_anywhere && !permissions.web_fetch, "{role}: 役割にない許可は増えない");
         assert!(permissions.write_files && permissions.read_files && permissions.skills);
+        // コマンドを隔離できないバックエンドでは、外への書き込みを足して使えるようにはせず、コマンドを使わない
+        let usable = effective_permissions(&agent("a", role, "ハル"), Some(&claude));
+        assert!(!usable.run_commands && !usable.write_anywhere && !usable.web_fetch, "{role}");
+        assert!(usable.write_files && usable.read_files && usable.skills, "{role}");
     }
     assert_eq!(normalize_agent_input(input("worker", "ハル"), Some(&claude)).unwrap().permissions, ALL);
 }

@@ -22,6 +22,7 @@ const backend = (overrides: Partial<BackendInfo>): BackendInfo => ({
   options: [],
   permissionRules: [],
   leakRisks: [],
+  unrestricted: [],
   canLogin: false,
   midRunPost: 'text',
   ...overrides,

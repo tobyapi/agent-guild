@@ -1,6 +1,6 @@
 //! 全体像（Snapshot）の組み立て。
 
-use guild_domain::agent::{effective_permissions, templates};
+use guild_domain::agent::templates;
 use guild_domain::snapshot::Snapshot;
 
 use crate::conversation::ConversationService;
@@ -22,9 +22,9 @@ impl SnapshotService {
     pub fn get(&self) -> AppResult<Snapshot> {
         let backends = self.ports.runtime.backends();
         let mut agents = self.ports.agents.list()?;
+        // 権限は役割だけで決まる（バックエンドでは変わらない）。保存値が古くても、いまの役割表の値を返す
         for agent in &mut agents {
-            let backend = backends.iter().find(|backend| backend.id == agent.backend);
-            agent.permissions = effective_permissions(agent, backend);
+            agent.permissions = agent.behavior().permissions;
         }
         Ok(Snapshot {
             me: self.ports.profile.get()?,

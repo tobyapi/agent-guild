@@ -22,6 +22,7 @@ const INFO: BackendDescriptor = {
   options: [],
   permissionRules: [],
   leakRisks: [],
+  unrestricted: [],
   canLogin: true,
   midRunPost: null,
 };

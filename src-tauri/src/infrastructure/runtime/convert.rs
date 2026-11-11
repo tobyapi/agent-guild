@@ -33,6 +33,7 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         options: info.options.into_iter().map(option).collect(),
         permission_rules: info.permission_rules.into_iter().map(rule).collect(),
         leak_risks: info.leak_risks.into_iter().map(|risk| risk.into_iter().map(key).collect()).collect(),
+        unrestricted: info.unrestricted.into_iter().map(key).collect(),
         can_login: info.can_login,
         mid_run_post: info.mid_run_post.map(mid_run_post),
     }

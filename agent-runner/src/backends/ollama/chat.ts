@@ -2,7 +2,7 @@ import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { count } from '../../usage.ts';
 import { BackendError, type RunRequest, type RunContext } from '../types.ts';
 import { localRef, ollamaRequest, type LocalModel } from './api.ts';
-import { assertToolPermission, executeTool, sandbox, toolDefinitions, TOOL_LIMIT } from './tools.ts';
+import { assertToolPermission, executeTool, sandbox, toolDefinitions, TOOL_LIMIT, type Prepared } from './tools.ts';
 
 function replyText({ message }: JsonObject): string {
   const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
@@ -46,7 +46,7 @@ async function performCalls(
   model: LocalModel,
   calls: unknown[],
   signal: AbortSignal,
-  prepared: { profile: string; workspace: string },
+  prepared: Prepared,
   tools: JsonObject[],
   context: RunContext,
 ): Promise<JsonObject[]> {

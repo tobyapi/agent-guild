@@ -27,8 +27,8 @@
         "readFiles": true,
         "readAnywhere": false,
         "writeFiles": true,
-        "writeAnywhere": false,
-        "runCommands": false,
+        "writeAnywhere": true,
+        "runCommands": true,
         "skills": true
       },
       "unmentioned": "answer",
@@ -58,13 +58,13 @@
       "model": "sonnet",
       "backendOptions": {},
       "permissions": {
-        "webSearch": true,
-        "webFetch": true,
+        "webSearch": false,
+        "webFetch": false,
         "readFiles": true,
         "readAnywhere": true,
-        "writeFiles": false,
+        "writeFiles": true,
         "writeAnywhere": false,
-        "runCommands": false,
+        "runCommands": true,
         "skills": true
       },
       "unmentioned": "fallback",
@@ -101,7 +101,7 @@
         "readFiles": true,
         "readAnywhere": false,
         "writeFiles": true,
-        "writeAnywhere": false,
+        "writeAnywhere": true,
         "runCommands": true,
         "skills": true
       },
@@ -228,6 +228,7 @@
           "webFetch"
         ]
       ],
+      "unrestricted": [],
       "canLogin": true,
       "midRunPost": "tool"
     },
@@ -297,6 +298,7 @@
           "webFetch"
         ]
       ],
+      "unrestricted": ["readAnywhere", "writeFiles", "runCommands"],
       "canLogin": false,
       "midRunPost": "text"
     },
@@ -378,6 +380,7 @@
         }
       ],
       "leakRisks": [],
+      "unrestricted": [],
       "canLogin": false,
       "midRunPost": "tool"
     }

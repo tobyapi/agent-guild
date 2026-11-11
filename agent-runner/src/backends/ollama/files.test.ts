@@ -22,8 +22,8 @@ const request = () => ({
   stateDir: join(root, 'state'),
 });
 
-// 本物の Seatbelt でファイルを読み書きする。ほかの OS では隔離を用意できず、どの操作も同じ理由で拒否されてしまう
-describe.skipIf(!REAL_MACOS)('Ollama file permissions', () => {
+// macOS では本物の Seatbelt の中で、ほかの OS ではランナーの中のパスの判定（local-file.ts）で、同じ結果になること
+describe('Ollama file permissions', () => {
   it('書き込み権限がなくてもMEMORY.mdだけは保存できる', async () => {
     const req = request();
     req.permissions.writeFiles = false;
@@ -60,7 +60,8 @@ describe.skipIf(!REAL_MACOS)('Ollama file permissions', () => {
     expect(await readFile(join(root, 'keep'), 'utf8')).toBe('keep');
   });
 
-  it('役割で外への書き込みを許可した場合だけ外のファイルを編集できる', async () => {
+  // PC 全体への書き込みは、隔離できる macOS だけで使う
+  it.skipIf(!REAL_MACOS)('役割で外への書き込みを許可した場合だけ外のファイルを編集できる', async () => {
     const req = request();
     req.permissions.writeAnywhere = true;
     await fileTool(req, 'write_file', '../allowed', 'ok', signal);
@@ -70,6 +71,21 @@ describe.skipIf(!REAL_MACOS)('Ollama file permissions', () => {
       'unsupported_permission',
     );
   });
+
+  it.skipIf(REAL_MACOS)(
+    '隔離できない OS では、役割が外への書き込みを許していても作業場所の外には書かない',
+    async () => {
+      const req = request();
+      req.permissions.writeAnywhere = true;
+      await expect(fileTool(req, 'write_file', '../denied', 'bad', signal)).rejects.toHaveProperty(
+        'code',
+        'unsupported_permission',
+      );
+      await expect(readFile(join(root, 'denied'))).rejects.toHaveProperty('code', 'ENOENT');
+      await fileTool(req, 'write_file', 'inside.txt', 'ok', signal);
+      expect(await readFile(join(root, 'work/inside.txt'), 'utf8')).toBe('ok');
+    },
+  );
 
   it('読み取りの追加範囲は書き込み許可にならない', async () => {
     await writeFile(join(root, 'state/data'), 'data');

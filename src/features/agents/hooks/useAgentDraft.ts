@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useBackends } from '@/features/runtime';
-import { permissionRole, rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
+import { permissionRole, rolePermissions } from '@/shared/lib/permissionPolicy';
 import type { Agent, AgentTemplate } from '@/shared/types/domain';
 import {
   applyPreset,
@@ -73,19 +73,10 @@ export function useAgentDraft(target: EditorTarget) {
       ),
     );
   };
-  const backend = backends.find((candidate) => candidate.id === values.backend);
+  // 権限は役割（先頭タグ）だけで決まる。バックエンドやモデルを変えても変わらない
   const draft = useMemo(
-    () => ({
-      ...values,
-      permissions: modelPermissions(
-        rolePermissions(templates, values.tags),
-        backend,
-        values.model,
-        values.optionValues,
-        values.backend,
-      ),
-    }),
-    [values, templates, backend],
+    () => ({ ...values, permissions: rolePermissions(templates, values.tags) }),
+    [values, templates],
   );
   return { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset };
 }

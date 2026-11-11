@@ -30,6 +30,7 @@ const backend: BackendInfo = {
   options: [],
   permissionRules: [],
   leakRisks: [],
+  unrestricted: [],
   canLogin: false,
   midRunPost: 'tool',
 };

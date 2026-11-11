@@ -80,7 +80,29 @@ export function brokenRule<R extends PermissionRule>(rules: readonly R[], permis
   return rules.find((rule) => permissions[rule.when] && rule.requires.some((key) => !permissions[key]));
 }
 
-/** false の効果を確実に防げない権限の組み合わせなら、黙って実行せずに拒否する */
+/**
+ * 渡された権限（役割で決まり、どのバックエンドでも同じ）のうち、このバックエンドが守って使える操作。
+ * 道具がない操作（capabilities）と、隔離できないなどの理由でほかの許可を前提にする操作（permissionRules）を取り除く。
+ * 許可を足すことはしない（結果は必ず granted の部分集合）。Rust の usable_permissions・TS の supportedPermissions と同じ規則
+ */
+export function usablePermissions(
+  granted: Permissions,
+  { capabilities, permissionRules }: Pick<BackendDescriptor, 'capabilities' | 'permissionRules'>,
+): Permissions {
+  const usable = { ...granted };
+  for (const key of Object.keys(usable) as (keyof Permissions)[]) usable[key] = granted[key] && capabilities[key];
+  for (let rule = brokenRule(permissionRules, usable); rule; rule = brokenRule(permissionRules, usable)) {
+    usable[rule.when] = false;
+  }
+  return usable;
+}
+
+/** 権限を、このバックエンドが使える操作に絞った依頼（アダプタにはこれを渡す。Dispatcher が呼ぶ） */
+export function usableRequest(request: RunRequest, info: BackendDescriptor): RunRequest {
+  return { ...request, permissions: usablePermissions(request.permissions, info) };
+}
+
+/** 絞ったあとにも false の効果を確実に防げない組み合わせが残るなら、黙って実行せずに拒否する（絞り方と守り方の食い違いへの備え） */
 export function rejectUnenforceable(backendLabel: string, reason: string | null): void {
   if (reason !== null) throw new BackendError('unsupported_permission', `${backendLabel}: ${reason}`);
 }

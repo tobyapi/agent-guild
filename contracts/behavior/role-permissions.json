@@ -14,6 +14,16 @@
       "writeAnywhere": true,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -31,6 +41,16 @@
       "writeAnywhere": true,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -40,6 +60,16 @@
     ],
     "backend": "ollama",
     "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,
@@ -63,6 +93,16 @@
       "readAnywhere": true,
       "writeFiles": true,
       "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
       "runCommands": false,
       "skills": true
     }
@@ -74,6 +114,16 @@
     ],
     "backend": "claude",
     "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,
@@ -99,6 +149,16 @@
       "writeAnywhere": false,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -116,6 +176,16 @@
       "writeAnywhere": false,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -125,6 +195,16 @@
     ],
     "backend": "ollama",
     "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,
@@ -150,6 +230,16 @@
       "writeAnywhere": false,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -159,6 +249,16 @@
     ],
     "backend": "claude",
     "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,
@@ -184,6 +284,16 @@
       "writeAnywhere": false,
       "runCommands": true,
       "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -193,6 +303,16 @@
     ],
     "backend": "ollama",
     "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,
@@ -216,6 +336,16 @@
       "writeAnywhere": false,
       "runCommands": false,
       "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
     }
   },
   {
@@ -226,6 +356,16 @@
     ],
     "backend": "codex",
     "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    },
+    "usable": {
       "webSearch": false,
       "webFetch": false,
       "readFiles": true,

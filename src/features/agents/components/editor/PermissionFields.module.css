@@ -61,3 +61,8 @@
   margin-block-start: var(--space-0-5);
   color: var(--warning);
 }
+
+.reasons {
+  margin: var(--space-1) 0 0;
+  padding-inline-start: var(--space-4);
+}

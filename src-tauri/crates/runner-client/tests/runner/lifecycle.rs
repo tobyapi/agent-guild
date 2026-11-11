@@ -26,6 +26,7 @@ async fn starts_and_publishes_backends() {
     let rule = &backends[0].permission_rules[0];
     assert_eq!((rule.when, rule.requires.as_slice()), (PermissionKey::WriteFiles, &[PermissionKey::RunCommands][..]));
     assert_eq!(backends[0].leak_risks, [[PermissionKey::WebFetch]]);
+    assert_eq!(backends[0].unrestricted, [PermissionKey::ReadAnywhere]);
     client.shutdown().await;
 }
 

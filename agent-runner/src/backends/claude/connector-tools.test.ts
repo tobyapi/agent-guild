@@ -53,7 +53,7 @@ const hookCall = (hook: HookCallback, tool: string, source?: string) =>
 describe('登録されていない道具の拒否（実際の連携・SDK query は呼ばない）', () => {
   it.each(cases.filter((c) => c.backend === 'claude'))(
     '$name: 両入口で拒否し judge に渡さない',
-    async ({ permissions }) => {
+    async ({ usable: permissions }) => {
       const judge = vi.fn().mockResolvedValue({ allow: true, reason: '' });
       const req = request(permissions);
       for (const policy of [fileAccessPolicy(req), checkedPolicy(req, judge, vi.fn())]) {
@@ -112,7 +112,7 @@ describe('登録されていない道具の拒否（実際の連携・SDK query 
   });
 
   it('通常の道具はフックで先に許可せず、既存のパス判定へ進める。判定用モデルはすべて拒否する', async () => {
-    const permissions = cases.find((c) => c.name === '作業者 / claude')!.permissions;
+    const permissions = cases.find((c) => c.name === '作業者 / claude')!.usable;
     const tools = toolsFor(permissions);
     for (const tool of tools) expect(await hookCall(registeredToolsHook(tools), tool)).toEqual({});
     const judgeHook = isolatedToolOptions([]).hooks!.PreToolUse![0]!.hooks[0]!;

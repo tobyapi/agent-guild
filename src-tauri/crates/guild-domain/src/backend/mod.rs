@@ -111,6 +111,8 @@ pub struct BackendInfo {
     pub permission_rules: Vec<PermissionRule>,
     /// どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる権限の組（React が編集画面で知らせる。保存は止めない）
     pub leak_risks: Vec<Vec<PermissionKey>>,
+    /// 役割で許可していなくても、このバックエンドでは止められない操作（React が編集画面で知らせる。権限そのものは役割で決まる）
+    pub unrestricted: Vec<PermissionKey>,
     /// アプリからログインを始められる（login_backend）
     pub can_login: bool,
     /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）

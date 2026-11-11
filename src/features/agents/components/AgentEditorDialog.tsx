@@ -85,6 +85,8 @@ function AgentEditor({
             />
             <PermissionFields
               backendId={draft.backend}
+              model={draft.model}
+              options={draft.optionValues}
               permissions={draft.permissions}
               tags={draft.tags}
               error={save.errors.permissions}

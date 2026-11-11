@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { newDraft } from './draft';
 import type { AgentDraft } from './draft';
 import { allCapabilities, BACKENDS, TEMPLATES } from './fixtures.test-support';
+import { rolePermissions } from '@/shared/lib/permissionPolicy';
 import { agentErrorField, validateAgentDraft } from './validation';
 
 const ctx = { templates: TEMPLATES, backends: BACKENDS, takenNames: ['ハル', 'あなた'] };
@@ -94,7 +95,7 @@ describe('agentErrorField', () => {
   });
 });
 
-it('Ollama は明示有効化した対応モデルだけ道具の権限を保存できる', () => {
+it('Ollama でも権限は役割のまま保存し、道具は明示有効化した対応モデルだけで使う', () => {
   const info: BackendInfo = {
     ...(BACKENDS[0] as BackendInfo),
     id: 'ollama',
@@ -105,12 +106,14 @@ it('Ollama は明示有効化した対応モデルだけ道具の権限を保存
   };
   const local = { ...ctx, backends: [info] };
   const old = validateAgentDraft(draft({ backend: 'ollama', model: 'small', optionValues: {} }), local);
-  expect(old.ok && Object.values(old.input.permissions).every((value) => !value)).toBe(true);
+  // 権限は役割で決まるので、道具を有効にしていなくても変わらない（有効にするまでは、使える操作がないだけ）
+  expect(old.ok && old.input.permissions).toEqual(rolePermissions(local.templates, draft({}).tags));
+  expect(old.ok && old.input.backendOptions.enableTools).toBeUndefined();
   const enabled = validateAgentDraft(
     draft({ backend: 'ollama', model: 'small', optionValues: { enableTools: true } }),
     local,
   );
-  expect(enabled.ok && enabled.input.permissions.readFiles).toBe(true);
+  expect(enabled.ok && enabled.input.permissions).toEqual(rolePermissions(local.templates, draft({}).tags));
   expect(enabled.ok && enabled.input.backendOptions.enableTools).toBe(true);
   const unsupported = validateAgentDraft(
     draft({ backend: 'ollama', model: 'unknown', optionValues: { enableTools: true } }),

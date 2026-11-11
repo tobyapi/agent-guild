@@ -1,5 +1,6 @@
-//! 先頭タグに対応する役割の固定権限。保存値からの個別の付け外しは受け付けない。
-//! バックエンドの依存関係は、許可範囲を広げず、実現できない操作を取り除いて解決する。
+//! 権限は先頭タグに対応する役割だけで決まる（どのバックエンドでも同じ。保存値からの個別の付け外しは受け付けない）。
+//! バックエンドごとに違ってよいのは「その AI・その PC で実際に使える操作」だけで、それは役割の権限を
+//! 広げず、守れない操作を取り除いて求める（usable_permissions）。
 
 use super::{role_template, Permissions};
 use crate::backend::BackendInfo;
@@ -14,8 +15,9 @@ pub fn role_permissions(tags: &[String]) -> Permissions {
     })
 }
 
-/// 非対応の操作と、禁止された操作を前提とする操作を除く。連鎖する依存も収束するまで解決する。
-pub fn supported_permissions(permissions: Permissions, backend: Option<&BackendInfo>) -> Permissions {
+/// 役割の権限のうち、そのバックエンドが実際に使える操作。道具がない操作と、隔離できないなどの理由で
+/// ほかの許可を前提にする操作（permissionRules）を除く。連鎖する依存も収束するまで解決する。結果は必ず permissions の部分集合
+pub fn usable_permissions(permissions: Permissions, backend: Option<&BackendInfo>) -> Permissions {
     let Some(backend) = backend else { return permissions };
     let mut effective = permissions.intersect(backend.capabilities);
     loop {

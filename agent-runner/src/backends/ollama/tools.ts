@@ -1,12 +1,15 @@
 import { sandboxProcess } from './subprocess.ts';
 export { sandboxProcess } from './subprocess.ts';
-export { sandbox, seatbeltProfile } from './sandbox.ts';
+export { sandbox, seatbeltProfile, type Prepared } from './sandbox.ts';
+import { canIsolate, type Prepared } from './sandbox.ts';
+import { anywhere, fileTarget } from './file-target.ts';
+import { localFile } from './local-file.ts';
 // Codex の default-deny / 固定 sandbox-exec パス / 子プロセス継承を参考に独自実装。
 // 出典と制約: docs/ollama-tools.md（Codex のコード・ポリシーは転載していない）。
 import { SCOPED_FILE_SCRIPT } from './scoped-file.ts';
-import { assertFolderScope, scopedTarget } from '../folder-scope.ts';
-import { lstat, realpath } from 'node:fs/promises';
-import { dirname, basename, resolve, join } from 'node:path';
+import { assertFolderScope } from '../folder-scope.ts';
+import { realpath } from 'node:fs/promises';
+import { relative, resolve, join } from 'node:path';
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { BackendError, isInside, type RunRequest, type RunContext } from '../types.ts';
 
@@ -22,7 +25,12 @@ export function toolNames(request: RunRequest): ToolName[] {
       name === 'post' ||
       name === 'read_file' ||
       name === 'write_file' ||
-      (name === 'read_skill' ? p.skills : name === 'run_command' ? p.runCommands && p.readFiles : p.readFiles),
+      // コマンドは、隔離できる OS でだけ使う
+      (name === 'read_skill'
+        ? p.skills
+        : name === 'run_command'
+          ? p.runCommands && p.readFiles && canIsolate()
+          : p.readFiles),
   );
 }
 
@@ -53,33 +61,6 @@ export function toolDefinitions(request: RunRequest): JsonObject[] {
   });
 }
 
-async function fileTarget(request: RunRequest, path: string, write: boolean): Promise<string> {
-  if (request.writableDirs !== undefined) return scopedTarget(request, path, write);
-  const absolute = resolve(request.workspace, path);
-  let target: string;
-  try {
-    target = await realpath(absolute);
-  } catch (error) {
-    if (!write || !isJsonObject(error) || error.code !== 'ENOENT') throw error;
-    if (
-      await lstat(absolute).then(
-        (info) => info.isSymbolicLink(),
-        () => false,
-      )
-    )
-      throw new BackendError('unsupported_permission', 'リンク先を確認できません');
-    target = resolve(await realpath(dirname(absolute)), basename(absolute));
-  }
-  if (!request.permissions.writeAnywhere) {
-    const roots = await Promise.all(
-      (write ? [request.workspace] : [request.workspace, ...request.readableDirs]).map((root) => realpath(root)),
-    );
-    if (!roots.some((root) => isInside(target, root)))
-      throw new BackendError('unsupported_permission', '許可されたフォルダの外です');
-  }
-  return target;
-}
-
 export function assertToolPermission(request: RunRequest, name: string, args: unknown): void {
   assertFolderScope(request);
   if (request.options.enableTools !== true || !toolNames(request).includes(name as ToolName))
@@ -98,7 +79,7 @@ export async function executeTool(
   name: string,
   args: unknown,
   signal: AbortSignal,
-  prepared: { profile: string; workspace: string },
+  prepared: Prepared,
   context?: RunContext,
 ): Promise<string> {
   signal.throwIfAborted();
@@ -107,8 +88,10 @@ export async function executeTool(
   if (name === 'post') return postResult(args, context);
   if (name === 'read_skill') return skillResult(request, args.name);
   const value = toolValue(name, args);
-  if (name === 'run_command')
+  if (name === 'run_command') {
+    if (!prepared.isolated) throw new BackendError('unsupported_permission', 'コマンドを隔離できない OS です');
     return sandboxProcess(prepared.profile, prepared.workspace, '/bin/sh', ['-c', value], signal);
+  }
   return executeFile(request, name, args, value, signal, prepared);
 }
 
@@ -138,20 +121,20 @@ async function executeFile(
   args: JsonObject,
   value: string,
   signal: AbortSignal,
-  prepared: { profile: string; workspace: string },
+  prepared: Prepared,
 ): Promise<string> {
   let profile = prepared.profile;
   const run = (exe: string, argv: string[], input?: string) =>
     sandboxProcess(profile, prepared.workspace, exe, argv, signal, input);
   const memory = resolve(request.workspace, value) === join(request.workspace, 'MEMORY.md');
   const target = await fileTarget(request, value, name === 'write_file');
-  if (memory && target !== join(await realpath(request.workspace), 'MEMORY.md'))
+  if (memory && relative(target, join(await realpath(request.workspace), 'MEMORY.md')) !== '')
     throw new BackendError('unsupported_permission', 'MEMORY.mdのリンク先は操作できません');
   if (isInside(target, request.stateDir) && name === 'write_file')
     throw new BackendError('unsupported_permission', '管理領域への書き込みは許可されていません');
   // MEMORY is a file-tool exception only; commands keep the original role sandbox.
   if (memory) profile += `\n(allow file-read* file-write* (literal ${JSON.stringify(target)}))`;
-  return scopedFile(request, name, target, args, run);
+  return scopedFile(request, name, target, args, prepared.isolated ? run : null);
 }
 
 function writeContent(content: unknown): string {
@@ -165,9 +148,9 @@ async function scopedFile(
   name: string,
   target: string,
   args: Record<string, unknown>,
-  run: (exe: string, argv: string[], input?: string) => Promise<string>,
+  run: ((exe: string, argv: string[], input?: string) => Promise<string>) | null,
 ): Promise<string> {
-  const roots = request.permissions.writeAnywhere
+  const roots = anywhere(request)
     ? ['/']
     : await Promise.all(
         (name === 'write_file'
@@ -175,15 +158,18 @@ async function scopedFile(
           : [request.workspace, ...request.readableDirs]
         ).map((root) => realpath(root)),
       );
+  const mode = name as 'read_file' | 'list_files' | 'write_file';
+  const content = mode === 'write_file' ? writeContent(args.content) : undefined;
+  if (run === null) return localFile({ path: target, roots, mode, content, limit: OUTPUT_LIMIT });
   const result = await run(
     process.execPath,
     ['--no-addons', '--no-warnings', '--input-type=module', '-e', SCOPED_FILE_SCRIPT],
     JSON.stringify({
       path: target,
       roots,
-      mode: name,
+      mode,
       limit: OUTPUT_LIMIT,
-      ...(name === 'write_file' ? { content: writeContent(args.content) } : {}),
+      ...(content === undefined ? {} : { content }),
     }),
   );
   if (!result.startsWith('exit=0\n')) throw new BackendError('unsupported_permission', result);

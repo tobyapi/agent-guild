@@ -11,7 +11,9 @@
 // - 受け手は未知のフィールドを無視する。Rust は未知のイベントを無視し、id が null の error はログに残すだけ。
 // - stdin が EOF になったら、全実行を中断して終了する（親が落ちても孤児にならない）。
 // - stdout はプロトコル専用。console.log などは起動時に stderr へ向ける。
-// - 権限は「その効果を許すか」。false の効果をそのプラットフォームで確実に防げないなら、
+// - run の permissions は役割で決まる権限で、どのバックエンドにも同じものが届く（「その効果を許すか」）。
+//   ランナーは、その中でバックエンドが守って使える操作だけをアダプタに渡す（capabilities と permissionRules で
+//   取り除く。許可を足すことはしない）。それでも false の効果を確実に防げない組み合わせが残るなら、
 //   黙って実行せず error{code:'unsupported_permission'} で拒否する。
 //   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
 //   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
@@ -23,8 +25,9 @@ export type PermissionKey =
 export type Permissions = Record<PermissionKey, boolean>;
 
 /**
- * 「when の権限を許すなら、requires の権限もすべて必要」という規則。アダプタが守れない権限の組み合わせを申告し、
- * Rust はエージェントの保存時に実効権限で検証し、React は編集画面で知らせる。
+ * 「when の操作は、requires もすべて許されているときだけ使える」という規則。アダプタが、単独では守れない操作
+ * （隔離できないコマンドの実行など）を申告する。ランナー・Rust・React は同じ規則で、役割の権限から使えない操作を取り除く
+ * （権限そのものは変えない。Rust はプロンプトの「できること」に、React は編集画面の表示に使う）。
  */
 export interface PermissionRule {
   when: PermissionKey;
@@ -70,16 +73,21 @@ export interface BackendInfo {
   models: ModelSpec[];
   /** モデルを選ばないときに使うモデル（空ならバックエンドに任せる） */
   defaultModel: string;
-  /** そもそも提供できる能力 */
+  /** このバックエンドが道具として持つ操作（ない操作は、権限があっても使えない） */
   capabilities: Permissions;
   status: BackendStatus;
   statusMessage: string;
   /** backendOptions の項目定義 */
   options: OptionSpec[];
-  /** 守れない権限の組み合わせ（この規則に反する run は unsupported_permission で拒否される） */
+  /** 単独では守れない操作の規則（run の権限からこの規則に反する操作を取り除いて実行する） */
   permissionRules: PermissionRule[];
   /** どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる（資料に紛れた指示で持ち出されうる。React が知らせる） */
   leakRisks: PermissionKey[][];
+  /**
+   * 役割で許可していなくても、このバックエンドでは止められない操作（OS の隔離の中では行える。React が編集画面で知らせる）。
+   * 権限は役割で決まり、どのバックエンドでも同じだが、ここに挙げた操作だけは役割の権限より広く動きうる
+   */
+  unrestricted: PermissionKey[];
   /** アプリからログインを始められる（login 要求を受け付ける） */
   canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */

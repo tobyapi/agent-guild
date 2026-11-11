@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { withoutSecrets } from './agent-env.ts';
 import { findCodex, CODEX_NOT_FOUND } from './codex-runtime/executable.ts';
-import { LEAK_RISKS, PERMISSION_RULES } from './codex-runtime/options.ts';
+import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex, type CodexProvider } from './codex-runtime.ts';
 import {
   BackendError,
@@ -105,6 +105,7 @@ export const grokAdapter: BackendAdapter = {
     options: [],
     permissionRules: [...PERMISSION_RULES],
     leakRisks: LEAK_RISKS.map((risk) => [...risk]),
+    unrestricted: [...UNRESTRICTED],
     canLogin: false,
     midRunPost: 'text',
   }),

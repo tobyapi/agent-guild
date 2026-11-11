@@ -114,7 +114,7 @@ export function request(role = '専門家'): RunRequest {
     workspace,
     stateDir: join(root, 'state'),
     readableDirs: [peer],
-    permissions: cases.find((row) => row.name === `${role} / claude`)!.permissions,
+    permissions: cases.find((row) => row.name === `${role} / claude`)!.usable,
     systemPrompt: '',
     prompt: '',
     intent: '',

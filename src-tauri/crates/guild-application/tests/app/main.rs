@@ -18,6 +18,7 @@ mod storage;
 mod support;
 mod use_cases;
 
+mod role_permissions;
 mod role_skills;
 
 mod channel_workspace;

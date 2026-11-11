@@ -65,6 +65,7 @@ export const backendInfoSchema = {
   options: arrayOf(objectOf(optionSpecSchema)),
   permissionRules: arrayOf(objectOf(permissionRuleSchema)),
   leakRisks: arrayOf(arrayOf(permissionKey)),
+  unrestricted: arrayOf(permissionKey),
   canLogin: boolean,
   midRunPost: nullable(oneOf<MidRunPost>({ tool: true, text: true })),
 } satisfies Schema<BackendInfo>;

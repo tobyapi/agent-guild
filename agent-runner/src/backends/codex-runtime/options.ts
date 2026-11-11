@@ -103,6 +103,14 @@ export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
 export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [['webFetch']];
 
 /**
+ * 役割で許可していなくても止められない操作（BackendInfo.unrestricted）。Codex は作業にシェルを使い、sandbox は作業場所への
+ * 書き込みを許す（MEMORY.md のため）。読み取り先は、macOS・Linux と Windows の elevated 版の隔離でしか絞れない
+ * （Windows の標準の隔離では「Restricted read-only access requires the elevated Windows sandbox backend」で拒否される）
+ * ので、絞らない。外への書き込みとネットワークは sandbox が止める
+ */
+export const UNRESTRICTED: readonly PermissionKey[] = ['readAnywhere', 'writeFiles', 'runCommands'];
+
+/**
  * Codex で守れない権限の組み合わせなら、その理由。Codex は作業にシェルを使うので、コマンドの実行そのものは止められない。
  * 書き込みを許していないときも、MEMORY.md のために作業場所へは書ける（ほかのファイルを書かないのはエージェントに任せる）。
  * ネットワークは webFetch のときだけ開く。

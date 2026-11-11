@@ -2,7 +2,7 @@ import { assertFolderScope } from './backends/folder-scope.ts';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
-import { type BackendAdapter, type RunRequest } from './backends/types.ts';
+import { usableRequest, type BackendAdapter, type RunRequest } from './backends/types.ts';
 import type { ParsedLine } from './line-parser.ts';
 import { logError } from './log.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
@@ -112,7 +112,8 @@ export class Dispatcher {
         if (isCurrent()) this.#options.send(event);
       };
       assertFolderScope(request);
-      return adapter.run(request, {
+      // 依頼の権限は役割で決まる（バックエンドでは変わらない）。アダプタには、その中でこのバックエンドが守れる操作だけを渡す
+      return adapter.run(usableRequest(request, adapter.info()), {
         signal,
         onActivity: (detail) => send({ type: 'activity', id, detail }),
         onPost: (text) => send({ type: 'post', id, text }),

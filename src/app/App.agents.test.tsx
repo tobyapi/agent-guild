@@ -95,6 +95,13 @@ const permissions = [
   'コマンドを実行',
   'スキルを使う',
 ];
+const grantedPermissions = () => {
+  const list = within(openDialog()).getByRole('list', { name: '役割で決まる権限', hidden: true });
+  return within(list)
+    .getAllByRole('listitem', { hidden: true })
+    .filter((item) => item.hasAttribute('data-granted'))
+    .map((item) => item.firstElementChild?.textContent);
+};
 const enabledPermissions = () => {
   const list = within(openDialog()).getByRole('list', { name: '役割で決まる権限', hidden: true });
   return within(list)
@@ -118,7 +125,9 @@ it('役割で権限が固定され、バックエンドを変えても個別ス�
     target: { value: 'claude' },
   });
   expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', 'ファイルを書く', 'スキルを使う']);
-  expect(within(openDialog()).getByText(/Claudeでは、この役割の許可範囲/)).toBeTruthy();
+  expect(within(openDialog()).getByText(/Claudeでは、このうち次の操作を使いません/)).toBeTruthy();
+  // 権限（役割で決まる）はバックエンドを変えても同じ。変わるのは、その AI で使わない操作だけ
+  expect(grantedPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', ...workspaceOnly.slice(1)]);
   fireEvent.change(within(openDialog()).getByPlaceholderText('タグを追加'), { target: { value: '作業者、' } });
   expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', 'ファイルを書く', 'スキルを使う']);
   await submitName('コハク');

@@ -105,6 +105,7 @@ pub fn backend(id: &str) -> BackendInfo {
         options: Vec::new(),
         permission_rules: Vec::new(),
         leak_risks: Vec::new(),
+        unrestricted: Vec::new(),
         can_login: false,
         mid_run_post: None,
     }

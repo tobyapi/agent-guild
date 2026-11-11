@@ -65,6 +65,8 @@ export interface BackendInfo {
    * （資料に紛れた指示で中身を持ち出されうる）。編集画面で知らせる（保存は止めない）
    */
   leakRisks: PermissionKey[][];
+  /** 役割で許可していなくても、このバックエンドでは止められない操作（編集画面で知らせる。権限そのものは役割で決まる） */
+  unrestricted: PermissionKey[];
   /** アプリからログインを始められる（login_backend） */
   canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */

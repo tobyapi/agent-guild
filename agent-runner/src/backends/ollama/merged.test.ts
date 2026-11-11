@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, readFile, readdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
 import { pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
 import { localHttp } from './http.ts';
@@ -12,8 +12,6 @@ const http = vi.mocked(localHttp);
 const response = (body: object) => http.mockResolvedValueOnce({ status: 200, text: JSON.stringify(body) });
 const action = (body: object) => response({ message: { content: JSON.stringify(body) } });
 let root: string;
-// 道具は呼ぶたびに本物の sandbox-exec を確かめるので、実際に道具を動かすテストは macOS だけで行う
-pretendMacOS();
 beforeEach(async () => {
   http.mockReset();
   root = await realpath(await mkdtemp(join(tmpdir(), 'ollama-merge-')));
@@ -38,14 +36,18 @@ it('opt-in前のJSON操作は実行せず、形式制約も渡さない', async 
   expect(JSON.parse(http.mock.calls[1]?.[2] ?? '{}')).not.toHaveProperty('format');
 });
 
-it('JSONコマンドでも既定の操作確認が拒否したら実行しない', async () => {
-  startJson();
-  action({ type: 'tool', tool: 'run_command', command: 'printf bad > bad' });
-  response({ message: { content: 'DENY' } });
-  await expect(ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext())).rejects.toThrow(
-    '確認',
-  );
-  expect(await readdir(join(root, 'work'))).toEqual([]);
+// コマンドを使う分岐（macOS）。確認で止まるので実行には進まず、ほかの OS でも同じ分岐を通す
+describe('コマンドの操作確認', () => {
+  pretendMacOS();
+  it('JSONコマンドでも既定の操作確認が拒否したら実行しない', async () => {
+    startJson();
+    action({ type: 'tool', tool: 'run_command', command: 'printf bad > bad' });
+    response({ message: { content: 'DENY' } });
+    await expect(ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext())).rejects.toThrow(
+      '確認',
+    );
+    expect(await readdir(join(root, 'work'))).toEqual([]);
+  });
 });
 
 it.skipIf(!REAL_MACOS)('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
@@ -80,7 +82,7 @@ it.each(['runCommands', 'skills'] as const)(
   },
 );
 
-it.skipIf(!REAL_MACOS)('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {
+it('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {
   const req = request();
   req.permissions.writeFiles = false;
   await writeFile(join(req.workspace, 'keep'), 'keep');
@@ -92,7 +94,7 @@ it.skipIf(!REAL_MACOS)('MEMORY例外をリンク先の別ファイルの書き�
   expect(await readFile(join(req.workspace, 'keep'), 'utf8')).toBe('keep');
 });
 
-it.skipIf(!REAL_MACOS)('ネイティブ経路でもスキル参照と途中投稿を提供する', async () => {
+it('ネイティブ経路でもスキル参照と途中投稿を提供する', async () => {
   response({ models: [{ model: 'native', capabilities: ['completion', 'tools'] }] });
   response({ capabilities: ['completion', 'tools'] });
   response({
@@ -115,7 +117,7 @@ it.skipIf(!REAL_MACOS)('ネイティブ経路でもスキル参照と途中投�
   expect(http.mock.calls[3]?.[2]).toContain('CODE-7319');
 });
 
-it.skipIf(!REAL_MACOS)('展開したスキルの付属ファイルをJSON経路から読み、終了時に片付ける', async () => {
+it('展開したスキルの付属ファイルをJSON経路から読み、終了時に片付ける', async () => {
   startJson();
   http.mockImplementationOnce((_path, _signal, body) => {
     const text = (JSON.parse(body ?? '{}') as { messages: { content: string }[] }).messages[0]!.content;
@@ -157,7 +159,7 @@ it.skipIf(!REAL_MACOS)('展開したスキルの付属ファイルをJSON経路�
   expect(await readdir(req.stateDir)).toEqual([]);
 });
 
-it.skipIf(!REAL_MACOS)('tools対応を申告するモデルでもJSON操作を明示して実ファイルを保存できる', async () => {
+it('tools対応を申告するモデルでもJSON操作を明示して実ファイルを保存できる', async () => {
   response({ models: [{ model: 'deepseek', capabilities: ['completion', 'tools'] }] });
   response({ capabilities: ['completion', 'tools'] });
   action({ type: 'tool', tool: 'write_file', path: 'forced-json', content: 'verified' });

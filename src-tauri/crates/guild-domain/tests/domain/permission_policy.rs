@@ -1,4 +1,4 @@
-//! UI・保存・実行が同じ役割の権限を使うことを、共有の実例で確かめる。
+//! UI・保存・実行が同じ役割の権限を使うことと、権限がバックエンドで変わらないことを、共有の実例で確かめる。
 use super::support::{agent, backend, input, ALL};
 use guild_domain::agent::PermissionKey;
 use guild_domain::agent::{effective_permissions, normalize_agent_input, Permissions};
@@ -10,13 +10,24 @@ struct Case {
     name: String,
     tags: Vec<String>,
     backend: String,
+    /// 役割の権限（どのバックエンドでも同じ）
     permissions: Permissions,
+    /// そのうち、このバックエンドで実際に使える操作
+    usable: Permissions,
+}
+
+fn cases() -> Vec<Case> {
+    serde_json::from_str(include_str!("../../../../../contracts/behavior/role-permissions.json"))
+        .unwrap_or_else(|error| panic!("role-permissions.json を読めません: {error}"))
+}
+
+fn contains(outer: Permissions, inner: Permissions) -> bool {
+    outer.intersect(inner) == inner
 }
 
 #[test]
 fn role_permissions_follow_the_shared_examples() {
-    let cases: Vec<Case> =
-        serde_json::from_str(include_str!("../../../../../contracts/behavior/role-permissions.json")).unwrap();
+    let cases = cases();
     let snapshot: serde_json::Value =
         serde_json::from_str(include_str!("../../../../../contracts/ipc/snapshot.json")).unwrap();
     let backends: Vec<BackendInfo> = serde_json::from_value(snapshot["backends"].clone()).unwrap();
@@ -29,6 +40,10 @@ fn role_permissions_follow_the_shared_examples() {
             raw.backend_options.insert("enableTools".to_owned(), serde_json::json!(true));
         }
         raw.permissions = ALL;
+        let mut offline = raw.clone();
+        offline.backend_options.clear();
+        let unknown_backend = normalize_agent_input(offline, None).unwrap().permissions;
+        assert_eq!(unknown_backend, case.permissions, "{}: バックエンドが分からなくても同じ", case.name);
         assert_eq!(normalize_agent_input(raw, Some(backend)).unwrap().permissions, case.permissions, "{}", case.name);
         let mut existing = agent("test", "worker", "テスト");
         existing.backend = case.backend.clone();
@@ -37,7 +52,33 @@ fn role_permissions_follow_the_shared_examples() {
         }
         existing.tags = case.tags;
         existing.permissions = ALL;
-        assert_eq!(effective_permissions(&existing, Some(backend)), case.permissions, "{}", case.name);
+        assert_eq!(existing.behavior().permissions, case.permissions, "{}", case.name);
+        assert_eq!(effective_permissions(&existing, Some(backend)), case.usable, "{}", case.name);
+        assert!(contains(case.permissions, case.usable), "{}: 使える操作は権限を超えない", case.name);
+    }
+}
+
+#[test]
+fn permissions_depend_on_the_role_and_never_on_the_backend() {
+    let cases = cases();
+    let backends: std::collections::BTreeSet<&str> = cases.iter().map(|case| case.backend.as_str()).collect();
+    assert!(backends.len() >= 3, "複数のバックエンドの実例があること");
+    for case in &cases {
+        for other in cases.iter().filter(|other| other.tags == case.tags) {
+            assert_eq!(case.permissions, other.permissions, "{} と {}", case.name, other.name);
+        }
+        // 保存する権限は、どのバックエンドを選んでも・能力や規則がどうであっても同じ
+        for id in &backends {
+            let mut info = backend(id);
+            info.capabilities = Permissions::default();
+            info.permission_rules =
+                vec![PermissionRule { when: PermissionKey::ReadFiles, requires: vec![PermissionKey::WebSearch] }];
+            let mut raw = input("worker", "テスト");
+            raw.tags = case.tags.clone();
+            raw.backend = (*id).to_owned();
+            let saved = normalize_agent_input(raw, Some(&info)).unwrap().permissions;
+            assert_eq!(saved, case.permissions, "{} を {id} で保存", case.name);
+        }
     }
 }
 
@@ -81,7 +122,8 @@ fn ollama_requires_explicit_opt_in_and_a_tool_capable_model() {
     assert_eq!(effective_permissions(&existing, Some(&info)), Permissions::default());
     let mut raw = input("worker", "テスト");
     raw.backend = "ollama".to_owned();
-    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, Permissions::default());
+    // 権限は役割のまま。道具を有効にするまでは、使える操作がないだけ
+    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, ALL);
     raw.backend_options.insert("enableTools".to_owned(), json!(true));
     assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, ALL);
     existing.backend_options = raw.backend_options.clone();

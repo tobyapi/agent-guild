@@ -113,3 +113,17 @@ fn templates_in_the_snapshot_match_the_template_table() {
         "フィクスチャの templates は guild-domain のテンプレート表と完全に一致すること"
     );
 }
+
+#[test]
+fn agents_in_the_snapshot_carry_the_permissions_of_their_role() {
+    let snapshot: Snapshot = serde_json::from_value(fixture("snapshot.json")).expect("Snapshot");
+    assert!(!snapshot.agents.is_empty());
+    for agent in &snapshot.agents {
+        assert_eq!(
+            agent.permissions,
+            agent.behavior().permissions,
+            "{}: 全体像の権限は役割で決まる値（バックエンドでは変わらない）",
+            agent.name
+        );
+    }
+}

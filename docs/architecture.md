@@ -153,7 +153,7 @@ src/
 上の3つの構成図に書いたファイルとフォルダが実在することは、ハーネス（`scripts/harness/docsTree.test.mjs`）が検査する。構成を変えたら図も直す。
 
 - バックエンド呼び出しは、コマンド名から引数・戻り値の型が決まる型付きクライアントで行う。失敗は `CommandError` として扱い、code で分岐する。validation のどの入力のことかは `field`（`shared/lib/errors` の `errorField`）で決める（メッセージの語から推し量らない）。
-- 権限の表示・役割の固定設定・バックエンド制約の解決（`shared/lib/permissions.ts`・`shared/lib/permissionPolicy.ts`）、外で開くリンクの判定（`shared/lib/links.ts`）、チャンネル名の正規化（`shared/lib/limits.ts`）は、編集画面とモックの両方が使うので shared/lib に置く（Rust の検証と同じ規則）。
+- 権限の表示・役割で決まる権限・その AI で使える操作と使わない理由（`shared/lib/permissions.ts`・`shared/lib/permissionPolicy.ts`）、外で開くリンクの判定（`shared/lib/links.ts`）、チャンネル名の正規化（`shared/lib/limits.ts`）は、編集画面とモックの両方が使うので shared/lib に置く（Rust の検証と同じ規則）。
 - テーマ（ダーク / ライト / OS に合わせる）は settings feature が持つ。`main.tsx` が最初の描画の前に `initTheme()` を呼び、`<html data-theme>` を設定する。好みは localStorage（DB には入れない）。
 - 画面の振る舞い（押す → 状態が変わる → 表示が変わる）は `src/app/App.*.test.tsx` で検査する。アプリ全体（`<App />`）を、ブラウザで動かすときと同じモックのバックエンドにつないで jsdom に描き、偽のタイマーで時間を進める（組み立ては `src/app/appFlow.test-support.tsx`）。jsdom を使うテストは先頭に `// @vitest-environment jsdom` を書き、ほかのテストは node のまま動かす。
 - テストだけで使う部品（モックの組み立て・共通の値）は `<名前>.test-support.ts` に置く。vitest を import してよいのはテストとこれだけで、本番のコードからは import しない（ハーネスが検査）。

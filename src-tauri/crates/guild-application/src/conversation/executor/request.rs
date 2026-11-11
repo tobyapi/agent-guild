@@ -1,4 +1,5 @@
-//! 実行の依頼（RuntimeRequest）を組み立てる: 作業場所・実効権限・スキル・MEMORY.md・履歴（history.rs）・割り振り・プロンプト。
+//! 実行の依頼（RuntimeRequest）を組み立てる: 作業場所・権限・スキル・MEMORY.md・履歴（history.rs）・割り振り・プロンプト。
+//! ランナーに渡す権限は役割で決まるもの。プロンプトの「できること」は、そのうちこのバックエンドで実際に使える操作。
 
 use std::path::PathBuf;
 
@@ -29,9 +30,9 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     if !super::request_scope::accepts_job(ports, job, &channel)? {
         return Ok(None);
     }
-    let super::request_scope::RunScope { permissions, paths, memory, writable_dirs } =
+    let super::request_scope::RunScope { permissions, usable, paths, memory, writable_dirs } =
         super::request_scope::prepare(ports, &agent, &channel, backend)?;
-    let skills = if permissions.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
+    let skills = if usable.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;
     let me = ports.profile.get()?;
     let history: Vec<_> = history(ports, job)?.into_iter().filter(|m| m.seq > channel.workspace.after_seq).collect();
@@ -52,7 +53,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     };
     let ctx = PromptContext {
         agent: &agent,
-        permissions,
+        permissions: usable,
         channel: &channel,
         agents: &agents,
         backends: &backends,

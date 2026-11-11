@@ -31,8 +31,8 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない |
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
-バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
-専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
+**権限は役割だけで決まり、どのバックエンドでも同じ**（保存する値・Snapshot の `permissions`・ランナーへ渡す値のどれも）。バックエンドごとに違ってよいのは「その AI で実際に使える操作（実効権限）」だけで、道具がない操作（`capabilities`）と、単独では守れない操作（`permissionRules`）を、依存関係が収束するまで取り除いて求める。許可を追加して解決しない。実効権限はプロンプトの「できること」と画面の表示に使い、ランナーは渡された権限から同じ規則で自分でも取り除く（§5。考え方と各バックエンドの守り方は role-permissions.md）。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
+専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。Ollamaのファイル・スキルの道具はどの OS でも使え、コマンドと作業フォルダの外への書き込みは、Seatbelt で隔離できる macOS だけで使う（ollama-tools.md）。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
@@ -75,7 +75,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 - スキル: name は Agent Skills 標準（64文字以内の英小文字・数字・ハイフン、先頭末尾にハイフン不可、ハイフンの連続 `--` も不可）。勝手に変換せず、違反は `validation`。description は必須・1024文字以内。(agentId, name) は一意（重複は `conflict`）。
 - `autonomyIntervalMin` は 5 以上。`backendOptions` は選んだバックエンドの OptionSpec に合う型だけ（未知のキーは保存時に捨てる）。推論の深さ `effort` は、モデル（空なら `defaultModel`）が `BackendInfo.models` にあれば、その `efforts` のどれかだけ（違反は field `backendOptions`）。一覧に無いモデル・一覧が分からないときは文字列なら残す（使えない値はアダプタが無視する）。
 - タグ: 0〜8個。各タグは前後の空白を除いて1〜16文字で、空白・`#`・`,`・`@` を含まない。NFKC＋大文字小文字無視で重複していたら1つにまとめる（エラーにはしない）。違反は field `tags`。
-- 権限は役割から算出し、選んだバックエンドの `permissionRules`（§5）を満たさない操作を無効にする。依存関係を利用者に解決させるエラーは出さない。
+- 権限は役割だけから算出して保存する（バックエンドでは変えない）。選んだバックエンドで使えない操作は、権限を変えずに実行時に取り除く（§5）。依存関係を利用者に解決させるエラーは出さない。
 - チャンネル: 名前は前後の空白と先頭の `#`（全角 `＃` を含む）を除いて1〜40文字、話題は前後の空白を除いて200文字まで（文字数はコードポイントで数える）。
 - 人間の発言: 前後の空白を除いて20000文字まで。添付がなければ1文字以上（違反は field `content`）。添付（画像・ファイル）は1回に10個まで。画像（PNG・JPEG・GIF・WebP）は1枚 5MB まで、ほかのファイルは種類を問わず1つ 10MB まで、合計 30MB まで。種類は MIME の形（type/subtype）であること（違反は field `attachments`。React は長辺 2560px か 5MB を超える画像を送る前に縮め、種類の分からないファイルは application/octet-stream で送る）。プロフィールの初期値は「ユーザー」（UI の「あなた」という表示と重ならない名前）。
 
@@ -190,9 +190,10 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 | コマンド実行 | 読み書き（作業場所の外も）・Web閲覧・Web検索がすべて許されているときだけ Bash を許す。**Windows には Bash の sandbox がないので、許すと作業場所の外にも書ける**（そのため writeAnywhere も要る。UI の注意書きで伝える） | 止められない。sandbox で効果を封じる |
 | 守れない組み合わせ（unsupported_permission） | 「コマンドあり」なのに読み書き・作業場所の外への書き込み・Web閲覧・Web検索のどれかがない。「外にも書く」なのに書き込みがない | readFiles=false、skills=false、「書き込みあり・コマンドなし」（＝**Codex の作業者は runCommands の許可が必要**）。「外にも書く」なのに書き込みか Web閲覧がない |
 
-- **権限の組み合わせ規則**: 守れない組み合わせを保存時点で防ぐため、アダプタは `BackendInfo.permissionRules: { when: PermissionKey; requires: PermissionKey[] }[]`（「when を許すなら requires もすべて必要」）を申告する。Claude は `{ when: 'writeAnywhere', requires: ['writeFiles'] }` と `{ when: 'runCommands', requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'] }`、Codex は `{ when: 'writeFiles', requires: ['runCommands'] }` と `{ when: 'writeAnywhere', requires: ['writeFiles', 'webFetch'] }`。アダプタの実行時の拒否（unsupported_permission）も同じ規則で判定する（readFiles=false・skills=false のような「条件なしに守れない」ものは規則にせず、実行時に拒否する）。
-  - Rust は `create_agent` / `update_agent` で、実効権限（§2）がこの規則を満たすかを検証し、違反は `validation`（§2 の入力規則）。ランナーが未起動でバックエンドの情報がないときは検証できないので、実行時の拒否に任せる。
-  - React は編集画面で同じ判定（`src/shared/lib/permissions.ts`）を行い、保存する前から「できること」の区画で知らせ、保存も止める。モックも同じ判定を使う。
+- **使える操作の規則**: run の `permissions` は役割で決まる権限で、どのバックエンドにも同じものが届く。そのうち単独では守れない操作（隔離できないコマンドの実行など）を取り除くため、アダプタは `BackendInfo.permissionRules: { when: PermissionKey; requires: PermissionKey[] }[]`（「when の操作は、requires もすべて許されているときだけ使える」）を申告する。Claude は `{ when: 'writeAnywhere', requires: ['writeFiles'] }` と `{ when: 'runCommands', requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'] }`、Codex は `{ when: 'writeFiles', requires: ['runCommands'] }` と `{ when: 'writeAnywhere', requires: ['writeFiles', 'webFetch'] }`。ランナーの Dispatcher は、アダプタに渡す前に `capabilities` とこの規則で権限を絞る（`usablePermissions`。許可は足さない）ので、アダプタは自分が守れる操作だけを受け取る。絞ったあとにも守れない組み合わせが残るとき（readFiles=false・skills=false のような「条件なしに守れない」もの）は、実行時に unsupported_permission で拒否する。
+  - Rust は同じ規則で実効権限（§2）を求め、プロンプトの「できること」とスキルの準備に使う（保存する権限とランナーへ渡す権限は役割のまま）。ランナーが未起動でバックエンドの情報がないときは絞らない。
+  - React は編集画面で同じ判定（`src/shared/lib/permissionPolicy.ts`）を行い、「できること」の区画に、役割の権限と、その AI では使わない操作を理由つきで出す（保存は止めない）。モックも同じ判定を使う。
+- **止められない操作**: アダプタは `BackendInfo.unrestricted: PermissionKey[]`（役割で許可していなくても、そのバックエンドでは止められない操作）を申告する。Codex・Grok・Muse は `['readAnywhere', 'writeFiles', 'runCommands']`（シェルで作業し、sandbox は作業場所への書き込みを許す。読み取り先は Windows の標準の隔離では絞れない）、Claude と Ollama は空。React は、役割で許可していないものを編集画面の注意の帯で知らせる（権限そのものは変えない）。
 - **操作の確認**（Claude。backendOptions の `operationCheck`、既定でオン。Codex は SDK に操作の前に割り込む仕組みがないのでできない）: パスの判定（canUseTool）を通ったもののうち、外に影響する操作（コマンドの実行・Web ページを開く・作業フォルダの外への書き込み。そのため Bash と WebFetch は allowedTools で先に許さない）を、実行の前に小さいモデル（Haiku。利用者の Claude Code で、ツールなし・1ターン・設定ファイルを読まない）に確かめる（`claude/check.ts`・`claude/judge.ts`）。渡すのは run の `intent`・作業フォルダ・操作の中身だけで、資料の本文は渡さない。返事は ALLOW か「DENY: 理由」で、DENY なら操作を拒否して理由をエージェントに返し（人間には聞かない。別のやり方で進めるか、できなかったことを返答に書くよう伝える）、途中の投稿でチャットに「🛡️ 操作の確認で止めました」と残す。確かめられなかったとき（失敗・30秒の時間切れ・読めない返事）も止める。1回あたり5〜7秒ほどかかる（ほとんどが Claude Code の起動と応答待ち。推論を浅くしても変わらなかった）。
 - **持ち出しの危険**: アダプタは `BackendInfo.leakRisks: PermissionKey[][]`（どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる。Web ページなどに紛れた指示で中身を持ち出されうる）を申告する。Claude は `[['readFiles', 'writeAnywhere', 'webFetch'], ['readFiles', 'readAnywhere', 'webFetch']]`（外にも書けるなら読み取りもどこでもでき、Web 閲覧は URL で外へ送れる。コマンドの実行を許すときは必ずそろう）、Codex は `[['webFetch']]`（sandbox はどこでも読めて、コマンドは止められず、Web 閲覧で sandbox のネットワークを開けるため）。React は実効権限で判定して編集画面で知らせる（保存は止めない。ui-design.md §6.3）。
 

@@ -2,7 +2,7 @@
 
 use super::name::normalize_name;
 use super::tags::normalize_tags;
-use super::{role_permissions, supported_permissions, AgentInput};
+use super::{role_permissions, AgentInput};
 use crate::backend::{sanitize_backend_options, BackendInfo};
 use crate::error::ValidationError;
 
@@ -11,15 +11,15 @@ pub const AUTONOMY_INTERVAL_MIN: u32 = 5;
 /// アバター（data URL を含む）の最大バイト数
 pub const AVATAR_MAX_BYTES: usize = 2 * 1024 * 1024;
 
-/// 入力を検証して正規化する。backend は選んだバックエンドの情報（ランナーが未起動で分からなければ None。
-/// そのときは backendOptions を保ち、役割の権限を実行時にバックエンド情報で絞る）
+/// 入力を検証して正規化する。権限は役割（先頭タグ）だけで決め、バックエンドでは変えない。
+/// backend は選んだバックエンドの情報（ランナーが未起動で分からなければ None。そのときは backendOptions を保つ）
 pub fn normalize_agent_input(
     mut input: AgentInput,
     backend: Option<&BackendInfo>,
 ) -> Result<AgentInput, ValidationError> {
     input.name = normalize_name(&input.name)?;
     input.tags = normalize_tags(&input.tags)?;
-    input.permissions = supported_permissions(role_permissions(&input.tags), backend);
+    input.permissions = role_permissions(&input.tags);
     input.backend = input.backend.trim().to_owned();
     input.model = input.model.trim().to_owned();
     if input.backend.is_empty() {
@@ -39,11 +39,6 @@ pub fn normalize_agent_input(
         && !super::permissions::ollama_tools_enabled(&input.backend_options, &input.model, backend)
     {
         return Err(ValidationError::on("permissions", "道具に対応したモデルを選んでください"));
-    }
-    if input.backend == "ollama"
-        && !super::permissions::ollama_tools_enabled(&input.backend_options, &input.model, backend)
-    {
-        input.permissions = super::Permissions::default();
     }
     Ok(input)
 }
