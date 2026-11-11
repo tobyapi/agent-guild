@@ -55,6 +55,7 @@ const BLANK_DEFAULTS: AgentTemplateDefaults = {
     webSearch: false,
     webFetch: false,
     readFiles: false,
+    readAnywhere: false,
     writeFiles: false,
     writeAnywhere: false,
     runCommands: false,

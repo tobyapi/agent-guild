@@ -43,6 +43,7 @@ pub fn request(prompt: &str) -> RunRequest {
             web_search: true,
             web_fetch: true,
             read_files: true,
+            read_anywhere: false,
             write_files: false,
             write_anywhere: false,
             run_commands: false,

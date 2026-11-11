@@ -25,6 +25,8 @@ pub struct Permissions {
     pub web_search: bool,
     pub web_fetch: bool,
     pub read_files: bool,
+    #[serde(default)]
+    pub read_anywhere: bool,
     pub write_files: bool,
     pub write_anywhere: bool,
     pub run_commands: bool,
@@ -38,6 +40,7 @@ pub enum PermissionKey {
     WebSearch,
     WebFetch,
     ReadFiles,
+    ReadAnywhere,
     WriteFiles,
     WriteAnywhere,
     RunCommands,

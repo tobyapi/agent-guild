@@ -13,8 +13,12 @@ pub(super) fn describe(permissions: &Permissions) -> String {
     }
     if permissions.write_files && permissions.write_anywhere {
         abilities.push("作業場所の外も含めたファイルの読み書き");
+    } else if permissions.read_files && permissions.read_anywhere && permissions.write_files {
+        abilities.push("作業場所の外も含めたファイルの読み取りと作業場所でのファイル作成・編集");
     } else if permissions.write_files {
         abilities.push("作業場所でのファイルの読み書き");
+    } else if permissions.read_files && permissions.read_anywhere {
+        abilities.push("作業場所の外も含めたファイルの読み取り");
     } else if permissions.read_files {
         abilities.push("ファイルの読み取り");
     }
@@ -42,7 +46,8 @@ pub(super) fn summary(permissions: &Permissions) -> String {
         (permissions.web_fetch, "Web 閲覧"),
         (permissions.write_files && !permissions.write_anywhere, "ファイル作成"),
         (permissions.write_files && permissions.write_anywhere, "ファイル作成（PC 全体）"),
-        (permissions.read_files && !permissions.write_files, "ファイルの読み取り"),
+        (permissions.read_files && permissions.read_anywhere, "ファイル読み取り（PC 全体）"),
+        (permissions.read_files && !permissions.read_anywhere && !permissions.write_files, "ファイルの読み取り"),
         (permissions.run_commands, "コマンド実行"),
         (permissions.skills, "スキル"),
     ]

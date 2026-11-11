@@ -37,6 +37,7 @@ describe('brokenRule', () => {
     webSearch: true,
     webFetch: true,
     readFiles: true,
+    readAnywhere: false,
     writeFiles: true,
     writeAnywhere: true,
     runCommands: true,

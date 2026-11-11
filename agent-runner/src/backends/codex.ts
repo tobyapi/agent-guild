@@ -13,6 +13,7 @@ const INFO: BackendDescriptor = {
     webSearch: true,
     webFetch: true,
     readFiles: true,
+    readAnywhere: true,
     writeFiles: true,
     writeAnywhere: true,
     runCommands: true,

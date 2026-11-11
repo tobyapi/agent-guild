@@ -18,6 +18,7 @@ export function rolePermissions(templates: readonly AgentTemplate[], tags: reado
       webSearch: false,
       webFetch: false,
       readFiles: true,
+      readAnywhere: false,
       writeFiles: false,
       writeAnywhere: false,
       runCommands: false,

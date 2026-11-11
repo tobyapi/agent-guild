@@ -84,6 +84,7 @@ pub const ALL: Permissions = Permissions {
     web_search: true,
     web_fetch: true,
     read_files: true,
+    read_anywhere: false,
     write_files: true,
     write_anywhere: true,
     run_commands: true,

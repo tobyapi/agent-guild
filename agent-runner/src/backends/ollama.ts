@@ -84,6 +84,7 @@ export const ollamaAdapter: BackendAdapter = {
       webSearch: false,
       webFetch: false,
       readFiles: false,
+      readAnywhere: false,
       writeFiles: false,
       writeAnywhere: false,
       runCommands: false,

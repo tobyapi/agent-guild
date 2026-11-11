@@ -110,8 +110,8 @@ fn roles_start_with_their_fixed_permissions_and_response_policy() {
     assert_eq!(worker.permissions, ALL);
     let workspace_only =
         guild_domain::agent::Permissions { web_search: false, web_fetch: false, write_anywhere: false, ..ALL };
-    assert_eq!(expert.permissions, workspace_only);
-    assert_eq!(manager.permissions, workspace_only);
+    assert_eq!(expert.permissions, guild_domain::agent::Permissions { read_anywhere: true, ..workspace_only });
+    assert_eq!(manager.permissions, guild_domain::agent::Permissions { read_anywhere: true, ..workspace_only });
     assert_eq!((worker.unmentioned, worker.consultable), (UnmentionedPolicy::Answer, false));
     assert_eq!((expert.unmentioned, expert.consultable), (UnmentionedPolicy::Fallback, true));
     assert_eq!(

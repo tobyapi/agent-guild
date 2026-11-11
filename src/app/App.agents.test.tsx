@@ -105,18 +105,18 @@ it('役割で権限が固定され、バックエンドを変えても個別ス�
   const workspaceOnly = ['ファイルを読む', 'ファイルを書く', 'コマンドを実行', 'スキルを使う'];
   for (const name of [/^マネージャー/, /^専門家/]) {
     fireEvent.click(within(openDialog()).getByRole('radio', { name }));
-    expect(enabledPermissions()).toEqual(workspaceOnly);
+    expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', ...workspaceOnly.slice(1)]);
   }
   fireEvent.change(within(openDialog()).getByRole('combobox', { name: 'バックエンド' }), {
     target: { value: 'claude' },
   });
-  expect(enabledPermissions()).toEqual(workspaceOnly.filter((name) => name !== 'コマンドを実行'));
+  expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', 'ファイルを書く', 'スキルを使う']);
   expect(within(openDialog()).getByText(/Claudeでは、この役割の許可範囲/)).toBeTruthy();
   fireEvent.change(within(openDialog()).getByPlaceholderText('タグを追加'), { target: { value: '作業者、' } });
-  expect(enabledPermissions()).toEqual(['ファイルを読む', 'ファイルを書く', 'スキルを使う']);
+  expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', 'ファイルを書く', 'スキルを使う']);
   await submitName('コハク');
   expect(within(openDialog()).getByRole('heading', { name: 'コハク を編集' })).toBeTruthy();
-  expect(enabledPermissions()).toEqual(['ファイルを読む', 'ファイルを書く', 'スキルを使う']);
+  expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', 'ファイルを書く', 'スキルを使う']);
   fireEvent.click(within(openDialog()).getByRole('radio', { name: /^作業者/ }));
   expect(enabledPermissions()).toEqual(permissions);
   fireEvent.click(within(openDialog()).getByRole('button', { name: '保存' }));

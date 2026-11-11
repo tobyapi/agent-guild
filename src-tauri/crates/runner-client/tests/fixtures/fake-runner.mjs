@@ -14,7 +14,7 @@ export const BACKEND = {
   label: 'Fake',
   models: [{ id: 'm1', label: 'M1', description: '', efforts: ['low', 'high'], defaultEffort: 'low' }],
   defaultModel: 'm1',
-  capabilities: { webSearch: true, webFetch: false, readFiles: true, writeFiles: true, writeAnywhere: false, runCommands: false, skills: true },
+  capabilities: { webSearch: true, webFetch: false, readFiles: true, readAnywhere: false, writeFiles: true, writeAnywhere: false, runCommands: false, skills: true },
   status: 'ready',
   statusMessage: '',
   options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],

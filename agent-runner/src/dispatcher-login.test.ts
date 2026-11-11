@@ -9,6 +9,7 @@ const PERMISSIONS = {
   webSearch: true,
   webFetch: true,
   readFiles: true,
+  readAnywhere: false,
   writeFiles: false,
   writeAnywhere: false,
   runCommands: false,

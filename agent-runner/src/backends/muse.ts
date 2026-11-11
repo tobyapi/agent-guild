@@ -110,6 +110,7 @@ export const museAdapter: BackendAdapter = {
       webSearch: false,
       webFetch: true,
       readFiles: true,
+      readAnywhere: false,
       writeFiles: true,
       writeAnywhere: true,
       runCommands: true,

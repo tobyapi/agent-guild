@@ -41,6 +41,11 @@ export function PermissionFields({ backendId, tags, permissions, error }: Permis
         </p>
       )}
       {!backend && <p className={styles.description}>バックエンドの準備ができると、利用できる機能を確認します。</p>}
+      {permissions.readAnywhere && !permissions.writeAnywhere && (
+        <p className={styles.notice} role="note">
+          作業フォルダの外も読めます。秘密鍵や .env を除外する仕組みはありません。書き込みは作業フォルダ内だけです。
+        </p>
+      )}
       {permissions.writeAnywhere && (
         <p className={styles.notice} role="note">
           <Icon name="alert" className={styles.warningIcon} />

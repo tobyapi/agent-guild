@@ -22,7 +22,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 | 設定 | 意味 |
 |---|---|
-| `permissions` | 許す操作（webSearch / webFetch / readFiles / writeFiles / writeAnywhere / runCommands / skills）。writeAnywhere は書き込み（Claude では読み取りも）の範囲を作業場所の外（PC 全体）に広げる。runCommands もあれば、PATH などの OS の設定もコマンドで変えられる（Codex の writeAnywhere は規則により必ず runCommands を伴い、sandbox も外れる）。保存値の個別変更は採用せず、実効権限は役割表から算出してバックエンドの capabilities と permissionRules で絞る |
+| `permissions` | 許す操作（webSearch / webFetch / readFiles / readAnywhere / writeFiles / writeAnywhere / runCommands / skills）。readAnywhere は読み取りだけを作業場所の外（PC 全体）に広げる。writeAnywhere は書き込み（Claude では読み取りも）の範囲を PC 全体に広げる。runCommands もあれば、PATH などの OS の設定もコマンドで変えられる（Codex の writeAnywhere は規則により必ず runCommands を伴い、sandbox も外れる）。保存値の個別変更は採用せず、実効権限は役割表から算出してバックエンドの capabilities と permissionRules で絞る |
 | `unmentioned` | メンションのない人間の発言に `lead`（最初に受ける。lead がいれば他は答えない）/ `answer`（答える）/ `fallback`（lead も answer もいないときだけ答える）/ `ignore`（答えない） |
 | `consultable` | 他のエージェントにメンションされたら、チャンネル外からでも自動で参加して答える（相談相手になる） |
 | `canDelegate` | tasks ブロックでタスクを割り振れる（マネージャー。§7.1） |
@@ -32,14 +32,15 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
 バックエンドの能力にない操作、または禁止された操作を前提とする操作は、依存関係が収束するまで無効にする。許可を追加して解決しない。例: Claude の発想役・専門家・マネージャーはコマンド実行を外し、Web と作業場所外への書き込みを許可しない。Codex では作業場所内のコマンドを使える。Ollama は会話のみ。役割に一致しない先頭タグ・タグなしは参照とスキルだけの固定設定にする。
+専門家・マネージャーの readAnywhere は Claude・Codex で読み取りだけを PC 全体へ広げる。作業者の読み取りは従来どおり writeAnywhere で許可する。発想役の固定権限は変えない。秘密鍵・.env などのパスを除外するアプリ独自の仕組みはない。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
 |---|---|---|---|---|---|---|---|
 | `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills | answer | false | false | false | worker |
 | `ideator` 発想役 | 発想役 | readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
-| `expert` 専門家 | 専門家 | readFiles, writeFiles, runCommands, skills | fallback | true | false | false | expert |
-| `manager` マネージャー | マネージャー | readFiles, writeFiles, runCommands, skills | lead | false | true | false | manager |
+| `expert` 専門家 | 専門家 | readFiles, readAnywhere, writeFiles, runCommands, skills | fallback | true | false | false | expert |
+| `manager` マネージャー | マネージャー | readFiles, readAnywhere, writeFiles, runCommands, skills | lead | false | true | false | manager |
 
 担当（role）と得意分野（expertise）の書き出し（defaults.role / defaults.expertise）:
 
@@ -180,9 +181,9 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
 | ログイン | `canLogin`（macOS・Windows）。Claude Code の `auth login` に認証を任せる。Windows では `cmd /c start /wait` でコンソールを開き、終了後に probe する | `canLogin`（macOS のみ）。`codex login` でブラウザーを開き、認証の完了を待つ。ほかの OS ではターミナルで `codex login` |
 | 途中の投稿 | `midRunPost: 'tool'`。プロセス内の MCP ツール `mcp__guild__post`（createSdkMcpServer。パスを扱わないので allowedTools で確認なしに許す）。呼ばれたら post を送り「投稿しました」を返す（空なら投稿せずにエラーを返す） | `midRunPost: 'text'`。SDK にプロセス内のツールがないので、agent_message をいったん手元に置き、あとに作業の項目（コマンド・ファイルの変更・Web 検索・MCP・reasoning）が来たら post として送る。最後まで手元に残ったものが最終返答（to-do と警告は作業に数えない。同じ文章を二重に投稿しない） |
 | スキル | `<stateDir>/guild-skills` をローカルプラグインとして渡す | 作業場所の `.agents/skills` に実行のたびに作り直す（Codex はそこしか読まない。エージェント単位の排他で取り合わない） |
-| 読み取りの範囲 | canUseTool でパスを検査し、作業場所と readableDirs だけを許す（writeAnywhere ならどこでも。外のファイルを直すには先に読む必要があるため） | sandbox はどこでも読める（readableDirs は渡さない。additionalDirectories は書き込み可能な場所になってしまうため） |
+| 読み取りの範囲 | canUseTool でパスを検査し、作業場所と readableDirs だけを許す（readAnywhere または writeAnywhere ならどこでも） | sandbox はどこでも読める（readableDirs は渡さない。additionalDirectories は書き込み可能な場所になってしまうため） |
 | MEMORY.md（いつでも読み書きしてよい） | 読み書きの権限がなくても Read・Write・Edit を渡し、canUseTool で作業場所の MEMORY.md だけを許す（ほかのファイルは確実に拒否する） | 書き込みの権限がなくても workspace-write にする。sandbox は1ファイルに絞れないので、MEMORY.md 以外を書かないことは、エージェントがプロンプトのルールを守ることに任せる |
-| 書き込み | canUseTool で作業場所だけを許す（writeAnywhere ならどこでも） | workspace-write sandbox（作業場所だけ。%TEMP% への書き込みは除外。書き込みを許していなくても MEMORY.md のためにこれ）。writeAnywhere なら sandbox を外す（danger-full-access） |
+| 書き込み | canUseTool で作業場所だけを許す。既存の祖先まで realpath で解決し、外向きのシンボリックリンクと壊れたリンクは拒否する（writeAnywhere ならどこでも） | workspace-write sandbox（作業場所だけ。%TEMP% への書き込みは除外。書き込みを許していなくても MEMORY.md のためにこれ）。writeAnywhere なら sandbox を外す（danger-full-access） |
 | ネットワーク | WebSearch / WebFetch のツールの有無 | Web 検索は SDK の webSearchMode。Web 閲覧の専用ツールがないので、webFetch のときだけ sandbox のネットワークを開ける（コマンドでページを取得する）。sandbox を外すとネットワークも止められない |
 | 秘密らしい環境変数（`backends/agent-env.ts`。名前に TOKEN・SECRET・PASSWORD・PASSWD・PASSPHRASE・CREDENTIAL を含むか、区切りで分けた語に KEY・KEYS・APIKEY・AUTH・PASS・PAT・CREDS・COOKIE(S) があるもの） | Claude Code に渡す env から除く（Bash はこれを受け継ぐ）。Claude Code 自身の `ANTHROPIC_*`・`CLAUDE_*` と、クラウド事業者経由（`CLAUDE_CODE_USE_BEDROCK` など）ならその事業者の変数は残す | Codex 自身の認証に要るのでプロセスには渡し、コマンドの環境から `shell_environment_policy.exclude` で除く（Codex の既定の除外には頼らない。既定では *TOKEN* なども渡っていた） |
 | コマンド実行 | 読み書き（作業場所の外も）・Web閲覧・Web検索がすべて許されているときだけ Bash を許す。**Windows には Bash の sandbox がないので、許すと作業場所の外にも書ける**（そのため writeAnywhere も要る。UI の注意書きで伝える） | 止められない。sandbox で効果を封じる |
@@ -192,7 +193,7 @@ Ollama は会話用のバックエンド。`/api/chat` に `:local` を指定し
   - Rust は `create_agent` / `update_agent` で、実効権限（§2）がこの規則を満たすかを検証し、違反は `validation`（§2 の入力規則）。ランナーが未起動でバックエンドの情報がないときは検証できないので、実行時の拒否に任せる。
   - React は編集画面で同じ判定（`src/shared/lib/permissions.ts`）を行い、保存する前から「できること」の区画で知らせ、保存も止める。モックも同じ判定を使う。
 - **操作の確認**（Claude。backendOptions の `operationCheck`、既定でオン。Codex は SDK に操作の前に割り込む仕組みがないのでできない）: パスの判定（canUseTool）を通ったもののうち、外に影響する操作（コマンドの実行・Web ページを開く・作業フォルダの外への書き込み。そのため Bash と WebFetch は allowedTools で先に許さない）を、実行の前に小さいモデル（Haiku。利用者の Claude Code で、ツールなし・1ターン・設定ファイルを読まない）に確かめる（`claude/check.ts`・`claude/judge.ts`）。渡すのは run の `intent`・作業フォルダ・操作の中身だけで、資料の本文は渡さない。返事は ALLOW か「DENY: 理由」で、DENY なら操作を拒否して理由をエージェントに返し（人間には聞かない。別のやり方で進めるか、できなかったことを返答に書くよう伝える）、途中の投稿でチャットに「🛡️ 操作の確認で止めました」と残す。確かめられなかったとき（失敗・30秒の時間切れ・読めない返事）も止める。1回あたり5〜7秒ほどかかる（ほとんどが Claude Code の起動と応答待ち。推論を浅くしても変わらなかった）。
-- **持ち出しの危険**: アダプタは `BackendInfo.leakRisks: PermissionKey[][]`（どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる。Web ページなどに紛れた指示で中身を持ち出されうる）を申告する。Claude は `[['readFiles', 'writeAnywhere', 'webFetch']]`（外にも書けるなら読み取りもどこでもでき、Web 閲覧は URL で外へ送れる。コマンドの実行を許すときは必ずそろう）、Codex は `[['webFetch']]`（sandbox はどこでも読めて、コマンドは止められず、Web 閲覧で sandbox のネットワークを開けるため）。React は実効権限で判定して編集画面で知らせる（保存は止めない。ui-design.md §6.3）。
+- **持ち出しの危険**: アダプタは `BackendInfo.leakRisks: PermissionKey[][]`（どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる。Web ページなどに紛れた指示で中身を持ち出されうる）を申告する。Claude は `[['readFiles', 'writeAnywhere', 'webFetch'], ['readFiles', 'readAnywhere', 'webFetch']]`（外にも書けるなら読み取りもどこでもでき、Web 閲覧は URL で外へ送れる。コマンドの実行を許すときは必ずそろう）、Codex は `[['webFetch']]`（sandbox はどこでも読めて、コマンドは止められず、Web 閲覧で sandbox のネットワークを開けるため）。React は実効権限で判定して編集画面で知らせる（保存は止めない。ui-design.md §6.3）。
 
 ## 6. 実行モデル（Rust の application/conversation）
 

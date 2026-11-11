@@ -20,6 +20,7 @@ const PERMISSION_KEYS = [
   'webSearch',
   'webFetch',
   'readFiles',
+  'readAnywhere',
   'writeFiles',
   'writeAnywhere',
   'runCommands',
@@ -113,8 +114,8 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
 
 function decodePermissions(value: unknown): Permissions | null {
   if (!isJsonObject(value) || !hasFields(value, PERMISSION_KEYS, isBoolean)) return null;
-  const { webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills } = value;
-  return { webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills };
+  const { webSearch, webFetch, readFiles, readAnywhere, writeFiles, writeAnywhere, runCommands, skills } = value;
+  return { webSearch, webFetch, readFiles, readAnywhere, writeFiles, writeAnywhere, runCommands, skills };
 }
 
 /** dir はライブラリのフォルダ（文字列）か、アプリ内のスキルなら null。欠けていれば不正 */

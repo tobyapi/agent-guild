@@ -8,6 +8,7 @@ use crate::backend::BackendInfo;
 pub fn role_permissions(tags: &[String]) -> Permissions {
     role_template(tags).map(|template| template.defaults.permissions).unwrap_or(Permissions {
         read_files: true,
+        read_anywhere: false,
         skills: true,
         ..Permissions::default()
     })

@@ -8,6 +8,7 @@ const WORKER: Permissions = {
   webSearch: true,
   webFetch: true,
   readFiles: true,
+  readAnywhere: false,
   writeFiles: true,
   writeAnywhere: false,
   runCommands: false,
@@ -44,13 +45,10 @@ describe('toolsFor', () => {
   it('権限ごとに使えるツールを決める（専門家は書き込みなし、コマンドは runCommands のときだけ）', () => {
     expect(toolsFor(WORKER)).toEqual(['WebSearch', 'WebFetch', 'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Skill']);
     expect(toolsFor(EXPERT)).toEqual(['WebSearch', 'WebFetch', 'Read', 'Glob', 'Grep', 'Skill', 'Write', 'Edit']);
-    expect(toolsFor({ ...EXPERT, readFiles: false, skills: false }), 'MEMORY.md のための読み書き').toEqual([
-      'WebSearch',
-      'WebFetch',
-      'Read',
-      'Write',
-      'Edit',
-    ]);
+    expect(
+      toolsFor({ ...EXPERT, readFiles: false, readAnywhere: false, skills: false }),
+      'MEMORY.md のための読み書き',
+    ).toEqual(['WebSearch', 'WebFetch', 'Read', 'Write', 'Edit']);
     expect(toolsFor({ ...WORKER, runCommands: true })).toContain('Bash');
   });
 });

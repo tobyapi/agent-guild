@@ -81,6 +81,7 @@ pub fn ready_backend(id: &str) -> BackendInfo {
         web_search: true,
         web_fetch: true,
         read_files: true,
+        read_anywhere: false,
         write_files: true,
         write_anywhere: true,
         run_commands: true,

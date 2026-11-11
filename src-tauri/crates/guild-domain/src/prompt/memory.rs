@@ -46,6 +46,10 @@ fn workspace_note(permissions: &Permissions) -> String {
     .to_owned();
     if permissions.write_anywhere {
         text.push_str(OUTSIDE_WORKSPACE);
+    } else if permissions.read_files && permissions.read_anywhere {
+        text.push_str(
+            "作業場所の外のファイルも読めます。ファイルの作成・編集・削除は作業場所の中だけで行ってください。\n",
+        );
     }
     text
 }

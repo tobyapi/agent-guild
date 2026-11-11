@@ -21,6 +21,7 @@ export const runRequest = (backend: string): RunRequest => ({
     webSearch: false,
     webFetch: false,
     readFiles: true,
+    readAnywhere: false,
     writeFiles: true,
     writeAnywhere: false,
     runCommands: true,

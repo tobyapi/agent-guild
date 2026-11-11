@@ -23,6 +23,7 @@ const DESCRIPTIONS: Readonly<Record<PermissionKey, string>> = {
   webSearch: 'Web を検索して、最新の情報を探します。',
   webFetch: 'URL を開いて、ページの中身を読みます。',
   readFiles: '作業フォルダ（と相談元の作業フォルダ）のファイルを読みます。',
+  readAnywhere: '読み取りの範囲を、このパソコンの全体に広げます。外への書き込みは許可しません。',
   writeFiles: '作業フォルダにファイルを作り、書き換えます。',
   writeAnywhere:
     'このパソコンのどこのファイルでも読み書きします。「コマンドを実行」も許せば、PATH などの Windows の設定も変えられます。ソフトのインストールや、ほかのフォルダにあるプロジェクトの作業に使います。',

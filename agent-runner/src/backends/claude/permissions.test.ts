@@ -1,16 +1,22 @@
+import { mkdtempSync, mkdirSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 import type { Permissions } from '../../protocol.ts';
 import type { RunRequest } from '../types.ts';
 import { fileAccessPolicy, unenforceableReason } from './permissions.ts';
 
-const ROOT = resolve('/guild-data/agents');
+const ROOT = realpathSync(mkdtempSync(join(tmpdir(), 'guild-policy-')));
 const WORK = join(ROOT, 'a1', 'work');
 const PEER = join(ROOT, 'a0', 'work');
+mkdirSync(WORK, { recursive: true });
+mkdirSync(PEER, { recursive: true });
+afterAll(() => rmSync(ROOT, { recursive: true, force: true }));
 const WORKER: Permissions = {
   webSearch: true,
   webFetch: true,
   readFiles: true,
+  readAnywhere: false,
   writeFiles: true,
   writeAnywhere: false,
   runCommands: false,

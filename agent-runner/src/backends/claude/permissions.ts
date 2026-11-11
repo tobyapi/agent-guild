@@ -3,6 +3,7 @@
 import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
+import { writableInWorkspace } from './writable-path.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
 export const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
@@ -21,7 +22,7 @@ export function targetOf(input: Record<string, unknown>, workspace: string): str
 
 /**
  * 確認が必要になったツール呼び出しをパスで判定する。書き込みは作業場所の中だけ、読み取りは作業場所と readableDirs だけ。
- * writeAnywhere なら、書き込みも読み取りもパスを問わない（作業場所の外のファイルを直すには、まず読む必要がある）。
+ * readAnywhere なら読み取りだけ、writeAnywhere なら書き込みも読み取りもパスを問わない（作業場所の外のファイルを直すには、まず読む必要がある）。
  * 作業場所の MEMORY.md（次回以降の自分へのメモ）だけは、読み書きの権限がなくても読み書きできる。
  * それ以外（許していないツール・範囲外のパス）は拒否する。WebSearch などパスのないツールは allowedTools で先に許している
  * （操作の確認をするときの Bash・WebFetch は check.ts が扱う）。
@@ -31,14 +32,18 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
   const anywhere = permissions.writeAnywhere;
   const readableRoots = [workspace, ...readableDirs];
   const memory = resolve(workspace, MEMORY_FILE);
-  return (toolName, input) => {
+  return async (toolName, input) => {
     const target = targetOf(input, workspace);
     const isMemory = relative(memory, target) === '';
     const writable =
-      WRITE_TOOLS.has(toolName) && (isMemory || (permissions.writeFiles && (anywhere || isInside(target, workspace))));
+      WRITE_TOOLS.has(toolName) &&
+      (isMemory || permissions.writeFiles) &&
+      (anywhere || (await writableInWorkspace(target, workspace)));
     const readable =
       READ_TOOLS.has(toolName) &&
-      (isMemory || (permissions.readFiles && (anywhere || readableRoots.some((root) => isInside(target, root)))));
+      (isMemory ||
+        (permissions.readFiles &&
+          (permissions.readAnywhere || anywhere || readableRoots.some((root) => isInside(target, root)))));
     const result: PermissionResult =
       writable || readable
         ? { behavior: 'allow', updatedInput: input }
@@ -72,7 +77,10 @@ export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
  * 持ち出しの危険がある組（BackendInfo.leakRisks）。作業場所の外にも書けるなら読み取りもどこでもでき（fileAccessPolicy）、
  * Web 閲覧は URL に情報を入れて外へ送れる。コマンドの実行（Bash）を許すときは、必ずこの組もそろう（RULES）
  */
-export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [['readFiles', 'writeAnywhere', 'webFetch']];
+export const LEAK_RISKS: readonly (readonly PermissionKey[])[] = [
+  ['readFiles', 'writeAnywhere', 'webFetch'],
+  ['readFiles', 'readAnywhere', 'webFetch'],
+];
 
 /** Claude で守れない権限の組み合わせなら、その理由 */
 export function unenforceableReason(permissions: Permissions): string | null {

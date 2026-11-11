@@ -7,6 +7,7 @@ const WORKER: Permissions = {
   webSearch: true,
   webFetch: true,
   readFiles: true,
+  readAnywhere: false,
   writeFiles: true,
   writeAnywhere: false,
   runCommands: true,

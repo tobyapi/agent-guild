@@ -143,7 +143,7 @@ fn shows_place_members_and_rules() {
     assert!(prompt.contains("現在日時: 2026年11月8日(日) 15:30"));
     assert!(prompt.contains("- ユーザー（人間・このアプリの使用者）"));
     assert!(prompt.contains("- @ソラ（タグ: 作業者・実装／担当: ソラの役割／得意分野: ソラの専門／できること: Web 検索・Web 閲覧・ファイル作成（PC 全体）・コマンド実行・スキル）"));
-    assert!(prompt.contains("- @ロジカ（タグ: 専門家／担当: ロジカの役割／得意分野: ロジカの専門／できること: ファイル作成・コマンド実行・スキル）"));
+    assert!(prompt.contains("- @ロジカ（タグ: 専門家／担当: ロジカの役割／得意分野: ロジカの専門／できること: ファイル作成・ファイル読み取り（PC 全体）・コマンド実行・スキル）"));
     assert!(!prompt.contains("- @ハル（"), "自分自身はメンバー一覧に出さない");
     assert!(!prompt.contains("- @ゴースト（"), "削除済みはメンバー一覧に出さない");
     assert!(prompt.contains("名前の接頭辞（「ハル:」など）はつけないでください"));
