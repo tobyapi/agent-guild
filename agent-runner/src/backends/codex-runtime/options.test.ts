@@ -96,6 +96,23 @@ describe('threadOptions の sandbox', () => {
   });
 });
 
+describe('指定フォルダのチャンネル', () => {
+  const folder = { ...request({ ...WORKER, skills: false }), writableDirs: ['/src/project'] };
+
+  it('sandbox とネットワークの指定を渡さない（権限プロファイルで決める。併用できない）', () => {
+    const options = threadOptions(folder);
+    expect(options.sandboxMode).toBeUndefined();
+    expect(options.networkAccessEnabled).toBeUndefined();
+    expect(options).toMatchObject({ workingDirectory: '/data/a1/work', approvalPolicy: 'never' });
+  });
+
+  it('スキルの権限がなくても受け付ける（利用者全体のスキルの場所を読めない）。ほかの規則は同じ', () => {
+    expect(unenforceableReason(folder.permissions, true)).toBeNull();
+    expect(unenforceableReason(folder.permissions)).toContain('スキル');
+    expect(unenforceableReason({ ...folder.permissions, runCommands: false }, true)).toContain('runCommands');
+  });
+});
+
 describe('threadInput', () => {
   it('画像がなければ本文の文字列、あれば本文のあとに画像のファイルを発言の順に並べる', () => {
     expect(threadInput(request(WORKER))).toBe('実装して');

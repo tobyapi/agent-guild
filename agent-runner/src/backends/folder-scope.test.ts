@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
 import { runRequest } from './run.test-support.ts';
-import { assertFolderScope, folderFileHook, folderFileResult, scopedTarget } from './folder-scope.ts';
+import {
+  assertFolderScope,
+  assertSandboxedFolderScope,
+  folderFileHook,
+  folderFileResult,
+  scopedTarget,
+} from './folder-scope.ts';
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -87,4 +93,16 @@ it('keeps the own-memory exception and denies permissions removed from roles', a
   expect((await folderFileResult(request, 'Write', { file_path: join(shared, 'file'), content: 'no' }))?.behavior).toBe(
     'deny',
   );
+});
+
+it('lets sandboxed backends keep commands, but not machine-wide access or relative paths', async () => {
+  const { request } = await fixture();
+  const codex = { ...request, backend: 'codex', permissions: { ...request.permissions, runCommands: true } };
+  expect(() => assertSandboxedFolderScope(codex)).not.toThrow();
+  expect(() => assertSandboxedFolderScope({ ...codex, writableDirs: undefined, workspace: 'relative' })).not.toThrow();
+  for (const key of ['readAnywhere', 'writeAnywhere'] as const)
+    expect(() => assertSandboxedFolderScope({ ...codex, permissions: { ...codex.permissions, [key]: true } })).toThrow(
+      '両立',
+    );
+  expect(() => assertSandboxedFolderScope({ ...codex, writableDirs: ['project'] })).toThrow('絶対パス');
 });

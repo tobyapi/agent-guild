@@ -3,6 +3,7 @@ import { Codex, type CodexOptions } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
 import { CODEX_NOT_FOUND, findCodex } from './codex-runtime/executable.ts';
+import { folderOverrides } from './codex-runtime/folder-profile.ts';
 import { codexCatalog } from './codex-runtime/models.ts';
 import {
   codexConfig,
@@ -12,6 +13,7 @@ import {
   unenforceableReason,
 } from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
+import { assertSandboxedFolderScope } from './folder-scope.ts';
 import { writeSkills } from './skill-files.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
 
@@ -35,7 +37,8 @@ export async function runCodex(
   { signal, onActivity, onPost, onUsage }: RunContext,
   provider = defaultProvider(),
 ): Promise<string> {
-  rejectUnenforceable(provider.label, unenforceableReason(request.permissions));
+  assertSandboxedFolderScope(request);
+  rejectUnenforceable(provider.label, unenforceableReason(request.permissions, request.writableDirs !== undefined));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
     throw new BackendError('bad_request', `Codex に渡すシステムプロンプトは ${MAX_SYSTEM_PROMPT_LENGTH} 文字までです`);
   }
@@ -46,6 +49,8 @@ export async function runCodex(
     await writeSkills(join(request.workspace, '.agents', 'skills'), request.skills);
     const codex = new Codex({
       config: { ...provider.config, ...codexConfig(request) },
+      // 指定フォルダでは、読み書きの範囲を OS の隔離で守る権限プロファイルを渡す（使えない PC では実行しない）
+      configOverrides: await folderOverrides(request),
       codexPathOverride: executable.path,
       env: withPathDirs(executable.pathDirs, provider.env) ?? provider.env,
     });

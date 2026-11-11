@@ -19,6 +19,28 @@ pub(super) struct RunScope {
     pub writable_dirs: Option<Vec<PathBuf>>,
 }
 
+/// 指定フォルダの範囲を、バックエンドがどう守るか（実際に守れる PC かは、ランナーのアダプタが実行時に確かめる）
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum FolderSupport {
+    /// ファイルの道具ごとに範囲を確かめ、OS の隔離の中で読み書きする（Ollama）。コマンドとスキルは使えない
+    Files,
+    /// シェルごと OS の隔離に入れ、権限プロファイルで読み書きの範囲を決める（Codex 系）。コマンドは隔離の中で使える
+    Sandbox,
+}
+
+fn folder_support(backend: &str) -> AppResult<FolderSupport> {
+    match backend {
+        "ollama" => Ok(FolderSupport::Files),
+        "codex" | "grok" | "muse" => Ok(FolderSupport::Sandbox),
+        "claude" => Err(AppError::validation(
+            "Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません",
+        )),
+        _ => Err(AppError::validation(
+            "このバックエンドはフォルダ制限にまだ対応していません。OllamaかCodex系（Codex・Grok・Muse）を選んでください",
+        )),
+    }
+}
+
 pub(super) fn accepts_job(ports: &Ports, job: &JobSpec, channel: &Channel) -> AppResult<bool> {
     if channel.workspace.revision > 0 {
         for root in job.conversations() {
@@ -40,22 +62,16 @@ pub(super) fn prepare(
     let mut usable = effective_permissions(agent, backend);
     let scoped = channel.workspace.mode != WorkspaceMode::Legacy || channel.workspace.revision > 0;
     let writable_dirs = if channel.workspace.mode == WorkspaceMode::Folder {
-        if agent.backend == "claude" {
-            return Err(AppError::validation(
-                "Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません",
-            ));
-        }
-        if agent.backend != "ollama" {
-            return Err(AppError::validation(
-                "このバックエンドはフォルダ制限にまだ対応していません。Ollamaを選んでください（macOSか、OSの隔離が使えるWindows 11で動きます）",
-            ));
-        }
+        let support = folder_support(&agent.backend)?;
         for scoped in [&mut permissions, &mut usable] {
             scoped.read_anywhere = false;
             scoped.write_anywhere = false;
             scoped.skills = false;
-            // Shell commands bypass per-file hardlink and private-memory checks.
-            scoped.run_commands = false;
+            // 道具ごとに確かめるバックエンドでは、コマンドがハードリンクと相談相手のメモの確認をすり抜けるので使わせない。
+            // シェルごと隔離に入れるバックエンドでは、コマンドも同じ範囲の中でだけ動く
+            if support == FolderSupport::Files {
+                scoped.run_commands = false;
+            }
         }
         let folder =
             channel.workspace.folder.as_ref().ok_or_else(|| AppError::validation("割り当てフォルダがありません"))?;
@@ -79,9 +95,23 @@ pub(super) fn prepare(
     Ok(RunScope { permissions, usable, paths, memory, writable_dirs })
 }
 
-pub(super) fn prompt(channel: &Channel) -> String {
+/// システムプロンプトの末尾に、このチャンネルの作業範囲の説明を足す（指定フォルダのときだけ）
+pub(super) fn with_scope(system_prompt: String, channel: &Channel, backend: &str) -> String {
+    system_prompt + &prompt(channel, backend)
+}
+
+fn prompt(channel: &Channel, backend: &str) -> String {
     if channel.workspace.mode != WorkspaceMode::Folder {
         return String::new();
     }
-    format!("\n## このチャンネルの作業範囲\n割り当てフォルダ: {}\n読み書きはこのフォルダとチャンネル専用の作業場所、読み取りは相談相手の成果物とこのチャンネルの添付にも許可されます。Web権限は別です。MEMORY.mdにはこのチャンネルの作業内容を記録してください。旧作業場所のメモは自動投入されません。コマンド実行とスキルはこのモードでは使えません（リンクと相談相手のメモの制限を守るため）。\n", channel.workspace.folder.as_deref().unwrap_or(""))
+    let commands = match folder_support(backend) {
+        Ok(FolderSupport::Sandbox) => {
+            "コマンドはこの範囲の中でだけ動きます（範囲の外は読めず、書けません）。スキルはこのモードでは使えません。"
+        }
+        _ => "コマンド実行とスキルはこのモードでは使えません（リンクと相談相手のメモの制限を守るため）。",
+    };
+    format!(
+        "\n## このチャンネルの作業範囲\n割り当てフォルダ: {}\n読み書きはこのフォルダとチャンネル専用の作業場所、読み取りは相談相手の成果物とこのチャンネルの添付にも許可されます。Web権限は別です。MEMORY.mdにはこのチャンネルの作業内容を記録してください。旧作業場所のメモは自動投入されません。{commands}\n",
+        channel.workspace.folder.as_deref().unwrap_or("")
+    )
 }

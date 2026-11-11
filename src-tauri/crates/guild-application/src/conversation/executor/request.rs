@@ -71,7 +71,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         state_dir: paths.state,
         readable_dirs,
         writable_dirs,
-        system_prompt: format!("{}{}", build_system_prompt(&ctx), super::request_scope::prompt(&channel)),
+        system_prompt: super::request_scope::with_scope(build_system_prompt(&ctx), &channel, &agent.backend),
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
         intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),

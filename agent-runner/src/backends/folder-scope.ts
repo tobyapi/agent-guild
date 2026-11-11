@@ -28,6 +28,18 @@ export function assertFolderScope(request: RunRequest): void {
     throw new BackendError('bad_request', 'フォルダ制限には絶対パスが必要です');
 }
 
+/**
+ * シェルごと OS の隔離に入れて範囲を守るバックエンド（Codex 系）の、指定フォルダの依頼の確認。道具ごとのパスの判定は
+ * しないので、コマンドは使ってよい。PC 全体の読み書きとは両立しない
+ */
+export function assertSandboxedFolderScope(request: RunRequest): void {
+  if (request.writableDirs === undefined) return;
+  if (request.permissions.readAnywhere || request.permissions.writeAnywhere)
+    throw new BackendError('unsupported_permission', 'フォルダ制限と両立しない権限です');
+  if (![request.workspace, ...request.readableDirs, ...request.writableDirs].every(isAbsolute))
+    throw new BackendError('bad_request', 'フォルダ制限には絶対パスが必要です');
+}
+
 /** Resolve missing file tails without accepting dangling symlinks. */
 async function physical(path: string): Promise<string> {
   try {

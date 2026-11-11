@@ -88,7 +88,7 @@ async fn scope_cannot_change_while_jobs_are_running() {
 
 #[tokio::test]
 async fn unsupported_folder_backends_stop_before_runtime() {
-    for backend in ["claude", "codex", "grok", "muse"] {
+    for backend in ["claude", "other"] {
         let app = TestApp::new();
         let mut agent = app.agent("worker", "ハル");
         agent.backend = backend.to_owned();
@@ -108,6 +108,36 @@ async fn unsupported_folder_backends_stop_before_runtime() {
             transcript.contains(if backend == "claude" { "リンク差し替え" } else { "フォルダ制限" }),
             "{transcript}"
         );
+    }
+}
+
+#[tokio::test]
+async fn sandboxed_backends_keep_commands_inside_the_folder_scope() {
+    for backend in ["codex", "grok", "muse"] {
+        let app = TestApp::new();
+        let mut agent = app.agent("worker", "ハル");
+        agent.backend = backend.to_owned();
+        app.store.agents.lock().iter_mut().find(|a| a.id == agent.id).unwrap().backend = agent.backend.clone();
+        app.runtime.backends.lock().push(ready_backend(backend));
+        let channel = app.channel("作業", &[&agent]);
+        app.services
+            .conversation
+            .configure_workspace(&channel.id, WorkspaceMode::Folder, Some(PROJECT.to_owned()))
+            .await
+            .unwrap();
+        app.runtime.script(agent.id.as_str(), reply("done"));
+        app.services.conversation.send_human_message(&channel.id, "@ハル FILE_TASK", &[]).unwrap();
+        app.settle().await;
+        let requests = app.runtime.requests_for(agent.id.as_str());
+        let scoped = requests.last().unwrap_or_else(|| panic!("{backend}: no request"));
+        let project = std::path::PathBuf::from(PROJECT);
+        assert_eq!(scoped.writable_dirs.as_ref().unwrap(), &vec![project.clone()], "{backend}");
+        assert!(scoped.readable_dirs.contains(&project), "{backend}");
+        // シェルごと隔離に入れるので、コマンドは残す。PC 全体の読み書きとスキルは外す
+        let permissions = &scoped.permissions;
+        assert!(permissions.run_commands && permissions.write_files, "{backend}");
+        assert!(!permissions.read_anywhere && !permissions.write_anywhere && !permissions.skills, "{backend}");
+        assert!(scoped.system_prompt.contains("コマンドはこの範囲の中でだけ動きます"), "{backend}");
     }
 }
 
