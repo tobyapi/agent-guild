@@ -110,6 +110,8 @@ describe('powershellCommandLine', () => {
     const line = powershellCommandLine(command, { SystemRoot: windows });
     expect(line).toContain(join(windows, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'));
     expect(line).toContain('-NoProfile -NonInteractive');
+    // 隔離の中では実行ポリシーの確認が失敗するので、確かめさせない（npm などの .ps1 の入口のため）
+    expect(line).toContain('-ExecutionPolicy Bypass');
     expect(line).not.toContain('Write-Output');
     expect(decode(line)).toContain(command);
     expect(decode(line)).toContain('exit $LASTEXITCODE');

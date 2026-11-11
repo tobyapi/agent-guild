@@ -34,11 +34,15 @@ export function seatbeltProfile(request: RunRequest, workspace: string, readable
   return `(version 1)\n(deny default)\n(allow process-exec)\n(allow signal (target same-sandbox))\n(allow sysctl-read)\n(allow file-read-metadata)\n(allow file-read* (literal "/"))\n${reads}\n${writes}\n(allow file-read* file-write* (literal "/dev/null"))\n(deny file-write* (subpath ${literal(stateDir)}))\n${protectAncestors}\n${privateMemories}`;
 }
 
-/** 道具を動かす準備。isolated なら Seatbelt の中で動かし、そうでなければランナーの中でパスの判定だけで守る */
+/**
+ * 道具を動かす準備。isolated なら Seatbelt の中で動かす。そうでなければ、ファイル操作はランナーの中でパスの判定で守るか、
+ * container なら Windows の隔離の中で行う（指定フォルダのチャンネル。container-file.ts）
+ */
 export interface Prepared {
   profile: string;
   workspace: string;
   isolated: boolean;
+  container: boolean;
 }
 
 /** Seatbelt（macOS）で、ファイル操作・コマンド・PC 全体への書き込みをまとめて閉じ込められるか */
@@ -56,16 +60,21 @@ export function canRunCommands(): boolean {
 
 /**
  * Seatbelt のない OS では、作業場所と追加の読み取りフォルダの中のファイル操作を、パスの判定で守って行う
- * （local-file.ts）。リンクの差し替えを OS で止められないので、指定フォルダは扱わない。
- * コマンドは、Windows の隔離が使えるときだけ、その中で動かす（windows-command.ts）。
+ * （local-file.ts）。指定フォルダのチャンネルは、リンクの差し替えを OS で止める必要があるので、Windows の隔離が
+ * 使えるときだけ、ファイル操作をその中で行う（container-file.ts）。使えなければ実行しない。
+ * コマンドも、Windows の隔離が使えるときだけ、その中で動かす（windows-command.ts）。
  */
 async function unisolated(request: RunRequest): Promise<Prepared> {
-  if (request.writableDirs !== undefined)
-    throw new BackendError('unsupported_permission', 'フォルダ制限には macOS の Seatbelt が必要です');
+  const folder = request.writableDirs !== undefined;
+  if (folder && !commandSandboxReady())
+    throw new BackendError(
+      'unsupported_permission',
+      'フォルダ制限には OS の隔離が必要です（macOS か、隔離が使える Windows 11 で使えます）',
+    );
   const workspace = await realpath(request.workspace);
   if (isInside(workspace, resolve(request.stateDir)))
     throw new BackendError('bad_request', '作業場所と管理領域が重なっています');
-  return { profile: '', workspace, isolated: false };
+  return { profile: '', workspace, isolated: false, container: folder };
 }
 
 /** 制限を適用できなければ実行しない。フォールバックして通常のシェルを起動しない。 */
@@ -85,5 +94,5 @@ export async function sandbox(request: RunRequest): Promise<Prepared> {
       : await Promise.all(request.writableDirs.map((path) => realpath(path)));
   const profile = seatbeltProfile({ ...request, writableDirs }, workspace, readable, stateDir);
   const helper = `\n(allow file-read* (literal ${literal(await realpath(process.execPath))}))`;
-  return { profile: profile + helper, workspace, isolated: true };
+  return { profile: profile + helper, workspace, isolated: true, container: false };
 }

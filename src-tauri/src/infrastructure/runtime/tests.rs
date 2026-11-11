@@ -5,8 +5,9 @@ use std::path::Path;
 
 use runner_client::Launch;
 
-use super::launch::{plain_path, runner_config, BUNDLED_DIR};
+use super::launch::{runner_config, BUNDLED_DIR};
 use super::user_path::{merge_paths, parse_marked};
+use crate::infrastructure::plain_path::plain_path;
 use crate::infrastructure::tests::TempDir;
 
 #[test]

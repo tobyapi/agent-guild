@@ -96,6 +96,9 @@ fn scoped_workspaces_separate_agents_channels_revisions_and_memories() {
     let a = AgentId::new("a");
     let channel = ChannelId::new("c");
     let folder = workspace.validate_folder(project.0.to_str().unwrap()).unwrap();
+    // 保存するのは普通の形のパス（Windows の `\\?\` つきではない）。確かめ直しても同じになる
+    assert!(!folder.starts_with(r"\\?\"), "{folder}");
+    assert_eq!(workspace.validate_folder(&folder).unwrap(), folder);
     let mut scope = ChannelWorkspace { mode: WorkspaceMode::Folder, folder: Some(folder), revision: 1, after_seq: 0 };
     let first = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
     fs::write(first.work.join("MEMORY.md"), "channel memory").unwrap();

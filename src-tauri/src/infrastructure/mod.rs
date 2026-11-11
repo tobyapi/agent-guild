@@ -10,6 +10,7 @@ pub mod file_manager;
 pub mod folders;
 pub mod ids;
 pub mod logging;
+pub mod plain_path;
 pub mod runtime;
 pub mod settings;
 pub mod skill_library;

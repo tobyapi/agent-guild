@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
-import { pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
+import { folderModeAvailable, pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
 import { localHttp } from './http.ts';
 import { fileTool } from './files.ts';
 import { runLocalCommand } from './command.ts';
@@ -50,7 +50,7 @@ describe('コマンドの操作確認', () => {
   });
 });
 
-it.skipIf(!REAL_MACOS)('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
+it.skipIf(!(await folderModeAvailable()))('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
   const project = join(root, 'project');
   const peer = join(root, 'peer');
   await mkdir(project);

@@ -1,6 +1,6 @@
 // コマンドの隔離（Windows の MXC）を、本物の隔離で確かめる。使えない PC（古い Windows・ほかの OS・CI）では飛ばす。
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -87,6 +87,32 @@ describe.skipIf(!available)('隔離の中のコマンド（本物の MXC）', ()
     expect(lines(result)[6]).toBe(scope.home);
     expect(await readFile(join(root, 'peer', 'artifact.txt'), 'utf8')).toBe('shared artifact');
     await expect(readFile(join(outside, 'new.txt'))).rejects.toHaveProperty('code', 'ENOENT');
+  }, 60_000);
+
+  it('範囲の外のフォルダは中の名前も一覧できず、見えるのは親フォルダの直下の名前だけ', async () => {
+    await mkdir(join(root, 'outside', 'deep'));
+    const probe = (label: string, path: string) =>
+      `try { $names = @(Get-ChildItem -LiteralPath "${path}" -Name -ErrorAction Stop); "${label}: $($names -join ',')" } catch { "${label}: denied" }`;
+    const result = await run(
+      [
+        probe('outside', join(root, 'outside')),
+        probe('deep', join(root, 'outside', 'deep')),
+        probe('documents', join(homedir(), 'Documents')),
+        probe('parent', root),
+      ].join('\n'),
+    );
+    expect(lines(result)).toEqual([
+      'exit=0',
+      'outside: denied',
+      'deep: denied',
+      'documents: denied',
+      'parent: outside,peer,state,work',
+    ]);
+  }, 60_000);
+
+  it('作業場所のスクリプト（.ps1）を動かせる（実行ポリシーの確認で止まらない）', async () => {
+    await writeFile(join(root, 'work', 'hello.ps1'), '"script ok"');
+    expect(lines(await run('& (Join-Path (Get-Location) hello.ps1)'))).toEqual(['exit=0', 'script ok']);
   }, 60_000);
 
   it('通信はできず、秘密らしい環境変数は渡らない', async () => {

@@ -11,11 +11,12 @@ import { canIsolate } from './sandbox.ts';
 export const anywhere = (request: RunRequest): boolean => request.permissions.writeAnywhere && canIsolate();
 
 export async function fileTarget(request: RunRequest, path: string, write: boolean): Promise<string> {
-  if (request.writableDirs !== undefined) return scopedTarget(request, path, write);
   const absolute = resolve(request.workspace, path);
   // 開くだけで外へ接続するネットワークパスなどは、実体を調べる前に断る
-  const form = unsafePathForm(absolute, [request.workspace, ...request.readableDirs]);
+  const roots = [request.workspace, ...request.readableDirs, ...(request.writableDirs ?? [])];
+  const form = unsafePathForm(absolute, roots);
   if (form !== null) throw new BackendError('unsupported_permission', form);
+  if (request.writableDirs !== undefined) return scopedTarget(request, path, write);
   let target: string;
   try {
     target = await realpath(absolute);

@@ -15,6 +15,7 @@ use guild_domain::ids::{AgentId, ChannelId};
 
 use super::data_dir::{safe_component, AGENTS_DIR};
 use super::file_manager;
+use super::plain_path::plain_path;
 
 const MEMORY_FILE: &str = "MEMORY.md";
 /// Windows で使用中のファイルが消せないときの再試行
@@ -54,7 +55,11 @@ impl Workspace for FsWorkspace {
         if path.starts_with(&managed) || managed.starts_with(&path) {
             return Err(AppError::validation("アプリの保存領域やその親フォルダは割り当てられません"));
         }
-        path.to_str().map(str::to_owned).ok_or_else(|| AppError::validation("フォルダのパスを読み取れません"))
+        // Windows の canonicalize は `\\?\C:\...` を返す。ランナー（Node）とそのパスの比較・OS の隔離の設定に渡すので、普通の形で保存する
+        plain_path(&path)
+            .to_str()
+            .map(str::to_owned)
+            .ok_or_else(|| AppError::validation("フォルダのパスを読み取れません"))
     }
 
     fn scoped_work_dir(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> PathBuf {

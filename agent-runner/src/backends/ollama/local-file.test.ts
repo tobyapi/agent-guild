@@ -97,7 +97,7 @@ describe.skipIf(REAL_MACOS)('隔離のない OS でのファイル道具', () =>
   it('指定フォルダ（リンクの差し替えを OS で止める前提のモード）は扱わない', async () => {
     const scoped = { ...request(), writableDirs: [join(root, 'outside')], readableDirs: [join(root, 'outside')] };
     scoped.permissions = { ...scoped.permissions, runCommands: false, skills: false };
-    await expect(fileTool(scoped, 'read_file', 'a.txt', '', signal)).rejects.toThrow('Seatbelt');
+    await expect(fileTool(scoped, 'read_file', 'a.txt', '', signal)).rejects.toThrow('OS の隔離');
   });
 
   it('コマンドは、役割が許していても実行しない', async () => {

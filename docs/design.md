@@ -376,6 +376,6 @@ Only Grok and Muse are supported. See [backend-api-keys.md](backend-api-keys.md)
 
 変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。以前の MEMORY.md とセッションは自動投入しない。legacy に戻す場合も新しい revision を使う。
 
-folder モードではランナープロトコル v2 の `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・コマンド・スキルは無効。Ollama は macOS Seatbelt と開いたファイルの実体確認を併用する。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。Codex・Grok・Muse など未対応のバックエンドも理由を示して実行を停止する。
+folder モードではランナープロトコル v2 の `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・コマンド・スキルは無効。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。Codex・Grok・Muse など未対応のバックエンドも理由を示して実行を停止する。
 
 今回の統合検証は `docs/ollama-channel-validation-20261111.md`。`docs/ollama-tools-validation.md` は過去試作の記録として区別する。

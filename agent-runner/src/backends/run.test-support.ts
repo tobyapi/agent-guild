@@ -1,5 +1,6 @@
 // アダプタの run のテストで使う、依頼（RunRequest）と実行の文脈（RunContext）の組み立て。
 import { afterAll, beforeAll, vi } from 'vitest';
+import { prepareCommandSandbox } from './command-sandbox.ts';
 import type { RunContext, RunRequest } from './types.ts';
 
 /** 本物の macOS で動いているか（Seatbelt を実際に動かすテストはこれで絞る。pretendMacOS で変わる前の値） */
@@ -22,6 +23,14 @@ export function pretendPlatform(platform: NodeJS.Platform): void {
   afterAll(() => {
     Object.defineProperty(process, 'platform', { value: original });
   });
+}
+
+/**
+ * 指定フォルダのチャンネル（OS の隔離でファイル操作を閉じ込めるモード）を、この PC で実際に動かせるか:
+ * macOS（Seatbelt）か、共通の隔離（MXC）が使える Windows。テストの先頭で await して使う
+ */
+export async function folderModeAvailable(): Promise<boolean> {
+  return REAL_MACOS || (process.platform === 'win32' && (await prepareCommandSandbox()));
 }
 
 /** バックエンド backend への依頼。権限は読み書きとコマンドだけ（Web と作業場所の外への書き込みはなし） */

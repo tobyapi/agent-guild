@@ -126,9 +126,19 @@ export function commandSandboxReady(): boolean {
  * 隔離を用意できなければ実行しない（通常のシェルへは切り替えない）。戻り値は `exit=<終了コード>\n<出力>`
  */
 export async function runInSandbox(scope: CommandScope, command: string, options: SandboxRunOptions): Promise<string> {
+  // 長すぎるコマンドは、ここで失敗として返す（async なので、呼び出し側は拒否された Promise として受け取る）
+  return runCommandLineInSandbox(scope, powershellCommandLine(command, process.env), options);
+}
+
+/** 決まったプログラムのコマンドライン（アプリが組み立てたもの）を、隔離の中で動かす。戻り値は runInSandbox と同じ形 */
+export async function runCommandLineInSandbox(
+  scope: CommandScope,
+  commandLine: string,
+  options: SandboxRunOptions,
+): Promise<string> {
   const exe = (await prepareCommandSandbox()) ? sandboxExecutable() : null;
-  if (exe === null) throw new BackendError('unsupported_permission', 'この PC ではコマンドを隔離できません');
-  const config = containerConfig(scope, powershellCommandLine(command, process.env), process.env, options.timeoutMs);
+  if (exe === null) throw new BackendError('unsupported_permission', 'この PC では OS の隔離を使えません');
+  const config = containerConfig(scope, commandLine, process.env, options.timeoutMs);
   const configDir = join(options.stateDir, 'command-sandbox');
   const configFile = join(configDir, `${randomUUID()}.json`);
   for (const dir of [configDir, ...homeDirs(scope.home)]) await mkdir(dir, { recursive: true });

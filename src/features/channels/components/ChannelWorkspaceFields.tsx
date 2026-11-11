@@ -34,7 +34,7 @@ export function ChannelWorkspaceFields({ form }: { form: ReturnType<typeof useCh
           onBlur={() => form.touch('workspaceFolder')}
           error={form.errors.workspaceFolder}
           placeholder="フォルダの絶対パス"
-          hint="同じフォルダを複数チャンネルで共有できます。範囲変更後は過去の会話・メモをAIへ自動投入しません。macOSのOllamaでファイル操作を利用できます。指定フォルダではコマンドとスキルを使えません。Claude・Codex・Grok・Museは範囲を制限できないため実行を停止します。"
+          hint="同じフォルダを複数チャンネルで共有できます。範囲変更後は過去の会話・メモをAIへ自動投入しません。Ollamaでファイル操作を利用できます（macOSか、OSの隔離が使えるWindows 11）。指定フォルダではコマンドとスキルを使えません。Claude・Codex・Grok・Museは範囲を制限できないため実行を停止します。"
         />
       )}
       {form.draft.workspaceMode === 'global' && (

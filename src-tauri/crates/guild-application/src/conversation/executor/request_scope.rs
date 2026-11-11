@@ -47,7 +47,7 @@ pub(super) fn prepare(
         }
         if agent.backend != "ollama" {
             return Err(AppError::validation(
-                "このバックエンドはフォルダ制限にまだ対応していません。macOSのOllamaを選んでください",
+                "このバックエンドはフォルダ制限にまだ対応していません。Ollamaを選んでください（macOSか、OSの隔離が使えるWindows 11で動きます）",
             ));
         }
         for scoped in [&mut permissions, &mut usable] {

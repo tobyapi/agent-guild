@@ -2,8 +2,10 @@ import { mkdtemp, mkdir, writeFile, readFile, symlink, link, rm } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
-import { runRequest } from '../run.test-support.ts';
+import { folderModeAvailable, runRequest } from '../run.test-support.ts';
 import { executeTool, sandbox } from './tools.ts';
+// 指定フォルダは、OS の隔離でファイル操作を閉じ込める（macOS は Seatbelt、Windows は MXC）。使えない PC では飛ばす
+const available = await folderModeAvailable();
 const dirs: string[] = [];
 afterEach(async () => {
   for (const path of dirs.splice(0)) await rm(path, { recursive: true, force: true });
@@ -18,7 +20,7 @@ async function fixture() {
   return { ...runRequest('ollama'), workspace, stateDir, options: { enableTools: true, operationCheck: false } };
 }
 
-it.skipIf(process.platform !== 'darwin')('指定フォルダの実読み書きと相談メモ保護、コマンドの拒否', async () => {
+it.skipIf(!available)('指定フォルダの実読み書きと相談メモ保護、コマンドの拒否', async () => {
   const request = await fixture();
   const project = join(request.workspace, '../project');
   const peer = join(request.workspace, '../peer');
@@ -50,7 +52,7 @@ it.skipIf(process.platform !== 'darwin')('指定フォルダの実読み書き�
   await expect(sandbox(request)).rejects.toThrow('両立');
 });
 
-it.skipIf(process.platform !== 'darwin')('指定フォルダ内の外向きリンクとhardlinkから実読み書きしない', async () => {
+it.skipIf(!available)('指定フォルダ内の外向きリンクとhardlinkから実読み書きしない', async () => {
   const request = await fixture();
   const project = join(request.workspace, '../project');
   const outside = join(request.workspace, '../outside');

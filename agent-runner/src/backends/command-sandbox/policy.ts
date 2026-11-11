@@ -1,12 +1,14 @@
-// コマンドを閉じ込める設定の組み立て（純粋な関数だけ。実行は ../command-sandbox.ts）。
+// コマンドを閉じ込める設定の組み立て（実行は ../command-sandbox.ts）。
 // Windows の隔離（MXC の processcontainer）に渡す設定は「許可した場所だけ見える・通信なし」で、
 // 役割の範囲（書ける場所・読める場所）と、コマンドが動くのに要る道具のフォルダだけを許可する。
+// 親フォルダは名前の一覧だけを許し、その下の関係のないフォルダは隠す（./siblings.ts）。
 
 import { existsSync, statSync } from 'node:fs';
 import { delimiter, dirname, join, parse, resolve } from 'node:path';
 import type { JsonObject } from '../../line-parser.ts';
 import { withoutSecrets } from '../agent-env.ts';
 import { BackendError, isInside } from '../types.ts';
+import { childDirectories, hiddenSiblings } from './siblings.ts';
 
 /** コマンドに許す範囲（どれもリンクを解決済みの絶対パス） */
 export interface CommandScope {
@@ -18,6 +20,13 @@ export interface CommandScope {
   readable: readonly string[];
   /** 隔離の中専用のホーム（利用者の本物のホームは見せず、設定と一時ファイルはここに置かせる） */
   home: string;
+  /** 読み取りを許した場所の中で、読ませないもの（相談相手の MEMORY.md など。実在するパスだけを渡す） */
+  denied?: readonly string[];
+  /**
+   * 開発の道具を使えるようにするか（既定は true）: 道具のフォルダ（PATH）を読めるようにし、親フォルダの名前の一覧を許す。
+   * 決まったプログラムだけを動かすときは false にして、許可した場所のほかは名前も見せない
+   */
+  tools?: boolean;
 }
 
 /** モデルが書いたコマンドの長さの上限（Windows のコマンドラインは 32767 文字まで。符号化で約 2.7 倍になる） */
@@ -55,8 +64,9 @@ export function toolDirs(env: NodeJS.ProcessEnv, granted: readonly string[]): st
 
 /**
  * 許可した場所へたどり着くために、名前の一覧だけを見せる親フォルダ（中身は読めない）。プログラムはパスを先頭から
- * 1段ずつ確かめるので、これがないと起動できないものがある。許可した場所の中は足さない
- * （「一覧だけ」の方が狭いので、足すと読み取りの許可を打ち消してしまう）
+ * 1段ずつ確かめるので、これがないと動かないものがある（Node のモジュールの読み込み・npm など）。許可した場所の中は
+ * 足さない（「一覧だけ」の方が狭いので、足すと読み取りの許可を打ち消してしまう）。この許可は下の階層すべてに効くので、
+ * 関係のないフォルダは hiddenSiblings で隠す
  */
 export function enumerablePaths(granted: readonly string[]): string[] {
   const found = new Set<string>();
@@ -97,7 +107,8 @@ export function homeDirs(home: string): string[] {
 
 /**
  * モデルが書いたコマンドを Windows PowerShell で動かすコマンドライン。引用符の解釈に左右されないよう、符号化して渡す。
- * 出力は UTF-8、終了コードは最後に動かしたプログラムのもの（失敗したコマンドレットは 1）
+ * 出力は UTF-8、終了コードは最後に動かしたプログラムのもの（失敗したコマンドレットは 1）。スクリプトの実行ポリシーは
+ * 確かめさせない: 隔離の中ではその確認自体が失敗し、npm などの .ps1 の入口が動かない（閉じ込めは隔離が担う）
  */
 export function powershellCommandLine(command: string, env: NodeJS.ProcessEnv): string {
   if (command.length > COMMAND_MAX_CHARS) {
@@ -112,19 +123,27 @@ export function powershellCommandLine(command: string, env: NodeJS.ProcessEnv): 
   ].join('\n');
   const exe = join(env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
   const encoded = Buffer.from(script, 'utf16le').toString('base64');
-  return `"${exe}" -NoLogo -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand ${encoded}`;
+  return `"${exe}" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -OutputFormat Text -EncodedCommand ${encoded}`;
 }
 
-/** 隔離の実行ファイル（wxc-exec.exe）に渡す設定（MXC の契約 1.0.0）。通信はすべて拒否し、画面は出せるが貼り付けと操作の注入は禁じる */
+/**
+ * 隔離の実行ファイル（wxc-exec.exe）に渡す設定（MXC の契約 1.0.0）。通信はすべて拒否し、画面は出せるが貼り付けと操作の
+ * 注入は禁じる。list は、親フォルダの直下のフォルダを挙げる関数（テストで差し替える）
+ */
 export function containerConfig(
   scope: CommandScope,
   commandLine: string,
   env: NodeJS.ProcessEnv,
   timeoutMs: number,
+  list: (dir: string) => string[] = childDirectories,
 ): JsonObject {
+  const tools = scope.tools !== false;
   const writable = [...new Set([...scope.writable, scope.home])];
   const readable = [...new Set(scope.readable)].filter((dir) => !writable.some((root) => isInside(dir, root)));
-  const readonly = [...readable, ...toolDirs(env, [...writable, ...readable])];
+  const readonly = tools ? [...readable, ...toolDirs(env, [...writable, ...readable])] : readable;
+  const granted = [...writable, ...readonly];
+  const parents = tools ? enumerablePaths(granted) : [];
+  const denied = [...(scope.denied ?? []), ...hiddenSiblings(parents, granted, env, list)];
   const variables = sandboxEnv(env, scope.home);
   return {
     version: '1.0.0',
@@ -137,13 +156,13 @@ export function containerConfig(
       env: Object.entries(variables).map(([name, value]) => `${name}=${value}`),
       inheritDefaultEnv: false,
     },
-    filesystem: { readwritePaths: writable, readonlyPaths: readonly, deniedPaths: [] },
+    filesystem: { readwritePaths: writable, readonlyPaths: readonly, deniedPaths: denied },
     network: { egress: { default: 'deny' } },
     ui: { disable: false, clipboard: 'none', injection: false },
     processContainer: {
       leastPrivilege: false,
       capabilities: [],
-      filesystem: { enumeratePaths: enumerablePaths([...writable, ...readonly]) },
+      filesystem: { enumeratePaths: parents },
     },
   };
 }

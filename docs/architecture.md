@@ -33,6 +33,7 @@ src-tauri/
       data_dir.rs              guild-data.json（ギルドのデータである印）と .lock（多重起動防止）、ID をフォルダ名にするときの safe_component
       export.rs                今のデータの書き出し（VACUUM INTO とフォルダのコピー）
       folders.rs, file_manager.rs  保存先の候補の調査と、OS のファイラで開くこと
+      plain_path.rs            Windows の `\\?\C:\...` のパスを、Node やランナーが扱える普通の形に直す
       logging.rs               ログの出し先（配布版は <app_log_dir>/agent-guild.log）
       spawner.rs               タスクの生成（Tauri の非同期ランタイムの上で動かす）
       app_control.rs           再起動

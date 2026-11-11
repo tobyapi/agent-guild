@@ -8,6 +8,7 @@ use std::time::Duration;
 use runner_client::{Launch, RunnerConfig};
 
 use super::user_path;
+use crate::infrastructure::plain_path::plain_path;
 
 /// ready を待つ上限
 const READY_TIMEOUT: Duration = Duration::from_secs(20);
@@ -52,17 +53,6 @@ fn bundled_config(root: &Path) -> RunnerConfig {
         ready_timeout: READY_TIMEOUT,
         cancel_grace: CANCEL_GRACE,
     }
-}
-
-/// `\\?\C:\a` → `C:\a`、`\\?\UNC\server\share\a` → `\\server\share\a`。それ以外（文字列にできないものを含む）はそのまま
-pub fn plain_path(path: &Path) -> PathBuf {
-    let Some(text) = path.to_str() else {
-        return path.to_path_buf();
-    };
-    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
-        return PathBuf::from(format!(r"\\{rest}"));
-    }
-    text.strip_prefix(r"\\?\").map_or_else(|| path.to_path_buf(), PathBuf::from)
 }
 
 fn bundled_script(root: &Path) -> PathBuf {

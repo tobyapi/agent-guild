@@ -4,7 +4,8 @@ export { sandbox, seatbeltProfile, type Prepared } from './sandbox.ts';
 import { canIsolate, canRunCommands, type Prepared } from './sandbox.ts';
 import { windowsCommand } from './windows-command.ts';
 import { anywhere, fileTarget } from './file-target.ts';
-import { localFile } from './local-file.ts';
+import { containerFile } from './container-file.ts';
+import { localFile, type LocalFileOperation } from './local-file.ts';
 // Codex の default-deny / 固定 sandbox-exec パス / 子プロセス継承を参考に独自実装。
 // 出典と制約: docs/ollama-tools.md（Codex のコード・ポリシーは転載していない）。
 import { SCOPED_FILE_SCRIPT } from './scoped-file.ts';
@@ -138,7 +139,11 @@ async function executeFile(
     throw new BackendError('unsupported_permission', '管理領域への書き込みは許可されていません');
   // MEMORY is a file-tool exception only; commands keep the original role sandbox.
   if (memory) profile += `\n(allow file-read* file-write* (literal ${JSON.stringify(target)}))`;
-  return scopedFile(request, name, target, args, prepared.isolated ? run : null);
+  // Seatbelt がなければ、指定フォルダは Windows の隔離の中で、それ以外はランナーの中でパスの判定で守って読み書きする
+  const direct = prepared.container
+    ? (operation: LocalFileOperation) => containerFile(request, operation, signal)
+    : localFile;
+  return scopedFile(request, name, target, args, prepared.isolated ? run : null, direct);
 }
 
 function writeContent(content: unknown): string {
@@ -153,6 +158,7 @@ async function scopedFile(
   target: string,
   args: Record<string, unknown>,
   run: ((exe: string, argv: string[], input?: string) => Promise<string>) | null,
+  direct: (operation: LocalFileOperation) => Promise<string>,
 ): Promise<string> {
   const roots = anywhere(request)
     ? ['/']
@@ -164,7 +170,7 @@ async function scopedFile(
       );
   const mode = name as 'read_file' | 'list_files' | 'write_file';
   const content = mode === 'write_file' ? writeContent(args.content) : undefined;
-  if (run === null) return localFile({ path: target, roots, mode, content, limit: OUTPUT_LIMIT });
+  if (run === null) return direct({ path: target, roots, mode, content, limit: OUTPUT_LIMIT });
   const result = await run(
     process.execPath,
     ['--no-addons', '--no-warnings', '--input-type=module', '-e', SCOPED_FILE_SCRIPT],
