@@ -4,6 +4,7 @@ use guild_domain::agent::{ensure_unique_name, normalize_agent_input, Agent, Agen
 use guild_domain::author::MemberId;
 use guild_domain::ids::AgentId;
 
+use crate::channels::ChannelService;
 use crate::conversation::ConversationService;
 use crate::error::{AppError, AppResult};
 use crate::services::Ports;
@@ -25,8 +26,21 @@ impl AgentService {
         let agent = Agent::new(AgentId::new(self.ports.ids.new_id()), input, self.ports.clock.now_ms());
         self.ports.agents.insert(&agent)?;
         SkillService::new(self.ports.clone()).add_role_defaults(&agent)?;
+        // 表示名に依存せず、保存されたロビーフラグで探す。
+        // 自動参加の失敗で、作成済みのエージェントを失敗扱いにしない。
+        if let Err(error) = self.join_lobby(&agent) {
+            log::warn!("新しいエージェントをロビーに追加できませんでした: {error}");
+        }
         self.ports.events.state_changed();
         Ok(agent)
+    }
+
+    fn join_lobby(&self, agent: &Agent) -> AppResult<()> {
+        if let Some(lobby) = self.ports.channels.list()?.into_iter().find(|channel| channel.is_lobby) {
+            ChannelService::new(self.ports.clone(), self.conversation.clone())
+                .add_member(&lobby.id, &MemberId::Agent(agent.id.clone()))?;
+        }
+        Ok(())
     }
 
     /// 実行中のジョブには影響しない（次のジョブから反映）

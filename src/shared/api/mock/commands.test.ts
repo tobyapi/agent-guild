@@ -85,6 +85,41 @@ describe('モックのコマンド', () => {
     expect(older.map((message) => message.seq)).toEqual([7, 8, 9]);
   });
 
+  it('create_agent: フラグなしの同名チャンネルには参加しない', async () => {
+    const mock = await createHarness();
+    await mock.transport.invoke('delete_channel', { id: SEED_IDS.lobby });
+    const channel = await mock.transport.invoke('create_channel', { name: 'ロビー', topic: '', memberIds: [] });
+    await mock.transport.invoke('create_agent', { input: agentInput() });
+    const snapshot = await mock.transport.invoke('get_snapshot', {});
+    expect(snapshot.channels.find((entry) => entry.id === channel.id)?.memberIds).toEqual([HUMAN_ID]);
+  });
+
+  it('create_agent: 名前を変えたフラグ付きロビーへ一度参加し、削除後も作成できる', async () => {
+    const mock = await createHarness();
+    await mock.transport.invoke('update_channel', { id: SEED_IDS.lobby, name: 'Lounge', topic: '' });
+    const before = await mock.transport.invoke('get_snapshot', {});
+    const created = await mock.transport.invoke('create_agent', { input: agentInput() });
+    const after = await mock.transport.invoke('get_snapshot', {});
+    expect(after.channels.find((channel) => channel.id === SEED_IDS.lobby)?.memberIds).toEqual([
+      ...before.channels.find((channel) => channel.id === SEED_IDS.lobby)!.memberIds,
+      created.id,
+    ]);
+    expect(after.agents.filter((agent) => agent.id !== created.id)).toEqual(before.agents);
+    expect(after.channels.filter((channel) => channel.id !== SEED_IDS.lobby)).toEqual(
+      before.channels.filter((channel) => channel.id !== SEED_IDS.lobby),
+    );
+    const messageQuery = { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 100 };
+    const messages = await mock.transport.invoke('list_messages', messageQuery);
+    expect(messages.filter((message) => message.content === 'ミライ がチャンネルに参加しました')).toHaveLength(1);
+    await mock.transport.invoke('add_channel_member', { channelId: SEED_IDS.lobby, memberId: created.id });
+    expect((await mock.transport.invoke('get_snapshot', {})).channels).toEqual(after.channels);
+    expect(await mock.transport.invoke('list_messages', messageQuery)).toEqual(messages);
+    await mock.transport.invoke('delete_channel', { id: SEED_IDS.lobby });
+    await expect(
+      mock.transport.invoke('create_agent', { input: agentInput({ name: '次の新人' }) }),
+    ).resolves.toMatchObject({ name: '次の新人' });
+  });
+
   it('create_agent: 名前の重複は validation。未知の設定キーは捨て、タグの重複はまとめる', async () => {
     const mock = await createHarness();
     const created = await mock.transport.invoke('create_agent', {

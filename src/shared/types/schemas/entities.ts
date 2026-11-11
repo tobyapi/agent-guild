@@ -93,6 +93,7 @@ export const agentTemplateSchema = {
 } satisfies Schema<AgentTemplate>;
 
 export const channelSchema = {
+  isLobby: (value, path) => (value === undefined ? [] : boolean(value, path)),
   id: string,
   name: string,
   topic: string,

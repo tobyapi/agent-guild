@@ -27,7 +27,7 @@ impl ChannelRepository for SqliteChannelRepository {
         self.db
             .with(|conn| {
                 let mut channels: Vec<Channel> = conn
-                    .prepare("SELECT id, name, topic, created_at FROM channels ORDER BY created_at, rowid")?
+                    .prepare("SELECT id, name, topic, created_at, is_lobby FROM channels ORDER BY created_at, rowid")?
                     .query_map([], read_channel)?
                     .collect::<rusqlite::Result<_>>()?;
                 let mut members = conn.prepare("SELECT channel_id, member_id FROM channel_members ORDER BY rowid")?;
@@ -46,7 +46,7 @@ impl ChannelRepository for SqliteChannelRepository {
     fn get(&self, id: &ChannelId) -> AppResult<Option<Channel>> {
         self.db
             .with(|conn| {
-                let sql = "SELECT id, name, topic, created_at FROM channels WHERE id = ?1";
+                let sql = "SELECT id, name, topic, created_at, is_lobby FROM channels WHERE id = ?1";
                 let Some(mut channel) = conn.query_row(sql, [id.as_str()], read_channel).optional()? else {
                     return Ok(None);
                 };
@@ -61,8 +61,8 @@ impl ChannelRepository for SqliteChannelRepository {
             .with(|conn| {
                 let tx = conn.unchecked_transaction()?;
                 tx.execute(
-                    "INSERT INTO channels (id, name, topic, created_at) VALUES (?1, ?2, ?3, ?4)",
-                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at],
+                    "INSERT INTO channels (id, name, topic, created_at, is_lobby) VALUES (?1, ?2, ?3, ?4, ?5)",
+                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at, channel.is_lobby],
                 )?;
                 for member in &channel.member_ids {
                     add(&tx, &channel.id, member)?;
@@ -76,8 +76,8 @@ impl ChannelRepository for SqliteChannelRepository {
         self.db
             .with(|conn| {
                 conn.execute(
-                    "UPDATE channels SET name = ?2, topic = ?3 WHERE id = ?1",
-                    params![channel.id.as_str(), channel.name, channel.topic],
+                    "UPDATE channels SET name = ?2, topic = ?3, is_lobby = ?4 WHERE id = ?1",
+                    params![channel.id.as_str(), channel.name, channel.topic, channel.is_lobby],
                 )
             })
             .map(|_| ())
@@ -138,5 +138,6 @@ fn read_channel(row: &Row<'_>) -> rusqlite::Result<Channel> {
         topic: row.get(2)?,
         member_ids: Vec::new(),
         created_at: row.get(3)?,
+        is_lobby: row.get(4)?,
     })
 }

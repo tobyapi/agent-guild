@@ -28,6 +28,20 @@ impl ChannelService {
 
     /// 人間は常にメンバーに入る
     pub fn create(&self, name: &str, topic: &str, member_ids: &[MemberId]) -> AppResult<Channel> {
+        self.create_with_lobby(name, topic, member_ids, false)
+    }
+
+    pub fn create_lobby(&self, name: &str, topic: &str, member_ids: &[MemberId]) -> AppResult<Channel> {
+        self.create_with_lobby(name, topic, member_ids, true)
+    }
+
+    fn create_with_lobby(
+        &self,
+        name: &str,
+        topic: &str,
+        member_ids: &[MemberId],
+        is_lobby: bool,
+    ) -> AppResult<Channel> {
         let members = normalize_members(member_ids);
         for member in &members {
             if let MemberId::Agent(id) = member {
@@ -35,6 +49,7 @@ impl ChannelService {
             }
         }
         let channel = Channel {
+            is_lobby,
             id: ChannelId::new(self.ports.ids.new_id()),
             name: normalize_channel_name(name)?,
             topic: normalize_channel_topic(topic)?,

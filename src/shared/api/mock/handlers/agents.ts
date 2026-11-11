@@ -2,7 +2,7 @@
 import { permissionRole } from '@/shared/lib/permissionPolicy';
 import { addRoleSkills } from '../defaultSkills';
 import type { Agent, Channel } from '@/shared/types/domain';
-import { emitStateChanged, fail, requireAgent } from '../runtime';
+import { emitStateChanged, fail, joinChannel, requireAgent } from '../runtime';
 import type { MockCore } from '../runtime';
 import { validateAgentInput } from './agentInput';
 import type { HandlerGroup } from './types';
@@ -26,6 +26,9 @@ export const agentHandlers: HandlerGroup<AgentCommands> = {
     };
     runtime.state.agents.push(agent);
     addRoleSkills(runtime, agent);
+    // 表示名に依存せず、保存されたロビーフラグで探す。
+    const lobby = runtime.state.channels.find((channel) => channel.isLobby === true);
+    if (lobby && !lobby.memberIds.includes(agent.id)) joinChannel(runtime, lobby, agent);
     emitStateChanged(runtime);
     return agent;
   },

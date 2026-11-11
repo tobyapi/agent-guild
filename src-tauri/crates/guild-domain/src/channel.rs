@@ -18,6 +18,8 @@ pub struct Channel {
     pub id: ChannelId,
     pub name: String,
     pub topic: String,
+    #[serde(default)]
+    pub is_lobby: bool,
     /// 参加順。人間は常に入る
     pub member_ids: Vec<MemberId>,
     pub created_at: i64,

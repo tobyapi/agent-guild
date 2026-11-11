@@ -48,6 +48,7 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
       .filter((id) => memberIds.includes(id));
     const channel: Channel = {
       id: runtime.env.newId(),
+      isLobby: false,
       ...cleanFields(name, topic),
       memberIds: [HUMAN_ID, ...agentIds],
       createdAt: runtime.env.now(),

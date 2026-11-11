@@ -116,3 +116,46 @@ async fn refreshing_backends_probes_the_runner() {
     app.services.backends.refresh().await.unwrap();
     assert_eq!(app.runtime.probes.load(Ordering::SeqCst), 1);
 }
+
+#[tokio::test]
+async fn new_agents_join_the_lobby_once_without_changing_existing_agents() {
+    use guild_application::ports::ChannelRepository;
+
+    let app = TestApp::new();
+    let existing = app.agent("worker", "既存");
+    let lobby = app.services.channels.create_lobby("ロビー", "", &[]).unwrap();
+    app.services.channels.update(&lobby.id, "Lounge", "").unwrap();
+    let other = app.channel("ロビー", &[]);
+    let created = app.services.agents.create(input("worker", "新人")).unwrap();
+    let member = MemberId::Agent(created.id.clone());
+    let saved = ChannelRepository::get(app.store.as_ref(), &lobby.id).unwrap().unwrap();
+    assert_eq!(saved.member_ids, vec![MemberId::Human, member.clone()]);
+    assert!(!saved.has_member(&MemberId::Agent(existing.id.clone())));
+    assert_eq!(app.transcript(&lobby), vec!["システム: 新人 がチャンネルに参加しました"]);
+    assert_eq!(
+        ChannelRepository::get(app.store.as_ref(), &other.id).unwrap().unwrap().member_ids,
+        vec![MemberId::Human]
+    );
+    app.services.channels.add_member(&lobby.id, &member).unwrap();
+    assert_eq!(ChannelRepository::get(app.store.as_ref(), &lobby.id).unwrap().unwrap().member_ids, saved.member_ids);
+    assert_eq!(app.transcript(&lobby), vec!["システム: 新人 がチャンネルに参加しました"]);
+    app.services.agents.update(&existing.id, input("worker", "既存更新")).unwrap();
+    assert_eq!(ChannelRepository::get(app.store.as_ref(), &lobby.id).unwrap().unwrap().member_ids.len(), 2);
+}
+
+#[tokio::test]
+async fn agents_can_be_created_without_a_lobby_or_after_its_deletion() {
+    let app = TestApp::new();
+    let unflagged = app.channel("ロビー", &[]);
+    assert!(app.services.agents.create(input("worker", "最初")).is_ok());
+    assert_eq!(
+        guild_application::ports::ChannelRepository::get(app.store.as_ref(), &unflagged.id)
+            .unwrap()
+            .unwrap()
+            .member_ids,
+        vec![MemberId::Human]
+    );
+    let lobby = app.services.channels.create_lobby("ロビー", "", &[]).unwrap();
+    app.services.channels.delete(&lobby.id).await.unwrap();
+    assert!(app.services.agents.create(input("worker", "削除後")).is_ok());
+}

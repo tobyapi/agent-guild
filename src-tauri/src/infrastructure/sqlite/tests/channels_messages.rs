@@ -12,6 +12,7 @@ use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteMessageReposi
 
 fn lobby() -> Channel {
     Channel {
+        is_lobby: false,
         id: ChannelId::new("c1"),
         name: "ロビー".to_owned(),
         topic: "雑談".to_owned(),
@@ -132,4 +133,62 @@ fn deleting_a_channel_removes_its_members_and_messages() {
     channels.delete(&ChannelId::new("c1")).unwrap();
     assert!(channels.list().unwrap().is_empty());
     assert!(messages.list(&ChannelId::new("c1"), MessageFilter::All, None, 50).unwrap().is_empty());
+}
+
+#[test]
+fn legacy_lobby_migration_is_persisted_and_runs_only_once() {
+    use crate::infrastructure::sqlite::migrations::migrate;
+    let conn = rusqlite::Connection::open_in_memory().unwrap();
+    conn.execute_batch(include_str!("../migrations/0001_init.sql")).unwrap();
+    conn.execute_batch(include_str!("../migrations/0002_run_measurements.sql")).unwrap();
+    conn.execute_batch(include_str!("../migrations/0003_skill_source.sql")).unwrap();
+    conn.pragma_update(None, "user_version", 3).unwrap();
+    conn.execute_batch(
+        "INSERT INTO channels VALUES ('new', 'ロビー', '', 2), ('old', 'ロビー', '', 1), ('other', '作業', '', 0);",
+    )
+    .unwrap();
+    conn.execute_batch(
+        "INSERT INTO agents VALUES (
+            'agent-1', '既存エージェント', 'existing', 'avatar.png', '#123456', '[\"作業者\"]',
+            'role', 'personality', 'tone', 'expertise', 'codex', 'model', '{}', '{}',
+            'answer', 1, 0, 0, 30, NULL, NULL, 123, NULL
+        );
+        INSERT INTO channel_members VALUES ('old', 'me'), ('old', 'agent-1'), ('other', 'agent-1');",
+    )
+    .unwrap();
+    // 0003 の旧形式にフラグ列がないこと、および移行前後の既存の全列を確認する。
+    assert!(conn.prepare("SELECT is_lobby FROM channels").is_err());
+    let snapshot = |sql: &str| -> Vec<Vec<rusqlite::types::Value>> {
+        let mut statement = conn.prepare(sql).unwrap();
+        let count = statement.column_count();
+        statement
+            .query_map([], |row| (0..count).map(|index| row.get(index)).collect())
+            .unwrap()
+            .map(Result::unwrap)
+            .collect()
+    };
+    let channels_before = snapshot("SELECT id, name, topic, created_at FROM channels ORDER BY id");
+    let agents_before = snapshot("SELECT * FROM agents ORDER BY id");
+    let members_before = snapshot("SELECT * FROM channel_members ORDER BY rowid");
+    migrate(&conn).unwrap();
+    assert_eq!(channels_before, snapshot("SELECT id, name, topic, created_at FROM channels ORDER BY id"));
+    assert_eq!(agents_before, snapshot("SELECT * FROM agents ORDER BY id"));
+    assert_eq!(members_before, snapshot("SELECT * FROM channel_members ORDER BY rowid"));
+    assert_eq!(
+        snapshot("SELECT id, is_lobby FROM channels ORDER BY id"),
+        vec![
+            vec!["new".to_owned().into(), 0.into()],
+            vec!["old".to_owned().into(), 1.into()],
+            vec!["other".to_owned().into(), 0.into()],
+        ]
+    );
+    let flagged =
+        || conn.query_row("SELECT id FROM channels WHERE is_lobby = 1", [], |row| row.get::<_, String>(0)).unwrap();
+    assert_eq!(flagged(), "old");
+    conn.execute("UPDATE channels SET name = 'Lounge' WHERE id = 'old'", []).unwrap();
+    let changes = conn.total_changes();
+    migrate(&conn).unwrap();
+    assert_eq!(changes, conn.total_changes());
+    assert_eq!(flagged(), "old");
+    assert_eq!(conn.query_row("SELECT COUNT(*) FROM channels", [], |row| row.get::<_, i64>(0)).unwrap(), 3);
 }

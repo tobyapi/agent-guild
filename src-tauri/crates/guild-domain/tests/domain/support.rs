@@ -43,6 +43,7 @@ pub fn agent(id: &str, template: &str, name: &str) -> Agent {
 /// members は "me" かエージェント ID
 pub fn channel(id: &str, members: &[&str]) -> Channel {
     Channel {
+        is_lobby: false,
         id: ChannelId::new(id),
         name: "ロビー".to_owned(),
         topic: "雑談".to_owned(),

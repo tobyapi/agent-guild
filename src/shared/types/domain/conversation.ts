@@ -2,6 +2,8 @@ export interface Channel {
   id: string;
   name: string;
   topic: string;
+  /** 古いデータで未設定なら false として扱う */
+  isLobby?: boolean;
   /** HUMAN_ID またはエージェントID */
   memberIds: string[];
   createdAt: number;

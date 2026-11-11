@@ -44,7 +44,7 @@ pub fn run_once(services: &AppServices, meta: &dyn MetaRepository) -> Result<(),
     }
     let Starter { agent, welcome } = serde_json::from_str(STARTER)?;
     let agent = services.agents.create(agent_input(agent)?)?;
-    let lobby = services.channels.create(LOBBY_NAME, LOBBY_TOPIC, &[MemberId::Agent(agent.id)])?;
+    let lobby = services.channels.create_lobby(LOBBY_NAME, LOBBY_TOPIC, &[MemberId::Agent(agent.id)])?;
     services.conversation.post_system(&lobby.id, &welcome)?;
     meta.set(SEEDED_KEY, "1")?;
     log::info!("初期データを入れました");

@@ -143,6 +143,7 @@ export function createSeedState(
       {
         id: SEED_IDS.lobby,
         name: 'ロビー',
+        isLobby: true,
         topic: 'みんなの雑談と相談の場',
         memberIds: [HUMAN_ID, ...agents.map((agent) => agent.id)],
         createdAt,

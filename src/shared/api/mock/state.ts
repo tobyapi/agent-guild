@@ -19,6 +19,8 @@ export interface MockState {
   /** 削除済み（deletedAt あり）も含む */
   agents: Agent[];
   channels: Channel[];
+  /** 旧データへのロビーフラグ移行履歴。未定義は未適用 */
+  lobbyMigrationApplied?: boolean;
   /** seq の昇順 */
   messages: Message[];
   /** 発言に貼った画像の中身（添付の ID → data URL。Rust ではデータフォルダの attachments/） */
