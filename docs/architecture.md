@@ -123,6 +123,7 @@ agent-runner/src/
     describe.ts        ツール呼び出し → 「Web検索: …」などの表示文
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
     agent-env.ts       エージェントに渡す環境変数（秘密らしい名前の変数はコマンドから除く）
+    command-sandbox.ts, command-sandbox/  コマンドを OS の隔離の中で動かす共通の部品（Windows の MXC。docs/command-sandbox.md）
     tool-paths.ts      ファイル道具の入力からパスを取り出す部品と、パスや Glob の pattern の形だけで拒否する判定
                        （Windows のネットワークパス・代替データストリーム、起点の外を指す pattern）
     skill-files.ts     スキルを Agent Skills 標準のフォルダ（<name>/SKILL.md と付属ファイル）として書き出す

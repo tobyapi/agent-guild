@@ -1,7 +1,8 @@
 import { sandboxProcess } from './subprocess.ts';
 export { sandboxProcess } from './subprocess.ts';
 export { sandbox, seatbeltProfile, type Prepared } from './sandbox.ts';
-import { canIsolate, type Prepared } from './sandbox.ts';
+import { canIsolate, canRunCommands, type Prepared } from './sandbox.ts';
+import { windowsCommand } from './windows-command.ts';
 import { anywhere, fileTarget } from './file-target.ts';
 import { localFile } from './local-file.ts';
 // Codex の default-deny / 固定 sandbox-exec パス / 子プロセス継承を参考に独自実装。
@@ -29,7 +30,7 @@ export function toolNames(request: RunRequest): ToolName[] {
       (name === 'read_skill'
         ? p.skills
         : name === 'run_command'
-          ? p.runCommands && p.readFiles && canIsolate()
+          ? p.runCommands && p.readFiles && canRunCommands()
           : p.readFiles),
   );
 }
@@ -54,7 +55,9 @@ export function toolDefinitions(request: RunRequest): JsonObject[] {
             ? 'Write UTF-8 text; parent must exist. Without writeFiles only workspace/MEMORY.md is allowed.'
             : name === 'read_file' && !request.permissions.readFiles
               ? 'Read workspace/MEMORY.md only.'
-              : name.replaceAll('_', ' '),
+              : name === 'run_command' && !canIsolate()
+                ? 'Run one Windows PowerShell command in the workspace. No network; writes only inside the workspace.'
+                : name.replaceAll('_', ' '),
         parameters: { type: 'object', properties, required: Object.keys(properties), additionalProperties: false },
       },
     };
@@ -89,7 +92,8 @@ export async function executeTool(
   if (name === 'read_skill') return skillResult(request, args.name);
   const value = toolValue(name, args);
   if (name === 'run_command') {
-    if (!prepared.isolated) throw new BackendError('unsupported_permission', 'コマンドを隔離できない OS です');
+    // Seatbelt がなければ、Windows の隔離の中で動かす（使えない PC では実行しない）
+    if (!prepared.isolated) return windowsCommand(request, prepared.workspace, value, signal);
     return sandboxProcess(prepared.profile, prepared.workspace, '/bin/sh', ['-c', value], signal);
   }
   return executeFile(request, name, args, value, signal, prepared);

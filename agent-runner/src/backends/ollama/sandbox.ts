@@ -1,6 +1,7 @@
 import { access, mkdir, realpath } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { assertFolderScope } from '../folder-scope.ts';
+import { commandSandboxReady } from '../command-sandbox.ts';
 import { BackendError, isInside, type RunRequest } from '../types.ts';
 const SANDBOX = '/usr/bin/sandbox-exec';
 function literal(path: string): string {
@@ -40,14 +41,23 @@ export interface Prepared {
   isolated: boolean;
 }
 
-/** OS の隔離（Seatbelt）でコマンドと PC 全体への書き込みを閉じ込められるか。できない OS では、その2つを使わない */
+/** Seatbelt（macOS）で、ファイル操作・コマンド・PC 全体への書き込みをまとめて閉じ込められるか */
 export function canIsolate(platform: NodeJS.Platform = process.platform): boolean {
   return platform === 'darwin';
 }
 
 /**
- * Seatbelt のない OS では、作業場所と追加の読み取りフォルダの中のファイル操作だけを、パスの判定で守って行う
+ * コマンドを OS の隔離の中で動かせるか: macOS は Seatbelt、Windows は共通の隔離（command-sandbox.ts。MXC）が
+ * 使えると確かめ済みのとき。どちらもなければコマンドを使わない
+ */
+export function canRunCommands(): boolean {
+  return canIsolate() || commandSandboxReady();
+}
+
+/**
+ * Seatbelt のない OS では、作業場所と追加の読み取りフォルダの中のファイル操作を、パスの判定で守って行う
  * （local-file.ts）。リンクの差し替えを OS で止められないので、指定フォルダは扱わない。
+ * コマンドは、Windows の隔離が使えるときだけ、その中で動かす（windows-command.ts）。
  */
 async function unisolated(request: RunRequest): Promise<Prepared> {
   if (request.writableDirs !== undefined)

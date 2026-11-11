@@ -169,7 +169,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
         key: 'enableTools',
         label: '道具の利用を有効にする',
         description:
-          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンド（単一プロセス）と作業フォルダの外への書き込みは、隔離できる macOS だけで使います。',
+          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',
         type: 'boolean',
         choices: [],
         default: false,

@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | Claude | パスの判定で守る（canUseTool と PreToolUse。秘密の場所は除く） | パスの判定で守る | 道具の有無で守る | **Windows では隔離できない**ので、全部を許す役割（作業者）でだけ使う。ほかの役割では使わない |
 | Codex・Grok・Muse | **Windows の標準の隔離では絞れない**（下記）。秘密の場所も読める | sandbox で守る（作業場所だけ。%TEMP% も除く） | sandbox で守る | 止められない（シェルが作業の手段）。sandbox の中でだけ動く |
-| Ollama | 道具の実装で守る（macOS は Seatbelt の中、ほかの OS はパスの判定。作業場所と readableDirs だけ） | 同左（作業場所だけ。PC 全体への書き込みは macOS だけ） | Web の道具がない。コマンドのネットワークも禁止 | macOS だけ。Seatbelt の中の単一プロセス |
+| Ollama | 道具の実装で守る（macOS は Seatbelt の中、ほかの OS はパスの判定。作業場所と readableDirs だけ） | 同左（作業場所だけ。PC 全体への書き込みは macOS だけ） | Web の道具がない。コマンドのネットワークも禁止 | OS の隔離の中でだけ使う: macOS は Seatbelt の中の単一プロセス、Windows 11 は MXC の中の PowerShell（command-sandbox.md）。隔離が使えない PC では使わない |
 
 この PC（Windows）で確かめたこと:
 
@@ -44,7 +44,7 @@
 
 - Claude: コマンドを使わない（権限より狭い）。読み取りは権限どおりに守れる。
 - Codex 系: 作業フォルダの外も読める（発想役では権限より広い。専門家・マネージャーでも秘密の場所を除けない）。ネットワークは閉じているので、読んだ内容が外へ出る経路は、会話の本文と、Web を使える作業者への依頼に限られる。
-- Ollama: ファイルの読み書きとスキルは使える（道具を有効にしたとき）。コマンドと、作業者の作業フォルダの外への書き込みは使わない（権限より狭い）。
+- Ollama: ファイルの読み書きとスキルは使える（道具を有効にしたとき）。コマンドは、隔離（MXC）が使える Windows 11 では使え、使えない PC では使わない。作業者の作業フォルダの外への書き込みは使わない（権限より狭い）。
 
 ## プロンプトに紛れた指示・暴走への備え
 
@@ -60,8 +60,9 @@
 
 ## 残る差を縮めるには（未実装）
 
-どれも実機での検証が要るので、今回は入れていない。OS の隔離の作り方は [openai/codex](https://github.com/openai/codex)（Apache-2.0）の実装を参考にできる（macOS は Seatbelt、Linux は Landlock と seccomp、Windows は制限つきトークンと elevated 版。コードは転載しない）。
+どれも実際のモデルでの検証が要るので、まだ入れていない。Windows の隔離は、Codex CLI も使っている MXC（Microsoft eXecution Containers）を共通の部品として持った（command-sandbox.md）。Codex の従来方式（制限つきトークン）は、管理者設定なしでは読み取り先を絞れず、通信も実際には止まらないことをこの PC で確かめたので、参考にしない。
 
-1. **Codex 系の読み取りを絞る**: 権限プロファイル（`default_permissions` と `[permissions.<name>.filesystem]`）で、読み取りを作業場所と readableDirs（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）に限る。macOS・Linux と、elevated 版の隔離を設定した Windows で効く。効く環境では `unrestricted` から readAnywhere を外せる。`sandbox_mode` とは併用できないので、sandbox の指定をプロファイルに置き換える必要がある。
-2. **Claude のコマンドを隔離する**: macOS・Linux では SDK の `sandbox`（`enabled`・`allowUnsandboxedCommands: false`・`filesystem`・`network`）で、作業フォルダへの書き込みだけ・ネットワークなしにできる。そうすれば「コマンドは全部を許す役割でだけ」の規則を、その OS では外せる。Windows は Claude Code 側の対応待ち。
-3. **アプリ自身がコマンドの隔離を持つ**: Windows の制限つきトークンによる隔離を Codex の実装を参考に用意すれば、Claude・Ollama の作業者以外の役割でもコマンドを使える。読み取りを絞るには elevated 版に相当する仕組み（別ユーザーと ACL）が要る。
+1. **Claude の作業者以外の役割に、隔離の中で動くコマンドの道具を渡す**: Claude 内蔵の Bash は隔離の中に入れられないので、アプリ側の道具（共通の隔離で動かすもの）に置き換える。そうすれば「コマンドは全部を許す役割でだけ」の規則を、隔離が使える PC では外せる。読み取りの範囲は役割どおり（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）にできる。
+2. **Codex 系の読み取りを絞る**: Codex に MXC を使わせ（`windows.sandbox = "mxc"`）、権限プロファイル（`default_permissions` と `[permissions.<name>.filesystem]`）で、読み取りを作業場所と readableDirs（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）に限る。この PC では、Codex CLI の `sandbox` コマンドで読み取りの制限が効くことを確かめた。効く環境では `unrestricted` から readAnywhere を外せる。`sandbox_mode` とは併用できないので、sandbox の指定をプロファイルに置き換える必要がある。
+3. **Ollama の指定フォルダのチャンネルと、作業フォルダの外への書き込みを Windows でも使う**: ファイル操作も共通の隔離の中で行えば、macOS の Seatbelt と同じく OS が範囲を守る形にできる。
+4. **macOS・Linux でも共通の隔離を使う**: MXC は macOS（Seatbelt）と Linux（bubblewrap）にも対応しているが、試していない。macOS の Ollama は自前の Seatbelt の設定を使い続けている。

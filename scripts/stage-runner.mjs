@@ -3,13 +3,14 @@
 // node_modules に写す。写すのは、まとめた JS が読み込むパッケージと、その dependencies・peerDependencies をたどったもの
 // （手書きの一覧にすると、SDK が前提にする zod などが漏れる）。OS ごとの実行ファイルのパッケージ（optionalDependencies）は
 // 入れない: Claude Code と Codex CLI は、ランナーが利用者の環境に入っているものを探して使う。
+// Windows 向けには、コマンドの隔離の実行ファイル（@microsoft/mxc-sdk の wxc-exec.exe）だけを同じ並びで入れる。
 // 最後に、まとめたものから各パッケージを実際に読み込んで確かめ、足りなければ失敗する。
 
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { stageNode } from './stage-node.mjs';
+import { buildTarget, stageNode } from './stage-node.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'src-tauri', 'bundled-runner');
@@ -77,6 +78,24 @@ function verifyImports(specifiers) {
   }
 }
 
+/**
+ * Windows 向けの配布物に、コマンドの隔離の実行ファイルを入れる（command-sandbox.ts が探す
+ * node_modules/@microsoft/mxc-sdk/bin/<arch>/wxc-exec.exe。SDK 本体と、ほかの OS・CPU 用のファイルは入れない）
+ */
+function stageSandboxExecutable() {
+  const target = buildTarget();
+  if (!target.includes('windows')) return;
+  const arch = target.startsWith('aarch64') ? 'arm64' : 'x64';
+  const from = join(ROOT, 'node_modules', '@microsoft', 'mxc-sdk');
+  const to = join(OUT, 'node_modules', '@microsoft', 'mxc-sdk');
+  for (const file of ['package.json', 'LICENSE.md', join('bin', arch, 'wxc-exec.exe')]) {
+    if (!existsSync(join(from, file)))
+      throw new Error(`${join(from, file)} がありません。先に npm ci を実行してください`);
+    mkdirSync(dirname(join(to, file)), { recursive: true });
+    cpSync(join(from, file), join(to, file));
+  }
+}
+
 rmSync(OUT, { recursive: true, force: true });
 const tsc = join(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 execFileSync(process.execPath, [tsc, '-p', join(ROOT, 'agent-runner', 'tsconfig.build.json')], { stdio: 'inherit' });
@@ -93,6 +112,7 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const trimmed = { name: manifest.name, version: manifest.version, type: manifest.type, private: true };
 writeFileSync(manifestPath, `${JSON.stringify(trimmed, null, 2)}\n`);
 
+stageSandboxExecutable();
 verifyImports(specifiers);
 await stageNode(OUT);
 console.log(`agent-runner を ${OUT} にまとめました（パッケージ ${packages.length} 個: ${packages.join(', ')}）`);

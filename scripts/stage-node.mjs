@@ -20,10 +20,15 @@ const RELEASES = {
   ],
 };
 
+/** ビルド対象（Tauri が渡すもの。なければこのマシンの対象） */
+export function buildTarget() {
+  return (
+    process.env.TAURI_ENV_TARGET_TRIPLE ?? execFileSync('rustc', ['--print', 'host-tuple'], { encoding: 'utf8' }).trim()
+  );
+}
+
 export async function stageNode(out) {
-  const target =
-    process.env.TAURI_ENV_TARGET_TRIPLE ??
-    execFileSync('rustc', ['--print', 'host-tuple'], { encoding: 'utf8' }).trim();
+  const target = buildTarget();
   if (!Object.hasOwn(RELEASES, target)) throw new Error(`Node.js の同梱に対応していないビルド対象です: ${target}`);
   const [asset, sha256] = RELEASES[target];
   const filename = `node-${VERSION}-${asset}`;

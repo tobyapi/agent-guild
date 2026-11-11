@@ -80,7 +80,7 @@ GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）�
 
 ## ライセンス
 
-ソフトウェアは [MIT](LICENSE) です。同梱のイラストには作者の利用条件が適用されます。
+ソフトウェアは [MIT](LICENSE) です。同梱のイラストには作者の利用条件が適用されます。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
 
 ## 謝辞
 

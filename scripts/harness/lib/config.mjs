@@ -49,6 +49,7 @@ export const RUNNER_BACKEND_COMMON_MODULES = new Set([
   'codex-runtime',
   'folder-scope',
   'tool-paths',
+  'command-sandbox',
 ]);
 /** アダプタを束ねる登録表（アダプタではないが、アダプタから import してもいけない） */
 export const RUNNER_BACKEND_REGISTRY = 'registry';

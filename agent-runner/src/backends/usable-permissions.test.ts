@@ -66,7 +66,8 @@ describe.each(BACKENDS)('%s: 256 通りの権限のどれを渡されても', (i
   });
 });
 
-describe('Ollama は、隔離できない OS ではコマンドと PC 全体への書き込みを使わない', () => {
+// このテストでは Windows の隔離（MXC）を確かめていないので、コマンドは使えない扱いになる（使える PC での申告は ollama/windows-command.test.ts）
+describe('Ollama は、隔離できない PC ではコマンドと PC 全体への書き込みを使わない', () => {
   const worker = cases.find((example) => example.name === '作業者 / ollama')!;
   const usableOn = (platform: NodeJS.Platform) => {
     const original = process.platform;

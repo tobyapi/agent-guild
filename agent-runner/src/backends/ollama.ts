@@ -6,7 +6,8 @@ import { prepareSkills } from './ollama/skills.ts';
 import { jsonChat } from './ollama/json-chat.ts';
 import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
 import { toolChat } from './ollama/chat.ts';
-import { canIsolate } from './ollama/sandbox.ts';
+import { prepareCommandSandbox } from './command-sandbox.ts';
+import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
 
 const NO_TOOLS: Permissions = {
   webSearch: false,
@@ -36,6 +37,8 @@ function modelSpec(model: LocalModel): ModelSpec {
 }
 
 async function probe(): Promise<BackendProbe> {
+  // コマンドの隔離が使えるかを先に確かめる（能力の申告 info() が、この結果を使う）
+  await prepareCommandSandbox();
   try {
     const models = (await localChatModels()).map(modelSpec);
     return {
@@ -68,7 +71,10 @@ async function run(request: RunRequest, context: RunContext): Promise<string> {
   const enabled = request.options.enableTools === true;
   // 道具を有効にしていなければ会話だけ（役割の権限があっても、どの操作も使わない）
   if (!enabled) request = { ...request, permissions: NO_TOOLS };
-  if (enabled) validatePermissions(request);
+  if (enabled) {
+    validatePermissions(request);
+    await prepareCommandSandbox();
+  }
   const models = await localChatModels(signal);
   const model = request.model === '' ? models[0] : models.find((candidate) => candidate.id === request.model);
   if (!model)
@@ -111,13 +117,13 @@ export const ollamaAdapter: BackendAdapter = {
     capabilities: {
       webSearch: false,
       webFetch: false,
-      // ファイルとスキルは、どの OS でも作業場所の範囲をパスの判定で守って使う。コマンドと PC 全体への書き込みは、
-      // OS の隔離（macOS の Seatbelt）で閉じ込められるときだけ使う
+      // ファイルとスキルは、どの OS でも作業場所の範囲をパスの判定で守って使う。コマンドは OS の隔離
+      // （macOS の Seatbelt・Windows の MXC）の中でだけ、PC 全体への書き込みは Seatbelt があるときだけ使う
       readFiles: true,
       readAnywhere: false,
       writeFiles: true,
       writeAnywhere: canIsolate(),
-      runCommands: canIsolate(),
+      runCommands: canRunCommands(),
       skills: true,
     },
     options: [
@@ -134,7 +140,7 @@ export const ollamaAdapter: BackendAdapter = {
         key: 'enableTools',
         label: '道具の利用を有効にする',
         description:
-          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンド（単一プロセス）と作業フォルダの外への書き込みは、隔離できる macOS だけで使います。',
+          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',
         type: 'boolean',
         choices: [],
         default: false,

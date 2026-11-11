@@ -32,7 +32,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
 **権限は役割だけで決まり、どのバックエンドでも同じ**（保存する値・Snapshot の `permissions`・ランナーへ渡す値のどれも）。バックエンドごとに違ってよいのは「その AI で実際に使える操作（実効権限）」だけで、道具がない操作（`capabilities`）と、単独では守れない操作（`permissionRules`）を、依存関係が収束するまで取り除いて求める。許可を追加して解決しない。実効権限はプロンプトの「できること」と画面の表示に使い、ランナーは渡された権限から同じ規則で自分でも取り除く（§5。考え方と各バックエンドの守り方は role-permissions.md）。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
-専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。Ollamaのファイル・スキルの道具はどの OS でも使え、コマンドと作業フォルダの外への書き込みは、Seatbelt で隔離できる macOS だけで使う（ollama-tools.md）。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
+専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。Ollamaのファイル・スキルの道具はどの OS でも使える。コマンドは OS の隔離の中でだけ使い（macOS の Seatbelt と、対応する Windows 11 の MXC。command-sandbox.md）、作業フォルダの外への書き込みは Seatbelt のある macOS だけで使う（ollama-tools.md）。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
