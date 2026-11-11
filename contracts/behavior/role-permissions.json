@@ -41,13 +41,13 @@
     "backend": "ollama",
     "permissions": {
       "webSearch": false,
-      "webFetch": false,
-      "readFiles": false,
+      "webFetch": true,
+      "readFiles": true,
       "readAnywhere": false,
-      "writeFiles": false,
-      "writeAnywhere": false,
-      "runCommands": false,
-      "skills": false
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -127,12 +127,12 @@
     "permissions": {
       "webSearch": false,
       "webFetch": false,
-      "readFiles": false,
-      "readAnywhere": false,
-      "writeFiles": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
       "writeAnywhere": false,
-      "runCommands": false,
-      "skills": false
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -144,12 +144,12 @@
     "permissions": {
       "webSearch": false,
       "webFetch": false,
-      "readFiles": false,
+      "readFiles": true,
       "readAnywhere": false,
-      "writeFiles": false,
+      "writeFiles": true,
       "writeAnywhere": false,
-      "runCommands": false,
-      "skills": false
+      "runCommands": true,
+      "skills": true
     }
   },
   {
@@ -195,12 +195,12 @@
     "permissions": {
       "webSearch": false,
       "webFetch": false,
-      "readFiles": false,
-      "readAnywhere": false,
-      "writeFiles": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
       "writeAnywhere": false,
-      "runCommands": false,
-      "skills": false
+      "runCommands": true,
+      "skills": true
     }
   },
   {

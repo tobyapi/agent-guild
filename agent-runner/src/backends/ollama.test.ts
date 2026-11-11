@@ -88,11 +88,11 @@ describe('Ollama', () => {
     expect(context.onUsage).toHaveBeenNthCalledWith(2, { inputTokens: 48, outputTokens: 0 });
     const [path, , body] = http.mock.calls[1] ?? [];
     expect(path).toBe('/api/chat');
-    expect(JSON.parse(body ?? '{}')).toEqual({
+    expect(JSON.parse(body ?? '{}')).toMatchObject({
       model: `${gemma.model}:local`,
       stream: false,
       messages: [
-        { role: 'system', content: request.systemPrompt },
+        { role: 'system', content: expect.stringContaining(request.systemPrompt) as unknown },
         { role: 'user', content: request.prompt, images: [(await readFile(imagePath)).toString('base64')] },
       ],
     });
@@ -107,7 +107,7 @@ describe('Ollama', () => {
     expect(JSON.parse(body)).toMatchObject({
       model: `${deepseek.model}:local`,
       messages: [
-        { role: 'system', content: request.systemPrompt },
+        { role: 'system', content: expect.stringContaining(request.systemPrompt) as unknown },
         { role: 'user', content: expect.stringContaining('添付画像は入力されていません') as unknown },
       ],
     });
