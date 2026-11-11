@@ -26,7 +26,11 @@
         "connect-src": "'self' ipc: http://ipc.localhost https://genderswapai.com/images/ai-gijinka/",
         "img-src": "'self' data: blob:",
         "style-src": "'self' 'unsafe-inline'",
-        "font-src": "'self' data:"
+        "font-src": "'self' data:",
+        "object-src": "'none'",
+        "frame-src": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'"
       },
       "dangerousDisableAssetCspModification": ["style-src"]
     }

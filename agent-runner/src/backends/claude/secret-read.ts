@@ -1,8 +1,8 @@
-// readAnywhere の拡張範囲を点検し、共通の Glob 絶対パス拒否理由を提供する。writeAnywhere は対象外。
+// readAnywhere の拡張範囲を点検する（秘密の場所の一覧は secret-roots.ts）。writeAnywhere は対象外。
 import { lstat, opendir, realpath } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { isInside } from '../types.ts';
+import { secretRoots } from './secret-roots.ts';
 
 /** 再帰検索の事前点検はメタデータのみ。点検しきれなければ許可しない。 */
 const SEARCH_ENTRY_LIMIT = 10_000;
@@ -33,78 +33,13 @@ async function physical(path: string): Promise<string> {
 }
 
 /** 場所を問わない秘密ファイル名。親の名前にも適用し、同名のディレクトリ経由を拒否する。 */
-function secretName(name: string): boolean {
+function secretName(raw: string): boolean {
+  // Windows は名前の末尾の「.」と空白を捨てて開くので、捨てた形で比べる（`key.pem.` は `key.pem` を開く）
+  const name = process.platform === 'win32' ? raw.replace(/[. ]+$/, '') : raw;
   return (
     /^(?:\.env(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519).*|guild\.db(?:[-.].*)?)$/i.test(name) ||
     /\.(?:pem|key|p12|pfx)$/i.test(name)
   );
-}
-
-function secretRoots(): string[] {
-  const home = homedir();
-  const library = join(home, 'Library');
-  const codex = process.env.CODEX_HOME || join(home, '.codex');
-  const claude = process.env.CLAUDE_CONFIG_DIR || join(home, '.claude');
-  return [
-    ...[
-      '.ssh',
-      '.gnupg',
-      '.aws',
-      '.azure',
-      '.kube',
-      '.docker',
-      '.config/gcloud',
-      '.config/gh',
-      '.netrc',
-      '.npmrc',
-      '.pypirc',
-      '.git-credentials',
-      '.claude.json',
-      '.zsh_history',
-      '.zsh_history.new',
-      '.bash_history',
-      '.zsh_sessions',
-      '.bash_sessions',
-    ].map((path) => join(home, path)),
-    ...[join(home, '.codex'), codex].flatMap((dir) => ['auth.json', 'config.toml'].map((file) => join(dir, file))),
-    ...[join(home, '.claude'), claude].flatMap((dir) =>
-      ['.credentials.json', 'settings.json', 'settings.local.json'].map((file) => join(dir, file)),
-    ),
-    ...[
-      'Keychains',
-      'Cookies',
-      'Mail',
-      'Messages',
-      'Safari',
-      'Accounts',
-      'Containers/com.apple.Safari',
-      'Containers/com.apple.mail',
-      'Containers/com.apple.MobileSMS',
-      'Group Containers/group.com.apple.notes',
-      'Group Containers/group.com.apple.mail',
-      'Group Containers/group.com.apple.messages',
-      'Group Containers/group.com.apple.Safari',
-      'Application Support/Google/Chrome',
-      'Application Support/Google/Chrome Beta',
-      'Application Support/Google/Chrome Canary',
-      'Application Support/Chromium',
-      'Application Support/Microsoft Edge',
-      'Application Support/BraveSoftware',
-      'Application Support/Firefox',
-      'Application Support/Arc',
-      'Application Support/Vivaldi',
-      'Application Support/Opera',
-      'Application Support/com.operasoftware.Opera',
-      'Application Support/Zen',
-      'Application Support/Dia',
-      'Application Support/com.apple.TCC',
-      'Application Support/com.agentguild.app/settings.json',
-      'Application Support/com.agentguild.app/settings.json.tmp',
-      'WebKit/com.agentguild.app',
-      'HTTPStorages/com.agentguild.app',
-      'Caches/com.agentguild.app',
-    ].map((path) => join(library, path)),
-  ];
 }
 
 async function originalReadable(target: string, actual: string, roots: readonly string[]): Promise<boolean> {
@@ -118,13 +53,6 @@ function safeSearchPattern(tool: string, input: Record<string, unknown>): boolea
   if (tool !== 'Glob') return true;
   const pattern = input.pattern;
   return typeof pattern === 'string' && !isAbsolute(pattern) && !/\.\.|[\\{}~]/.test(pattern);
-}
-
-/** Glob は絶対 pattern で path を無視できるため、読み取り範囲の許可より前に使う。 */
-export function absoluteGlobDenial(tool: string, input: Record<string, unknown>): string | null {
-  return tool === 'Glob' && typeof input.pattern === 'string' && isAbsolute(input.pattern)
-    ? 'Glob の絶対パス pattern は使えません。path に起点、pattern に相対パターンを指定してください'
-    : null;
 }
 
 /** 拒否理由に子の名前やパスを含めない。検索の点検は内容を開かない。 */

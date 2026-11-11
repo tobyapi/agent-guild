@@ -18,6 +18,18 @@ pub const ATTACHMENTS_DIR: &str = "attachments";
 const APP: &str = "agent-guild";
 pub const LAYOUT_VERSION: u32 = 1;
 
+/// ID などをフォルダ名・ファイル名の1要素として使える形にする（英数字・ハイフン・アンダースコア以外は "_"）。
+/// 区切りや ".."、Windows のドライブ名・予約文字が残らないので、結合しても親フォルダの外を指さない
+pub fn safe_component(name: &str) -> String {
+    let safe: String =
+        name.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' }).collect();
+    if safe.is_empty() {
+        "_".to_owned()
+    } else {
+        safe
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Marker {

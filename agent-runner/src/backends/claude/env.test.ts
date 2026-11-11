@@ -13,7 +13,7 @@ describe('claudeEnv', () => {
       ANTHROPIC_API_KEY: 'a',
       CLAUDE_CODE_OAUTH_TOKEN: 't',
     };
-    expect(claudeEnv(env)).toEqual({
+    expect(claudeEnv(env, 'linux')).toEqual({
       PATH: '/bin',
       ANTHROPIC_API_KEY: 'a',
       CLAUDE_CODE_OAUTH_TOKEN: 't',
@@ -21,10 +21,19 @@ describe('claudeEnv', () => {
     });
   });
 
+  it('Windows では、作業場所に置かれた同じ名前のプログラムを PATH より先に探させない', () => {
+    expect(claudeEnv({ PATH: 'C:\\Windows' }, 'win32')).toEqual({
+      PATH: 'C:\\Windows',
+      ENABLE_CLAUDEAI_MCP_SERVERS: 'false',
+      NoDefaultCurrentDirectoryInExePath: '1',
+    });
+    expect(claudeEnv({}, 'darwin')).not.toHaveProperty('NoDefaultCurrentDirectoryInExePath');
+  });
+
   it('クラウド事業者経由なら、その事業者の資格情報も残す', () => {
     const aws = { AWS_SECRET_ACCESS_KEY: 's', AWS_REGION: 'us-east-1' };
-    expect(claudeEnv(aws)).toEqual({ AWS_REGION: 'us-east-1', ENABLE_CLAUDEAI_MCP_SERVERS: 'false' });
-    expect(claudeEnv({ ...aws, CLAUDE_CODE_USE_BEDROCK: '1' })).toEqual({
+    expect(claudeEnv(aws, 'linux')).toEqual({ AWS_REGION: 'us-east-1', ENABLE_CLAUDEAI_MCP_SERVERS: 'false' });
+    expect(claudeEnv({ ...aws, CLAUDE_CODE_USE_BEDROCK: '1' }, 'linux')).toEqual({
       ...aws,
       CLAUDE_CODE_USE_BEDROCK: '1',
       ENABLE_CLAUDEAI_MCP_SERVERS: 'false',

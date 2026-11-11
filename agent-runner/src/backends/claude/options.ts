@@ -7,7 +7,7 @@ import { optionChoice, optionPositiveInt, type RunRequest } from '../types.ts';
 import { CHECKED_TOOLS, checkedPolicy, checksOperations } from './check.ts';
 import { claudeEnv } from './env.ts';
 import { claudeJudge } from './judge.ts';
-import { fileAccessPolicy } from './permissions.ts';
+import { fileAccessHook, fileAccessPolicy } from './permissions.ts';
 import { POST_SERVER, POST_TOOL, postServer } from './post.ts';
 import { isolatedToolOptions, toolsFor } from './tool-policy.ts';
 export { toolsFor } from './tool-policy.ts';
@@ -43,7 +43,8 @@ export function claudeOptions(
   const checking = checksOperations(request);
   const preApproved = (tool: string) => PATHLESS_TOOLS.has(tool) && !(checking && tool in CHECKED_TOOLS);
   return {
-    ...isolatedToolOptions([...tools, POST_TOOL], request),
+    // ファイル道具のパスの判定は、canUseTool が呼ばれない（Claude Code が確認なしで通す）呼び出しにも PreToolUse で適用する
+    ...isolatedToolOptions([...tools, POST_TOOL], request, [fileAccessHook(request)]),
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],

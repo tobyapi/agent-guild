@@ -3,6 +3,7 @@
 mod clock;
 mod data_folder;
 mod export;
+mod path_components;
 mod settings_workspace;
 mod skill_library;
 

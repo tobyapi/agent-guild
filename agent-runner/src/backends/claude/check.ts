@@ -41,7 +41,7 @@ export function operationOf(toolName: string, input: Record<string, unknown>, wo
       ]),
     };
   if (!WRITE_TOOLS.has(toolName)) return null;
-  const target = targetOf(input, workspace);
+  const target = targetOf(toolName, input, workspace);
   if (isInside(target, workspace)) return null;
   const content = Object.fromEntries(
     Object.entries(input).filter(([key]) => key !== 'file_path' && key !== 'notebook_path'),

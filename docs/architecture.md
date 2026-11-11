@@ -26,11 +26,11 @@ src-tauri/
       sqlite/                  接続・マイグレーション（0001）・各リポジトリ・meta
       runtime/                 AgentRuntime を runner-client で実装（Launch の組み立てもここ）
       workspace.rs             作業場所（work/・state/ の用意、MEMORY.md、削除の再試行、ファイラで開く）
-      attachments.rs           発言に添えた画像・ファイルの置き場所（attachments/<channelId>/<id>.<拡張子>）
+      attachments.rs           発言に添えた画像・ファイルの置き場所（attachments/<channelId>/<id>.<拡張子>。ID は data_dir.rs の safe_component を通す）
       skill_library.rs         スキルライブラリのフォルダの走査と SKILL.md の読み取り（読むだけで書き換えない）
       events.rs                EventPublisher を Tauri の emit で実装
       settings.rs              settings.json（version 付き・未知フィールド保持）
-      data_dir.rs              guild-data.json（ギルドのデータである印）と .lock（多重起動防止）
+      data_dir.rs              guild-data.json（ギルドのデータである印）と .lock（多重起動防止）、ID をフォルダ名にするときの safe_component
       export.rs                今のデータの書き出し（VACUUM INTO とフォルダのコピー）
       folders.rs, file_manager.rs  保存先の候補の調査と、OS のファイラで開くこと
       logging.rs               ログの出し先（配布版は <app_log_dir>/agent-guild.log）
@@ -123,6 +123,8 @@ agent-runner/src/
     describe.ts        ツール呼び出し → 「Web検索: …」などの表示文
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
     agent-env.ts       エージェントに渡す環境変数（秘密らしい名前の変数はコマンドから除く）
+    tool-paths.ts      ファイル道具の入力からパスを取り出す部品と、パスや Glob の pattern の形だけで拒否する判定
+                       （Windows のネットワークパス・代替データストリーム、起点の外を指す pattern）
     skill-files.ts     スキルを Agent Skills 標準のフォルダ（<name>/SKILL.md と付属ファイル）として書き出す
                        （リンク先からのコピーは skill-files/assets.ts、内蔵スキルの files は skill-files/bundled.ts）
 ```

@@ -1,4 +1,4 @@
-// シンボリックリンクを通じた作業場所外への書き込みも拒否する。
+// シンボリックリンク（Windows のジャンクションを含む）を通じた、許した範囲の外への読み書きを拒否する。
 import { lstat, realpath } from 'node:fs/promises';
 import { dirname, basename, join } from 'node:path';
 import { isInside } from '../types.ts';
@@ -20,11 +20,22 @@ async function resolvedTarget(path: string): Promise<string> {
   }
 }
 
-export async function writableInWorkspace(target: string, workspace: string): Promise<boolean> {
-  if (!isInside(target, workspace)) return false;
+/** target が roots のどれかの中にあり、リンクをたどった実体も同じ root の中にあるか */
+export async function insideRoots(target: string, roots: readonly string[]): Promise<boolean> {
+  const lexical = roots.filter((root) => isInside(target, root));
+  if (lexical.length === 0) return false;
   try {
-    return isInside(await resolvedTarget(target), await realpath(workspace));
+    const actual = await resolvedTarget(target);
+    for (const root of lexical) {
+      // root がまだ無いとき（実行前に Rust が作るので通常はある）も、既存の親までの実体で比べる
+      if (isInside(actual, await resolvedTarget(root))) return true;
+    }
+    return false;
   } catch {
     return false;
   }
+}
+
+export function writableInWorkspace(target: string, workspace: string): Promise<boolean> {
+  return insideRoots(target, [workspace]);
 }

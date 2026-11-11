@@ -55,9 +55,9 @@ Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒
 - 作業者の writeAnywhere は維持する。発想役等の writeAnywhere のない役割では、従来通っていた絶対 Glob pattern を拒否する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
 - パスの事前判定なので、判定後・検索点検後に別プロセスがファイルやリンクを差し替える競合（TOCTOU）を OS の境界として止められない。除外先の実体の変更もポリシー再作成までは追従しない。ハードリンク、別名コピー、別マウントによる別経路は内容の由来を判別できない。
 - 一覧外のブラウザ・独自プロファイル、別名の認証ファイル、認証設定のバックアップ等を網羅する保証はない。
-- Chrome Beta/Canary の標準プロファイルと、~/.zsh_history・.zsh_history.new・.bash_history・.zsh_sessions・.bash_sessions は追加済み。履歴の任意の移動先（HISTFILE・ZDOTDIR）や別名のバックアップ、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の保存先の一覧もない。共通の ~/.xxx と秘密名の規則はあるが、他OSを網羅する除外ではない。
+- Chrome Beta/Canary の標準プロファイルと、~/.zsh_history・.zsh_history.new・.bash_history・.zsh_sessions・.bash_sessions は追加済み。履歴の任意の移動先（HISTFILE・ZDOTDIR）や別名のバックアップ、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の既定の保存先は、下の「Windows・Linux の場所と、パスの形による拒否」で追加した（網羅ではない）。
 - アプリの attachments/<channelId> と agents/*/state は場所で除外していない。会話・添付を含む可能性があり、今回の追加可否は未決。MEMORY.md 等の共有とも合わせて A で分離が必要。
-- Grep 等に複数のパス項目を渡した場合の SDK による検証は未確認（レビュー R5）。道具別の入力制限は今回追加していない。
+- Grep 等に複数のパス項目を渡した場合（レビュー R5）は、下の節のとおり道具が使う項目だけで判定し、ほかの項目つきの呼び出しを拒否するようにした。
 - エージェント間の作業フォルダとメモは共有状態のまま。会話本文や、マネージャーからWebを使える作業者への依頼文を通じた持ち出しも残る。
 - canUseTool の経路のテストであり、SDK/CLI による暗黙の読み取りを OS レベルで拒否する検証ではない。実モデルを使った有料の通し実行、Windows実機検証は未実施。
 
@@ -71,3 +71,35 @@ Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒
 - Bash: このmacOSの /bin/bash --noprofile --norc -ic で設定だけを確認した標準 HISTFILE（値はホーム直下 .bash_history）。表示したのは HISTFILE の保存先だけで、履歴本文は表示・収集していない。対話シェル自身の起動時読み込みはこの確認から除外できない。
 - Terminal のセッション履歴: /etc/zshrc_Apple_Terminal:102,190-192 と /etc/bashrc_Apple_Terminal:99,187-189。.zsh_sessions と .bash_sessions 全体を除外する（履歴のほかセッション復元用の状態も入りうるため）。
 - 他のシェル、履歴の独自保存先、Chrome Dev/Testing は今回の依頼対象に足していない。
+
+## 2026-11-11 Windows・Linux の場所と、パスの形による拒否
+
+一覧は `claude/secret-roots.ts` に分けた。OS で分けずに全部を並べる（その OS にない場所は何にも当たらない）。追加した場所は公開されている既定の保存先から選んだもので、実際のファイルの内容は見ていない。網羅はしない。
+
+| 対象 | 理由 |
+|---|---|
+| %APPDATA%（と ~/AppData/Roaming）の Microsoft/Credentials・Protect・Crypto・SystemCertificates・Vault | Windows の資格情報と、それを守る鍵 |
+| %APPDATA% の Microsoft/Windows/PowerShell/PSReadLine | PowerShell の履歴 |
+| %APPDATA% の Mozilla/Firefox、Opera Software、zen、Thunderbird、Slack、discord、Telegram Desktop、Signal、Microsoft/Teams、Claude、1Password、Bitwarden | ブラウザ・メール・チャット・パスワード管理のプロファイル（ログイン状態を含む） |
+| %APPDATA% の gcloud、GitHub CLI | CLI の認証 |
+| %APPDATA%/com.agentguild.app/settings.json、settings.json.tmp | アプリの設定（macOS と同じ扱い） |
+| %LOCALAPPDATA%（と ~/AppData/Local）の Google/Chrome・Chrome Beta・Chrome SxS、Microsoft/Edge・Edge Beta・Edge Dev・Edge SxS、Chromium、Vivaldi の User Data、BraveSoftware、Mozilla/Firefox、Opera Software | ブラウザのプロファイル |
+| %LOCALAPPDATA% の Microsoft/Credentials・Vault・OneAuth・IdentityCache・TokenBroker、Microsoft/Windows/INetCookies・WebCache・History、1Password | OS とアカウントの認証の控え、Cookie と履歴 |
+| %LOCALAPPDATA%/com.agentguild.app/EBWebView、logs | アプリの WebView のデータと、ログ（Claude Code の出力を含む）。同じフォルダの data/（エージェントの作業場所）は除外しない |
+| ~/.config（と XDG_CONFIG_HOME）の google-chrome・google-chrome-beta・google-chrome-unstable・chromium・microsoft-edge・BraveSoftware・vivaldi・opera・Slack・discord、git/credentials、op、rclone、doctl、configstore、com.agentguild.app/settings.json | Linux のブラウザとチャットのプロファイル、CLI の認証、アプリの設定 |
+| ~/.mozilla、~/.thunderbird、~/snap/firefox、~/snap/chromium、~/.local/share/keyrings | Linux のブラウザ・メール・鍵束 |
+| ~/_netrc、.pgpass、.my.cnf、.vault-token、.oci、.password-store、.terraform.d、.terraformrc、.cargo/credentials(.toml)、.gem/credentials、.m2/settings.xml、.gradle/gradle.properties | 認証情報を含みうる設定（_netrc は Windows での .netrc の名前） |
+| ~/.python_history、.node_repl_history、.psql_history、.mysql_history、.sqlite_history | 対話環境の履歴 |
+| ~/Library/Logs/com.agentguild.app、~/.local/share/com.agentguild.app/logs、~/.cache/com.agentguild.app | アプリのログとキャッシュ |
+
+パスの形による拒否（`backends/tool-paths.ts`。readAnywhere の有無に関係なく、秘密の場所の判定より先に行う）:
+
+- **道具が使う項目だけで判定する**。これまでは file_path・notebook_path・path の最初にあったものを判定していたので、Grep に `file_path`（作業場所の中）と `path`（秘密の場所）を一緒に渡すと、判定と実際の検索先が食い違えた。道具が使わない項目に値があれば拒否する（「残る制約」の R5 への対応）。
+- **Windows の `\\` で始まるパス**（`\\server\share`・`\\?\`・`\\.\`）はどの役割でも拒否する。ネットワークパスは開こうとするだけで相手のサーバーへ Windows の認証つきで接続するので、Web の権限がない役割でも外へ通信でき、認証の情報も渡る。realpath での解決より前に拒否するので、接続は起きない。`\\?\` は同じ場所の別の書き方で、場所の比較をすり抜ける。
+- **Windows の「:」を含むパス**（代替データストリーム。`key.pem::$DATA` は `key.pem` の中身を開く）はどの役割でも拒否する。名前の末尾の「.」と空白は Windows が捨てて開くので、秘密の名前の判定でも捨てた形で比べる。
+- **Glob の pattern**（writeAnywhere のない役割）: 絶対パスに加えて、ドライブ名つき（`D:secret/*`）・`..`・展開で `..` や絶対パスを作れる波括弧（中に「.」「/」「\」「:」「~」か空の選択肢があるもの）を拒否する。これまでは作業場所を起点にした `../../**` で、範囲の外（秘密の場所を含む）のファイル名を一覧できた。`**/*.{ts,tsx}` のような指定は通る。
+- **リンクをたどった読み取り**（readAnywhere のない役割）: 作業場所・readableDirs の中にあっても、リンク（Windows のジャンクションを含む）をたどった実体が外にあれば拒否する。MEMORY.md の例外も、実体が作業場所の中にあるときだけ。
+
+- **PreToolUse でも同じ判定をする**（`fileAccessHook`）。Claude Code は作業場所の中の読み取りや検索を確認なしで通し、そのとき canUseTool は呼ばれない。作業場所を起点にした `../../**` や、中のリンクを通る読み取りはこの経路に入るので、ファイル道具の判定全体をフックでも行い、拒否だけを返す（許可は返さないので、操作の確認などは従来どおり canUseTool を通る）。範囲外の検索は canUseTool とフックの両方で点検するので、事前点検が2回走る。
+
+残る制約: 一覧にない保存先（Arc for Windows のようなストアアプリ、独自の場所に置いたプロファイル）は除外されない。Windows の 8.3 形式の短い名前は、ファイルがあれば realpath で長い名前に直って判定されるが、存在しないパスでは直らない。Codex には引き続き効かない。

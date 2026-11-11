@@ -10,10 +10,22 @@ const PROVIDER_PREFIXES: readonly (readonly [string, readonly string[]])[] = [
   ['CLAUDE_CODE_USE_FOUNDRY', ['AZURE_']],
 ];
 
-export function claudeEnv(env: NodeJS.ProcessEnv): Record<string, string> {
+/**
+ * Windows は、フォルダを付けずに呼んだプログラム（git など）を PATH より先に「いまのフォルダ」から探す。
+ * Claude Code は作業場所をいまのフォルダにして動くので、エージェントが作業場所に置いた同じ名前のファイルが、
+ * コマンドの実行を許していない役割でも動いてしまう。この変数があると cmd.exe などはいまのフォルダを探さない
+ * （https://learn.microsoft.com/windows/win32/api/processenv/nf-processenv-needcurrentdirectoryforexepathw）。
+ */
+const NO_CWD_SEARCH = 'NoDefaultCurrentDirectoryInExePath';
+
+export function claudeEnv(
+  env: NodeJS.ProcessEnv,
+  platform: NodeJS.Platform = process.platform,
+): Record<string, string> {
   const prefixes = ['ANTHROPIC_', 'CLAUDE_', ...PROVIDER_PREFIXES.flatMap(([flag, kept]) => (env[flag] ? kept : []))];
   return {
     ...withoutSecrets(env, (name) => prefixes.some((prefix) => name.toUpperCase().startsWith(prefix))),
     ENABLE_CLAUDEAI_MCP_SERVERS: 'false',
+    ...(platform === 'win32' ? { [NO_CWD_SEARCH]: '1' } : {}),
   };
 }

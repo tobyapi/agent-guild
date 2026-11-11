@@ -68,10 +68,11 @@ export function registeredToolsHook(tools: readonly string[]): HookCallback {
   };
 }
 
-/** 通常実行と、道具を一切使わない判定用モデルに同じ抑止を適用する。 */
+/** 通常実行と、道具を一切使わない判定用モデルに同じ抑止を適用する。extraHooks は通常実行のパスの判定（permissions.ts）。 */
 export function isolatedToolOptions(
   tools: readonly string[],
   request?: RunRequest,
+  extraHooks: readonly HookCallback[] = [],
 ): Pick<Options, 'strictMcpConfig' | 'hooks'> {
   return {
     strictMcpConfig: true,
@@ -81,6 +82,7 @@ export function isolatedToolOptions(
           hooks: [
             registeredToolsHook(tools),
             ...(request?.writableDirs === undefined ? [] : [folderFileHook(request)]),
+            ...extraHooks,
           ],
         },
       ],

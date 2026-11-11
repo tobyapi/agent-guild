@@ -13,7 +13,7 @@ use guild_application::{AppError, AppResult};
 use guild_domain::channel::ChannelWorkspace;
 use guild_domain::ids::{AgentId, ChannelId};
 
-use super::data_dir::AGENTS_DIR;
+use super::data_dir::{safe_component, AGENTS_DIR};
 use super::file_manager;
 
 const MEMORY_FILE: &str = "MEMORY.md";
@@ -30,9 +30,10 @@ impl FsWorkspace {
         Self { agents_root: data_dir.join(AGENTS_DIR) }
     }
 
-    /// エージェント ID は自分で発行した UUID なので、そのままフォルダ名にしてよい
+    /// エージェント ID は自分で発行した UUID だが、画面から届いた文字列でもあるので、フォルダ名に使える形にしてから使う
+    /// （".." や区切りを含む ID で agents/ の外を指させない。UUID はそのまま）
     fn root(&self, agent: &AgentId) -> PathBuf {
-        self.agents_root.join(agent.as_str())
+        self.agents_root.join(safe_component(agent.as_str()))
     }
 }
 
@@ -134,17 +135,6 @@ impl Workspace for FsWorkspace {
         let work = self.work_dir(agent);
         fs::create_dir_all(&work).map_err(storage)?;
         file_manager::reveal(&work).map_err(|e| AppError::Storage(format!("フォルダを開けませんでした（{e}）")))
-    }
-}
-
-/// バックエンド ID をフォルダ名に使える形にする（英数字・ハイフン・アンダースコア以外は "_"）
-fn safe_component(backend: &str) -> String {
-    let name: String =
-        backend.chars().map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' }).collect();
-    if name.is_empty() {
-        "_".to_owned()
-    } else {
-        name
     }
 }
 
