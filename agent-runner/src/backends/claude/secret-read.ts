@@ -1,4 +1,4 @@
-// readAnywhere で追加した範囲だけに適用する。元から読める実体と writeAnywhere は変えない。
+// readAnywhere の拡張範囲を点検する。絶対 Glob pattern は元の範囲でも拒否。writeAnywhere は対象外。
 import { lstat, opendir, realpath } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
@@ -87,6 +87,7 @@ function secretRoots(): string[] {
       'Application Support/Arc',
       'Application Support/Vivaldi',
       'Application Support/Opera',
+      'Application Support/com.operasoftware.Opera',
       'Application Support/Zen',
       'Application Support/Dia',
       'Application Support/com.apple.TCC',
@@ -112,6 +113,32 @@ function safeSearchPattern(tool: string, input: Record<string, unknown>): boolea
   return typeof pattern === 'string' && !isAbsolute(pattern) && !/\.\.|[\\{}~]/.test(pattern);
 }
 
+function absoluteGlob(tool: string, input: Record<string, unknown>): boolean {
+  return tool === 'Glob' && typeof input.pattern === 'string' && isAbsolute(input.pattern);
+}
+
+/** 拒否理由に子の名前やパスを含めない。検索の点検は内容を開かない。 */
+async function inspectSearch(
+  path: string,
+  forbidden: (path: string, ancestors: boolean) => Promise<boolean>,
+  depth = 0,
+  state = { count: 0 },
+): Promise<string | null> {
+  if (++state.count > SEARCH_ENTRY_LIMIT) return '検索の事前点検が10,000エントリの上限を超えました';
+  if (depth > SEARCH_DEPTH_LIMIT) return '検索の事前点検が深さ64の上限を超えました';
+  if (await forbidden(path, true)) return '検索範囲に除外対象の名前または場所があります';
+  const info = await lstat(path);
+  if (info.isSymbolicLink()) return '検索範囲にシンボリックリンクがあります';
+  if (info.isFile()) return null;
+  if (!info.isDirectory()) return '検索範囲に通常のファイル・ディレクトリ以外の項目があります';
+  for await (const entry of await opendir(path)) {
+    const reason = await inspectSearch(join(path, entry.name), forbidden, depth + 1, state);
+    if (reason) return reason;
+  }
+  return null;
+}
+
+/** null は許可、それ以外は子の名前を含まない拒否理由。 */
 export function expandedReadPolicy(readableRoots: readonly string[]) {
   const roots = secretRoots();
   // 秘密の内容は開かない。既知の場所がリンクなら、その実体も除外する。
@@ -131,33 +158,26 @@ export function expandedReadPolicy(readableRoots: readonly string[]) {
     const all = [...roots, ...(await protectedRoots())];
     return all.some((root) => inside(path, root) || (ancestors && inside(root, path)));
   };
-  return async (tool: string, target: string, input: Record<string, unknown>): Promise<boolean> => {
+  return async (tool: string, target: string, input: Record<string, unknown>): Promise<string | null> => {
     try {
+      // 絶対 pattern は path を無視できるため、元の範囲を許可する前に拒否する。
+      if (absoluteGlob(tool, input)) {
+        return 'Glob の絶対パス pattern は使えません。path に起点、pattern に相対パターンを指定してください';
+      }
       const actual = await physical(target);
       // 元の読み取り範囲は維持するが、そこから外へ出るリンクは拡張範囲として判定する。
-      if (await originalReadable(target, actual, readableRoots)) return true;
-      if ((await forbidden(target, false)) || (await forbidden(actual, false))) return false;
+      if (await originalReadable(target, actual, readableRoots)) return null;
+      if ((await forbidden(target, false)) || (await forbidden(actual, false))) return '秘密情報の除外対象です';
       const searching = tool === 'Grep' || tool === 'Glob' || tool === 'LS';
-      if (!searching) return true;
+      if (!searching) return null;
       // Glob の pattern で点検済みの起点を抜け出せないようにする。複雑な展開は許可しない。
-      if (!safeSearchPattern(tool, input)) return false;
-      if ((await forbidden(target, true)) || (await forbidden(actual, true))) return false;
-      let count = 0;
-      const inspect = async (path: string, depth: number): Promise<boolean> => {
-        if (++count > SEARCH_ENTRY_LIMIT || depth > SEARCH_DEPTH_LIMIT || (await forbidden(path, true))) return false;
-        const info = await lstat(path);
-        // 検索ツールのリンク追跡方法に依存しない。子リンクは安全な行き先でも拒否する。
-        if (info.isSymbolicLink()) return false;
-        if (info.isFile()) return true;
-        if (!info.isDirectory()) return false;
-        for await (const entry of await opendir(path)) {
-          if (!(await inspect(join(path, entry.name), depth + 1))) return false;
-        }
-        return true;
-      };
-      return await inspect(actual, 0);
+      if (!safeSearchPattern(tool, input)) return 'Glob の pattern に起点外への展開を含む指定は使えません';
+      if ((await forbidden(target, true)) || (await forbidden(actual, true))) {
+        return '検索の起点が除外対象を含んでいます';
+      }
+      return await inspectSearch(actual, forbidden);
     } catch {
-      return false;
+      return 'パスの解決または検索の事前点検ができませんでした';
     }
   };
 }

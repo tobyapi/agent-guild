@@ -91,22 +91,24 @@ describe('readAnywhere の秘密の場所の除外', () => {
       output_mode: 'content',
     });
     expect(result).toMatchObject({ behavior: 'deny' });
+    if (result?.behavior === 'deny') expect(result.message).toContain('除外対象の名前または場所');
     expect(JSON.stringify(result)).not.toContain('fixture-secret');
+    expect(JSON.stringify(result)).not.toContain('.env.local');
   });
   it('外部検索の子リンクは安全な行き先でも拒否する', async () => {
     const folder = join(root, 'project-with-link');
     await mkdir(folder);
     await symlink(outside, join(folder, 'linked'), 'dir');
-    expect(await call(fileAccessPolicy(request()), 'Grep', { path: folder, pattern: '.' })).toMatchObject({
-      behavior: 'deny',
-    });
+    const result = await call(fileAccessPolicy(request()), 'Grep', { path: folder, pattern: '.' });
+    expect(result).toMatchObject({ behavior: 'deny' });
+    if (result?.behavior === 'deny') expect(result.message).toMatch(/シンボリックリンク.*狭いフォルダ/);
   });
   it('検索の点検が深さの上限を超えたら拒否する', async () => {
     const folder = join(root, 'deep');
     await mkdir(join(folder, ...Array<string>(66).fill('d')), { recursive: true });
-    expect(await call(fileAccessPolicy(request()), 'Grep', { path: folder, pattern: '.' })).toMatchObject({
-      behavior: 'deny',
-    });
+    const result = await call(fileAccessPolicy(request()), 'Grep', { path: folder, pattern: '.' });
+    expect(result).toMatchObject({ behavior: 'deny' });
+    if (result?.behavior === 'deny') expect(result.message).toContain('深さ64');
   });
   it('公開ファイルの Read と安全な外部フォルダの Grep・Glob を許す', async () => {
     expect(await read(join(outside, 'README.md'))).toMatchObject({ behavior: 'allow' });
@@ -128,12 +130,25 @@ describe('readAnywhere の秘密の場所の除外', () => {
       });
     },
   );
+  it.each(['省略', '作業場所'])('Glob の path が%sでも絶対 pattern を拒否する', async (kind) => {
+    const input = { pattern: join(home, '.ssh/*'), ...(kind === '作業場所' ? { path: workspace } : {}) };
+    for (const role of ['専門家', 'マネージャー']) {
+      const req = request(role);
+      for (const policy of [fileAccessPolicy(req), checkedPolicy(req, vi.fn(), vi.fn())]) {
+        const result = await call(policy, 'Glob', input);
+        expect(result).toMatchObject({ behavior: 'deny' });
+        if (result?.behavior === 'deny') expect(result.message).toContain('絶対パス pattern');
+      }
+    }
+  });
   it('作業場所・readableDirs に元からある秘密名と検索は変えない', async () => {
     for (const dir of [workspace, peer]) {
       expect(await read(join(dir, '.env'))).toMatchObject({ behavior: 'allow' });
-      expect(await call(fileAccessPolicy(request()), 'Grep', { path: dir, pattern: '.' })).toMatchObject({
-        behavior: 'allow',
-      });
+      for (const tool of ['Grep', 'Glob']) {
+        expect(await call(fileAccessPolicy(request()), tool, { path: dir, pattern: '*' })).toMatchObject({
+          behavior: 'allow',
+        });
+      }
     }
     expect(await call(fileAccessPolicy(request()), 'Write', { file_path: join(workspace, 'MEMORY.md') })).toMatchObject(
       { behavior: 'allow' },

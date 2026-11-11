@@ -47,15 +47,24 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
       WRITE_TOOLS.has(toolName) &&
       (isMemory || permissions.writeFiles) &&
       (anywhere || (await writableInWorkspace(target, workspace)));
-    const readable =
-      readableByScope(toolName, target, isMemory) &&
-      (expandedRead === null || (await expandedRead(toolName, target, input)));
+    const inScope = readableByScope(toolName, target, isMemory);
+    const reason = inScope && expandedRead !== null ? await expandedRead(toolName, target, input) : null;
+    const readable = inScope && reason === null;
     const result: PermissionResult =
       writable || readable
         ? { behavior: 'allow', updatedInput: input }
-        : { behavior: 'deny', message: `${toolName} は許可されていません（${target}）` };
+        : { behavior: 'deny', message: denialMessage(toolName, target, reason) };
     return Promise.resolve(result);
   };
+}
+
+function denialMessage(tool: string, target: string, reason: string | null): string {
+  const base = `${tool} は許可されていません（${target}）`;
+  if (!reason) return base;
+  const hint = ['Grep', 'Glob', 'LS'].includes(tool)
+    ? 'src など狭いフォルダを起点にするか、公開ファイルを個別に Read してください。'
+    : '';
+  return `${base}: ${reason}。${hint}`;
 }
 
 /**

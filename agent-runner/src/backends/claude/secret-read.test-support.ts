@@ -45,6 +45,7 @@ export const secrets = [
   'Library/Application Support/Microsoft Edge/Default/Cookies',
   'Library/Application Support/BraveSoftware/test',
   'Library/Application Support/Arc/test',
+  'Library/Application Support/com.operasoftware.Opera/Default/Login Data',
   'Library/Application Support/com.agentguild.app/settings.json',
   'Library/Application Support/com.agentguild.app/settings.json.tmp',
   'Library/WebKit/com.agentguild.app/WebsiteData/test',

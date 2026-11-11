@@ -1,6 +1,6 @@
 # readAnywhere の秘密情報の除外（B）
 
-この変更は Claude の readAnywhere が追加した読み取りだけに適用する。writeAnywhere の作業者、readAnywhere のない発想役、書き込み判定、Codex の設定は変更しない。作業場所・readableDirs の中に実体も収まる読み取りは従来どおり許可する。したがって、その範囲にある .env 等も今回の除外対象ではない。外へ出るシンボリックリンクは拡張範囲として判定する。
+この変更は Claude の readAnywhere が追加した読み取りに適用する。writeAnywhere の作業者、readAnywhere のない発想役、書き込み判定、Codex の設定は変更しない。作業場所・readableDirs の中に実体も収まる読み取りは従来どおり許可する。ただし readAnywhere あり・writeAnywhere なしの場合、Glob の絶対パス pattern は起点に関係なく拒否する。絶対 pattern は path を無視して範囲外を一覧できるためで、作業場所内の検索は path と相対 pattern で指定する。その範囲にある .env 等の Read は今回の除外対象ではない。外へ出るシンボリックリンクは拡張範囲として判定する。
 
 ## 除外リストと理由
 
@@ -15,7 +15,7 @@
 | ~/Library/Keychains、Cookies、Mail、Messages、Safari、Accounts | 認証情報、ブラウザのデータ、メール、メッセージ。Accounts はアカウント情報の保存先として追加 |
 | ~/Library/Containers/com.apple.Safari、com.apple.mail、com.apple.MobileSMS | サンドボックス版アプリの関連データ |
 | ~/Library/Group Containers/group.com.apple.notes、group.com.apple.mail、group.com.apple.messages、group.com.apple.Safari | アプリ間で共有する個人データ。Notes は秘密のメモを含みうるため追加 |
-| ~/Library/Application Support/ の Google/Chrome、Chromium、Microsoft Edge、BraveSoftware、Firefox、Arc、Vivaldi、Opera、Zen、Dia | 既知のブラウザのプロファイル。個々のファイルを選ぶ方式による取りこぼしを減らすためディレクトリ単位で除外 |
+| ~/Library/Application Support/ の Google/Chrome、Chromium、Microsoft Edge、BraveSoftware、Firefox、Arc、Vivaldi、Opera、com.operasoftware.Opera、Zen、Dia | 既知のブラウザのプロファイル。個々のファイルを選ぶ方式による取りこぼしを減らすためディレクトリ単位で除外 |
 | ~/Library/Application Support/com.apple.TCC | OS の権限管理データとして追加 |
 | ~/Library/Application Support/com.agentguild.app/settings.json、settings.json.tmp | アプリの設定。未知フィールドも保持する形式のため全体を除外。一時保存も同じ扱い |
 | ~/Library/WebKit/com.agentguild.app、HTTPStorages/com.agentguild.app、Caches/com.agentguild.app | アプリのWebViewデータ・Cookie等を含みうる保存先 |
@@ -23,6 +23,8 @@
 | 場所を問わず guild.db、guild.db-*、guild.db.* | 全チャンネルの会話。WAL・SHMに加えバックアップ・エクスポート一時ファイルも対象。データ保存先を移しても同じ名前を拒否する |
 
 指定の対象から除いたものはない。ブラウザ等の独自の保存先を自動的に発見する機能はない。エージェントの作業フォルダを含むアプリのデータフォルダ全体は除外しない。
+
+レビュー後に `com.operasoftware.Opera` を追加した。macOS のこの保存先は [Opera公式記事](https://blogs.opera.com/desktop/2023/08/resolving-profile-loss-issues-in-opera-version-102-0-4880-16/) の例で確認した。既存の `Opera` は削除せず維持する。
 
 ## アプリのデータ・認証の保存方法（コードで確認）
 
@@ -43,7 +45,9 @@
 
 Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒否する。ホームや Library を起点にした検索も該当する。その後、配下のディレクトリ名・エントリのメタデータを点検する。秘密ファイルの内容は開かない。.env等が1つでもあれば検索自体を拒否し、SDK に渡す入力の glob による除外には頼らない。既存の除外設定や隠しファイルの扱いにも依存しない。
 
-検索配下のリンクは安全な行き先でも拒否する。点検は起点を含め10,000エントリ、深さ64までとし、上限超過・アクセス不可・特殊ファイルは拒否する。したがって、秘密を含まない大きなリポジトリも検索できない場合がある。外部 Glob の pattern は絶対パス、..、バックスラッシュ、波括弧、~ を拒否して起点外への展開を防ぐ。狭い起点を選ぶか、公開ファイルを個別に Read する必要がある。
+検索配下のリンクは安全な行き先でも拒否する。点検は起点を含め10,000エントリ、深さ64までとし、上限超過・アクセス不可・特殊ファイルは拒否する。node_modules のリンク、件数上限、.env.example のいずれかがあればリポジトリ直下の検索も拒否される。Glob の絶対パス pattern は元の作業範囲を許可する前に拒否する。外部 Glob はさらに ..、バックスラッシュ、波括弧、~ を拒否する。
+
+拒否時は、除外対象、子リンク、件数上限、深さ上限、特殊項目、解決・点検不能などの理由と、狭い起点または公開ファイルの個別 Read を案内する。事前点検で見つけた子の名前・パスは返さない。拒否メッセージには従来どおり呼び出し元が指定した起点が入る。
 
 ## 残る制約
 
@@ -51,5 +55,8 @@ Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒
 - 作業者の writeAnywhere、発想役の既存権限は維持する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
 - パスの事前判定なので、判定後・検索点検後に別プロセスがファイルやリンクを差し替える競合（TOCTOU）を OS の境界として止められない。除外先の実体の変更もポリシー再作成までは追従しない。ハードリンク、別名コピー、別マウントによる別経路は内容の由来を判別できない。
 - 一覧外のブラウザ・独自プロファイル、別名の認証ファイル、認証設定のバックアップ等を網羅する保証はない。
+- Chrome Beta/Canary、シェル履歴、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の保存先の一覧もない。共通の ~/.xxx と秘密名の規則はあるが、他OSを網羅する除外ではない。
+- アプリの attachments/<channelId> と agents/*/state は場所で除外していない。会話・添付を含む可能性があり、今回の追加可否は未決。MEMORY.md 等の共有とも合わせて A で分離が必要。
+- Grep 等に複数のパス項目を渡した場合の SDK による検証は未確認（レビュー R5）。道具別の入力制限は今回追加していない。
 - エージェント間の作業フォルダとメモは共有状態のまま。会話本文や、マネージャーからWebを使える作業者への依頼文を通じた持ち出しも残る。
 - canUseTool の経路のテストであり、SDK/CLI による暗黙の読み取りを OS レベルで拒否する検証ではない。実モデルを使った有料の通し実行、Windows実機検証は未実施。
