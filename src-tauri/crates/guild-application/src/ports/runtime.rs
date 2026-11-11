@@ -47,6 +47,7 @@ pub struct RuntimeRequest {
     pub state_dir: PathBuf,
     /// 追加で読み取りを許すフォルダ（相談元の作業場所など）
     pub readable_dirs: Vec<PathBuf>,
+    pub writable_dirs: Option<Vec<PathBuf>>,
     pub system_prompt: String,
     pub prompt: String,
     /// 操作の確認に使う、信頼できる依頼の情報（人間の依頼・エージェントの役割とできること。guild-domain の build_intent）

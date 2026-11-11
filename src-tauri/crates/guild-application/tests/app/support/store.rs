@@ -86,6 +86,12 @@ impl ChannelRepository for MemoryStore {
         }
         Ok(())
     }
+    fn set_workspace(&self, id: &ChannelId, scope: &guild_domain::channel::ChannelWorkspace) -> AppResult<()> {
+        if let Some(channel) = self.channels.lock().iter_mut().find(|channel| &channel.id == id) {
+            channel.workspace = scope.clone();
+        }
+        Ok(())
+    }
     fn delete(&self, id: &ChannelId) -> AppResult<()> {
         self.channels.lock().retain(|c| &c.id != id);
         self.messages.lock().retain(|m| &m.channel_id != id);

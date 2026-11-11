@@ -29,6 +29,12 @@ use actor::Actor;
 const STOP_WAIT: Duration = Duration::from_secs(30);
 
 pub(super) enum Command {
+    ConfigureWorkspace {
+        channel: ChannelId,
+        mode: guild_domain::channel::WorkspaceMode,
+        folder: Option<String>,
+        done: oneshot::Sender<crate::error::AppResult<guild_domain::channel::Channel>>,
+    },
     /// 振り分けの結果を反映する（参加・お知らせ・ジョブ）
     Dispatch {
         routing: Routing,
@@ -87,6 +93,17 @@ pub(super) fn start(ports: Ports) -> DispatcherHandle {
 }
 
 impl DispatcherHandle {
+    pub async fn configure_workspace(
+        &self,
+        channel: &ChannelId,
+        mode: guild_domain::channel::WorkspaceMode,
+        folder: Option<String>,
+    ) -> crate::error::AppResult<guild_domain::channel::Channel> {
+        let (done, finished) = oneshot::channel();
+        self.send(Command::ConfigureWorkspace { channel: channel.clone(), mode, folder, done });
+        finished.await.map_err(|_| crate::error::AppError::Unavailable("実行管理が停止しています".to_owned()))?
+    }
+
     pub fn dispatch(&self, routing: Routing, origin: Origin) {
         self.send(Command::Dispatch { routing, origin });
     }

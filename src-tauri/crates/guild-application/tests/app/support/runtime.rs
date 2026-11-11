@@ -105,7 +105,7 @@ pub fn ready_backend(id: &str) -> BackendInfo {
 
 /// FakeWorkspace の作業場所 /ws/<agent>/work からエージェント ID を取り出す
 fn agent_of(workspace: &Path) -> String {
-    let agent = workspace.parent().and_then(Path::file_name);
+    let agent = workspace.ancestors().find(|path| path.parent() == Some(Path::new("/ws"))).and_then(Path::file_name);
     agent.map(|name| name.to_string_lossy().into_owned()).unwrap_or_default()
 }
 

@@ -45,6 +45,7 @@ fn model(spec: runner::ModelSpec) -> ModelSpec {
         description: spec.description,
         efforts: spec.efforts,
         default_effort: spec.default_effort,
+        tools: spec.tools,
     }
 }
 
@@ -108,6 +109,7 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
         workspace: request.workspace,
         state_dir: request.state_dir,
         readable_dirs: request.readable_dirs,
+        writable_dirs: request.writable_dirs,
         system_prompt: request.system_prompt,
         prompt: request.prompt,
         intent: request.intent,

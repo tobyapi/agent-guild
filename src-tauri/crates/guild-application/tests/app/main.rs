@@ -19,3 +19,5 @@ mod support;
 mod use_cases;
 
 mod role_skills;
+
+mod channel_workspace;

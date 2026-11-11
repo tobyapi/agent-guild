@@ -45,6 +45,10 @@ impl Actor {
 
     fn handle(&mut self, command: Command) {
         match command {
+            Command::ConfigureWorkspace { channel, mode, folder, done } => {
+                let result = self.configure_workspace(&channel, mode, folder);
+                let _ = done.send(result);
+            }
             Command::Dispatch { routing, origin } => self.apply(routing, &origin),
             Command::Enqueue(jobs) => {
                 for job in jobs {
@@ -72,6 +76,52 @@ impl Actor {
                 let _ = done.send(());
             }
         }
+    }
+
+    fn configure_workspace(
+        &self,
+        id: &guild_domain::ids::ChannelId,
+        mode: guild_domain::channel::WorkspaceMode,
+        folder: Option<String>,
+    ) -> crate::error::AppResult<guild_domain::channel::Channel> {
+        use crate::error::AppError;
+        use guild_domain::channel::{ChannelWorkspace, WorkspaceMode};
+        if self.state.jobs().any(|job| &job.channel_id == id)
+            || self.state.delegations.values().any(|tracked| &tracked.delegation.channel_id == id)
+        {
+            return Err(AppError::validation("作業フォルダを変更する前に、このチャンネルの作業を停止してください"));
+        }
+        let mut channel = posting::require_channel(&self.ports, id)?;
+        let folder = match (mode, folder) {
+            (WorkspaceMode::Folder, Some(folder)) if !folder.trim().is_empty() => {
+                Some(self.ports.workspace.validate_folder(folder.trim())?)
+            }
+            (WorkspaceMode::Folder, _) => return Err(AppError::validation("割り当てるフォルダを指定してください")),
+            (_, None) => None,
+            _ => return Err(AppError::validation("フォルダモード以外では割り当てを空にしてください")),
+        };
+        if channel.workspace.mode == mode && channel.workspace.folder == folder {
+            return Ok(channel);
+        }
+        let after_seq = self
+            .ports
+            .messages
+            .list(id, crate::ports::MessageFilter::All, None, 1)?
+            .last()
+            .map_or(0, |message| message.seq);
+        channel.workspace = ChannelWorkspace {
+            mode,
+            folder,
+            after_seq,
+            revision: channel
+                .workspace
+                .revision
+                .checked_add(1)
+                .ok_or_else(|| AppError::validation("作業場所の更新回数が上限に達しました"))?,
+        };
+        self.ports.channels.set_workspace(&channel.id, &channel.workspace)?;
+        self.ports.events.state_changed();
+        Ok(channel)
     }
 
     /// 全体の上限まで、始められるジョブを始める（選び方は pick.rs）

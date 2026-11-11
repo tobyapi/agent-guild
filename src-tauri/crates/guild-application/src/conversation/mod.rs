@@ -122,6 +122,16 @@ impl ConversationService {
         self.dispatcher.stop(channel_id, false).await;
     }
 
+    /// 人間の設定画面からのみ呼ぶ。ジョブ投入と直列に範囲を切り替える。
+    pub async fn configure_workspace(
+        &self,
+        channel: &ChannelId,
+        mode: guild_domain::channel::WorkspaceMode,
+        folder: Option<String>,
+    ) -> AppResult<guild_domain::channel::Channel> {
+        self.dispatcher.configure_workspace(channel, mode, folder).await
+    }
+
     /// 全チャンネルを止めて終端を待つ（保存先の変更用）
     pub async fn stop_all(&self) {
         self.dispatcher.stop_all().await;

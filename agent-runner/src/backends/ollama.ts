@@ -1,9 +1,8 @@
 import { readFile } from 'node:fs/promises';
-import { isJsonObject, type JsonObject } from '../line-parser.ts';
 import type { ImagePayload, ModelSpec } from '../protocol.ts';
-import { localChatModels, localRef, ollamaRequest, OllamaStopped, type LocalModel } from './ollama/api.ts';
+import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
 import { BackendError, type BackendAdapter, type BackendProbe, type RunContext, type RunRequest } from './types.ts';
-import { count } from '../usage.ts';
+import { toolChat } from './ollama/chat.ts';
 
 const NO_MODELS = 'Ollama に会話用のローカルモデルを追加して「再確認」を押してください。';
 
@@ -12,9 +11,12 @@ function modelSpec(model: LocalModel): ModelSpec {
   return {
     id: model.id,
     label: model.id,
-    description: [model.size, input].filter(Boolean).join(' · '),
+    description: [model.size, input, model.capabilities.includes('tools') ? '道具に対応' : '']
+      .filter(Boolean)
+      .join(' · '),
     efforts: [],
     defaultEffort: null,
+    tools: model.capabilities.includes('tools'),
   };
 }
 
@@ -42,13 +44,8 @@ async function encodeImage(image: ImagePayload, signal: AbortSignal): Promise<st
   }
 }
 
-function replyText({ message }: JsonObject): string {
-  const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
-  if (!text) throw new BackendError('internal', 'Ollama から返答が届きませんでした。もう一度お試しください。');
-  return text;
-}
-
 async function run(request: RunRequest, { signal, onActivity, onUsage }: RunContext): Promise<string> {
+  signal = AbortSignal.any([signal, AbortSignal.timeout(5 * 60_000)]);
   signal.throwIfAborted();
   const models = await localChatModels(signal);
   const model = request.model === '' ? models[0] : models.find((candidate) => candidate.id === request.model);
@@ -62,16 +59,7 @@ async function run(request: RunRequest, { signal, onActivity, onUsage }: RunCont
     : request.prompt;
   onActivity(`${model.id} で返答を作成しています…`);
   onUsage({ model: model.id });
-  const response = await ollamaRequest('/api/chat', signal, {
-    model: localRef(model.id),
-    stream: false,
-    messages: [
-      { role: 'system', content: request.systemPrompt },
-      { role: 'user', content: prompt, ...(images.length > 0 ? { images } : {}) },
-    ],
-  });
-  onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
-  const text = replyText(response);
+  const text = await toolChat(request, model, prompt, images, signal, { onUsage, onActivity });
   if (!skippedImages || text === '[PASS]') return text;
   return `${text}\n\n（${model.id} は文章のみ対応のため、添付画像は読み取っていません。）`;
 }
@@ -83,15 +71,36 @@ export const ollamaAdapter: BackendAdapter = {
     capabilities: {
       webSearch: false,
       webFetch: false,
-      readFiles: false,
+      readFiles: process.platform === 'darwin',
       readAnywhere: false,
-      writeFiles: false,
-      writeAnywhere: false,
-      runCommands: false,
+      writeFiles: process.platform === 'darwin',
+      writeAnywhere: process.platform === 'darwin',
+      runCommands: process.platform === 'darwin',
       skills: false,
     },
-    options: [],
-    permissionRules: [],
+    options: [
+      {
+        key: 'enableTools',
+        label: '道具の利用を有効にする',
+        description:
+          '対応モデルに役割の権限を与えます。macOS のみ。コマンドは単一プロセスに限り、パイプや子プロセスを使うビルドはできません。',
+        type: 'boolean',
+        choices: [],
+        default: false,
+      },
+      {
+        key: 'operationCheck',
+        label: '操作を実行前に確認する',
+        description: 'コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。',
+        type: 'boolean',
+        choices: [],
+        default: true,
+      },
+    ],
+    permissionRules: [
+      { when: 'writeAnywhere', requires: ['writeFiles'] },
+      { when: 'runCommands', requires: ['readFiles'] },
+    ],
     leakRisks: [],
     canLogin: false,
     midRunPost: null,

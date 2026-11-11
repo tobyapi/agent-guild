@@ -1,3 +1,4 @@
+import type { BackendInfo } from '@/shared/types/domain';
 import { describe, expect, it } from 'vitest';
 import { newDraft } from './draft';
 import type { AgentDraft } from './draft';
@@ -91,4 +92,29 @@ describe('agentErrorField', () => {
     expect(agentErrorField('validation', null)).toBeNull();
     expect(agentErrorField('conflict', 'name')).toBeNull();
   });
+});
+
+it('Ollama は明示有効化した対応モデルだけ道具の権限を保存できる', () => {
+  const info: BackendInfo = {
+    ...(BACKENDS[0] as BackendInfo),
+    id: 'ollama',
+    capabilities: allCapabilities,
+    models: [{ id: 'small', label: 'small', description: '', efforts: [], defaultEffort: null, tools: true }],
+    defaultModel: 'small',
+    options: [{ key: 'enableTools', label: 'tools', description: '', type: 'boolean', choices: [], default: false }],
+  };
+  const local = { ...ctx, backends: [info] };
+  const old = validateAgentDraft(draft({ backend: 'ollama', model: 'small', optionValues: {} }), local);
+  expect(old.ok && Object.values(old.input.permissions).every((value) => !value)).toBe(true);
+  const enabled = validateAgentDraft(
+    draft({ backend: 'ollama', model: 'small', optionValues: { enableTools: true } }),
+    local,
+  );
+  expect(enabled.ok && enabled.input.permissions.readFiles).toBe(true);
+  expect(enabled.ok && enabled.input.backendOptions.enableTools).toBe(true);
+  const unsupported = validateAgentDraft(
+    draft({ backend: 'ollama', model: 'unknown', optionValues: { enableTools: true } }),
+    local,
+  );
+  expect(unsupported).toMatchObject({ ok: false, errors: { permissions: '道具に対応したモデルを選んでください' } });
 });

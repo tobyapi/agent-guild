@@ -45,7 +45,7 @@ async fn version_mismatch_makes_runner_unavailable() {
     let client = RunnerClient::new(config("version-999.mjs"));
     let status = wait_status(&client, is_unavailable).await;
     assert!(
-        matches!(&status, RunnerStatus::Unavailable { message } if message.contains("期待 1、実際 999")),
+        matches!(&status, RunnerStatus::Unavailable { message } if message.contains(&format!("期待 {}、実際 999", runner_client::PROTOCOL_VERSION))),
         "{status:?}"
     );
     let error = within(client.run("j1", request("echo:x"), no_updates())).await.expect_err("使えないはず");

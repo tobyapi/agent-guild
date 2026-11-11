@@ -2,7 +2,7 @@
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
 import { checkEffort, effortFrom, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
-import { rolePermissions, supportedPermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions, modelPermissions } from '@/shared/lib/permissionPolicy';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, OptionSpec } from '@/shared/types/domain';
 import { activeAgents, fail } from '../runtime';
@@ -44,11 +44,22 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
   if (input.autonomyIntervalMin < AUTONOMY_INTERVAL_MIN) {
     fail('validation', `自発活動の間隔は${AUTONOMY_INTERVAL_MIN}分以上にしてください`, 'autonomyIntervalMin');
   }
+  if (
+    input.backend === 'ollama' &&
+    input.backendOptions.enableTools === true &&
+    backend.models.find((model) => model.id === (input.model || backend.defaultModel))?.tools !== true
+  )
+    fail('validation', '道具に対応したモデルを選んでください', 'permissions');
   return {
     ...input,
     name: input.name.trim(),
     tags: cleanTags(input.tags),
-    permissions: supportedPermissions(rolePermissions(core.state.templates, input.tags), backend),
+    permissions: modelPermissions(
+      rolePermissions(core.state.templates, input.tags),
+      backend,
+      input.model,
+      input.backendOptions,
+    ),
     backendOptions: pickOptions(backend, input),
   };
 }

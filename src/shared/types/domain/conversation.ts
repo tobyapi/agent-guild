@@ -1,4 +1,12 @@
+export interface ChannelWorkspace {
+  mode: 'legacy' | 'folder' | 'global';
+  folder: string | null;
+  revision: number;
+  afterSeq: number;
+}
+
 export interface Channel {
+  workspace?: ChannelWorkspace;
   id: string;
   name: string;
   topic: string;

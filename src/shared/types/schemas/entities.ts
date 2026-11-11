@@ -92,7 +92,14 @@ export const agentTemplateSchema = {
   defaults: objectOf(templateDefaultsSchema),
 } satisfies Schema<AgentTemplate>;
 
+const workspaceSchema = objectOf({
+  mode: oneOf<'legacy' | 'folder' | 'global'>({ legacy: true, folder: true, global: true }),
+  folder: nullable(string),
+  revision: number,
+  afterSeq: number,
+});
 export const channelSchema = {
+  workspace: (value, path) => (value === undefined ? [] : workspaceSchema(value, path)),
   isLobby: (value, path) => (value === undefined ? [] : boolean(value, path)),
   id: string,
   name: string,

@@ -127,7 +127,13 @@
         "a0000000-0000-4000-8000-000000000002"
       ],
       "createdAt": 1793320000000,
-      "isLobby": false
+      "isLobby": false,
+      "workspace": {
+        "mode": "legacy",
+        "folder": null,
+        "revision": 0,
+        "afterSeq": 0
+      }
     }
   ],
   "backends": [

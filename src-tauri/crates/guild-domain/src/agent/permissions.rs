@@ -104,5 +104,18 @@ impl Permissions {
 
 /// 役割の固定権限をバックエンドの能力と依存関係で絞る。保存済みの個別権限には依存しない。
 pub fn effective_permissions(agent: &Agent, backend: Option<&BackendInfo>) -> Permissions {
+    if agent.backend == "ollama" && !ollama_tools_enabled(&agent.backend_options, &agent.model, backend) {
+        return Permissions::default();
+    }
     supported_permissions(agent.behavior().permissions, backend)
+}
+
+/// 保存値がない既存エージェントは会話専用のまま。能力が不明なモデルも拒否する。
+pub(super) fn ollama_tools_enabled(
+    options: &serde_json::Map<String, serde_json::Value>,
+    model: &str,
+    backend: Option<&BackendInfo>,
+) -> bool {
+    options.get("enableTools").and_then(serde_json::Value::as_bool) == Some(true)
+        && backend.and_then(|info| info.model_spec(model)).and_then(|spec| spec.tools) == Some(true)
 }

@@ -46,6 +46,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   create_channel: channel,
   get_channel_statistics: objectOf(channelStatisticsSchema),
   update_channel: channel,
+  set_channel_workspace: channel,
   delete_channel: nullValue,
   add_channel_member: nullValue,
   remove_channel_member: nullValue,

@@ -34,5 +34,16 @@ pub fn normalize_agent_input(
     if let Some(info) = backend {
         input.backend_options = sanitize_backend_options(input.backend_options, info, &input.model)?;
     }
+    if input.backend == "ollama"
+        && input.backend_options.get("enableTools").and_then(serde_json::Value::as_bool) == Some(true)
+        && !super::permissions::ollama_tools_enabled(&input.backend_options, &input.model, backend)
+    {
+        return Err(ValidationError::on("permissions", "道具に対応したモデルを選んでください"));
+    }
+    if input.backend == "ollama"
+        && !super::permissions::ollama_tools_enabled(&input.backend_options, &input.model, backend)
+    {
+        input.permissions = super::Permissions::default();
+    }
     Ok(input)
 }

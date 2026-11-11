@@ -15,6 +15,8 @@ pub const CHANNEL_TOPIC_MAX_CHARS: usize = 200;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Channel {
+    #[serde(default)]
+    pub workspace: ChannelWorkspace,
     pub id: ChannelId,
     pub name: String,
     pub topic: String,
@@ -23,6 +25,25 @@ pub struct Channel {
     /// 参加順。人間は常に入る
     pub member_ids: Vec<MemberId>,
     pub created_at: i64,
+}
+
+/// Human-controlled file scope. Every change starts a fresh memory/history epoch.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ChannelWorkspace {
+    pub mode: WorkspaceMode,
+    pub folder: Option<String>,
+    pub revision: u64,
+    pub after_seq: i64,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum WorkspaceMode {
+    #[default]
+    Legacy,
+    Folder,
+    Global,
 }
 
 impl Channel {

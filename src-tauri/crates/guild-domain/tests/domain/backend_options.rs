@@ -23,6 +23,7 @@ fn model(id: &str, efforts: &[&str]) -> ModelSpec {
         description: String::new(),
         efforts: efforts.iter().map(|effort| (*effort).to_owned()).collect(),
         default_effort: None,
+        tools: None,
     }
 }
 

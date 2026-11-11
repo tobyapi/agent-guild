@@ -39,6 +39,7 @@ pub fn run() {
             channels::create_channel,
             channels::get_channel_statistics,
             channels::update_channel,
+            channels::set_channel_workspace,
             channels::delete_channel,
             channels::add_channel_member,
             channels::remove_channel_member,

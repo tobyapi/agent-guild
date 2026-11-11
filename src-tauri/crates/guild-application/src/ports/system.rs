@@ -5,8 +5,9 @@ use std::path::PathBuf;
 use std::pin::Pin;
 
 use guild_domain::activity::ActivityState;
+use guild_domain::channel::ChannelWorkspace;
 use guild_domain::delegation::Delegation;
-use guild_domain::ids::AgentId;
+use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::message::Message;
 
 use crate::error::AppResult;
@@ -30,6 +31,24 @@ pub struct WorkspacePaths {
 }
 
 pub trait Workspace: Send + Sync {
+    fn validate_folder(&self, _folder: &str) -> AppResult<String> {
+        Err(crate::error::AppError::validation("フォルダ割り当てに対応していません"))
+    }
+    fn prepare_scoped(
+        &self,
+        _agent: &AgentId,
+        _backend: &str,
+        _channel: &ChannelId,
+        _scope: &ChannelWorkspace,
+    ) -> AppResult<WorkspacePaths> {
+        Err(crate::error::AppError::validation("チャンネル別作業場所に対応していません"))
+    }
+    fn scoped_work_dir(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> PathBuf {
+        PathBuf::new()
+    }
+    fn read_scoped_memory(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> AppResult<String> {
+        Ok(String::new())
+    }
     /// 実行の前に用意する: work/ を作り、state/<backend>/ を作り直す
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths>;
     /// work/ の場所（作らない。相談相手に読ませるときに使う）

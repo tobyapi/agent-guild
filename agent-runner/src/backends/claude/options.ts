@@ -43,7 +43,7 @@ export function claudeOptions(
   const checking = checksOperations(request);
   const preApproved = (tool: string) => PATHLESS_TOOLS.has(tool) && !(checking && tool in CHECKED_TOOLS);
   return {
-    ...isolatedToolOptions([...tools, POST_TOOL]),
+    ...isolatedToolOptions([...tools, POST_TOOL], request),
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],

@@ -38,6 +38,8 @@ export interface ModelSpec {
   description: string;
   efforts: string[];
   defaultEffort: string | null;
+  /** Ollama の tools 対応。省略時は非対応。 */
+  tools?: boolean;
 }
 
 /** Agent.backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか） */

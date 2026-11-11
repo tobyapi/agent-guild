@@ -38,22 +38,30 @@ export interface ChannelDraft {
   name: string;
   topic: string;
   memberIds: string[];
+  workspaceMode?: 'legacy' | 'folder' | 'global';
+  workspaceFolder?: string;
 }
 
-export type ChannelField = 'name' | 'topic';
+export type ChannelField = 'name' | 'topic' | 'workspaceFolder';
 
 /** 名前の先頭の # は付けなくてよい（付けても外す。全角の ＃ も） */
 export { cleanChannelName };
 
 /** 保存で返った validation の field（CommandError.field）がどの入力のことか（分からなければ null） */
 export function channelErrorField(field: string | null): ChannelField | null {
-  return field === 'name' || field === 'topic' ? field : null;
+  return field === 'name' || field === 'topic' || field === 'workspaceFolder' ? field : null;
 }
 
 export function validateChannelDraft(draft: ChannelDraft): Partial<Record<ChannelField, string>> {
   const entries: Array<[ChannelField, string | null]> = [
     ['name', checkText(cleanChannelName(draft.name), { label: 'チャンネル名', required: true, max: CHANNEL_NAME_MAX })],
     ['topic', checkText(draft.topic, { label: '話題', max: CHANNEL_TOPIC_MAX })],
+    [
+      'workspaceFolder',
+      draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test((draft.workspaceFolder ?? '').trim())
+        ? '作業フォルダの絶対パスを入力してください'
+        : null,
+    ],
   ];
   return Object.fromEntries(entries.filter((entry): entry is [ChannelField, string] => entry[1] !== null));
 }

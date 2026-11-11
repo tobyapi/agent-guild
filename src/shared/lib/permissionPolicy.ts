@@ -43,3 +43,21 @@ export function supportedPermissions(permissions: Permissions, backend: BackendI
   }
   return effective;
 }
+
+/** Ollama は明示的な有効化と、選択モデルの tools 対応の両方が必要。 */
+export function modelPermissions(
+  permissions: Permissions,
+  backend: BackendInfo | undefined,
+  model: string,
+  options: Readonly<Record<string, unknown>>,
+  backendId = backend?.id,
+): Permissions {
+  if (
+    backendId === 'ollama' &&
+    (options.enableTools !== true ||
+      backend?.models.find((candidate) => candidate.id === (model || backend.defaultModel))?.tools !== true)
+  ) {
+    return Object.fromEntries(Object.keys(permissions).map((key) => [key, false])) as Permissions;
+  }
+  return supportedPermissions(permissions, backend);
+}

@@ -35,6 +35,7 @@ pub fn request(prompt: &str) -> RunRequest {
         workspace: r"C:\data\agents\a1\work".into(),
         state_dir: r"C:\data\agents\a1\state\fake".into(),
         readable_dirs: vec![r"C:\data\agents\a0\work".into()],
+        writable_dirs: None,
         system_prompt: "あなたはテスト用のエージェントです。".to_owned(),
         prompt: prompt.to_owned(),
         intent: "# 人間の依頼\n> 試して\n".to_owned(),

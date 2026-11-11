@@ -48,6 +48,10 @@ export interface CommandMap {
   reveal_skill_folder: { args: { path: string }; result: null };
   create_channel: { args: { name: string; topic: string; memberIds: string[] }; result: Channel };
   get_channel_statistics: { args: { channelId: string }; result: ChannelStatistics };
+  set_channel_workspace: {
+    args: { id: string; mode: 'legacy' | 'folder' | 'global'; folder: string | null };
+    result: Channel;
+  };
   update_channel: { args: { id: string; name: string; topic: string }; result: Channel };
   delete_channel: { args: { id: string }; result: null };
   add_channel_member: { args: { channelId: string; memberId: string }; result: null };

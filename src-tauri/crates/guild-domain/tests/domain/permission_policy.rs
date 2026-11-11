@@ -44,3 +44,42 @@ fn chained_dependencies_are_resolved_without_widening_access() {
     let effective = effective_permissions(&agent("test", "worker", "テスト"), Some(&info));
     assert!(!effective.write_anywhere && !effective.write_files && !effective.run_commands);
 }
+
+#[test]
+fn ollama_requires_explicit_opt_in_and_a_tool_capable_model() {
+    use guild_domain::backend::{ModelSpec, OptionSpec, OptionType};
+    use serde_json::json;
+    let mut info = backend("ollama");
+    info.default_model = "small".to_owned();
+    info.models = vec![ModelSpec {
+        id: "small".to_owned(),
+        label: "small".to_owned(),
+        description: String::new(),
+        efforts: vec![],
+        default_effort: None,
+        tools: Some(true),
+    }];
+    info.options = vec![OptionSpec {
+        key: "enableTools".to_owned(),
+        label: "tools".to_owned(),
+        description: String::new(),
+        value_type: OptionType::Boolean,
+        choices: vec![],
+        default: json!(false),
+    }];
+    let mut existing = agent("test", "worker", "テスト");
+    existing.backend = "ollama".to_owned();
+    existing.permissions = ALL;
+    assert_eq!(effective_permissions(&existing, Some(&info)), Permissions::default());
+    let mut raw = input("worker", "テスト");
+    raw.backend = "ollama".to_owned();
+    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, Permissions::default());
+    raw.backend_options.insert("enableTools".to_owned(), json!(true));
+    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, ALL);
+    existing.backend_options = raw.backend_options.clone();
+    assert_eq!(effective_permissions(&existing, Some(&info)), ALL);
+    info.models[0].tools = Some(false);
+    assert!(normalize_agent_input(raw, Some(&info)).is_err());
+    assert_eq!(effective_permissions(&existing, Some(&info)), Permissions::default());
+    assert_eq!(effective_permissions(&existing, None), Permissions::default());
+}
