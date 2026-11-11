@@ -4,6 +4,7 @@ import { relative, resolve } from 'node:path';
 import type { CanUseTool, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { writableInWorkspace } from './writable-path.ts';
+import { expandedReadPolicy } from './secret-read.ts';
 import { brokenRule, declaredRules, isInside, type ExplainedRule, type RunRequest } from '../types.ts';
 
 export const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
@@ -23,6 +24,7 @@ export function targetOf(input: Record<string, unknown>, workspace: string): str
 /**
  * 確認が必要になったツール呼び出しをパスで判定する。書き込みは作業場所の中だけ、読み取りは作業場所と readableDirs だけ。
  * readAnywhere なら読み取りだけ、writeAnywhere なら書き込みも読み取りもパスを問わない（作業場所の外のファイルを直すには、まず読む必要がある）。
+ * readAnywhere の拡張範囲は secret-read.ts で秘密の場所と検索配下を点検する。
  * 作業場所の MEMORY.md（次回以降の自分へのメモ）だけは、読み書きの権限がなくても読み書きできる。
  * それ以外（許していないツール・範囲外のパス）は拒否する。WebSearch などパスのないツールは allowedTools で先に許している
  * （操作の確認をするときの Bash・WebFetch は check.ts が扱う）。
@@ -32,6 +34,12 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
   const anywhere = permissions.writeAnywhere;
   const readableRoots = [workspace, ...readableDirs];
   const memory = resolve(workspace, MEMORY_FILE);
+  const expandedRead = permissions.readAnywhere && !anywhere ? expandedReadPolicy(readableRoots) : null;
+  const readableByScope = (toolName: string, target: string, isMemory: boolean): boolean =>
+    READ_TOOLS.has(toolName) &&
+    (isMemory ||
+      (permissions.readFiles &&
+        (permissions.readAnywhere || anywhere || readableRoots.some((root) => isInside(target, root)))));
   return async (toolName, input) => {
     const target = targetOf(input, workspace);
     const isMemory = relative(memory, target) === '';
@@ -40,10 +48,8 @@ export function fileAccessPolicy(request: RunRequest): CanUseTool {
       (isMemory || permissions.writeFiles) &&
       (anywhere || (await writableInWorkspace(target, workspace)));
     const readable =
-      READ_TOOLS.has(toolName) &&
-      (isMemory ||
-        (permissions.readFiles &&
-          (permissions.readAnywhere || anywhere || readableRoots.some((root) => isInside(target, root)))));
+      readableByScope(toolName, target, isMemory) &&
+      (expandedRead === null || (await expandedRead(toolName, target, input)));
     const result: PermissionResult =
       writable || readable
         ? { behavior: 'allow', updatedInput: input }
