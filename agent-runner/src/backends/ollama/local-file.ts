@@ -55,8 +55,20 @@ async function listFiles(operation: LocalFileOperation): Promise<string> {
   return result;
 }
 
+/** リンクをたどらずに開く。リンクに差し替えられていたら、O_NOFOLLOW のある OS では ELOOP になるので、拒否として返す */
+async function openNoFollow(path: string, flags: number, mode?: number): Promise<FileHandle> {
+  try {
+    return await open(path, flags | NOFOLLOW, mode);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ELOOP') {
+      throw denied('特殊ファイル・ハードリンク・差し替えられたファイルは扱えません');
+    }
+    throw error;
+  }
+}
+
 async function readFile(operation: LocalFileOperation): Promise<string> {
-  const handle = await open(operation.path, constants.O_RDONLY | NOFOLLOW);
+  const handle = await openNoFollow(operation.path, constants.O_RDONLY);
   try {
     await assertSameFile(handle, operation);
     const buffer = Buffer.alloc(operation.limit + 1);
@@ -71,10 +83,10 @@ async function readFile(operation: LocalFileOperation): Promise<string> {
 /** 新しいファイルは「無ければ作る」で開き、既にあれば切り詰めずに開く（中身を消すのは、同じファイルだと確かめたあと） */
 async function openForWrite(path: string): Promise<FileHandle> {
   try {
-    return await open(path, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | NOFOLLOW, 0o600);
+    return await openNoFollow(path, constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL, 0o600);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-    return open(path, constants.O_WRONLY | NOFOLLOW);
+    return openNoFollow(path, constants.O_WRONLY);
   }
 }
 
