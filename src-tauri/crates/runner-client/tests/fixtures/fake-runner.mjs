@@ -5,6 +5,7 @@
 //   hang         cancel されたら error{cancelled}      stubborn cancel を無視して終わらない
 //   late         cancel されたら 100ms 後に result（中断が間に合わなかった完了）
 // login は状態を ready にして backends を送ってから result（text は空）で終える。
+// setLanguage は statusMessage を language:<code> にした backends を送り直す（context は GUILD_LANGUAGE も返す）。
 // 起動時の振る舞い（版・ready を送るか）は各エントリ（ok.mjs など）が startFakeRunner の引数で決める。
 
 import { createInterface } from 'node:readline';
@@ -45,7 +46,14 @@ function startJob(request, waiting) {
     case 'inspect':
       return reply(JSON.stringify(request));
     case 'context':
-      return reply(JSON.stringify({ args: process.argv.slice(2), flag: process.env.FAKE_FLAG ?? null, cwd: process.cwd() }));
+      return reply(
+        JSON.stringify({
+          args: process.argv.slice(2),
+          flag: process.env.FAKE_FLAG ?? null,
+          language: process.env.GUILD_LANGUAGE ?? null,
+          cwd: process.cwd(),
+        }),
+      );
     case 'fail':
       return send({ type: 'error', id: request.id, code: argument, message: `失敗: ${argument}` });
     case 'crash':
@@ -98,6 +106,9 @@ export function startFakeRunner({ protocolVersion = 3, sendReady = true, probeMo
       send({ type: 'backends', backends: [{ ...BACKEND, status: 'needs_auth', statusMessage: 'ログインしてください' }] });
       send({ type: 'result', id, text: '' });
     },
+    // 言語が変わったら、その言語の状態の説明で backends を送り直す
+    setLanguage: ({ language }) =>
+      send({ type: 'backends', backends: [{ ...BACKEND, statusMessage: `language:${language}` }] }),
     shutdown: () => process.exit(0),
   };
   process.stderr.write(`fake-runner: pid ${process.pid}\n`);

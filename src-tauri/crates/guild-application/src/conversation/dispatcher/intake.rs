@@ -1,6 +1,7 @@
 //! ジョブの受け入れ: 振り分けの結果の反映（参加・お知らせ・ジョブ）と合流。
 
 use guild_domain::conversation::{JobSpec, Notice, Routing};
+use guild_domain::locale;
 
 use super::actor::Actor;
 use crate::conversation::posting::{self, Origin};
@@ -28,7 +29,7 @@ impl Actor {
             }
             root.depth_notified = true;
         }
-        self.post_notice(origin, &notice.text());
+        self.post_notice(origin, &notice.text(locale::current()));
     }
 
     /// 待機ジョブに合流できれば合流し、新しいジョブなら積む。

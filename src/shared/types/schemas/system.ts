@@ -11,6 +11,7 @@ import type {
   ChannelQueue,
   CommandError,
   ErrorCode,
+  Language,
   MidRunPost,
   ModelSpec,
   OptionSpec,
@@ -119,6 +120,10 @@ export const updateStatusSchema = {
   latest: nullable(objectOf({ version: string, notes: string } satisfies Schema<AvailableUpdate>)),
 } satisfies Schema<UpdateStatus>;
 
+export function languageEnum() {
+  return oneOf<Language>({ ja: true, en: true, 'zh-Hans': true, 'zh-Hant': true, ko: true });
+}
+
 export const bootStatusSchema = {
   state: oneOf<BootState>({ ok: true, recovery: true }),
   reason: oneOf<BootReason>({
@@ -133,6 +138,7 @@ export const bootStatusSchema = {
   dataDir: string,
   message: string,
   needsSetup: boolean,
+  language: nullable(languageEnum()),
 } satisfies Schema<BootStatus>;
 
 export const errorCodeEnum = oneOf<ErrorCode>({

@@ -1,6 +1,7 @@
 import { Button, notifyError, notifyInfo, reportError, TextAreaField } from '@/shared/ui';
 import type { BackendInfo, InstallGuide } from '@/shared/types/domain';
 import { settingsApi } from '../api';
+import { tBackends as t } from '../i18n/backends';
 import { setUpBackend, useSettingsStore } from '../store';
 import styles from './SettingsDialog.module.css';
 
@@ -12,9 +13,9 @@ function installCommand(guide: InstallGuide): string {
 async function copyInstallCommand(command: string) {
   try {
     await navigator.clipboard.writeText(command);
-    notifyInfo('インストールコマンドをコピーしました。');
+    notifyInfo(t('copied'));
   } catch {
-    notifyError('自動でコピーできませんでした。コマンド欄を選択してコピーしてください。');
+    notifyError(t('copyFailed'));
   }
 }
 
@@ -34,11 +35,11 @@ export function BackendInstallGuide({ backend, guide }: { backend: BackendInfo; 
             onClick={() => void setUpBackend(backend.id, backend.label)}
             disabled={settingUp !== null}
           >
-            {inProgress ? 'セットアップ中…' : error ? 'もう一度試す' : `${backend.label} をセットアップ`}
+            {inProgress ? t('settingUp') : error ? t('retry') : t('setUp', { backend: backend.label })}
           </Button>
           {inProgress && (
             <p className={styles.help} role="status">
-              {guide.cli} をダウンロードしてインストールしています。数分かかることがあります。
+              {t('installing', { cli: guide.cli })}
             </p>
           )}
           {error && <p role="alert">{error}</p>}
@@ -51,16 +52,15 @@ export function BackendInstallGuide({ backend, guide }: { backend: BackendInfo; 
 
 function ManualInstallGuide({ guide }: { guide: InstallGuide }) {
   const command = installCommand(guide);
+  // 文言の中のログインのコマンドの位置に <code> を置く
+  const [beforeLogin, afterLogin] = t('afterInstall').split('{command}');
   return (
     <details>
-      <summary className={styles.guideSummary}>{guide.cli} のインストール手順</summary>
+      <summary className={styles.guideSummary}>{t('manualSummary', { cli: guide.cli })}</summary>
       <div className={styles.guideBody}>
-        <p className={styles.help}>
-          macOS と Linux では、Node.js や Homebrew がなくても {guide.publisher} の公式インストーラーで {guide.cli}{' '}
-          を入れられます。
-        </p>
+        <p className={styles.help}>{t('manualIntro', { publisher: guide.publisher, cli: guide.cli })}</p>
         <TextAreaField
-          label="ターミナルで実行するコマンド（macOS・Linux）"
+          label={t('commandLabel')}
           value={command}
           onChange={() => {}}
           onFocus={(event) => event.currentTarget.select()}
@@ -70,15 +70,16 @@ function ManualInstallGuide({ guide }: { guide: InstallGuide }) {
         />
         <div className={styles.guideActions}>
           <Button size="sm" onClick={() => void copyInstallCommand(command)}>
-            コマンドをコピー
+            {t('copyCommand')}
           </Button>
           <Button size="sm" variant="link" onClick={() => void settingsApi.openUrl(guide.docsUrl).catch(reportError)}>
-            {guide.publisher} の公式手順（Windows も含む）
+            {t('officialSteps', { publisher: guide.publisher })}
           </Button>
         </div>
         <p className={styles.help}>
-          インストールが完了したら、この画面の「再確認」を押してください。ターミナルからログインする場合は、新しいターミナルで{' '}
-          <code>{guide.loginCommand}</code> を実行してください。
+          {beforeLogin}
+          <code>{guide.loginCommand}</code>
+          {afterLogin}
         </p>
       </div>
     </details>

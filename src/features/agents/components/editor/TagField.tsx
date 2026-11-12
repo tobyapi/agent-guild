@@ -2,6 +2,7 @@ import { Badge, Field, Icon } from '@/shared/ui';
 import { TAG_COUNT_MAX } from '@/shared/lib/tags';
 import { useTemplates } from '../../hooks/useAgents';
 import { useTagInput } from '../../hooks/useTagInput';
+import { tEditor } from '../../i18n/editor';
 import { tagAccent } from '../../model/accent';
 import { removeTag } from '../../model/tagInput';
 import styles from './TagField.module.css';
@@ -20,13 +21,9 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
   const full = tags.length >= TAG_COUNT_MAX;
   return (
     <Field
-      label="タグ"
+      label={tEditor('tagLabel')}
       optional
-      hint={
-        full
-          ? `タグは ${TAG_COUNT_MAX} 個までです`
-          : '役割は上のカードで変更できます。追加のタグは分類用です。Enter・読点・カンマで追加できます。'
-      }
+      hint={full ? tEditor('tagFullHint', { max: TAG_COUNT_MAX }) : tEditor('tagHint')}
       error={input.problem ?? error}
     >
       {(control) => (
@@ -45,7 +42,7 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
               input.flush();
               onBlur();
             }}
-            placeholder={tags.length === 0 ? '例: リサーチ' : 'タグを追加'}
+            placeholder={tags.length === 0 ? tEditor('tagPlaceholderFirst') : tEditor('tagPlaceholderMore')}
             autoComplete="off"
           />
         </div>
@@ -58,9 +55,9 @@ export function TagField({ tags, onChange, error, onBlur }: TagFieldProps) {
 function TagChips({ tags, onChange }: Pick<TagFieldProps, 'tags' | 'onChange'>) {
   const templates = useTemplates();
   return (
-    <ul className={styles.chips} aria-label="付けたタグ">
+    <ul className={styles.chips} aria-label={tEditor('tagChipsLabel')}>
       <li className={styles.lead} aria-hidden="true">
-        役割
+        {tEditor('tagRoleLead')}
       </li>
       {tags.map((tag, index) => (
         <li key={`${index}-${tag}`}>
@@ -70,7 +67,7 @@ function TagChips({ tags, onChange }: Pick<TagFieldProps, 'tags' | 'onChange'>) 
               <button
                 type="button"
                 className={styles.remove}
-                aria-label={`タグ「${tag}」を外す`}
+                aria-label={tEditor('removeTag', { tag })}
                 onClick={() => onChange(removeTag(tags, index))}
               >
                 <Icon name="close" />

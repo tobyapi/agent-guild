@@ -8,6 +8,7 @@ import { memberGroups } from '../model/channels';
 import { MEMBER_PANEL_ID } from '../model/ids';
 import { removeChannelMember } from '../store';
 import { AddMembersDialog } from './AddMembersDialog';
+import { t } from '../i18n';
 import styles from './MemberPanel.module.css';
 
 /** 右のメンバーパネル: あなた・先頭のタグごとのエージェント・メンバーの追加 */
@@ -19,19 +20,19 @@ export function MemberPanel({ channel }: { channel: Channel }) {
   const [adding, setAdding] = useState(false);
   const total = 1 + groups.reduce((sum, group) => sum + group.agents.length, 0);
   return (
-    <aside id={MEMBER_PANEL_ID} className={styles.panel} aria-label="チャンネルのメンバー">
+    <aside id={MEMBER_PANEL_ID} className={styles.panel} aria-label={t('memberPanel')}>
       <div className={styles.head}>
-        <h2 className={styles.title}>メンバー</h2>
+        <h2 className={styles.title}>{t('members')}</h2>
         <span className={styles.count}>{total}</span>
       </div>
       <div className={styles.scroll}>
-        <SideSection title="あなた" mark={<AccentMark accent={HUMAN_ACCENT} human />}>
+        <SideSection title={t('you')} mark={<AccentMark accent={HUMAN_ACCENT} human />}>
           <li className={styles.row}>
             <Avatar avatar={me.avatar} name={me.name} color={me.color} size="row" human />
             <div className={styles.text}>
               <span className={styles.name}>
                 {me.name}
-                <span className={styles.you}>あなた</span>
+                <span className={styles.you}>{t('you')}</span>
               </span>
             </div>
           </li>
@@ -45,15 +46,15 @@ export function MemberPanel({ channel }: { channel: Channel }) {
         ))}
         {total === 1 && (
           <p className={styles.alone}>
-            <b>このチャンネルにはまだあなただけです</b>
-            エージェントを追加するか、@ で呼びかけると参加します。
+            <b>{t('aloneTitle')}</b>
+            {t('aloneText')}
           </p>
         )}
       </div>
       <div className={styles.foot}>
         <Button variant="ghost" className={styles.add} onClick={() => setAdding(true)}>
           <Icon name="plus" />
-          メンバーを追加
+          {t('addMembers')}
         </Button>
       </div>
       {adding && <AddMembersDialog channel={channel} onClose={() => setAdding(false)} />}
@@ -75,11 +76,11 @@ function MemberRow({ agent, channelId }: { agent: Agent; channelId: string }) {
         </span>
       </div>
       <div className={styles.rowActions}>
-        <IconButton label={`${agent.name} を編集`} onClick={() => openAgentEditor(agent.id)}>
+        <IconButton label={t('editAgent', { name: agent.name })} onClick={() => openAgentEditor(agent.id)}>
           <Icon name="edit" />
         </IconButton>
         <IconButton
-          label={`${agent.name} をチャンネルから外す`}
+          label={t('removeMember', { name: agent.name })}
           onClick={() => void removeChannelMember(channelId, agent.id).catch(reportError)}
         >
           <Icon name="close" />

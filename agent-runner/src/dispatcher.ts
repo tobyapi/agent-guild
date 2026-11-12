@@ -4,11 +4,14 @@ import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
 import { usableRequest, type BackendAdapter, type RunRequest } from './backends/types.ts';
 import type { ParsedLine } from './line-parser.ts';
+import { setLanguage } from './i18n.ts';
 import { logError } from './log.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
+import { t } from './texts/index.ts';
 
 type LoginRequest = Extract<RunnerRequest, { type: 'login' }>;
+type ApiKeyRequest = Extract<RunnerRequest, { type: 'apiKey' }>;
 type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
 
 export interface DispatcherOptions {
@@ -54,7 +57,7 @@ export class Dispatcher {
     if (!controller) return;
     this.#jobs.delete(id);
     controller.abort();
-    this.#fail(id, 'cancelled', '実行を中断しました');
+    this.#fail(id, 'cancelled', t('cancelled'));
   }
 
   /** 実行中のジョブをすべて中断して終わる。以後の入力は無視する */
@@ -67,22 +70,14 @@ export class Dispatcher {
 
   #handle(request: RunnerRequest): void {
     if (request.type === 'run') this.#run(request);
-    else if (request.type === 'apiKey') {
-      const info = this.#claim(request.id, request.backend)?.info();
-      if (!info) return;
-      const spec = info.setup.apiKey;
-      if (spec === null) {
-        this.#fail(request.id, 'bad_request', `${info.label} は API キーを保存できません`);
-        return;
-      }
-      this.#track(request.id, async () => {
-        const status = await manageApiKey(request.backend, spec.envVar, request.action, request.key);
-        await this.#probe();
-        return status;
-      });
-    } else if (request.type === 'login') this.#login(request);
+    else if (request.type === 'apiKey') this.#apiKey(request);
+    else if (request.type === 'login') this.#login(request);
     else if (request.type === 'cancel') this.cancel(request.id);
-    else if (request.type === 'probe') {
+    else if (request.type === 'setLanguage') {
+      // 返事はない。BackendInfo の説明（状態の説明は確かめた時点の言語で作る）を新しい言語で送り直す
+      setLanguage(request.language);
+      void this.#probe();
+    } else if (request.type === 'probe') {
       if (this.#jobs.has(request.id)) {
         this.#fail(request.id, 'bad_request', 'Duplicate probe id');
         return;
@@ -92,6 +87,21 @@ export class Dispatcher {
         return '';
       });
     } else this.shutdown();
+  }
+
+  #apiKey(request: ApiKeyRequest): void {
+    const info = this.#claim(request.id, request.backend)?.info();
+    if (!info) return;
+    const spec = info.setup.apiKey;
+    if (spec === null) {
+      this.#fail(request.id, 'bad_request', t('noApiKey', { backend: info.label }));
+      return;
+    }
+    this.#track(request.id, async () => {
+      const status = await manageApiKey(request.backend, spec.envVar, request.action, request.key);
+      await this.#probe();
+      return status;
+    });
   }
 
   /** 状態を確かめ直して backends を送る（失敗しても記録だけ） */
@@ -134,7 +144,7 @@ export class Dispatcher {
     if (!adapter) return;
     const { login } = adapter;
     if (!login || adapter.info().setup.login === null) {
-      this.#fail(id, 'bad_request', `${adapter.info().label} はアプリからログインできません`);
+      this.#fail(id, 'bad_request', t('noLogin', { backend: adapter.info().label }));
       return;
     }
     this.#track(id, async (signal) => {
@@ -150,11 +160,11 @@ export class Dispatcher {
   /** id が空いていて backend が既知なら、そのアダプタ。そうでなければ error を返して undefined */
   #claim(id: string, backend: string): BackendAdapter | undefined {
     if (this.#jobs.has(id)) {
-      this.#fail(id, 'bad_request', `同じ id のジョブが実行中です: ${id}`);
+      this.#fail(id, 'bad_request', t('duplicateJob', { id }));
       return undefined;
     }
     const adapter = this.#options.registry.find(backend);
-    if (!adapter) this.#fail(id, 'unknown_backend', `未知のバックエンドです: ${backend}`);
+    if (!adapter) this.#fail(id, 'unknown_backend', t('unknownBackend', { backend }));
     return adapter;
   }
 

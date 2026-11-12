@@ -1,13 +1,16 @@
-//! サービスの組み立て: 通常時（DB・ランナー・アダプタ一式）と、復旧モード（保存先の操作だけ）。
+//! サービスの組み立て: 通常時（DB・ランナー・アダプタ一式）と、復旧モード（保存先の操作と言語の変更だけ）。
+//! 言語の変更（LanguageService）はどちらのモードでも使うので、AppState とは別に State に入れる。
 
 use std::error::Error;
 use std::path::Path;
 use std::sync::Arc;
 
-use guild_application::ports::{Clock, EventPublisher, Spawner};
+use guild_application::language::LanguageService;
+use guild_application::ports::{AgentRuntime, Clock, EventPublisher, Spawner};
 use guild_application::storage::StorageService;
 use guild_application::{AppServices, Ports, StoragePorts};
 use guild_domain::boot::BootStatus;
+use guild_domain::locale::{self, Language};
 use tauri::{AppHandle, Manager};
 
 use super::boot::OpenedData;
@@ -32,12 +35,19 @@ use crate::infrastructure::workspace::FsWorkspace;
 use crate::interface::state::AppState;
 
 /// 通常時: ランナーを起動し、サービスを組み立て、初期データを入れて、スケジューラを動かす
-pub fn ready(app: &AppHandle, paths: &AppPaths, opened: OpenedData) -> Result<AppState, Box<dyn Error>> {
+/// language は settings.json に保存した言語（BootStatus に添える。いまの言語は呼び出し側が設定済み）
+pub fn ready(
+    app: &AppHandle,
+    paths: &AppPaths,
+    opened: OpenedData,
+    language: Option<Language>,
+) -> Result<AppState, Box<dyn Error>> {
     let db = Arc::new(opened.database);
     let events: Arc<dyn EventPublisher> = Arc::new(TauriEventPublisher::new(app.clone()));
     let spawner: Arc<dyn Spawner> = Arc::new(TauriSpawner);
     let clock: Arc<dyn Clock> = Arc::new(SystemClock::new());
-    let runtime = RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref());
+    let runtime =
+        RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref(), locale::current());
     let ports = Ports {
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),
@@ -57,18 +67,23 @@ pub fn ready(app: &AppHandle, paths: &AppPaths, opened: OpenedData) -> Result<Ap
         spawner: spawner.clone(),
     };
     let exporter = Arc::new(DataExport::new(db, paths.data_dir.clone()));
-    let services = AppServices::new(ports.clone(), storage_ports(app, paths), exporter);
+    let storage = storage_ports(app, paths);
+    let runner: Arc<dyn AgentRuntime> = runtime.clone();
+    app.manage(LanguageService::new(storage.settings.clone(), Some(runner)));
+    let services = AppServices::new(ports.clone(), storage, exporter);
     seed::run_once(&services, ports.meta.as_ref())?;
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
     app.manage(runtime);
     app.manage(opened.lock);
-    let boot = BootStatus::ok(display(&paths.data_dir), services.storage.needs_setup());
+    let boot = BootStatus::ok(display(&paths.data_dir), services.storage.needs_setup()).with_language(language);
     Ok(AppState::Ready { boot, services: Box::new(services) })
 }
 
-/// 復旧モード: サービスは起動せず、起動の結果と保存先の操作だけを持つ
+/// 復旧モード: サービスは起動せず、起動の結果と保存先の操作（と言語の変更）だけを持つ
 pub fn recovery(app: &AppHandle, paths: &AppPaths, boot: BootStatus) -> AppState {
-    AppState::Recovery { boot, storage: Box::new(StorageService::new(storage_ports(app, paths), None)) }
+    let storage = storage_ports(app, paths);
+    app.manage(LanguageService::new(storage.settings.clone(), None));
+    AppState::Recovery { boot, storage: Box::new(StorageService::new(storage, None)) }
 }
 
 fn storage_ports(app: &AppHandle, paths: &AppPaths) -> StoragePorts {

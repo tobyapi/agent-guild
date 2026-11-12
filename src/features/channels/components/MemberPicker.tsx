@@ -1,5 +1,6 @@
 import { PrimaryTagBadge, useActiveAgents } from '@/features/agents';
 import { Avatar, CheckboxField } from '@/shared/ui';
+import { t } from '../i18n';
 import styles from './ChannelDialog.module.css';
 
 export interface MemberPickerProps {
@@ -16,9 +17,9 @@ export function MemberPicker({ selected, onChange }: MemberPickerProps) {
   };
   return (
     <fieldset className={styles.members}>
-      <legend className={styles.legend}>メンバー</legend>
-      <p className={styles.help}>あなたは必ず入ります。あとから @ で呼びかけて加えることもできます。</p>
-      {agents.length === 0 && <p className={styles.help}>エージェントはまだいません。</p>}
+      <legend className={styles.legend}>{t('members')}</legend>
+      <p className={styles.help}>{t('pickerHelp')}</p>
+      {agents.length === 0 && <p className={styles.help}>{t('noAgents')}</p>}
       {agents.map((agent) => (
         <CheckboxField
           key={agent.id}

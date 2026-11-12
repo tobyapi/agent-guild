@@ -2,6 +2,7 @@
 // Rust・React の変更は不要（能力・状態・設定項目はアダプタが申告し、ready / backends で届く）。
 
 import { errorMessage, logInfo } from '../log.ts';
+import { t } from '../texts/index.ts';
 import type { BackendInfo } from '../protocol.ts';
 import { claudeAdapter } from './claude.ts';
 import { codexAdapter } from './codex.ts';
@@ -49,7 +50,7 @@ async function probeOf(adapter: BackendAdapter): Promise<BackendProbe> {
   try {
     return await adapter.probe();
   } catch (error) {
-    return { status: 'unavailable', statusMessage: `状態を確認できませんでした（${errorMessage(error)}）` };
+    return { status: 'unavailable', statusMessage: t('probeFailed', { reason: errorMessage(error) }) };
   }
 }
 

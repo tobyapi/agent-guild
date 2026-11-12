@@ -2,5 +2,6 @@
 {"type":"login","id":"login-0001","backend":"claude"}
 {"type":"cancel","id":"job-0001"}
 {"type":"probe","id":"probe-1"}
+{"type":"setLanguage","language":"en"}
 {"type":"shutdown"}
 {"type":"apiKey","id":"key-0001","backend":"grok","action":"status"}

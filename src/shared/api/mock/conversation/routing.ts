@@ -1,7 +1,7 @@
 // 会話の振り分け（docs/design.md §7）をモック用に再現する純粋な関数。結果は「起こすこと」の一覧で返す。
 import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, BackendInfo, Channel, Message, UnmentionedPolicy } from '@/shared/types/domain';
-import { NO_RESPONDER, undeliverable } from '../notices';
+import { noResponder, undeliverable } from '../notices';
 
 export const MAX_DEPTH = 10;
 
@@ -83,7 +83,7 @@ export function routeHumanMessage(message: Message, ctx: RoutingContext): Routin
     ]);
   }
   const responders = defaultResponders(ctx);
-  if (responders.length === 0) return [{ type: 'notice', content: NO_RESPONDER }];
+  if (responders.length === 0) return [{ type: 'notice', content: noResponder() }];
   return responders.map((agent) => enqueue(jobFrom(message, agent.id, 'reply', [])));
 }
 

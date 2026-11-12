@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { SkillManager } from '@/features/skills';
 import { Dialog, FormAlert } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
+import { tEditor } from '../i18n/editor';
 import { useAgentDraft } from '../hooks/useAgentDraft';
 import { useAgentSave } from '../hooks/useAgentSave';
 import { useEditorTarget } from '../hooks/useAgents';
@@ -55,8 +56,8 @@ function AgentEditor({
   return (
     <Dialog
       size="lg"
-      title={agent ? `${agent.name} を編集` : '新しいエージェント'}
-      description={agent ? undefined : 'ギルドに新しい仲間を迎えます。あとからいつでも変えられます。'}
+      title={agent ? tEditor('editTitle', { name: agent.name }) : tEditor('newTitle')}
+      description={agent ? undefined : tEditor('newDescription')}
       onClose={closeAgentEditor}
       footer={<EditorFooter agent={agent} formId={formId} saving={save.saving} />}
     >

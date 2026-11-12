@@ -5,6 +5,7 @@ import { useBackends } from '@/features/runtime';
 import { errorCode, errorField, errorMessage } from '@/shared/lib/errors';
 import { notifyInfo, reportError, useFieldErrors } from '@/shared/ui';
 import type { Agent, AgentInput } from '@/shared/types/domain';
+import { tEditor } from '../i18n/editor';
 import type { AgentDraft } from '../model/draft';
 import { agentErrorField, validateAgentDraft } from '../model/validation';
 import type { AgentField } from '../model/validation';
@@ -21,12 +22,12 @@ interface ServerError {
 async function persist(agent: Agent | null, input: AgentInput): Promise<void> {
   if (agent) {
     await updateAgent(agent.id, input);
-    notifyInfo('保存しました');
+    notifyInfo(tEditor('saved'));
     closeAgentEditor();
     return;
   }
   const created = await createAgent(input);
-  notifyInfo(`${created.name} を迎えました`);
+  notifyInfo(tEditor('welcomed', { name: created.name }));
   // 作成したら、スキルを足せるように編集画面へ切り替える
   openAgentEditor(created.id);
 }

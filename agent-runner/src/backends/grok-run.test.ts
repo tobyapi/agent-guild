@@ -27,7 +27,7 @@ vi.mock('@openai/codex-sdk', () => ({
 }));
 vi.mock('./codex-runtime/executable.ts', () => ({
   findCodex: () => ({ path: '/bin/codex', pathDirs: [] }),
-  CODEX_NOT_FOUND: 'missing',
+  codexNotFound: () => 'missing',
 }));
 vi.mock('./skill-files.ts', () => ({ writeSkills: mock.skills }));
 vi.mock('node:fs/promises', () => ({ mkdir: mock.mkdir }));

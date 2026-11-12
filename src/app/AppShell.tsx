@@ -12,6 +12,7 @@ import { ChatView } from '@/features/chat';
 import { RuntimeBanner } from '@/features/runtime';
 import { openSettings, SettingsDialog, SetupDialog } from '@/features/settings';
 import { Button, EmptyState, Icon } from '@/shared/ui';
+import { t } from './i18n';
 import { Sidebar } from './Sidebar';
 import { useUpdateNotice } from './useUpdateNotice';
 import styles from './AppShell.module.css';
@@ -47,15 +48,15 @@ function NoChannel() {
   return (
     <div className={styles.empty}>
       <EmptyState
-        title="最初のチャンネルを作りましょう"
+        title={t('noChannelTitle')}
         action={
           <Button variant="primary" onClick={openChannelCreator}>
             <Icon name="plus" />
-            チャンネルを作成
+            {t('createChannel')}
           </Button>
         }
       >
-        話題ごとにチャンネルを分けると、エージェントが文脈を取り違えにくくなります。
+        {t('noChannelBody')}
       </EmptyState>
     </div>
   );

@@ -1,7 +1,8 @@
 import { Button, FormAlert, TextAreaField, TextField } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
 import { useSkillForm } from '../hooks/useSkillForm';
-import { SKILL_NAME_RULE } from '../model/validation';
+import { t } from '../i18n';
+import { skillNameRule } from '../model/validation';
 import styles from './SkillManager.module.css';
 
 export interface SkillEditorProps {
@@ -20,42 +21,42 @@ export function SkillEditor({ agentId, skill, existing, onDone }: SkillEditorPro
       className={styles.editor}
       onSubmit={form.onSubmit}
       noValidate
-      aria-label={skill ? `${skill.name} を編集` : '新しいスキル'}
+      aria-label={skill ? t('editSkill', { name: skill.name }) : t('newSkill')}
     >
       {form.formError && <FormAlert>{form.formError}</FormAlert>}
       <TextField
-        label="名前"
+        label={t('nameLabel')}
         value={draft.name}
         onChange={(value) => form.update('name', value)}
         onBlur={() => form.touch('name')}
         error={errors.name}
-        hint={`${SKILL_NAME_RULE}。例: code-review`}
+        hint={t('nameHint', { rule: skillNameRule() })}
         spellCheck={false}
         autoComplete="off"
         data-autofocus
       />
       <TextAreaField
-        label="説明"
+        label={t('descriptionLabel')}
         value={draft.description}
         onChange={(value) => form.update('description', value)}
         onBlur={() => form.touch('description')}
         error={errors.description}
-        hint="いつ使うスキルかを書きます。エージェントはこれを見て、読むかどうかを決めます。"
+        hint={t('descriptionHint')}
         rows={2}
       />
       <TextAreaField
-        label="本文（SKILL.md）"
+        label={t('bodyLabel')}
         optional
         value={draft.body}
         onChange={(value) => form.update('body', value)}
-        hint="Markdown で手順や観点を書きます。"
+        hint={t('bodyHint')}
         rows={8}
         mono
       />
       <div className={styles.editorActions}>
-        <Button onClick={onDone}>キャンセル</Button>
+        <Button onClick={onDone}>{t('cancel')}</Button>
         <Button type="submit" variant="primary" disabled={form.saving}>
-          {form.saving ? '保存中…' : '保存'}
+          {form.saving ? t('saving') : t('save')}
         </Button>
       </div>
     </form>

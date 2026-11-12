@@ -27,7 +27,7 @@ const agent = (id: string, tags: string[], deletedAt: number | null = null) =>
   ({ id, tags, name: id, deletedAt }) as Agent;
 
 const template = (id: string, tag: string, accent: AgentTemplate['accent']) =>
-  ({ id, label: tag, accent, defaults: { tags: [tag] } }) as AgentTemplate;
+  ({ id, label: tag, accent, roleTags: [tag], defaults: { tags: [tag] } }) as AgentTemplate;
 const templates = [template('worker', '作業者', 'worker'), template('expert', '専門家', 'expert')];
 
 describe('resolveActiveChannel', () => {

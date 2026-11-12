@@ -3,6 +3,7 @@
 use std::fs;
 use std::path::Path;
 
+use guild_domain::locale::Language;
 use runner_client::Launch;
 
 use super::launch::{runner_config, BUNDLED_DIR};
@@ -16,11 +17,12 @@ fn the_bundled_runner_is_used_when_the_resources_have_it() {
     let script = resources.0.join(BUNDLED_DIR).join("agent-runner").join("src").join("main.js");
     fs::create_dir_all(script.parent().unwrap()).unwrap();
     fs::write(&script, "").unwrap();
-    let config = runner_config(Some(&resources.0));
+    let config = runner_config(Some(&resources.0), Language::En);
     let node = std::env::current_exe().unwrap().with_file_name(format!("guild-node{}", std::env::consts::EXE_SUFFIX));
     assert!(matches!(&config.launch, Launch::Node { script: used, node: executable }
         if used == &script && executable == &plain_path(&node)));
     assert_eq!(config.cwd, Some(resources.0.join(BUNDLED_DIR)));
+    assert_eq!(config.language, "en", "最初の言語を渡す");
 }
 
 #[test]
@@ -35,7 +37,7 @@ fn verbatim_windows_paths_become_plain_for_node() {
 fn without_the_bundled_runner_the_development_script_is_used() {
     let resources = TempDir::new("no-runner");
     let development = Path::new("agent-runner").join("src").join("main.ts");
-    for config in [runner_config(Some(&resources.0)), runner_config(None)] {
+    for config in [runner_config(Some(&resources.0), Language::Ja), runner_config(None, Language::Ja)] {
         assert!(matches!(&config.launch, Launch::Node { script, .. } if script.ends_with(&development)));
     }
 }

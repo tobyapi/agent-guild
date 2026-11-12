@@ -15,6 +15,7 @@ import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
 import { toolChat } from './ollama/chat.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
+import { t } from './ollama/texts/index.ts';
 
 const NO_TOOLS: Permissions = {
   webSearch: false,
@@ -26,14 +27,13 @@ const NO_TOOLS: Permissions = {
   runCommands: false,
   skills: false,
 };
-const NO_MODELS = 'Ollama に会話用のローカルモデルを追加して「再確認」を押してください。';
 
 function modelSpec(model: LocalModel): ModelSpec {
-  const input = model.capabilities.includes('vision') ? '画像と文章に対応' : '文章に対応';
+  const input = model.capabilities.includes('vision') ? t('vision') : t('textOnly');
   return {
     id: model.id,
     label: model.id,
-    description: [model.size, input, model.capabilities.includes('tools') ? '道具に対応' : 'JSON 操作（試作）']
+    description: [model.size, input, model.capabilities.includes('tools') ? t('nativeTools') : t('jsonTools')]
       .filter(Boolean)
       .join(' · '),
     efforts: [],
@@ -50,13 +50,13 @@ async function probe(): Promise<BackendProbe> {
     const models = (await localChatModels()).map(modelSpec);
     return {
       status: models.length === 0 ? 'unavailable' : 'ready',
-      statusMessage: models.length === 0 ? NO_MODELS : 'この PC のモデルを使います。',
+      statusMessage: models.length === 0 ? t('noModels') : t('ready'),
       models,
       defaultModel: models[0]?.id ?? '',
     };
   } catch (error) {
     if (process.platform !== 'darwin' || !(error instanceof OllamaStopped)) throw error;
-    return { status: 'stopped', statusMessage: '起動すると、この Mac に入っているモデルを読み込みます。' };
+    return { status: 'stopped', statusMessage: t('stopped') };
   }
 }
 
@@ -65,7 +65,7 @@ async function encodeImage(image: ImagePayload, signal: AbortSignal): Promise<st
     return (await readFile(image.path, { signal })).toString('base64');
   } catch {
     signal.throwIfAborted();
-    throw new BackendError('bad_request', '添付画像を読み込めませんでした。');
+    throw new BackendError('bad_request', t('imageRead'));
   }
 }
 
@@ -85,18 +85,21 @@ async function run(request: RunRequest, context: RunContext): Promise<string> {
   const models = await localChatModels(signal);
   const model = request.model === '' ? models[0] : models.find((candidate) => candidate.id === request.model);
   if (!model)
-    throw new BackendError('model_not_found', request.model ? `${request.model} が Ollama にありません。` : NO_MODELS);
+    throw new BackendError(
+      'model_not_found',
+      request.model ? t('modelMissing', { model: request.model }) : t('noModels'),
+    );
   const vision = model.capabilities.includes('vision');
   const skippedImages = !vision && request.images.length > 0;
   const images = vision ? await Promise.all(request.images.map((image) => encodeImage(image, signal))) : [];
   const prompt = skippedImages
     ? `${request.prompt}\n\n添付画像は入力されていません。画像の内容を推測せず、文章から分かる範囲で答えてください。`
     : request.prompt;
-  onActivity(`${model.id} で返答を作成しています…`);
+  onActivity(t('responding', { model: model.id }));
   onUsage({ model: model.id });
   const text = await respond(request, context, model, prompt, images, enabled);
   if (!skippedImages || text === '[PASS]') return text;
-  return `${text}\n\n（${model.id} は文章のみ対応のため、添付画像は読み取っていません。）`;
+  return `${text}\n\n${t('imageSkipped', { model: model.id })}`;
 }
 
 async function respond(
@@ -120,7 +123,7 @@ async function respond(
 export const ollamaAdapter: BackendAdapter = {
   info: () => ({
     id: 'ollama',
-    label: 'Ollama（この PC）',
+    label: t('label'),
     capabilities: {
       webSearch: false,
       webFetch: false,
@@ -136,26 +139,24 @@ export const ollamaAdapter: BackendAdapter = {
     options: [
       {
         key: 'toolProtocol',
-        label: '道具の要求形式',
-        description:
-          'auto は対応モデルのネイティブ呼び出しを使います。操作を呼ばない DeepSeek などでは json を選んでください。',
+        label: t('toolProtocolLabel'),
+        description: t('toolProtocolDescription'),
         type: 'select',
         choices: ['auto', 'json'],
         default: 'auto',
       },
       {
         key: 'enableTools',
-        label: '道具の利用を有効にする',
-        description:
-          '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',
+        label: t('enableToolsLabel'),
+        description: t('enableToolsDescription'),
         type: 'boolean',
         choices: [],
         default: false,
       },
       {
         key: 'operationCheck',
-        label: '操作を実行前に確認する',
-        description: 'コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。',
+        label: t('operationCheckLabel'),
+        description: t('operationCheckDescription'),
         type: 'boolean',
         choices: [],
         default: true,

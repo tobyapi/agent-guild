@@ -2,6 +2,7 @@
 
 use guild_domain::conversation::{notices, JobSpec};
 use guild_domain::ids::{AgentId, ChannelId};
+use guild_domain::locale;
 use tokio::sync::oneshot;
 
 use super::actor::Actor;
@@ -95,7 +96,7 @@ impl Actor {
                 continue;
             }
             if let (true, Some(channel)) = (waiter.announce, &waiter.channel) {
-                if let Err(error) = posting::post_system(&self.ports, channel, notices::STOPPED) {
+                if let Err(error) = posting::post_system(&self.ports, channel, notices::stopped(locale::current())) {
                     log::error!("「停止しました」を保存できませんでした: {error}");
                 }
             }

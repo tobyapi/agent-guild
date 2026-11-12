@@ -4,6 +4,7 @@ import type { IconName } from '@/shared/ui';
 import type { Channel, Message } from '@/shared/types/domain';
 import { noticeIcon, splitLeadingName } from '../model/systemNotice';
 import type { NoticeIcon } from '../model/systemNotice';
+import { t } from '../i18n';
 import styles from './MessageList.module.css';
 
 const NOTICE_ICONS: Readonly<Record<NoticeIcon, IconName>> = {
@@ -12,9 +13,6 @@ const NOTICE_ICONS: Readonly<Record<NoticeIcon, IconName>> = {
   limit: 'alert',
   other: 'diamond',
 };
-
-/** 話題と案内の間の全角スペース（docs/ui-design.md §7 の文例どおり） */
-const IDEOGRAPHIC_SPACE = String.fromCharCode(0x3000);
 
 /** 日付の区切り: 中央に「今日」「11月7日（金）」、左右に細線 */
 export function DaySeparator({ at, today }: { at: number; today: number }) {
@@ -62,23 +60,24 @@ export interface LogStartProps {
 
 /** 一覧の先頭: 読み込み中 / 過去を読む / チャンネルのはじまり */
 export function LogStart({ channel, ready, hasMore, loadingOlder, onLoadOlder }: LogStartProps) {
-  if (!ready) return <p className={styles.status}>読み込み中…</p>;
-  if (loadingOlder) return <p className={styles.status}>以前のメッセージを読み込み中…</p>;
+  if (!ready) return <p className={styles.status}>{t('loading')}</p>;
+  if (loadingOlder) return <p className={styles.status}>{t('loadingOlder')}</p>;
   if (hasMore) {
     return (
       <div className={styles.status}>
         <Button size="sm" variant="ghost" onClick={onLoadOlder}>
-          以前のメッセージを読み込む
+          {t('loadOlder')}
         </Button>
       </div>
     );
   }
   return (
     <div className={styles.intro}>
-      <h2 className={styles.introTitle}>#{channel.name} へようこそ</h2>
+      <h2 className={styles.introTitle}>{t('welcome', { channel: channel.name })}</h2>
       <p className={styles.introText}>
-        {channel.topic && `${channel.topic}${IDEOGRAPHIC_SPACE}`}
-        ここが #{channel.name} のはじまりです。@ でエージェントに呼びかけてみましょう。
+        {/* 話題と案内の間は日本語では全角スペース（docs/ui-design.md §7 の文例どおり） */}
+        {channel.topic && `${channel.topic}${t('introSpacer')}`}
+        {t('intro', { channel: channel.name })}
       </p>
     </div>
   );

@@ -12,5 +12,5 @@ export {
   useCheckingBackends,
   useRuntimeStatus,
 } from './hooks/useRuntime';
-export { BACKEND_STATUS_WORDS } from './model/status';
+export { backendStatusWord } from './model/status';
 export { applyRuntimeSnapshot, currentActivityRevision, refreshBackends, setActivity } from './store';

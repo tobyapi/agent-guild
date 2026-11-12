@@ -1,6 +1,7 @@
 import { Tag } from '@/shared/ui';
 import { useBackend } from '../hooks/useRuntime';
-import { BACKEND_STATUS_TONES, BACKEND_STATUS_WORDS, backendTitle } from '../model/status';
+import { t } from '../i18n';
+import { BACKEND_STATUS_TONES, backendStatusWord, backendTitle } from '../model/status';
 import styles from './BackendTag.module.css';
 
 export interface BackendTagProps {
@@ -18,12 +19,12 @@ export interface BackendTagProps {
  */
 export function BackendTag({ backendId, showStatus = true }: BackendTagProps) {
   const backend = useBackend(backendId);
-  if (!backend) return <Tag title="この環境では見つからないバックエンドです">{backendId}</Tag>;
+  if (!backend) return <Tag title={t('unknownBackend')}>{backendId}</Tag>;
   if (!showStatus) return <Tag title={backend.label}>{backend.id}</Tag>;
   return (
     <Tag tone={BACKEND_STATUS_TONES[backend.status]} title={backendTitle(backend)}>
       {backend.id}
-      {backend.status !== 'ready' && <span className={styles.word}>· {BACKEND_STATUS_WORDS[backend.status]}</span>}
+      {backend.status !== 'ready' && <span className={styles.word}>· {backendStatusWord(backend.status)}</span>}
     </Tag>
   );
 }

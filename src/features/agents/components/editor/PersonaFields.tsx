@@ -1,7 +1,8 @@
 import { TextAreaField, TextField } from '@/shared/ui';
 import type { AgentDraft, DraftUpdate } from '../../model/draft';
-import { PERSONALITIES } from '../../model/personas/personalities';
-import { TONES } from '../../model/personas/tones';
+import { tEditor } from '../../i18n/editor';
+import { personalities } from '../../model/personas/personalities';
+import { tones } from '../../model/personas/tones';
 import { EditorSection } from './EditorSection';
 import { PersonaPresetField } from './PersonaPresetField';
 
@@ -13,37 +14,37 @@ export interface PersonaFieldsProps {
 /** 人格: 担当・得意分野・性格・口調（docs/ui-design.md §5.11 の順）。性格と口調はプリセットから選べる */
 export function PersonaFields({ draft, update }: PersonaFieldsProps) {
   return (
-    <EditorSection title="人格">
+    <EditorSection title={tEditor('personaSection')}>
       <TextField
-        label="担当"
+        label={tEditor('roleLabel')}
         optional
         value={draft.role}
         onChange={(value) => update('role', value)}
-        placeholder="例: リサーチと企画の担当"
+        placeholder={tEditor('rolePlaceholder')}
       />
       <TextAreaField
-        label="得意分野"
+        label={tEditor('expertiseLabel')}
         optional
         value={draft.expertise}
         onChange={(value) => update('expertise', value)}
-        hint="相談相手の一覧に出ます。ほかのエージェントは相談先を選ぶときにこれを見ます。"
-        placeholder="例: ソフトウェア設計とコードレビュー"
+        hint={tEditor('expertiseHint')}
+        placeholder={tEditor('expertisePlaceholder')}
         rows={2}
       />
       <PersonaPresetField
-        label="性格"
+        label={tEditor('personalityLabel')}
         value={draft.personality}
         onChange={(value) => update('personality', value)}
-        presets={PERSONALITIES}
-        placeholder="例: 好奇心旺盛。気になったことはすぐ調べる。"
+        presets={personalities()}
+        placeholder={tEditor('personalityPlaceholder')}
         multiline
       />
       <PersonaPresetField
-        label="口調"
+        label={tEditor('toneLabel')}
         value={draft.tone}
         onChange={(value) => update('tone', value)}
-        presets={TONES}
-        placeholder="例: フランクな丁寧語"
+        presets={tones()}
+        placeholder={tEditor('tonePlaceholder')}
       />
     </EditorSection>
   );

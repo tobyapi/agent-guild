@@ -7,9 +7,9 @@ const agent = (id: string, name: string, tags: string[], deletedAt: number | nul
   ({ id, name, tags, deletedAt }) as Agent;
 
 const templates = [
-  { id: 'worker', accent: 'worker', defaults: { tags: ['作業者'] } },
-  { id: 'expert', accent: 'expert', defaults: { tags: ['専門家'] } },
-  { id: 'plain', accent: null, defaults: { tags: ['記録'] } },
+  { id: 'worker', accent: 'worker', roleTags: ['作業者', 'Worker'], defaults: { tags: ['作業者'] } },
+  { id: 'expert', accent: 'expert', roleTags: ['専門家', 'Expert'], defaults: { tags: ['専門家'] } },
+  { id: 'plain', accent: null, roleTags: ['記録'], defaults: { tags: ['記録'] } },
 ] as AgentTemplate[];
 
 describe('mentionChipTargets', () => {

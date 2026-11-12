@@ -1,35 +1,41 @@
 // 割り振り（マネージャーのタスク。docs/design.md §7.1・docs/ui-design.md §5.13）の表示の判断。純粋な関数。
 import type { Delegation, DelegationStatus, Subtask, SubtaskStatus } from '@/shared/types/domain';
+import { t } from '../i18n';
 
-export const SUBTASK_STATUS_TEXT: Readonly<Record<SubtaskStatus, string>> = {
-  pending: '待機中',
-  running: '作業中',
-  done: '完了',
-  failed: '失敗',
-  cancelled: '中止',
-};
+const SUBTASK_STATUS_KEYS = {
+  pending: 'subtaskPending',
+  running: 'subtaskRunning',
+  done: 'subtaskDone',
+  failed: 'subtaskFailed',
+  cancelled: 'subtaskCancelled',
+} as const satisfies Record<SubtaskStatus, string>;
+
+const DELEGATION_STATE_KEYS = {
+  running: 'stateRunning',
+  reporting: 'stateReporting',
+  done: 'stateDone',
+  cancelled: 'stateCancelled',
+} as const satisfies Record<DelegationStatus, string>;
+
+/** サブタスクの行の状態の言葉 */
+export const subtaskStatusText = (status: SubtaskStatus): string => t(SUBTASK_STATUS_KEYS[status]);
 
 /** カードの右上の全体の状態の札 */
-export const DELEGATION_STATE_TEXT: Readonly<Record<DelegationStatus, string>> = {
-  running: '進行中',
-  reporting: 'まとめ中',
-  done: '完了',
-  cancelled: '打ち切り',
-};
+export const delegationStateText = (status: DelegationStatus): string => t(DELEGATION_STATE_KEYS[status]);
 
 /** 見出しの進み具合「3 件中 1 件完了」（失敗があれば「 · 失敗 1」を添える） */
 export function progressText(delegation: Delegation): string {
   const count = (status: SubtaskStatus) => delegation.subtasks.filter((subtask) => subtask.status === status).length;
   const failed = count('failed');
-  const text = `${delegation.subtasks.length} 件中 ${count('done')} 件完了`;
-  return failed > 0 ? `${text} · 失敗 ${failed}` : text;
+  const text = t('progress', { total: delegation.subtasks.length, done: count('done') });
+  return failed > 0 ? t('progressFailed', { text, failed }) : text;
 }
 
 /** サブタスクの行の導線（完了なら結果、失敗でエラー発言があればエラー）。なければ null */
 export function resultLink(subtask: Subtask): { messageId: string; label: string } | null {
   if (subtask.resultMessageId === null) return null;
-  if (subtask.status === 'done') return { messageId: subtask.resultMessageId, label: '結果を見る' };
-  if (subtask.status === 'failed') return { messageId: subtask.resultMessageId, label: 'エラーを見る' };
+  if (subtask.status === 'done') return { messageId: subtask.resultMessageId, label: t('viewResult') };
+  if (subtask.status === 'failed') return { messageId: subtask.resultMessageId, label: t('viewError') };
   return null;
 }
 

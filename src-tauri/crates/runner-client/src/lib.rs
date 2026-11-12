@@ -4,7 +4,7 @@
 //! 公開 API（本体クレートの infrastructure/runtime/ が依存する契約）は、このファイルと protocol.rs・error.rs の型、
 //! client.rs の `RunnerClient`。内部: supervisor（起動・再起動の監視タスク）/ connection（子プロセス1つ）/
 //! reader（stdout・stderr）/ run（1回の実行の流れ）/ jobs（job_id ごとの待ち手）/ wire（JSON の形）/
-//! launch（起動コマンド）/ job_object（Windows の孤児対策）/ shared（タスク間で共有する状態）。
+//! launch（起動コマンド）/ job_object（Windows の孤児対策）/ shared（タスク間で共有する状態）/ text（文面の言語）。
 
 mod client;
 mod connection;
@@ -17,6 +17,7 @@ mod reader;
 mod run;
 mod shared;
 mod supervisor;
+mod text;
 mod wire;
 
 use std::path::PathBuf;
@@ -49,6 +50,9 @@ pub struct RunnerConfig {
     pub env: Vec<(String, String)>,
     /// 子プロセスの作業ディレクトリ（None なら親と同じ）
     pub cwd: Option<PathBuf>,
+    /// 最初の言語のコード（"ja"・"en"・"zh-Hans"・"zh-Hant"・"ko"）。起動のたびに環境変数 `GUILD_LANGUAGE` で渡し、
+    /// このクレートが作る文面（状態の理由など）もこの言語にする。`RunnerClient::set_language` で変わる。空なら渡さない
+    pub language: String,
     /// 起動から `ready` までを待つ上限
     pub ready_timeout: Duration,
     /// cancel 後に終端イベントを待つ上限。過ぎたら `Err(Cancelled)` を返し、以後その id のイベントは捨てる
@@ -61,7 +65,7 @@ pub enum RunnerStatus {
     /// 起動して `ready` を待っている
     Starting,
     Ready,
-    /// 使えない（起動失敗・版の不一致・異常終了後の再起動待ち・停止済み）。理由は日本語
+    /// 使えない（起動失敗・版の不一致・異常終了後の再起動待ち・停止済み）。理由はそのときの言語
     Unavailable {
         message: String,
     },

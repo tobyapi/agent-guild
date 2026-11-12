@@ -2,6 +2,8 @@
 
 use std::path::{Path, PathBuf};
 
+use guild_domain::locale::Language;
+
 use crate::error::AppResult;
 
 /// 移動先のフォルダの中身
@@ -53,6 +55,8 @@ pub struct LaunchSettings {
     pub skill_library_dirs: Vec<PathBuf>,
     /// 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）を終えた
     pub setup_done: bool,
+    /// 表示とエージェントの会話の言語（None = まだ選んでいない。日本語として扱う）
+    pub language: Option<Language>,
 }
 
 pub trait SettingsStore: Send + Sync {

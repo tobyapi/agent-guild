@@ -4,6 +4,7 @@ use serde_json::{Map, Value};
 
 use super::{BackendInfo, OptionSpec, OptionType, EFFORT_OPTION};
 use crate::error::ValidationError;
+use crate::locale;
 
 /// backendOptions を項目定義に合わせる: 未知のキーと null（＝既定値）は捨て、型が合わない値は拒否する。
 /// 推論の深さ（EFFORT_OPTION）は、モデル（空なら既定のモデル）が一覧にあればその efforts のどれかだけを受け付け、
@@ -25,7 +26,14 @@ pub fn sanitize_backend_options(
                 continue;
             };
             if !accepts(spec, &value) {
-                return Err(invalid(format!("「{}」の値が正しくありません", spec.label)));
+                let label = &spec.label;
+                return Err(invalid(locale::pick([
+                    format!("「{label}」の値が正しくありません"),
+                    format!("The value of “{label}” is invalid"),
+                    format!("“{label}”的值不正确"),
+                    format!("「{label}」的值不正確"),
+                    format!("\"{label}\"의 값이 올바르지 않습니다"),
+                ])));
             }
         }
         result.insert(key, value);
@@ -35,7 +43,16 @@ pub fn sanitize_backend_options(
 
 fn ensure_effort(value: &Value, info: &BackendInfo, model: &str) -> Result<(), ValidationError> {
     let Some(effort) = value.as_str() else {
-        return Err(invalid("推論の深さの値が正しくありません".to_owned()));
+        return Err(invalid(
+            locale::pick([
+                "推論の深さの値が正しくありません",
+                "The reasoning effort value is invalid",
+                "推理深度的值不正确",
+                "推理深度的值不正確",
+                "추론 깊이 값이 올바르지 않습니다",
+            ])
+            .to_owned(),
+        ));
     };
     let Some(spec) = info.model_spec(model) else {
         return Ok(());
@@ -43,10 +60,23 @@ fn ensure_effort(value: &Value, info: &BackendInfo, model: &str) -> Result<(), V
     if spec.efforts.iter().any(|choice| choice == effort) {
         return Ok(());
     }
+    let label = &spec.label;
     let message = if spec.efforts.is_empty() {
-        format!("「{}」では推論の深さを選べません", spec.label)
+        locale::pick([
+            format!("「{label}」では推論の深さを選べません"),
+            format!("Reasoning effort cannot be chosen for “{label}”"),
+            format!("“{label}”不能选择推理深度"),
+            format!("「{label}」無法選擇推理深度"),
+            format!("\"{label}\"에서는 추론 깊이를 선택할 수 없습니다"),
+        ])
     } else {
-        format!("「{}」では推論の深さ「{effort}」を選べません", spec.label)
+        locale::pick([
+            format!("「{label}」では推論の深さ「{effort}」を選べません"),
+            format!("Reasoning effort “{effort}” cannot be chosen for “{label}”"),
+            format!("“{label}”不能选择推理深度“{effort}”"),
+            format!("「{label}」無法選擇推理深度「{effort}」"),
+            format!("\"{label}\"에서는 추론 깊이 \"{effort}\"을(를) 선택할 수 없습니다"),
+        ])
     };
     Err(invalid(message))
 }

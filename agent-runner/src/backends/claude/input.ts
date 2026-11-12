@@ -6,6 +6,7 @@ import { Readable } from 'node:stream';
 import type { SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
 import type { ImagePayload } from '../../protocol.ts';
 import { BackendError } from '../types.ts';
+import { t } from './texts/index.ts';
 
 const MEDIA_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'] as const;
 type ImageMediaType = (typeof MEDIA_TYPES)[number];
@@ -14,12 +15,12 @@ const isImageMediaType = (value: string): value is ImageMediaType => MEDIA_TYPES
 
 async function imageBlock(image: ImagePayload) {
   const { mediaType } = image;
-  if (!isImageMediaType(mediaType)) throw new BackendError('bad_request', `対応していない画像の形式です: ${mediaType}`);
+  if (!isImageMediaType(mediaType)) throw new BackendError('bad_request', t('imageType', { type: mediaType }));
   let data: string;
   try {
     data = (await readFile(image.path)).toString('base64');
   } catch {
-    throw new BackendError('bad_request', `添付画像を読めませんでした（${image.path}）`);
+    throw new BackendError('bad_request', t('imageRead', { path: image.path }));
   }
   return { type: 'image' as const, source: { type: 'base64' as const, media_type: mediaType, data } };
 }

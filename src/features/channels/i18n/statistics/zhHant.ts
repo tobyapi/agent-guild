@@ -1,0 +1,37 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHant: Messages<typeof ja> = {
+  title: '執行統計',
+  description: '# {name} · 全部期間',
+  refresh: '重新整理',
+  loading: '正在載入執行統計…',
+  loadFailed: '無法載入統計。{error}',
+  delegation: '分派',
+  delegationCount: '分派次數',
+  reportRate: '結果回報率',
+  failedSubtasks: '失敗的子任務',
+  cancelledSubtasks: '中斷的子任務',
+  count: '{count} 項',
+  ratio: '{done} / {total} 項',
+  delegationNote:
+    '子任務 {subtasks} 項（未完結 {pending} 項）。結果回報率是指已完結（含失敗、中斷）的子任務中，已發布結果的比例。',
+  seconds: '{seconds} 秒',
+  minutes: '{minutes} 分 {seconds} 秒',
+  byModel: '依模型統計的執行',
+  noRuns: '還沒有執行紀錄。今後代理人的執行會顯示在這裡。',
+  modelNote: '依主模型彙總。時間不含排隊。權杖與費用顯示已取得的部分，包括輔助模型。',
+  columnModel: '模型',
+  columnRuns: '執行',
+  columnTime: '時間',
+  columnTokens: '權杖',
+  columnCost: 'API 費用',
+  defaultModel: '預設模型（未取得名稱）',
+  average: '平均 {duration}',
+  unavailable: '未取得',
+  input: '輸入 {count}',
+  output: '輸出 {count}',
+  fetched: '已取得 {done} / {total} 項',
+  local: '本機執行',
+  estimated: '估算 · 已取得 {done} / {total} 項',
+};

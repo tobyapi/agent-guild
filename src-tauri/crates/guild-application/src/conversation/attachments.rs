@@ -2,6 +2,7 @@
 
 use guild_domain::attachment::{validate_attachments, Attachment, NewAttachment};
 use guild_domain::ids::{AttachmentId, ChannelId, MessageId};
+use guild_domain::locale;
 
 use crate::error::{AppError, AppResult};
 use crate::services::Ports;
@@ -37,11 +38,17 @@ pub(super) fn reveal(ports: &Ports, message_id: &MessageId, attachment_id: &Atta
 }
 
 fn find(ports: &Ports, message_id: &MessageId, attachment_id: &AttachmentId) -> AppResult<(ChannelId, Attachment)> {
-    let message = ports.messages.get(message_id)?.ok_or(AppError::NotFound("発言"))?;
+    let message = ports.messages.get(message_id)?.ok_or(AppError::NotFound(locale::pick([
+        "発言",
+        "Message",
+        "消息",
+        "訊息",
+        "메시지",
+    ])))?;
     let attachment = message
         .attachments
         .into_iter()
         .find(|attachment| &attachment.id == attachment_id)
-        .ok_or(AppError::NotFound("添付"))?;
+        .ok_or(AppError::NotFound(locale::pick(["添付", "Attachment", "附件", "附件", "첨부 파일"])))?;
     Ok((message.channel_id, attachment))
 }

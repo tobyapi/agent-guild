@@ -1,6 +1,7 @@
 // ブラウザで UI を動かすための偽バックエンド（Tauri の外では自動でこれが使われる）。
 // 全コマンドを実装し、発言・activity・状態の変化をイベントで再現する。失敗は CommandError で reject する。
-import type { BootReason } from '@/shared/types/domain';
+import { parseLanguage } from '@/shared/i18n';
+import type { BootReason, BootStatus, Language } from '@/shared/types/domain';
 import { RECOVERY_COMMANDS } from '../contract';
 import type { CommandName } from '../contract';
 import type { Transport } from '../transport';
@@ -56,6 +57,8 @@ export interface MockTransportOptions {
   emptySkillLibrary?: boolean;
   /** 初回起動（初期設定のダイアログを出す）として始める */
   firstRun?: boolean;
+  /** 保存してある言語（?mockLang=en など。画面の言語の確認用） */
+  language?: Language;
   /** 複数のメンバーとサンプル会話を入れて始める */
   demo?: boolean;
   /** 新しい版が出ている状態で始める（更新の知らせの確認用） */
@@ -68,18 +71,21 @@ export interface MockTransportOptions {
  * ?mockBoot=missing など → 復旧画面、?mockRuntime=slow → 起動中の帯、?mockRuntime=unavailable → 使えないときの帯、
  * ?mockLibrary=empty → スキルライブラリが未設定、?mockSetup=1 → 初回起動、?mockDemo=1 → サンプル会話、
  * ?mockUpdate=1 → 新しい版が出ている
+ * ?mockLang=en → 保存してある言語（ja・en・zh-Hans・zh-Hant・ko）
  */
 export function mockOptionsFromLocation(): MockTransportOptions {
   if (typeof window === 'undefined') return {};
   const params = new URLSearchParams(window.location.search);
   const reason = params.get('mockBoot');
   const runtime = params.get('mockRuntime');
+  const language = parseLanguage(params.get('mockLang'));
   return {
     bootFailure: BOOT_FAILURES.find((failure) => failure === reason) ?? null,
     emptySkillLibrary: params.get('mockLibrary') === 'empty',
     firstRun: params.get('mockSetup') === '1',
     demo: params.get('mockDemo') === '1',
     updateAvailable: params.get('mockUpdate') === '1',
+    ...(language ? { language } : {}),
     ...(runtime === 'slow' ? { runtimeStartupMs: 8000 } : {}),
     ...(runtime === 'unavailable'
       ? { runtimeFailure: 'ランナーを起動できませんでした（モック）: node が見つかりません' }
@@ -105,12 +111,18 @@ function startRunner(runtime: MockRuntime, startupMs: number, failure: string | 
   });
 }
 
+/** 起動の結果に、保存してある言語と初回起動を反映する（初回起動なら言語はまだ選んでいない） */
+function bootOf(boot: BootStatus, options: MockTransportOptions): BootStatus {
+  if (options.firstRun && boot.state === 'ok') return { ...boot, needsSetup: true, language: null };
+  return options.language ? { ...boot, language: options.language } : boot;
+}
+
 export function createMockTransport(options: MockTransportOptions = {}): Transport {
   const env: MockEnv = { ...defaultEnv(), ...options.env };
   const state = createSeedState(env.now(), options.bootFailure ?? null, options.demo ?? false);
   if (options.emptySkillLibrary) state.skillLibraryDirs = [];
   if (options.updateAvailable) state.update = { ...state.update, latest: MOCK_UPDATE };
-  if (options.firstRun && state.boot.state === 'ok') state.boot = { ...state.boot, needsSetup: true };
+  state.boot = bootOf(state.boot, options);
   const core = { state, bus: createMockEventBus((task) => env.schedule(0, task)), env };
   const runtime: MockRuntime = { ...core, conversation: createConversation(core) };
   if (state.boot.state === 'ok') startRunner(runtime, options.runtimeStartupMs ?? 1500, options.runtimeFailure ?? null);

@@ -64,6 +64,8 @@ export interface AgentTemplate {
   description: string;
   accent: TemplateAccent;
   builtinSkills: string[];
+  /** この役割になる先頭タグ（全言語の表示名。defaults.tags の先頭はいまの言語のもの） */
+  roleTags: string[];
   defaults: AgentTemplateDefaults;
 }
 

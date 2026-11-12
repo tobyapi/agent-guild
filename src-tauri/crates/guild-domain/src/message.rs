@@ -6,6 +6,7 @@ use super::attachment::Attachment;
 use super::author::Author;
 use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, ChannelId, DelegationId, MessageId};
+use crate::locale;
 
 /// 人間が1回に送れる最大文字数
 pub const HUMAN_MESSAGE_MAX_CHARS: usize = 20_000;
@@ -122,8 +123,28 @@ impl NewMessage {
 pub fn normalize_human_content(content: &str, has_attachments: bool) -> Result<String, ValidationError> {
     let content = content.trim();
     if content.is_empty() && !has_attachments {
-        return Err(ValidationError::on("content", "メッセージを入力してください"));
+        return Err(ValidationError::on(
+            "content",
+            locale::pick([
+                "メッセージを入力してください",
+                "Enter a message",
+                "请输入消息",
+                "請輸入訊息",
+                "메시지를 입력하십시오",
+            ]),
+        ));
     }
-    ensure_max_chars(content, HUMAN_MESSAGE_MAX_CHARS, "content", "メッセージが長すぎます（20000文字まで）")?;
+    ensure_max_chars(
+        content,
+        HUMAN_MESSAGE_MAX_CHARS,
+        "content",
+        locale::pick([
+            "メッセージが長すぎます（20000文字まで）",
+            "The message is too long (up to 20,000 characters)",
+            "消息过长（最多 20000 个字符）",
+            "訊息過長（最多 20000 個字元）",
+            "메시지가 너무 깁니다(최대 20,000자)",
+        ]),
+    )?;
     Ok(content.to_owned())
 }

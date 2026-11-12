@@ -6,6 +6,7 @@ use guild_domain::agent::{effective_permissions, Agent, Permissions};
 use guild_domain::backend::{BackendInfo, FolderScope};
 use guild_domain::channel::{Channel, WorkspaceMode};
 use guild_domain::conversation::JobSpec;
+use guild_domain::locale;
 use std::path::PathBuf;
 
 pub(super) struct RunScope {
@@ -22,13 +23,23 @@ pub(super) struct RunScope {
 /// 指定フォルダの範囲を、バックエンドがどう守るか（アダプタの申告。実際に守れる PC かは、アダプタが実行時に確かめる）
 fn folder_scope(backend: Option<&BackendInfo>) -> AppResult<FolderScope> {
     let Some(info) = backend else {
-        return Err(AppError::validation("バックエンドの状態を確認できないため、指定フォルダでは実行できません"));
+        return Err(AppError::validation(locale::pick([
+            "バックエンドの状態を確認できないため、指定フォルダでは実行できません",
+            "Can't run in the designated folder because the backend status could not be checked.",
+            "无法确认后端状态，因此不能在指定文件夹中执行。",
+            "無法確認後端狀態，因此不能在指定資料夾中執行。",
+            "백엔드 상태를 확인할 수 없어 지정 폴더에서 실행할 수 없습니다.",
+        ])));
     };
     info.folder_scope.ok_or_else(|| {
-        AppError::validation(format!(
-            "{} は範囲を守れないため、指定フォルダのチャンネルでは実行できません。指定フォルダに対応したバックエンドのエージェントを使ってください",
-            info.label
-        ))
+        let label = &info.label;
+        AppError::validation(locale::pick([
+            format!("{label} は範囲を守れないため、指定フォルダのチャンネルでは実行できません。指定フォルダに対応したバックエンドのエージェントを使ってください"),
+            format!("{label} can't keep to the designated folder, so it can't run in this channel. Use an agent whose backend supports designated folders."),
+            format!("{label} 无法限制在指定范围内，因此不能在指定文件夹的频道中执行。请使用支持指定文件夹的后端的智能体。"),
+            format!("{label} 無法限制在指定範圍內，因此不能在指定資料夾的頻道中執行。請使用支援指定資料夾的後端的代理人。"),
+            format!("{label}은(는) 범위를 지킬 수 없어 지정 폴더 채널에서 실행할 수 없습니다. 지정 폴더를 지원하는 백엔드의 에이전트를 사용하세요."),
+        ]))
     })
 }
 

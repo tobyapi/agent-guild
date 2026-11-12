@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Button, Icon, IconButton, reportError, TextField } from '@/shared/ui';
 import type { Skill, SkillLibrary } from '@/shared/types/domain';
 import { loadSkillLibrary, useLibraryStore } from '../libraryStore';
+import { tLibrary as t } from '../i18n/library';
 import { searchLibrary } from '../model/library';
 import { LibraryEntry } from './LibraryEntry';
 import styles from './LibraryPicker.module.css';
@@ -28,26 +29,25 @@ export function LibraryPicker({ agentId, existing, onClose, onOpenSettings }: Li
   }, []);
 
   return (
-    <section className={styles.picker} aria-label="ライブラリから追加">
+    <section className={styles.picker} aria-label={t('libraryTitle')}>
       <div className={styles.head}>
-        <h4 className={styles.title}>ライブラリから追加</h4>
+        <h4 className={styles.title}>{t('libraryTitle')}</h4>
         <Button size="sm" variant="ghost" onClick={reload} disabled={loading}>
           <Icon name="refresh" />
-          {loading ? '読み込み中…' : '再読み込み'}
+          {loading ? t('loading') : t('reload')}
         </Button>
-        <IconButton label="ライブラリから追加を閉じる" onClick={onClose}>
+        <IconButton label={t('closeLibrary')} onClick={onClose}>
           <Icon name="close" />
         </IconButton>
       </div>
       {library === null ? (
-        <p className={styles.help}>読み込み中…</p>
+        <p className={styles.help}>{t('loading')}</p>
       ) : library.dirs.length === 0 ? (
         <div className={styles.notice}>
-          <b>スキルのフォルダがまだ指定されていません</b>
-          設定の「スキルのフォルダ」で、Agent Skills のフォルダ（名前/SKILL.md
-          が入ったフォルダ）を指定すると、ここから追加できます。
+          <b>{t('noDirsTitle')}</b>
+          {t('noDirsBody')}
           <Button size="sm" onClick={onOpenSettings}>
-            設定を開く
+            {t('openSettings')}
           </Button>
         </div>
       ) : (
@@ -72,38 +72,32 @@ function LibraryList({
   if (library.skills.length === 0) {
     return (
       <div className={styles.notice}>
-        <b>指定したフォルダにスキルが見つかりません</b>
-        {missingDirs > 0
-          ? '見つからないフォルダがあります。設定の「スキルのフォルダ」を確かめてください。'
-          : 'フォルダに 名前/SKILL.md があるか確かめて、「再読み込み」を押してください。'}
+        <b>{t('noSkillsTitle')}</b>
+        {missingDirs > 0 ? t('noSkillsMissingDirs') : t('noSkillsHint')}
       </div>
     );
   }
   return (
     <>
       <TextField
-        label="検索"
+        label={t('search')}
         type="search"
         value={query}
         onChange={setQuery}
-        placeholder="名前・説明・フォルダで探す"
+        placeholder={t('searchPlaceholder')}
         autoComplete="off"
       />
-      <p className={styles.help}>
-        「追加」は元のフォルダを参照し、実行のたびに SKILL.md
-        と付属ファイルを読み直します（アプリでは編集できません）。「コピーして追加」は SKILL.md
-        の本文だけを取り込み、アプリで編集できます（付属ファイルは持ち込みません）。
-      </p>
+      <p className={styles.help}>{t('libraryHelp')}</p>
       {missingDirs > 0 && (
         <p className={styles.warning}>
           <Icon name="alert" className={styles.warningIcon} />
-          見つからないフォルダが {missingDirs} 個あります（設定の「スキルのフォルダ」で確かめられます）。
+          {t('missingDirs', { count: missingDirs })}
         </p>
       )}
       {found.length === 0 ? (
-        <p className={styles.help}>「{query.trim()}」に一致するスキルはありません。</p>
+        <p className={styles.help}>{t('noMatch', { query: query.trim() })}</p>
       ) : (
-        <ul className={styles.entries} aria-label="ライブラリのスキル">
+        <ul className={styles.entries} aria-label={t('libraryList')}>
           {found.map((entry) => (
             <LibraryEntry key={entry.path} agentId={agentId} entry={entry} existing={existing} />
           ))}

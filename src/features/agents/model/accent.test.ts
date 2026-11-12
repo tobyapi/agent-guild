@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { AgentTemplate } from '@/shared/types/domain';
 import { agentAccent, primaryTag, tagAccent } from './accent';
 import { agentFixture, TEMPLATES } from './fixtures.test-support';
-import { groupByPrimaryTag, UNTAGGED_LABEL } from './groups';
+import { groupByPrimaryTag, untaggedLabel } from './groups';
 
 describe('tagAccent / agentAccent', () => {
   it('タグを先頭に持つテンプレートの accent（NFKC＋大文字小文字無視で照合）', () => {
@@ -51,7 +51,7 @@ describe('groupByPrimaryTag', () => {
       ['Review', null, ['d', 'f']],
       ['あんない', null, ['e']],
       ['設計', null, ['a']],
-      [UNTAGGED_LABEL, null, ['c']],
+      [untaggedLabel(), null, ['c']],
     ]);
   });
 
@@ -64,5 +64,13 @@ describe('groupByPrimaryTag', () => {
       null,
     ]);
     expect(groupByPrimaryTag([], TEMPLATES)).toEqual([]);
+  });
+
+  it('役割のタグは、どの言語の表示名で付いていても同じ役割の区分と色になる', () => {
+    const mixed = [agentFixture({ id: 'j', tags: ['専門家'] }), agentFixture({ id: 'k', tags: ['Expert'] })];
+    expect(
+      groupByPrimaryTag(mixed, TEMPLATES).map((group) => [group.label, group.accent, group.agents.length]),
+    ).toEqual([['専門家', 'expert', 2]]);
+    expect(tagAccent(TEMPLATES, '전문가')).toBe('expert');
   });
 });

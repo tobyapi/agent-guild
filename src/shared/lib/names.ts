@@ -1,6 +1,7 @@
 // エージェント名・プロフィール名の規則（docs/design.md §2 入力規則）。
 // クライアントでも事前に検査するが、正はサーバの validation メッセージ。
 import { textLength } from './validation';
+import { t } from './i18n';
 
 export const MEMBER_NAME_MAX = 32;
 
@@ -15,10 +16,10 @@ export function normalizeName(name: string): string {
  */
 export function checkMemberName(name: string, takenNames: readonly string[]): string | null {
   const trimmed = name.trim();
-  if (trimmed === '') return '名前を入力してください';
-  if (textLength(trimmed) > MEMBER_NAME_MAX) return `名前は ${MEMBER_NAME_MAX} 文字以内にしてください`;
-  if (/[\s@＠]/.test(trimmed)) return '名前に空白や @ は使えません';
+  if (trimmed === '') return t('nameRequired');
+  if (textLength(trimmed) > MEMBER_NAME_MAX) return t('nameTooLong', { max: MEMBER_NAME_MAX });
+  if (/[\s@＠]/.test(trimmed)) return t('nameInvalidChars');
   const normalized = normalizeName(trimmed);
-  if (takenNames.some((taken) => normalizeName(taken) === normalized)) return 'その名前はすでに使われています';
+  if (takenNames.some((taken) => normalizeName(taken) === normalized)) return t('nameTaken');
   return null;
 }

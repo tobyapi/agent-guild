@@ -3,8 +3,9 @@
 use guild_domain::agent::{effective_permissions, Agent};
 use guild_domain::backend::BackendInfo;
 use guild_domain::conversation::{JobMode, JobSpec};
-use guild_domain::delegation::{Delegation, DelegationStatus, Subtask, SubtaskRef, SubtaskStatus, NO_ANSWER};
+use guild_domain::delegation::{Delegation, DelegationStatus, Subtask, SubtaskNote, SubtaskRef, SubtaskStatus};
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SubtaskId};
+use guild_domain::locale::Language;
 use guild_domain::message::Message;
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_conversation_prompt, build_system_prompt, PromptContext};
@@ -35,7 +36,7 @@ fn delegation(statuses: [SubtaskStatus; 2]) -> Delegation {
         instruction: format!("{assignee}への指示\n2行目"),
         status,
         result_message_id: (status == SubtaskStatus::Done).then(|| MessageId::new(format!("r-{assignee}"))),
-        note: (status == SubtaskStatus::Failed).then(|| NO_ANSWER.to_owned()),
+        note: (status == SubtaskStatus::Failed).then(|| SubtaskNote::NoAnswer.text(Language::Ja).to_owned()),
     };
     Delegation {
         id: DelegationId::new("d1"),
@@ -71,6 +72,7 @@ fn prompts(subject: &str, job: &JobSpec, delegation: Option<&Delegation>) -> (St
         time_label: &|ms| format!("t{ms}"),
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation,
+        language: Language::Ja,
     };
     (build_system_prompt(&ctx), build_conversation_prompt(&ctx, &[], job, &[]))
 }

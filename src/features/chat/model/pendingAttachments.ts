@@ -7,10 +7,10 @@ import {
   MAX_TOTAL_ATTACHMENT_BYTES,
 } from '@/shared/lib/limits';
 import type { AttachmentInput } from '@/shared/types/domain';
+import { tComposer } from '../i18n/composer';
 
 /** 長辺がこれより大きい画像は、送る前に縮める（エージェントもこれ以上の細かさは使わない） */
 export const MAX_IMAGE_EDGE = 2560;
-export const TOTAL_TOO_LARGE = '添付の合計は 30MB までです';
 
 export interface PendingAttachment {
   /** 一覧の key（送信前だけの id） */
@@ -69,8 +69,8 @@ export function renameFor(name: string, mediaType: string): string {
 
 /** 断った理由（大きすぎるファイルを先に、次に数の超過）。なければ null */
 export function rejectionMessage({ tooLarge, overflow }: { tooLarge: number; overflow: number }): string | null {
-  if (tooLarge > 0) return 'ファイルは1つ 10MB までです';
-  if (overflow > 0) return `添付は1回に${MAX_ATTACHMENTS}個までです`;
+  if (tooLarge > 0) return tComposer('fileTooLarge');
+  if (overflow > 0) return tComposer('tooMany', { max: MAX_ATTACHMENTS });
   return null;
 }
 

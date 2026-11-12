@@ -1,5 +1,6 @@
 import { BackendStatus, refreshBackends, useBackends, useCheckingBackends } from '@/features/runtime';
 import { Button, reportError, Tag } from '@/shared/ui';
+import { tBackends as t } from '../i18n/backends';
 import { ApiKeySettings } from './ApiKeySettings';
 import { BackendInstallGuide } from './BackendInstallGuide';
 import styles from './SettingsDialog.module.css';
@@ -15,10 +16,10 @@ export function BackendsSection() {
     <>
       <div className={styles.sectionAction}>
         <Button size="sm" onClick={() => void refreshBackends().catch(reportError)} disabled={checking}>
-          {checking ? '確認中…' : 'すべて再確認'}
+          {checking ? t('checking') : t('recheckAll')}
         </Button>
       </div>
-      {backends.length === 0 && <p className={styles.help}>エージェントの実行環境が起動すると表示されます。</p>}
+      {backends.length === 0 && <p className={styles.help}>{t('waitingForRuntime')}</p>}
       <ul className={styles.backends}>
         {backends.map((backend) => (
           <li key={backend.id} className={styles.backend}>

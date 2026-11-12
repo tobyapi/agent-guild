@@ -4,9 +4,11 @@ import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/opti
 import { runCodex } from './codex-runtime.ts';
 import { CAN_LOGIN, loginCodex } from './codex/login.ts';
 import { probeCodex } from './codex/probe.ts';
+import { t } from './codex-runtime/texts/index.ts';
 import { NO_SETUP, type BackendAdapter, type BackendDescriptor } from './types.ts';
 
-const INFO: BackendDescriptor = {
+/** 画面に出る文字列は、呼んだ時点の言語で作る */
+const info = (): BackendDescriptor => ({
   id: 'codex',
   label: 'Codex',
   capabilities: {
@@ -40,12 +42,12 @@ const INFO: BackendDescriptor = {
       docsUrl: 'https://learn.chatgpt.com/docs/codex/cli#install-codex',
       loginCommand: 'codex login',
     },
-    login: CAN_LOGIN ? { label: 'ChatGPT でログイン', waiting: 'ブラウザーで ChatGPT にログインしてください。' } : null,
+    login: CAN_LOGIN ? { label: t('loginLabel'), waiting: t('loginWaiting') } : null,
   },
-};
+});
 
 export const codexAdapter: BackendAdapter = {
-  info: () => INFO,
+  info,
   probe: probeCodex,
   catalog: () => Promise.resolve(codexCatalog()),
   run: runCodex,

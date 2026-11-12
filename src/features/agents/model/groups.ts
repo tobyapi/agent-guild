@@ -1,8 +1,13 @@
 // サイドバーとメンバーパネルの区分: 先頭のタグごと（docs/design.md §2）。
+import { currentLanguage } from '@/shared/i18n';
 import type { Agent, AgentTemplate, TemplateAccent } from '@/shared/types/domain';
-import { primaryTag, tagKey } from './accent';
+import { tBrain } from '../i18n/brain';
+import { primaryTag, tagKey, templateOfTag } from './accent';
 
-export const UNTAGGED_LABEL = 'タグなし';
+/** タグなしの区分の見出し（いまの言語） */
+export function untaggedLabel(): string {
+  return tBrain('untagged');
+}
 
 export interface TagGroup {
   /** 区分のキー（正規化した先頭のタグ。タグなしは null） */
@@ -16,9 +21,7 @@ export interface TagGroup {
   agents: Agent[];
 }
 
-const collator = new Intl.Collator('ja');
-
-/** エージェントのいる区分だけを、テンプレートの順 → ほかのタグは五十音 → タグなし の順に返す。エージェントは作成順のまま */
+/** エージェントのいる区分だけを、テンプレートの順 → ほかのタグはいまの言語の照合順（日本語なら五十音）→ タグなし の順に返す。エージェントは作成順のまま */
 export function groupByPrimaryTag(agents: readonly Agent[], templates: readonly AgentTemplate[]): TagGroup[] {
   const groups = new Map<string, TagGroup>();
   for (const template of templates) {
@@ -26,6 +29,7 @@ export function groupByPrimaryTag(agents: readonly Agent[], templates: readonly 
     if (head === undefined || groups.has(tagKey(head))) continue;
     groups.set(tagKey(head), { key: tagKey(head), label: head, accent: template.accent, template, agents: [] });
   }
+  const collator = new Intl.Collator(currentLanguage());
   const templateCount = groups.size;
   const untagged: Agent[] = [];
   for (const agent of agents) {
@@ -34,8 +38,8 @@ export function groupByPrimaryTag(agents: readonly Agent[], templates: readonly 
       untagged.push(agent);
       continue;
     }
-    const key = tagKey(tag);
-    // テンプレートの先頭のタグに一致しないタグは中立の色
+    // 役割のタグはどの言語の表記でもその役割の区分へ。テンプレートに一致しないタグは中立の色
+    const key = tagKey(templateOfTag(templates, tag)?.defaults.tags[0] ?? tag);
     const group = groups.get(key) ?? { key, label: tag, accent: null, template: null, agents: [] };
     group.agents.push(agent);
     groups.set(key, group);
@@ -47,5 +51,5 @@ export function groupByPrimaryTag(agents: readonly Agent[], templates: readonly 
     ...tagGroups.sort((a, b) => collator.compare(a.label, b.label)),
   ];
   if (untagged.length === 0) return ordered;
-  return [...ordered, { key: null, label: UNTAGGED_LABEL, accent: null, template: null, agents: untagged }];
+  return [...ordered, { key: null, label: untaggedLabel(), accent: null, template: null, agents: untagged }];
 }

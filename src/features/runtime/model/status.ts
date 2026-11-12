@@ -1,16 +1,18 @@
 // 実行環境とバックエンドの状態の表し方（docs/ui-design.md §6.1・§6.2）。
 import type { BackendInfo, BackendStatus, RuntimeStatus } from '@/shared/types/domain';
+import { t } from '../i18n';
 
-/** 札や状態の行に出す言葉 */
-export const BACKEND_STATUS_WORDS: Readonly<Record<BackendStatus, string>> = {
-  ready: '準備 OK',
-  needs_auth: 'ログインが必要',
-  stopped: '停止中',
-  unavailable: '使えません',
-};
+const STATUS_WORD_KEYS = {
+  ready: 'statusReady',
+  needs_auth: 'statusNeedsAuth',
+  stopped: 'statusStopped',
+  unavailable: 'statusUnavailable',
+} as const satisfies Record<BackendStatus, string>;
 
-/** ［ログイン］を押してから窓が閉じるまで、状態の行に出す案内 */
-export const LOGGING_IN_MESSAGE = '開いた窓とブラウザでログインを進めてください。終わると自動で状態が変わります。';
+/** 札や状態の行に出す言葉（いまの言語） */
+export function backendStatusWord(status: BackendStatus): string {
+  return t(STATUS_WORD_KEYS[status]);
+}
 
 export type StatusTone = 'neutral' | 'warning' | 'danger';
 
@@ -35,10 +37,10 @@ export interface RuntimeBannerModel {
 /** ランナーの状態の帯。ready なら出さない */
 export function runtimeBanner(runtime: RuntimeStatus): RuntimeBannerModel | null {
   if (runtime.state === 'starting') {
-    return { state: 'starting', title: 'エージェントの実行環境を起動しています…', detail: '' };
+    return { state: 'starting', title: t('runtimeStarting'), detail: '' };
   }
   if (runtime.state === 'unavailable') {
-    return { state: 'unavailable', title: 'エージェントを動かせません', detail: runtime.message };
+    return { state: 'unavailable', title: t('runtimeUnavailable'), detail: runtime.message };
   }
   return null;
 }

@@ -2,6 +2,7 @@
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
 import type { RunRequest } from './backends/types.ts';
+import { LANGUAGES, parseLanguage } from './i18n.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
 import type {
   ImagePayload,
@@ -42,8 +43,11 @@ function hasFields<K extends string, V>(
 
 const reject = (id: string | null, message: string): DecodeResult => ({ ok: false, id, message });
 
+/** 要求の id（空でない文字列）。なければ null */
+const idOf = (value: JsonObject): string | null => (isString(value.id) && value.id !== '' ? value.id : null);
+
 export function decodeRequest(value: JsonObject): DecodeResult {
-  const id = isString(value.id) && value.id !== '' ? value.id : null;
+  const id = idOf(value);
   switch (value.type) {
     case 'run':
       return decodeRun(value, id);
@@ -57,11 +61,21 @@ export function decodeRequest(value: JsonObject): DecodeResult {
         : { ok: true, request: { type: 'cancel', id } };
     case 'probe':
       return id === null ? reject(null, 'probe requires an id') : { ok: true, request: { type: 'probe', id } };
+    case 'setLanguage':
+      return decodeSetLanguage(value, id);
     case 'shutdown':
       return { ok: true, request: { type: 'shutdown' } };
     default:
       return reject(id, isString(value.type) ? `未知の type です: ${value.type}` : 'type（文字列）がありません');
   }
+}
+
+/** id も返事もない要求。知らない言語は不正（id がなければ記録だけ） */
+function decodeSetLanguage(value: JsonObject, id: string | null): DecodeResult {
+  const language = parseLanguage(value.language);
+  if (language === null)
+    return reject(id, `setLanguage の language は ${LANGUAGES.join(' / ')} のどれかである必要があります`);
+  return { ok: true, request: { type: 'setLanguage', language } };
 }
 
 function decodeLogin(value: JsonObject, id: string | null): DecodeResult {

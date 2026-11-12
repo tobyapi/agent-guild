@@ -2,8 +2,9 @@
 //! まとめのジョブが積めなかった（消えた）割り振りの完了。
 
 use guild_domain::conversation::{JobMode, JobSpec};
-use guild_domain::delegation::{DelegationStatus, Settlement, SubtaskRef, SubtaskStatus, NOT_STARTED, NO_ANSWER};
+use guild_domain::delegation::{DelegationStatus, Settlement, SubtaskNote, SubtaskRef, SubtaskStatus};
 use guild_domain::ids::{DelegationId, SubtaskId};
+use guild_domain::locale;
 
 use super::actor::Actor;
 
@@ -35,6 +36,7 @@ impl Actor {
         let Some(tracked) = self.state.delegations.get(id) else {
             return Vec::new();
         };
+        let language = locale::current();
         tracked
             .delegation
             .subtasks
@@ -43,8 +45,8 @@ impl Actor {
             .map(|subtask| {
                 let settlement = match (subtask.status, tracked.messages.get(&subtask.id)) {
                     (SubtaskStatus::Running, Some(last)) => Settlement::Done(last.id.clone()),
-                    (SubtaskStatus::Running, None) => Settlement::Failed { note: NO_ANSWER, message: None },
-                    _ => Settlement::Failed { note: NOT_STARTED, message: None },
+                    (SubtaskStatus::Running, None) => SubtaskNote::NoAnswer.settle(language, None),
+                    _ => SubtaskNote::NotStarted.settle(language, None),
                 };
                 (subtask.id.clone(), settlement)
             })

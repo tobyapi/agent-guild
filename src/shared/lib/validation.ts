@@ -1,4 +1,5 @@
-// フォームの検証で共通に使う小さな規則。メッセージは日本語でそのまま表示する。
+// フォームの検証で共通に使う小さな規則。メッセージはいまの言語で返す。
+import { t } from './i18n';
 
 export interface TextRule {
   /** 表示名（例: "話題"） */
@@ -15,9 +16,9 @@ export function textLength(value: string): number {
 /** 問題があればエラーメッセージ、なければ null */
 export function checkText(value: string, rule: TextRule): string | null {
   const trimmed = value.trim();
-  if (rule.required === true && trimmed === '') return `${rule.label}を入力してください`;
+  if (rule.required === true && trimmed === '') return t('textRequired', { label: rule.label });
   if (rule.max !== undefined && textLength(trimmed) > rule.max) {
-    return `${rule.label}は${rule.max}文字以内にしてください`;
+    return t('textTooLong', { label: rule.label, max: rule.max });
   }
   return null;
 }

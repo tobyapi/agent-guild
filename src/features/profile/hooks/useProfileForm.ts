@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { errorCode, errorField, errorMessage } from '@/shared/lib/errors';
 import { hasErrors, notifyInfo, reportError, useFieldErrors } from '@/shared/ui';
 import type { Profile } from '@/shared/types/domain';
+import { t } from '../i18n';
 import { validateProfile } from '../model/validation';
 import type { ProfileField } from '../model/validation';
 import { saveProfile } from '../store';
@@ -28,7 +29,7 @@ export function useProfileForm(takenNames: readonly string[]) {
     setSaving(true);
     try {
       await saveProfile({ ...draft, name: draft.name.trim() });
-      notifyInfo('保存しました');
+      notifyInfo(t('saved'));
     } catch (error) {
       // 名前の問題（重複など）は名前の欄に、それ以外はトーストで知らせる
       if (errorCode(error) === 'validation' && errorField(error) === 'name') setServerError(errorMessage(error));

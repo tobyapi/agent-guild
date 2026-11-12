@@ -4,6 +4,7 @@ import { Avatar, Button, Dialog, reportError } from '@/shared/ui';
 import type { Agent, Channel } from '@/shared/types/domain';
 import { addableAgents } from '../model/channels';
 import { addChannelMember } from '../store';
+import { t } from '../i18n';
 import styles from './AddMembersDialog.module.css';
 
 export interface AddMembersDialogProps {
@@ -18,12 +19,12 @@ export function AddMembersDialog({ channel, onClose }: AddMembersDialogProps) {
   return (
     <Dialog
       size="sm"
-      title={`#${channel.name} にメンバーを追加`}
+      title={t('addTitle', { name: channel.name })}
       onClose={onClose}
-      footer={<Button onClick={onClose}>閉じる</Button>}
+      footer={<Button onClick={onClose}>{t('close')}</Button>}
     >
       {candidates.length === 0 ? (
-        <p className={styles.empty}>追加できるエージェントはいません。</p>
+        <p className={styles.empty}>{t('noneAddable')}</p>
       ) : (
         <ul className={styles.list}>
           {candidates.map((agent) => (
@@ -48,8 +49,8 @@ function Candidate({ agent, channelId }: { agent: Agent; channelId: string }) {
       <Avatar avatar={agent.avatar} name={agent.name} color={agent.color} size="row" />
       <span className={styles.name}>{agent.name}</span>
       <PrimaryTagBadge tags={agent.tags} />
-      <Button size="sm" onClick={add} disabled={busy} aria-label={`${agent.name} を追加`}>
-        追加
+      <Button size="sm" onClick={add} disabled={busy} aria-label={t('addAgent', { name: agent.name })}>
+        {t('add')}
       </Button>
     </li>
   );

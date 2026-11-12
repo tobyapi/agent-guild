@@ -10,6 +10,7 @@ import { escapeHtml } from '@/shared/lib/html';
 import { matchMentionAt, sortByNameLength } from '@/shared/lib/mentions';
 import type { MentionTarget } from '@/shared/lib/mentions';
 import { codeBlockHtml, mediaHtml } from './markdownEmbeds';
+import { t } from '../i18n';
 
 /** チップにする相手。kind は data-kind、accent は色（--kind-<accent> の CSS 変数。null なら既定の色） */
 export interface ChipTarget extends MentionTarget {
@@ -37,7 +38,7 @@ function chipStyle(accent: string | null): string {
 }
 
 function chip(target: ChipTarget): string {
-  const title = target.kind === 'deleted' ? ' title="削除済みのエージェント"' : '';
+  const title = target.kind === 'deleted' ? ` title="${escapeHtml(t('deletedAgent'))}"` : '';
   const attributes = `class="mention" data-kind="${target.kind}" data-mention-id="${escapeHtml(target.id)}"${chipStyle(target.accent)}${title}`;
   return `<span ${attributes}>@${escapeHtml(target.name)}</span>`;
 }
@@ -78,7 +79,7 @@ export function createMarkdownRenderer(targets: readonly ChipTarget[]): (markdow
       image({ href, text }) {
         const embed = mediaHtml(href, text);
         if (embed !== null) return embed;
-        const label = `画像: ${escapeHtml(text || href)}`;
+        const label = escapeHtml(t('imageLink', { label: text || href }));
         return SAFE_URL.test(href) ? externalLink(href, label) : label;
       },
     },

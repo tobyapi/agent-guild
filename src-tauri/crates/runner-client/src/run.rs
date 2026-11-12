@@ -76,18 +76,59 @@ async fn ready_connection(shared: &Shared) -> Result<Arc<Connection>, RunnerErro
     let settled = tokio::time::timeout(wait, status.wait_for(|status| *status != RunnerStatus::Starting)).await;
     let status = match settled {
         Ok(Ok(status)) => (*status).clone(),
-        Ok(Err(_)) => RunnerStatus::Unavailable { message: "ランナーは停止しています".to_owned() },
-        Err(_) => {
-            RunnerStatus::Unavailable { message: "ランナーの起動が終わりませんでした".to_owned() }
-        }
+        Ok(Err(_)) => RunnerStatus::Unavailable { message: unavailable(shared, Unavailable::Stopped) },
+        Err(_) => RunnerStatus::Unavailable { message: unavailable(shared, Unavailable::NeverReady) },
     };
     match status {
         RunnerStatus::Ready => {
-            shared.current().ok_or_else(|| RunnerError::Unavailable("ランナーとの接続が切れました".to_owned()))
+            shared.current().ok_or_else(|| RunnerError::Unavailable(unavailable(shared, Unavailable::Disconnected)))
         }
         RunnerStatus::Unavailable { message } => Err(RunnerError::Unavailable(message)),
-        RunnerStatus::Starting => Err(RunnerError::Unavailable("ランナーを起動しています".to_owned())),
+        RunnerStatus::Starting => Err(RunnerError::Unavailable(unavailable(shared, Unavailable::Starting))),
     }
+}
+
+/// ready の接続が得られなかった理由
+enum Unavailable {
+    Stopped,
+    NeverReady,
+    Disconnected,
+    Starting,
+}
+
+/// その理由の、いまの言語の文面
+fn unavailable(shared: &Shared, reason: Unavailable) -> String {
+    let texts = match reason {
+        Unavailable::Stopped => [
+            "ランナーは停止しています",
+            "The agent runtime is stopped",
+            "运行环境已停止",
+            "執行環境已停止",
+            "실행 환경이 중지되어 있습니다",
+        ],
+        Unavailable::NeverReady => [
+            "ランナーの起動が終わりませんでした",
+            "The agent runtime did not finish starting",
+            "运行环境未能完成启动",
+            "執行環境未能完成啟動",
+            "실행 환경 시작이 끝나지 않았습니다",
+        ],
+        Unavailable::Disconnected => [
+            "ランナーとの接続が切れました",
+            "Lost the connection to the agent runtime",
+            "与运行环境的连接已断开",
+            "與執行環境的連線已中斷",
+            "실행 환경과의 연결이 끊어졌습니다",
+        ],
+        Unavailable::Starting => [
+            "ランナーを起動しています",
+            "The agent runtime is starting",
+            "运行环境正在启动",
+            "執行環境正在啟動",
+            "실행 환경을 시작하고 있습니다",
+        ],
+    };
+    shared.pick(texts).to_owned()
 }
 
 /// 実行の間だけ待ち手を登録しておく。終端イベント以外で終わったら（接続断・猶予切れ・future の drop）ここで外し、

@@ -1,5 +1,6 @@
 import { Icon, IconButton } from '@/shared/ui';
 import { sizeLabel, type PendingAttachment } from '../model/pendingAttachments';
+import { tComposer } from '../i18n/composer';
 import styles from './PendingAttachments.module.css';
 
 export interface PendingAttachmentsProps {
@@ -11,7 +12,7 @@ export interface PendingAttachmentsProps {
 export function PendingAttachments({ attachments, onRemove }: PendingAttachmentsProps) {
   if (attachments.length === 0) return null;
   return (
-    <ul className={styles.list} aria-label="添付するもの">
+    <ul className={styles.list} aria-label={tComposer('pendingLabel')}>
       {attachments.map((attachment) => (
         <li key={attachment.key} className={styles.item}>
           {attachment.preview === null ? (
@@ -24,7 +25,7 @@ export function PendingAttachments({ attachments, onRemove }: PendingAttachments
             <img className={styles.thumb} src={attachment.preview} alt={attachment.name} title={attachment.name} />
           )}
           <IconButton
-            label={`${attachment.name} を外す`}
+            label={tComposer('removeAttachment', { name: attachment.name })}
             className={styles.remove}
             onClick={() => onRemove(attachment.key)}
           >

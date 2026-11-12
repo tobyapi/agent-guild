@@ -1,0 +1,33 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHant: Messages<typeof ja> = {
+  languageSection: '語言',
+  languageLabel: '顯示與對話語言',
+  languageHint: '用於應用程式介面以及代理的對話。代理從下一次回覆起生效。',
+  settingsTitle: '設定',
+  close: '關閉',
+  sectionProfile: '個人資料',
+  sectionTheme: '主題',
+  sectionBackends: '後端',
+  sectionSkillLibrary: '技能資料夾',
+  sectionStorage: '資料儲存位置',
+  sectionUpdate: '應用程式更新',
+  themeLabel: '主題',
+  themeDark: '深色',
+  themeLight: '淺色',
+  themeSystem: '跟隨系統',
+  setupTitle: '歡迎使用 AI 公會',
+  setupDescription: '開始前請先決定以下 4 項。之後都可以在設定中變更。',
+  setupStart: '開始',
+  setupStartWithData: '使用該資料開始',
+  setupYourName: '你的名字',
+  setupNameLabel: '名字',
+  setupNameHint: '代理人稱呼你時使用的名字。',
+  setupDataDirHelp: '用於儲存頻道、代理人和對話的位置。{source}',
+  setupOpenHelp: '使用此資料夾中的公會資料開始。名字和代理人將以該資料為準。',
+  setupCopyHelp: '將目前的資料複製到此資料夾並使用（按下「開始」後會重新啟動）。',
+  setupConflict: '此資料夾中已有公會資料。請使用該資料開始，或選擇其他資料夾。',
+  setupRestarting: '已變更儲存位置。正在重新啟動應用程式…',
+  resetDataDir: '還原',
+};

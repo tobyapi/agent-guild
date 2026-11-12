@@ -10,6 +10,7 @@ import type {
   Channel,
   ChannelStatistics,
   DataDirMode,
+  Language,
   Delegation,
   LibraryAddMode,
   Message,
@@ -31,6 +32,8 @@ export interface CommandMap {
   get_boot_status: { args: NoArgs; result: BootStatus };
   /** 初回起動の初期設定を終えた（名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） */
   complete_setup: { args: NoArgs; result: null };
+  /** 表示とエージェントの会話の言語を settings.json に保存する（次のエージェントの実行から反映） */
+  set_language: { args: { language: Language }; result: null };
   get_snapshot: { args: NoArgs; result: Snapshot };
   create_agent: { args: { input: AgentInput }; result: Agent };
   update_agent: { args: { id: string; input: AgentInput }; result: Agent };
@@ -108,6 +111,7 @@ export type InvokeRest<C extends CommandName> = keyof CommandArgs<C> extends nev
 /** 復旧モード（design.md §11）でも動くコマンド。ほかは unavailable で失敗する */
 export const RECOVERY_COMMANDS = [
   'get_boot_status',
+  'set_language',
   'get_storage_info',
   'choose_folder',
   'change_data_dir',

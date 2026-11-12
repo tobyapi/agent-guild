@@ -1,5 +1,6 @@
 // アバターは「絵文字などの短い文字」か「data:image/... の画像」のどちらか（domain.ts の Agent.avatar）。
 import { textLength } from './validation';
+import { t } from './i18n';
 
 const IMAGE_AVATAR = /^data:image\/(?:png|jpeg|gif|webp);base64,[a-z0-9+/=]+$/i;
 
@@ -14,7 +15,7 @@ export function isImageAvatar(avatar: string): boolean {
 /** アバターの問題（なければ null） */
 export function checkAvatar(avatar: string): string | null {
   if (isImageAvatar(avatar)) return null;
-  return textLength(avatar.trim()) > EMOJI_AVATAR_MAX ? 'アバターは絵文字 1 つか画像にしてください' : null;
+  return textLength(avatar.trim()) > EMOJI_AVATAR_MAX ? t('avatarTooLong') : null;
 }
 
 /** アバターが空のときに代わりに出す1文字 */

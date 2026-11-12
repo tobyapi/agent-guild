@@ -1,6 +1,7 @@
 // 自発活動の設定（docs/design.md §10）。
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
 import type { Channel } from '@/shared/types/domain';
+import { tBrain } from '../i18n/brain';
 
 /** 新しく作るときの間隔（分） */
 export const DEFAULT_INTERVAL_MIN = 60;
@@ -28,6 +29,6 @@ export function parseIntervalMin(text: string): number | null {
 
 export function checkIntervalMin(text: string): string | null {
   const minutes = parseIntervalMin(text);
-  if (minutes === null) return '分の数を入力してください';
-  return minutes < AUTONOMY_INTERVAL_MIN ? `${AUTONOMY_INTERVAL_MIN} 分以上にしてください` : null;
+  if (minutes === null) return tBrain('intervalNotNumber');
+  return minutes < AUTONOMY_INTERVAL_MIN ? tBrain('intervalTooShort', { min: AUTONOMY_INTERVAL_MIN }) : null;
 }

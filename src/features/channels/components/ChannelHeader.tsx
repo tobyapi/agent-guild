@@ -7,6 +7,7 @@ import { workingSummary } from '../model/channels';
 import { MEMBER_PANEL_ID } from '../model/ids';
 import { openChannelEditor, stopChannel, toggleMemberPanel } from '../store';
 import { ChannelStatisticsButton } from './ChannelStatistics';
+import { t } from '../i18n';
 import styles from './ChannelHeader.module.css';
 
 /** チャンネルヘッダー: #名前・話題・作業中の表示と停止・編集・メンバーパネルの開閉 */
@@ -27,11 +28,11 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
       <WorkingStatus channelId={channel.id} />
       <div className={styles.actions}>
         <ChannelStatisticsButton key={channel.id} channel={channel} />
-        <IconButton label="チャンネルを編集" onClick={() => openChannelEditor(channel.id)}>
+        <IconButton label={t('editChannel')} onClick={() => openChannelEditor(channel.id)}>
           <Icon name="edit" />
         </IconButton>
         <IconButton
-          label="メンバー"
+          label={t('members')}
           aria-pressed={membersOpen}
           aria-controls={MEMBER_PANEL_ID}
           onClick={toggleMemberPanel}
@@ -58,11 +59,11 @@ function WorkingStatus({ channelId }: { channelId: string }) {
       <button
         type="button"
         className={styles.stop}
-        title="実行中の返答を止め、待ち行列を空にします"
+        title={t('stopTitle')}
         onClick={() => void stopChannel(channelId).catch(reportError)}
       >
         <span className={styles.stopMark} aria-hidden="true" />
-        停止
+        {t('stop')}
       </button>
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import type { ImageSize } from '@/shared/lib/crop';
 import type { CropViewUpdate } from './useCropImage';
 import styles from './AvatarCrop.module.css';
+import { t } from '../i18n';
 
 export interface CropFrameProps {
   url: string;
@@ -68,8 +69,8 @@ export function CropFrame({ url, size, placement, update, describedBy }: CropFra
       style={{ '--crop-frame-size': `${CROP_FRAME_SIZE}px` } as CSSProperties}
       tabIndex={0}
       role="group"
-      aria-roledescription="切り抜きの範囲"
-      aria-label="切り抜きの範囲"
+      aria-roledescription={t('cropArea')}
+      aria-label={t('cropArea')}
       aria-describedby={describedBy}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

@@ -5,6 +5,7 @@
 import type { Dirent } from 'node:fs';
 import { copyFile, lstat, mkdir, readdir, stat } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { t } from '../../texts/index.ts';
 import { BackendError, isInside } from '../types.ts';
 
 export interface AssetLimits {
@@ -39,7 +40,7 @@ export class AssetBudget {
     const megabytes = Math.floor(this.#limits.maxBytes / (1024 * 1024));
     throw new BackendError(
       'bad_request',
-      `スキル ${skillName} で付属ファイルが上限（合計 ${megabytes}MB・${this.#limits.maxFiles} ファイル）を超えました`,
+      t('skillAssetsLimit', { name: skillName, megabytes, files: this.#limits.maxFiles }),
     );
   }
 }
@@ -53,10 +54,7 @@ function isSkipped(entry: Dirent, relativeDir: string): boolean {
 async function assertDirectory(sourceDir: string, skillName: string): Promise<void> {
   const info = isAbsolute(sourceDir) ? await stat(sourceDir).catch(() => null) : null;
   if (!info?.isDirectory()) {
-    throw new BackendError(
-      'bad_request',
-      `スキル ${skillName} のフォルダを読めません（絶対パスのフォルダが必要です）: ${sourceDir}`,
-    );
+    throw new BackendError('bad_request', t('skillDir', { name: skillName, dir: sourceDir }));
   }
 }
 
@@ -84,7 +82,7 @@ export async function planAssets(sourceDir: string, skillName: string, budget: A
 export function assetTarget(targetDir: string, relative: string): string {
   const target = resolve(targetDir, relative);
   if (isAbsolute(relative) || target === resolve(targetDir) || !isInside(target, targetDir)) {
-    throw new BackendError('bad_request', `展開先の外を指す付属ファイルです: ${relative}`);
+    throw new BackendError('bad_request', t('skillAssetOutside', { path: relative }));
   }
   return target;
 }

@@ -5,6 +5,7 @@ import { removeTasksBlock } from '@/shared/lib/tasksBlock';
 import { formatDateTime, formatTime, isoTime } from '@/shared/lib/time';
 import { Avatar, Badge, Icon } from '@/shared/ui';
 import type { Delegation, Message } from '@/shared/types/domain';
+import { useLanguage } from '@/shared/i18n';
 import { jumpToMessage, messageElementId } from '../jump';
 import type { HighlightPhase } from '../jump';
 import type { AuthorView } from '../model/authors';
@@ -12,12 +13,10 @@ import type { TaskLink } from '../model/delegations';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageBody } from './MessageBody';
 import { TaskCard } from './TaskCard';
+import { t } from '../i18n';
 import styles from './Message.module.css';
 
-const TASK_LINK_TEXT: Readonly<Record<TaskLink['kind'], string>> = {
-  result: '割り振りの結果',
-  summary: '割り振りのまとめ',
-};
+const TASK_LINK_KEYS = { result: 'taskLinkResult', summary: 'taskLinkSummary' } as const;
 
 export interface MessageItemProps {
   message: Message;
@@ -39,6 +38,8 @@ export interface MessageItemProps {
 
 /** 1件の発言。先頭ならアバターと見出し、続きなら左の列に時刻（ホバーで見える） */
 export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
+  // memo で親の描き直しを飛ばすので、言語が変わったら自分で描き直す
+  useLanguage();
   const { message, author, head, live, mentionsMe, highlight, taskLink } = props;
   return (
     <article
@@ -79,11 +80,7 @@ function MessageContent({ message, renderBody, delegation }: MessageItemProps) {
       {message.kind !== 'error' && content !== '' && <MessageBody content={content} render={renderBody} />}
       <MessageAttachments message={message} />
       {message.delegationId !== null &&
-        (delegation ? (
-          <TaskCard delegation={delegation} />
-        ) : (
-          <p className={styles.taskLoading}>タスクを読み込んでいます…</p>
-        ))}
+        (delegation ? <TaskCard delegation={delegation} /> : <p className={styles.taskLoading}>{t('taskLoading')}</p>)}
     </>
   );
 }
@@ -100,19 +97,19 @@ function MessageHeader({
   return (
     <header className={styles.header}>
       <span className={styles.name}>{author.name}</span>
-      {author.deleted && <span className={styles.deletedNote}>（削除済み）</span>}
+      {author.deleted && <span className={styles.deletedNote}>{t('deletedNote')}</span>}
       {author.tag && <TagBadge tag={author.tag} />}
       {author.backend && <BackendTag backendId={author.backend} showStatus={false} />}
-      {message.kind === 'autonomous' && <Badge tone="autonomous">💡 自発</Badge>}
+      {message.kind === 'autonomous' && <Badge tone="autonomous">💡 {t('autonomous')}</Badge>}
       {message.kind === 'progress' && (
-        <Badge tone="outline" title="作業の途中の投稿（最後の返答は別に届きます）">
-          途中経過
+        <Badge tone="outline" title={t('progressTitle')}>
+          {t('progressBadge')}
         </Badge>
       )}
       {taskLink && (
         <button type="button" className={styles.taskLink} onClick={() => jumpToMessage(taskLink.planMessageId)}>
           {taskLink.kind === 'result' && <Icon name="return" />}
-          {TASK_LINK_TEXT[taskLink.kind]}
+          {t(TASK_LINK_KEYS[taskLink.kind])}
         </button>
       )}
       <time className={styles.time} dateTime={isoTime(message.createdAt)} title={formatDateTime(message.createdAt)}>
@@ -128,7 +125,7 @@ function ErrorBody({ content }: { content: string }) {
     <div className={styles.error}>
       <b className={styles.errorTitle}>
         <Icon name="alert" />
-        返答できませんでした
+        {t('errorTitle')}
       </b>
       <span className={styles.errorText}>{content}</span>
     </div>

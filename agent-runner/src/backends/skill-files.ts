@@ -4,6 +4,7 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { SkillPayload } from '../protocol.ts';
+import { t } from '../texts/index.ts';
 import {
   ASSET_LIMITS,
   AssetBudget,
@@ -25,10 +26,10 @@ export function skillMarkdown(skill: SkillPayload): string {
 
 function assertNames(skills: readonly SkillPayload[]): void {
   const invalid = skills.find((skill) => !SKILL_NAME.test(skill.name));
-  if (invalid) throw new BackendError('bad_request', `スキル名が不正です: ${invalid.name}`);
+  if (invalid) throw new BackendError('bad_request', t('skillName', { name: invalid.name }));
   const names = skills.map((skill) => skill.name);
   const duplicate = names.find((name, index) => names.indexOf(name) !== index);
-  if (duplicate !== undefined) throw new BackendError('bad_request', `スキル名が重複しています: ${duplicate}`);
+  if (duplicate !== undefined) throw new BackendError('bad_request', t('skillDuplicate', { name: duplicate }));
 }
 
 /**

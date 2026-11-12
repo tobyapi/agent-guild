@@ -12,6 +12,7 @@ mod reporting;
 pub(super) mod state;
 mod stopping;
 mod tracking;
+mod workspace;
 
 use std::time::Duration;
 
@@ -101,7 +102,7 @@ impl DispatcherHandle {
     ) -> crate::error::AppResult<guild_domain::channel::Channel> {
         let (done, finished) = oneshot::channel();
         self.send(Command::ConfigureWorkspace { channel: channel.clone(), mode, folder, done });
-        finished.await.map_err(|_| crate::error::AppError::Unavailable("実行管理が停止しています".to_owned()))?
+        finished.await.map_err(|_| crate::error::AppError::Unavailable(stopped_message()))?
     }
 
     pub fn dispatch(&self, routing: Routing, origin: Origin) {
@@ -154,4 +155,16 @@ async fn wait(finished: oneshot::Receiver<()>) {
     if tokio::time::timeout(STOP_WAIT, finished).await.is_err() {
         log::warn!("実行中のジョブの終端を待ちきれませんでした（終わりしだい処理します）");
     }
+}
+
+/// 実行管理のアクターが止まっているとき
+fn stopped_message() -> String {
+    guild_domain::locale::pick([
+        "実行管理が停止しています",
+        "The job manager has stopped.",
+        "任务管理已停止。",
+        "任務管理已停止。",
+        "실행 관리가 중지되었습니다.",
+    ])
+    .to_owned()
 }

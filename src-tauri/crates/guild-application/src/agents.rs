@@ -6,7 +6,7 @@ use guild_domain::ids::AgentId;
 
 use crate::channels::ChannelService;
 use crate::conversation::ConversationService;
-use crate::error::{AppError, AppResult};
+use crate::error::{subject, AppError, AppResult};
 use crate::services::Ports;
 use crate::skills::SkillService;
 
@@ -79,7 +79,7 @@ impl AgentService {
 
     /// 削除されていないエージェント
     fn require(&self, id: &AgentId) -> AppResult<Agent> {
-        self.ports.agents.get(id)?.filter(Agent::is_active).ok_or(AppError::NotFound("エージェント"))
+        self.ports.agents.get(id)?.filter(Agent::is_active).ok_or(AppError::NotFound(subject::agent()))
     }
 
     /// 入力規則（バックエンドの OptionSpec を含む）と、名前の一意性（エージェントと人間の間）

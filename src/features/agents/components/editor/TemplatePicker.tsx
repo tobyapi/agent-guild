@@ -3,6 +3,7 @@ import type { KeyboardEvent } from 'react';
 import { SelectField } from '@/shared/ui';
 import type { AgentTemplate } from '@/shared/types/domain';
 import { useTemplates } from '../../hooks/useAgents';
+import { tEditor } from '../../i18n/editor';
 import { presetsFor } from '../../model/presets';
 import type { AgentPreset } from '../../model/presets';
 import { AccentMark } from '../AccentMark';
@@ -42,13 +43,11 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset, edi
     if (preset) onPreset(preset);
   };
   return (
-    <EditorSection title="役割">
+    <EditorSection title={tEditor('roleSection')}>
       <p id={questionId} className={styles.question}>
-        どんな役割を任せますか
+        {tEditor('roleQuestion')}
       </p>
-      <p className={styles.help}>
-        まずは作業者1人から。案出し・専門的な確認・進行管理が必要になったら仲間を加えられます。できることは役割ごとに決まります。作成・役割変更時に、その役割に合う内蔵スキルも追加します。不要なスキルは後から外せます。
-      </p>
+      <p className={styles.help}>{tEditor('roleHelp')}</p>
       <div className={styles.templates} role="radiogroup" aria-labelledby={questionId}>
         {templates.map((template, index) => (
           <button
@@ -69,19 +68,19 @@ export function TemplatePicker({ templateId, replaced, onTemplate, onPreset, edi
           </button>
         ))}
       </div>
-      {replaced && <p className={styles.help}>入力した内容は、選んだテンプレートの値に置き換わります</p>}
+      {replaced && <p className={styles.help}>{tEditor('templateReplaced')}</p>}
       {!editing && presets.length > 0 && (
         <SelectField
-          label="人格の例"
+          label={tEditor('personaExampleLabel')}
           optional
           value=""
           onChange={pickPreset}
-          hint="名前や担当などの書き出し例を流し込みます。"
+          hint={tEditor('personaExampleHint')}
         >
-          <option value="">人格の例を選ぶ…</option>
+          <option value="">{tEditor('personaExamplePlaceholder')}</option>
           {presets.map((preset) => (
             <option key={preset.id} value={preset.id}>
-              {preset.title}（{preset.values.name}）
+              {tEditor('personaExampleOption', { title: preset.title, name: preset.values.name })}
             </option>
           ))}
         </SelectField>

@@ -8,6 +8,7 @@ use guild_domain::attachment::Attachment;
 use guild_domain::channel::{Channel, WorkspaceMode};
 use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
+use guild_domain::locale;
 use guild_domain::message::Message;
 use guild_domain::prompt::{
     build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext,
@@ -64,6 +65,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         time_label: &time_label,
         attachment_path: &attachment_path,
         delegation: delegation.as_ref(),
+        language: locale::current(),
     };
     Ok(Some(RuntimeRequest {
         backend: agent.backend.clone(),

@@ -466,7 +466,14 @@
         "canDelegate": false,
         "autonomyEnabled": false
       },
-      "builtinSkills": []
+      "builtinSkills": [],
+      "roleTags": [
+        "作業者",
+        "Worker",
+        "执行者",
+        "執行者",
+        "작업자"
+      ]
     },
     {
       "id": "ideator",
@@ -497,6 +504,13 @@
       "builtinSkills": [
         "concept-shift",
         "introspection"
+      ],
+      "roleTags": [
+        "発想役",
+        "Ideator",
+        "创意者",
+        "發想者",
+        "아이디어 담당"
       ]
     },
     {
@@ -527,6 +541,13 @@
       },
       "builtinSkills": [
         "universal-critique"
+      ],
+      "roleTags": [
+        "専門家",
+        "Expert",
+        "专家",
+        "專家",
+        "전문가"
       ]
     },
     {
@@ -555,7 +576,14 @@
         "canDelegate": true,
         "autonomyEnabled": false
       },
-      "builtinSkills": []
+      "builtinSkills": [],
+      "roleTags": [
+        "マネージャー",
+        "Manager",
+        "经理",
+        "經理",
+        "매니저"
+      ]
     }
   ],
   "runtime": {

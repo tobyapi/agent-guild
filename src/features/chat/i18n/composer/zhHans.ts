@@ -1,0 +1,32 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHans: Messages<typeof ja> = {
+  composerUnavailable: '智能体暂时无法回复（运行环境已停止）',
+  composerPlaceholder: '发送消息到 #{channel}（用 @ 呼叫，拖放文件即可添加附件）',
+  composerLabel: '发送到 #{channel} 的消息',
+  send: '发送',
+  sendHint: '发送 Enter · 换行 Shift+Enter',
+  attachFile: '添加附件（也可以拖放或粘贴）',
+  mentionHeading: '呼叫对象',
+  mentionNoMatch: '没有与“{query}”匹配的智能体',
+  mentionNoAgents: '还没有智能体',
+  mentionOutsiders: '不在频道中 — 呼叫后会加入',
+  hintSelect: '选择',
+  hintConfirm: '确定',
+  hintClose: '关闭',
+  pendingLabel: '要发送的附件',
+  removeAttachment: '移除 {name}',
+  fileFallback: '文件',
+  fileReadFailed: '无法读取 {name}',
+  totalTooLarge: '附件总大小不能超过 30MB',
+  fileTooLarge: '单个文件不能超过 10MB',
+  tooMany: '每次最多添加 {max} 个附件',
+  sendFailedRetry: '发送失败。请重试。',
+  sendFailed: '发送失败。{reason}',
+  resend: '重新发送',
+  nameSeparator: '、',
+  activityWorking: '{names} 正在工作',
+  activityOthers: '另有 {count} 人正在工作',
+  activityDetail: '· {detail}',
+};

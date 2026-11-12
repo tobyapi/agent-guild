@@ -3,6 +3,7 @@ import { Icon, reportError } from '@/shared/ui';
 import type { Attachment } from '@/shared/types/domain';
 import { fetchAttachment, revealAttachment } from '../attachmentStore';
 import { sizeLabel } from '../model/pendingAttachments';
+import { t } from '../i18n';
 import styles from './AttachmentVideo.module.css';
 
 type Playback = { state: 'idle' | 'loading' | 'failed' } | { state: 'ready'; src: string };
@@ -36,10 +37,10 @@ export function AttachmentVideo({ messageId, attachment }: { messageId: string; 
           className={styles.poster}
           onClick={load}
           disabled={playback.state !== 'idle'}
-          aria-label={`${attachment.name} を再生`}
+          aria-label={t('play', { name: attachment.name })}
         >
           {playback.state === 'failed' ? (
-            <span className={styles.failed}>この動画は再生できませんでした</span>
+            <span className={styles.failed}>{t('videoFailed')}</span>
           ) : (
             <Icon name="play" className={styles.play} />
           )}
@@ -50,7 +51,7 @@ export function AttachmentVideo({ messageId, attachment }: { messageId: string; 
           type="button"
           className={styles.name}
           onClick={() => void revealAttachment(messageId, attachment.id).catch(reportError)}
-          title={`${attachment.name} をフォルダで表示`}
+          title={t('revealInFolder', { name: attachment.name })}
         >
           {attachment.name}
         </button>

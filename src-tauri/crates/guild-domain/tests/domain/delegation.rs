@@ -2,10 +2,11 @@
 
 use guild_domain::conversation::{JobMode, JobSpec, Routing};
 use guild_domain::delegation::{
-    carry_subtask, judge, Delegation, DelegationStatus, Settlement, Subtask, SubtaskRef, SubtaskStatus, Turn, Verdict,
-    ASSIGNEE_REMOVED, NO_ANSWER, RUN_FAILED, TIMED_OUT,
+    carry_subtask, judge, Delegation, DelegationStatus, Settlement, Subtask, SubtaskNote, SubtaskRef, SubtaskStatus,
+    Turn, Verdict,
 };
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SubtaskId};
+use guild_domain::locale::Language;
 
 use super::support::{by, ids, message};
 
@@ -42,17 +43,22 @@ fn target(subtask: &str, assignee: &str) -> SubtaskRef {
 #[test]
 fn judging_waits_while_consulting_and_settles_otherwise() {
     let reply = MessageId::new("r1");
-    assert_eq!(judge(Turn::Replied { message: &reply, continues: true }), Verdict::Waiting, "相談中は running のまま");
+    let ja = Language::Ja;
+    let waiting = judge(Turn::Replied { message: &reply, continues: true }, ja);
+    assert_eq!(waiting, Verdict::Waiting, "相談中は running のまま");
     assert_eq!(
-        judge(Turn::Replied { message: &reply, continues: false }),
+        judge(Turn::Replied { message: &reply, continues: false }, ja),
         Verdict::Settle(Settlement::Done(reply.clone()))
     );
-    assert_eq!(judge(Turn::Passed), Verdict::Settle(Settlement::Failed { note: NO_ANSWER, message: None }));
+    let passed = Settlement::Failed { note: "回答がありませんでした", message: None };
+    assert_eq!(judge(Turn::Passed, ja), Verdict::Settle(passed));
     let error = MessageId::new("e1");
-    let failed = Settlement::Failed { note: RUN_FAILED, message: Some(error.clone()) };
-    assert_eq!(judge(Turn::Failed { error: &error }), Verdict::Settle(failed));
-    let timed_out = Settlement::Failed { note: TIMED_OUT, message: Some(error.clone()) };
-    assert_eq!(judge(Turn::TimedOut { error: &error }), Verdict::Settle(timed_out));
+    let failed = Settlement::Failed { note: "失敗しました", message: Some(error.clone()) };
+    assert_eq!(judge(Turn::Failed { error: &error }, ja), Verdict::Settle(failed));
+    let timed_out = Settlement::Failed { note: "時間切れで中断しました", message: Some(error.clone()) };
+    assert_eq!(judge(Turn::TimedOut { error: &error }, ja), Verdict::Settle(timed_out));
+    let english = Settlement::Failed { note: "No answer.", message: None };
+    assert_eq!(judge(Turn::Passed, Language::En), Verdict::Settle(english), "理由は渡した言語の文面");
 }
 
 #[test]
@@ -62,14 +68,14 @@ fn subtasks_start_settle_and_the_delegation_reports_once_all_are_settled() {
     assert!(!delegation.start_subtask(&SubtaskId::new("s1"), 2), "running は二度始めない");
     assert!(delegation.settle_subtask(&SubtaskId::new("s1"), Settlement::Done(MessageId::new("r1")), 3));
     assert!(!delegation.begin_report(4), "未決着が残っている");
-    let failed = Settlement::Failed { note: NO_ANSWER, message: None };
+    let failed = SubtaskNote::NoAnswer.settle(Language::Ja, None);
     assert!(delegation.settle_subtask(&SubtaskId::new("s2"), failed.clone(), 5), "pending からも決着できる");
     assert!(!delegation.settle_subtask(&SubtaskId::new("s2"), failed, 6), "決着は1回だけ");
     assert!(delegation.begin_report(7));
     assert_eq!((delegation.status, delegation.updated_at), (DelegationStatus::Reporting, 7));
     assert!(!delegation.begin_report(8), "reporting は1回だけ");
     assert_eq!(delegation.subtasks[0].result_message_id, Some(MessageId::new("r1")));
-    assert_eq!(delegation.subtasks[1].note.as_deref(), Some(NO_ANSWER));
+    assert_eq!(delegation.subtasks[1].note.as_deref(), Some("回答がありませんでした"));
 }
 
 #[test]
@@ -91,10 +97,10 @@ fn the_report_finishes_the_delegation_once() {
 #[test]
 fn cancelling_closes_open_subtasks_and_removed_assignees_fail() {
     let mut delegation = delegation();
-    assert!(delegation.fail_assignee(&AgentId::new("sora"), 1));
+    assert!(delegation.fail_assignee(&AgentId::new("sora"), Language::Ja, 1));
     assert_eq!(delegation.subtasks[1].status, SubtaskStatus::Failed);
-    assert_eq!(delegation.subtasks[1].note.as_deref(), Some(ASSIGNEE_REMOVED));
-    assert!(!delegation.fail_assignee(&AgentId::new("sora"), 2), "決着済みは変えない");
+    assert_eq!(delegation.subtasks[1].note.as_deref(), Some("担当者が外れました"));
+    assert!(!delegation.fail_assignee(&AgentId::new("sora"), Language::Ja, 2), "決着済みは変えない");
     assert!(delegation.cancel(3));
     let statuses: Vec<SubtaskStatus> = delegation.subtasks.iter().map(|s| s.status).collect();
     assert_eq!(statuses, [SubtaskStatus::Cancelled, SubtaskStatus::Failed]);

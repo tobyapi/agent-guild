@@ -1,6 +1,7 @@
 // エージェントのタグの規則（docs/design.md §2 入力規則）。モックの検証と UI の事前検査が使う。正はサーバの validation。
 import { normalizeName } from './names';
 import { textLength } from './validation';
+import { t } from './i18n';
 
 export const TAG_COUNT_MAX = 8;
 export const TAG_LENGTH_MAX = 16;
@@ -8,9 +9,9 @@ export const TAG_LENGTH_MAX = 16;
 /** 1つのタグの問題（なければ null）。前後の空白は除いて判定する */
 export function checkTag(tag: string): string | null {
   const trimmed = tag.trim();
-  if (trimmed === '') return 'タグを入力してください';
-  if (textLength(trimmed) > TAG_LENGTH_MAX) return `タグは ${TAG_LENGTH_MAX} 文字以内にしてください`;
-  if (/[\s#＃,，@＠]/.test(trimmed)) return 'タグに空白・#・,・@ は使えません';
+  if (trimmed === '') return t('tagRequired');
+  if (textLength(trimmed) > TAG_LENGTH_MAX) return t('tagTooLong', { max: TAG_LENGTH_MAX });
+  if (/[\s#＃,，@＠]/.test(trimmed)) return t('tagInvalidChars');
   return null;
 }
 
@@ -30,10 +31,10 @@ export function cleanTags(tags: readonly string[]): string[] {
 /** タグの一覧の問題（なければ null）。重複をまとめたあとで判定する */
 export function checkTags(tags: readonly string[]): string | null {
   const cleaned = cleanTags(tags);
-  if (cleaned.length > TAG_COUNT_MAX) return `タグは ${TAG_COUNT_MAX} 個までにしてください`;
+  if (cleaned.length > TAG_COUNT_MAX) return t('tagTooMany', { max: TAG_COUNT_MAX });
   for (const tag of cleaned) {
     const problem = checkTag(tag);
-    if (problem !== null) return `「${tag}」: ${problem}`;
+    if (problem !== null) return t('tagProblem', { tag, problem });
   }
   return null;
 }

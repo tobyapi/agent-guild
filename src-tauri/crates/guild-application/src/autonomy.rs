@@ -4,9 +4,10 @@ use guild_domain::agent::Agent;
 use guild_domain::autonomy::{autonomy_channel, is_autonomy_due};
 use guild_domain::conversation::JobSpec;
 use guild_domain::ids::AgentId;
+use guild_domain::locale;
 
 use crate::conversation::ConversationService;
-use crate::error::{AppError, AppResult};
+use crate::error::{subject, AppError, AppResult};
 use crate::maintenance::Maintenance;
 use crate::services::Ports;
 
@@ -54,10 +55,10 @@ impl AutonomyService {
     /// 自発活動を今すぐ1回積む（待機中のジョブがあれば合流する）
     pub fn run_now(&self, agent_id: &AgentId) -> AppResult<()> {
         let agent =
-            self.ports.agents.get(agent_id)?.filter(Agent::is_active).ok_or(AppError::NotFound("エージェント"))?;
+            self.ports.agents.get(agent_id)?.filter(Agent::is_active).ok_or(AppError::NotFound(subject::agent()))?;
         let channels = self.ports.channels.list()?;
-        let channel = autonomy_channel(&agent, &channels)
-            .ok_or_else(|| AppError::validation(format!("{} はどのチャンネルにも参加していません", agent.name)))?;
+        let channel =
+            autonomy_channel(&agent, &channels).ok_or_else(|| AppError::validation(not_in_any_channel(&agent.name)))?;
         self.conversation.enqueue(vec![JobSpec::autonomous(agent.id.clone(), channel.id.clone())]);
         self.mark_run(agent, self.ports.clock.now_ms())?;
         self.ports.events.state_changed();
@@ -68,4 +69,15 @@ impl AutonomyService {
         agent.last_autonomous_at = Some(now_ms);
         self.ports.agents.update(&agent)
     }
+}
+
+/// 参加しているチャンネルがないので、自発活動を始められないときの文面
+fn not_in_any_channel(name: &str) -> String {
+    locale::pick([
+        format!("{name} はどのチャンネルにも参加していません"),
+        format!("{name} is not a member of any channel"),
+        format!("{name} 未加入任何频道"),
+        format!("{name} 未加入任何頻道"),
+        format!("{name}은(는) 어떤 채널에도 참여하고 있지 않습니다"),
+    ])
 }

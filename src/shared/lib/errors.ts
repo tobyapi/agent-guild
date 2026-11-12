@@ -1,7 +1,6 @@
 import type { ErrorCode } from '@/shared/types/domain';
 import { errorCodeEnum } from '@/shared/types/schemas/system';
-
-const FALLBACK_MESSAGE = '予期しないエラーが発生しました';
+import { t } from './i18n';
 
 function hasMessage(value: unknown): value is { message: string } {
   return typeof value === 'object' && value !== null && 'message' in value && typeof value.message === 'string';
@@ -14,7 +13,7 @@ function hasMessage(value: unknown): value is { message: string } {
 export function errorMessage(error: unknown): string {
   if (typeof error === 'string' && error.trim() !== '') return error;
   if (hasMessage(error) && error.message.trim() !== '') return error.message;
-  return FALLBACK_MESSAGE;
+  return t('unexpectedError');
 }
 
 /**

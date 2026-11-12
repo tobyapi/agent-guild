@@ -4,6 +4,7 @@ import { BackendTag, useBackend } from '@/features/runtime';
 import { Avatar } from '@/shared/ui';
 import { highlightParts } from '../model/mentionQuery';
 import type { MentionOption } from '../model/mentionQuery';
+import { tComposer } from '../i18n/composer';
 import styles from './MentionSuggestions.module.css';
 
 export interface MentionSuggestionsProps {
@@ -21,18 +22,16 @@ export function MentionSuggestions({ id, query, options, activeIndex, onPick, on
   const firstOutsider = options.findIndex((option) => !option.isMember);
   return (
     <div className={styles.popover}>
-      <p className={styles.heading}>呼びかける相手</p>
+      <p className={styles.heading}>{tComposer('mentionHeading')}</p>
       {options.length === 0 ? (
-        <p className={styles.empty}>
-          {query ? `『${query}』に一致するエージェントはいません` : 'エージェントはまだいません'}
-        </p>
+        <p className={styles.empty}>{query ? tComposer('mentionNoMatch', { query }) : tComposer('mentionNoAgents')}</p>
       ) : (
-        <ul id={id} role="listbox" aria-label="呼びかける相手" className={styles.list}>
+        <ul id={id} role="listbox" aria-label={tComposer('mentionHeading')} className={styles.list}>
           {options.map((option, index) => (
             <Fragment key={option.agent.id}>
               {index === firstOutsider && (
                 <li role="presentation" className={styles.separator}>
-                  チャンネル外 — 呼ぶと参加します
+                  {tComposer('mentionOutsiders')}
                 </li>
               )}
               <Suggestion
@@ -49,7 +48,8 @@ export function MentionSuggestions({ id, query, options, activeIndex, onPick, on
       )}
       <p className={styles.hints}>
         <kbd>↑</kbd>
-        <kbd>↓</kbd> 選ぶ · <kbd>Enter</kbd> 決定 · <kbd>Esc</kbd> 閉じる
+        <kbd>↓</kbd> {tComposer('hintSelect')} · <kbd>Enter</kbd> {tComposer('hintConfirm')} · <kbd>Esc</kbd>{' '}
+        {tComposer('hintClose')}
       </p>
     </div>
   );

@@ -11,6 +11,7 @@ use guild_domain::agent::Permissions;
 use guild_domain::backend::{
     BackendInfo, BackendSetup, BackendStatus, InstallGuide, LoginSpec, RuntimeState, RuntimeStatus, StartSpec,
 };
+use guild_domain::locale::Language;
 use guild_domain::statistics::RunUsage;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
@@ -46,6 +47,8 @@ pub struct FakeRuntime {
     pub probes: AtomicUsize,
     /// login を頼まれたバックエンド（頼まれた順）
     pub logins: Mutex<Vec<String>>,
+    /// set_language で伝えられた言語（伝えられた順）
+    pub languages: Mutex<Vec<Language>>,
     cancel_signal: Notify,
 }
 
@@ -192,5 +195,9 @@ impl AgentRuntime for FakeRuntime {
 
     async fn api_key(&self, _backend: &str, _action: &str, _key: Option<&str>) -> Result<String, RuntimeError> {
         Ok(String::new())
+    }
+
+    async fn set_language(&self, language: Language) {
+        self.languages.lock().push(language);
     }
 }

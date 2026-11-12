@@ -3,35 +3,44 @@ import { ProfileForm } from '@/features/profile';
 import { SkillLibrarySection } from '@/features/skills';
 import { UpdateSection } from '@/features/update';
 import { Button, Dialog } from '@/shared/ui';
+import { t } from '../i18n';
 import { closeSettings, useSettingsStore } from '../store';
 import { BackendsSection } from './BackendsSection';
+import { LanguageSection } from './LanguageSection';
 import { SettingsSection as Section } from './SettingsSection';
 import { StorageSection } from './StorageSection';
 import { ThemeSection } from './ThemeSection';
 
-/** 設定ダイアログ: プロフィール・テーマ・バックエンド・スキルのフォルダ・データの保存先・アプリの更新 */
+/** 設定ダイアログ: プロフィール・言語・テーマ・バックエンド・スキルのフォルダ・データの保存先・アプリの更新 */
 export function SettingsDialog() {
   const open = useSettingsStore((state) => state.open);
   const focus = useSettingsStore((state) => state.focus);
   if (!open) return null;
   return (
-    <Dialog title="設定" onClose={closeSettings} footer={<Button onClick={closeSettings}>閉じる</Button>}>
-      <Section title="プロフィール">
+    <Dialog
+      title={t('settingsTitle')}
+      onClose={closeSettings}
+      footer={<Button onClick={closeSettings}>{t('close')}</Button>}
+    >
+      <Section title={t('sectionProfile')}>
         <ProfileSettings />
       </Section>
-      <Section title="テーマ">
+      <Section title={t('languageSection')}>
+        <LanguageSection />
+      </Section>
+      <Section title={t('sectionTheme')}>
         <ThemeSection />
       </Section>
-      <Section title="バックエンド">
+      <Section title={t('sectionBackends')}>
         <BackendsSection />
       </Section>
-      <Section title="スキルのフォルダ" id="skillLibrary" focus={focus}>
+      <Section title={t('sectionSkillLibrary')} id="skillLibrary" focus={focus}>
         <SkillLibrarySection />
       </Section>
-      <Section title="データの保存先">
+      <Section title={t('sectionStorage')}>
         <StorageSection />
       </Section>
-      <Section title="アプリの更新" id="update" focus={focus}>
+      <Section title={t('sectionUpdate')} id="update" focus={focus}>
         <UpdateSection />
       </Section>
     </Dialog>

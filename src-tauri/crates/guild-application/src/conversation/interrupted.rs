@@ -3,6 +3,7 @@
 
 use guild_domain::conversation::{notices, JobSpec};
 use guild_domain::ids::{AgentId, ChannelId, MessageId};
+use guild_domain::locale;
 use serde_json::{json, Value};
 
 use super::posting::{self, Origin};
@@ -97,7 +98,7 @@ fn notify(ports: &Ports, origin: &Origin, agents: &[AgentId]) -> AppResult<()> {
         .filter_map(|id| all.iter().find(|agent| &agent.id == id).map(|agent| agent.name.clone()))
         .collect();
     if !names.is_empty() {
-        posting::post_notice(ports, origin, &notices::interrupted(&names))?;
+        posting::post_notice(ports, origin, &notices::interrupted(locale::current(), &names))?;
     }
     Ok(())
 }

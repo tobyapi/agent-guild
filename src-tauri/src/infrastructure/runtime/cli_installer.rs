@@ -10,13 +10,15 @@ use tokio::process::Command;
 use tokio::sync::Mutex;
 use tokio::time::timeout;
 
+use super::setup_text;
+
 static INSTALL_LOCK: Mutex<()> = Mutex::const_new(());
 
 pub(super) async fn install(guide: &InstallGuide) -> Result<(), RuntimeError> {
     let label = guide.cli.as_str();
     check(guide)?;
     let _install = INSTALL_LOCK.lock().await;
-    let home = std::env::home_dir().ok_or_else(|| failed("ホームフォルダが見つかりませんでした。"))?;
+    let home = std::env::home_dir().ok_or_else(|| failed(&setup_text::no_home()))?;
     let bin = home.join(".local").join("bin");
     let executable = bin.join(&guide.binary);
     if executable.is_file() {
@@ -31,7 +33,7 @@ pub(super) async fn install(guide: &InstallGuide) -> Result<(), RuntimeError> {
         Path::new("/usr/sbin"),
         Path::new("/sbin"),
     ])
-    .map_err(|_| failed("インストール先のフォルダを使えませんでした。"))?;
+    .map_err(|_| failed(&setup_text::bad_install_dir()))?;
     let mut installer = Command::new(&guide.shell);
     installer
         .arg("-c")
@@ -46,10 +48,10 @@ pub(super) async fn install(guide: &InstallGuide) -> Result<(), RuntimeError> {
     for (name, value) in &guide.env {
         installer.env(name, value.replace("{bin}", &bin));
     }
-    let error = format!("{label} をインストールできませんでした。接続と空き容量を確認して、もう一度お試しください。");
+    let error = setup_text::install_failed(label);
     let output = timeout(Duration::from_secs(600), installer.output())
         .await
-        .map_err(|_| failed(&format!("{label} のセットアップが時間切れになりました。もう一度お試しください。")))?
+        .map_err(|_| failed(&setup_text::install_timed_out(label)))?
         .map_err(|cause| logged_failure(&error, cause))?;
     if !output.status.success() || !executable.is_file() {
         return Err(logged_failure(&error, String::from_utf8_lossy(&output.stderr)));
@@ -58,9 +60,7 @@ pub(super) async fn install(guide: &InstallGuide) -> Result<(), RuntimeError> {
 }
 
 async fn download(url: &str, label: &str) -> Result<String, RuntimeError> {
-    let error = format!(
-        "{label} のインストーラーを取得できませんでした。インターネット接続を確認して、もう一度お試しください。"
-    );
+    let error = setup_text::download_failed(label);
     let output = Command::new("/usr/bin/curl")
         .args([
             "-q",
@@ -100,6 +100,6 @@ fn check(guide: &InstallGuide) -> Result<(), RuntimeError> {
     if guide.script_url.starts_with("https://") && Path::new(&guide.shell).is_absolute() && plain_name {
         Ok(())
     } else {
-        Err(failed("セットアップの対象が不正です"))
+        Err(failed(&setup_text::bad_target()))
     }
 }

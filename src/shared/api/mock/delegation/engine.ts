@@ -7,7 +7,7 @@ import { activeAgents, emitStateChanged, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import { allSettled, cancelDelegation, isOpen, isUnsettled, reportLines, settleSubtask, startSubtask } from './model';
 import type { SubtaskResult } from './model';
-import { SUBTASK_NOTES, tooManyTasks, unassignable } from '../notices';
+import { subtaskNote, tooManyTasks, unassignable } from '../notices';
 import type { ParsedTasks } from './tasks';
 
 export interface DelegationDeps {
@@ -31,8 +31,8 @@ export interface MockDelegations {
 function outcomeResult(outcome: JobOutcome): SubtaskResult {
   if (outcome.type === 'reply') return { status: 'done', resultMessageId: outcome.message.id, note: null };
   if (outcome.type === 'failed')
-    return { status: 'failed', resultMessageId: outcome.message.id, note: SUBTASK_NOTES.runFailed };
-  return { status: 'failed', resultMessageId: null, note: SUBTASK_NOTES.noAnswer };
+    return { status: 'failed', resultMessageId: outcome.message.id, note: subtaskNote('runFailed') };
+  return { status: 'failed', resultMessageId: null, note: subtaskNote('noAnswer') };
 }
 
 /** 割り振れなかった名前と、上限を超えて飛ばした担当者を知らせる */
@@ -93,12 +93,12 @@ function reportJob(delegation: Delegation, plan: Message, results: Message[], li
   };
 }
 
-/** 担当者が外れたサブタスクの決着 */
-const ASSIGNEE_DROPPED: SubtaskResult = {
+/** 担当者が外れたサブタスクの決着（理由はいまの言語） */
+const assigneeDropped = (): SubtaskResult => ({
   status: 'failed',
   resultMessageId: null,
-  note: SUBTASK_NOTES.assigneeRemoved,
-};
+  note: subtaskNote('assigneeRemoved'),
+});
 
 export function createDelegations(core: MockCore, deps: DelegationDeps): MockDelegations {
   const now = () => core.env.now();
@@ -176,7 +176,7 @@ export function createDelegations(core: MockCore, deps: DelegationDeps): MockDel
       const running = core.state.delegations.filter((candidate) => candidate.status === 'running' && here(candidate));
       for (const delegation of running) {
         const mine = delegation.subtasks.filter((subtask) => subtask.assigneeId === agentId && isUnsettled(subtask));
-        for (const subtask of mine) settle(delegation.id, subtask.id, ASSIGNEE_DROPPED);
+        for (const subtask of mine) settle(delegation.id, subtask.id, assigneeDropped());
       }
     },
   };

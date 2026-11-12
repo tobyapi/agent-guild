@@ -3,5 +3,6 @@
   "reason": "missing",
   "dataDir": "E:\\GuildData",
   "message": "データフォルダ E:\\GuildData が見つかりません。ドライブが接続されているか確認してください。",
-  "needsSetup": false
+  "needsSetup": false,
+  "language": "en"
 }

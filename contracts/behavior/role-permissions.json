@@ -27,6 +27,33 @@
     }
   },
   {
+    "name": "Worker（英語の表示名のタグ）/ claude",
+    "tags": [
+      "Worker"
+    ],
+    "backend": "claude",
+    "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    }
+  },
+  {
     "name": "作業者 / codex",
     "tags": [
       "作業者"

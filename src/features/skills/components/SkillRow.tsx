@@ -1,6 +1,7 @@
 import { cx } from '@/shared/lib/cx';
 import { Icon, IconButton, reportError } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
+import { t } from '../i18n';
 import { revealSkillFolder } from '../store';
 import { SourceMark } from './SourceMark';
 import details from './SkillDetails.module.css';
@@ -42,27 +43,27 @@ export function SkillRow({ skill, onEdit, onView, onDelete }: SkillRowProps) {
       </div>
       {source ? (
         <>
-          <IconButton label={`${skill.name} の本文を見る`} onClick={onView}>
+          <IconButton label={t('viewBody', { name: skill.name })} onClick={onView}>
             <Icon name="eye" />
           </IconButton>
           {linkedPath && (
             <IconButton
-              label={`${skill.name} のフォルダを開く`}
+              label={t('openSkillFolder', { name: skill.name })}
               onClick={() => void revealSkillFolder(linkedPath).catch(reportError)}
             >
               <Icon name="folder" />
             </IconButton>
           )}
-          <IconButton label={`${skill.name} を外す`} onClick={onDelete}>
+          <IconButton label={t('detachSkill', { name: skill.name })} onClick={onDelete}>
             <Icon name="close" />
           </IconButton>
         </>
       ) : (
         <>
-          <IconButton label={`${skill.name} を編集`} onClick={onEdit}>
+          <IconButton label={t('editSkill', { name: skill.name })} onClick={onEdit}>
             <Icon name="edit" />
           </IconButton>
-          <IconButton label={`${skill.name} を削除`} onClick={onDelete}>
+          <IconButton label={t('deleteSkill', { name: skill.name })} onClick={onDelete}>
             <Icon name="trash" />
           </IconButton>
         </>

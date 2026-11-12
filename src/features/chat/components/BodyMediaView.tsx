@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Icon } from '@/shared/ui';
 import { mediaHost } from '../model/mediaUrl';
 import type { BodyMedia } from '../model/mediaUrl';
+import { t } from '../i18n';
 import styles from './BodyEmbeds.module.css';
 
 /** この起動のあいだに「読み込む」を押した URL（同じものをもう一度聞かない） */
@@ -21,12 +22,12 @@ export interface BodyMediaViewProps {
 export function BodyMediaView({ media, alt, onView }: BodyMediaViewProps) {
   const [shown, setShown] = useState(() => !media.remote || approved.has(media.src));
   const [failed, setFailed] = useState(false);
-  const label = alt || (media.kind === 'video' ? '動画' : '画像');
+  const label = alt || t(media.kind === 'video' ? 'video' : 'image');
 
   if (failed) {
     return (
       <span className={styles.mediaFailed}>
-        {label}を読み込めませんでした（{media.remote ? media.src : '埋め込みの画像'}）
+        {t('mediaLoadFailed', { label, source: media.remote ? media.src : t('embeddedImage') })}
       </span>
     );
   }
@@ -39,7 +40,7 @@ export function BodyMediaView({ media, alt, onView }: BodyMediaViewProps) {
       <button type="button" className={styles.mediaGate} onClick={show} title={media.src}>
         <Icon name={media.kind === 'video' ? 'play' : 'image'} className={styles.mediaIcon} />
         <span className={styles.mediaLabel}>{label}</span>
-        <span className={styles.mediaHost}>{mediaHost(media.src)} から読み込む</span>
+        <span className={styles.mediaHost}>{t('loadFrom', { host: mediaHost(media.src) })}</span>
       </button>
     );
   }
@@ -60,7 +61,7 @@ export function BodyMediaView({ media, alt, onView }: BodyMediaViewProps) {
       type="button"
       className={styles.mediaThumb}
       onClick={() => onView(media.src, label)}
-      aria-label={`${label} を大きく表示`}
+      aria-label={t('viewLarger', { name: label })}
       title={label}
     >
       <img

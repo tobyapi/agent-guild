@@ -2,6 +2,7 @@ import { checkAvatar } from '@/shared/lib/avatar';
 import { isHexColor } from '@/shared/lib/colors';
 import { checkMemberName } from '@/shared/lib/names';
 import type { Profile } from '@/shared/types/domain';
+import { t } from '../i18n';
 
 export type ProfileField = keyof Profile;
 
@@ -16,7 +17,7 @@ export function validateProfile(
   const entries: Array<[ProfileField, string | null]> = [
     ['name', checkMemberName(profile.name, takenNames)],
     ['avatar', checkAvatar(profile.avatar)],
-    ['color', isHexColor(profile.color) ? null : '色を選んでください'],
+    ['color', isHexColor(profile.color) ? null : t('chooseColor')],
   ];
   return Object.fromEntries(entries.filter((entry): entry is [ProfileField, string] => entry[1] !== null));
 }

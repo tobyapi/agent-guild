@@ -1,8 +1,9 @@
 //! 割り振りとサブタスクの状態遷移。どれも変わったら true を返す（呼び出し側が保存して delegation-changed を出す）。
 //! 終わった割り振り（done / cancelled）はもう変わらない。
 
-use super::{Delegation, DelegationStatus, Settlement, SubtaskStatus, ASSIGNEE_REMOVED};
+use super::{Delegation, DelegationStatus, Settlement, SubtaskNote, SubtaskStatus};
 use crate::ids::{AgentId, MessageId, SubtaskId};
+use crate::locale::Language;
 
 impl Delegation {
     /// 担当者のジョブが始まった: pending → running
@@ -42,15 +43,15 @@ impl Delegation {
         true
     }
 
-    /// 担当者が外れた（削除・除外）: その担当者の未決着のサブタスクを failed「担当者が外れました」に
-    pub fn fail_assignee(&mut self, agent: &AgentId, now: i64) -> bool {
+    /// 担当者が外れた（削除・除外）: その担当者の未決着のサブタスクを failed「担当者が外れました」（language の文面）に
+    pub fn fail_assignee(&mut self, agent: &AgentId, language: Language, now: i64) -> bool {
         let open: Vec<SubtaskId> = self
             .subtasks
             .iter()
             .filter(|s| &s.assignee_id == agent && s.status.is_open())
             .map(|s| s.id.clone())
             .collect();
-        let failed = Settlement::Failed { note: ASSIGNEE_REMOVED, message: None };
+        let failed = SubtaskNote::AssigneeRemoved.settle(language, None);
         let mut changed = false;
         for id in &open {
             changed |= self.settle_subtask(id, failed.clone(), now);

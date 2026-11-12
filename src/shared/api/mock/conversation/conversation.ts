@@ -3,7 +3,7 @@
 import type { ActivityState, Channel, Message } from '@/shared/types/domain';
 import { createDelegations } from '../delegation/engine';
 import type { MockDelegations } from '../delegation/engine';
-import { DEPTH_LIMIT, STOPPED } from '../notices';
+import { depthLimit, stopped } from '../notices';
 import { activeAgents, emitStateChanged, joinChannel, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import type { JobOutcome } from './executor';
@@ -33,8 +33,8 @@ function cancellations(core: MockCore, scheduler: Scheduler, delegations: MockDe
   return {
     stop(channelId) {
       scheduler.discard((job) => job.channelId === channelId);
-      delegations.cancel((delegation) => delegation.channelId === channelId, STOPPED);
-      postSystem(core, channelId, STOPPED);
+      delegations.cancel((delegation) => delegation.channelId === channelId, stopped());
+      postSystem(core, channelId, stopped());
     },
     dropChannel(channelId) {
       scheduler.discard((job) => job.channelId === channelId);
@@ -107,7 +107,7 @@ export function createConversation(core: MockCore): MockConversation {
     }
     const reply = outcome.message;
     if (outcome.tasks) delegations.create(reply, outcome.tasks, channel);
-    if (reply.depth >= MAX_DEPTH) return noticeOnce(channel.id, reply.rootId, DEPTH_LIMIT);
+    if (reply.depth >= MAX_DEPTH) return noticeOnce(channel.id, reply.rootId, depthLimit());
     apply(routeAgentReply(reply, job, contextOf(channel)), channel, reply.rootId);
   }
 

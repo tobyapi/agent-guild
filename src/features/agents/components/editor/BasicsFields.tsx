@@ -1,4 +1,5 @@
 import { AvatarInput, ColorInput, TextField } from '@/shared/ui';
+import { tEditor } from '../../i18n/editor';
 import { AvatarPresetPicker } from './AvatarPresetPicker';
 import { EditorSection } from './EditorSection';
 import type { SectionProps } from './EditorSection';
@@ -8,14 +9,14 @@ import { TagField } from './TagField';
 export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
   const setAvatar = (avatar: string) => update('avatar', avatar);
   return (
-    <EditorSection title="基本">
+    <EditorSection title={tEditor('basicsSection')}>
       <TextField
-        label="名前"
+        label={tEditor('nameLabel')}
         value={draft.name}
         onChange={(value) => update('name', value)}
         onBlur={() => touch('name')}
         error={errors.name}
-        hint="@名前 で呼びかけます。空白と @ は使えません。"
+        hint={tEditor('nameHint')}
         maxLength={64}
         autoComplete="off"
         data-autofocus

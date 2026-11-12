@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use guild_domain::conversation::JobSpec;
 use guild_domain::delegation::{judge, Delegation, SubtaskRef, Verdict};
 use guild_domain::ids::{AgentId, ChannelId, DelegationId};
+use guild_domain::locale;
 use guild_domain::message::Message;
 
 use super::actor::Actor;
@@ -42,7 +43,7 @@ impl Actor {
         let Some(turn) = ending.turn() else {
             return;
         };
-        let verdict = judge(turn);
+        let verdict = judge(turn, locale::current());
         self.remember(target, ending.message());
         if let Verdict::Settle(settlement) = verdict {
             self.change(&target.delegation_id, |delegation, now| {
@@ -81,7 +82,8 @@ impl Actor {
         let in_scope = |delegation: &Delegation| channel.is_none_or(|id| &delegation.channel_id == id);
         self.cancel_delegations(|delegation| in_scope(delegation) && &delegation.manager_id == agent);
         for id in self.tracked_ids(|tracked| in_scope(&tracked.delegation)) {
-            self.change(&id, |delegation, now| delegation.fail_assignee(agent, now));
+            let language = locale::current();
+            self.change(&id, |delegation, now| delegation.fail_assignee(agent, language, now));
         }
     }
 

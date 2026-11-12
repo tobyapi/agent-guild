@@ -1,0 +1,37 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHans: Messages<typeof ja> = {
+  title: '运行统计',
+  description: '# {name} · 全部时间',
+  refresh: '刷新',
+  loading: '正在加载运行统计…',
+  loadFailed: '无法加载统计。{error}',
+  delegation: '分派',
+  delegationCount: '分派次数',
+  reportRate: '结果报告率',
+  failedSubtasks: '失败的子任务',
+  cancelledSubtasks: '中断的子任务',
+  count: '{count} 项',
+  ratio: '{done} / {total} 项',
+  delegationNote:
+    '子任务 {subtasks} 项（未完结 {pending} 项）。结果报告率是指已完结（含失败、中断）的子任务中，已发布结果的比例。',
+  seconds: '{seconds} 秒',
+  minutes: '{minutes} 分 {seconds} 秒',
+  byModel: '按模型统计的运行',
+  noRuns: '还没有运行记录。今后智能体的运行会显示在这里。',
+  modelNote: '按主模型汇总。时间不含排队。令牌和费用显示已获取的部分，包括辅助模型。',
+  columnModel: '模型',
+  columnRuns: '运行',
+  columnTime: '时间',
+  columnTokens: '令牌',
+  columnCost: 'API 费用',
+  defaultModel: '默认模型（未获取名称）',
+  average: '平均 {duration}',
+  unavailable: '未获取',
+  input: '输入 {count}',
+  output: '输出 {count}',
+  fetched: '已获取 {done} / {total} 项',
+  local: '本地运行',
+  estimated: '估算 · 已获取 {done} / {total} 项',
+};

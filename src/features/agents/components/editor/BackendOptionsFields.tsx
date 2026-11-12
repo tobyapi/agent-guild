@@ -2,6 +2,7 @@
 import { useId } from 'react';
 import { Button, FieldError, Segment, SelectField, SwitchField, TextField } from '@/shared/ui';
 import type { BackendInfo, OptionSpec } from '@/shared/types/domain';
+import { tBrain } from '../../i18n/brain';
 import { defaultLabel, isCustomized } from '../../model/backendOptions';
 import type { OptionValue, OptionValues } from '../../model/backendOptions';
 import styles from './Editor.module.css';
@@ -22,7 +23,7 @@ export function BackendOptionsFields({ backend, values, errors, onChange }: Back
   };
   return (
     <details className={styles.details} open={open}>
-      <summary className={styles.summary}>{backend.label} の詳細設定</summary>
+      <summary className={styles.summary}>{tBrain('optionsSummary', { label: backend.label })}</summary>
       <div className={styles.detailsBody}>
         {backend.options.map((spec) => (
           <OptionField
@@ -61,7 +62,7 @@ function ResetButton({ spec, value, onChange }: OptionFieldProps) {
   if (!isCustomized(spec, { [spec.key]: value ?? '' })) return null;
   return (
     <Button variant="link" onClick={() => onChange(undefined)}>
-      既定に戻す
+      {tBrain('resetDefault')}
     </Button>
   );
 }
@@ -83,7 +84,7 @@ function TextOption(props: OptionFieldProps) {
       onChange={onChange}
       type={spec.type === 'number' ? 'number' : 'text'}
       numeric={spec.type === 'number'}
-      placeholder={fallback ? `既定: ${fallback}` : undefined}
+      placeholder={fallback ? tBrain('defaultValue', { value: fallback }) : undefined}
       error={error}
     />
   );
@@ -93,7 +94,7 @@ const currentChoice = (spec: OptionSpec, value: OptionValue | undefined) =>
   typeof value === 'string' && value !== '' ? value : defaultLabel(spec);
 
 const choiceLabel = (spec: OptionSpec, choice: string) =>
-  choice === defaultLabel(spec) ? `${choice}（既定）` : choice;
+  choice === defaultLabel(spec) ? tBrain('choiceDefault', { choice }) : choice;
 
 function SelectOption(props: OptionFieldProps) {
   const { spec, value, error, onChange } = props;

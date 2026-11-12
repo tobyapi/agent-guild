@@ -1,29 +1,147 @@
 {
-  "stopped": "停止しました",
-  "depthLimit": "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。",
-  "noResponder": "いま返答できるエージェントがいません（バックエンドの準備ができていないか、答える設定のメンバーがいません）",
-  "timedOut": "時間切れで中断しました（15分）",
-  "joined": { "name": "ロジカ", "text": "ロジカ がチャンネルに参加しました" },
-  "undeliverable": { "name": "ロジカ", "text": "ロジカ はこのチャンネルにいないため、メッセージは届きませんでした" },
-  "didNotAnswer": { "name": "ロジカ", "text": "ロジカ は回答しませんでした" },
-  "failed": { "name": "ロジカ", "text": "ロジカ は失敗しました" },
-  "unassignable": {
-    "names": ["だれか", "カナメ"],
-    "text": "だれか・カナメ には割り振れませんでした（見つからないか、自分自身です）"
+  "ja": {
+    "stopped": "停止しました",
+    "depthLimit": "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。",
+    "noResponder": "いま返答できるエージェントがいません（バックエンドの準備ができていないか、答える設定のメンバーがいません）",
+    "timedOut": "時間切れで中断しました（15分）",
+    "joined": { "name": "ロジカ", "text": "ロジカ がチャンネルに参加しました" },
+    "undeliverable": { "name": "ロジカ", "text": "ロジカ はこのチャンネルにいないため、メッセージは届きませんでした" },
+    "didNotAnswer": { "name": "ロジカ", "text": "ロジカ は回答しませんでした" },
+    "failed": { "name": "ロジカ", "text": "ロジカ は失敗しました" },
+    "unassignable": {
+      "names": ["だれか", "カナメ"],
+      "text": "だれか・カナメ には割り振れませんでした（見つからないか、自分自身です）"
+    },
+    "tooManyTasks": {
+      "names": ["キュウ", "ジュウ"],
+      "text": "サブタスクは8件までです。キュウ・ジュウ への割り振りは飛ばしました"
+    },
+    "interrupted": {
+      "names": ["ハル", "ソラ"],
+      "text": "前回アプリが終了したときに、ハル・ソラの返答が中断されました。続けるには、もう一度話しかけてください。"
+    },
+    "subtaskNotes": {
+      "noAnswer": "回答がありませんでした",
+      "runFailed": "失敗しました",
+      "timedOut": "時間切れで中断しました",
+      "assigneeRemoved": "担当者が外れました",
+      "notStarted": "実行されませんでした"
+    }
   },
-  "tooManyTasks": {
-    "names": ["キュウ", "ジュウ"],
-    "text": "サブタスクは8件までです。キュウ・ジュウ への割り振りは飛ばしました"
+  "en": {
+    "stopped": "Stopped.",
+    "depthLimit": "Stopped because the back-and-forth between AIs reached its limit. Mention someone to continue.",
+    "noResponder": "No agent can reply right now (the backend isn't ready, or no member is set to answer).",
+    "timedOut": "Stopped because it took too long (15 minutes).",
+    "joined": { "name": "ロジカ", "text": "ロジカ joined the channel." },
+    "undeliverable": { "name": "ロジカ", "text": "ロジカ is not in this channel, so the message was not delivered." },
+    "didNotAnswer": { "name": "ロジカ", "text": "ロジカ did not answer." },
+    "failed": { "name": "ロジカ", "text": "ロジカ failed." },
+    "unassignable": {
+      "names": ["だれか", "カナメ"],
+      "text": "Could not delegate to だれか, カナメ (not found, or it is yourself)."
+    },
+    "tooManyTasks": {
+      "names": ["キュウ", "ジュウ"],
+      "text": "Up to 8 subtasks are allowed. Skipped delegating to キュウ, ジュウ."
+    },
+    "interrupted": {
+      "names": ["ハル", "ソラ"],
+      "text": "The reply from ハル, ソラ was interrupted when the app last closed. Send a message again to continue."
+    },
+    "subtaskNotes": {
+      "noAnswer": "No answer.",
+      "runFailed": "Failed.",
+      "timedOut": "Timed out.",
+      "assigneeRemoved": "The assignee was removed.",
+      "notStarted": "Never ran."
+    }
   },
-  "interrupted": {
-    "names": ["ハル", "ソラ"],
-    "text": "前回アプリが終了したときに、ハル・ソラの返答が中断されました。続けるには、もう一度話しかけてください。"
+  "zh-Hans": {
+    "stopped": "已停止。",
+    "depthLimit": "AI 之间的往返次数已达上限，已停止。如需继续，请提及成员。",
+    "noResponder": "目前没有可以回复的智能体（后端尚未就绪，或没有设置为回答的成员）。",
+    "timedOut": "已超时中断（15 分钟）。",
+    "joined": { "name": "ロジカ", "text": "ロジカ 加入了频道。" },
+    "undeliverable": { "name": "ロジカ", "text": "ロジカ 不在此频道中，消息未送达。" },
+    "didNotAnswer": { "name": "ロジカ", "text": "ロジカ 没有回答。" },
+    "failed": { "name": "ロジカ", "text": "ロジカ 执行失败。" },
+    "unassignable": {
+      "names": ["だれか", "カナメ"],
+      "text": "无法分派给 だれか、カナメ（找不到，或是自己）。"
+    },
+    "tooManyTasks": {
+      "names": ["キュウ", "ジュウ"],
+      "text": "子任务最多 8 个。已跳过对 キュウ、ジュウ 的分派。"
+    },
+    "interrupted": {
+      "names": ["ハル", "ソラ"],
+      "text": "上次关闭应用时，ハル、ソラ 的回复被中断了。如需继续，请再发一次消息。"
+    },
+    "subtaskNotes": {
+      "noAnswer": "没有回答。",
+      "runFailed": "执行失败。",
+      "timedOut": "已超时中断。",
+      "assigneeRemoved": "负责人已被移除。",
+      "notStarted": "未执行。"
+    }
   },
-  "subtaskNotes": {
-    "noAnswer": "回答がありませんでした",
-    "runFailed": "失敗しました",
-    "timedOut": "時間切れで中断しました",
-    "assigneeRemoved": "担当者が外れました",
-    "notStarted": "実行されませんでした"
+  "zh-Hant": {
+    "stopped": "已停止。",
+    "depthLimit": "AI 之間的往返次數已達上限，已停止。如需繼續，請提及成員。",
+    "noResponder": "目前沒有可以回覆的代理人（後端尚未就緒，或沒有設定為回答的成員）。",
+    "timedOut": "已逾時中斷（15 分鐘）。",
+    "joined": { "name": "ロジカ", "text": "ロジカ 加入了頻道。" },
+    "undeliverable": { "name": "ロジカ", "text": "ロジカ 不在此頻道中，訊息未送達。" },
+    "didNotAnswer": { "name": "ロジカ", "text": "ロジカ 沒有回答。" },
+    "failed": { "name": "ロジカ", "text": "ロジカ 執行失敗。" },
+    "unassignable": {
+      "names": ["だれか", "カナメ"],
+      "text": "無法分派給 だれか、カナメ（找不到，或是自己）。"
+    },
+    "tooManyTasks": {
+      "names": ["キュウ", "ジュウ"],
+      "text": "子任務最多 8 個。已略過對 キュウ、ジュウ 的分派。"
+    },
+    "interrupted": {
+      "names": ["ハル", "ソラ"],
+      "text": "上次關閉應用程式時，ハル、ソラ 的回覆被中斷了。如需繼續，請再傳一次訊息。"
+    },
+    "subtaskNotes": {
+      "noAnswer": "沒有回答。",
+      "runFailed": "執行失敗。",
+      "timedOut": "已逾時中斷。",
+      "assigneeRemoved": "負責人已被移除。",
+      "notStarted": "未執行。"
+    }
+  },
+  "ko": {
+    "stopped": "중지했습니다.",
+    "depthLimit": "AI 간 대화가 한도에 도달하여 멈췄습니다. 계속하려면 멘션하세요.",
+    "noResponder": "지금 답할 수 있는 에이전트가 없습니다(백엔드가 준비되지 않았거나, 답하도록 설정된 멤버가 없습니다).",
+    "timedOut": "시간이 초과되어 중단했습니다(15분).",
+    "joined": { "name": "ロジカ", "text": "ロジカ 님이 채널에 참여했습니다." },
+    "undeliverable": { "name": "ロジカ", "text": "ロジカ 님은 이 채널에 없어서 메시지가 전달되지 않았습니다." },
+    "didNotAnswer": { "name": "ロジカ", "text": "ロジカ 님은 답하지 않았습니다." },
+    "failed": { "name": "ロジカ", "text": "ロジカ 님은 실패했습니다." },
+    "unassignable": {
+      "names": ["だれか", "カナメ"],
+      "text": "だれか, カナメ 님에게는 위임할 수 없었습니다(찾을 수 없거나 자기 자신입니다)."
+    },
+    "tooManyTasks": {
+      "names": ["キュウ", "ジュウ"],
+      "text": "하위 작업은 8개까지입니다. キュウ, ジュウ 님에 대한 위임은 건너뛰었습니다."
+    },
+    "interrupted": {
+      "names": ["ハル", "ソラ"],
+      "text": "지난번 앱이 종료될 때 ハル, ソラ 님의 답변이 중단되었습니다. 계속하려면 다시 말을 걸어 주세요."
+    },
+    "subtaskNotes": {
+      "noAnswer": "답변이 없었습니다.",
+      "runFailed": "실패했습니다.",
+      "timedOut": "시간이 초과되어 중단했습니다.",
+      "assigneeRemoved": "담당자가 빠졌습니다.",
+      "notStarted": "실행되지 않았습니다."
+    }
   }
 }

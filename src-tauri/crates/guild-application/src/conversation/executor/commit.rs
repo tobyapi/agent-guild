@@ -8,6 +8,7 @@ use guild_domain::conversation::{
 };
 use guild_domain::delegation::{carry_subtask, parse_tasks, starts_consultation};
 use guild_domain::ids::{AgentId, DelegationId, MessageId};
+use guild_domain::locale;
 use guild_domain::message::{Message, MessageKind, NewMessage};
 
 use super::ending::{Committed, Ending};
@@ -35,7 +36,7 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::Failed(error)))
         }
         RunOutcome::TimedOut => {
-            let error = post_error(ports, job, &agent, notices::TIMED_OUT.to_owned())?;
+            let error = post_error(ports, job, &agent, notices::timed_out(locale::current()).to_owned())?;
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::TimedOut(error)))
         }
         RunOutcome::Cancelled | RunOutcome::Skipped => Ok(Committed::nothing()),
@@ -73,7 +74,7 @@ fn replied(
 /// 返答がなかった（[PASS]・空・失敗・時間切れ）ので、呼び出し元に注記つきで戻す
 fn no_answer(job: &JobSpec, agent: &Agent, reason: NoAnswer, ctx: &RoutingContext<'_>, ending: Ending) -> Committed {
     let routing = job.root_id.clone().map(|root_id| {
-        let mut routing = route_no_answer(job, agent, reason, ctx);
+        let mut routing = route_no_answer(job, agent, reason, locale::current(), ctx);
         carry_subtask(job, &mut routing);
         (routing, Origin { channel_id: job.channel_id.clone(), root_id, depth: job.depth })
     });

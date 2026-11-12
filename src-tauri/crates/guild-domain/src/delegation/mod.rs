@@ -10,8 +10,7 @@ use serde::{Deserialize, Serialize};
 use crate::ids::{AgentId, ChannelId, DelegationId, MessageId, SubtaskId};
 
 pub use tasks::{parse_tasks, PlannedTask, TaskPlan, MAX_SUBTASKS};
-pub use verdict::{carry_subtask, judge, starts_consultation, Settlement, Turn, Verdict};
-pub use verdict::{ASSIGNEE_REMOVED, NOT_STARTED, NO_ANSWER, RUN_FAILED, TIMED_OUT};
+pub use verdict::{carry_subtask, judge, starts_consultation, Settlement, SubtaskNote, Turn, Verdict};
 
 /// サブタスクの状態（TS の SubtaskStatus）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

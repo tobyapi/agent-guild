@@ -1,0 +1,33 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const en: Messages<typeof ja> = {
+  languageSection: 'Language',
+  languageLabel: 'Display and conversation language',
+  languageHint: 'Used for the app and for what agents write. Agents switch from their next reply.',
+  settingsTitle: 'Settings',
+  close: 'Close',
+  sectionProfile: 'Profile',
+  sectionTheme: 'Theme',
+  sectionBackends: 'Backends',
+  sectionSkillLibrary: 'Skill folders',
+  sectionStorage: 'Data location',
+  sectionUpdate: 'App updates',
+  themeLabel: 'Theme',
+  themeDark: 'Dark',
+  themeLight: 'Light',
+  themeSystem: 'Match OS',
+  setupTitle: 'Welcome to AI Guild',
+  setupDescription: 'Choose four things to get started. You can change any of them later in Settings.',
+  setupStart: 'Get started',
+  setupStartWithData: 'Start with that data',
+  setupYourName: 'Your name',
+  setupNameLabel: 'Name',
+  setupNameHint: 'The name agents use when they address you.',
+  setupDataDirHelp: 'Where channels, agents, and conversations are stored. {source}',
+  setupOpenHelp: 'Starts with the guild data in this folder. Your name and agents will come from that data.',
+  setupCopyHelp: 'Copies your current data to this folder and uses it (the app restarts when you get started).',
+  setupConflict: 'This folder already has guild data. Start with that data, or choose a different folder.',
+  setupRestarting: 'Data location changed. Restarting the app…',
+  resetDataDir: 'Revert',
+};

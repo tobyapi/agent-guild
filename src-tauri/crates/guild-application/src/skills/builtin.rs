@@ -1,6 +1,7 @@
 //! 内蔵スキルのユースケース: 一覧とエージェントへの追加（link = 参照してアプリの更新に追従 / copy = 取り込んで編集できる）。
 
 use guild_domain::ids::{AgentId, SkillId};
+use guild_domain::locale;
 use guild_domain::skill::{builtin_skills, find_builtin_skill, BuiltinSkill, LibraryAddMode, Skill, SkillSource};
 
 use super::{ensure_name_free, require_agent, SkillService};
@@ -29,7 +30,13 @@ impl SkillService {
     /// 内蔵スキルをエージェントに付ける。同じ name があれば Conflict、内蔵スキルがなければ NotFound
     pub fn add_builtin(&self, agent_id: &AgentId, name: &str, mode: LibraryAddMode) -> AppResult<Skill> {
         require_agent(&self.ports, agent_id)?;
-        let found = find_builtin_skill(name).ok_or(AppError::NotFound("内蔵スキル"))?;
+        let found = find_builtin_skill(name).ok_or(AppError::NotFound(locale::pick([
+            "内蔵スキル",
+            "Built-in skill",
+            "内置技能",
+            "內建技能",
+            "내장 스킬",
+        ])))?;
         ensure_name_free(&self.ports, agent_id, &found.name, None)?;
         let source = match mode {
             LibraryAddMode::Link => Some(SkillSource::Builtin { name: found.name.clone() }),

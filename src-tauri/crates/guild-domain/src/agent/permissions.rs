@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{usable_permissions, Agent};
 use crate::backend::BackendInfo;
+use crate::locale;
 
 /// 権限の名前（TS の PermissionKey）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -24,16 +25,28 @@ pub enum PermissionKey {
 impl PermissionKey {
     /// 使用者に見せる名前（React の PERMISSION_LABELS と同じ）
     pub fn label(self) -> &'static str {
-        match self {
-            Self::WebSearch => "Web 検索",
-            Self::WebFetch => "Web ページを読む",
-            Self::ReadFiles => "ファイルを読む",
-            Self::ReadAnywhere => "作業フォルダの外も読む",
-            Self::WriteFiles => "ファイルを書く",
-            Self::WriteAnywhere => "作業フォルダの外にも書く",
-            Self::RunCommands => "コマンドを実行",
-            Self::Skills => "スキルを使う",
-        }
+        locale::pick(match self {
+            Self::WebSearch => ["Web 検索", "Web search", "网络搜索", "網路搜尋", "웹 검색"],
+            Self::WebFetch => ["Web ページを読む", "Read web pages", "读取网页", "讀取網頁", "웹 페이지 읽기"],
+            Self::ReadFiles => ["ファイルを読む", "Read files", "读取文件", "讀取檔案", "파일 읽기"],
+            Self::ReadAnywhere => [
+                "作業フォルダの外も読む",
+                "Read outside the workspace",
+                "读取工作区以外的内容",
+                "讀取工作區以外的內容",
+                "작업 공간 밖도 읽기",
+            ],
+            Self::WriteFiles => ["ファイルを書く", "Write files", "写入文件", "寫入檔案", "파일 쓰기"],
+            Self::WriteAnywhere => [
+                "作業フォルダの外にも書く",
+                "Write outside the workspace",
+                "写入工作区以外的位置",
+                "寫入工作區以外的位置",
+                "작업 공간 밖에도 쓰기",
+            ],
+            Self::RunCommands => ["コマンドを実行", "Run commands", "执行命令", "執行命令", "명령 실행"],
+            Self::Skills => ["スキルを使う", "Use skills", "使用技能", "使用技能", "스킬 사용"],
+        })
     }
 }
 

@@ -3,19 +3,24 @@ import { useBackend } from '@/features/runtime';
 import { errorMessage } from '@/shared/lib/errors';
 import type { Channel, ChannelStatistics, DelegationStatistics, ModelStatistics } from '@/shared/types/domain';
 import { Button, Dialog, Icon, IconButton } from '@/shared/ui';
+import { currentLanguage } from '@/shared/i18n';
 import { channelsApi } from '../api';
+import { tStats } from '../i18n/statistics';
 import styles from './ChannelStatistics.module.css';
 
-const integer = new Intl.NumberFormat('ja-JP');
-const percent = new Intl.NumberFormat('ja-JP', { style: 'percent', maximumFractionDigits: 1 });
-const seconds = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 2 });
-const dollars = new Intl.NumberFormat('ja-JP', { maximumFractionDigits: 9 });
+// 数の書き方は表示の言語に合わせる（描画のたびに引く）
+const formatNumber = (value: number, options?: Intl.NumberFormatOptions): string =>
+  new Intl.NumberFormat(currentLanguage(), options).format(value);
+const integer = (value: number) => formatNumber(value);
+const percent = (value: number) => formatNumber(value, { style: 'percent', maximumFractionDigits: 1 });
+const seconds = (value: number) => formatNumber(value, { maximumFractionDigits: 2 });
+const dollars = (value: number) => formatNumber(value, { maximumFractionDigits: 9 });
 
 export function ChannelStatisticsButton({ channel }: { channel: Channel }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <IconButton label="運用統計" aria-haspopup="dialog" onClick={() => setOpen(true)}>
+      <IconButton label={tStats('title')} aria-haspopup="dialog" onClick={() => setOpen(true)}>
         <Icon name="chart" />
       </IconButton>
       {open && <StatisticsDialog channel={channel} onClose={() => setOpen(false)} />}
@@ -50,22 +55,22 @@ function StatisticsDialog({ channel, onClose }: { channel: Channel; onClose: () 
 
   return (
     <Dialog
-      title="運用統計"
-      description={`# ${channel.name} · 全期間`}
+      title={tStats('title')}
+      description={tStats('description', { name: channel.name })}
       size="lg"
       onClose={onClose}
       footer={
         <Button onClick={refresh} disabled={result === null}>
-          更新
+          {tStats('refresh')}
         </Button>
       }
     >
       {result === null && (
         <p role="status" className={styles.note}>
-          運用統計を読み込んでいます…
+          {tStats('loading')}
         </p>
       )}
-      {result !== null && 'error' in result && <p role="alert">統計を読み込めませんでした。{result.error}</p>}
+      {result !== null && 'error' in result && <p role="alert">{tStats('loadFailed', { error: result.error })}</p>}
       {result !== null && 'data' in result && (
         <>
           <DelegationSummary counts={result.data.delegation} />
@@ -78,36 +83,36 @@ function StatisticsDialog({ channel, onClose }: { channel: Channel; onClose: () 
 
 function DelegationSummary({ counts }: { counts: DelegationStatistics }) {
   const settled = counts.subtasks - counts.pending;
-  const rate = settled === 0 ? '—' : percent.format(counts.reported / settled);
+  const rate = settled === 0 ? '—' : percent(counts.reported / settled);
   return (
     <section className={styles.section}>
-      <h3>割り振り</h3>
+      <h3>{tStats('delegation')}</h3>
       <dl className={styles.cards}>
         <div>
-          <dt>割り振り件数</dt>
-          <dd>{integer.format(counts.delegations)} 件</dd>
+          <dt>{tStats('delegationCount')}</dt>
+          <dd>{tStats('count', { count: integer(counts.delegations) })}</dd>
         </div>
         <div>
-          <dt>結果報告率</dt>
+          <dt>{tStats('reportRate')}</dt>
           <dd>
             {rate}
-            <small>
-              {integer.format(counts.reported)} / {integer.format(settled)} 件
-            </small>
+            <small>{tStats('ratio', { done: integer(counts.reported), total: integer(settled) })}</small>
           </dd>
         </div>
         <div>
-          <dt>失敗したサブタスク</dt>
-          <dd>{integer.format(counts.failed)} 件</dd>
+          <dt>{tStats('failedSubtasks')}</dt>
+          <dd>{tStats('count', { count: integer(counts.failed) })}</dd>
         </div>
         <div>
-          <dt>中断したサブタスク</dt>
-          <dd>{integer.format(counts.cancelled)} 件</dd>
+          <dt>{tStats('cancelledSubtasks')}</dt>
+          <dd>{tStats('count', { count: integer(counts.cancelled) })}</dd>
         </div>
       </dl>
       <p className={styles.note}>
-        サブタスク {integer.format(counts.subtasks)} 件（未決着 {integer.format(counts.pending)}{' '}
-        件）。結果報告率は、失敗・中断を含む決着済みのサブタスクのうち、結果が投稿された割合です。
+        {tStats('delegationNote', {
+          subtasks: integer(counts.subtasks),
+          pending: integer(counts.pending),
+        })}
       </p>
     </section>
   );
@@ -115,31 +120,29 @@ function DelegationSummary({ counts }: { counts: DelegationStatistics }) {
 
 function duration(ms: number): string {
   const totalSeconds = ms / 1000;
-  if (totalSeconds < 60) return `${seconds.format(totalSeconds)} 秒`;
+  if (totalSeconds < 60) return tStats('seconds', { seconds: seconds(totalSeconds) });
   const minutes = Math.floor(totalSeconds / 60);
-  return `${integer.format(minutes)} 分 ${Math.floor(totalSeconds % 60)} 秒`;
+  return tStats('minutes', { minutes: integer(minutes), seconds: Math.floor(totalSeconds % 60) });
 }
 
 function ModelTable({ models }: { models: ModelStatistics[] }) {
   return (
     <section className={styles.section}>
-      <h3>モデル別の実行</h3>
+      <h3>{tStats('byModel')}</h3>
       {models.length === 0 ? (
-        <p className={styles.note}>まだ実行記録がありません。今後のエージェント実行がここに表示されます。</p>
+        <p className={styles.note}>{tStats('noRuns')}</p>
       ) : (
         <>
-          <p className={styles.note}>
-            主モデルごとの集計です。時間は待ち行列を除きます。トークンと費用は、補助モデルも含めて取得できた分を表示します。
-          </p>
+          <p className={styles.note}>{tStats('modelNote')}</p>
           <div className={styles.tableScroll}>
-            <table className={styles.table} aria-label="モデル別の実行">
+            <table className={styles.table} aria-label={tStats('byModel')}>
               <thead>
                 <tr>
-                  <th scope="col">モデル</th>
-                  <th scope="col">実行</th>
-                  <th scope="col">時間</th>
-                  <th scope="col">トークン</th>
-                  <th scope="col">API 費用</th>
+                  <th scope="col">{tStats('columnModel')}</th>
+                  <th scope="col">{tStats('columnRuns')}</th>
+                  <th scope="col">{tStats('columnTime')}</th>
+                  <th scope="col">{tStats('columnTokens')}</th>
+                  <th scope="col">{tStats('columnCost')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -159,25 +162,23 @@ function ModelRow({ model }: { model: ModelStatistics }) {
   return (
     <tr>
       <th scope="row">
-        {model.model ?? '既定モデル（名前未取得）'}
+        {model.model ?? tStats('defaultModel')}
         <small>{model.backend}</small>
       </th>
-      <td>{integer.format(model.runs)} 件</td>
+      <td>{tStats('count', { count: integer(model.runs) })}</td>
       <td>
         {duration(model.totalDurationMs)}
-        <small>平均 {duration(model.totalDurationMs / model.runs)}</small>
+        <small>{tStats('average', { duration: duration(model.totalDurationMs / model.runs) })}</small>
       </td>
       <td>
         {model.inputTokens === null && model.outputTokens === null ? (
-          '未取得'
+          tStats('unavailable')
         ) : (
           <>
-            入力 {tokenCount(model.inputTokens)}
+            {tStats('input', { count: tokenCount(model.inputTokens) })}
             <br />
-            出力 {tokenCount(model.outputTokens)}
-            <small>
-              取得 {model.tokenRuns} / {model.runs} 件
-            </small>
+            {tStats('output', { count: tokenCount(model.outputTokens) })}
+            <small>{tStats('fetched', { done: model.tokenRuns, total: model.runs })}</small>
           </>
         )}
       </td>
@@ -188,23 +189,21 @@ function ModelRow({ model }: { model: ModelStatistics }) {
   );
 }
 
-const tokenCount = (count: number | null): string => (count === null ? '未取得' : integer.format(count));
+const tokenCount = (count: number | null): string => (count === null ? tStats('unavailable') : integer(count));
 
 function RunCost({ model }: { model: ModelStatistics }) {
   const local = useBackend(model.backend)?.local === true;
   if (local)
     return (
       <>
-        0 USD<small>ローカル実行</small>
+        0 USD<small>{tStats('local')}</small>
       </>
     );
-  if (model.estimatedCostNanoUsd === null) return <>未取得</>;
+  if (model.estimatedCostNanoUsd === null) return <>{tStats('unavailable')}</>;
   return (
     <>
-      {dollars.format(model.estimatedCostNanoUsd / 1_000_000_000)} USD
-      <small>
-        推定 · 取得 {model.costRuns} / {model.runs} 件
-      </small>
+      {dollars(model.estimatedCostNanoUsd / 1_000_000_000)} USD
+      <small>{tStats('estimated', { done: model.costRuns, total: model.runs })}</small>
     </>
   );
 }

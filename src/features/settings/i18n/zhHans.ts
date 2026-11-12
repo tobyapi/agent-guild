@@ -1,0 +1,33 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHans: Messages<typeof ja> = {
+  languageSection: '语言',
+  languageLabel: '显示与对话语言',
+  languageHint: '用于应用界面以及智能体的对话。智能体从下一次回复起生效。',
+  settingsTitle: '设置',
+  close: '关闭',
+  sectionProfile: '个人资料',
+  sectionTheme: '主题',
+  sectionBackends: '后端',
+  sectionSkillLibrary: '技能文件夹',
+  sectionStorage: '数据存储位置',
+  sectionUpdate: '应用更新',
+  themeLabel: '主题',
+  themeDark: '深色',
+  themeLight: '浅色',
+  themeSystem: '跟随系统',
+  setupTitle: '欢迎使用 AI 公会',
+  setupDescription: '开始前请先决定以下 4 项。之后都可以在设置中更改。',
+  setupStart: '开始',
+  setupStartWithData: '使用该数据开始',
+  setupYourName: '你的名字',
+  setupNameLabel: '名字',
+  setupNameHint: '智能体称呼你时使用的名字。',
+  setupDataDirHelp: '用于保存频道、智能体和对话的位置。{source}',
+  setupOpenHelp: '使用此文件夹中的公会数据开始。名字和智能体将以该数据为准。',
+  setupCopyHelp: '将当前数据复制到此文件夹并使用（点击“开始”后会重启）。',
+  setupConflict: '此文件夹中已有公会数据。请使用该数据开始，或选择其他文件夹。',
+  setupRestarting: '已更改存储位置。正在重启应用…',
+  resetDataDir: '还原',
+};

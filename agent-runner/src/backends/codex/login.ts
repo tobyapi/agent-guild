@@ -2,7 +2,8 @@
 import { execFile } from 'node:child_process';
 import { homedir } from 'node:os';
 import { promisify } from 'node:util';
-import { CODEX_NOT_FOUND, findCodex, type CodexExecutable } from '../codex-runtime/executable.ts';
+import { codexNotFound, findCodex, type CodexExecutable } from '../codex-runtime/executable.ts';
+import { t } from '../codex-runtime/texts/index.ts';
 import { withPathDirs } from '../executables.ts';
 import { BackendError, type LoginContext } from '../types.ts';
 
@@ -29,14 +30,11 @@ export async function hasCodexLogin(executable: CodexExecutable): Promise<boolea
 
 export async function loginCodex({ signal }: LoginContext): Promise<void> {
   const executable = findCodex();
-  if (executable === null) throw new BackendError('internal', CODEX_NOT_FOUND);
+  if (executable === null) throw new BackendError('internal', codexNotFound());
   try {
     await loginCommand(executable, [], 300_000, signal);
   } catch {
     // 子プロセスの出力には認証用の URL が含まれるため、表示やログには渡さない。
-    throw new BackendError(
-      'auth',
-      'ChatGPT にログインできませんでした。ブラウザーを確認して、もう一度お試しください。',
-    );
+    throw new BackendError('auth', t('loginFailed'));
   }
 }

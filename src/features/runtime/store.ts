@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { notifyInfo } from '@/shared/ui';
 import type { ActivityState, BackendInfo, RuntimeStatus, Snapshot } from '@/shared/types/domain';
 import { runtimeApi } from './api';
+import { t } from './i18n';
 
 interface RuntimeStoreState {
   runtime: RuntimeStatus;
@@ -47,7 +48,7 @@ export function applyRuntimeSnapshot(
     activity: previous.activityRevision === activityRevision ? snapshot.activity : previous.activity,
   });
   if (previous.runtime.state === 'unavailable' && snapshot.runtime.state === 'ready') {
-    notifyInfo('実行環境の準備ができました');
+    notifyInfo(t('runtimeReady'));
   }
 }
 
@@ -62,7 +63,7 @@ export async function refreshBackends(): Promise<void> {
   try {
     await runtimeApi.refreshBackends();
     await applyLatestBackendSnapshot();
-    notifyInfo('バックエンドの再確認が完了しました。各バックエンドの状態を確認してください。');
+    notifyInfo(t('recheckDone'));
   } finally {
     useRuntimeStore.setState({ checkingBackends: false });
   }

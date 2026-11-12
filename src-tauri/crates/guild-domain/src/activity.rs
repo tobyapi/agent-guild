@@ -3,9 +3,12 @@
 use serde::{Deserialize, Serialize};
 
 use super::ids::{AgentId, ChannelId};
+use super::locale::Language;
 
 /// ジョブを始めたときの表示
-pub const THINKING: &str = "考え中…";
+pub fn thinking(language: Language) -> &'static str {
+    language.pick(["考え中…", "Thinking…", "思考中…", "思考中…", "생각하는 중…"])
+}
 
 /// 実行中の1件（TS の AgentActivity）
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

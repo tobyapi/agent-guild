@@ -2,6 +2,7 @@
 // （BackendInfo.folderScope）で決まる。ここにはバックエンドの ID による分岐を置かない。
 import { lstat, realpath } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
+import { t } from '../texts/index.ts';
 import { BackendError, isInside, type BackendDescriptor, type RunRequest } from './types.ts';
 
 /**
@@ -11,10 +12,7 @@ import { BackendError, isInside, type BackendDescriptor, type RunRequest } from 
 export function assertBackendFolderScope(info: BackendDescriptor, request: RunRequest): void {
   if (request.writableDirs === undefined) return;
   if (info.folderScope === null) {
-    throw new BackendError(
-      'unsupported_permission',
-      `${info.label} は範囲を守れないため、指定フォルダのチャンネルでは実行できません`,
-    );
+    throw new BackendError('unsupported_permission', t('folderUnsupported', { backend: info.label }));
   }
   if (info.folderScope === 'files') assertFolderScope(request);
   else assertSandboxedFolderScope(request);
@@ -32,9 +30,9 @@ export function assertFolderScope(request: RunRequest): void {
     request.permissions.skills ||
     request.permissions.runCommands
   )
-    throw new BackendError('unsupported_permission', 'フォルダ制限と両立しない権限です');
+    throw new BackendError('unsupported_permission', t('folderPermissions'));
   if (![request.workspace, ...request.readableDirs, ...request.writableDirs].every(isAbsolute))
-    throw new BackendError('bad_request', 'フォルダ制限には絶対パスが必要です');
+    throw new BackendError('bad_request', t('folderAbsolute'));
 }
 
 /**
@@ -44,9 +42,9 @@ export function assertFolderScope(request: RunRequest): void {
 export function assertSandboxedFolderScope(request: RunRequest): void {
   if (request.writableDirs === undefined) return;
   if (request.permissions.readAnywhere || request.permissions.writeAnywhere)
-    throw new BackendError('unsupported_permission', 'フォルダ制限と両立しない権限です');
+    throw new BackendError('unsupported_permission', t('folderPermissions'));
   if (![request.workspace, ...request.readableDirs, ...request.writableDirs].every(isAbsolute))
-    throw new BackendError('bad_request', 'フォルダ制限には絶対パスが必要です');
+    throw new BackendError('bad_request', t('folderAbsolute'));
 }
 
 /** まだないファイルは、いちばん近い既存の親まで実体を解決する。壊れたリンクは受け付けない */

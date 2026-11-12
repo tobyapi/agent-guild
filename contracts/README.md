@@ -31,7 +31,7 @@
 
 | behavior/mentions.json | メンション解析（design.md §8）: エージェントと本文 → 呼ばれた相手の ID。Rust `parse_mentions` / TS `parseMentions` |
 | behavior/tasks.json・behavior/tasks-agents.json | tasks ブロックの読み取り（design.md §7.1）: 本文 → サブタスク・割り振れなかった名前・上限を超えた名前（ブロックがなければ null）。Rust `parse_tasks` / TS `parseTasks`・`findTasksBlock` |
-| behavior/notices.json | システム発言と注記の文面。Rust `conversation::notices`・`delegation` の理由 / TS `mock/notices.ts` |
+| behavior/notices.json | システム発言と注記の文面（言語のコードごと: `{ "ja": {...}, "en": {...}, ... }`）。Rust `conversation::notices`・`delegation::SubtaskNote` / TS `mock/notices.ts` |
 
 契約を変えたら、この表とフィクスチャを同じ変更で直すこと。規則（メンション・tasks ブロック・お知らせの文面）を変えたら、
 `behavior/` の実例と、Rust・TS の両方の実装を同じ変更で直すこと。

@@ -22,10 +22,8 @@ export function primaryTag(agent: Pick<Agent, 'tags'>): string | null {
 /** そのタグを先頭に持つテンプレート（なければ undefined） */
 export function templateOfTag(templates: readonly AgentTemplate[], tag: string): AgentTemplate | undefined {
   const key = tagKey(tag);
-  return templates.find((template) => {
-    const head = template.defaults.tags[0];
-    return head !== undefined && tagKey(head) === key;
-  });
+  // どの言語の表示名のタグでも、その役割のテンプレート
+  return templates.find((template) => template.roleTags.some((roleTag) => tagKey(roleTag) === key));
 }
 
 /** タグの色: そのタグを先頭に持つテンプレートの accent（タグがない・一致しなければ null = 中立） */

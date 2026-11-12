@@ -1,9 +1,11 @@
 // 設定ダイアログ・初回起動の初期設定のダイアログの開閉と、データの保存先の情報。
 import { create } from 'zustand';
+import { applyLanguage } from '@/shared/i18n';
 import { errorMessage } from '@/shared/lib/errors';
-import type { DataDirMode, StorageInfo } from '@/shared/types/domain';
-import { notifyInfo } from '@/shared/ui';
+import type { DataDirMode, Language, StorageInfo } from '@/shared/types/domain';
+import { notifyInfo, reportError } from '@/shared/ui';
 import { settingsApi } from './api';
+import { tBackends } from './i18n/backends';
 
 /** 開いたときに見せる区画（ほかの画面から案内するとき） */
 export type SettingsSection = 'skillLibrary' | 'update';
@@ -62,7 +64,7 @@ export async function setUpBackend(backendId: string, label: string): Promise<vo
   }));
   try {
     await settingsApi.installBackendCli(backendId);
-    notifyInfo(`${label} のインストールが完了しました。`);
+    notifyInfo(tBackends('installDone', { backend: label }));
   } catch (cause) {
     useSettingsStore.setState((state) => ({ setupErrors: { ...state.setupErrors, [backendId]: errorMessage(cause) } }));
   } finally {
@@ -81,4 +83,15 @@ export function closeSetup(): void {
 /** 初期設定を終えた印を保存する（次の起動からダイアログを出さない） */
 export async function completeSetup(): Promise<void> {
   await settingsApi.completeSetup();
+}
+
+/** 表示の言語をすぐに切り替え、settings.json にも保存する（エージェントの会話の言語になる） */
+export function changeLanguage(language: Language): void {
+  applyLanguage(language);
+  saveLanguage(language).catch(reportError);
+}
+
+/** settings.json に保存する（初期設定の「はじめる」では、選ばずに OS の言語のままでも保存する） */
+export async function saveLanguage(language: Language): Promise<void> {
+  await settingsApi.setLanguage(language);
 }

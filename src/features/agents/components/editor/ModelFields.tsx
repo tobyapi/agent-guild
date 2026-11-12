@@ -1,6 +1,7 @@
 import { SelectField, TextField } from '@/shared/ui';
 import type { BackendInfo, ModelSpec } from '@/shared/types/domain';
 import { modelSpecOf } from '@/shared/lib/models';
+import { tBrain } from '../../i18n/brain';
 import { defaultEffortLabel, defaultModelLabel } from '../../model/models';
 
 export interface ModelFieldsProps {
@@ -20,12 +21,16 @@ export function ModelFields({ backend, model, effort, effortError, onModel, onEf
   if (!backend || backend.models.length === 0) {
     return (
       <TextField
-        label="モデル"
+        label={tBrain('modelLabel')}
         optional
         value={model}
         onChange={onModel}
-        placeholder={backend?.defaultModel ? `既定: ${backend.defaultModel}` : '既定のモデル'}
-        hint="空欄ならバックエンドの既定のモデルを使います。"
+        placeholder={
+          backend?.defaultModel
+            ? tBrain('defaultValue', { value: backend.defaultModel })
+            : tBrain('modelDefaultPlaceholder')
+        }
+        hint={tBrain('modelHint')}
         spellCheck={false}
       />
     );
@@ -35,7 +40,7 @@ export function ModelFields({ backend, model, effort, effortError, onModel, onEf
   return (
     <>
       <SelectField
-        label="モデル"
+        label={tBrain('modelLabel')}
         value={model}
         onChange={onModel}
         hint={spec && spec.description !== '' ? spec.description : undefined}
@@ -46,7 +51,7 @@ export function ModelFields({ backend, model, effort, effortError, onModel, onEf
             {candidate.label}
           </option>
         ))}
-        {!listed && <option value={model}>{model}（一覧にありません）</option>}
+        {!listed && <option value={model}>{tBrain('modelUnlisted', { model })}</option>}
       </SelectField>
       {spec && (spec.efforts.length > 0 || effort !== '') && (
         <EffortField spec={spec} effort={effort} error={effortError} onChange={onEffort} />
@@ -66,11 +71,11 @@ function EffortField({ spec, effort, error, onChange }: EffortFieldProps) {
   const listed = effort === '' || spec.efforts.includes(effort);
   return (
     <SelectField
-      label="推論の深さ"
+      label={tBrain('effortLabel')}
       value={effort}
       onChange={onChange}
       error={error}
-      hint="深いほど、よく考えてから答えます（時間と使用量が増えます）。"
+      hint={tBrain('effortHint')}
     >
       <option value="">{defaultEffortLabel(spec)}</option>
       {spec.efforts.map((choice) => (
@@ -78,7 +83,7 @@ function EffortField({ spec, effort, error, onChange }: EffortFieldProps) {
           {choice}
         </option>
       ))}
-      {!listed && <option value={effort}>{effort}（このモデルでは選べません）</option>}
+      {!listed && <option value={effort}>{tBrain('effortUnavailable', { effort })}</option>}
     </SelectField>
   );
 }

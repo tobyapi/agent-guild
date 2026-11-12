@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Icon, reportError } from '@/shared/ui';
+import { t } from '../i18n';
 import styles from './BodyEmbeds.module.css';
 
 const COPIED_MS = 2000;
@@ -21,7 +22,7 @@ export function CodeCopyButton({ source }: { source: string }) {
   return (
     <button type="button" className={styles.copy} onClick={copy} data-copied={copied ? '' : undefined}>
       {copied && <Icon name="check" />}
-      <span aria-live="polite">{copied ? 'コピーしました' : 'コピー'}</span>
+      <span aria-live="polite">{t(copied ? 'copied' : 'copy')}</span>
     </button>
   );
 }

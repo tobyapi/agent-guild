@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Icon } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
 import { useAgentSkills } from '../hooks/useAgentSkills';
+import { t } from '../i18n';
 import { BuiltinPicker } from './BuiltinPicker';
 import { DeleteSkillDialog } from './DeleteSkillDialog';
 import { LibraryPicker } from './LibraryPicker';
@@ -34,14 +35,14 @@ export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: Sk
     <section className={styles.manager}>
       <details className={styles.details} open={defaultOpen}>
         <summary className={styles.summary}>
-          スキル<span className={styles.count}>{skills ? list.length : '…'}</span>
+          {t('summary')}
+          <span className={styles.count}>{skills ? list.length : '…'}</span>
         </summary>
         <div className={styles.content}>
           {list.length === 0 && panel === null && skills && (
             <p className={styles.empty}>
-              <b>スキルはまだありません</b>
-              専門知識の手引きを Markdown
-              で書くか、内蔵スキルやスキルのフォルダから追加すると、相談のときに読んでから答えます。
+              <b>{t('emptyTitle')}</b>
+              {t('emptyBody')}
             </p>
           )}
           <ul className={styles.list}>
@@ -59,15 +60,15 @@ export function SkillManager({ agentId, defaultOpen, onOpenLibrarySettings }: Sk
             <div className={styles.addActions}>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'edit', skill: null })}>
                 <Icon name="plus" />
-                スキルを書く
+                {t('writeSkill')}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'builtin' })}>
                 <Icon name="diamond" />
-                内蔵スキルから追加
+                {t('addBuiltin')}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ type: 'library' })}>
                 <Icon name="link" />
-                ライブラリから追加
+                {t('addLibrary')}
               </Button>
             </div>
           ) : (

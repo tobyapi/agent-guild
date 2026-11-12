@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { isSamePath } from '@/shared/lib/paths';
 import { Button, Icon, notifyInfo, reportError } from '@/shared/ui';
+import { tStorage as t } from '../i18n/storage';
 import { storageSourceText } from '../model/storage';
 import { chooseFolder, loadStorageInfo, revealDataDir, useSettingsStore } from '../store';
 import { DataDirDialog } from './DataDirDialog';
@@ -18,26 +19,26 @@ export function StorageSection() {
   const choose = () => {
     chooseFolder().then((path) => {
       if (path === null) return;
-      if (storage && isSamePath(path, storage.dataDir)) notifyInfo('いまの保存先と同じフォルダです');
+      if (storage && isSamePath(path, storage.dataDir)) notifyInfo(t('sameFolder'));
       else setCandidate(path);
     }, reportError);
   };
 
-  if (!storage) return <p className={styles.help}>読み込み中…</p>;
+  if (!storage) return <p className={styles.help}>{t('loading')}</p>;
   return (
     <>
       <div className={styles.location}>
-        <span className={styles.locationLabel}>いまの場所</span>
+        <span className={styles.locationLabel}>{t('currentLocation')}</span>
         <code className={styles.path}>{storage.dataDir}</code>
         <Button size="sm" variant="ghost" onClick={() => void revealDataDir().catch(reportError)}>
           <Icon name="folder" />
-          フォルダを開く
+          {t('openFolder')}
         </Button>
       </div>
       <p className={styles.help}>{storageSourceText(storage)}</p>
       <div>
         <Button onClick={choose} disabled={storage.source === 'env'}>
-          変更…
+          {t('change')}
         </Button>
       </div>
       {candidate && <DataDirDialog path={candidate} onClose={() => setCandidate(null)} />}

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { errorCode, errorField, errorMessage } from '@/shared/lib/errors';
 import { hasErrors, notifyInfo, reportError, useFieldErrors } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
+import { t } from '../i18n';
 import { skillErrorField, validateSkillDraft } from '../model/validation';
 import type { SkillDraft, SkillField } from '../model/validation';
 import { saveSkill } from '../store';
@@ -44,7 +45,7 @@ export function useSkillForm({ agentId, skill, existing, onDone }: Options) {
     try {
       const input = { id: skill?.id ?? null, agentId, ...draft, description: draft.description.trim() };
       await saveSkill(input);
-      notifyInfo('スキルを保存しました');
+      notifyInfo(t('saved'));
       onDone();
     } catch (error) {
       const code = errorCode(error);

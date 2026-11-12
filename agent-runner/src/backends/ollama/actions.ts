@@ -5,6 +5,7 @@ import { canIsolate } from './sandbox.ts';
 import { executeTool as executeShared, sandbox, toolNames } from './tools.ts';
 import { assertFolderScope } from '../folder-scope.ts';
 import { fileTool } from './files.ts';
+import { t } from './texts/index.ts';
 
 // Keep one flat envelope for local models; optional arguments can be dropped by constrained decoding.
 export const OUTPUT_FORMAT: JsonObject = {
@@ -67,7 +68,7 @@ export function parseAction(text: string): JsonObject {
   } catch {
     /* 不正な操作は実行しない */
   }
-  throw new BackendError('internal', 'Ollama の操作要求を読み取れませんでした。操作は実行していません。');
+  throw new BackendError('internal', t('actionUnreadable'));
 }
 
 function field(action: JsonObject, key: string): string {

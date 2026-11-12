@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, Icon, notifyInfo, reportError, SelectField, SwitchField, TextField } from '@/shared/ui';
 import type { Agent, Channel } from '@/shared/types/domain';
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
+import { tBrain } from '../../i18n/brain';
 import { autonomyChannelChoices, parseIntervalMin } from '../../model/autonomy';
 import { runAutonomous } from '../../store';
 import { EditorSection } from './EditorSection';
@@ -19,16 +20,16 @@ export function AutonomyFields({ agent, channels, draft, update, errors, touch }
   const choices = autonomyChannelChoices(channels, agent?.id ?? null);
   const minutes = parseIntervalMin(draft.autonomyIntervalMin) ?? AUTONOMY_INTERVAL_MIN;
   return (
-    <EditorSection title="自発活動">
+    <EditorSection title={tBrain('autonomySection')}>
       <SwitchField
-        label="自分から動く"
-        hint={`${minutes} 分ごとに、自分から調べものや提案をします。`}
+        label={tBrain('autonomyLabel')}
+        hint={tBrain('autonomyHint', { minutes })}
         checked={draft.autonomyEnabled}
         onChange={(on) => update('autonomyEnabled', on)}
       />
       <div className={styles.row}>
         <TextField
-          label="間隔（分）"
+          label={tBrain('intervalLabel')}
           value={draft.autonomyIntervalMin}
           onChange={(value) => update('autonomyIntervalMin', value)}
           onBlur={() => touch('autonomyIntervalMin')}
@@ -38,12 +39,12 @@ export function AutonomyFields({ agent, channels, draft, update, errors, touch }
           numeric
         />
         <SelectField
-          label="投稿先"
+          label={tBrain('postToLabel')}
           value={draft.autonomyChannelId ?? ''}
           onChange={(value) => update('autonomyChannelId', value === '' ? null : value)}
-          hint={choices.length === 0 ? 'チャンネルに参加すると選べます。' : undefined}
+          hint={choices.length === 0 ? tBrain('postToHint') : undefined}
         >
-          <option value="">参加している最初のチャンネル</option>
+          <option value="">{tBrain('firstChannel')}</option>
           {choices.map((choice) => (
             <option key={choice.id} value={choice.id}>
               #{choice.name}
@@ -61,13 +62,13 @@ function RunNowButton({ agent }: { agent: Agent }) {
   const run = () => {
     setBusy(true);
     void runAutonomous(agent.id)
-      .then(() => notifyInfo(`${agent.name} が動き始めます`), reportError)
+      .then(() => notifyInfo(tBrain('runStarted', { name: agent.name })), reportError)
       .finally(() => setBusy(false));
   };
   return (
     <Button size="sm" className={styles.inlineAction} onClick={run} disabled={busy}>
       <Icon name="play" />
-      今すぐ動いてもらう
+      {tBrain('runNow')}
     </Button>
   );
 }

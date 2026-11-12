@@ -3,7 +3,7 @@ import { Avatar, Icon, Lamp } from '@/shared/ui';
 import type { Subtask, SubtaskStatus } from '@/shared/types/domain';
 import { jumpToMessage } from '../jump';
 import type { AuthorView } from '../model/authors';
-import { resultLink, SUBTASK_STATUS_TEXT, subtaskNote } from '../model/delegations';
+import { resultLink, subtaskNote, subtaskStatusText } from '../model/delegations';
 import styles from './SubtaskRow.module.css';
 
 /** 状態の印（16px）。状態は必ず隣の言葉でも出す */
@@ -31,7 +31,7 @@ export function SubtaskRow({ subtask, assignee }: { subtask: Subtask; assignee: 
       />
       <span className={styles.name}>{assignee.name}</span>
       <span className={styles.state}>
-        <b className={styles.word}>{SUBTASK_STATUS_TEXT[subtask.status]}</b>
+        <b className={styles.word}>{subtaskStatusText(subtask.status)}</b>
         {link && (
           <button type="button" className={styles.jump} onClick={() => jumpToMessage(link.messageId)}>
             {link.label}

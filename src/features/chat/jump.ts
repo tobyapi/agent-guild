@@ -2,6 +2,7 @@
 // 光らせ方は docs/ui-design.md §5.13: 地を --accent-soft にしてから --duration-slow で戻す（CSS の transition。keyframes は使わない）
 import { create } from 'zustand';
 import { notifyInfo } from '@/shared/ui';
+import { t } from './i18n';
 
 /** 光った地を見せておく時間と、戻ったあとに印を外すまでの時間（ms） */
 const GLOW_MS = 700;
@@ -30,7 +31,7 @@ const prefersReducedMotion = () =>
 export function jumpToMessage(messageId: string): void {
   const element = document.getElementById(messageElementId(messageId));
   if (!element) {
-    notifyInfo('その発言はまだ読み込まれていません。上にスクロールして、以前のメッセージを読み込んでください。');
+    notifyInfo(t('notLoaded'));
     return;
   }
   element.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });

@@ -9,6 +9,7 @@ import { useComposerAttachments } from '../hooks/useComposerAttachments';
 import { buildMentionOptions } from '../model/mentionQuery';
 import { MentionSuggestions } from './MentionSuggestions';
 import { PendingAttachments } from './PendingAttachments';
+import { tComposer } from '../i18n/composer';
 import styles from './Composer.module.css';
 
 /** 入力欄（docs/ui-design.md §5.6）。チャンネルを替えたら作り直す（key に channel.id） */
@@ -24,8 +25,8 @@ export function Composer({ channel }: { channel: Channel }) {
   const canSend = composer.text.trim() !== '' || files.attachments.length > 0;
   const placeholder =
     runtime.state === 'unavailable'
-      ? 'いまはエージェントが返答できません（実行環境が止まっています）'
-      : `#${channel.name} へメッセージ（@ で呼びかけ・ファイルはドロップで添付）`;
+      ? tComposer('composerUnavailable')
+      : tComposer('composerPlaceholder', { channel: channel.name });
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -64,7 +65,7 @@ export function Composer({ channel }: { channel: Channel }) {
         onBlur={completion.close}
         placeholder={placeholder}
         rows={1}
-        aria-label={`#${channel.name} へのメッセージ`}
+        aria-label={tComposer('composerLabel', { channel: channel.name })}
         aria-autocomplete="list"
         aria-controls={hasOptions ? listId : undefined}
         aria-activedescendant={hasOptions ? `${listId}-${completion.activeIndex}` : undefined}
@@ -74,8 +75,8 @@ export function Composer({ channel }: { channel: Channel }) {
         className={styles.send}
         data-ready={canSend ? '' : undefined}
         disabled={!canSend}
-        aria-label="送信"
-        title="送信 Enter · 改行 Shift+Enter"
+        aria-label={tComposer('send')}
+        title={tComposer('sendHint')}
       >
         <Icon name="send" />
       </button>
@@ -93,11 +94,7 @@ function AttachButton({ onFiles }: { onFiles: (files: readonly File[]) => void }
   };
   return (
     <>
-      <IconButton
-        label="ファイルを添付（ドロップ・貼り付けでも添付できます）"
-        className={styles.attach}
-        onClick={() => inputRef.current?.click()}
-      >
+      <IconButton label={tComposer('attachFile')} className={styles.attach} onClick={() => inputRef.current?.click()}>
         <Icon name="paperclip" />
       </IconButton>
       <input ref={inputRef} type="file" multiple hidden onChange={onChange} />

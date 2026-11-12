@@ -1,5 +1,6 @@
 // アバター画像の読み込みと書き出し（ブラウザ専用）。切り抜く範囲の計算は crop.ts（純粋な関数）。
 import type { SourceRect } from './crop';
+import { t } from './i18n';
 
 /** アバター画像の保存サイズ（px の正方形） */
 export const AVATAR_IMAGE_SIZE = 256;
@@ -11,7 +12,7 @@ export const AVATAR_IMAGE_ACCEPT = ACCEPTED_TYPES.join(',');
 
 /** 選んだファイルの問題（なければ null） */
 export function checkAvatarImageFile(file: File): string | null {
-  return ACCEPTED_TYPES.includes(file.type) ? null : 'PNG・JPEG・GIF・WebP の画像を選んでください';
+  return ACCEPTED_TYPES.includes(file.type) ? null : t('imageType');
 }
 
 /** 画像を読む。大きな画像も createImageBitmap でデコードし、GIF は 1 コマ目になる */
@@ -21,7 +22,7 @@ export async function loadAvatarImage(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file);
   } catch {
-    throw new Error('画像を読み込めませんでした。別の画像を選んでください');
+    throw new Error(t('imageLoadFailed'));
   }
 }
 
@@ -31,7 +32,7 @@ export function renderAvatarImage(bitmap: ImageBitmap, rect: SourceRect, size = 
   canvas.width = size;
   canvas.height = size;
   const context = canvas.getContext('2d');
-  if (!context) throw new Error('画像を書き出せませんでした');
+  if (!context) throw new Error(t('imageExportFailed'));
   context.imageSmoothingQuality = 'high';
   context.drawImage(bitmap, rect.sx, rect.sy, rect.size, rect.size, 0, 0, size, size);
   return canvas.toDataURL('image/webp', 0.9);

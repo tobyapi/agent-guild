@@ -6,6 +6,7 @@ import type { Channel } from '@/shared/types/domain';
 import { channelErrorField, cleanChannelName, validateChannelDraft } from '../model/channels';
 import type { ChannelDraft, ChannelField } from '../model/channels';
 import { closeChannelDialog, createChannel, updateChannel, setChannelWorkspace } from '../store';
+import { t } from '../i18n';
 
 async function persist(
   channel: Channel | null,
@@ -27,7 +28,7 @@ async function persist(
   if (mode !== saved.workspace.mode || folder !== saved.workspace.folder) {
     await setChannelWorkspace(saved.id, mode, folder);
   }
-  notifyInfo(channel ? '保存しました' : `#${saved.name} を作成しました`);
+  notifyInfo(channel ? t('saved') : t('created', { name: saved.name }));
   closeChannelDialog();
 }
 

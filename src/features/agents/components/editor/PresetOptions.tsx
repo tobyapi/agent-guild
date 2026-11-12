@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { tEditor } from '../../i18n/editor';
 import { groupHeadingAt } from '../../model/personas/presetText';
 import type { AnyPreset } from '../../model/personas/types';
 import styles from './PresetOptions.module.css';
@@ -57,10 +58,12 @@ export function PresetOptions<T extends AnyPreset>({
                   onChoose(preset, 'append');
                 }}
               >
-                追記
+                {tEditor('presetAppend')}
               </button>
               <span className={styles.text}>{preset.text}</span>
-              {preset.sample && <span className={styles.sample}>例: {preset.sample}</span>}
+              {preset.sample && (
+                <span className={styles.sample}>{tEditor('presetSample', { sample: preset.sample })}</span>
+              )}
             </li>
           </Fragment>
         );

@@ -2,6 +2,7 @@ import { useAllAgents } from '@/features/agents';
 import { useChannelActivities } from '@/features/runtime';
 import { Lamp, VisuallyHidden } from '@/shared/ui';
 import { activityPhrase, splitVisible } from '../model/activity';
+import { tComposer } from '../i18n/composer';
 import styles from './ActivityBar.module.css';
 
 /**
@@ -17,7 +18,11 @@ export function ActivityBar({ channelId }: { channelId: string }) {
   return (
     <div className={styles.bar}>
       <VisuallyHidden>
-        <span aria-live="polite">{names.length > 0 ? `${names.join('、')} が作業中` : ''}</span>
+        <span aria-live="polite">
+          {names.length > 0
+            ? tComposer('activityWorking', { names: names.join(tComposer('nameSeparator')), count: names.length })
+            : ''}
+        </span>
       </VisuallyHidden>
       {visible.map((activity) => (
         <p key={activity.agentId} className={styles.line} aria-hidden="true">
@@ -29,7 +34,7 @@ export function ActivityBar({ channelId }: { channelId: string }) {
       ))}
       {hidden > 0 && (
         <p className={styles.line} aria-hidden="true">
-          ほか {hidden} 人が作業中
+          {tComposer('activityOthers', { count: hidden })}
         </p>
       )}
     </div>

@@ -6,7 +6,7 @@ import { BackendRegistry } from './registry.ts';
 import { BackendError } from './types.ts';
 
 vi.mock('../credentials/store.ts', () => ({ apiKeyEnvironment: vi.fn() }));
-vi.mock('./codex-runtime/executable.ts', () => ({ findCodex: vi.fn(), CODEX_NOT_FOUND: 'CLI unavailable' }));
+vi.mock('./codex-runtime/executable.ts', () => ({ findCodex: vi.fn(), codexNotFound: () => 'CLI unavailable' }));
 
 beforeEach(() => {
   vi.clearAllMocks();

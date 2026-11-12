@@ -62,6 +62,15 @@ impl RunnerClient {
         run::run(&self.shared, id, run::Work::ApiKey { backend, action, key }, Box::new(|_| {})).await
     }
 
+    /// 言語（"ja"・"en"・"zh-Hans"・"zh-Hant"・"ko"）を変える。以後の起動の環境変数とこのクレートの文面に使い、
+    /// ready のランナーには setLanguage を送る（ready でなければ、次の起動の環境変数か ready のあとの送信で伝わる）
+    pub async fn set_language(&self, language: &str) {
+        self.shared.set_language(language);
+        if let Some(connection) = self.shared.current() {
+            let _ = connection.send(&Request::SetLanguage { language }).await;
+        }
+    }
+
     pub async fn cancel(&self, job_id: &str) {
         if !self.shared.jobs.request_cancel(job_id) {
             return;
@@ -78,8 +87,19 @@ impl RunnerClient {
         let refresh = run::run(&self.shared, &id, run::Work::Probe, Box::new(|_| {}));
         tokio::time::timeout(std::time::Duration::from_secs(30), refresh)
             .await
-            .map_err(|_| RunnerError::Unavailable("バックエンドの再確認がタイムアウトしました".to_owned()))?
+            .map_err(|_| RunnerError::Unavailable(self.probe_timed_out()))?
             .map(|_| ())
+    }
+
+    fn probe_timed_out(&self) -> String {
+        let texts = [
+            "バックエンドの再確認がタイムアウトしました",
+            "Timed out rechecking the backends",
+            "重新检查后端超时",
+            "重新檢查後端逾時",
+            "백엔드를 다시 확인하다 시간이 초과되었습니다",
+        ];
+        self.shared.pick(texts).to_owned()
     }
 
     /// `shutdown` を送って子プロセスを終了させ（猶予を過ぎたら kill）、以後は再起動しない

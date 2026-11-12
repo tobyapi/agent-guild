@@ -3,16 +3,17 @@ import { count } from '../../usage.ts';
 import { BackendError, type RunRequest, type RunContext } from '../types.ts';
 import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { assertToolPermission, executeTool, sandbox, toolDefinitions, TOOL_LIMIT, type Prepared } from './tools.ts';
+import { t } from './texts/index.ts';
 
 function replyText({ message }: JsonObject): string {
   const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
-  if (!text) throw new BackendError('internal', 'Ollama から返答が届きませんでした。もう一度お試しください。');
+  if (!text) throw new BackendError('internal', t('noReply'));
   return text;
 }
 
 function toolCall(call: unknown): { name: string; args: unknown } {
   if (!isJsonObject(call) || !isJsonObject(call.function) || typeof call.function.name !== 'string')
-    throw new BackendError('bad_request', '道具の呼び出しが不正です');
+    throw new BackendError('bad_request', t('invalidToolCall'));
   return { name: call.function.name, args: call.function.arguments };
 }
 
@@ -38,7 +39,7 @@ export async function checkOperation(
       { role: 'user', content: JSON.stringify({ trustedTask: request.intent, operation: { name, args } }) },
     ],
   });
-  if (replyText(verdict) !== 'ALLOW') throw new BackendError('unsupported_permission', '操作の確認で拒否されました');
+  if (replyText(verdict) !== 'ALLOW') throw new BackendError('unsupported_permission', t('operationDenied'));
 }
 
 async function performCalls(
@@ -54,9 +55,9 @@ async function performCalls(
   for (const call of calls) {
     const { name, args } = toolCall(call);
     if (!tools.some((tool) => isJsonObject(tool.function) && tool.function.name === name))
-      throw new BackendError('unsupported_permission', `${name} は許可されていません`);
+      throw new BackendError('unsupported_permission', t('toolNotAllowed', { name }));
     await checkOperation(request, model, name, args, signal);
-    context.onActivity(`道具を実行しています: ${name}`);
+    context.onActivity(t('runningTool', { name }));
     const content = await executeTool(request, name, args, signal, prepared, context);
     results.push({ role: 'tool', tool_name: name, content });
   }
@@ -87,7 +88,7 @@ export async function toolChat(
   for (let turn = 0; turn < 16; turn++) {
     signal.throwIfAborted();
     if (Buffer.byteLength(JSON.stringify(messages)) > 4 * 1024 * 1024)
-      throw new BackendError('bad_request', '会話と道具の結果が4MiBを超えました');
+      throw new BackendError('bad_request', t('conversationTooLarge'));
     const response = await ollamaRequest('/api/chat', signal, {
       model: localRef(model.id),
       stream: false,
@@ -97,16 +98,16 @@ export async function toolChat(
     context.signal.throwIfAborted();
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const message = response.message;
-    if (!isJsonObject(message)) throw new BackendError('internal', 'Ollama の応答が不正です');
+    if (!isJsonObject(message)) throw new BackendError('internal', t('invalidResponse'));
     const toolCalls = message.tool_calls;
     if (!Array.isArray(toolCalls) || toolCalls.length === 0) return replyText(response);
-    if (!prepared) throw new BackendError('unsupported_permission', 'このモデルには道具を許可していません');
+    if (!prepared) throw new BackendError('unsupported_permission', t('toolsNotAllowed'));
     calls += toolCalls.length;
-    if (calls > TOOL_LIMIT) throw new BackendError('internal', '道具の呼び出し上限を超えました');
+    if (calls > TOOL_LIMIT) throw new BackendError('internal', t('toolLimit'));
     messages.push({ ...message, role: 'assistant' });
     messages.push(...(await performCalls(request, model, toolCalls, signal, prepared, tools, context)));
   }
-  throw new BackendError('internal', 'Ollama の実行が16ターンの上限に達しました');
+  throw new BackendError('internal', t('turnLimit'));
 }
 
 function enabledTools(request: RunRequest, model: LocalModel): JsonObject[] {

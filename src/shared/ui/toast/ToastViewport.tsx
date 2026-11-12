@@ -5,6 +5,7 @@ import { Icon } from '../Icon';
 import { dismissToast, useToastStore } from './store';
 import type { Toast } from './store';
 import styles from './ToastViewport.module.css';
+import { t } from '../i18n';
 
 /**
  * トーストの置き場所。popover としてトップレイヤーに出すので、モーダルダイアログを開いていても手前に見える。
@@ -19,7 +20,7 @@ export function ToastViewport() {
   }, [toasts]);
 
   return (
-    <div ref={ref} popover="manual" className={styles.viewport} aria-label="通知">
+    <div ref={ref} popover="manual" className={styles.viewport} aria-label={t('notifications')}>
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}
@@ -42,7 +43,7 @@ function ToastItem({ toast }: { toast: Toast }) {
           {toast.action.label}
         </Button>
       )}
-      <IconButton label="通知を閉じる" onClick={() => dismissToast(toast.id)}>
+      <IconButton label={t('dismissNotification')} onClick={() => dismissToast(toast.id)}>
         <Icon name="close" />
       </IconButton>
     </div>

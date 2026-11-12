@@ -5,7 +5,7 @@ use std::sync::Arc;
 use guild_application::ports::SkillRepository;
 use guild_application::{AppError, AppResult};
 use guild_domain::ids::{AgentId, SkillId};
-use guild_domain::skill::{Skill, SkillSource};
+use guild_domain::skill::{skill_name_taken, Skill, SkillSource};
 use rusqlite::types::Type;
 use rusqlite::{params, OptionalExtension, Row};
 
@@ -56,9 +56,7 @@ impl SkillRepository for SqliteSkillRepository {
         });
         match result {
             Ok(_) => Ok(()),
-            Err(error) if is_unique_violation(&error) => {
-                Err(AppError::Conflict(format!("「{}」という名前のスキルはすでにあります", skill.name)))
-            }
+            Err(error) if is_unique_violation(&error) => Err(AppError::Conflict(skill_name_taken(&skill.name))),
             Err(error) => Err(storage(error)),
         }
     }

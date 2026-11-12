@@ -1,5 +1,6 @@
 // タグの入力欄で打った文字をタグにする（規則は shared/lib/tags。重複は黙ってまとめる）。
 import { checkTag, cleanTags, TAG_COUNT_MAX } from '@/shared/lib/tags';
+import { tBrain } from '../i18n/brain';
 
 export type TagCommit = { ok: true; tags: string[] } | { ok: false; error: string };
 
@@ -11,10 +12,10 @@ export function commitTagText(current: readonly string[], text: string): TagComm
   const parts = text.split(new RegExp(`${TAG_SEPARATOR.source}+`)).filter((part) => part !== '');
   for (const part of parts) {
     const problem = checkTag(part);
-    if (problem !== null) return { ok: false, error: `「${part}」: ${problem}` };
+    if (problem !== null) return { ok: false, error: tBrain('tagProblem', { tag: part, problem }) };
   }
   const tags = cleanTags([...current, ...parts]);
-  if (tags.length > TAG_COUNT_MAX) return { ok: false, error: `タグは ${TAG_COUNT_MAX} 個までにしてください` };
+  if (tags.length > TAG_COUNT_MAX) return { ok: false, error: tBrain('tagCountMax', { max: TAG_COUNT_MAX }) };
   return { ok: true, tags };
 }
 

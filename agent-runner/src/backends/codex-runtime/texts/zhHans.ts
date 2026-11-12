@@ -1,0 +1,30 @@
+import type { Messages } from '../../../i18n.ts';
+import type { ja } from './ja.ts';
+
+export const zhHans: Messages<typeof ja> = {
+  notFound: '需要设置 Codex。请在 AI 公会的“设置 → 后端 → Codex”中进行。',
+  needsLogin: '要使用 Codex，请使用 ChatGPT 账户登录。',
+  needsLoginTerminal: '请在终端中运行 `codex login`，或设置环境变量 OPENAI_API_KEY。',
+  loginLabel: '使用 ChatGPT 登录',
+  loginWaiting: '请在浏览器中登录 ChatGPT。',
+  loginFailed: '无法登录 ChatGPT。请检查浏览器后重试。',
+  runFailed: 'Codex 执行失败（{detail}）',
+  longPath: '在 Windows 上，路径超过 260 个字符时无法启动 Codex CLI。请将项目放在较短的路径中。',
+  systemPromptTooLong: '传给 Codex 的系统提示最多 {max} 个字符',
+  folderNeedsSandbox: '文件夹限制需要操作系统隔离（此后端可在支持隔离的 Windows 11 上使用）',
+  ruleWrite: '允许写入后，将无法阻止在工作区内执行命令（程序）。请同时允许 runCommands',
+  ruleWriteAnywhere: '写入工作区之外时会解除 sandbox，因此也无法阻止网络访问。请同时允许 writeFiles 和 webFetch',
+  cannotStopReads: '无法阻止读取文件（Codex 通过 shell 读取）',
+  cannotStopSkills: '无法阻止使用技能（包括用户全局的技能）',
+  experimental: '{name}（实验性支持・未经真实 API 验证）',
+  webSearch: '网页搜索',
+  webAndXSearch: '网页搜索・X 搜索',
+  providerModel: '通过 Codex SDK。不支持{search}。会产生 API 使用费。',
+  providerReady: '实验性支持・未经真实 API 验证。ready 仅表示已找到 API 密钥和 CLI，不代表连接成功。',
+  providerNeedsKey: '请在“设置 → 后端”中保存 API 密钥，或设置环境变量 {envVar} 后重启应用。{name} 不支持网页登录。',
+  providerFailed: '{name} 执行失败。请检查 API 密钥、用量额度、模型名称和连接。',
+  providerKeyRequired: '需要环境变量 {envVar}。',
+  providerNoWebSearch: '{name} 不支持{search}。请关闭网页搜索。',
+  providerEffort: '请从 {choices} 中选择 {name} 的推理深度。',
+  providerModelOnly: '{name} 请选择 {model}。',
+};
