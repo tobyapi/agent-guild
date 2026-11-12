@@ -10,6 +10,7 @@ import type {
   RuntimeStatus,
   Skill,
   StorageInfo,
+  UpdateStatus,
 } from '@/shared/types/domain';
 
 /** 偽バックエンドが持つ全データ（Rust の DB とランナーの代わり）。配列は古い順に並べる */
@@ -34,6 +35,8 @@ export interface MockState {
   templates: AgentTemplate[];
   runtime: RuntimeStatus;
   storage: StorageInfo;
+  /** 更新の確認結果（Rust では配布元の latest.json を見て決まる） */
+  update: UpdateStatus;
   /** 次に保存する発言の seq */
   nextSeq: number;
 }

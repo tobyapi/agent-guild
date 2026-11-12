@@ -23,6 +23,7 @@
 | ipc/activity-state.json | ActivityState（activity-changed のペイロード） |
 | ipc/skills-changed.json | { agentId }（skills-changed のペイロード） |
 | ipc/storage-info.json | StorageInfo |
+| ipc/update-status.json | UpdateStatus（check_update） |
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
 | runner/requests.jsonl | RunnerRequest（run / login / cancel / probe / shutdown / apiKey） |

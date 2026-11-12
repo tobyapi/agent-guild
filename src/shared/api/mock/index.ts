@@ -41,6 +41,9 @@ const BOOT_FAILURES: readonly BootFailure[] = [
   'not_writable',
 ];
 
+/** ?mockUpdate=1 で出ていることにする新しい版 */
+const MOCK_UPDATE = { version: '0.2.0', notes: 'チャット欄で図と動画を表示できるようになりました。' };
+
 export interface MockTransportOptions {
   /** 応答までの擬似的な遅延（ms）。テストでは 0 */
   latencyMs?: number;
@@ -56,13 +59,16 @@ export interface MockTransportOptions {
   firstRun?: boolean;
   /** 複数のメンバーとサンプル会話を入れて始める */
   demo?: boolean;
+  /** 新しい版が出ている状態で始める（更新の知らせの確認用） */
+  updateAvailable?: boolean;
   env?: Partial<MockEnv>;
 }
 
 /**
  * URL で画面の状態を確かめられるようにする:
  * ?mockBoot=missing など → 復旧画面、?mockRuntime=slow → 起動中の帯、?mockRuntime=unavailable → 使えないときの帯、
- * ?mockLibrary=empty → スキルライブラリが未設定、?mockSetup=1 → 初回起動、?mockDemo=1 → サンプル会話
+ * ?mockLibrary=empty → スキルライブラリが未設定、?mockSetup=1 → 初回起動、?mockDemo=1 → サンプル会話、
+ * ?mockUpdate=1 → 新しい版が出ている
  */
 export function mockOptionsFromLocation(): MockTransportOptions {
   if (typeof window === 'undefined') return {};
@@ -74,6 +80,7 @@ export function mockOptionsFromLocation(): MockTransportOptions {
     emptySkillLibrary: params.get('mockLibrary') === 'empty',
     firstRun: params.get('mockSetup') === '1',
     demo: params.get('mockDemo') === '1',
+    updateAvailable: params.get('mockUpdate') === '1',
     ...(runtime === 'slow' ? { runtimeStartupMs: 8000 } : {}),
     ...(runtime === 'unavailable'
       ? { runtimeFailure: 'ランナーを起動できませんでした（モック）: node が見つかりません' }
@@ -104,6 +111,7 @@ export function createMockTransport(options: MockTransportOptions = {}): Transpo
   const state = createSeedState(env.now(), options.bootFailure ?? null, options.demo ?? false);
   migrateLobby(state);
   if (options.emptySkillLibrary) state.skillLibraryDirs = [];
+  if (options.updateAvailable) state.update = { ...state.update, latest: MOCK_UPDATE };
   if (options.firstRun && state.boot.state === 'ok') state.boot = { ...state.boot, needsSetup: true };
   const core = { state, bus: createMockEventBus((task) => env.schedule(0, task)), env };
   const runtime: MockRuntime = { ...core, conversation: createConversation(core) };

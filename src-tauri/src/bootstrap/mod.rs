@@ -43,13 +43,15 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn Error>> {
 
 /// アプリの終了時（再起動を含む）: ランナーに shutdown を送る
 pub fn shutdown(app: &AppHandle) {
-    let Some(runner) = app.try_state::<Arc<RunnerRuntime>>() else {
+    tauri::async_runtime::block_on(stop_runner(app.clone()));
+}
+
+/// ランナーに shutdown を送って、終わるのを待つ（終了時と、更新を入れる直前）
+pub async fn stop_runner(app: AppHandle) {
+    let Some(runner) = app.try_state::<Arc<RunnerRuntime>>().map(|runner| Arc::clone(&runner)) else {
         return;
     };
-    let runner = Arc::clone(&runner);
-    tauri::async_runtime::block_on(async move {
-        if tokio::time::timeout(SHUTDOWN_WAIT, runner.shutdown()).await.is_err() {
-            log::warn!("ランナーの終了を待ちきれませんでした");
-        }
-    });
+    if tokio::time::timeout(SHUTDOWN_WAIT, runner.shutdown()).await.is_err() {
+        log::warn!("ランナーの終了を待ちきれませんでした");
+    }
 }

@@ -24,6 +24,19 @@ export interface StorageInfo {
   source: StorageSource;
 }
 
+/** 入れられる新しい版 */
+export interface AvailableUpdate {
+  version: string;
+  /** リリースの説明（なければ空） */
+  notes: string;
+}
+
+/** 更新の確認結果（check_update）。latest が null なら、いまの版が最新 */
+export interface UpdateStatus {
+  currentVersion: string;
+  latest: AvailableUpdate | null;
+}
+
 /** 保存先変更のしかた: copy = 今のデータを空のフォルダにコピーして使う / open = その場所のデータを開く（空なら新規） */
 export type DataDirMode = 'copy' | 'open';
 

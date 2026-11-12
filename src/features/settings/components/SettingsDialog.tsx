@@ -1,6 +1,7 @@
 import { useActiveAgents } from '@/features/agents';
 import { ProfileForm } from '@/features/profile';
 import { SkillLibrarySection } from '@/features/skills';
+import { UpdateSection } from '@/features/update';
 import { Button, Dialog } from '@/shared/ui';
 import { closeSettings, useSettingsStore } from '../store';
 import { BackendsSection } from './BackendsSection';
@@ -8,7 +9,7 @@ import { SettingsSection as Section } from './SettingsSection';
 import { StorageSection } from './StorageSection';
 import { ThemeSection } from './ThemeSection';
 
-/** 設定ダイアログ: プロフィール・テーマ・バックエンド・スキルのフォルダ・データの保存先 */
+/** 設定ダイアログ: プロフィール・テーマ・バックエンド・スキルのフォルダ・データの保存先・アプリの更新 */
 export function SettingsDialog() {
   const open = useSettingsStore((state) => state.open);
   const focus = useSettingsStore((state) => state.focus);
@@ -29,6 +30,9 @@ export function SettingsDialog() {
       </Section>
       <Section title="データの保存先">
         <StorageSection />
+      </Section>
+      <Section title="アプリの更新" id="update" focus={focus}>
+        <UpdateSection />
       </Section>
     </Dialog>
   );

@@ -1,5 +1,5 @@
 // 通知（トースト）。どこからでも notifyInfo / reportError で出せる。
-// 完了は 4 秒で消え、失敗は閉じるまで残る（docs/ui-design.md §5.12）。
+// 完了は 4 秒で消え、失敗と、操作のついた知らせは閉じるまで残る（docs/ui-design.md §5.12）。
 import { create } from 'zustand';
 import { errorMessage } from '@/shared/lib/errors';
 
@@ -37,9 +37,10 @@ function push(toast: Omit<Toast, 'id'>): number {
   return id;
 }
 
-export function notifyInfo(message: string): void {
-  const id = push({ kind: 'info', message });
-  setTimeout(() => dismissToast(id), INFO_DISPLAY_MS);
+/** 知らせる。action（「内容を見る」など）を渡したら、押すか閉じるまで残す */
+export function notifyInfo(message: string, action?: ToastAction): void {
+  const id = push({ kind: 'info', message, ...(action ? { action } : {}) });
+  if (!action) setTimeout(() => dismissToast(id), INFO_DISPLAY_MS);
 }
 
 /** 失敗を知らせる。action を渡すと「再送信」のような操作をトーストに置ける */

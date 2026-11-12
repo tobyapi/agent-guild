@@ -16,6 +16,7 @@ import {
   bootStatusSchema,
   snapshotSchema,
   storageInfoSchema,
+  updateStatusSchema,
 } from '@/shared/types/schemas/system';
 import type { CommandName, EventName } from './contract';
 
@@ -69,6 +70,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   restart_app: nullValue,
   complete_setup: nullValue,
   open_url: nullValue,
+  check_update: objectOf(updateStatusSchema),
+  install_update: nullValue,
 };
 
 export const EVENT_VALIDATORS: { readonly [E in EventName]: Validator } = {
