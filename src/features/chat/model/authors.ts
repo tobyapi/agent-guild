@@ -7,6 +7,8 @@ export interface AuthorView {
   name: string;
   avatar: string;
   color: string;
+  /** アイコンの枠の ID（'' は枠なし。削除済み・不明も枠なし） */
+  frame: string;
   /** 札に出す先頭のタグ。人間・削除済み・不明・タグのないエージェントは null（札を出さない） */
   tag: string | null;
   /** バックエンドの札を出すときの id（人間・削除済み・不明は null） */
@@ -19,6 +21,7 @@ const unknown = (): AuthorView => ({
   name: t('unknownMember'),
   avatar: '',
   color: '',
+  frame: '',
   tag: null,
   backend: null,
   human: false,
@@ -34,6 +37,7 @@ export function createAuthorResolver(agents: readonly Agent[], me: Profile): (au
         name: me.name,
         avatar: me.avatar,
         color: me.color,
+        frame: me.frame,
         tag: null,
         backend: null,
         human: true,
@@ -47,6 +51,7 @@ export function createAuthorResolver(agents: readonly Agent[], me: Profile): (au
       name: agent.name,
       avatar: agent.avatar,
       color: agent.color,
+      frame: deleted ? '' : agent.frame,
       tag: deleted ? null : (agent.tags[0] ?? null),
       backend: deleted ? null : agent.backend,
       human: false,

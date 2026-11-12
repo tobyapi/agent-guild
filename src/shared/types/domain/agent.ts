@@ -17,6 +17,8 @@ export interface Agent {
   /** 絵文字、または data:image/... の画像 */
   avatar: string;
   color: string;
+  /** アイコンの枠の ID。空は枠なし。`builtin:<名前>`（内蔵）か `custom:<ID>`（生成。Snapshot.frames） */
+  frame: string;
   /** 先頭は固定権限を決める役割とサイドバーの区分。残りは分類用（全体で0〜8個、各1〜16文字） */
   tags: string[];
   role: string;

@@ -5,7 +5,7 @@ export const ja = {
   loading: '読み込み中…',
   loadingOlder: '以前のメッセージを読み込み中…',
   loadOlder: '以前のメッセージを読み込む',
-  welcome: '#{channel} へようこそ',
+  welcome: '{channel} へようこそ',
   introSpacer: '　',
   intro: 'ここが #{channel} のはじまりです。@ でエージェントに呼びかけてみましょう。',
   unknownMember: '（不明なメンバー）',

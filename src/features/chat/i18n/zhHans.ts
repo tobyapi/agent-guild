@@ -7,7 +7,7 @@ export const zhHans: Messages<typeof ja> = {
   loading: '加载中…',
   loadingOlder: '正在加载更早的消息…',
   loadOlder: '加载更早的消息',
-  welcome: '欢迎来到 #{channel}',
+  welcome: '欢迎来到 {channel}',
   introSpacer: ' ',
   intro: '这里是 #{channel} 的开端。试试用 @ 呼叫智能体吧。',
   unknownMember: '（未知成员）',

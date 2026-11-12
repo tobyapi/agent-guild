@@ -8,7 +8,6 @@ export const en: Messages<typeof ja> = {
   settingsTitle: 'Settings',
   close: 'Close',
   sectionProfile: 'Profile',
-  sectionTheme: 'Theme',
   sectionBackends: 'Backends',
   sectionSkillLibrary: 'Skill folders',
   sectionStorage: 'Data location',

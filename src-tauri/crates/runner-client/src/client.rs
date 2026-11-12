@@ -6,7 +6,9 @@ use tokio::sync::watch;
 
 use crate::shared::Shared;
 use crate::wire::Request;
-use crate::{run, supervisor, BackendInfo, RunRequest, RunnerConfig, RunnerError, RunnerStatus, UpdateFn};
+use crate::{
+    run, supervisor, BackendInfo, ImageRequest, RunRequest, RunnerConfig, RunnerError, RunnerStatus, UpdateFn,
+};
 
 /// ランナーとの接続。`Send + Sync` で、`Arc` に包んで複数タスクから同時に使ってよい。
 pub struct RunnerClient {
@@ -43,6 +45,17 @@ impl RunnerClient {
     /// cancel_grace の早いほうで `Err(Cancelled)`。
     pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError> {
         run::run(&self.shared, job_id, run::Work::Run(&request), on_update).await
+    }
+
+    /// 画像を1枚描いてもらう（枠の生成を申告したバックエンドだけ）。成功したら PNG は `request.output` にある。
+    /// 途中経過は `on_update` に届く。待ち方と `cancel(job_id)` の扱いは `run` と同じ
+    pub async fn generate_image(
+        &self,
+        job_id: &str,
+        request: ImageRequest,
+        on_update: UpdateFn,
+    ) -> Result<(), RunnerError> {
+        run::run(&self.shared, job_id, run::Work::Image(&request), on_update).await.map(|_| ())
     }
 
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わるとランナーが状態を確かめ直す

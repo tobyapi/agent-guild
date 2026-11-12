@@ -1,9 +1,10 @@
 import { memo } from 'react';
 import { TagBadge } from '@/features/agents';
+import { MemberAvatar } from '@/features/frames';
 import { BackendTag } from '@/features/runtime';
 import { removeTasksBlock } from '@/shared/lib/tasksBlock';
 import { formatDateTime, formatTime, isoTime } from '@/shared/lib/time';
-import { Avatar, Badge, Icon } from '@/shared/ui';
+import { Badge, Icon } from '@/shared/ui';
 import type { Delegation, Message } from '@/shared/types/domain';
 import { useLanguage } from '@/shared/i18n';
 import { jumpToMessage, messageElementId } from '../jump';
@@ -52,10 +53,11 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
       data-highlight={highlight}
     >
       {head ? (
-        <Avatar
+        <MemberAvatar
           avatar={author.avatar}
           name={author.name}
           color={author.color}
+          frame={author.frame}
           human={author.human}
           deleted={author.deleted}
           className={styles.avatar}

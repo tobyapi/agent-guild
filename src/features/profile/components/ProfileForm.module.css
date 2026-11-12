@@ -9,6 +9,11 @@
   gap: var(--space-4);
 }
 
+/* 枠はアバターの箱より外へはみ出すので、その分だけ周りを空ける */
+.avatar {
+  margin: calc(var(--avatar-lg) * (var(--frame-scale) - 1) / 2);
+}
+
 .fields {
   display: grid;
   flex: 1;

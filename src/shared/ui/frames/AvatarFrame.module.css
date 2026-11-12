@@ -1,0 +1,11 @@
+/* アバターに重ねる枠。枠の絵の中央の穴（128 の中の 88 の角丸の正方形）がアバターの箱にちょうど重なる大きさにする */
+.frame {
+  position: absolute;
+  inset: calc(var(--avatar-size) * (1 - var(--frame-scale)) / 2);
+  inline-size: calc(var(--avatar-size) * var(--frame-scale));
+  block-size: calc(var(--avatar-size) * var(--frame-scale));
+  max-inline-size: none;
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+}

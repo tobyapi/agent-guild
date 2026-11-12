@@ -17,6 +17,7 @@ const channel = (id: string, memberIds: string[] = ['me']): Channel => ({
   id,
   name: id,
   topic: '',
+  icon: '',
   isLobby: false,
   workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
   memberIds,
@@ -78,6 +79,7 @@ describe('workingSummary', () => {
 const draft = (fields: Partial<ChannelDraft>): ChannelDraft => ({
   name: '',
   topic: '',
+  icon: '',
   memberIds: [],
   workspaceMode: 'shared',
   workspaceFolder: '',
@@ -110,12 +112,20 @@ describe('validateChannelDraft', () => {
       topic: '話題は200文字以内にしてください',
     });
   });
+
+  it('アイコンは空か絵文字1つ', () => {
+    expect(validateChannelDraft(draft({ name: '企画', icon: '🎨' }))).toEqual({});
+    expect(validateChannelDraft(draft({ name: '企画', icon: '🎨🧪' }))).toEqual({
+      icon: 'アイコンは絵文字1つにしてください',
+    });
+  });
 });
 
 describe('channelErrorField', () => {
   it('保存のエラーの field を名前・話題の入力に結びつける', () => {
     expect(channelErrorField('name')).toBe('name');
     expect(channelErrorField('topic')).toBe('topic');
+    expect(channelErrorField('icon')).toBe('icon');
     expect(channelErrorField(null)).toBeNull();
     expect(channelErrorField('memberIds')).toBeNull();
   });

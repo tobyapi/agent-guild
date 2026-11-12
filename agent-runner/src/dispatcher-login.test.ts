@@ -33,6 +33,7 @@ const INFO: BackendDescriptor = {
   folderScope: null,
   toolsOption: null,
   local: false,
+  frameGeneration: false,
   setup: { ...NO_SETUP, login: { label: 'ログイン', waiting: 'ログインを待っています' } },
 };
 

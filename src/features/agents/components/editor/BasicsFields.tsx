@@ -1,3 +1,4 @@
+import { FramePicker } from '@/features/frames';
 import { AvatarInput, ColorInput, TextField } from '@/shared/ui';
 import { tEditor } from '../../i18n/editor';
 import { AvatarPresetPicker } from './AvatarPresetPicker';
@@ -5,7 +6,7 @@ import { EditorSection } from './EditorSection';
 import type { SectionProps } from './EditorSection';
 import { TagField } from './TagField';
 
-/** 基本: 名前・タグ・アバター・個人色 */
+/** 基本: 名前・タグ・アバター・アイコンの枠・個人色 */
 export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
   const setAvatar = (avatar: string) => update('avatar', avatar);
   return (
@@ -32,6 +33,13 @@ export function BasicsFields({ draft, update, errors, touch }: SectionProps) {
         onChange={setAvatar}
         error={errors.avatar}
         imageActions={<AvatarPresetPicker onChoose={setAvatar} />}
+      />
+      <FramePicker
+        value={draft.frame}
+        onChange={(frame) => update('frame', frame)}
+        avatar={draft.avatar}
+        name={draft.name.trim() || tEditor('unnamedInitial')}
+        color={draft.color}
       />
       <ColorInput value={draft.color} onChange={(value) => update('color', value)} />
     </EditorSection>

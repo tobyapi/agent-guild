@@ -7,7 +7,7 @@ export const en: Messages<typeof ja> = {
   loading: 'Loading…',
   loadingOlder: 'Loading earlier messages…',
   loadOlder: 'Load earlier messages',
-  welcome: 'Welcome to #{channel}',
+  welcome: 'Welcome to {channel}',
   introSpacer: ' ',
   intro: 'This is the start of #{channel}. Try mentioning an agent with @.',
   unknownMember: '(Unknown member)',

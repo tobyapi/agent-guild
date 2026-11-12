@@ -37,6 +37,7 @@ export const BACKENDS: BackendInfo[] = [
     folderScope: null,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: { install: null, start: null, login: { label: 'ログイン', waiting: '' }, apiKey: null },
     options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],
     permissionRules: [
@@ -58,6 +59,7 @@ export const BACKENDS: BackendInfo[] = [
     folderScope: null,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: { install: null, start: null, login: null, apiKey: null },
     options: [],
     permissionRules: [
@@ -76,6 +78,7 @@ export function agentFixture(overrides: Partial<Agent> = {}): Agent {
     name: 'ハル',
     avatar: '🌱',
     color: '#cb9d2a',
+    frame: '',
     tags: ['作業者'],
     role: '',
     personality: '',

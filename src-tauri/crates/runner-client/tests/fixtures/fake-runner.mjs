@@ -4,10 +4,12 @@
 //   fail:<code>  その code の error を返す             crash    異常終了する
 //   hang         cancel されたら error{cancelled}      stubborn cancel を無視して終わらない
 //   late         cancel されたら 100ms 後に result（中断が間に合わなかった完了）
+// image は受け取った要求を JSON で output に書いてから result（text は空）。prompt が fail:<code> ならその code の error。
 // login は状態を ready にして backends を送ってから result（text は空）で終える。
 // setLanguage は statusMessage を language:<code> にした backends を送り直す（context は GUILD_LANGUAGE も返す）。
 // 起動時の振る舞い（版・ready を送るか）は各エントリ（ok.mjs など）が startFakeRunner の引数で決める。
 
+import { writeFileSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 
 export const BACKEND = {
@@ -72,7 +74,7 @@ function cancelJob(id, waiting) {
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
 }
 
-export function startFakeRunner({ protocolVersion = 3, sendReady = true, probeMode = 'reply' } = {}) {
+export function startFakeRunner({ protocolVersion = 4, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
   const handlers = {
     run: (request) => {
@@ -84,6 +86,13 @@ export function startFakeRunner({ protocolVersion = 3, sendReady = true, probeMo
         return send({ type: 'result', id: request.id, text: '' });
       }
       return startJob(request, waiting);
+    },
+    image: (request) => {
+      const [command, code] = request.prompt.split(':');
+      if (command === 'fail') return send({ type: 'error', id: request.id, code, message: `失敗: ${code}` });
+      send({ type: 'activity', id: request.id, detail: 'drawing' });
+      writeFileSync(request.output, JSON.stringify(request));
+      return send({ type: 'result', id: request.id, text: '' });
     },
     cancel: ({ id }) => cancelJob(id, waiting),
     login: ({ id }) => {

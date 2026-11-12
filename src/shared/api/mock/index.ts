@@ -9,6 +9,8 @@ import { createMockEventBus } from './bus';
 import { createConversation } from './conversation/conversation';
 import { agentHandlers } from './handlers/agents';
 import { channelHandlers } from './handlers/channels';
+import { frameHandlers } from './handlers/frames';
+import { guildHandlers } from './handlers/guild';
 import { messageHandlers } from './handlers/messages';
 import { builtinSkillHandlers } from './handlers/builtinSkills';
 import { skillLibraryHandlers } from './handlers/skillLibrary';
@@ -22,6 +24,8 @@ import { createSeedState } from './seed';
 
 const handlers: MockHandlers = {
   ...systemHandlers,
+  ...guildHandlers,
+  ...frameHandlers,
   ...storageHandlers,
   ...agentHandlers,
   ...skillHandlers,

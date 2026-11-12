@@ -4,6 +4,7 @@ import type { Channel } from '@/shared/types/domain';
 import { useChannel, useChannelDialog } from '../hooks/useChannels';
 import { useChannelForm } from '../hooks/useChannelForm';
 import { closeChannelDialog, deleteChannel } from '../store';
+import { ChannelIconPicker } from './ChannelIconPicker';
 import { ChannelWorkspaceFields } from './ChannelWorkspaceFields';
 import { MemberPicker } from './MemberPicker';
 import { t } from '../i18n';
@@ -62,6 +63,12 @@ function ChannelForm({ channel }: { channel: Channel | null }) {
           onBlur={() => form.touch('topic')}
           error={form.errors.topic}
           hint={t('topicHint')}
+        />
+        <ChannelIconPicker
+          value={form.draft.icon}
+          onChange={(icon) => form.update('icon', icon)}
+          onBlur={() => form.touch('icon')}
+          error={form.errors.icon}
         />
         <ChannelWorkspaceFields form={form} />
         {!channel && <MemberPicker selected={form.draft.memberIds} onChange={(ids) => form.update('memberIds', ids)} />}

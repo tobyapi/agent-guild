@@ -1,5 +1,6 @@
+import { MemberAvatar } from '@/features/frames';
 import { BackendTag, useBackend } from '@/features/runtime';
-import { Avatar, Badge } from '@/shared/ui';
+import { Badge } from '@/shared/ui';
 import { tEditor } from '../../i18n/editor';
 import { behaviorSummary } from '../../model/behavior';
 import type { AgentDraft } from '../../model/draft';
@@ -19,7 +20,14 @@ export function AgentPreview({ draft }: { draft: AgentDraft }) {
   const behaviors = behaviorSummary(draft);
   return (
     <aside className={styles.preview} aria-label={tEditor('previewLabel')}>
-      <Avatar avatar={draft.avatar} name={name || tEditor('unnamedInitial')} color={draft.color} size="lg" />
+      <MemberAvatar
+        avatar={draft.avatar}
+        name={name || tEditor('unnamedInitial')}
+        color={draft.color}
+        frame={draft.frame}
+        size="lg"
+        className={styles.avatar}
+      />
       <p className={styles.name} data-placeholder={name ? undefined : ''}>
         {name || tEditor('namePlaceholder')}
       </p>

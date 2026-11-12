@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{BackendInfo, ErrorCode, RunRequest, RunUsage, RunnerError};
+use crate::{BackendInfo, ErrorCode, ImageRequest, RunRequest, RunUsage, RunnerError};
 
 /// Rust → runner
 #[derive(Serialize)]
@@ -13,6 +13,12 @@ pub(crate) enum Request<'a> {
         id: &'a str,
         #[serde(flatten)]
         request: &'a RunRequest,
+    },
+    /// 画像を1枚描く（終わると text が空の result）
+    Image {
+        id: &'a str,
+        #[serde(flatten)]
+        request: &'a ImageRequest,
     },
     Login {
         id: &'a str,

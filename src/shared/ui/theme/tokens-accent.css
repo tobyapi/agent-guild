@@ -1,0 +1,177 @@
+/*
+ * アクセントの色（<html data-accent="...">）— 既定（未指定・default）は tokens.css の「灯の金」のまま
+ * 操作の主役・フォーカス・選択の印の色だけを差し替える。「あなた」の金（--kind-human・--mention-self-bg）と
+ * 動作中の灯（--activity）は意味の色なので変えない。差し替える名前はダークとライトで同じ組にそろえる
+ * 文字の対比: 塗りの上の --text-on-accent は 7:1 以上、面の上の --accent-text は 4.5:1 以上（docs/ui-design.md）
+ */
+
+/* 設定の見本の色（いまのアクセントに関係なく、それぞれの塗りを見せる） */
+:root {
+  --accent-swatch-default: #f0ba5f;
+  --accent-swatch-vermilion: #ff8f6b;
+  --accent-swatch-sakura: #f59ec4;
+  --accent-swatch-green: #8fd68a;
+  --accent-swatch-sky: #82b9ff;
+  --accent-swatch-violet: #b9a3ff;
+  --accent-swatch-silver: #c8cdd6;
+}
+
+:root[data-theme='light'] {
+  --accent-swatch-default: #f1b047;
+  --accent-swatch-vermilion: #f78e66;
+  --accent-swatch-sakura: #f4a0c4;
+  --accent-swatch-green: #86cf7b;
+  --accent-swatch-sky: #86b9f5;
+  --accent-swatch-violet: #b8a1f6;
+  --accent-swatch-silver: #c5cad3;
+}
+
+/* 朱 */
+:root[data-accent='vermilion'] {
+  --accent: #ff8f6b;
+  --accent-hover: #ffa688;
+  --accent-soft: rgba(255, 143, 107, 0.14);
+  --accent-text: #ff8f6b;
+  --text-on-accent: #2a1209;
+  --border-focus: rgba(255, 143, 107, 0.5);
+  --selection-bg: rgba(255, 143, 107, 0.3);
+  --focus-color: #ff8f6b;
+  --focus-glow: rgba(255, 143, 107, 0.22);
+}
+
+/* 桜 */
+:root[data-accent='sakura'] {
+  --accent: #f59ec4;
+  --accent-hover: #f9b6d3;
+  --accent-soft: rgba(245, 158, 196, 0.14);
+  --accent-text: #f59ec4;
+  --text-on-accent: #2b1220;
+  --border-focus: rgba(245, 158, 196, 0.5);
+  --selection-bg: rgba(245, 158, 196, 0.3);
+  --focus-color: #f59ec4;
+  --focus-glow: rgba(245, 158, 196, 0.22);
+}
+
+/* 若草 */
+:root[data-accent='green'] {
+  --accent: #8fd68a;
+  --accent-hover: #a7e2a1;
+  --accent-soft: rgba(143, 214, 138, 0.14);
+  --accent-text: #8fd68a;
+  --text-on-accent: #0f2010;
+  --border-focus: rgba(143, 214, 138, 0.5);
+  --selection-bg: rgba(143, 214, 138, 0.3);
+  --focus-color: #8fd68a;
+  --focus-glow: rgba(143, 214, 138, 0.22);
+}
+
+/* 空 */
+:root[data-accent='sky'] {
+  --accent: #82b9ff;
+  --accent-hover: #9ecaff;
+  --accent-soft: rgba(130, 185, 255, 0.14);
+  --accent-text: #82b9ff;
+  --text-on-accent: #0b1a2c;
+  --border-focus: rgba(130, 185, 255, 0.5);
+  --selection-bg: rgba(130, 185, 255, 0.3);
+  --focus-color: #82b9ff;
+  --focus-glow: rgba(130, 185, 255, 0.22);
+}
+
+/* 藤 */
+:root[data-accent='violet'] {
+  --accent: #b9a3ff;
+  --accent-hover: #cbb9ff;
+  --accent-soft: rgba(185, 163, 255, 0.14);
+  --accent-text: #b9a3ff;
+  --text-on-accent: #1a1230;
+  --border-focus: rgba(185, 163, 255, 0.5);
+  --selection-bg: rgba(185, 163, 255, 0.3);
+  --focus-color: #b9a3ff;
+  --focus-glow: rgba(185, 163, 255, 0.22);
+}
+
+/* 銀 */
+:root[data-accent='silver'] {
+  --accent: #c8cdd6;
+  --accent-hover: #dce0e7;
+  --accent-soft: rgba(200, 205, 214, 0.14);
+  --accent-text: #c8cdd6;
+  --text-on-accent: #16191f;
+  --border-focus: rgba(200, 205, 214, 0.5);
+  --selection-bg: rgba(200, 205, 214, 0.3);
+  --focus-color: #c8cdd6;
+  --focus-glow: rgba(200, 205, 214, 0.22);
+}
+
+:root[data-theme='light'][data-accent='vermilion'] {
+  --accent: #f78e66;
+  --accent-hover: #ef7a4f;
+  --accent-soft: rgba(247, 142, 102, 0.18);
+  --accent-text: #a33a12;
+  --text-on-accent: #1f0f08;
+  --border-focus: rgba(163, 58, 18, 0.6);
+  --selection-bg: rgba(247, 142, 102, 0.35);
+  --focus-color: #a33a12;
+  --focus-glow: rgba(163, 58, 18, 0.16);
+}
+
+:root[data-theme='light'][data-accent='sakura'] {
+  --accent: #f4a0c4;
+  --accent-hover: #ec88b4;
+  --accent-soft: rgba(244, 160, 196, 0.18);
+  --accent-text: #9e2759;
+  --text-on-accent: #22101a;
+  --border-focus: rgba(158, 39, 89, 0.6);
+  --selection-bg: rgba(244, 160, 196, 0.35);
+  --focus-color: #9e2759;
+  --focus-glow: rgba(158, 39, 89, 0.16);
+}
+
+:root[data-theme='light'][data-accent='green'] {
+  --accent: #86cf7b;
+  --accent-hover: #6fc063;
+  --accent-soft: rgba(134, 207, 123, 0.18);
+  --accent-text: #2b6622;
+  --text-on-accent: #0d1a0b;
+  --border-focus: rgba(43, 102, 34, 0.6);
+  --selection-bg: rgba(134, 207, 123, 0.35);
+  --focus-color: #2b6622;
+  --focus-glow: rgba(43, 102, 34, 0.16);
+}
+
+:root[data-theme='light'][data-accent='sky'] {
+  --accent: #86b9f5;
+  --accent-hover: #6ca7ee;
+  --accent-soft: rgba(134, 185, 245, 0.18);
+  --accent-text: #1d5797;
+  --text-on-accent: #0b1626;
+  --border-focus: rgba(29, 87, 151, 0.6);
+  --selection-bg: rgba(134, 185, 245, 0.35);
+  --focus-color: #1d5797;
+  --focus-glow: rgba(29, 87, 151, 0.16);
+}
+
+:root[data-theme='light'][data-accent='violet'] {
+  --accent: #b8a1f6;
+  --accent-hover: #a48af0;
+  --accent-soft: rgba(184, 161, 246, 0.18);
+  --accent-text: #5938a3;
+  --text-on-accent: #170f2a;
+  --border-focus: rgba(89, 56, 163, 0.6);
+  --selection-bg: rgba(184, 161, 246, 0.35);
+  --focus-color: #5938a3;
+  --focus-glow: rgba(89, 56, 163, 0.16);
+}
+
+:root[data-theme='light'][data-accent='silver'] {
+  --accent: #c5cad3;
+  --accent-hover: #b0b6c1;
+  --accent-soft: rgba(197, 202, 211, 0.18);
+  --accent-text: #464c57;
+  --text-on-accent: #16191f;
+  --border-focus: rgba(70, 76, 87, 0.6);
+  --selection-bg: rgba(197, 202, 211, 0.35);
+  --focus-color: #464c57;
+  --focus-glow: rgba(70, 76, 87, 0.16);
+}

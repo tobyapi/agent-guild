@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { normalizeChannelIcon } from '@/shared/lib/channelIcon';
 import { errorCode, errorField, errorMessage } from '@/shared/lib/errors';
 import { hasErrors, notifyInfo, reportError, useFieldErrors } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
@@ -15,11 +16,12 @@ async function persist(
 ): Promise<void> {
   const name = cleanChannelName(draft.name);
   const topic = draft.topic.trim();
+  const icon = normalizeChannelIcon(draft.icon) ?? draft.icon;
   let saved: Channel;
   if (channel) {
-    saved = await updateChannel(channel.id, name, topic);
+    saved = await updateChannel(channel.id, name, topic, icon);
   } else {
-    const created = await createChannel(name, topic, draft.memberIds);
+    const created = await createChannel(name, topic, icon, draft.memberIds);
     saved = created;
     onCreated(created);
   }
@@ -37,6 +39,7 @@ export function useChannelForm(channel: Channel | null) {
   const [draft, setDraft] = useState<ChannelDraft>(() => ({
     name: channel?.name ?? '',
     topic: channel?.topic ?? '',
+    icon: channel?.icon ?? '',
     memberIds: [],
     workspaceMode: channel?.workspace.mode ?? 'shared',
     workspaceFolder: channel?.workspace.folder ?? '',

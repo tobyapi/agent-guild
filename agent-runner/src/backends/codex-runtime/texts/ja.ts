@@ -9,6 +9,10 @@ export const ja = {
   runFailed: 'Codex の実行に失敗しました（{detail}）',
   longPath:
     'Windows ではパスが 260 文字を超えると Codex CLI を起動できません。プロジェクトを短いパスに置いてください。',
+  drawing: '画像を描いています…',
+  imageMissing:
+    'Codex は画像を作らずに終わりました。画像の生成は、Codex に ChatGPT アカウントでログインしているときに使えます（API キーでのログインやプランによっては使えません）。ログインを確かめて、もう一度お試しください。',
+  imageReply: '（Codex の返事: {text}）',
   systemPromptTooLong: 'Codex に渡すシステムプロンプトは {max} 文字までです',
   folderNeedsSandbox:
     'フォルダ制限には OS の隔離が必要です（このバックエンドでは、隔離が使える Windows 11 で使えます）',

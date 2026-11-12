@@ -54,6 +54,10 @@ impl Workspace for FakeWorkspace {
         let root = PathBuf::from("/ws").join(agent.as_str());
         Ok(WorkspacePaths { work: root.join("work"), state: root.join("state").join(backend) })
     }
+    fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths> {
+        let root = PathBuf::from("/ws").join(purpose);
+        Ok(WorkspacePaths { work: root.join("work"), state: root.join("state").join(backend) })
+    }
     fn work_dir(&self, agent: &AgentId) -> PathBuf {
         PathBuf::from("/ws").join(agent.as_str()).join("work")
     }

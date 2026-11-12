@@ -78,6 +78,8 @@ export interface BackendInfo {
   toolsOption: string | null;
   /** この PC の中で動く（API の利用料がかからない） */
   local: boolean;
+  /** このバックエンドでアイコンの枠を生成できる（generate_avatar_frame。ID では選り分けない） */
+  frameGeneration: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }

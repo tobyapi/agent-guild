@@ -1,5 +1,5 @@
 //! 今のデータの書き出し（DataExporter の実装。design.md §11 の copy の手順）:
-//! VACUUM INTO で guild.db.tmp → agents/・attachments/ をそれぞれ <名前>.tmp にコピーして rename → guild-data.json →
+//! VACUUM INTO で guild.db.tmp → agents/・attachments/・frames/ をそれぞれ <名前>.tmp にコピーして rename → guild-data.json →
 //! guild.db.tmp を rename（最後）。
 //! 途中で失敗したら、移動先に作ったものを消してから Storage を返す（移動先は空のフォルダなので、中身はすべて自分が作ったもの）。
 
@@ -13,12 +13,12 @@ use guild_application::{AppError, AppResult};
 
 use guild_domain::locale;
 
-use super::data_dir::{write_marker, AGENTS_DIR, ATTACHMENTS_DIR, DB_FILE, MARKER_FILE};
+use super::data_dir::{write_marker, AGENTS_DIR, ATTACHMENTS_DIR, DB_FILE, FRAMES_DIR, MARKER_FILE};
 use super::sqlite::Database;
 
 const DB_TEMP: &str = "guild.db.tmp";
-/// フォルダごと写すもの（作業フォルダと、発言に貼った画像）
-const COPIED_DIRS: [&str; 2] = [AGENTS_DIR, ATTACHMENTS_DIR];
+/// フォルダごと写すもの（作業フォルダと、発言に貼った画像と、生成した枠の絵）
+const COPIED_DIRS: [&str; 3] = [AGENTS_DIR, ATTACHMENTS_DIR, FRAMES_DIR];
 
 pub struct DataExport {
     db: Arc<Database>,

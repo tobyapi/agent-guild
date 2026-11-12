@@ -2,16 +2,11 @@
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
 import type { RunRequest } from './backends/types.ts';
+import { decodeImage } from './image-request-decoder.ts';
 import { LANGUAGES, parseLanguage } from './i18n.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
-import type {
-  ImagePayload,
-  PermissionKey,
-  Permissions,
-  RunnerRequest,
-  SkillFilePayload,
-  SkillPayload,
-} from './protocol.ts';
+import type { ImagePayload, PermissionKey, Permissions, RunnerRequest } from './protocol.ts';
+import { decodeSkills } from './skill-payload-decoder.ts';
 
 export type DecodeResult = { ok: true; request: RunnerRequest } | { ok: false; id: string | null; message: string };
 
@@ -26,8 +21,6 @@ const PERMISSION_KEYS = [
   'runCommands',
   'skills',
 ] as const satisfies readonly PermissionKey[];
-const SKILL_FIELDS = ['name', 'description', 'body'] as const;
-const SKILL_FILE_FIELDS = ['path', 'content'] as const;
 const IMAGE_FIELDS = ['path', 'mediaType'] as const;
 
 const isString = (field: unknown): field is string => typeof field === 'string';
@@ -51,6 +44,8 @@ export function decodeRequest(value: JsonObject): DecodeResult {
   switch (value.type) {
     case 'run':
       return decodeRun(value, id);
+    case 'image':
+      return decodeImage(value, id);
     case 'apiKey':
       return decodeApiKey(value, id);
     case 'login':
@@ -132,35 +127,6 @@ function decodePermissions(value: unknown): Permissions | null {
   if (!isJsonObject(value) || !hasFields(value, PERMISSION_KEYS, isBoolean)) return null;
   const { webSearch, webFetch, readFiles, readAnywhere, writeFiles, writeAnywhere, runCommands, skills } = value;
   return { webSearch, webFetch, readFiles, readAnywhere, writeFiles, writeAnywhere, runCommands, skills };
-}
-
-/** dir はライブラリのフォルダ（文字列）か、アプリ内のスキルなら null。欠けていれば不正 */
-const isSkillDir = (field: unknown): field is string | null => field === null || isString(field);
-
-function decodeSkills(value: unknown): SkillPayload[] | null {
-  if (!Array.isArray(value)) return null;
-  const skills: unknown[] = value;
-  const decoded: SkillPayload[] = [];
-  for (const skill of skills) {
-    if (!isJsonObject(skill) || !hasFields(skill, SKILL_FIELDS, isString) || !isSkillDir(skill.dir)) return null;
-    const files = decodeSkillFiles(skill.files);
-    if (files === null) return null;
-    const { name, description, body, dir } = skill;
-    decoded.push({ name, description, body, dir, files });
-  }
-  return decoded;
-}
-
-/** 内蔵スキルの付属ファイル（path と content の文字列）。欠けていれば不正 */
-function decodeSkillFiles(value: unknown): SkillFilePayload[] | null {
-  if (!Array.isArray(value)) return null;
-  const files: unknown[] = value;
-  const valid = files.filter(
-    (file): file is JsonObject & Record<(typeof SKILL_FILE_FIELDS)[number], string> =>
-      isJsonObject(file) && hasFields(file, SKILL_FILE_FIELDS, isString),
-  );
-  if (valid.length !== files.length) return null;
-  return valid.map(({ path, content }) => ({ path, content }));
 }
 
 function decodeImages(value: unknown): ImagePayload[] | null {

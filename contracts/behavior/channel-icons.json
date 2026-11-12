@@ -1,0 +1,21 @@
+[
+  { "name": "空ならアイコンなし（# を出す）", "icon": "", "result": "" },
+  { "name": "前後の空白は除く", "icon": "  🎨 ", "result": "🎨" },
+  { "name": "# と全角の ＃ はアイコンなし", "icon": "＃", "result": "" },
+  { "name": "異体字セレクタ付きの絵文字", "icon": "❤️", "result": "❤️" },
+  { "name": "肌の色を変えた絵文字", "icon": "👍🏽", "result": "👍🏽" },
+  { "name": "ZWJ でつないだ絵文字は1つ", "icon": "👩‍💻", "result": "👩‍💻" },
+  { "name": "家族の絵文字（7つのコードポイント）", "icon": "👨‍👩‍👧‍👦", "result": "👨‍👩‍👧‍👦" },
+  { "name": "国旗（地域指示子2つ）", "icon": "🇯🇵", "result": "🇯🇵" },
+  { "name": "キーキャップ", "icon": "1️⃣", "result": "1️⃣" },
+  { "name": "記号1文字", "icon": "★", "result": "★" },
+  { "name": "絵文字2つは不可", "icon": "🎨🧪", "result": null },
+  { "name": "国旗2つは不可", "icon": "🇯🇵🇺🇸", "result": null },
+  { "name": "ASCII の英字は不可", "icon": "a", "result": null },
+  { "name": "ASCII だけの記号は不可", "icon": "*", "result": null },
+  { "name": "英字の混ざった文字列は不可", "icon": "🎨a", "result": null },
+  { "name": "途中の空白は不可", "icon": "🎨 🧪", "result": null },
+  { "name": "ZWJ で終わるのは不可", "icon": "👩‍", "result": null },
+  { "name": "結合する文字だけは不可", "icon": "️", "result": null },
+  { "name": "長すぎるのは不可", "icon": "🏴󠁧󠁢󠁳󠁣󠁴󠁿󠁿󠁿", "result": null }
+]

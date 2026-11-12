@@ -1,7 +1,9 @@
 //! フェイクのポートでアプリを組み立てるテスト用の土台。
 
 pub mod attachments;
+pub mod backends;
 pub mod events;
+pub mod frames;
 pub mod library;
 pub mod records;
 pub mod runtime;
@@ -20,6 +22,7 @@ use guild_domain::storage::{StorageInfo, StorageSource};
 
 use attachments::FakeAttachments;
 use events::FakeEvents;
+use frames::FakeFrameImages;
 use library::FakeLibrary;
 use runtime::FakeRuntime;
 use store::MemoryStore;
@@ -32,6 +35,7 @@ pub struct TestApp {
     pub store: Arc<MemoryStore>,
     pub ids: Arc<FakeIds>,
     pub attachments: Arc<FakeAttachments>,
+    pub frame_images: Arc<FakeFrameImages>,
     pub runtime: Arc<FakeRuntime>,
     pub events: Arc<FakeEvents>,
     pub workspace: Arc<FakeWorkspace>,
@@ -62,6 +66,7 @@ impl TestApp {
         let (events, workspace) = (Arc::new(FakeEvents::default()), Arc::new(FakeWorkspace::default()));
         let (clock, library) = (Arc::new(FakeClock::starting_at(STARTED_AT)), Arc::new(FakeLibrary::default()));
         let attachments = Arc::new(FakeAttachments::default());
+        let frame_images = Arc::new(FakeFrameImages::default());
         let ports = Ports {
             agents: store.clone(),
             channels: store.clone(),
@@ -72,6 +77,8 @@ impl TestApp {
             skills: store.clone(),
             library: library.clone(),
             profile: store.clone(),
+            frames: store.clone(),
+            frame_images: frame_images.clone(),
             meta: store.clone(),
             runtime: runtime.clone(),
             events: events.clone(),
@@ -92,6 +99,7 @@ impl TestApp {
             store,
             ids,
             attachments,
+            frame_images,
             runtime,
             events,
             workspace,
@@ -115,7 +123,7 @@ impl TestApp {
 
     pub fn channel(&self, name: &str, members: &[&Agent]) -> Channel {
         let members: Vec<MemberId> = members.iter().map(|a| MemberId::Agent(a.id.clone())).collect();
-        self.services.channels.create(name, "", &members).unwrap_or_else(|e| panic!("{name}: {e}"))
+        self.services.channels.create(name, "", "", &members).unwrap_or_else(|e| panic!("{name}: {e}"))
     }
 
     /// 実行管理が落ち着く（待機も実行中もない状態が続く）まで待つ
@@ -156,6 +164,7 @@ pub fn input(template: &str, name: &str) -> AgentInput {
         tags: defaults.tags,
         avatar: "🙂".to_owned(),
         color: "#cb9d2a".to_owned(),
+        frame: String::new(),
         role: format!("{name}の役割"),
         personality: String::new(),
         tone: String::new(),

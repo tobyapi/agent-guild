@@ -59,6 +59,7 @@ fn agent_input(seed: SeedAgent) -> Result<AgentInput, String> {
         name: seed.name,
         avatar: format!("data:image/jpeg;base64,{}", STANDARD.encode(AVATAR)),
         color: seed.color,
+        frame: String::new(),
         tags: seed.tags,
         role: seed.role,
         personality: seed.personality,

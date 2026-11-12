@@ -26,13 +26,13 @@ use std::time::Duration;
 pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
-    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, ImagePayload, InstallGuide, LoginSpec,
-    MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions, RunRequest, RunUsage,
-    SkillFilePayload, SkillPayload, StartSpec,
+    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, ImagePayload, ImageRequest, InstallGuide,
+    LoginSpec, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions, RunRequest,
+    RunUsage, SkillFilePayload, SkillPayload, StartSpec,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
-pub const PROTOCOL_VERSION: u32 = 3;
+pub const PROTOCOL_VERSION: u32 = 4;
 
 /// ランナーの起動方法。開発中は Node でスクリプトを直接、配布時は Tauri sidecar として同梱した単一バイナリ。
 #[derive(Debug, Clone)]

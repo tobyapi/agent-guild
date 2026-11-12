@@ -12,6 +12,8 @@ pub mod channel;
 pub mod conversation;
 pub mod delegation;
 pub mod error;
+pub mod frame;
+pub mod guild;
 pub mod ids;
 pub mod link;
 pub mod locale;

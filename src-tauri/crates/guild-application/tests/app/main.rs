@@ -3,9 +3,12 @@
 mod attachments;
 mod autonomy;
 mod builtin_skills;
+mod channel_icons;
 mod delegation;
 mod delegation_stopping;
 mod flow;
+mod frames;
+mod guild;
 mod history;
 mod interruption;
 mod lanes;

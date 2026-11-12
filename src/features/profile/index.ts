@@ -2,4 +2,4 @@
 export { ProfileCard } from './components/ProfileCard';
 export { ProfileForm } from './components/ProfileForm';
 export { useProfile } from './hooks/useProfile';
-export { applyProfileSnapshot, saveProfile } from './store';
+export { applyProfileSnapshot, currentProfile, saveProfile } from './store';

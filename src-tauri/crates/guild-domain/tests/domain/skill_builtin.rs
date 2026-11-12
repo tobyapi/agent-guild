@@ -28,7 +28,10 @@ fn builtins_are_sorted_unique_and_found_by_name() {
     sorted.sort();
     sorted.dedup();
     assert_eq!(names, sorted, "name の順で重なりがない");
-    assert_eq!(names, ["ambiguous-word-rewrite", "concept-shift", "introspection", "universal-critique"]);
+    assert_eq!(
+        names,
+        ["ambiguous-word-rewrite", "concept-shift", "introspection", "ornate-avatar-frame", "universal-critique"]
+    );
     assert_eq!(find_builtin_skill("introspection").map(|skill| skill.name).as_deref(), Some("introspection"));
     assert_eq!(find_builtin_skill("nothing"), None);
 }

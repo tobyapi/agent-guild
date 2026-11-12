@@ -1,6 +1,7 @@
 //! エージェントの作業場所（Workspace の実装。design.md §11）:
 //!   agents/<id>/work/            エージェントの作業場所（cwd）。MEMORY.md と成果物
 //!   agents/<id>/state/<backend>/ ランナーのアダプタの管理領域。実行のたびに作り直す
+//!   tools/<purpose>/work・state/  エージェントに属さない一度きりの実行（アイコンの枠の生成）の作業場所
 
 use std::fs;
 use std::io;
@@ -20,17 +21,20 @@ use super::plain_path::plain_path;
 mod messages;
 
 const MEMORY_FILE: &str = "MEMORY.md";
+/// エージェントに属さない実行の作業場所の置き場所（データフォルダの直下）
+const TOOLS_DIR: &str = "tools";
 /// Windows で使用中のファイルが消せないときの再試行
 const REMOVE_ATTEMPTS: u32 = 5;
 const REMOVE_INTERVAL: Duration = Duration::from_millis(200);
 
 pub struct FsWorkspace {
     agents_root: PathBuf,
+    tools_root: PathBuf,
 }
 
 impl FsWorkspace {
     pub fn new(data_dir: &Path) -> Self {
-        Self { agents_root: data_dir.join(AGENTS_DIR) }
+        Self { agents_root: data_dir.join(AGENTS_DIR), tools_root: data_dir.join(TOOLS_DIR) }
     }
 
     /// エージェント ID は自分で発行した UUID だが、画面から届いた文字列でもあるので、フォルダ名に使える形にしてから使う
@@ -100,14 +104,13 @@ impl Workspace for FsWorkspace {
     }
 
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
-        let work = self.work_dir(agent);
         let state = self.root(agent).join("state").join(safe_component(backend));
-        fs::create_dir_all(&work).map_err(storage)?;
-        if state.exists() {
-            fs::remove_dir_all(&state).map_err(storage)?;
-        }
-        fs::create_dir_all(&state).map_err(storage)?;
-        Ok(WorkspacePaths { work, state })
+        prepare_dirs(self.work_dir(agent), state)
+    }
+
+    fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths> {
+        let root = self.tools_root.join(safe_component(purpose));
+        prepare_dirs(root.join("work"), root.join("state").join(safe_component(backend)))
     }
 
     fn work_dir(&self, agent: &AgentId) -> PathBuf {
@@ -140,6 +143,16 @@ impl Workspace for FsWorkspace {
         fs::create_dir_all(&work).map_err(storage)?;
         file_manager::reveal(&work).map_err(|e| AppError::Storage(messages::cannot_reveal(&e)))
     }
+}
+
+/// work/ を作り、state/ を作り直す
+fn prepare_dirs(work: PathBuf, state: PathBuf) -> AppResult<WorkspacePaths> {
+    fs::create_dir_all(&work).map_err(storage)?;
+    if state.exists() {
+        fs::remove_dir_all(&state).map_err(storage)?;
+    }
+    fs::create_dir_all(&state).map_err(storage)?;
+    Ok(WorkspacePaths { work, state })
 }
 
 fn storage(error: io::Error) -> AppError {

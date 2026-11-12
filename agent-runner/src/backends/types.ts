@@ -15,6 +15,8 @@ import type {
 
 /** 検証済みの run 要求 */
 export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
+/** 検証済みの image 要求（画像を1枚描く） */
+export type ImageRequest = Extract<RunnerRequest, { type: 'image' }>;
 
 /** 状態とモデルの一覧を除いた、アダプタが静的に申告する情報 */
 export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage' | 'models' | 'defaultModel'>;
@@ -38,6 +40,13 @@ export interface RunContext {
   onUsage: (usage: RunUsage) => void;
 }
 
+export interface ImageContext {
+  /** cancel・shutdown で中断される */
+  signal: AbortSignal;
+  /** 途中経過を Rust へ送る */
+  onActivity: (detail: string) => void;
+}
+
 export interface LoginContext {
   /** cancel・shutdown で中断される（ログインの窓を閉じる） */
   signal: AbortSignal;
@@ -52,6 +61,11 @@ export interface BackendAdapter {
   catalog?: () => Promise<ModelCatalog>;
   /** 1回実行して最終テキストを返す。分類できる失敗は BackendError で投げる */
   run(request: RunRequest, context: RunContext): Promise<string>;
+  /**
+   * 画像を1枚描いて request.output に PNG で書く。info().frameGeneration を申告するアダプタだけが持つ。
+   * 画像ができなかったら BackendError で投げる
+   */
+  image?: (request: ImageRequest, context: ImageContext) => Promise<void>;
   /**
    * ログインを始め、利用者が終える（窓が閉じる）まで待つ。info().setup.login があるときだけ呼ばれる。
    * 完了しなかったら BackendError で投げる。終わったあとの状態の確認し直しは Dispatcher が行う

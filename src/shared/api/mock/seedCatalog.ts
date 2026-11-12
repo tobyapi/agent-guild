@@ -71,6 +71,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
     folderScope: null,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: CLAUDE_SETUP,
   },
   {
@@ -127,6 +128,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
     folderScope: 'sandbox',
     toolsOption: null,
     local: false,
+    frameGeneration: true,
     setup: CODEX_SETUP,
   },
   MOCK_OLLAMA,

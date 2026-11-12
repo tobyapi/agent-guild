@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::agent::{normalize_name, AVATAR_MAX_BYTES};
 use super::error::ValidationError;
+use super::frame::normalize_frame_id;
 use super::locale;
 
 /// TS の Profile
@@ -13,17 +14,23 @@ pub struct Profile {
     pub name: String,
     pub avatar: String,
     pub color: String,
+    /// アイコンの枠の ID（空は枠なし。古い版が保存した値にはないので既定は空）
+    #[serde(default)]
+    pub frame: String,
 }
 
 impl Default for Profile {
     fn default() -> Self {
-        Self { name: "ユーザー".to_owned(), avatar: "🙂".to_owned(), color: "#f0ba5f".to_owned() }
+        Self {
+            name: "ユーザー".to_owned(), avatar: "🙂".to_owned(), color: "#f0ba5f".to_owned(), frame: String::new()
+        }
     }
 }
 
 /// 名前を検証して前後の空白を除く（重複の確認はエージェント一覧と合わせて ensure_unique_name で行う）
 pub fn normalize_profile(mut profile: Profile) -> Result<Profile, ValidationError> {
     profile.name = normalize_name(&profile.name)?;
+    profile.frame = normalize_frame_id(&profile.frame)?;
     if profile.avatar.len() > AVATAR_MAX_BYTES {
         return Err(ValidationError::on(
             "avatar",

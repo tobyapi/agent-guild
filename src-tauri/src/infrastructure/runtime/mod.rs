@@ -20,7 +20,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use guild_application::ports::{AgentRuntime, EventPublisher, RuntimeError, RuntimeRequest, Spawner, UpdateSink};
+use guild_application::ports::{
+    AgentRuntime, EventPublisher, ImageRuntimeRequest, RuntimeError, RuntimeRequest, Spawner, UpdateSink,
+};
 use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeStatus, StartSpec};
 use guild_domain::locale::Language;
 use runner_client::{RunnerClient, RunnerStatus};
@@ -86,6 +88,17 @@ impl AgentRuntime for RunnerRuntime {
     async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError> {
         let on_update: runner_client::UpdateFn = Box::new(move |update| on_update(convert::update(update)));
         self.client.run(job_id, convert::request(request), on_update).await.map_err(failure::error)
+    }
+
+    async fn generate_image(
+        &self,
+        job_id: &str,
+        request: ImageRuntimeRequest,
+        on_update: UpdateSink,
+    ) -> Result<(), RuntimeError> {
+        let on_update: runner_client::UpdateFn = Box::new(move |update| on_update(convert::update(update)));
+        let request = convert::image_request(request);
+        self.client.generate_image(job_id, request, on_update).await.map_err(failure::error)
     }
 
     async fn cancel(&self, job_id: &str) {

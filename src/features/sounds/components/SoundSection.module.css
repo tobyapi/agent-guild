@@ -1,0 +1,24 @@
+.sounds {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.slider {
+  flex: 1;
+  min-inline-size: 0;
+  accent-color: var(--accent);
+}
+
+.volumeValue {
+  flex: none;
+  min-inline-size: 4em;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}

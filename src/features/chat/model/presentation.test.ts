@@ -60,7 +60,7 @@ describe('createAuthorResolver', () => {
     },
     { id: 'sora', name: 'ソラ', avatar: '🛠️', color: '#22b5e1', tags: ['作業者'], backend: 'codex', deletedAt: 1 },
   ] as Agent[];
-  const resolve = createAuthorResolver(agents, { name: 'あなた', avatar: '🙂', color: '#f0ba5f' });
+  const resolve = createAuthorResolver(agents, { name: 'あなた', avatar: '🙂', color: '#f0ba5f', frame: '' });
 
   it('人間・エージェント・削除済み・不明を見分ける', () => {
     expect(resolve('me')).toMatchObject({ name: 'あなた', tag: null, human: true });

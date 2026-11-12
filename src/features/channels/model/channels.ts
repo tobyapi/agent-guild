@@ -1,10 +1,12 @@
 // チャンネルまわりの純粋なロジック。
+import { normalizeChannelIcon } from '@/shared/lib/channelIcon';
 import { CHANNEL_NAME_MAX, CHANNEL_TOPIC_MAX, cleanChannelName } from '@/shared/lib/limits';
 import { groupByPrimaryTag } from '@/features/agents';
 import type { TagGroup } from '@/features/agents';
 import { checkText } from '@/shared/lib/validation';
 import type { Agent, AgentTemplate, BackendInfo, Channel, FolderScope, WorkspaceMode } from '@/shared/types/domain';
 import { t } from '../i18n';
+import { tIcon } from '../i18n/icon';
 
 /** 開いているチャンネル: 今のものが残っていればそれ、なければ先頭（チャンネルがなければ null） */
 export function resolveActiveChannel(channels: readonly Channel[], currentId: string | null): string | null {
@@ -39,20 +41,22 @@ export function workingSummary(names: readonly string[], pending: number): strin
 export interface ChannelDraft {
   name: string;
   topic: string;
+  /** 絵文字1つ（空なら # を出す） */
+  icon: string;
   memberIds: string[];
   workspaceMode: WorkspaceMode;
   /** workspaceMode が folder のときだけ使う */
   workspaceFolder: string;
 }
 
-export type ChannelField = 'name' | 'topic' | 'workspaceFolder';
+export type ChannelField = 'name' | 'topic' | 'icon' | 'workspaceFolder';
 
 /** 名前の先頭の # は付けなくてよい（付けても外す。全角の ＃ も） */
 export { cleanChannelName };
 
 /** 保存で返った validation の field（CommandError.field）がどの入力のことか（分からなければ null） */
 export function channelErrorField(field: string | null): ChannelField | null {
-  return field === 'name' || field === 'topic' || field === 'workspaceFolder' ? field : null;
+  return field === 'name' || field === 'topic' || field === 'icon' || field === 'workspaceFolder' ? field : null;
 }
 
 export function validateChannelDraft(draft: ChannelDraft): Partial<Record<ChannelField, string>> {
@@ -62,6 +66,7 @@ export function validateChannelDraft(draft: ChannelDraft): Partial<Record<Channe
       checkText(cleanChannelName(draft.name), { label: t('channelName'), required: true, max: CHANNEL_NAME_MAX }),
     ],
     ['topic', checkText(draft.topic, { label: t('topicLabel'), max: CHANNEL_TOPIC_MAX })],
+    ['icon', normalizeChannelIcon(draft.icon) === null ? tIcon('invalid') : null],
     [
       'workspaceFolder',
       draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test(draft.workspaceFolder.trim())

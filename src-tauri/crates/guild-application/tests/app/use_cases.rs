@@ -124,7 +124,7 @@ async fn new_agents_join_the_lobby_once_without_changing_existing_agents() {
     let app = TestApp::new();
     let existing = app.agent("worker", "既存");
     let lobby = app.services.channels.create_lobby("ロビー", "", &[]).unwrap();
-    app.services.channels.update(&lobby.id, "Lounge", "").unwrap();
+    app.services.channels.update(&lobby.id, "Lounge", "", "").unwrap();
     let other = app.channel("ロビー", &[]);
     let created = app.services.agents.create(input("worker", "新人")).unwrap();
     let member = MemberId::Agent(created.id.clone());

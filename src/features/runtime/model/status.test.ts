@@ -27,6 +27,7 @@ const backend = (overrides: Partial<BackendInfo>): BackendInfo => ({
   folderScope: null,
   toolsOption: null,
   local: false,
+  frameGeneration: false,
   setup: { install: null, start: null, login: null, apiKey: null },
   ...overrides,
 });

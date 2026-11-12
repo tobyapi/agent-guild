@@ -4,15 +4,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { applyAgentsSnapshot } from '@/features/agents';
 import { applyChannelsSnapshot } from '@/features/channels';
 import { receiveDelegation, receiveMessage } from '@/features/chat';
-import { applyProfileSnapshot } from '@/features/profile';
+import { applyFramesSnapshot } from '@/features/frames';
+import { applyGuildSnapshot } from '@/features/guild';
+import { applyProfileSnapshot, currentProfile } from '@/features/profile';
 import { applyRuntimeSnapshot, currentActivityRevision, setActivity } from '@/features/runtime';
 import { openSetup } from '@/features/settings';
 import { reloadSkillLibraryIfLoaded, reloadSkillsIfLoaded } from '@/features/skills';
+import { playMessageSound } from '@/features/sounds';
 import { invoke } from '@/shared/api';
 import { applyBootLanguage } from '@/shared/i18n';
 import { errorMessage } from '@/shared/lib/errors';
 import { reportError } from '@/shared/ui';
-import type { BootStatus, Snapshot } from '@/shared/types/domain';
+import type { BootStatus, Message, Snapshot } from '@/shared/types/domain';
 import { subscribeBackendEvents } from './backendEvents';
 import { createSnapshotSync } from './snapshotSync';
 
@@ -23,10 +26,18 @@ export type BootState =
   | { phase: 'failed'; message: string };
 
 function applySnapshot(snapshot: Snapshot, activityRevision: number): void {
+  applyGuildSnapshot(snapshot.guild);
   applyProfileSnapshot(snapshot.me);
+  applyFramesSnapshot(snapshot.frames);
   applyAgentsSnapshot(snapshot.agents, snapshot.templates);
   applyRuntimeSnapshot(snapshot, activityRevision);
   applyChannelsSnapshot(snapshot.channels);
+}
+
+/** message-created: 会話に足し、設定に合えば通知の音を鳴らす（ライブで届いた発言だけがここを通る） */
+function receiveLiveMessage(message: Message): void {
+  receiveMessage(message);
+  playMessageSound(message, currentProfile().name);
 }
 
 export function useBootstrap() {
@@ -41,7 +52,7 @@ export function useBootstrap() {
       apply: applySnapshot,
     });
     const events = subscribeBackendEvents({
-      'message-created': receiveMessage,
+      'message-created': receiveLiveMessage,
       'activity-changed': setActivity,
       'state-changed': () => void sync.refresh().catch(reportError),
       'skills-changed': ({ agentId }) => reloadSkillsIfLoaded(agentId),

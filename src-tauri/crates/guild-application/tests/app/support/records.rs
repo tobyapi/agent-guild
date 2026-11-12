@@ -1,10 +1,12 @@
-//! インメモリのリポジトリ（発言・割り振り・スキル・プロフィール・meta）。
+//! インメモリのリポジトリ（発言・割り振り・スキル・プロフィール・枠・meta）。
 
 use guild_application::ports::{
-    DelegationRepository, MessageFilter, MessageRepository, MetaRepository, ProfileRepository, SkillRepository,
+    DelegationRepository, FrameRepository, MessageFilter, MessageRepository, MetaRepository, ProfileRepository,
+    SkillRepository,
 };
 use guild_application::AppResult;
 use guild_domain::delegation::{Delegation, SubtaskStatus};
+use guild_domain::frame::CustomFrame;
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SkillId};
 use guild_domain::message::{Message, NewMessage};
 use guild_domain::profile::Profile;
@@ -117,6 +119,23 @@ impl ProfileRepository for MemoryStore {
     }
     fn set(&self, profile: &Profile) -> AppResult<()> {
         *self.profile.lock() = Some(profile.clone());
+        Ok(())
+    }
+}
+
+impl FrameRepository for MemoryStore {
+    fn list(&self) -> AppResult<Vec<CustomFrame>> {
+        Ok(self.frames.lock().clone())
+    }
+    fn get(&self, id: &str) -> AppResult<Option<CustomFrame>> {
+        Ok(self.frames.lock().iter().find(|frame| frame.id == id).cloned())
+    }
+    fn insert(&self, frame: &CustomFrame) -> AppResult<()> {
+        self.frames.lock().push(frame.clone());
+        Ok(())
+    }
+    fn delete(&self, id: &str) -> AppResult<()> {
+        self.frames.lock().retain(|frame| frame.id != id);
         Ok(())
     }
 }

@@ -1,4 +1,5 @@
 import { useChannelQueue } from '@/features/runtime';
+import { channelMark } from '@/shared/lib/channelIcon';
 import { Lamp, SideRow, SideSection, VisuallyHidden } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
 import { useActiveChannelId, useChannels } from '../hooks/useChannels';
@@ -32,7 +33,7 @@ function ChannelRow({ channel, current }: { channel: Channel; current: boolean }
   return (
     <li>
       <SideRow
-        leading="#"
+        leading={<span aria-hidden="true">{channelMark(channel)}</span>}
         label={
           <>
             {channel.name}

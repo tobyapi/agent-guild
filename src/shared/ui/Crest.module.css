@@ -32,3 +32,24 @@
   filter: drop-shadow(0 0 3px var(--activity-glow));
   animation: var(--animation-lamp);
 }
+
+/* 選んだ色（default はクラスなし = 文字の色）。大きさのクラスより後に置き、lg の muted を上書きする */
+.gold {
+  color: var(--crest-gold);
+}
+
+.crimson {
+  color: var(--crest-crimson);
+}
+
+.jade {
+  color: var(--crest-jade);
+}
+
+.azure {
+  color: var(--crest-azure);
+}
+
+.violet {
+  color: var(--crest-violet);
+}

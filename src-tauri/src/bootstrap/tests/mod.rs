@@ -7,7 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 
 use async_trait::async_trait;
-use guild_application::ports::{AgentRuntime, AppControl, EventPublisher, RuntimeError, RuntimeRequest, UpdateSink};
+use guild_application::ports::{
+    AgentRuntime, AppControl, EventPublisher, ImageRuntimeRequest, RuntimeError, RuntimeRequest, UpdateSink,
+};
 use guild_domain::activity::ActivityState;
 use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeStatus, StartSpec};
 use guild_domain::delegation::Delegation;
@@ -48,6 +50,14 @@ impl AgentRuntime for NoRuntime {
         _request: RuntimeRequest,
         _on_update: UpdateSink,
     ) -> Result<String, RuntimeError> {
+        Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
+    }
+    async fn generate_image(
+        &self,
+        _job_id: &str,
+        _request: ImageRuntimeRequest,
+        _on_update: UpdateSink,
+    ) -> Result<(), RuntimeError> {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }
     async fn cancel(&self, _job_id: &str) {}

@@ -1,5 +1,6 @@
 import { BackendTag, useAgentActivity, useBackend } from '@/features/runtime';
-import { Avatar, Button, Icon, SideRow, SideSection, VisuallyHidden } from '@/shared/ui';
+import { MemberAvatar } from '@/features/frames';
+import { Button, Icon, SideRow, SideSection, VisuallyHidden } from '@/shared/ui';
 import type { Agent } from '@/shared/types/domain';
 import { tEditor } from '../i18n/editor';
 import { useActiveAgents, useTemplates } from '../hooks/useAgents';
@@ -73,7 +74,14 @@ function AgentRow({ agent }: { agent: Agent }) {
     <li>
       <SideRow
         leading={
-          <Avatar avatar={agent.avatar} name={agent.name} color={agent.color} size="sm" busy={activity !== undefined} />
+          <MemberAvatar
+            avatar={agent.avatar}
+            name={agent.name}
+            color={agent.color}
+            frame={agent.frame}
+            size="sm"
+            busy={activity !== undefined}
+          />
         }
         label={
           <>
@@ -86,6 +94,7 @@ function AgentRow({ agent }: { agent: Agent }) {
         active={activity !== undefined}
         dimmed={backendDown}
         onClick={() => openAgentEditor(agent.id)}
+        className={styles.agentRow}
       />
     </li>
   );

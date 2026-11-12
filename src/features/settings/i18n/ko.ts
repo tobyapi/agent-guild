@@ -8,7 +8,6 @@ export const ko: Messages<typeof ja> = {
   settingsTitle: '설정',
   close: '닫기',
   sectionProfile: '프로필',
-  sectionTheme: '테마',
   sectionBackends: '백엔드',
   sectionSkillLibrary: '스킬 폴더',
   sectionStorage: '데이터 저장 위치',

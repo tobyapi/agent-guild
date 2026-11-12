@@ -19,6 +19,7 @@ export const zhHans: Messages<typeof ja> = {
   cancelled: '已中止执行',
   noApiKey: '{backend} 无法保存 API 密钥',
   noLogin: '{backend} 不支持从应用登录',
+  noImage: '{backend} 无法生成图像（头像框）',
   duplicateJob: '相同 id 的任务正在执行: {id}',
   unknownBackend: '未知的后端: {backend}',
   folderUnsupported: '{backend} 无法限制在指定范围内，因此不能在指定文件夹的频道中执行',

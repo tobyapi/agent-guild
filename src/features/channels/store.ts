@@ -62,15 +62,15 @@ function upsert(channel: Channel): void {
 }
 
 /** 作成したチャンネルを開く */
-export async function createChannel(name: string, topic: string, memberIds: string[]): Promise<Channel> {
-  const channel = await channelsApi.create(name, topic, memberIds);
+export async function createChannel(name: string, topic: string, icon: string, memberIds: string[]): Promise<Channel> {
+  const channel = await channelsApi.create(name, topic, icon, memberIds);
   upsert(channel);
   selectChannel(channel.id);
   return channel;
 }
 
-export async function updateChannel(id: string, name: string, topic: string): Promise<Channel> {
-  const channel = await channelsApi.update(id, name, topic);
+export async function updateChannel(id: string, name: string, topic: string, icon: string): Promise<Channel> {
+  const channel = await channelsApi.update(id, name, topic, icon);
   upsert(channel);
   return channel;
 }

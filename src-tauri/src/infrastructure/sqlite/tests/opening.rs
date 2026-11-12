@@ -94,7 +94,7 @@ fn export_writes_a_consistent_copy() {
 /// スキーマを変えるときは新しい移行を末尾に足し、その指紋をここに足す（既存の行は変えない）
 #[test]
 fn frozen_migrations_keep_their_fingerprints() {
-    let frozen = ["b9ebe7d784f86fd1"];
+    let frozen = ["b9ebe7d784f86fd1", "e90b30a50a9e4abc", "ce03e20d1d737e55", "201414d358f138da"];
     assert_eq!(frozen.len(), migrations::latest_version(), "足した移行の指紋を、この一覧にも足す");
     for (index, expected) in frozen.iter().enumerate() {
         assert_eq!(&migrations::fingerprint(index + 1), expected, "移行 {:04} までの指紋", index + 1);

@@ -46,6 +46,11 @@
   background: var(--bg-hover);
 }
 
+/* 枠を付けたアバターは箱より外へはみ出すので、隣の行の枠と重ならない高さにする */
+.row:has([data-framed]) {
+  min-block-size: calc(var(--avatar-row) * var(--frame-scale) + var(--space-0-5));
+}
+
 .text {
   display: grid;
   flex: 1;

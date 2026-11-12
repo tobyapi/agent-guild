@@ -1,7 +1,10 @@
 //! SQLite アダプタのテスト（メモリ上の DB と一時ファイル）。
 
+mod channel_icon;
 mod channels_messages;
 mod delegations;
+mod frame_kinds;
+mod frames;
 mod opening;
 mod records;
 mod statistics;
@@ -34,6 +37,7 @@ pub(super) fn input(template: &str, name: &str) -> AgentInput {
         tags: defaults.tags,
         avatar: "🌱".to_owned(),
         color: "#cb9d2a".to_owned(),
+        frame: String::new(),
         role: "リサーチ".to_owned(),
         personality: "好奇心旺盛".to_owned(),
         tone: "丁寧語".to_owned(),

@@ -4,6 +4,7 @@ import { isExternalUrl } from '@/shared/lib/links';
 import { checkMemberName } from '@/shared/lib/names';
 import { activeAgents, emitStateChanged, fail } from '../runtime';
 import { RESTART_DELAY_MS } from './types';
+import { checkFrameId } from './frames';
 import type { HandlerGroup } from './types';
 
 type SystemCommands =
@@ -42,6 +43,7 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
   },
 
   get_snapshot: (_args, { state, conversation }) => ({
+    guild: state.guild,
     me: state.me,
     agents: state.agents.map((agent) => ({
       ...agent,
@@ -50,6 +52,7 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     channels: state.channels,
     backends: state.backends,
     templates: state.templates,
+    frames: state.frames,
     runtime: state.runtime,
     activity: conversation.activityState(),
   }),
@@ -60,7 +63,7 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
       activeAgents(runtime).map((agent) => agent.name),
     );
     if (problem !== null) fail('validation', problem, 'name');
-    runtime.state.me = { ...profile, name: profile.name.trim() };
+    runtime.state.me = { ...profile, name: profile.name.trim(), frame: checkFrameId(profile.frame) };
     emitStateChanged(runtime);
     return runtime.state.me;
   },

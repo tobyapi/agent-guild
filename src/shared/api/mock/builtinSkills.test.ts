@@ -14,7 +14,13 @@ describe('モックの内蔵スキル', () => {
     expect(arrayOf(objectOf(builtinSkillSchema))(builtins, 'builtins')).toEqual([]);
     const names = builtins.map((skill) => skill.name);
     expect(names).toEqual([...names].sort());
-    expect(names).toEqual(['ambiguous-word-rewrite', 'concept-shift', 'introspection', 'universal-critique']);
+    expect(names).toEqual([
+      'ambiguous-word-rewrite',
+      'concept-shift',
+      'introspection',
+      'ornate-avatar-frame',
+      'universal-critique',
+    ]);
     expect(builtins.every((skill) => skill.description !== '' && !skill.body.startsWith('---'))).toBe(true);
     expect(builtins.every((skill) => !skill.description.startsWith('"') && !skill.description.startsWith("'"))).toBe(
       true,

@@ -118,6 +118,7 @@ export const grokAdapter: BackendAdapter = {
     folderScope: 'sandbox',
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: { ...NO_SETUP, apiKey: API_KEY },
   }),
   probe,

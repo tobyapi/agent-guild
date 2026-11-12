@@ -6,7 +6,6 @@ export const ja = {
   settingsTitle: '設定',
   close: '閉じる',
   sectionProfile: 'プロフィール',
-  sectionTheme: 'テーマ',
   sectionBackends: 'バックエンド',
   sectionSkillLibrary: 'スキルのフォルダ',
   sectionStorage: 'データの保存先',

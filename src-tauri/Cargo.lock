@@ -20,6 +20,7 @@ dependencies = [
  "guild-domain",
  "log",
  "parking_lot",
+ "png",
  "runner-client",
  "rusqlite",
  "serde",

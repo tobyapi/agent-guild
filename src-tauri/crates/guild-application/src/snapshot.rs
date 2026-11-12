@@ -5,6 +5,7 @@ use guild_domain::snapshot::Snapshot;
 
 use crate::conversation::ConversationService;
 use crate::error::AppResult;
+use crate::guild;
 use crate::services::Ports;
 
 #[derive(Clone)]
@@ -27,11 +28,13 @@ impl SnapshotService {
             agent.permissions = agent.behavior().permissions;
         }
         Ok(Snapshot {
+            guild: guild::load(&self.ports)?,
             me: self.ports.profile.get()?,
             agents,
             channels: self.ports.channels.list()?,
             backends,
             templates: templates(),
+            frames: self.ports.frames.list()?,
             runtime: self.ports.runtime.status(),
             activity: self.conversation.activity(),
         })

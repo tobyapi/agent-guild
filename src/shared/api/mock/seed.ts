@@ -1,6 +1,7 @@
 // 初期データ（docs/design.md §13）、画面確認用のデモ、復旧モード。
 import gptAvatar from '@/shared/assets/gpt-avatar.jpg?inline';
 import starter from '@/shared/assets/starter.json';
+import { DEFAULT_GUILD } from '@/shared/lib/guild';
 import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, AgentTemplate, BootReason } from '@/shared/types/domain';
 import { MOCK_LIBRARY_DIRS } from './library';
@@ -30,6 +31,7 @@ const STARTER_AGENT: AgentSeed = { ...starter.agent, id: SEED_IDS.starter, avata
 const DEMO_AGENTS: AgentSeed[] = [
   {
     id: SEED_IDS.hal,
+    frame: 'builtin:harbor',
     template: 'worker',
     name: 'ハル',
     avatar: '🌱',
@@ -43,6 +45,7 @@ const DEMO_AGENTS: AgentSeed[] = [
   },
   {
     id: SEED_IDS.sora,
+    frame: 'builtin:clockwork',
     template: 'worker',
     name: 'ソラ',
     avatar: '🛠️',
@@ -55,6 +58,7 @@ const DEMO_AGENTS: AgentSeed[] = [
   },
   {
     id: SEED_IDS.logica,
+    frame: 'builtin:masquerade',
     template: 'expert',
     name: 'ロジカ',
     avatar: '🧐',
@@ -70,6 +74,7 @@ const DEMO_AGENTS: AgentSeed[] = [
   },
   {
     id: SEED_IDS.gear,
+    frame: 'builtin:raven',
     template: 'expert',
     name: 'ギア',
     avatar: '⚙️',
@@ -83,6 +88,7 @@ const DEMO_AGENTS: AgentSeed[] = [
   },
   {
     id: SEED_IDS.kaname,
+    frame: 'builtin:astrolabe',
     template: 'manager',
     name: 'カナメ',
     avatar: '🧭',
@@ -99,6 +105,7 @@ function toAgent({ template, ...seed }: AgentSeed, index: number, createdAt: num
   const { defaults } = templateOf(template);
   return {
     expertise: defaults.expertise,
+    frame: '',
     backend: 'claude',
     model: '',
     backendOptions: {},
@@ -138,7 +145,9 @@ export function createSeedState(
           language: 'ja',
         }
       : { state: 'ok', reason: 'none', dataDir: MOCK_DEFAULT_DATA_DIR, message: '', needsSetup: false, language: 'ja' },
-    me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f' },
+    guild: DEFAULT_GUILD,
+    me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },
+    frames: [],
     agents,
     channels: [
       {
@@ -147,6 +156,7 @@ export function createSeedState(
         isLobby: true,
         workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
         topic: 'みんなの雑談と相談の場',
+        icon: '',
         memberIds: [HUMAN_ID, ...agents.map((agent) => agent.id)],
         createdAt,
       },

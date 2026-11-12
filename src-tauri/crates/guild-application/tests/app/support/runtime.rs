@@ -6,15 +6,17 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use guild_application::ports::{AgentRuntime, RunUpdate, RuntimeError, RuntimeRequest, UpdateSink};
-use guild_domain::agent::Permissions;
-use guild_domain::backend::{
-    BackendInfo, BackendSetup, BackendStatus, InstallGuide, LoginSpec, RuntimeState, RuntimeStatus, StartSpec,
+use guild_application::ports::{
+    AgentRuntime, ImageRuntimeRequest, RunUpdate, RuntimeError, RuntimeRequest, UpdateSink,
 };
+use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeState, RuntimeStatus, StartSpec};
 use guild_domain::locale::Language;
 use guild_domain::statistics::RunUsage;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
+
+pub use super::backends::ready_backend;
+use super::frames::ImageScript;
 
 /// 1回分の返し方
 pub enum Script {
@@ -49,6 +51,9 @@ pub struct FakeRuntime {
     pub logins: Mutex<Vec<String>>,
     /// set_language で伝えられた言語（伝えられた順）
     pub languages: Mutex<Vec<Language>>,
+    /// 画像の依頼の返し方（足した順に使う。なければ描けたことにする）と、届いた依頼
+    pub image_scripts: Mutex<VecDeque<ImageScript>>,
+    pub image_requests: Mutex<Vec<ImageRuntimeRequest>>,
     cancel_signal: Notify,
 }
 
@@ -78,42 +83,6 @@ impl FakeRuntime {
             }
             signal.await;
         }
-    }
-}
-
-pub fn ready_backend(id: &str) -> BackendInfo {
-    let all = Permissions {
-        web_search: true,
-        web_fetch: true,
-        read_files: true,
-        read_anywhere: false,
-        write_files: true,
-        write_anywhere: true,
-        run_commands: true,
-        skills: true,
-    };
-    BackendInfo {
-        id: id.to_owned(),
-        label: id.to_owned(),
-        models: Vec::new(),
-        default_model: String::new(),
-        capabilities: all,
-        status: BackendStatus::Ready,
-        status_message: String::new(),
-        options: Vec::new(),
-        permission_rules: Vec::new(),
-        leak_risks: Vec::new(),
-        unrestricted: Vec::new(),
-        mid_run_post: None,
-        folder_scope: None,
-        tools_option: None,
-        local: false,
-        setup: BackendSetup {
-            login: Some(LoginSpec {
-                label: "ログイン".to_owned(), waiting: "ログインを待っています".to_owned()
-            }),
-            ..BackendSetup::default()
-        },
     }
 }
 
@@ -167,6 +136,22 @@ impl AgentRuntime for FakeRuntime {
                 on_update(RunUpdate::Post(post));
                 Ok("[PASS]".to_owned())
             }
+        }
+    }
+
+    async fn generate_image(
+        &self,
+        job_id: &str,
+        request: ImageRuntimeRequest,
+        on_update: UpdateSink,
+    ) -> Result<(), RuntimeError> {
+        on_update(RunUpdate::Activity("描いています".to_owned()));
+        self.image_requests.lock().push(request);
+        let script = self.image_scripts.lock().pop_front();
+        match script.unwrap_or(ImageScript::Drawn) {
+            ImageScript::Drawn => Ok(()),
+            ImageScript::Fail(message) => Err(RuntimeError::Failed(message)),
+            ImageScript::Hang => self.wait_cancel(job_id).await.map(|_| ()),
         }
     }
 

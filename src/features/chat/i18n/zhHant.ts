@@ -7,7 +7,7 @@ export const zhHant: Messages<typeof ja> = {
   loading: '載入中…',
   loadingOlder: '正在載入較早的訊息…',
   loadOlder: '載入較早的訊息',
-  welcome: '歡迎來到 #{channel}',
+  welcome: '歡迎來到 {channel}',
   introSpacer: ' ',
   intro: '這裡是 #{channel} 的開始。試著用 @ 呼叫代理人吧。',
   unknownMember: '（不明成員）',

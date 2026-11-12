@@ -1,11 +1,13 @@
 //! プロトコルでやりとりする値の型（`agent-runner/src/protocol.ts` と同じ JSON。camelCase）。
 
+mod image;
 mod setup;
 
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+pub use image::ImageRequest;
 pub use setup::{ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec};
 
 /// この実行で取得できた使用量の増分。省略された値は未取得。
@@ -141,6 +143,9 @@ pub struct BackendInfo {
     pub tools_option: Option<String>,
     /// この PC の中で動く（API の利用料がかからない）
     pub local: bool,
+    /// このバックエンドでアイコンの枠を生成できる（申告がなければ false）
+    #[serde(default)]
+    pub frame_generation: bool,
     /// アプリからのセットアップでできること
     pub setup: BackendSetup,
 }

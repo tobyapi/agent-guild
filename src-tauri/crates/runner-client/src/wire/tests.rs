@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 
 use super::{parse_event, runner_error, Event, Request};
-use crate::{BackendInfo, ErrorCode, RunRequest, RunnerError};
+use crate::{BackendInfo, ErrorCode, ImageRequest, RunRequest, RunnerError};
 
 fn fixture(name: &str) -> Vec<Value> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../contracts/runner").join(name);
@@ -28,6 +28,11 @@ fn requests_fixture_round_trips() {
                 let request: RunRequest =
                     serde_json::from_value(expected.clone()).expect("run を RunRequest として読めない");
                 serde_json::to_value(Request::Run { id, request: &request })
+            }
+            Some("image") => {
+                let request: ImageRequest =
+                    serde_json::from_value(expected.clone()).expect("image を ImageRequest として読めない");
+                serde_json::to_value(Request::Image { id, request: &request })
             }
             Some("login") => {
                 let backend = expected["backend"].as_str().unwrap_or_default();

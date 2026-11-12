@@ -18,11 +18,13 @@
 //   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
 //   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
 
-export const PROTOCOL_VERSION = 3;
+export const PROTOCOL_VERSION = 4;
 
 import type { BackendSetup, FolderScope } from './protocol-backend.ts';
+import type { ImagePayload, SkillPayload } from './protocol-payloads.ts';
 
 export type { ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec } from './protocol-backend.ts';
+export type { ImagePayload, SkillFilePayload, SkillPayload } from './protocol-payloads.ts';
 
 export type PermissionKey =
   'webSearch' | 'webFetch' | 'readFiles' | 'readAnywhere' | 'writeFiles' | 'writeAnywhere' | 'runCommands' | 'skills';
@@ -106,36 +108,10 @@ export interface BackendInfo {
   toolsOption: string | null;
   /** この PC の中で動く（API の利用料がかからない） */
   local: boolean;
+  /** このバックエンドでアイコンの枠を生成できる（Rust と React はこの申告だけを見る） */
+  frameGeneration: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
-}
-
-export interface SkillPayload {
-  name: string;
-  description: string;
-  /** SKILL.md の本文（frontmatter を除く）。アダプタはこれと name / description から SKILL.md を書く */
-  body: string;
-  /** ライブラリにリンクしたスキルのフォルダ（絶対パス。null ならアプリ内）。アダプタは SKILL.md 以外の付属ファイル（scripts/ など）も
-   * 展開先へコピーする（SKILL.md・.git・node_modules・シンボリックリンクは除く。合計 50MB・2000 ファイルまで。超えたら error{bad_request}） */
-  dir: string | null;
-  /** 内蔵スキルの付属ファイル（中身ごと渡す。ほかのスキルは []）。アダプタは展開先の <name>/<path> に書く。path は / 区切りの相対パスで、
-   * 絶対パス・..・SKILL.md は不正（error{bad_request}）。dir の付属ファイルと同じ上限に数える */
-  files: SkillFilePayload[];
-}
-
-export interface SkillFilePayload {
-  /** スキルのフォルダからの相対パス（/ 区切り） */
-  path: string;
-  /** UTF-8 のテキスト */
-  content: string;
-}
-
-/** run に添える画像（会話に貼られたもの）。アダプタは SDK の画像入力として渡す */
-export interface ImagePayload {
-  /** 画像ファイルの絶対パス（データフォルダの attachments/ の中。エージェントの読み取り権限とは関係なく読む） */
-  path: string;
-  /** image/png・image/jpeg・image/gif・image/webp のどれか */
-  mediaType: string;
 }
 
 export type ErrorCode =
@@ -175,6 +151,28 @@ export type RunnerRequest =
       images: ImagePayload[];
       /** Agent.backendOptions。知らないキーは無視する。EFFORT_OPTION（effort）は推論の深さ */
       options: Record<string, unknown>;
+    }
+  /**
+   * 画像を1枚描く（BackendInfo.frameGeneration を申告したアダプタだけ。ほかは error{bad_request}）。権限は持たない:
+   * アダプタは画像を生成する道具と、添えたスキルの手順に要る道具（作業場所の中だけに書けるコマンド・画像を見る道具）だけを
+   * 使わせる（ネットワーク・Web なし）。始める前に output の前の残りを消し、終わったときに output に PNG がなければ生成した
+   * 画像を書いてから result（text は空）で終える。画像ができなかったら error（理由はいまの言語）。cancel で打ち切れる
+   */
+  | {
+      type: 'image';
+      id: string;
+      backend: string;
+      /** cwd（絶対パス。書き込みはここだけ） */
+      workspace: string;
+      /** アダプタの管理領域 */
+      stateDir: string;
+      /** 空なら足さない */
+      systemPrompt: string;
+      prompt: string;
+      /** 描くときに従うスキル（run の skills と同じ形と展開。枠の生成では内蔵スキル ornate-avatar-frame。なければ []） */
+      skills: SkillPayload[];
+      /** 出来上がった PNG の絶対パス（Rust が決める。作業場所の中に置き、プロンプトで保存先として伝える） */
+      output: string;
     }
   | { type: 'cancel'; id: string }
   /** バックエンドの状態（認証など）を確認し直して backends を送る */

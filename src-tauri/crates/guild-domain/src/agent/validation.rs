@@ -5,6 +5,7 @@ use super::tags::normalize_tags;
 use super::{role_permissions, AgentInput};
 use crate::backend::{sanitize_backend_options, BackendInfo};
 use crate::error::ValidationError;
+use crate::frame::normalize_frame_id;
 use crate::locale;
 
 /// 自発活動の間隔（分）の下限
@@ -20,6 +21,7 @@ pub fn normalize_agent_input(
 ) -> Result<AgentInput, ValidationError> {
     input.name = normalize_name(&input.name)?;
     input.tags = normalize_tags(&input.tags)?;
+    input.frame = normalize_frame_id(&input.frame)?;
     input.permissions = role_permissions(&input.tags);
     input.backend = input.backend.trim().to_owned();
     input.model = input.model.trim().to_owned();

@@ -19,6 +19,7 @@ export const zhHant: Messages<typeof ja> = {
   cancelled: '已中止執行',
   noApiKey: '{backend} 無法儲存 API 金鑰',
   noLogin: '{backend} 不支援從應用程式登入',
+  noImage: '{backend} 無法產生圖像（頭像框）',
   duplicateJob: '相同 id 的工作正在執行: {id}',
   unknownBackend: '未知的後端: {backend}',
   folderUnsupported: '{backend} 無法限制在指定範圍內，因此不能在指定資料夾的頻道中執行',

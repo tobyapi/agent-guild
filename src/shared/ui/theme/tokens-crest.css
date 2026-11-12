@@ -1,0 +1,21 @@
+/*
+ * ギルドの紋の色（設定の「ギルド」で選ぶ。tokens.css から読み込む）
+ * - 使うのは紋の枠だけ（Crest.module.css）。default は色を持たず、これまでどおり文字の色になる
+ * - 灯（動作中の芯）の色は --activity のまま。枠の色は灯を邪魔しない明度にする
+ * - 名前は契約（--crest-<CrestColor>。CrestColor を足したらここと Crest.module.css に足す）
+ */
+:root {
+  --crest-gold: #f0ba5f; /* 灯の金 */
+  --crest-crimson: #ff8f8a; /* 紅 */
+  --crest-jade: #67dab2; /* 若竹 */
+  --crest-azure: #84b6ff; /* 空 */
+  --crest-violet: #c6aafa; /* 藤 */
+}
+
+:root[data-theme='light'] {
+  --crest-gold: #8f5a00;
+  --crest-crimson: #b32130;
+  --crest-jade: #136a55;
+  --crest-azure: #2b5aa8;
+  --crest-violet: #6c44a4;
+}

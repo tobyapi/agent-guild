@@ -8,7 +8,6 @@ export const zhHans: Messages<typeof ja> = {
   settingsTitle: '设置',
   close: '关闭',
   sectionProfile: '个人资料',
-  sectionTheme: '主题',
   sectionBackends: '后端',
   sectionSkillLibrary: '技能文件夹',
   sectionStorage: '数据存储位置',

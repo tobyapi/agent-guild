@@ -46,6 +46,7 @@ export const agentSchema = {
   name: string,
   avatar: string,
   color: string,
+  frame: string,
   tags: arrayOf(string),
   role: string,
   personality: string,
@@ -106,6 +107,7 @@ export const channelSchema = {
   id: string,
   name: string,
   topic: string,
+  icon: string,
   memberIds: arrayOf(string),
   createdAt: number,
 } satisfies Schema<Channel>;
@@ -133,4 +135,4 @@ export const messageSchema = {
   createdAt: number,
 } satisfies Schema<Message>;
 
-export const profileSchema = { name: string, avatar: string, color: string } satisfies Schema<Profile>;
+export const profileSchema = { name: string, avatar: string, color: string, frame: string } satisfies Schema<Profile>;

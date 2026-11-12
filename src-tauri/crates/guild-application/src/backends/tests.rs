@@ -9,7 +9,7 @@ use guild_domain::backend::{
 use parking_lot::Mutex;
 
 use super::BackendService;
-use crate::ports::{AgentRuntime, RuntimeError, RuntimeRequest, UpdateSink};
+use crate::ports::{AgentRuntime, ImageRuntimeRequest, RuntimeError, RuntimeRequest, UpdateSink};
 
 #[derive(Default)]
 struct Runtime {
@@ -29,6 +29,9 @@ impl AgentRuntime for Runtime {
         self.states.lock().front().cloned().unwrap_or_default()
     }
     async fn run(&self, _: &str, _: RuntimeRequest, _: UpdateSink) -> Result<String, RuntimeError> {
+        panic!("unused")
+    }
+    async fn generate_image(&self, _: &str, _: ImageRuntimeRequest, _: UpdateSink) -> Result<(), RuntimeError> {
         panic!("unused")
     }
     async fn cancel(&self, _: &str) {}

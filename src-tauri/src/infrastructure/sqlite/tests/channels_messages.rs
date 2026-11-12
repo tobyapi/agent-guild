@@ -17,6 +17,7 @@ pub(super) fn lobby() -> Channel {
         id: ChannelId::new("c1"),
         name: "ロビー".to_owned(),
         topic: "雑談".to_owned(),
+        icon: String::new(),
         member_ids: vec![MemberId::Human, MemberId::Agent(AgentId::new("b")), MemberId::Agent(AgentId::new("a"))],
         created_at: 1,
     }

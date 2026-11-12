@@ -1,7 +1,9 @@
 //! チャンネルのユースケース: 作成・更新・削除・メンバーの追加と除外。
 
 use guild_domain::author::MemberId;
-use guild_domain::channel::{normalize_channel_name, normalize_channel_topic, normalize_members, Channel};
+use guild_domain::channel::{
+    normalize_channel_icon, normalize_channel_name, normalize_channel_topic, normalize_members, Channel,
+};
 use guild_domain::conversation::notices;
 use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::locale;
@@ -10,6 +12,13 @@ use guild_domain::statistics::ChannelStatistics;
 use crate::conversation::{posting, ConversationService};
 use crate::error::{subject, AppError, AppResult};
 use crate::services::Ports;
+
+/// 人間が決めるチャンネルの見出し（正規化する前の入力）
+struct ChannelFields<'a> {
+    name: &'a str,
+    topic: &'a str,
+    icon: &'a str,
+}
 
 #[derive(Clone)]
 pub struct ChannelService {
@@ -27,19 +36,19 @@ impl ChannelService {
         self.ports.statistics.for_channel(id)
     }
 
-    /// 人間は常にメンバーに入る
-    pub fn create(&self, name: &str, topic: &str, member_ids: &[MemberId]) -> AppResult<Channel> {
-        self.create_with_lobby(name, topic, member_ids, false)
+    /// 人間は常にメンバーに入る。icon は絵文字1つ（空なら # を出す）
+    pub fn create(&self, name: &str, topic: &str, icon: &str, member_ids: &[MemberId]) -> AppResult<Channel> {
+        self.create_with_lobby(ChannelFields { name, topic, icon }, member_ids, false)
     }
 
+    /// ロビーはアイコンなし（# を出す）で作る
     pub fn create_lobby(&self, name: &str, topic: &str, member_ids: &[MemberId]) -> AppResult<Channel> {
-        self.create_with_lobby(name, topic, member_ids, true)
+        self.create_with_lobby(ChannelFields { name, topic, icon: "" }, member_ids, true)
     }
 
     fn create_with_lobby(
         &self,
-        name: &str,
-        topic: &str,
+        fields: ChannelFields<'_>,
         member_ids: &[MemberId],
         is_lobby: bool,
     ) -> AppResult<Channel> {
@@ -53,8 +62,9 @@ impl ChannelService {
             workspace: Default::default(),
             is_lobby,
             id: ChannelId::new(self.ports.ids.new_id()),
-            name: normalize_channel_name(name)?,
-            topic: normalize_channel_topic(topic)?,
+            name: normalize_channel_name(fields.name)?,
+            topic: normalize_channel_topic(fields.topic)?,
+            icon: normalize_channel_icon(fields.icon)?,
             member_ids: members,
             created_at: self.ports.clock.now_ms(),
         };
@@ -63,10 +73,11 @@ impl ChannelService {
         Ok(channel)
     }
 
-    pub fn update(&self, id: &ChannelId, name: &str, topic: &str) -> AppResult<Channel> {
+    pub fn update(&self, id: &ChannelId, name: &str, topic: &str, icon: &str) -> AppResult<Channel> {
         let mut channel = posting::require_channel(&self.ports, id)?;
         channel.name = normalize_channel_name(name)?;
         channel.topic = normalize_channel_topic(topic)?;
+        channel.icon = normalize_channel_icon(icon)?;
         self.ports.channels.update(&channel)?;
         self.ports.events.state_changed();
         Ok(channel)

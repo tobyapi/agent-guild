@@ -14,12 +14,14 @@ use crate::infrastructure::attachments::FsAttachments;
 use crate::infrastructure::clock::SystemClock;
 use crate::infrastructure::export::DataExport;
 use crate::infrastructure::folders::FsFolders;
+use crate::infrastructure::frame_images::FsFrameImages;
 use crate::infrastructure::ids::UuidGenerator;
 use crate::infrastructure::settings::SettingsFile;
 use crate::infrastructure::skill_library::FsSkillLibrary;
 use crate::infrastructure::sqlite::{
-    Database, SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteMessageRepository,
-    SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRepository, SqliteStatisticsRepository,
+    Database, SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteFrameRepository,
+    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRepository,
+    SqliteStatisticsRepository,
 };
 use crate::infrastructure::workspace::FsWorkspace;
 
@@ -44,6 +46,8 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
         skills: Arc::new(SqliteSkillRepository::new(db.clone())),
         library: Arc::new(FsSkillLibrary),
         profile: Arc::new(SqliteProfileRepository::new(db.clone())),
+        frames: Arc::new(SqliteFrameRepository::new(db.clone())),
+        frame_images: Arc::new(FsFrameImages::new(&dir.0)),
         meta: meta.clone(),
         runtime: Arc::new(NoRuntime),
         events: Arc::new(Silent),

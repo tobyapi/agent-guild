@@ -8,6 +8,7 @@ use guild_domain::agent::{name_key, Agent};
 use guild_domain::author::MemberId;
 use guild_domain::channel::Channel;
 use guild_domain::delegation::Delegation;
+use guild_domain::frame::CustomFrame;
 use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::message::Message;
 use guild_domain::profile::Profile;
@@ -24,6 +25,7 @@ pub struct MemoryStore {
     pub measurements: Mutex<Vec<RunMeasurement>>,
     pub skills: Mutex<Vec<Skill>>,
     pub profile: Mutex<Option<Profile>>,
+    pub frames: Mutex<Vec<CustomFrame>>,
     pub meta: Mutex<HashMap<String, String>>,
 }
 
@@ -83,6 +85,7 @@ impl ChannelRepository for MemoryStore {
         if let Some(slot) = channels.iter_mut().find(|c| c.id == channel.id) {
             slot.name = channel.name.clone();
             slot.topic = channel.topic.clone();
+            slot.icon = channel.icon.clone();
         }
         Ok(())
     }

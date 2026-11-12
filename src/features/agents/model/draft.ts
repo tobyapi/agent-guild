@@ -21,6 +21,8 @@ export interface AgentDraft {
   name: string;
   avatar: string;
   color: string;
+  /** アイコンの枠の ID（空は枠なし） */
+  frame: string;
   tags: string[];
   role: string;
   personality: string;
@@ -128,6 +130,7 @@ export function newDraft(
     name: '',
     avatar: '🤖',
     color: presetColor(colorIndex),
+    frame: '',
     personality: '',
     tone: '',
     backend: '',
@@ -148,6 +151,7 @@ export function draftFromAgent(agent: Agent, backends: readonly BackendInfo[]): 
     name: agent.name,
     avatar: agent.avatar,
     color: agent.color,
+    frame: agent.frame,
     tags: agent.tags,
     role: agent.role,
     personality: agent.personality,

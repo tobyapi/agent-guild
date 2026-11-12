@@ -94,6 +94,29 @@ describe('decodeRequest', () => {
     expect(decodeRequest({ type: 'login', id: 'login-1' })).toMatchObject({ ok: false, id: 'login-1' });
   });
 
+  it('image は文字列の6項目・skills と id を持つ（output が空・欠けた項目・不正な skills は不正。未知のフィールドは捨てる）', () => {
+    const image = {
+      type: 'image',
+      id: 'frame-1',
+      backend: 'codex',
+      workspace: '/w',
+      stateDir: '/s',
+      systemPrompt: 'sys',
+      prompt: 'p',
+      skills: [{ name: 'ornate-avatar-frame', description: 'd', body: '# b', dir: null, files: [] }],
+      output: '/s/frame.png',
+    };
+    expect(decodeRequest({ ...image, permissions: {} })).toEqual({ ok: true, request: image });
+    expect(decodeRequest({ ...image, output: '' })).toMatchObject({ ok: false, id: 'frame-1' });
+    expect(decodeRequest({ ...image, prompt: 1 })).toMatchObject({ ok: false, id: 'frame-1' });
+    expect(decodeRequest({ ...image, id: '' })).toMatchObject({ ok: false, id: null });
+    expect(decodeRequest({ ...image, skills: undefined })).toMatchObject({ ok: false, id: 'frame-1' });
+    expect(decodeRequest({ ...image, skills: [{ name: 'x', description: 'd', body: 'b', dir: null }] })).toMatchObject({
+      ok: false,
+      id: 'frame-1',
+    });
+  });
+
   it('cancel・probe・shutdown', () => {
     expect(decodeRequest({ type: 'cancel', id: 'job-1', reason: 'x' })).toEqual({
       ok: true,

@@ -23,10 +23,11 @@ src-tauri/
       seed.rs                  初期データ（初回だけ）
       scheduler.rs             自発活動のスケジューラ（30秒ごと）
     infrastructure/            ports の実装
-      sqlite/                  接続・マイグレーション（0001）・各リポジトリ・meta
+      sqlite/                  接続・マイグレーション（0001〜0004）・各リポジトリ（生成したアイコンの枠の frames.rs を含む）・meta
       runtime/                 AgentRuntime を runner-client で実装（Launch の組み立てもここ）
-      workspace.rs             作業場所（work/・state/ の用意、MEMORY.md、削除の再試行、ファイラで開く）
+      workspace.rs             作業場所（work/・state/ の用意、エージェントに属さない実行の tools/<用途>/、MEMORY.md、削除の再試行、ファイラで開く）
       attachments.rs           発言に添えた画像・ファイルの置き場所（attachments/<channelId>/<id>.<拡張子>。ID は data_dir.rs の safe_component を通す）
+      frame_images/            生成した枠の絵（PNG）の置き場所 frames/ と、取り込むときの検査と加工（raster = PNG の読み書き、matte = 透明でない背景のキーの色を透明に、fit = 描かれた穴を決まった穴に合わせる、shape = 帯の確かめ・穴の中ほどのくり抜き・縮小。png クレートは本体クレートだけが使う）
       skill_library.rs         スキルライブラリのフォルダの走査と SKILL.md の読み取り（読むだけで書き換えない）
       events.rs                EventPublisher を Tauri の emit で実装
       settings.rs              settings.json（version 付き・未知フィールド保持）
@@ -46,21 +47,23 @@ src-tauri/
 ### guild-domain（依存: serde, serde_json, unicode-normalization のみ）
 - `ids`（ニュータイプ AgentId / ChannelId / MessageId / SkillId / AttachmentId / DelegationId / SubtaskId）、`author`（`Author { Human, System, Agent }`・`MemberId { Human, Agent }`。JSON では "me" / "system" / UUID）
 - `agent/`（Agent・AgentInput・UnmentionedPolicy・**templates.rs**（作成のテンプレート表。design.md §2）・権限・タグと名前の正規化と検証）
-- `channel`, `message`（Message・MessageKind・NewMessage）, `attachment`（発言に添えた画像・ファイル）, `skill/`（名前と説明の検証・SKILL.md の読み取り・内蔵スキル・ライブラリ）, `profile`, `snapshot`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
+- `channel`, `message`（Message・MessageKind・NewMessage）, `attachment`（発言に添えた画像・ファイル）, `skill/`（名前と説明の検証・SKILL.md の読み取り・内蔵スキル・ライブラリ）, `profile`, `guild`（ギルドの名前と紋。保存値は項目ごとに読み、読めない項目だけ既定にする）, `frame/`（アイコンの枠: ID の形・絵の種類 FrameArt（svg / png）・画像の生成を頼むプロンプト `prompt`（内蔵スキル `ornate-avatar-frame` を名指ししてテーマと保存先を渡すだけ）・穴の位置と受け取る画像の決まりと使えない理由 `image`・以前の版が生成した SVG の検査と書き直し `svg/`（字句 tokens・許可リスト policy・書き直し writer））, `snapshot`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
 - 権限の組み合わせ規則（design.md §5）の検証は `agent/validation.rs`（保存時に実効権限で判定）
 - `conversation/`（`mentions` 解析、`routing` = design.md §7 を純粋関数で、`job` = JobSpec（agent・channel・mode・きっかけ集合・returnTo 集合・depth・rootId・注記）とレーンでの合流規則・ジョブが関わる会話の判定、`reply` = 返答の整形、`notices` = システム発言と注記の文面、`attachments` = プロンプトに渡す添付の選び方）
 - `delegation/`（割り振り。design.md §7.1: `tasks` = tasks ブロックの読み取り、`state` = Delegation とサブタスクの状態、`verdict` = サブタスクの決着の判定）
 - `autonomy`（判定と投稿先の選択）、`prompt/`（システムプロンプトと会話プロンプトの組み立て。現在日時の文字列・MEMORY.md・スキル一覧などは引数で受け取る）
 
 ### guild-application（依存: guild-domain, async-trait, tokio（sync・time・rt・macros）, parking_lot, log, thiserror, serde_json）
-- `ports/`: 外界とのトレイト（`repositories`・`runtime`・`storage`・`system`・`attachments`・`library` に分けてある。下は主なものの抜粋で、正はそれぞれのファイル）
+- `ports/`: 外界とのトレイト（`repositories`・`runtime`・`storage`・`system`・`attachments`・`frame_images`・`library` に分けてある。下は主なものの抜粋で、正はそれぞれのファイル）
   ```rust
-  AgentRepository / ChannelRepository / MessageRepository / SkillRepository / ProfileRepository / MetaRepository
+  AgentRepository / ChannelRepository / MessageRepository / SkillRepository / ProfileRepository / FrameRepository / MetaRepository
   #[async_trait] AgentRuntime { status() -> RuntimeStatus; backends() -> Vec<BackendInfo>;
       async run(job_id, RuntimeRequest, ActivitySink) -> Result<String, RuntimeError>;   // RuntimeError::Cancelled を独立に持つ
+      async generate_image(job_id, ImageRuntimeRequest, ActivitySink) -> Result<(), RuntimeError>;   // 枠の画像を1枚（PNG は request.output に）
       async cancel(job_id); async probe() -> Result<(), RuntimeError>; }
+  FrameImageStore { import(frame_id, source) -> Result<(), FrameImportError>; read(frame_id); delete(frame_id) }   // 枠の絵の検査・加工・保存
   EventPublisher { message_created / activity_changed / state_changed / skills_changed }
-  Workspace { prepare(agent, backend) -> WorkspacePaths{work, state}; work_dir(agent); read_memory; remove; reveal }
+  Workspace { prepare(agent, backend) -> WorkspacePaths{work, state}; prepare_scratch(purpose, backend); work_dir(agent); read_memory; remove; reveal }
   Folders { inspect(dir) -> 空・ギルドのフォルダ・その他; reveal(dir) }   // 保存先の検証とファイラ
   DataExporter { export_to(dir) }   SettingsStore { load / save }   Maintenance { enter / leave }
   StoragePorts（保存先変更に使うポートの束）   AppControl { request_restart }   // restart() は呼んだスレッドを止めるので使わない
@@ -68,7 +71,7 @@ src-tauri/
   SkillLibraryScanner { scan(dir, limit); read_skill_file(folder); is_folder(path) }   // スキルライブラリ（design.md §14）。全体の上限はアプリ側が残り件数を渡して守る
   ```
 - `error.rs`（AppError → CommandError の code と field に対応）、`services.rs`（AppServices）
-- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・内蔵スキル・ライブラリ・参照しているスキルの読み直し）, `profile`, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
+- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・内蔵スキル・ライブラリ・参照しているスキルの読み直し）, `profile`, `guild`（meta 表の `guild_profile`）, `frames`（アイコンの枠の生成・取り消し・画像の読み出し・削除。権限を持たない画像の依頼に内蔵スキル ornate-avatar-frame をそのまま添えて PNG を描かせ、FrameImageStore で検査して整えて保存する）, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
 - `conversation/`: `ConversationService`（入口）、`dispatcher`（**単一タスクのアクター**。レーン・割り振りの枠・エージェント排他・同時実行上限・世代・往復の上限のお知らせ・進行中の割り振りの記録を持ち、mpsc で Enqueue / Finished / Stop / RemoveAgent などを受ける。共有ロック不要。受け入れと合流は `intake`、選び方は `pick`（レーンの中は会話ごとに直列）、割り振りの記録は `tracking`、決着と打ち切りは `delegation`、停止と取り消しは `stopping`、毎回の処理のあとの見直しは `reconcile`、終了で消えるジョブの記録は `inflight`）、`executor`（1ジョブの実行: プロンプト組み立て → ランタイム → 保存 → イベント → 振り分け。依頼の組み立ては `request`、プロンプトに入れる発言の選び方は `history`、結果の確定は `commit` が結末（`ending`）と結果を返し、tasks ブロックからの割り振りの作成は `delegate`、作業の途中の投稿の保存は `interim`。実行中の知らせ（途中経過・途中の投稿）はアクターの `reporting` がコマンドにして受け取る）、`posting`（発言の保存と message-created の発行、参加とお知らせ）、`attachments`、`interrupted`（終了で中断された返答の知らせ）、`activity`
 - テスト: ポートのフェイク（インメモリ）で、振り分けの一連の流れ・合流・排他・停止と世代・削除・タイムアウト・自発活動・保存先変更を検証する。時間は Clock のフェイクと tokio の時間停止で制御する。
 
@@ -106,21 +109,23 @@ impl RunnerClient {
 agent-runner/src/
   main.ts              stdio の読み書きだけ（起動時に console.* を stderr に向ける。stdin の EOF で shutdown）
   line-parser.ts       JSON Lines の分割とパース
-  request-decoder.ts   受信した JSON を RunnerRequest として検証する（未知のフィールドは捨てる）
-  dispatcher.ts        要求の処理: run と login をジョブとして登録（終端イベントをちょうど1回保証）・cancel・probe・shutdown・未知 type
+  request-decoder.ts   受信した JSON を RunnerRequest として検証する（未知のフィールドは捨てる。image 要求は image-request-decoder.ts。run と image に添えるスキルは skill-payload-decoder.ts）
+  dispatcher.ts        要求の処理: run・image・login をジョブとして登録（終端イベントをちょうど1回保証）・cancel・probe・shutdown・未知 type
   dispatcher-errors.ts 失敗を error イベントの形にする（アダプタの BackendError はその code、ほかは internal）
   protocol.ts          契約（型と PROTOCOL_VERSION）
   protocol-backend.ts  契約のうち、バックエンドごとの違いの申告（指定フォルダの守り方・セットアップ。protocol.ts から再公開）
+  protocol-payloads.ts 契約のうち、run に添えるスキルと画像の形（protocol.ts から再公開）
   log.ts               stderr 用のロガー（stdout はプロトコル専用）
   credentials/         バックエンドごとの API キーの保存と読み出し（Windows の資格情報マネージャー。docs/backend-api-keys.md）
   backends/
-    types.ts           BackendAdapter インターフェース（info()・probe()・run(request, ctx)・任意の login(ctx)）
+    types.ts           BackendAdapter インターフェース（info()・probe()・run(request, ctx)・任意の login(ctx)・frameGeneration を申告するアダプタの image(request, ctx)）
     registry.ts        アダプタの登録表
     claude.ts, claude/ Claude Agent SDK（権限 → tools、settingSources: []、スキルは stateDir のローカルプラグイン、readableDirs → additionalDirectories、
                        画像は1件だけ流すユーザーメッセージ、ログインは同梱の claude.exe の auth login を別ウィンドウで。操作の確認は claude/check.ts と judge.ts。コマンドの渡し方は claude/rules.ts、隔離の中で動くコマンドの道具は claude/command.ts）
     codex.ts, codex/   Codex SDK（権限 → sandbox・ネットワーク・Web検索、人格とスキルの渡し方は SDK の都合に合わせて stateDir か毎回作り直し、
                        画像は local_image の入力）
-    codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション）。codex・grok・muse が使う
+    codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション・スキルの置き場所 skills.ts・画像の依頼 image.ts）。codex・grok・muse が使う。
+                       画像の依頼（image.ts・image-options.ts・generated-images.ts）は codex だけが使う
     grok.ts, muse.ts   Grok（xAI）と Muse Spark。codex-runtime に、実行ごとの provider の設定を渡す（実験対応。docs/grok.md・docs/muse.md）
     describe.ts        ツール呼び出し → 「Web検索: …」などの表示文
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
@@ -139,7 +144,7 @@ src/
   main.tsx
   app/                       組み立て（AppShell、起動処理: 先に購読 → get_boot_status → 通常なら get_snapshot、復旧なら復旧画面）
   features/
-    agents/ channels/ chat/ skills/ profile/ settings/ recovery/ runtime/ update/
+    agents/ channels/ chat/ skills/ profile/ guild/ frames/ settings/ sounds/ recovery/ runtime/ update/
       index.ts               公開 API（他から使ってよいのはここだけ）
       api.ts                 この feature が使うコマンド（shared/api の型付きクライアント経由）
       store.ts               zustand のストア
@@ -149,7 +154,7 @@ src/
                              transport.ts, tauri.ts, mock/（ブラウザ用の偽バックエンド）, errors.ts（CommandError の判定）
     types/domain/            ドメイン型（契約。index.ts から import する）
     types/schemas/           契約の実例（contracts/ipc）が型に合うかを検査するスキーマ
-    ui/                      汎用部品とテーマ（theme/ はデザイナー担当）
+    ui/                      汎用部品とテーマ（theme/ はデザイナー担当。frames/ は内蔵のアイコンの枠の絵（1つの枠が art/ の1ファイル。共通の部品は kit/）とアバターへの重ね方）
     lib/                     画面とモックの両方が使う純粋な関数（メンション・tasks ブロック・権限・上限など。Rust と同じ規則）
 ```
 
@@ -157,7 +162,8 @@ src/
 
 - バックエンド呼び出しは、コマンド名から引数・戻り値の型が決まる型付きクライアントで行う。失敗は `CommandError` として扱い、code で分岐する。validation のどの入力のことかは `field`（`shared/lib/errors` の `errorField`）で決める（メッセージの語から推し量らない）。
 - 権限の表示・役割で決まる権限・その AI で使える操作と使わない理由（`shared/lib/permissions.ts`・`shared/lib/permissionPolicy.ts`）、外で開くリンクの判定（`shared/lib/links.ts`）、チャンネル名の正規化（`shared/lib/limits.ts`）は、編集画面とモックの両方が使うので shared/lib に置く（Rust の検証と同じ規則）。
-- テーマ（ダーク / ライト / OS に合わせる）は settings feature が持つ。`main.tsx` が最初の描画の前に `initTheme()` を呼び、`<html data-theme>` を設定する。好みは localStorage（DB には入れない）。
+- テーマ（ダーク / ライト / OS に合わせる）とアクセントの色は settings feature が持つ。`main.tsx` が最初の描画の前に `initTheme()`・`initAccent()` を呼び、`<html data-theme>`・`<html data-accent>` を設定する。好みは localStorage（DB には入れない）。
+- 通知の音は sounds feature が持つ（好みは localStorage）。`app/` が message-created を chat に渡したあと `playMessageSound()` を呼び、鳴らすかは `sounds/model/incoming.ts` の純粋な関数で決める。
 - 画面の振る舞い（押す → 状態が変わる → 表示が変わる）は `src/app/App.*.test.tsx` で検査する。アプリ全体（`<App />`）を、ブラウザで動かすときと同じモックのバックエンドにつないで jsdom に描き、偽のタイマーで時間を進める（組み立ては `src/app/appFlow.test-support.tsx`）。jsdom を使うテストは先頭に `// @vitest-environment jsdom` を書き、ほかのテストは node のまま動かす。
 - テストだけで使う部品（モックの組み立て・共通の値）は `<名前>.test-support.ts` に置く。vitest を import してよいのはテストとこれだけで、本番のコードからは import しない（ハーネスが検査）。
 - エージェント作成のテンプレートと「バックエンド固有設定」は、それぞれ `Snapshot.templates` と `BackendInfo.options` から汎用的に描く（テンプレートやバックエンドを足しても React の変更は不要）。
@@ -170,7 +176,7 @@ src/
 
 ## 拡張のしかた（足すだけで済むこと）
 
-- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Grok・Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目に加えて、バックエンドごとの違い（指定フォルダの守り方 `folderScope`・道具の利用を切り替える設定 `toolsOption`・ローカル実行か `local`・アプリからのセットアップ `setup`）もアダプタが `info()` で申告するので、Rust・React の変更は不要。Rust と React は、バックエンドの ID で分岐しない。
+- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Grok・Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目に加えて、バックエンドごとの違い（指定フォルダの守り方 `folderScope`・道具の利用を切り替える設定 `toolsOption`・ローカル実行か `local`・アイコンの枠を生成できるか `frameGeneration`・アプリからのセットアップ `setup`）もアダプタが `info()` で申告するので、Rust・React の変更は不要。Rust と React は、バックエンドの ID で分岐しない。
 - **新しいテンプレート**（例: マネージャー）: guild-domain の `agent/templates.rs` に1行。React は `Snapshot.templates` から自動で選択肢を出す。ランナーは変更不要。新しい振る舞いそのもの（今ある設定で表せないもの）が要るときだけ、Agent に設定項目を1つ足し、それを見るのは routing / prompt の該当箇所だけにする。
 - **新しいコマンド**: guild-application にユースケース → interface/commands にハンドラ → lib.rs に登録 → contract.ts と design.md の表 → フィクスチャ → feature の api.ts。
 - **新しいイベント**: EventPublisher → infrastructure/events.rs → contract.ts と design.md → フィクスチャ。
