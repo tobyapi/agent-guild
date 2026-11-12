@@ -3,8 +3,12 @@ import type { Config } from 'dompurify';
 import { escapeHtml } from '@/shared/lib/html';
 
 const CONFIG: Config = {
+  // DOMPurify はこの正規表現を、URL を持つ属性だけでなく「値を問わない」と分かっている属性以外のすべてに当てる
   ALLOWED_URI_REGEXP: /^https?:/i,
   ADD_ATTR: ['target'],
+  // 本文の Markdown が出す、URL ではない属性（タスクリストのチェックボックス・番号の始まり・表の列揃え・リンクの開き方）。
+  // ここにないと、上の正規表現に合わない値として消える
+  ADD_URI_SAFE_ATTR: ['type', 'start', 'align', 'target', 'rel'],
   FORBID_TAGS: ['style', 'form', 'button', 'textarea', 'select', 'iframe', 'img', 'video', 'audio'],
 };
 
