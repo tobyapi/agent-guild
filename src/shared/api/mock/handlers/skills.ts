@@ -1,6 +1,6 @@
 // スキルの一覧・保存・削除。名前は変換せずに検証する（design.md §2）。変わったら skills-changed。
 // リンクしたスキル・内蔵スキル（§14）は一覧のたびに読み直し、アプリ内では編集させない。
-import { isValidSkillName, SKILL_DESCRIPTION_MAX, SKILL_NAME_RULE } from '@/shared/lib/skillName';
+import { isValidSkillName, SKILL_DESCRIPTION_MAX, skillNameProblem } from '@/shared/lib/skillName';
 import { textLength } from '@/shared/lib/validation';
 import type { Skill, SkillInput } from '@/shared/types/domain';
 import { readBuiltinSkill } from '../builtinSkills';
@@ -12,7 +12,7 @@ import type { HandlerGroup } from './types';
 type SkillCommands = 'list_skills' | 'save_skill' | 'delete_skill';
 
 function validateSkill(core: MockCore, input: SkillInput): void {
-  if (!isValidSkillName(input.name)) fail('validation', `スキル名は${SKILL_NAME_RULE}`, 'name');
+  if (!isValidSkillName(input.name)) fail('validation', skillNameProblem(), 'name');
   const description = input.description.trim();
   if (description === '') fail('validation', 'スキルの説明を入力してください', 'description');
   if (textLength(description) > SKILL_DESCRIPTION_MAX) {

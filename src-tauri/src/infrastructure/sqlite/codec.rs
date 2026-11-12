@@ -6,6 +6,8 @@ use rusqlite::Row;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use guild_domain::locale;
+
 use super::database::DbError;
 
 /// 値を JSON の文字列にする（配列・オブジェクトの列）
@@ -24,7 +26,13 @@ pub(super) fn json_column<T: DeserializeOwned>(row: &Row<'_>, index: usize) -> r
 pub(super) fn parsed_column<T>(row: &Row<'_>, index: usize, parse: impl Fn(&str) -> Option<T>) -> rusqlite::Result<T> {
     let text: String = row.get(index)?;
     parse(&text).ok_or_else(|| {
-        let message = format!("未知の値です: {text}");
+        let message = locale::pick([
+            format!("未知の値です: {text}"),
+            format!("Unknown value: {text}"),
+            format!("未知的值：{text}"),
+            format!("未知的值：{text}"),
+            format!("알 수 없는 값입니다: {text}"),
+        ]);
         rusqlite::Error::FromSqlConversionFailure(index, Type::Text, message.into())
     })
 }

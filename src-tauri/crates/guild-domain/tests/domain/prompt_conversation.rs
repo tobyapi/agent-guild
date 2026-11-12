@@ -5,6 +5,7 @@ use guild_domain::attachment::NewAttachment;
 use guild_domain::author::Author;
 use guild_domain::conversation::{JobMode, JobSpec};
 use guild_domain::ids::{AgentId, AttachmentId, ChannelId};
+use guild_domain::locale::Language;
 use guild_domain::message::Message;
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{
@@ -35,6 +36,7 @@ fn prompt_for(agent_id: &str, history: &[Message], job: &JobSpec, sources: &[Con
         time_label: &|ms| format!("t{ms}"),
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation: None,
+        language: Language::Ja,
     };
     build_conversation_prompt(&ctx, history, job, sources)
 }

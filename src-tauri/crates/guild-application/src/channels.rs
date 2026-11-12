@@ -4,10 +4,11 @@ use guild_domain::author::MemberId;
 use guild_domain::channel::{normalize_channel_name, normalize_channel_topic, normalize_members, Channel};
 use guild_domain::conversation::notices;
 use guild_domain::ids::{AgentId, ChannelId};
+use guild_domain::locale;
 use guild_domain::statistics::ChannelStatistics;
 
 use crate::conversation::{posting, ConversationService};
-use crate::error::{AppError, AppResult};
+use crate::error::{subject, AppError, AppResult};
 use crate::services::Ports;
 
 #[derive(Clone)]
@@ -94,7 +95,7 @@ impl ChannelService {
             return Ok(());
         }
         self.ports.channels.add_member(channel_id, member)?;
-        posting::post_system(&self.ports, channel_id, &notices::joined(&name))?;
+        posting::post_system(&self.ports, channel_id, &notices::joined(locale::current(), &name))?;
         self.ports.events.state_changed();
         Ok(())
     }
@@ -103,7 +104,13 @@ impl ChannelService {
     pub async fn remove_member(&self, channel_id: &ChannelId, member: &MemberId) -> AppResult<()> {
         posting::require_channel(&self.ports, channel_id)?;
         let MemberId::Agent(agent_id) = member else {
-            return Err(AppError::validation("人間はチャンネルから外せません"));
+            return Err(AppError::validation(locale::pick([
+                "人間はチャンネルから外せません",
+                "The human cannot be removed from a channel",
+                "不能将人类移出频道",
+                "無法將人類移出頻道",
+                "사람은 채널에서 제외할 수 없습니다",
+            ])));
         };
         self.conversation.remove_member(channel_id, agent_id).await;
         self.ports.channels.remove_member(channel_id, member)?;
@@ -118,6 +125,6 @@ impl ChannelService {
             .get(id)?
             .filter(|agent| agent.is_active())
             .map(|agent| agent.name)
-            .ok_or(AppError::NotFound("エージェント"))
+            .ok_or(AppError::NotFound(subject::agent()))
     }
 }

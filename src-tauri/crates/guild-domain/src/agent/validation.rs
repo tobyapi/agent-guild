@@ -5,6 +5,7 @@ use super::tags::normalize_tags;
 use super::{role_permissions, AgentInput};
 use crate::backend::{sanitize_backend_options, BackendInfo};
 use crate::error::ValidationError;
+use crate::locale;
 
 /// 自発活動の間隔（分）の下限
 pub const AUTONOMY_INTERVAL_MIN: u32 = 5;
@@ -23,18 +24,54 @@ pub fn normalize_agent_input(
     input.backend = input.backend.trim().to_owned();
     input.model = input.model.trim().to_owned();
     if input.backend.is_empty() {
-        return Err(ValidationError::on("backend", "バックエンドを選んでください"));
+        return Err(ValidationError::on(
+            "backend",
+            locale::pick([
+                "バックエンドを選んでください",
+                "Choose a backend",
+                "请选择后端",
+                "請選擇後端",
+                "백엔드를 선택하십시오",
+            ]),
+        ));
     }
     if input.autonomy_interval_min < AUTONOMY_INTERVAL_MIN {
-        return Err(ValidationError::on("autonomyIntervalMin", "自発活動の間隔は5分以上にしてください"));
+        return Err(ValidationError::on(
+            "autonomyIntervalMin",
+            locale::pick([
+                "自発活動の間隔は5分以上にしてください",
+                "The autonomous activity interval must be at least 5 minutes",
+                "自主活动的间隔至少为 5 分钟",
+                "自主活動的間隔至少為 5 分鐘",
+                "자율 활동 간격은 5분 이상으로 설정하십시오",
+            ]),
+        ));
     }
     if input.avatar.len() > AVATAR_MAX_BYTES {
-        return Err(ValidationError::on("avatar", "アバター画像が大きすぎます（2MB まで）"));
+        return Err(ValidationError::on(
+            "avatar",
+            locale::pick([
+                "アバター画像が大きすぎます（2MB まで）",
+                "The avatar image is too large (up to 2 MB)",
+                "头像图片过大（最大 2MB）",
+                "頭像圖片過大（最大 2MB）",
+                "아바타 이미지가 너무 큽니다(최대 2MB)",
+            ]),
+        ));
     }
     if let Some(info) = backend {
         input.backend_options = sanitize_backend_options(input.backend_options, info, &input.model)?;
         if info.tools_requested(&input.backend_options) && !info.tools_enabled(&input.backend_options, &input.model) {
-            return Err(ValidationError::on("permissions", "道具に対応したモデルを選んでください"));
+            return Err(ValidationError::on(
+                "permissions",
+                locale::pick([
+                    "道具に対応したモデルを選んでください",
+                    "Choose a model that supports tools",
+                    "请选择支持工具的模型",
+                    "請選擇支援工具的模型",
+                    "도구를 지원하는 모델을 선택하십시오",
+                ]),
+            ));
         }
     }
     Ok(input)

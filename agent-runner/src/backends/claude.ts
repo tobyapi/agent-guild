@@ -6,7 +6,7 @@ import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { OPERATION_CHECK_OPTION } from './claude/check.ts';
-import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
+import { claudeNotFound, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
 import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
@@ -15,6 +15,7 @@ import { claudeOptions, DEFAULT_MAX_TURNS } from './claude/options.ts';
 import { LEAK_RISKS, permissionRules, unenforceableReason } from './claude/rules.ts';
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
+import { t } from './claude/texts/index.ts';
 import {
   BackendError,
   NO_SETUP,
@@ -27,7 +28,8 @@ import {
   type RunRequest,
 } from './types.ts';
 
-const INFO: Omit<BackendDescriptor, 'permissionRules'> = {
+/** 画面に出る文字列は、呼んだ時点の言語で作る */
+const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
   id: 'claude',
   label: 'Claude',
   capabilities: {
@@ -43,17 +45,16 @@ const INFO: Omit<BackendDescriptor, 'permissionRules'> = {
   options: [
     {
       key: 'maxTurns',
-      label: '最大ターン数',
-      description: '1回の返答でツールを使って往復できる回数の上限',
+      label: t('maxTurnsLabel'),
+      description: t('maxTurnsDescription'),
       type: 'number',
       choices: [],
       default: DEFAULT_MAX_TURNS,
     },
     {
       key: OPERATION_CHECK_OPTION,
-      label: '操作の確認',
-      description:
-        'コマンドの実行・Web ページを開く・作業フォルダの外への書き込みの前に、小さいモデル（Haiku）で依頼に沿っているかを確かめ、怪しければ止めます（人間には聞きません）',
+      label: t('operationCheckLabel'),
+      description: t('operationCheckDescription'),
       type: 'boolean',
       choices: [],
       default: true,
@@ -78,27 +79,19 @@ const INFO: Omit<BackendDescriptor, 'permissionRules'> = {
       docsUrl: 'https://code.claude.com/docs/ja/quickstart',
       loginCommand: 'claude auth login',
     },
-    login: CAN_LOGIN
-      ? {
-          label: 'Claude Code でログイン',
-          waiting: '開いた窓とブラウザでログインを進めてください。終わると自動で状態が変わります。',
-        }
-      : null,
+    login: CAN_LOGIN ? { label: t('loginLabel'), waiting: t('loginWaiting') } : null,
   },
-};
+});
 
 async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }: RunContext): Promise<string> {
   // Dispatcher が先に止める（folderScope: null）。直接呼ばれても、指定フォルダの依頼を範囲の外で動かさない
   if (request.writableDirs !== undefined) {
-    throw new BackendError(
-      'unsupported_permission',
-      'Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません',
-    );
+    throw new BackendError('unsupported_permission', t('folderUnsupported'));
   }
   await prepareCommandSandbox();
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const executable = findClaude();
-  if (executable === null) throw new BackendError('internal', CLAUDE_NOT_FOUND);
+  if (executable === null) throw new BackendError('internal', claudeNotFound());
   const abortController = new AbortController();
   if (signal.aborted) abortController.abort();
   else signal.addEventListener('abort', () => abortController.abort(), { once: true });
@@ -111,7 +104,7 @@ async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }:
   } catch (error) {
     if (error instanceof BackendError || signal.aborted) throw error;
     const detail = errorMessage(error);
-    throw new BackendError(classifyErrorText(detail), `Claude を実行できませんでした（${detail}）`);
+    throw new BackendError(classifyErrorText(detail), t('runFailed', { detail }));
   }
 }
 
@@ -121,16 +114,13 @@ async function login(context: LoginContext): Promise<void> {
   if (context.signal.aborted) return;
   const { status } = await probeClaude();
   if (status !== 'ready') {
-    throw new BackendError(
-      'auth',
-      'Claude のログインが完了しませんでした。開いた窓とブラウザで、ログインを最後まで進めてください',
-    );
+    throw new BackendError('auth', t('loginIncomplete'));
   }
 }
 
 export const claudeAdapter: BackendAdapter = {
   // コマンドの規則は、隔離が使える PC では要らなくなる（作業者以外の役割も、隔離の中でコマンドを使える）
-  info: () => ({ ...INFO, permissionRules: permissionRules() }),
+  info: () => ({ ...info(), permissionRules: permissionRules() }),
   // コマンドの隔離が使えるかを先に確かめる（info() の規則が、この結果を使う）
   probe: async () => {
     await prepareCommandSandbox();

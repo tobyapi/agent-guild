@@ -2,6 +2,7 @@
 import { normalizeName } from '@/shared/lib/names';
 import { isInsidePath, isSamePath } from '@/shared/lib/paths';
 import type { BuiltinSkill, LibrarySkill, Skill, SkillLibrary } from '@/shared/types/domain';
+import { tLibrary as t } from '../i18n/library';
 
 /** ライブラリのスキルを、そのエージェントに追加できるか */
 export type LibraryEntryState =
@@ -60,10 +61,10 @@ export function moveItem<T>(items: readonly T[], index: number, delta: -1 | 1): 
 
 /** 足す前の確認（同じフォルダ・入れ子）。問題なければ null */
 export function checkNewDir(dirs: readonly string[], path: string): string | null {
-  if (dirs.some((dir) => isSamePath(dir, path))) return 'そのフォルダはすでに指定されています';
+  if (dirs.some((dir) => isSamePath(dir, path))) return t('dirAlready');
   const parent = dirs.find((dir) => isInsidePath(path, dir));
-  if (parent) return `${parent} の中のフォルダです。中のスキルはすでに探されます`;
+  if (parent) return t('dirInside', { parent });
   const child = dirs.find((dir) => isInsidePath(dir, path));
-  if (child) return `指定済みの ${child} を含むフォルダです。先に ${child} を外してください`;
+  if (child) return t('dirContains', { child });
   return null;
 }

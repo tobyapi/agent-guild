@@ -9,6 +9,7 @@ import type { HandlerGroup } from './types';
 type SystemCommands =
   | 'get_boot_status'
   | 'complete_setup'
+  | 'set_language'
   | 'get_snapshot'
   | 'update_profile'
   | 'refresh_backends'
@@ -32,6 +33,11 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
 
   complete_setup(_args, runtime) {
     runtime.state.boot = { ...runtime.state.boot, needsSetup: false };
+    return null;
+  },
+
+  set_language({ language }, runtime) {
+    runtime.state.boot = { ...runtime.state.boot, language };
     return null;
   },
 

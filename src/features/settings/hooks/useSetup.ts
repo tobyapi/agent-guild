@@ -1,13 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useActiveAgents } from '@/features/agents';
 import { saveProfile, useProfile } from '@/features/profile';
+import { currentLanguage } from '@/shared/i18n';
 import { errorCode, errorField, errorMessage } from '@/shared/lib/errors';
 import { checkMemberName } from '@/shared/lib/names';
 import { isSamePath } from '@/shared/lib/paths';
 import { notifyInfo, reportError } from '@/shared/ui';
 import type { DataDirMode } from '@/shared/types/domain';
+import { t } from '../i18n';
 import { runSetup, setupPlan } from '../model/setup';
-import { changeDataDir, chooseFolder, closeSetup, completeSetup, loadStorageInfo, useSettingsStore } from '../store';
+import {
+  changeDataDir,
+  chooseFolder,
+  closeSetup,
+  completeSetup,
+  loadStorageInfo,
+  saveLanguage,
+  useSettingsStore,
+} from '../store';
 
 /** 失敗をどこに出すか: 名前の問題は名前の欄、保存先の問題はダイアログの帯、それ以外（null）はトースト */
 type SetupFailure =
@@ -64,7 +74,7 @@ export function useSetup() {
     else if (failure.conflict) {
       // 設定ダイアログ向けの文面（「その場所のデータを開く」を選ぶ）ではなく、この画面の言い方で知らせる
       setMode('open');
-      setError('このフォルダにはギルドのデータがあります。そのデータではじめるか、別のフォルダを選んでください。');
+      setError(t('setupConflict'));
     } else setError(failure.message);
     setBusy(false);
   };
@@ -75,6 +85,8 @@ export function useSetup() {
     setBusy(true);
     setError(null);
     try {
+      // 言語を選ばずに OS の言語のままでも、ここで保存する（エージェントの会話の言語になる）
+      await saveLanguage(currentLanguage());
       const steps = {
         saveName: (value: string) => saveProfile({ ...me, name: value }),
         complete: completeSetup,
@@ -82,7 +94,7 @@ export function useSetup() {
       };
       await runSetup(setupPlan(name, me.name, dataDir, mode), steps);
       if (dataDir === null) closeSetup();
-      else notifyInfo('保存先を変えました。アプリを再起動します…');
+      else notifyInfo(t('setupRestarting'));
     } catch (reason) {
       fail(reason);
     }

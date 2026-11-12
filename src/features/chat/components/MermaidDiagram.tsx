@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDocumentTheme } from '../hooks/useDocumentTheme';
 import { renderDiagram } from '../model/mermaid';
 import type { DiagramResult } from '../model/mermaid';
+import { t } from '../i18n';
 import styles from './BodyEmbeds.module.css';
 
 export interface MermaidDiagramProps {
@@ -30,8 +31,10 @@ export function MermaidDiagram({ source, host }: MermaidDiagramProps) {
     host.toggleAttribute('data-rendered', svg !== null);
   }, [host, svg]);
 
-  if (result === null) return <p className={styles.note}>図を描いています…</p>;
-  if (svg === null) return <p className={styles.note}>図を描けませんでした（ソースを表示しています）</p>;
+  if (result === null) return <p className={styles.note}>{t('diagramDrawing')}</p>;
+  if (svg === null) return <p className={styles.note}>{t('diagramFailed')}</p>;
   // SVG は mermaid が securityLevel: 'strict' で作ったもの（ラベルは mermaid の中で無害化済み）
-  return <div className={styles.diagram} role="img" aria-label="図" dangerouslySetInnerHTML={{ __html: svg }} />;
+  return (
+    <div className={styles.diagram} role="img" aria-label={t('diagram')} dangerouslySetInnerHTML={{ __html: svg }} />
+  );
 }

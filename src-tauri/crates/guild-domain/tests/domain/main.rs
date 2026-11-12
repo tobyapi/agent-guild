@@ -12,6 +12,7 @@ mod permission_policy;
 mod prompt_conversation;
 mod prompt_delegation;
 mod prompt_intent;
+mod prompt_language;
 mod prompt_posting;
 mod prompt_safeguards;
 mod prompt_system;

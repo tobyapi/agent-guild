@@ -1,6 +1,6 @@
 //! runner-client の型と、ドメイン・ポートの型の変換。
 
-use guild_application::ports::{ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload};
+use guild_application::ports::{ImagePayload, RunUpdate, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
     ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, InstallGuide, LoginSpec, MidRunPost, ModelSpec,
@@ -157,14 +157,6 @@ fn skill(skill: SkillPayload) -> runner::SkillPayload {
 
 fn image(image: ImagePayload) -> runner::ImagePayload {
     runner::ImagePayload { path: image.path, media_type: image.media_type }
-}
-
-/// 中断は独立に、それ以外は日本語のメッセージの失敗として返す
-pub(super) fn error(error: runner::RunnerError) -> RuntimeError {
-    match error {
-        runner::RunnerError::Cancelled => RuntimeError::Cancelled,
-        other => RuntimeError::Failed(other.to_string()),
-    }
 }
 
 fn permissions_from(p: runner::Permissions) -> Permissions {

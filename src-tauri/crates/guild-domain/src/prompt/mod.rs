@@ -9,6 +9,7 @@ mod consult;
 mod conversation;
 mod delegating;
 mod intent;
+mod language;
 mod members;
 mod memory;
 mod modes;
@@ -29,6 +30,7 @@ use crate::attachment::Attachment;
 use crate::backend::BackendInfo;
 use crate::channel::Channel;
 use crate::delegation::Delegation;
+use crate::locale::Language;
 use crate::message::Message;
 use crate::profile::Profile;
 use crate::skill::Skill;
@@ -59,12 +61,15 @@ pub struct PromptContext<'a> {
     pub attachment_path: &'a dyn Fn(&Message, &Attachment) -> String,
     /// このジョブの割り振り（task・report のジョブと、担当者の相談の連鎖。ほかは None）
     pub delegation: Option<&'a Delegation>,
+    /// 会話の言語（日本語以外なら「この言語で書く」指示を入れる。呼び出し側がジョブの時点の言語を渡す）
+    pub language: Language,
 }
 
-/// システムプロンプト: 人格 → 仕事 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
+/// システムプロンプト: 会話の言語（日本語以外のとき）→ 人格 → 仕事 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
 /// 作業場所とメモ → 外の資料の扱いと操作の前の確認 → 場所と共通ルール
 pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
     let sections = [
+        language::section(ctx.language),
         persona::section(ctx.agent),
         answering::work_section(ctx),
         answering::consultee_section(ctx),

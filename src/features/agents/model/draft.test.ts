@@ -11,10 +11,10 @@ import {
   changeRole,
 } from './draft';
 import { agentFixture, BACKENDS, TEMPLATES } from './fixtures.test-support';
-import { PERSONALITIES } from './personas/personalities';
+import { personalities } from './personas/personalities';
 import { findPreset } from './personas/presetText';
-import { TONES } from './personas/tones';
-import { AGENT_PRESETS, presetPersona, presetsFor } from './presets';
+import { tones } from './personas/tones';
+import { agentPresets, presetPersona, presetsFor } from './presets';
 
 const worker = TEMPLATES.find((template) => template.id === 'worker');
 const expert = TEMPLATES.find((template) => template.id === 'expert');
@@ -90,12 +90,12 @@ describe('変更', () => {
     if (!preset) throw new Error('専門家の人格の例がありません');
     const applied = applyPreset(draft, preset);
     expect(applied).toMatchObject({ name: preset.values.name, expertise: preset.values.expertise, tags: draft.tags });
-    expect(applied.personality).toBe(findPreset(PERSONALITIES, preset.values.personality)?.text);
-    expect(applied.tone).toBe(findPreset(TONES, preset.values.tone)?.text);
+    expect(applied.personality).toBe(findPreset(personalities(), preset.values.personality)?.text);
+    expect(applied.tone).toBe(findPreset(tones(), preset.values.tone)?.text);
   });
 
   it('人格の例の性格・口調は、どれもプリセットの表にある', () => {
-    for (const candidate of AGENT_PRESETS) {
+    for (const candidate of agentPresets()) {
       expect(presetPersona(candidate.values).personality, candidate.id).not.toBe('');
       expect(presetPersona(candidate.values).tone, candidate.id).not.toBe('');
     }
@@ -107,7 +107,7 @@ describe('変更', () => {
   });
 
   it('人格の例は4役のいずれかに属し、調査・記録・利用者目線も選べる', () => {
-    for (const preset of AGENT_PRESETS)
+    for (const preset of agentPresets())
       expect(TEMPLATES.some((template) => template.id === preset.templateId)).toBe(true);
     expect(presetsFor('worker').map((preset) => preset.id)).toEqual(
       expect.arrayContaining(['web-researcher', 'minutes']),

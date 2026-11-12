@@ -6,17 +6,15 @@ import type { RunUsage } from '../../protocol.ts';
 import { activity } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
 import { count } from '../../usage.ts';
-
-/** Windows で CLI のパスが MAX_PATH（260 文字）を超えると、存在していても spawn が ENOENT になる */
-const LONG_PATH_HINT =
-  'Windows ではパスが 260 文字を超えると Codex CLI を起動できません。プロジェクトを短いパスに置いてください。';
+import { t } from './texts/index.ts';
 
 type ItemPhase = Extract<ThreadEvent, { item: ThreadItem }>['type'];
 
 export function codexError(detail: string): BackendError {
   const text = detail.trim();
-  const hint = process.platform === 'win32' && /spawn .*ENOENT/.test(text) ? ` ${LONG_PATH_HINT}` : '';
-  return new BackendError(classifyErrorText(text), `Codex の実行に失敗しました（${text}）${hint}`);
+  // Windows で CLI のパスが MAX_PATH（260 文字）を超えると、存在していても spawn が ENOENT になる
+  const hint = process.platform === 'win32' && /spawn .*ENOENT/.test(text) ? ` ${t('longPath')}` : '';
+  return new BackendError(classifyErrorText(text), `${t('runFailed', { detail: text })}${hint}`);
 }
 
 function describeItem(item: ThreadItem): string | undefined {

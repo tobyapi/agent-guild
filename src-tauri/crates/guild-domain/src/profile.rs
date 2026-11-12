@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::agent::{normalize_name, AVATAR_MAX_BYTES};
 use super::error::ValidationError;
+use super::locale;
 
 /// TS の Profile
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -24,7 +25,16 @@ impl Default for Profile {
 pub fn normalize_profile(mut profile: Profile) -> Result<Profile, ValidationError> {
     profile.name = normalize_name(&profile.name)?;
     if profile.avatar.len() > AVATAR_MAX_BYTES {
-        return Err(ValidationError::on("avatar", "アバター画像が大きすぎます（2MB まで）"));
+        return Err(ValidationError::on(
+            "avatar",
+            locale::pick([
+                "アバター画像が大きすぎます（2MB まで）",
+                "The avatar image is too large (up to 2 MB)",
+                "头像图片过大（最大 2MB）",
+                "頭像圖片過大（最大 2MB）",
+                "아바타 이미지가 너무 큽니다(최대 2MB)",
+            ]),
+        ));
     }
     Ok(profile)
 }

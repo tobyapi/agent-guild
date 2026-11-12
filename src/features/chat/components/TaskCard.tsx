@@ -2,8 +2,9 @@ import { Icon, Lamp } from '@/shared/ui';
 import type { Delegation } from '@/shared/types/domain';
 import { useAuthorResolver } from '../hooks/useAuthorResolver';
 import { jumpToMessage } from '../jump';
-import { DELEGATION_STATE_TEXT, progressText } from '../model/delegations';
+import { delegationStateText, progressText } from '../model/delegations';
 import { SubtaskRow } from './SubtaskRow';
+import { t } from '../i18n';
 import styles from './TaskCard.module.css';
 
 /**
@@ -14,16 +15,16 @@ export function TaskCard({ delegation }: { delegation: Delegation }) {
   const resolve = useAuthorResolver();
   const progress = progressText(delegation);
   return (
-    <section className={styles.card} data-state={delegation.status} aria-label={`割り振り（${progress}）`}>
+    <section className={styles.card} data-state={delegation.status} aria-label={t('delegationLabel', { progress })}>
       <header className={styles.head}>
-        <span className={styles.title}>割り振り</span>
+        <span className={styles.title}>{t('delegationTitle')}</span>
         <span className={styles.progress} aria-live="polite">
           {progress}
         </span>
         <span className={styles.state}>
           {delegation.status === 'running' || delegation.status === 'reporting' ? <Lamp /> : null}
           {delegation.status === 'done' && <Icon name="check" />}
-          {DELEGATION_STATE_TEXT[delegation.status]}
+          {delegationStateText(delegation.status)}
         </span>
       </header>
       <div className={styles.bar} aria-hidden="true">
@@ -45,23 +46,26 @@ export function TaskCard({ delegation }: { delegation: Delegation }) {
 function CardFooter({ delegation, managerName }: { delegation: Delegation; managerName: string }) {
   const { status, summaryMessageId } = delegation;
   if (status === 'running') return null;
+  const [beforeName, afterName] = t('summaryWriting').split('{name}');
   return (
     <footer className={styles.foot}>
       {status === 'reporting' && (
         <>
           <Lamp />
           <span>
-            <b>{managerName}</b> がまとめを書いています…
+            {beforeName}
+            <b>{managerName}</b>
+            {afterName}
           </span>
         </>
       )}
       {status === 'done' && summaryMessageId !== null && (
         <button type="button" className={styles.jump} onClick={() => jumpToMessage(summaryMessageId)}>
-          まとめを見る
+          {t('viewSummary')}
         </button>
       )}
-      {status === 'done' && summaryMessageId === null && <span className={styles.muted}>まとめはありませんでした</span>}
-      {status === 'cancelled' && <span className={styles.muted}>打ち切りました</span>}
+      {status === 'done' && summaryMessageId === null && <span className={styles.muted}>{t('noSummary')}</span>}
+      {status === 'cancelled' && <span className={styles.muted}>{t('cancelledNote')}</span>}
     </footer>
   );
 }

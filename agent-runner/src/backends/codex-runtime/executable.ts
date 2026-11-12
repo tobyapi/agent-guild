@@ -7,10 +7,10 @@ import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { findInDirs, isDirectory, isFile, overridePath, pathDirs } from '../executables.ts';
+import { t } from './texts/index.ts';
 
 /** 見つからないときの案内 */
-export const CODEX_NOT_FOUND =
-  'Codex のセットアップが必要です。AIギルドの「設定 → バックエンド → Codex」から進めてください。';
+export const codexNotFound = (): string => t('notFound');
 
 export interface CodexExecutable {
   path: string;

@@ -8,6 +8,7 @@ import { Field } from './field/Field';
 import { Icon } from './Icon';
 import { notifyError } from './toast/store';
 import styles from './AvatarInput.module.css';
+import { t } from './i18n';
 
 export interface AvatarInputProps {
   value: string;
@@ -34,29 +35,25 @@ export function AvatarInput({ value, onChange, error, human = false, imageAction
   };
 
   return (
-    <Field
-      label="アバター"
-      hint={`絵文字を 1 つ入力するか、画像を選んで範囲を切り抜けます（${AVATAR_IMAGE_SIZE}px で保存します）`}
-      error={error}
-    >
+    <Field label={t('avatarLabel')} hint={t('avatarHint', { size: AVATAR_IMAGE_SIZE })} error={error}>
       {(control) => (
         <div className={styles.row}>
           <input
             {...control}
             className={styles.emoji}
             value={usingImage ? '' : value}
-            placeholder={usingImage ? '画像' : '🙂'}
+            placeholder={usingImage ? t('avatarImagePlaceholder') : '🙂'}
             maxLength={16}
             onChange={(event) => onChange(event.target.value)}
           />
           <Button size="sm" onClick={() => fileRef.current?.click()}>
             <Icon name="image" />
-            画像を選ぶ
+            {t('chooseImage')}
           </Button>
           {imageActions}
           {usingImage && (
             <Button size="sm" variant="ghost" onClick={() => onChange('')}>
-              画像を外す
+              {t('removeImage')}
             </Button>
           )}
           <input ref={fileRef} type="file" accept={AVATAR_IMAGE_ACCEPT} hidden onChange={handleFile} />

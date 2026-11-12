@@ -3,6 +3,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { SkillPayload } from '../../protocol.ts';
+import { t } from '../../texts/index.ts';
 import { BackendError } from '../types.ts';
 import type { AssetBudget } from './assets.ts';
 
@@ -18,7 +19,7 @@ function isSafePath(path: string): boolean {
 export function planBundledFiles(skill: SkillPayload, budget: AssetBudget): void {
   for (const file of skill.files) {
     if (!isSafePath(file.path)) {
-      throw new BackendError('bad_request', `スキル ${skill.name} の付属ファイルのパスが不正です: ${file.path}`);
+      throw new BackendError('bad_request', t('skillBundledPath', { name: skill.name, path: file.path }));
     }
     budget.take(skill.name, Buffer.byteLength(file.content, 'utf8'));
   }

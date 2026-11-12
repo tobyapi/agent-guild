@@ -6,6 +6,7 @@ import { useChannelForm } from '../hooks/useChannelForm';
 import { closeChannelDialog, deleteChannel } from '../store';
 import { ChannelWorkspaceFields } from './ChannelWorkspaceFields';
 import { MemberPicker } from './MemberPicker';
+import { t } from '../i18n';
 import styles from './ChannelDialog.module.css';
 
 /** チャンネルの作成・編集ダイアログ。対象は channels のストアで決まる */
@@ -25,42 +26,42 @@ function ChannelForm({ channel }: { channel: Channel | null }) {
       {channel && (
         <Button variant="danger" className={styles.delete} onClick={() => setDeleting(true)}>
           <Icon name="trash" />
-          削除
+          {t('delete')}
         </Button>
       )}
-      <Button onClick={closeChannelDialog}>キャンセル</Button>
+      <Button onClick={closeChannelDialog}>{t('cancel')}</Button>
       <Button type="submit" form={formId} variant="primary" disabled={form.saving}>
-        {form.saving ? '保存中…' : channel ? '保存' : '作成'}
+        {t(form.saving ? 'saving' : channel ? 'save' : 'create')}
       </Button>
     </>
   );
   return (
     <Dialog
       size="sm"
-      title={channel ? `#${channel.name} を編集` : 'チャンネルを作成'}
+      title={channel ? t('editTitle', { name: channel.name }) : t('createChannel')}
       onClose={closeChannelDialog}
       footer={footer}
     >
       <form id={formId} className={styles.form} onSubmit={form.onSubmit} noValidate>
         {form.formError && <FormAlert>{form.formError}</FormAlert>}
         <TextField
-          label="名前"
+          label={t('nameLabel')}
           value={form.draft.name}
           onChange={(value) => form.update('name', value)}
           onBlur={() => form.touch('name')}
           error={form.errors.name}
-          placeholder="例: 勉強会の企画"
+          placeholder={t('namePlaceholder')}
           autoComplete="off"
           data-autofocus
         />
         <TextField
-          label="話題"
+          label={t('topicLabel')}
           optional
           value={form.draft.topic}
           onChange={(value) => form.update('topic', value)}
           onBlur={() => form.touch('topic')}
           error={form.errors.topic}
-          hint="エージェントは話題を見て、何のための場所かを知ります。"
+          hint={t('topicHint')}
         />
         <ChannelWorkspaceFields form={form} />
         {!channel && <MemberPicker selected={form.draft.memberIds} onChange={(ids) => form.update('memberIds', ids)} />}
@@ -75,14 +76,14 @@ function DeleteChannelDialog({ channel, onClose }: { channel: Channel; onClose: 
   const confirm = () => {
     setBusy(true);
     void deleteChannel(channel.id)
-      .then(() => notifyInfo(`#${channel.name} を削除しました`), reportError)
+      .then(() => notifyInfo(t('deleted', { name: channel.name })), reportError)
       .finally(() => setBusy(false));
   };
   return (
     <ConfirmDialog
-      title={`#${channel.name} を削除しますか？`}
-      message="このチャンネルの発言はすべて消え、元に戻せません。"
-      confirmLabel="削除する"
+      title={t('deleteTitle', { name: channel.name })}
+      message={t('deleteMessage')}
+      confirmLabel={t('deleteConfirm')}
       danger
       busy={busy}
       onConfirm={confirm}

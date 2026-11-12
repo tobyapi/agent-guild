@@ -1,26 +1,47 @@
 // 個人色（Agent.color / Profile.color。データとして保存される値で、UI のテーマ色ではない）。
 // 見本は docs/ui-design.md §2 の12色。アバターのタイルにだけ使い、名前の文字色にはしない。
+import { t } from './i18n';
+
+export type ColorKey =
+  | 'shu'
+  | 'kaki'
+  | 'yamabuki'
+  | 'moegi'
+  | 'wakatake'
+  | 'seiji'
+  | 'asagi'
+  | 'gunjo'
+  | 'fuji'
+  | 'ayame'
+  | 'sakura'
+  | 'nibi';
 
 export interface ColorPreset {
-  name: string;
+  /** 色の名前を引くキー（名前は colorName でいまの言語にする） */
+  key: ColorKey;
   value: string;
 }
 
 /** 色見本。新規作成時はここから順に割り当てる */
 export const COLOR_PRESETS: readonly ColorPreset[] = [
-  { name: '朱', value: '#ea856b' },
-  { name: '柿', value: '#e28d4f' },
-  { name: '山吹', value: '#cb9d2a' },
-  { name: '萌黄', value: '#91b34d' },
-  { name: '若竹', value: '#4cbd88' },
-  { name: '青磁', value: '#00beb7' },
-  { name: '浅葱', value: '#22b5e1' },
-  { name: '群青', value: '#7ca2f6' },
-  { name: '藤', value: '#b191ea' },
-  { name: '菖蒲', value: '#d285cb' },
-  { name: '桜', value: '#e680a1' },
-  { name: '鈍', value: '#9199a5' },
+  { key: 'shu', value: '#ea856b' },
+  { key: 'kaki', value: '#e28d4f' },
+  { key: 'yamabuki', value: '#cb9d2a' },
+  { key: 'moegi', value: '#91b34d' },
+  { key: 'wakatake', value: '#4cbd88' },
+  { key: 'seiji', value: '#00beb7' },
+  { key: 'asagi', value: '#22b5e1' },
+  { key: 'gunjo', value: '#7ca2f6' },
+  { key: 'fuji', value: '#b191ea' },
+  { key: 'ayame', value: '#d285cb' },
+  { key: 'sakura', value: '#e680a1' },
+  { key: 'nibi', value: '#9199a5' },
 ];
+
+/** 色見本の名前（いまの言語） */
+export function colorName(key: ColorKey): string {
+  return t(`color_${key}`);
+}
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 const FALLBACK = '#9199a5';

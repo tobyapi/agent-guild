@@ -4,8 +4,7 @@ use std::sync::Arc;
 
 use guild_application::ports::AgentRepository;
 use guild_application::{AppError, AppResult};
-use guild_domain::agent::{name_key, Agent, UnmentionedPolicy};
-use guild_domain::error::ValidationError;
+use guild_domain::agent::{name_key, name_taken, Agent, UnmentionedPolicy};
 use guild_domain::ids::{AgentId, ChannelId};
 use rusqlite::{params, OptionalExtension, Row};
 
@@ -128,7 +127,7 @@ impl AgentRepository for SqliteAgentRepository {
 /// 名前の一意索引に当たったら、入力の誤り（validation）として返す
 fn name_conflict(error: DbError) -> AppError {
     if is_unique_violation(&error) {
-        AppError::Validation(ValidationError::on("name", "その名前はすでに使われています"))
+        AppError::Validation(name_taken())
     } else {
         storage(error)
     }

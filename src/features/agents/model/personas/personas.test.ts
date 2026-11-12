@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { PERSONALITIES } from './personalities';
+import { personalities } from './personalities';
 import {
   appendPresetText,
   findPreset,
   groupHeadingAt,
   matchingPreset,
-  PRESET_GROUP_LABELS,
+  presetGroupLabel,
   searchPresets,
 } from './presetText';
-import { TONES } from './tones';
+import { tones } from './tones';
 import type { AnyPreset, PresetGroup, TonePreset } from './types';
+
+// テストはいまの言語（日本語）で引く
+const PERSONALITIES = personalities();
+const TONES = tones();
 
 const docs = import.meta.glob<string>('/docs/persona-presets.md', { eager: true, query: '?raw', import: 'default' });
 const markdown = docs['/docs/persona-presets.md'] ?? '';
@@ -73,7 +77,7 @@ describe('プリセットの表', () => {
     const headings = presets
       .map((_preset, index) => groupHeadingAt(presets, index))
       .filter((heading) => heading !== null);
-    expect(headings).toEqual([PRESET_GROUP_LABELS.character]);
+    expect(headings).toEqual([presetGroupLabel('character')]);
   });
 
   it('キャラクターは性格と話し方で同じ id・label の対になっている', () => {
@@ -110,13 +114,13 @@ describe('groupHeadingAt', () => {
   it('組が変わる行だけ見出しを返す（定番には見出しを出さない）', () => {
     expect(items.map((_item, index) => groupHeadingAt(items, index))).toEqual([
       null,
-      PRESET_GROUP_LABELS.character,
+      presetGroupLabel('character'),
       null,
     ]);
   });
 
   it('検索で定番が消えてキャラクターから始まるときは、先頭に見出しを出す', () => {
-    expect(groupHeadingAt(items.slice(1), 0)).toBe(PRESET_GROUP_LABELS.character);
+    expect(groupHeadingAt(items.slice(1), 0)).toBe(presetGroupLabel('character'));
     expect(groupHeadingAt(items, 3)).toBeNull();
   });
 });

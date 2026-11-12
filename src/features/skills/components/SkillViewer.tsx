@@ -1,5 +1,6 @@
 import { Button, Icon, reportError } from '@/shared/ui';
 import type { Skill } from '@/shared/types/domain';
+import { t } from '../i18n';
 import { revealSkillFolder } from '../store';
 import { SourceMark } from './SourceMark';
 import details from './SkillDetails.module.css';
@@ -9,8 +10,10 @@ import styles from './SkillManager.module.css';
 export function SkillViewer({ skill, onClose }: { skill: Skill; onClose: () => void }) {
   const { source } = skill;
   const path = source?.kind === 'linked' ? source.path : null;
+  // 文言の中のフォルダの位置に <code> を置く
+  const [beforePath, afterPath] = t('viewerLinked').split('{path}');
   return (
-    <section className={styles.editor} aria-label={`${skill.name} の本文`}>
+    <section className={styles.editor} aria-label={t('bodyOf', { name: skill.name })}>
       <div className={details.nameLine}>
         <code className={styles.name}>{skill.name}</code>
         {source && <SourceMark source={source} />}
@@ -18,30 +21,27 @@ export function SkillViewer({ skill, onClose }: { skill: Skill; onClose: () => v
       <p className={details.viewerDescription}>{skill.description}</p>
       {path && (
         <p className={details.viewerNote}>
-          元のフォルダ <code>{path}</code> を参照しています。実行のたびに読み直すので、内容を変えるときは元の SKILL.md
-          を編集してください。
+          {beforePath}
+          <code>{path}</code>
+          {afterPath}
         </p>
       )}
-      {source?.kind === 'builtin' && (
-        <p className={details.viewerNote}>
-          アプリに入っている内蔵スキルです。アプリを更新すると内容も新しくなります。自分用に直したいときは、いったん外してから「内蔵スキルから追加」の「コピーして追加」で取り込んでください。
-        </p>
-      )}
+      {source?.kind === 'builtin' && <p className={details.viewerNote}>{t('viewerBuiltin')}</p>}
       {skill.problem && (
         <p className={details.problem}>
           <Icon name="alert" className={details.problemIcon} />
           {skill.problem}
         </p>
       )}
-      <pre className={details.viewerBody}>{skill.body.trim() === '' ? '（本文はありません）' : skill.body}</pre>
+      <pre className={details.viewerBody}>{skill.body.trim() === '' ? t('noBody') : skill.body}</pre>
       <div className={styles.editorActions}>
         {path && (
           <Button onClick={() => void revealSkillFolder(path).catch(reportError)}>
             <Icon name="folder" />
-            フォルダを開く
+            {t('openFolder')}
           </Button>
         )}
-        <Button onClick={onClose}>閉じる</Button>
+        <Button onClick={onClose}>{t('close')}</Button>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import { Avatar, AvatarInput, Button, ColorInput, TextField } from '@/shared/ui';
 import { useProfileForm } from '../hooks/useProfileForm';
+import { t } from '../i18n';
 import styles from './ProfileForm.module.css';
 
 export interface ProfileFormProps {
@@ -17,7 +18,7 @@ export function ProfileForm({ takenNames }: ProfileFormProps) {
         <Avatar avatar={draft.avatar} name={draft.name} color={draft.color} size="lg" human />
         <div className={styles.fields}>
           <TextField
-            label="名前"
+            label={t('name')}
             value={draft.name}
             onChange={(value) => form.update('name', value)}
             onBlur={() => form.touch('name')}
@@ -37,7 +38,7 @@ export function ProfileForm({ takenNames }: ProfileFormProps) {
       <ColorInput value={draft.color} onChange={(value) => form.update('color', value)} human />
       <div className={styles.actions}>
         <Button type="submit" variant="primary" disabled={form.saving}>
-          {form.saving ? '保存中…' : '保存'}
+          {form.saving ? t('saving') : t('save')}
         </Button>
       </div>
     </form>

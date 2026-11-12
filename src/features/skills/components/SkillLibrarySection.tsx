@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { Button, Icon, IconButton, notifyError, reportError } from '@/shared/ui';
 import { chooseLibraryFolder, loadSkillLibrary, setLibraryDirs, useLibraryStore } from '../libraryStore';
+import { tLibrary as t } from '../i18n/library';
 import { checkNewDir, moveItem, skillCountIn } from '../model/library';
 import { revealSkillFolder } from '../store';
 import styles from './SkillLibrarySection.module.css';
@@ -17,8 +18,10 @@ export function SkillLibrarySection() {
     loadSkillLibrary().catch(reportError);
   }, []);
 
-  if (!library) return <p className={styles.help}>読み込み中…</p>;
+  if (!library) return <p className={styles.help}>{t('loading')}</p>;
   const { dirs } = library;
+  // 文言の中のフォルダの形の位置に <code> を置く
+  const [beforePath, afterPath] = t('sectionHelp').split('{path}');
   const save = (next: string[]) => {
     setSaving(true);
     void setLibraryDirs(next)
@@ -37,13 +40,14 @@ export function SkillLibrarySection() {
   return (
     <>
       <p className={styles.help}>
-        Agent Skills のフォルダ（<code>名前/SKILL.md</code>{' '}
-        が入ったフォルダ）を指定すると、エージェントのスキルに「ライブラリから追加」ですぐ付けられます。フォルダの中身を変えたら「再読み込み」を押してください。
+        {beforePath}
+        <code>{t('skillPath')}</code>
+        {afterPath}
       </p>
       {dirs.length === 0 ? (
-        <p className={styles.empty}>まだフォルダを指定していません。</p>
+        <p className={styles.empty}>{t('noDirs')}</p>
       ) : (
-        <ol className={styles.dirs} aria-label="スキルのフォルダ（上から順に並びます）">
+        <ol className={styles.dirs} aria-label={t('dirsLabel')}>
           {dirs.map((dir, index) => (
             <DirRow
               key={dir}
@@ -62,11 +66,11 @@ export function SkillLibrarySection() {
       <div className={styles.actions}>
         <Button onClick={add} disabled={saving}>
           <Icon name="plus" />
-          フォルダを追加…
+          {t('addFolder')}
         </Button>
         <Button variant="ghost" onClick={() => void loadSkillLibrary().catch(reportError)} disabled={loading}>
           <Icon name="refresh" />
-          {loading ? '読み込み中…' : '再読み込み'}
+          {loading ? t('loading') : t('reload')}
         </Button>
       </div>
     </>
@@ -97,24 +101,24 @@ function DirRow({ dir, count, problem, first, last, busy, onMove, onRemove }: Di
             {problem}
           </span>
         ) : (
-          <span className={styles.count}>スキル {count} 個</span>
+          <span className={styles.count}>{t('skillCount', { count })}</span>
         )}
       </div>
       <div className={styles.dirActions}>
-        <IconButton label={`${dir} を上へ`} onClick={() => onMove(-1)} disabled={busy || first}>
+        <IconButton label={t('moveUp', { dir })} onClick={() => onMove(-1)} disabled={busy || first}>
           <Icon name="arrowUp" />
         </IconButton>
-        <IconButton label={`${dir} を下へ`} onClick={() => onMove(1)} disabled={busy || last}>
+        <IconButton label={t('moveDown', { dir })} onClick={() => onMove(1)} disabled={busy || last}>
           <Icon name="arrowDown" />
         </IconButton>
         <IconButton
-          label={`${dir} を開く`}
+          label={t('openDir', { dir })}
           onClick={() => void revealSkillFolder(dir).catch(reportError)}
           disabled={problem !== null}
         >
           <Icon name="folder" />
         </IconButton>
-        <IconButton label={`${dir} を外す`} onClick={onRemove} disabled={busy}>
+        <IconButton label={t('removeDir', { dir })} onClick={onRemove} disabled={busy}>
           <Icon name="close" />
         </IconButton>
       </div>

@@ -5,6 +5,7 @@ import { checkEffort, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
 import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
+import { tBrain } from '../i18n/brain';
 import { checkIntervalMin, DEFAULT_INTERVAL_MIN, parseIntervalMin } from './autonomy';
 import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
@@ -40,9 +41,9 @@ function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
   const entries: Array<[AgentField, string | null]> = [
     ['name', checkMemberName(draft.name, ctx.takenNames)],
     ['avatar', checkAvatar(draft.avatar)],
-    ['color', isHexColor(draft.color) ? null : '色を選んでください'],
+    ['color', isHexColor(draft.color) ? null : tBrain('chooseColor')],
     ['tags', checkTags(draft.tags)],
-    ['backend', draft.backend === '' ? 'バックエンドを選んでください' : null],
+    ['backend', draft.backend === '' ? tBrain('chooseBackend') : null],
     ['effort', checkEffort(backend, draft.model.trim(), draft.effort)],
     ['autonomyIntervalMin', checkIntervalMin(draft.autonomyIntervalMin)],
   ];
@@ -98,5 +99,5 @@ export function agentErrorField(code: ErrorCode | null, field: string | null): A
 function toolModelError(draft: AgentDraft, ctx: ValidationContext): string | null {
   const info = ctx.backends.find((candidate) => candidate.id === draft.backend);
   if (!info || !toolsRequested(info, draft.optionValues)) return null;
-  return toolsEnabled(info, draft.model, draft.optionValues) ? null : '道具に対応したモデルを選んでください';
+  return toolsEnabled(info, draft.model, draft.optionValues) ? null : tBrain('chooseToolModel');
 }

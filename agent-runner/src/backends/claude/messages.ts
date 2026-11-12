@@ -11,6 +11,7 @@ import { activity, describeTool } from '../describe.ts';
 import { BackendError, classifyErrorText } from '../types.ts';
 import { COMMAND_TOOL } from './command.ts';
 import { POST_TOOL } from './post.ts';
+import { t } from './texts/index.ts';
 import { claudeUsage } from './usage.ts';
 
 const ASSISTANT_ERROR_CODES: Readonly<Record<SDKAssistantMessageError, ErrorCode>> = {
@@ -29,10 +30,10 @@ const ASSISTANT_ERROR_CODES: Readonly<Record<SDKAssistantMessageError, ErrorCode
   unknown: 'internal',
 };
 
-const HINTS: Partial<Record<ErrorCode, string>> = {
-  auth: 'Claude の認証に失敗しました。ターミナルで `claude` を実行してログインするか、環境変数 ANTHROPIC_API_KEY を設定してください。',
-  rate_limit: 'Claude の利用上限・レート制限・混雑のため実行できませんでした。少し待ってから再度話しかけてください。',
-  model_not_found: '指定したモデルが見つかりません。エージェント設定のモデル名を確認してください。',
+const HINTS: Partial<Record<ErrorCode, 'hintAuth' | 'hintRateLimit' | 'hintModelNotFound'>> = {
+  auth: 'hintAuth',
+  rate_limit: 'hintRateLimit',
+  model_not_found: 'hintModelNotFound',
 };
 
 const textOf = (message: SDKAssistantMessage): string =>
@@ -45,7 +46,7 @@ function assistantError(message: SDKAssistantMessage, error: SDKAssistantMessage
   const code = ASSISTANT_ERROR_CODES[error] ?? 'internal';
   const detail = textOf(message) || error;
   const hint = HINTS[code];
-  return new BackendError(code, hint ? `${hint}（${detail}）` : `Claude でエラーが発生しました（${detail}）`);
+  return new BackendError(code, hint ? t('hintDetail', { hint: t(hint), detail }) : t('failed', { detail }));
 }
 
 /** 隔離の中のコマンドは、進捗の表示では内蔵の Bash と同じ「コマンド実行」にする */
@@ -69,7 +70,7 @@ function readAssistant(message: SDKAssistantMessage, onActivity: (detail: string
 function readResult(message: SDKResultMessage, lastText: string): string {
   if (message.subtype === 'success' && !message.is_error) return message.result || lastText;
   const detail = message.subtype === 'success' ? message.result : message.errors.join(' / ') || message.subtype;
-  throw new BackendError(classifyErrorText(detail), `Claude の実行が途中で終わりました（${detail}）`);
+  throw new BackendError(classifyErrorText(detail), t('interrupted', { detail }));
 }
 
 /** メッセージを最後まで読み、最終テキストを返す（result が来たらそこで終わる。抜けると SDK が子プロセスを片づける） */

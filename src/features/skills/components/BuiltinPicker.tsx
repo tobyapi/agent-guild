@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Icon, IconButton, notifyInfo, reportError } from '@/shared/ui';
 import type { BuiltinSkill, LibraryAddMode, Skill } from '@/shared/types/domain';
+import { tLibrary as t } from '../i18n/library';
 import { builtinEntryState } from '../model/library';
 import { addBuiltinSkill, listBuiltinSkills } from '../store';
 import styles from './LibraryPicker.module.css';
@@ -27,21 +28,18 @@ export function BuiltinPicker({ agentId, existing, onClose }: BuiltinPickerProps
   }, []);
 
   return (
-    <section className={styles.picker} aria-label="内蔵スキルから追加">
+    <section className={styles.picker} aria-label={t('builtinTitle')}>
       <div className={styles.head}>
-        <h4 className={styles.title}>内蔵スキルから追加</h4>
-        <IconButton label="内蔵スキルから追加を閉じる" onClick={onClose}>
+        <h4 className={styles.title}>{t('builtinTitle')}</h4>
+        <IconButton label={t('closeBuiltin')} onClick={onClose}>
           <Icon name="close" />
         </IconButton>
       </div>
-      <p className={styles.help}>
-        アプリに入っている手引きです。「追加」は内蔵スキルを参照し、アプリを更新すると内容も新しくなります（アプリでは編集できません）。「コピーして追加」は
-        SKILL.md の本文だけを取り込み、アプリで編集できます（付属ファイルは持ち込みません）。
-      </p>
+      <p className={styles.help}>{t('builtinHelp')}</p>
       {builtins === null ? (
-        <p className={styles.help}>読み込み中…</p>
+        <p className={styles.help}>{t('loading')}</p>
       ) : (
-        <ul className={styles.entries} aria-label="内蔵スキル">
+        <ul className={styles.entries} aria-label={t('builtinList')}>
           {builtins.map((entry) => (
             <BuiltinEntry key={entry.name} agentId={agentId} entry={entry} existing={existing} />
           ))}
@@ -64,10 +62,7 @@ function BuiltinEntry({ agentId, entry, existing }: BuiltinEntryProps) {
   const add = (mode: LibraryAddMode) => {
     setBusy(true);
     void addBuiltinSkill(agentId, entry.name, mode)
-      .then(
-        () => notifyInfo(mode === 'link' ? `${entry.name} を追加しました` : `${entry.name} をコピーして追加しました`),
-        reportError,
-      )
+      .then(() => notifyInfo(t(mode === 'link' ? 'added' : 'copiedAdded', { name: entry.name })), reportError)
       .finally(() => setBusy(false));
   };
   const taken = state.kind === 'nameTaken';
@@ -77,14 +72,14 @@ function BuiltinEntry({ agentId, entry, existing }: BuiltinEntryProps) {
         <span className={styles.entryHead}>
           <code className={styles.entryName}>{entry.name}</code>
           <span className={styles.meta} title={entry.files.join('\n')}>
-            {entry.files.length > 0 ? `付属ファイル ${entry.files.length} 個` : '付属ファイルなし'}
+            {entry.files.length > 0 ? t('extraFiles', { count: entry.files.length }) : t('noExtraFiles')}
           </span>
         </span>
         <span className={styles.description}>{entry.description}</span>
         {taken && (
           <span className={styles.warning}>
             <Icon name="alert" className={styles.warningIcon} />
-            同じ名前のスキル「{entry.name}」がすでにあります。
+            {t('nameTaken', { name: entry.name })}
           </span>
         )}
       </div>
@@ -92,25 +87,21 @@ function BuiltinEntry({ agentId, entry, existing }: BuiltinEntryProps) {
         {state.kind === 'added' ? (
           <span className={styles.added}>
             <Icon name="check" />
-            追加済み
+            {t('addedMark')}
           </span>
         ) : (
           <>
             <Button size="sm" variant="primary" onClick={() => add('link')} disabled={busy || taken}>
-              追加
+              {t('add')}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => add('copy')}
               disabled={busy || taken}
-              title={
-                entry.files.length > 0
-                  ? `SKILL.md の本文だけを取り込みます（付属ファイル ${entry.files.length} 個は持ち込みません）`
-                  : 'SKILL.md の本文を取り込みます'
-              }
+              title={entry.files.length > 0 ? t('copyTitleWithFiles', { count: entry.files.length }) : t('copyTitle')}
             >
-              コピーして追加
+              {t('copyAdd')}
             </Button>
           </>
         )}

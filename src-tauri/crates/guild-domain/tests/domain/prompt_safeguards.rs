@@ -1,6 +1,7 @@
 //! 外の資料の扱いと操作の前の確認: 実効権限と割り振りの設定で、意味のあるエージェントにだけ出す。
 
 use guild_domain::agent::Permissions;
+use guild_domain::locale::Language;
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_system_prompt, PromptContext};
 
@@ -40,6 +41,7 @@ fn system_prompt(permissions: Permissions, can_delegate: bool) -> String {
         time_label: &|_| String::new(),
         attachment_path: &|_, _| String::new(),
         delegation: None,
+        language: Language::Ja,
     };
     build_system_prompt(&ctx)
 }

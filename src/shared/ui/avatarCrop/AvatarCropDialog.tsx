@@ -19,6 +19,7 @@ import { CropFrame } from './CropFrame';
 import { useCropImage } from './useCropImage';
 import type { CropViewUpdate, ReadyImage } from './useCropImage';
 import styles from './AvatarCrop.module.css';
+import { t } from '../i18n';
 
 export interface AvatarCropDialogProps {
   file: File;
@@ -42,15 +43,15 @@ export function AvatarCropDialog({ file, human, onCancel, onConfirm }: AvatarCro
   };
   const footer = (
     <>
-      <Button onClick={onCancel}>キャンセル</Button>
+      <Button onClick={onCancel}>{t('cancel')}</Button>
       <Button variant="primary" onClick={confirm} disabled={state.status !== 'ready'}>
-        この範囲で使う
+        {t('cropConfirm')}
       </Button>
     </>
   );
   return (
-    <Dialog title="アバターの範囲を選ぶ" size="sm" onClose={onCancel} footer={footer}>
-      {state.status === 'loading' && <p className={styles.help}>画像を読み込んでいます…</p>}
+    <Dialog title={t('cropTitle')} size="sm" onClose={onCancel} footer={footer}>
+      {state.status === 'loading' && <p className={styles.help}>{t('cropLoading')}</p>}
       {state.status === 'error' && <FormAlert>{state.message}</FormAlert>}
       {state.status === 'ready' && <CropEditor image={state.image} view={state.view} update={update} human={human} />}
     </Dialog>
@@ -68,13 +69,13 @@ function CropEditor({ image, view, update, human }: CropEditorProps) {
   const sliderId = useId();
   const helpId = useId();
   const placement: CSSProperties = imagePlacement(view, image.size);
-  const zoomText = `${view.zoom.toFixed(1)} 倍`;
+  const zoomText = t('cropZoomValue', { zoom: view.zoom.toFixed(1) });
   return (
     <div className={styles.editor} data-human={human ? '' : undefined}>
       <div className={styles.stage}>
         <CropFrame url={image.url} size={image.size} placement={placement} update={update} describedBy={helpId} />
         <div className={styles.previews}>
-          <span className={styles.previewLabel}>仕上がり</span>
+          <span className={styles.previewLabel}>{t('cropPreview')}</span>
           <span className={styles.preview} data-size="md" aria-hidden="true">
             <img className={styles.image} src={image.url} alt="" draggable={false} style={placement} />
           </span>
@@ -85,7 +86,7 @@ function CropEditor({ image, view, update, human }: CropEditorProps) {
       </div>
       <div className={styles.zoomRow}>
         <label htmlFor={sliderId} className={styles.zoomLabel}>
-          拡大
+          {t('cropZoom')}
         </label>
         <input
           id={sliderId}
@@ -104,11 +105,11 @@ function CropEditor({ image, view, update, human }: CropEditorProps) {
         <span className={styles.zoomValue}>{zoomText}</span>
         <Button size="sm" variant="ghost" onClick={() => update(() => initialView(image.size))}>
           <Icon name="refresh" />
-          元に戻す
+          {t('cropReset')}
         </Button>
       </div>
       <p id={helpId} className={styles.help}>
-        ドラッグか矢印キー（Shift で大きく）で動かし、スライダー・ホイール・+ / − で拡大します。
+        {t('cropHelp')}
       </p>
     </div>
   );

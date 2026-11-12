@@ -3,7 +3,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus, NO_ANSWER, RUN_FAILED};
+use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus};
 use guild_domain::message::Message;
 use tokio::sync::Notify;
 
@@ -135,8 +135,8 @@ async fn failures_settle_subtasks_and_the_report_still_comes_once() {
 
     let delegation = only_delegation(&app);
     assert_eq!(statuses(&delegation), [SubtaskStatus::Failed, SubtaskStatus::Failed]);
-    assert_eq!(delegation.subtasks[0].note.as_deref(), Some(NO_ANSWER));
-    assert_eq!(delegation.subtasks[1].note.as_deref(), Some(RUN_FAILED));
+    assert_eq!(delegation.subtasks[0].note.as_deref(), Some("回答がありませんでした"));
+    assert_eq!(delegation.subtasks[1].note.as_deref(), Some("失敗しました"));
     assert_eq!(delegation.subtasks[1].result_message_id, Some(message_with(&app, "認証がありません").id));
     assert_eq!(
         (delegation.status, delegation.summary_message_id),

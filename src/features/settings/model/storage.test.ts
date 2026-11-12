@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StorageInfo } from '@/shared/types/domain';
-import { changingLabel, DATA_DIR_MODE_OPTIONS, storageSourceText } from './storage';
+import { changingLabel, dataDirModeOptions, storageSourceText } from './storage';
 
 const storage = (source: StorageInfo['source']): StorageInfo => ({
   dataDir: 'D:\\GuildData',
@@ -16,9 +16,9 @@ describe('storageSourceText', () => {
   });
 });
 
-describe('DATA_DIR_MODE_OPTIONS / changingLabel', () => {
+describe('dataDirModeOptions / changingLabel', () => {
   it('copy と open の2つを、copy から並べる', () => {
-    expect(DATA_DIR_MODE_OPTIONS.map((option) => option.value)).toEqual(['copy', 'open']);
+    expect(dataDirModeOptions().map((option) => option.value)).toEqual(['copy', 'open']);
     expect(changingLabel('copy')).toBe('データをコピーしています…');
   });
 });

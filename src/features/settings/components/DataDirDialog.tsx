@@ -1,6 +1,7 @@
 import { Button, Dialog, FormAlert, RadioGroup } from '@/shared/ui';
 import { useDataDirChange } from '../hooks/useDataDirChange';
-import { changingLabel, DATA_DIR_MODE_OPTIONS } from '../model/storage';
+import { tStorage as t } from '../i18n/storage';
+import { changingLabel, dataDirModeOptions } from '../model/storage';
 import styles from './SettingsDialog.module.css';
 
 export interface DataDirDialogProps {
@@ -14,30 +15,24 @@ export function DataDirDialog({ path, onClose }: DataDirDialogProps) {
   const footer = (
     <>
       <Button onClick={onClose} disabled={change.busy}>
-        キャンセル
+        {t('cancel')}
       </Button>
       <Button variant="primary" onClick={() => void change.submit()} disabled={change.busy}>
-        {change.busy ? changingLabel(change.mode) : '変更して再起動'}
+        {change.busy ? changingLabel(change.mode) : t('changeAndRestart')}
       </Button>
     </>
   );
   return (
-    <Dialog
-      size="sm"
-      title="データの保存先を変更"
-      description="変更すると、AIギルドを再起動して新しい場所のデータで開き直します。"
-      onClose={onClose}
-      footer={footer}
-    >
+    <Dialog size="sm" title={t('dialogTitle')} description={t('dialogDescription')} onClose={onClose} footer={footer}>
       <div className={styles.location}>
-        <span className={styles.locationLabel}>新しい場所</span>
+        <span className={styles.locationLabel}>{t('newLocation')}</span>
         <code className={styles.path}>{path}</code>
       </div>
       {change.error && <FormAlert>{change.error}</FormAlert>}
       <RadioGroup
-        legend="今のデータをどうしますか"
+        legend={t('dialogLegend')}
         value={change.mode}
-        options={DATA_DIR_MODE_OPTIONS}
+        options={dataDirModeOptions()}
         onChange={change.choose}
       />
     </Dialog>

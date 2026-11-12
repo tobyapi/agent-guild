@@ -3,6 +3,7 @@
 use guild_domain::agent::{effective_permissions, Agent, Permissions};
 use guild_domain::backend::BackendInfo;
 use guild_domain::ids::{AgentId, SkillId};
+use guild_domain::locale::Language;
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_system_prompt, PromptContext};
 use guild_domain::skill::Skill;
@@ -58,6 +59,7 @@ fn system_prompt_with_backends(agent_id: &str, skills: &[Skill], memory: &str, b
         time_label: &|_| String::new(),
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation: None,
+        language: Language::Ja,
     };
     build_system_prompt(&ctx)
 }

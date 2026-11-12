@@ -1,5 +1,6 @@
 import { BackendStatus, useBackends } from '@/features/runtime';
 import { SelectField } from '@/shared/ui';
+import { tBrain } from '../../i18n/brain';
 import type { AgentDraft, DraftUpdate } from '../../model/draft';
 import type { AgentErrors } from '../../model/validation';
 import { BackendOptionsFields } from './BackendOptionsFields';
@@ -21,16 +22,16 @@ export function BrainFields({ draft, errors, optionErrors, update, onBackend, on
   const backend = backends.find((candidate) => candidate.id === draft.backend);
   const unknownBackend = backend === undefined && draft.backend !== '';
   return (
-    <EditorSection title="頭脳">
+    <EditorSection title={tBrain('brainSection')}>
       <SelectField
-        label="バックエンド"
+        label={tBrain('backendLabel')}
         value={draft.backend}
         onChange={onBackend}
         error={errors.backend}
-        hint={backends.length === 0 ? 'エージェントの実行環境が起動すると選べます。' : undefined}
+        hint={backends.length === 0 ? tBrain('backendWaiting') : undefined}
       >
-        {draft.backend === '' && <option value="">選んでください</option>}
-        {unknownBackend && <option value={draft.backend}>{draft.backend}（この環境にはありません）</option>}
+        {draft.backend === '' && <option value="">{tBrain('chooseOption')}</option>}
+        {unknownBackend && <option value={draft.backend}>{tBrain('unknownBackend', { id: draft.backend })}</option>}
         {backends.map((candidate) => (
           <option key={candidate.id} value={candidate.id}>
             {candidate.id} — {candidate.label}

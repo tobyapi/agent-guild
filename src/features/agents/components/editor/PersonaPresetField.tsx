@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TextAreaField, TextField } from '@/shared/ui';
+import { tEditor } from '../../i18n/editor';
 import { appendPresetText, matchingPreset } from '../../model/personas/presetText';
 import type { AnyPreset } from '../../model/personas/types';
 import { PresetPicker } from './PresetPicker';
@@ -50,9 +51,9 @@ export function PersonaPresetField<T extends AnyPreset>({
   const hint =
     previous === null ? undefined : (
       <>
-        置き換えました
+        {tEditor('replacedNotice')}
         <button type="button" className={styles.undo} onClick={() => change(previous)}>
-          元に戻す
+          {tEditor('undo')}
         </button>
       </>
     );

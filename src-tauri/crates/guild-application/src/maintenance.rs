@@ -3,6 +3,8 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+use guild_domain::locale;
+
 use crate::error::{AppError, AppResult};
 
 #[derive(Debug, Clone, Default)]
@@ -24,7 +26,16 @@ impl Maintenance {
     /// メンテナンス中なら Unavailable
     pub fn ensure_available(&self) -> AppResult<()> {
         if self.is_active() {
-            Err(AppError::Unavailable("保存先を変更しているため、いまは送信できません".to_owned()))
+            Err(AppError::Unavailable(
+                locale::pick([
+                    "保存先を変更しているため、いまは送信できません",
+                    "Messages cannot be sent right now because the data location is being changed",
+                    "正在更改数据存储位置，暂时无法发送",
+                    "正在變更資料儲存位置，暫時無法傳送",
+                    "데이터 저장 위치를 변경하는 중이므로 지금은 보낼 수 없습니다",
+                ])
+                .to_owned(),
+            ))
         } else {
             Ok(())
         }

@@ -9,23 +9,25 @@ use rusqlite::{Connection, OpenFlags};
 use super::migrations::{self, APPLICATION_ID};
 use super::reset;
 
+mod messages;
+
 /// データベースの操作の失敗
 #[derive(Debug, thiserror::Error)]
 pub enum DbError {
-    #[error("データベースの操作に失敗しました: {0}")]
+    #[error("{}", messages::sqlite_failed(.0))]
     Sqlite(#[from] rusqlite::Error),
-    #[error("データベースのファイル操作に失敗しました: {0}")]
+    #[error("{}", messages::io_failed(.0))]
     Io(#[from] std::io::Error),
 }
 
 /// 開けなかった理由（起動の復旧モードの理由に対応する）
 #[derive(Debug, thiserror::Error)]
 pub enum OpenError {
-    #[error("AIギルドのデータベースではありません")]
+    #[error("{}", messages::foreign())]
     Foreign,
-    #[error("新しい版のアプリで保存されたデータベースです（スキーマの版 {0}）")]
+    #[error("{}", messages::newer(.0))]
     Newer(usize),
-    #[error("データベースを読み込めません: {0}")]
+    #[error("{}", messages::corrupt(.0))]
     Corrupt(String),
 }
 
@@ -60,7 +62,7 @@ impl Database {
                 log::warn!("スキーマが変わったので、古いデータベースを {} に退避して作り直します", backup.display());
                 Self::init(connect(path).map_err(corrupt)?)
             }
-            Identity::Outdated => Err(OpenError::Corrupt("スキーマの指紋が一致しません".to_owned())),
+            Identity::Outdated => Err(OpenError::Corrupt(messages::fingerprint_mismatch())),
             Identity::Fresh | Identity::Known => Self::init(conn),
         }
     }
@@ -97,9 +99,7 @@ pub fn inspect_database(path: &Path) -> Result<(), OpenError> {
     match identify(&conn).map_err(corrupt)? {
         Identity::Foreign => Err(OpenError::Foreign),
         Identity::Newer(version) => Err(OpenError::Newer(version)),
-        Identity::Outdated if !cfg!(debug_assertions) => {
-            Err(OpenError::Corrupt("スキーマの指紋が一致しません".to_owned()))
-        }
+        Identity::Outdated if !cfg!(debug_assertions) => Err(OpenError::Corrupt(messages::fingerprint_mismatch())),
         _ => Ok(()),
     }
 }

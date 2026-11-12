@@ -38,6 +38,9 @@ export interface PermissionRule {
   requires: PermissionKey[];
 }
 
+/** 表示の言語。起動時は環境変数 GUILD_LANGUAGE（なければ・知らない値なら ja）、以後は setLanguage で変わる */
+export type Language = 'ja' | 'en' | 'zh-Hans' | 'zh-Hant' | 'ko';
+
 export type BackendStatus = 'ready' | 'needs_auth' | 'stopped' | 'unavailable';
 
 export interface OptionSpec {
@@ -179,6 +182,8 @@ export type RunnerRequest =
   | { type: 'probe'; id: string }
   /** ログインを始める（setup.login のあるものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
   | { type: 'login'; id: string; backend: string }
+  /** ランナーが作る文字列（BackendInfo の説明・途中経過・エラー）の言語を変え、backends を送り直す。id も返事もない */
+  | { type: 'setLanguage'; language: Language }
   | { type: 'shutdown' };
 
 /** 取得できた使用量の増分。model は主モデル名。費用の単位は 10 億分の 1 米ドル。 */

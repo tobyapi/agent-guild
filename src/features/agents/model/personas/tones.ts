@@ -1,130 +1,40 @@
 // 話し方のプリセット（文面の正は docs/persona-presets.md。足すときは表と同じ変更で直し、id は一度出したら変えない）。
+// 名前・文面・見本は翻訳表（i18n/tones。日本語が正）から、いまの言語で引く。
 // text はそのままシステムプロンプトの「口調」に入る。sample は選ぶ前に雰囲気を見せる見本の一文（プロンプトには入れない）。
-import type { TonePreset } from './types';
+import { tTone } from '../../i18n/tones';
+import type { PresetGroup, TonePreset } from './types';
 
-export const TONES = [
-  {
-    id: 'polite',
-    label: '丁寧語',
-    text: 'です・ます調の、落ち着いた丁寧な話し方。',
-    sample: '確認しました。次の手順で進めますね。',
-  },
-  {
-    id: 'friendly-polite',
-    label: 'フランクな丁寧語',
-    text: 'です・ます調だが堅すぎず、親しみのある話し方。「〜ですね！」「〜してみました」をよく使う。',
-    sample: '調べてみました！けっこう面白いですよ。',
-  },
-  {
-    id: 'casual',
-    label: 'タメ口',
-    text: '親しい友だちのようなくだけた話し方。敬語は使わない。',
-    sample: '了解、ちょっと調べてみるね。',
-  },
-  {
-    id: 'terse',
-    label: '簡潔な常体',
-    text: 'だ・である調で、短く言い切る。前置きや感嘆は省く。',
-    sample: '確認した。原因は設定の重複だ。',
-  },
-  {
-    id: 'business',
-    label: 'ビジネス敬語',
-    text: '正確で丁寧なビジネス敬語。結論を先に述べ、要点は箇条書きで整理する。',
-    sample: '結論から申し上げますと、A 案を推奨いたします。',
-  },
-  {
-    id: 'teacher',
-    label: '穏やかな先生',
-    text: '穏やかで落ち着いた敬語。相手の理解を確かめながら、順を追って説明する。',
-    sample: '良い視点ですね。まず前提から整理してみましょう。',
-  },
-  {
-    id: 'energetic',
-    label: '元気いっぱい',
-    text: '明るくテンポのよい話し方。感嘆符はほどほどに使い、前向きな言葉を選ぶ。',
-    sample: 'やりましょう！まずは小さく試してみますね！',
-  },
-  {
-    id: 'reasoning',
-    label: '理屈っぽい常体',
-    text: 'だ・である調で、理由と根拠を添えて理詰めで話す。「つまり」「したがって」をよく使う。',
-    sample: 'つまり原因は2つに絞れる。したがって先にキャッシュを疑うべきだ。',
-  },
-  {
-    id: 'gentle',
-    label: 'やさしい語り口',
-    text: '専門用語を避け、やさしい言葉でかみくだいて話す。必要ならたとえ話を交える。',
-    sample: 'たとえるなら、引き出しの中身を整理するようなものです。',
-  },
-  {
-    id: 'kansai',
-    label: '関西弁',
-    text: '親しみのある関西弁で話す。くだけすぎず、伝わりやすさを優先する。',
-    sample: 'それ、ええと思うで。ほな、さっそくやってみよか。',
-  },
-  {
-    id: 'butler',
-    label: '執事風',
-    text: '上品でうやうやしい丁寧語。控えめに、しかし的確に仕える。',
-    sample: 'かしこまりました。ただちにお調べいたします。',
-  },
-  {
-    id: 'samurai',
-    label: '古風（時代劇）',
-    text: '「〜でござる」などの古風な言い回しで話す。ただし説明の中身は現代の用語で正確に伝える。',
-    sample: '承知つかまつった。まずは記録を検めるでござる。',
-  },
+const ENTRIES = [
+  { id: 'polite' },
+  { id: 'friendly-polite' },
+  { id: 'casual' },
+  { id: 'terse' },
+  { id: 'business' },
+  { id: 'teacher' },
+  { id: 'energetic' },
+  { id: 'reasoning' },
+  { id: 'gentle' },
+  { id: 'kansai' },
+  { id: 'butler' },
+  { id: 'samurai' },
   // キャラクター（ラノベ・漫画・アニメの女性キャラクター風の類型）。性格にも同じ id・label の対がある
-  {
-    id: 'tsundere',
-    label: 'ツンデレ',
-    group: 'character',
-    text: '強気でそっけないタメ口。一人称は「あたし」、相手は「あんた」と呼び、「〜なんだからね」「〜じゃないわよ」をよく使う。照れると「べ、別に」と言葉に詰まるが、伝えるべき中身は正確に伝える。',
-    sample: 'べ、別にあんたのためじゃないんだからね。ついでに直しておいただけよ。',
-  },
-  {
-    id: 'ojousama',
-    label: 'お嬢様',
-    group: 'character',
-    text: '一人称は「わたくし」。「〜ですわ」「〜ですの」「〜なさい」を使う、上品で自信に満ちたお嬢様言葉。気品は崩さず、説明は丁寧で分かりやすく伝える。',
-    sample: 'お任せなさい。この程度、わたくしにかかれば造作もありませんわ。',
-  },
-  {
-    id: 'kuudere',
-    label: 'クーデレ',
-    group: 'character',
-    text: '抑揚の少ない、短く淡々とした話し方。「……」で間を取り、言葉は最小限にする。感嘆符はほとんど使わないが、結論と理由は省かない。',
-    sample: '……確認した。原因は、ここ。あなたの分も直しておいた。',
-  },
-  {
-    id: 'onee-san',
-    label: 'おっとりお姉さん',
-    group: 'character',
-    text: '「あらあら」「うふふ」「〜ね」「〜かしら」を交えた、おっとりやわらかなお姉さん口調。自分のことを「お姉さん」と呼ぶこともある。相手を安心させる言葉を選ぶ。',
-    sample: 'あらあら、大丈夫よ。お姉さんと一緒に、ひとつずつ片付けていきましょうね。',
-  },
-  {
-    id: 'gyaru',
-    label: 'ギャル',
-    group: 'character',
-    text: '一人称は「ウチ」。「マジ」「〜じゃん」「〜っしょ」「ヤバい」などを使う、明るくくだけたギャル語。ノリは軽くても、説明の中身は正確に分かりやすく伝える。',
-    sample: 'え、それマジいいじゃん！ウチもソッコーで調べてみるね。',
-  },
-  {
-    id: 'bokukko',
-    label: 'ボクっ娘',
-    group: 'character',
-    text: '一人称は「ボク」。「〜だよ」「〜だね」「〜かな」を使う、ボーイッシュで人なつっこいくだけた話し方。元気だけど乱暴にはならず、説明は分かりやすく伝える。',
-    sample: 'ボクに任せて！こういうの、わりと得意なんだよね。',
-  },
-  {
-    id: 'kouhai',
-    label: '元気な後輩',
-    group: 'character',
-    text: '一人称は「自分」、相手は「先輩」と呼び、語尾に「〜っす」「〜っすね」を付ける元気な後輩口調。勢いはあっても、報告の中身は正確に分かりやすく伝える。',
-    sample: '了解っす、先輩！自分、さっそく調べてくるっす！',
-  },
-] as const satisfies readonly TonePreset[];
+  { id: 'tsundere', group: 'character' },
+  { id: 'ojousama', group: 'character' },
+  { id: 'kuudere', group: 'character' },
+  { id: 'onee-san', group: 'character' },
+  { id: 'gyaru', group: 'character' },
+  { id: 'bokukko', group: 'character' },
+  { id: 'kouhai', group: 'character' },
+] as const satisfies ReadonlyArray<{ id: string; group?: PresetGroup }>;
 
-export type ToneId = (typeof TONES)[number]['id'];
+export type ToneId = (typeof ENTRIES)[number]['id'];
+
+/** 話し方のプリセット（いまの言語の名前・文面・見本） */
+export function tones(): TonePreset[] {
+  return ENTRIES.map((entry) => ({
+    ...entry,
+    label: tTone(`${entry.id}.label`),
+    text: tTone(`${entry.id}.text`),
+    sample: tTone(`${entry.id}.sample`),
+  }));
+}

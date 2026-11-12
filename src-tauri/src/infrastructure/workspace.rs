@@ -17,6 +17,8 @@ use super::data_dir::{safe_component, AGENTS_DIR};
 use super::file_manager;
 use super::plain_path::plain_path;
 
+mod messages;
+
 const MEMORY_FILE: &str = "MEMORY.md";
 /// Windows で使用中のファイルが消せないときの再試行
 const REMOVE_ATTEMPTS: u32 = 5;
@@ -42,24 +44,21 @@ impl Workspace for FsWorkspace {
     fn validate_folder(&self, folder: &str) -> AppResult<String> {
         let input = Path::new(folder);
         if !input.is_absolute() {
-            return Err(AppError::validation("作業フォルダは絶対パスで指定してください"));
+            return Err(AppError::validation(messages::not_absolute()));
         }
         let path = fs::canonicalize(input).map_err(storage)?;
         if !path.is_dir() {
-            return Err(AppError::validation("存在するフォルダを指定してください"));
+            return Err(AppError::validation(messages::not_existing()));
         }
         let managed = fs::canonicalize(
-            self.agents_root.parent().ok_or_else(|| AppError::validation("保存領域の親がありません"))?,
+            self.agents_root.parent().ok_or_else(|| AppError::validation(messages::no_storage_parent()))?,
         )
         .map_err(storage)?;
         if path.starts_with(&managed) || managed.starts_with(&path) {
-            return Err(AppError::validation("アプリの保存領域やその親フォルダは割り当てられません"));
+            return Err(AppError::validation(messages::managed_folder()));
         }
         // Windows の canonicalize は `\\?\C:\...` を返す。ランナー（Node）とそのパスの比較・OS の隔離の設定に渡すので、普通の形で保存する
-        plain_path(&path)
-            .to_str()
-            .map(str::to_owned)
-            .ok_or_else(|| AppError::validation("フォルダのパスを読み取れません"))
+        plain_path(&path).to_str().map(str::to_owned).ok_or_else(|| AppError::validation(messages::unreadable_path()))
     }
 
     fn scoped_work_dir(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> PathBuf {
@@ -75,13 +74,13 @@ impl Workspace for FsWorkspace {
     ) -> AppResult<WorkspacePaths> {
         if let Some(folder) = &scope.folder {
             if self.validate_folder(folder)? != *folder {
-                return Err(AppError::validation("割り当てフォルダの実体が変わりました。選び直してください"));
+                return Err(AppError::validation(messages::folder_changed()));
             }
         }
         let work = self.scoped_work_dir(agent, channel, scope.revision);
         let state = work
             .parent()
-            .ok_or_else(|| AppError::validation("作業場所の親がありません"))?
+            .ok_or_else(|| AppError::validation(messages::no_workspace_parent()))?
             .join("state")
             .join(safe_component(backend));
         fs::create_dir_all(&work).map_err(storage)?;
@@ -139,10 +138,10 @@ impl Workspace for FsWorkspace {
     fn reveal(&self, agent: &AgentId) -> AppResult<()> {
         let work = self.work_dir(agent);
         fs::create_dir_all(&work).map_err(storage)?;
-        file_manager::reveal(&work).map_err(|e| AppError::Storage(format!("フォルダを開けませんでした（{e}）")))
+        file_manager::reveal(&work).map_err(|e| AppError::Storage(messages::cannot_reveal(&e)))
     }
 }
 
 fn storage(error: io::Error) -> AppError {
-    AppError::Storage(format!("作業フォルダを操作できませんでした: {error}"))
+    AppError::Storage(messages::operation_failed(&error))
 }

@@ -5,8 +5,9 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { definedEnv, fileExists } from '../environment.ts';
 import type { BackendProbe } from '../types.ts';
-import { CLAUDE_NOT_FOUND, findClaude } from './executable.ts';
+import { claudeNotFound, findClaude } from './executable.ts';
 import { CAN_LOGIN, claudeLoginStatus } from './login.ts';
+import { t } from './texts/index.ts';
 
 /** どれかがあれば認証の手段があるとみなす（API キー・トークン・クラウド事業者経由） */
 const CREDENTIAL_ENVS = [
@@ -22,20 +23,18 @@ const READY: BackendProbe = { status: 'ready', statusMessage: '' };
 
 export async function probeClaude(): Promise<BackendProbe> {
   const executable = findClaude();
-  if (executable === null) return { status: 'unavailable', statusMessage: CLAUDE_NOT_FOUND };
+  if (executable === null) return { status: 'unavailable', statusMessage: claudeNotFound() };
   if (definedEnv(CREDENTIAL_ENVS)) return READY;
   if (process.platform === 'darwin') {
     const signedIn = await claudeLoginStatus(executable);
     if (signedIn === true) return READY;
-    if (signedIn === null) return { status: 'ready', statusMessage: 'ログイン状態は実行時に確認します' };
+    if (signedIn === null) return { status: 'ready', statusMessage: t('loginAtRun') };
   } else {
     const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
     if (await fileExists(join(configDir, '.credentials.json'))) return READY;
   }
   return {
     status: 'needs_auth',
-    statusMessage: CAN_LOGIN
-      ? 'Claude を使うには、ブラウザーで Claude のアカウントにログインしてください。'
-      : 'Claude にログインしていません。ターミナルで `claude auth login` を実行するか、環境変数 ANTHROPIC_API_KEY を設定してください。',
+    statusMessage: CAN_LOGIN ? t('needsLogin') : t('needsLoginTerminal'),
   };
 }

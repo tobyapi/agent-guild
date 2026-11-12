@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { openSettings } from '@/features/settings';
 import { checkForUpdate, updateNotice, versionToNotify } from '@/features/update';
 import { notifyInfo } from '@/shared/ui';
+import { t } from './i18n';
 
 /** 開いたままのアプリでも新しい版に気づけるよう、確かめ直す間隔 */
 const RECHECK_MS = 6 * 60 * 60 * 1000;
@@ -18,7 +19,7 @@ export function useUpdateNotice(): void {
         const latest = versionToNotify(status, notified);
         if (latest === null) return;
         notified = latest.version;
-        notifyInfo(updateNotice(latest), { label: '内容を見る', run: () => openSettings('update') });
+        notifyInfo(updateNotice(latest), { label: t('viewUpdate'), run: () => openSettings('update') });
       });
     };
     check();

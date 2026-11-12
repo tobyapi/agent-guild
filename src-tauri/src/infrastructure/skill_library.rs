@@ -6,6 +6,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use guild_application::ports::{DirProblem, DirScan, FoundSkill, SkillFileError, SkillLibraryScanner};
+use guild_domain::locale;
 use guild_domain::skill::{LIBRARY_SCAN_DEPTH, SKILL_FILE};
 
 /// SKILL.md の大きさの上限（これを超えるものは読まない）
@@ -48,10 +49,13 @@ impl SkillLibraryScanner for FsSkillLibrary {
         };
         let metadata = fs::metadata(&path).map_err(unreadable)?;
         if metadata.len() > SKILL_FILE_MAX_BYTES {
-            return Err(SkillFileError::Unreadable("1MB を超えています".to_owned()));
+            return Err(SkillFileError::Unreadable(
+                locale::pick(["1MB を超えています", "Larger than 1 MB", "超过 1MB", "超過 1MB", "1MB를 초과합니다"])
+                    .to_owned(),
+            ));
         }
         let bytes = fs::read(&path).map_err(unreadable)?;
-        String::from_utf8(bytes).map_err(|_| SkillFileError::Unreadable("UTF-8 のテキストではありません".to_owned()))
+        String::from_utf8(bytes).map_err(|_| SkillFileError::Unreadable(not_utf8()))
     }
 
     fn is_folder(&self, path: &Path) -> bool {
@@ -124,4 +128,15 @@ fn count_files(dir: &Path, is_root: bool) -> u32 {
         }
     }
     count
+}
+
+fn not_utf8() -> String {
+    locale::pick([
+        "UTF-8 のテキストではありません",
+        "Not UTF-8 text",
+        "不是 UTF-8 文本",
+        "不是 UTF-8 文字",
+        "UTF-8 텍스트가 아닙니다",
+    ])
+    .to_owned()
 }

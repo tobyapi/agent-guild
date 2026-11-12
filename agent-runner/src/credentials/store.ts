@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { BackendError } from '../backends/types.ts';
+import { t } from '../texts/index.ts';
 import { WINDOWS_CREDENTIAL_SCRIPT } from './windows-script.ts';
 
 // バックエンドの API キーを OS の資格情報ストアに保存する。どのバックエンドが使えるか・代わりに使う環境変数の名前は、
@@ -8,7 +9,6 @@ import { WINDOWS_CREDENTIAL_SCRIPT } from './windows-script.ts';
 export type KeyAction = 'status' | 'set' | 'delete';
 /** 資格情報の名前に使えるバックエンド ID の形（windows-script.ts も同じ形だけを受け付ける） */
 const BACKEND_ID = /^[a-z][a-z0-9-]{0,31}$/;
-const STORE_FAILURE = 'OSの資格情報ストアを利用できない。Windowsの資格情報管理とPowerShellを確認してください。';
 const pending = new Map<string, Promise<unknown>>();
 
 // No plaintext fallback. A failed read must never silently select a different credential.
@@ -29,13 +29,13 @@ export function credentialStore(
 }
 
 async function operate(backend: string, action: 'get' | 'set' | 'delete', key?: string): Promise<string | null> {
-  if (!BACKEND_ID.test(backend)) throw new BackendError('bad_request', 'APIキーを保存できないバックエンドです。');
+  if (!BACKEND_ID.test(backend)) throw new BackendError('bad_request', t('keyBackend'));
   if (process.platform !== 'win32') {
     if (action === 'get') return null;
-    throw new BackendError('unsupported_permission', 'APIキーの安全な保存は現在Windowsのみ対応しています。');
+    throw new BackendError('unsupported_permission', t('keyWindowsOnly'));
   }
   return new Promise<string | null>((resolve, reject) => {
-    const fail = (): void => reject(new BackendError('auth', STORE_FAILURE));
+    const fail = (): void => reject(new BackendError('auth', t('keyStoreFailed')));
     const executable = join(
       process.env.SystemRoot ?? 'C:\\Windows',
       'System32',
@@ -82,7 +82,7 @@ async function operate(backend: string, action: 'get' | 'set' | 'delete', key?: 
     });
     child.stdin.end(JSON.stringify({ backend, action, key }));
   }).catch(() => {
-    throw new BackendError('auth', STORE_FAILURE);
+    throw new BackendError('auth', t('keyStoreFailed'));
   });
 }
 
@@ -99,7 +99,7 @@ export async function apiKeyEnvironment(
 export async function manageApiKey(backend: string, envVar: string, action: KeyAction, key?: string): Promise<string> {
   if (action === 'set') {
     if (!key?.trim() || Buffer.byteLength(key.trim(), 'utf8') > 2560 || /[\r\n\0]/.test(key)) {
-      throw new BackendError('bad_request', 'APIキーを1行・2560バイト以内で入力してください。');
+      throw new BackendError('bad_request', t('keyFormat'));
     }
     await credentialStore(backend, 'set', key.trim());
   } else if (action === 'delete') await credentialStore(backend, 'delete');

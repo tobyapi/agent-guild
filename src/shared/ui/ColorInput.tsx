@@ -1,6 +1,7 @@
 import type { CSSProperties, KeyboardEvent } from 'react';
-import { COLOR_PRESETS } from '@/shared/lib/colors';
+import { COLOR_PRESETS, colorName } from '@/shared/lib/colors';
 import styles from './ColorInput.module.css';
+import { t } from './i18n';
 
 export interface ColorInputProps {
   value: string;
@@ -28,9 +29,14 @@ export function ColorInput({ value, onChange, human }: ColorInputProps) {
   const selected = value.toLowerCase();
   const hasSelection = COLOR_PRESETS.some((preset) => preset.value === selected);
   return (
-    <div className={styles.field} role="group" aria-label="個人色">
-      <span className={styles.label}>個人色</span>
-      <div className={styles.swatches} role="radiogroup" aria-label="個人色" data-human={human ? '' : undefined}>
+    <div className={styles.field} role="group" aria-label={t('colorLabel')}>
+      <span className={styles.label}>{t('colorLabel')}</span>
+      <div
+        className={styles.swatches}
+        role="radiogroup"
+        aria-label={t('colorLabel')}
+        data-human={human ? '' : undefined}
+      >
         {COLOR_PRESETS.map((preset, index) => (
           <button
             key={preset.value}
@@ -38,8 +44,8 @@ export function ColorInput({ value, onChange, human }: ColorInputProps) {
             role="radio"
             className={styles.swatch}
             style={{ '--swatch-color': preset.value } as CSSProperties}
-            title={preset.name}
-            aria-label={preset.name}
+            title={colorName(preset.key)}
+            aria-label={colorName(preset.key)}
             aria-checked={preset.value === selected}
             tabIndex={preset.value === selected || (!hasSelection && index === 0) ? 0 : -1}
             onClick={() => onChange(preset.value)}

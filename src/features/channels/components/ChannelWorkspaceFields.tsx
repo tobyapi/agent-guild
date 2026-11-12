@@ -4,6 +4,7 @@ import { Button, SelectField, TextField, reportError } from '@/shared/ui';
 import { channelsApi } from '../api';
 import type { useChannelForm } from '../hooks/useChannelForm';
 import { folderScopeHint } from '../model/channels';
+import { t } from '../i18n';
 
 /** チャンネルの作業範囲（エージェント共通・指定フォルダ・チャンネル専用）を選ぶ欄 */
 export function ChannelWorkspaceFields({ form }: { form: ReturnType<typeof useChannelForm> }) {
@@ -11,17 +12,17 @@ export function ChannelWorkspaceFields({ form }: { form: ReturnType<typeof useCh
   return (
     <>
       <SelectField
-        label="ファイルの範囲"
+        label={t('fileScope')}
         value={form.draft.workspaceMode}
         onChange={(value) => form.update('workspaceMode', value as WorkspaceMode)}
       >
-        <option value="shared">エージェント共通の作業場所（役割の権限）</option>
-        <option value="folder">指定した作業フォルダ</option>
-        <option value="global">チャンネル専用の作業場所（役割の権限）</option>
+        <option value="shared">{t('scopeShared')}</option>
+        <option value="folder">{t('scopeFolder')}</option>
+        <option value="global">{t('scopeGlobal')}</option>
       </SelectField>
       {form.draft.workspaceMode === 'folder' && (
         <TextField
-          label="作業フォルダ"
+          label={t('folderLabel')}
           labelAction={
             <Button
               type="button"
@@ -31,20 +32,18 @@ export function ChannelWorkspaceFields({ form }: { form: ReturnType<typeof useCh
                 }, reportError);
               }}
             >
-              フォルダを選ぶ
+              {t('chooseFolder')}
             </Button>
           }
           value={form.draft.workspaceFolder}
           onChange={(value) => form.update('workspaceFolder', value)}
           onBlur={() => form.touch('workspaceFolder')}
           error={form.errors.workspaceFolder}
-          placeholder="フォルダの絶対パス"
+          placeholder={t('folderPlaceholder')}
           hint={folderScopeHint(backends)}
         />
       )}
-      {form.draft.workspaceMode === 'global' && (
-        <p>作業場所とメモをこのチャンネルだけで使います。PC 全体へのアクセスは、役割とバックエンドに従います。</p>
-      )}
+      {form.draft.workspaceMode === 'global' && <p>{t('globalNote')}</p>}
     </>
   );
 }

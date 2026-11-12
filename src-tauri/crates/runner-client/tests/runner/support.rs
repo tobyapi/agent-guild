@@ -22,6 +22,7 @@ pub fn config(script: &str) -> RunnerConfig {
         args: vec!["--from-test".to_owned()],
         env: vec![("FAKE_FLAG".to_owned(), "on".to_owned())],
         cwd: Some(fixture("")),
+        language: "ja".to_owned(),
         ready_timeout: Duration::from_secs(10),
         cancel_grace: CANCEL_GRACE,
     }

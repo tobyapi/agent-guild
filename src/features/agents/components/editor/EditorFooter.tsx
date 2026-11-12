@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, ConfirmDialog, Icon, notifyInfo, reportError } from '@/shared/ui';
 import type { Agent } from '@/shared/types/domain';
+import { tEditor } from '../../i18n/editor';
 import { closeAgentEditor, deleteAgent, openAgentWorkspace } from '../../store';
 import styles from './EditorFooter.module.css';
 
@@ -12,8 +13,8 @@ export interface EditorFooterProps {
 }
 
 function submitLabel(saving: boolean, isNew: boolean): string {
-  if (saving) return '保存中…';
-  return isNew ? '作成' : '保存';
+  if (saving) return tEditor('saving');
+  return isNew ? tEditor('create') : tEditor('save');
 }
 
 /** 足元: 左に補助操作と削除、右に［キャンセル］［作成・保存］ */
@@ -25,15 +26,15 @@ export function EditorFooter({ agent, formId, saving }: EditorFooterProps) {
         <div className={styles.side}>
           <Button variant="ghost" onClick={() => void openAgentWorkspace(agent.id).catch(reportError)}>
             <Icon name="folder" />
-            作業フォルダを開く
+            {tEditor('openWorkspace')}
           </Button>
           <Button variant="danger" onClick={() => setDeleting(true)}>
             <Icon name="trash" />
-            削除
+            {tEditor('delete')}
           </Button>
         </div>
       )}
-      <Button onClick={closeAgentEditor}>{agent ? '閉じる' : 'キャンセル'}</Button>
+      <Button onClick={closeAgentEditor}>{agent ? tEditor('close') : tEditor('cancel')}</Button>
       <Button type="submit" form={formId} variant="primary" disabled={saving}>
         {submitLabel(saving, agent === null)}
       </Button>
@@ -47,14 +48,14 @@ function DeleteAgentDialog({ agent, onClose }: { agent: Agent; onClose: () => vo
   const confirm = () => {
     setBusy(true);
     void deleteAgent(agent.id)
-      .then(() => notifyInfo(`${agent.name} を削除しました`), reportError)
+      .then(() => notifyInfo(tEditor('deleted', { name: agent.name })), reportError)
       .finally(() => setBusy(false));
   };
   return (
     <ConfirmDialog
-      title={`${agent.name} を削除しますか？`}
-      message="これまでの発言は残ります。スキルと作業フォルダは消え、元に戻せません。"
-      confirmLabel="削除する"
+      title={tEditor('deleteTitle', { name: agent.name })}
+      message={tEditor('deleteMessage')}
+      confirmLabel={tEditor('deleteConfirm')}
       danger
       busy={busy}
       onConfirm={confirm}

@@ -4,6 +4,7 @@ import { groupByPrimaryTag } from '@/features/agents';
 import type { TagGroup } from '@/features/agents';
 import { checkText } from '@/shared/lib/validation';
 import type { Agent, AgentTemplate, BackendInfo, Channel, FolderScope, WorkspaceMode } from '@/shared/types/domain';
+import { t } from '../i18n';
 
 /** 開いているチャンネル: 今のものが残っていればそれ、なければ先頭（チャンネルがなければ null） */
 export function resolveActiveChannel(channels: readonly Channel[], currentId: string | null): string | null {
@@ -28,9 +29,10 @@ export function addableAgents(channel: Channel, agents: readonly Agent[]): Agent
 /** ヘッダーの作業中の表示（docs/ui-design.md §5.3）: 「ハル、ギア が作業中 · 待機 2」「ハル ほか 2 人が作業中」 */
 export function workingSummary(names: readonly string[], pending: number): string {
   const parts: string[] = [];
-  if (names.length >= 3) parts.push(`${names[0] ?? ''} ほか ${names.length - 1} 人が作業中`);
-  else if (names.length > 0) parts.push(`${names.join('、')} が作業中`);
-  if (pending > 0) parts.push(`待機 ${pending}`);
+  if (names.length >= 3) parts.push(t('workingMany', { name: names[0] ?? '', count: names.length - 1 }));
+  else if (names.length > 0)
+    parts.push(t('workingFew', { names: names.join(t('nameSeparator')), count: names.length }));
+  if (pending > 0) parts.push(t('waiting', { count: pending }));
   return parts.join(' · ');
 }
 
@@ -55,12 +57,15 @@ export function channelErrorField(field: string | null): ChannelField | null {
 
 export function validateChannelDraft(draft: ChannelDraft): Partial<Record<ChannelField, string>> {
   const entries: Array<[ChannelField, string | null]> = [
-    ['name', checkText(cleanChannelName(draft.name), { label: 'チャンネル名', required: true, max: CHANNEL_NAME_MAX })],
-    ['topic', checkText(draft.topic, { label: '話題', max: CHANNEL_TOPIC_MAX })],
+    [
+      'name',
+      checkText(cleanChannelName(draft.name), { label: t('channelName'), required: true, max: CHANNEL_NAME_MAX }),
+    ],
+    ['topic', checkText(draft.topic, { label: t('topicLabel'), max: CHANNEL_TOPIC_MAX })],
     [
       'workspaceFolder',
       draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test(draft.workspaceFolder.trim())
-        ? '作業フォルダの絶対パスを入力してください'
+        ? t('folderRequired')
         : null,
     ],
   ];
@@ -76,15 +81,15 @@ export function folderScopeHint(backends: readonly BackendInfo[]): string {
     backends
       .filter((backend) => backend.folderScope === scope)
       .map((backend) => backend.label)
-      .join('・');
-  const lines: Array<[string, string]> = [
-    [labels('files'), 'は、ファイルの操作だけを使えます（コマンドは使えません）。'],
-    [labels('sandbox'), 'は、コマンドも範囲の中で使えます。'],
-    [labels(null), 'は範囲を守れないため、このチャンネルでは実行しません。'],
+      .join(t('backendSeparator'));
+  const lines: Array<[string, 'folderFiles' | 'folderSandbox' | 'folderNone']> = [
+    [labels('files'), 'folderFiles'],
+    [labels('sandbox'), 'folderSandbox'],
+    [labels(null), 'folderNone'],
   ];
   return [
-    '同じフォルダを複数のチャンネルで共有できます。範囲を変えたあとは、それまでの会話とメモを AI に渡しません。スキルは使えません。',
-    ...lines.filter(([names]) => names !== '').map(([names, text]) => names + text),
-    '範囲を守るための OS の隔離が使えない PC では、実行を止めます。',
-  ].join('');
+    t('folderIntro'),
+    ...lines.filter(([names]) => names !== '').map(([names, key]) => t(key, { names })),
+    t('folderIsolation'),
+  ].join(t('sentenceSeparator'));
 }

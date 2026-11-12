@@ -7,6 +7,7 @@ use guild_application::storage::StorageService;
 use guild_application::AppServices;
 use guild_domain::boot::BootStatus;
 use guild_domain::error::{CommandError, ErrorCode};
+use guild_domain::locale;
 
 pub enum AppState {
     Ready { boot: BootStatus, services: Box<AppServices> },
@@ -24,9 +25,16 @@ impl AppState {
     pub fn services(&self) -> Result<&AppServices, CommandError> {
         match self {
             Self::Ready { services, .. } => Ok(services),
-            Self::Recovery { .. } => {
-                Err(CommandError::new(ErrorCode::Unavailable, "データフォルダを開けなかったため、いまは使えません"))
-            }
+            Self::Recovery { .. } => Err(CommandError::new(
+                ErrorCode::Unavailable,
+                locale::pick([
+                    "データフォルダを開けなかったため、いまは使えません",
+                    "Not available right now because the data folder could not be opened",
+                    "由于无法打开数据文件夹，目前无法使用",
+                    "由於無法開啟資料資料夾，目前無法使用",
+                    "데이터 폴더를 열 수 없어 지금은 사용할 수 없습니다",
+                ]),
+            )),
         }
     }
 

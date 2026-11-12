@@ -3,7 +3,7 @@
 use guild_application::ports::{ChannelRepository, DelegationRepository};
 use guild_domain::author::MemberId;
 use guild_domain::channel::Channel;
-use guild_domain::delegation::{Delegation, DelegationStatus, Settlement, Subtask, SubtaskStatus, NO_ANSWER};
+use guild_domain::delegation::{Delegation, DelegationStatus, Settlement, Subtask, SubtaskStatus};
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SubtaskId};
 
 use super::memory;
@@ -54,7 +54,11 @@ fn delegations_round_trip_and_update_their_subtasks() {
 
     first.start_subtask(&SubtaskId::new("d1-s1"), 11);
     first.settle_subtask(&SubtaskId::new("d1-s1"), Settlement::Done(MessageId::new("r1")), 12);
-    first.settle_subtask(&SubtaskId::new("d1-s2"), Settlement::Failed { note: NO_ANSWER, message: None }, 13);
+    first.settle_subtask(
+        &SubtaskId::new("d1-s2"),
+        Settlement::Failed { note: "回答がありませんでした", message: None },
+        13,
+    );
     first.begin_report(14);
     first.finish(Some(MessageId::new("summary")), 15);
     repository.update(&first).unwrap();

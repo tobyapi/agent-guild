@@ -1,0 +1,32 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const en: Messages<typeof ja> = {
+  composerUnavailable: 'Agents cannot reply right now (the agent runtime is stopped)',
+  composerPlaceholder: 'Message #{channel} (@ to mention · drop files to attach)',
+  composerLabel: 'Message to #{channel}',
+  send: 'Send',
+  sendHint: 'Send Enter · New line Shift+Enter',
+  attachFile: 'Attach files (you can also drop or paste them)',
+  mentionHeading: 'Mention',
+  mentionNoMatch: 'No agents match “{query}”',
+  mentionNoAgents: 'No agents yet',
+  mentionOutsiders: 'Not in this channel — mentioning adds them',
+  hintSelect: 'select',
+  hintConfirm: 'choose',
+  hintClose: 'close',
+  pendingLabel: 'Attachments to send',
+  removeAttachment: 'Remove {name}',
+  fileFallback: 'File',
+  fileReadFailed: 'Could not read {name}',
+  totalTooLarge: 'Attachments can total up to 30 MB',
+  fileTooLarge: 'Each file can be up to 10 MB',
+  tooMany: 'You can attach up to {max} files at a time',
+  sendFailedRetry: 'Could not send. Please try again.',
+  sendFailed: 'Could not send. {reason}',
+  resend: 'Resend',
+  nameSeparator: ', ',
+  activityWorking: ({ names, count }) => `${names} ${count === 1 ? 'is' : 'are'} working`,
+  activityOthers: ({ count }) => `${count} more ${count === 1 ? 'is' : 'are'} working`,
+  activityDetail: '· {detail}',
+};

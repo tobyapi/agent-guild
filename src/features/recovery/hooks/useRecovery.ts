@@ -4,6 +4,7 @@ import { isSamePath } from '@/shared/lib/paths';
 import { notifyInfo, reportError } from '@/shared/ui';
 import type { BootStatus, StorageInfo } from '@/shared/types/domain';
 import { recoveryApi } from '../api';
+import { t } from '../i18n';
 import type { RecoveryAction } from '../model/reasons';
 
 /** 復旧画面の操作（再試行・別のフォルダを選ぶ・既定の場所に戻す・フォルダを開く） */
@@ -23,7 +24,7 @@ export function useRecovery(boot: BootStatus) {
     setBusy(true);
     setError(null);
     try {
-      if (await task()) notifyInfo('再起動します…');
+      if (await task()) notifyInfo(t('restarting'));
     } catch (reason) {
       if (errorCode(reason) === null) reportError(reason);
       else setError(errorMessage(reason));

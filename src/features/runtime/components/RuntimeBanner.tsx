@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Button, Icon, Lamp, reportError } from '@/shared/ui';
 import { useRuntimeStatus } from '../hooks/useRuntime';
+import { t } from '../i18n';
 import { runtimeBanner } from '../model/status';
 import type { RuntimeBannerModel } from '../model/status';
 import { restartApp } from '../store';
@@ -35,7 +36,7 @@ function BannerView({ banner }: { banner: RuntimeBannerModel }) {
       </p>
       {unavailable && (
         <Button size="sm" onClick={() => void restartApp().catch(reportError)}>
-          再起動
+          {t('restart')}
         </Button>
       )}
     </div>

@@ -10,6 +10,7 @@ use guild_application::ports::AttachmentStore;
 use guild_application::{AppError, AppResult};
 use guild_domain::attachment::Attachment;
 use guild_domain::ids::ChannelId;
+use guild_domain::locale;
 
 use super::data_dir::{safe_component, ATTACHMENTS_DIR};
 use super::file_manager;
@@ -27,15 +28,33 @@ impl FsAttachments {
 impl AttachmentStore for FsAttachments {
     fn save(&self, channel: &ChannelId, attachment: &Attachment, bytes: &[u8]) -> AppResult<()> {
         let dir = self.channel_dir(channel);
-        fs::create_dir_all(&dir)
-            .and_then(|()| fs::write(self.path(channel, attachment), bytes))
-            .map_err(|error| storage("添付を保存できません", &error))
+        fs::create_dir_all(&dir).and_then(|()| fs::write(self.path(channel, attachment), bytes)).map_err(|error| {
+            storage(
+                [
+                    "添付を保存できません",
+                    "Cannot save the attachment",
+                    "无法保存附件",
+                    "無法儲存附件",
+                    "첨부 파일을 저장할 수 없습니다",
+                ],
+                &error,
+            )
+        })
     }
 
     fn read(&self, channel: &ChannelId, attachment: &Attachment) -> AppResult<Vec<u8>> {
         fs::read(self.path(channel, attachment)).map_err(|error| match error.kind() {
-            io::ErrorKind::NotFound => AppError::NotFound("添付のファイル"),
-            _ => storage("添付を読めません", &error),
+            io::ErrorKind::NotFound => AppError::NotFound(attachment_file()),
+            _ => storage(
+                [
+                    "添付を読めません",
+                    "Cannot read the attachment",
+                    "无法读取附件",
+                    "無法讀取附件",
+                    "첨부 파일을 읽을 수 없습니다",
+                ],
+                &error,
+            ),
         })
     }
 
@@ -50,14 +69,34 @@ impl AttachmentStore for FsAttachments {
     fn reveal(&self, channel: &ChannelId, attachment: &Attachment) -> AppResult<()> {
         let path = self.path(channel, attachment);
         if !path.is_file() {
-            return Err(AppError::NotFound("添付のファイル"));
+            return Err(AppError::NotFound(attachment_file()));
         }
-        file_manager::reveal_file(&path).map_err(|error| storage("ファイラで開けませんでした", &error))
+        file_manager::reveal_file(&path).map_err(|error| {
+            storage(
+                [
+                    "ファイラで開けませんでした",
+                    "Could not show it in the file manager",
+                    "无法在文件管理器中打开",
+                    "無法在檔案總管中開啟",
+                    "파일 관리자에서 열 수 없습니다",
+                ],
+                &error,
+            )
+        })
     }
 
     fn delete_channel(&self, channel: &ChannelId) -> AppResult<()> {
         match fs::remove_dir_all(self.channel_dir(channel)) {
-            Err(error) if error.kind() != io::ErrorKind::NotFound => Err(storage("添付を消せません", &error)),
+            Err(error) if error.kind() != io::ErrorKind::NotFound => Err(storage(
+                [
+                    "添付を消せません",
+                    "Cannot delete the attachment",
+                    "无法删除附件",
+                    "無法刪除附件",
+                    "첨부 파일을 삭제할 수 없습니다",
+                ],
+                &error,
+            )),
             _ => Ok(()),
         }
     }
@@ -71,6 +110,11 @@ fn safe_file_name(name: &str) -> String {
     }
 }
 
-fn storage(what: &str, error: &io::Error) -> AppError {
-    AppError::Storage(format!("{what}: {error}"))
+/// what は失敗した操作（日本語・英語・簡体字・繁体字・韓国語の順）
+fn storage(what: [&str; 5], error: &io::Error) -> AppError {
+    AppError::Storage(format!("{}: {error}", locale::pick(what)))
+}
+
+fn attachment_file() -> &'static str {
+    locale::pick(["添付のファイル", "Attachment file", "附件文件", "附件檔案", "첨부 파일"])
 }

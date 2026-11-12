@@ -1,5 +1,6 @@
 // データの保存先の表し方（docs/design.md §11）。
 import type { DataDirMode, StorageInfo, StorageSource } from '@/shared/types/domain';
+import { tStorage as t } from '../i18n/storage';
 
 export interface ModeOption {
   value: DataDirMode;
@@ -7,31 +8,25 @@ export interface ModeOption {
   description: string;
 }
 
-/** 変更のしかた（ラジオカード） */
-export const DATA_DIR_MODE_OPTIONS: readonly ModeOption[] = [
-  {
-    value: 'copy',
-    label: '今のデータをコピーして使う',
-    description: 'チャンネル・エージェント・会話を空のフォルダにコピーして使います。元のデータは消えません。',
-  },
-  {
-    value: 'open',
-    label: 'その場所のデータを開く',
-    description: 'そのフォルダにあるギルドのデータで起動します。空のフォルダなら新しく始めます。',
-  },
-];
+/** 変更のしかた（ラジオカード。いまの言語で描画のたびに作る） */
+export function dataDirModeOptions(): readonly ModeOption[] {
+  return [
+    { value: 'copy', label: t('modeCopyLabel'), description: t('modeCopyDescription') },
+    { value: 'open', label: t('modeOpenLabel'), description: t('modeOpenDescription') },
+  ];
+}
 
 /** いまの保存先の説明 */
 export function storageSourceText(storage: StorageInfo): string {
   const texts: Record<StorageSource, string> = {
-    default: '既定の場所です。',
-    settings: `設定で変更した場所です（既定: ${storage.defaultDataDir}）。`,
-    env: '環境変数 GUILD_DATA_DIR で決まっているため、ここでは変更できません。',
+    default: t('sourceDefault'),
+    settings: t('sourceSettings', { dir: storage.defaultDataDir }),
+    env: t('sourceEnv'),
   };
   return texts[storage.source];
 }
 
 /** 変更中の案内（ボタンの文言） */
 export function changingLabel(mode: DataDirMode): string {
-  return mode === 'copy' ? 'データをコピーしています…' : '切り替えています…';
+  return mode === 'copy' ? t('changingCopy') : t('changingOpen');
 }

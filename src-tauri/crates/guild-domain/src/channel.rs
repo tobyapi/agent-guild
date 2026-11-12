@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::author::MemberId;
 use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, ChannelId};
+use crate::locale;
 
 /// チャンネル名の最大文字数
 pub const CHANNEL_NAME_MAX_CHARS: usize = 40;
@@ -68,16 +69,47 @@ impl Channel {
 pub fn normalize_channel_name(name: &str) -> Result<String, ValidationError> {
     let name = name.trim().trim_start_matches(['#', '＃']).trim();
     if name.is_empty() {
-        return Err(ValidationError::on("name", "チャンネル名を入力してください"));
+        return Err(ValidationError::on(
+            "name",
+            locale::pick([
+                "チャンネル名を入力してください",
+                "Enter a channel name",
+                "请输入频道名称",
+                "請輸入頻道名稱",
+                "채널 이름을 입력하십시오",
+            ]),
+        ));
     }
-    ensure_max_chars(name, CHANNEL_NAME_MAX_CHARS, "name", "チャンネル名は40文字以内にしてください")?;
+    ensure_max_chars(
+        name,
+        CHANNEL_NAME_MAX_CHARS,
+        "name",
+        locale::pick([
+            "チャンネル名は40文字以内にしてください",
+            "Channel names can be up to 40 characters",
+            "频道名称不能超过 40 个字符",
+            "頻道名稱不能超過 40 個字元",
+            "채널 이름은 40자 이내로 입력하십시오",
+        ]),
+    )?;
     Ok(name.to_owned())
 }
 
 /// 話題を正規化する（前後の空白を除く）
 pub fn normalize_channel_topic(topic: &str) -> Result<String, ValidationError> {
     let topic = topic.trim();
-    ensure_max_chars(topic, CHANNEL_TOPIC_MAX_CHARS, "topic", "話題は200文字以内にしてください")?;
+    ensure_max_chars(
+        topic,
+        CHANNEL_TOPIC_MAX_CHARS,
+        "topic",
+        locale::pick([
+            "話題は200文字以内にしてください",
+            "The topic can be up to 200 characters",
+            "话题不能超过 200 个字符",
+            "話題不能超過 200 個字元",
+            "주제는 200자 이내로 입력하십시오",
+        ]),
+    )?;
     Ok(topic.to_owned())
 }
 

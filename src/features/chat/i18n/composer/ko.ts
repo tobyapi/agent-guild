@@ -1,0 +1,32 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const ko: Messages<typeof ja> = {
+  composerUnavailable: '지금은 에이전트가 답변할 수 없습니다(실행 환경이 멈춰 있습니다)',
+  composerPlaceholder: '#{channel}에 메시지 보내기(@로 부르기 · 파일은 끌어다 놓아 첨부)',
+  composerLabel: '#{channel}에 보낼 메시지',
+  send: '보내기',
+  sendHint: '보내기 Enter · 줄바꿈 Shift+Enter',
+  attachFile: '파일 첨부(끌어다 놓거나 붙여 넣어도 첨부할 수 있습니다)',
+  mentionHeading: '부를 상대',
+  mentionNoMatch: '‘{query}’와 일치하는 에이전트가 없습니다',
+  mentionNoAgents: '아직 에이전트가 없습니다',
+  mentionOutsiders: '채널 밖 — 부르면 참여합니다',
+  hintSelect: '선택',
+  hintConfirm: '결정',
+  hintClose: '닫기',
+  pendingLabel: '첨부할 항목',
+  removeAttachment: '{name} 빼기',
+  fileFallback: '파일',
+  fileReadFailed: '{name}을(를) 읽지 못했습니다',
+  totalTooLarge: '첨부 파일은 합계 30MB까지입니다',
+  fileTooLarge: '파일은 하나당 10MB까지입니다',
+  tooMany: '첨부 파일은 한 번에 {max}개까지입니다',
+  sendFailedRetry: '보내지 못했습니다. 다시 시도해 주세요.',
+  sendFailed: '보내지 못했습니다. {reason}',
+  resend: '다시 보내기',
+  nameSeparator: ', ',
+  activityWorking: '{names} 작업 중',
+  activityOthers: '외 {count}명 작업 중',
+  activityDetail: '· {detail}',
+};

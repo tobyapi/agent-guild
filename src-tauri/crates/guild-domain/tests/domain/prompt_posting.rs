@@ -5,6 +5,7 @@ use guild_domain::author::Author;
 use guild_domain::backend::{BackendInfo, MidRunPost};
 use guild_domain::conversation::{JobMode, JobSpec};
 use guild_domain::ids::AgentId;
+use guild_domain::locale::Language;
 use guild_domain::message::{Message, MessageKind};
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_conversation_prompt, build_system_prompt, PromptContext};
@@ -32,6 +33,7 @@ fn prompts(mid_run_post: Option<MidRunPost>, history: &[Message]) -> (String, St
         time_label: &|ms| format!("t{ms}"),
         attachment_path: &|_, _| String::new(),
         delegation: None,
+        language: Language::Ja,
     };
     let conversation = match history.last() {
         Some(trigger) => {

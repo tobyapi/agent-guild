@@ -2,9 +2,10 @@ import { join } from 'node:path';
 import { Codex, type CodexOptions } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
-import { CODEX_NOT_FOUND, findCodex } from './codex-runtime/executable.ts';
+import { codexNotFound, findCodex } from './codex-runtime/executable.ts';
 import { folderOverrides } from './codex-runtime/folder-profile.ts';
 import { codexCatalog } from './codex-runtime/models.ts';
+import { t } from './codex-runtime/texts/index.ts';
 import {
   codexConfig,
   MAX_SYSTEM_PROMPT_LENGTH,
@@ -40,11 +41,11 @@ export async function runCodex(
   assertSandboxedFolderScope(request);
   rejectUnenforceable(provider.label, unenforceableReason(request.permissions, request.writableDirs !== undefined));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
-    throw new BackendError('bad_request', `Codex に渡すシステムプロンプトは ${MAX_SYSTEM_PROMPT_LENGTH} 文字までです`);
+    throw new BackendError('bad_request', t('systemPromptTooLong', { max: MAX_SYSTEM_PROMPT_LENGTH }));
   }
   signal.throwIfAborted();
   const executable = findCodex();
-  if (executable === null) throw new BackendError('internal', CODEX_NOT_FOUND);
+  if (executable === null) throw new BackendError('internal', codexNotFound());
   try {
     await writeSkills(join(request.workspace, '.agents', 'skills'), request.skills);
     const codex = new Codex({

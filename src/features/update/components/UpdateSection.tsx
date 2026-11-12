@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Button, FieldError, Icon } from '@/shared/ui';
+import { t } from '../i18n';
 import { updateSummary } from '../model/update';
 import { checkForUpdate, installUpdate, useUpdateStore } from '../store';
 import styles from './UpdateSection.module.css';
@@ -27,19 +28,17 @@ export function UpdateSection() {
         </p>
         <Button size="sm" onClick={() => void checkForUpdate()} disabled={phase !== 'idle'}>
           <Icon name="refresh" />
-          {phase === 'checking' ? '確認中…' : '更新を確認'}
+          {phase === 'checking' ? t('checking') : t('check')}
         </Button>
       </div>
       {error !== null && <FieldError message={error} />}
       {latest !== null && (
         <div className={styles.available}>
           {latest.notes !== '' && <p className={styles.notes}>{latest.notes}</p>}
-          <p className={styles.help}>
-            更新のあいだ、作業中のエージェントは止まります。会話とデータはそのまま残ります。
-          </p>
+          <p className={styles.help}>{t('installHelp')}</p>
           <div>
             <Button variant="primary" onClick={() => void installUpdate()} disabled={phase !== 'idle'}>
-              {phase === 'installing' ? '更新しています…' : '更新して再起動'}
+              {phase === 'installing' ? t('installing') : t('install')}
             </Button>
           </div>
         </div>

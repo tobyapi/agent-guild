@@ -3,6 +3,7 @@ import { Lamp, SideRow, SideSection, VisuallyHidden } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
 import { useActiveChannelId, useChannels } from '../hooks/useChannels';
 import { openChannelCreator, selectChannel } from '../store';
+import { t } from '../i18n';
 
 /** サイドバーのチャンネルの区画 */
 export function ChannelList() {
@@ -10,10 +11,10 @@ export function ChannelList() {
   const activeId = useActiveChannelId();
   return (
     <SideSection
-      title="チャンネル"
+      title={t('channels')}
       onAdd={openChannelCreator}
-      addLabel="チャンネルを作成"
-      emptyText="チャンネルはまだありません"
+      addLabel={t('createChannel')}
+      emptyText={t('noChannels')}
       isEmpty={channels.length === 0}
     >
       {channels.map((channel) => (
@@ -35,7 +36,7 @@ function ChannelRow({ channel, current }: { channel: Channel; current: boolean }
         label={
           <>
             {channel.name}
-            {running && <VisuallyHidden>（実行中）</VisuallyHidden>}
+            {running && <VisuallyHidden>{t('running')}</VisuallyHidden>}
           </>
         }
         trailing={running || waiting ? <Lamp waiting={waiting} /> : undefined}

@@ -2,14 +2,11 @@ import { useEffect, useState } from 'react';
 import type { BackendInfo } from '@/shared/types/domain';
 import { Button, TextField } from '@/shared/ui';
 import { settingsApi } from '../api';
+import { tBackends as t } from '../i18n/backends';
 import styles from './SettingsDialog.module.css';
 
 type KeyStatus = { source: 'saved' | 'environment' | 'unset'; supported: boolean };
-const SOURCE_LABEL = {
-  saved: '保存済みのキーを使っています',
-  environment: '環境変数のキーを使っています',
-  unset: 'キーは未設定です',
-};
+const SOURCE_KEYS = { saved: 'keySaved', environment: 'keyEnvironment', unset: 'keyUnset' } as const;
 
 function parseStatus(text: string): KeyStatus {
   const value: unknown = JSON.parse(text);
@@ -39,7 +36,7 @@ function useApiKeySettings(backendId: string) {
         if (active) setStatus(parseStatus(text));
       })
       .catch(() => {
-        if (active) setMessage('資格情報ストアを確認できませんでした。実行環境を確認して、設定を開き直してください。');
+        if (active) setMessage(t('keyStoreUnavailable'));
       });
     return () => {
       active = false;
@@ -54,13 +51,9 @@ function useApiKeySettings(backendId: string) {
     try {
       const text = await settingsApi.backendApiKey(backendId, action, submitted);
       setStatus(parseStatus(text));
-      setMessage(
-        action === 'set'
-          ? '保存しました。次の実行から使います。'
-          : '保存済みのキーを削除しました。環境変数にキーがあれば、それを使います。',
-      );
+      setMessage(action === 'set' ? t('keySavedMessage') : t('keyDeletedMessage'));
     } catch {
-      setMessage('変更できませんでした。資格情報ストアと実行環境を確認して、必要ならもう一度入力してください。');
+      setMessage(t('keyChangeFailed'));
     } finally {
       setBusy(false);
     }
@@ -77,12 +70,11 @@ export function ApiKeySettings({ backend, envVar }: { backend: BackendInfo; envV
   return (
     <div>
       <p className={styles.help}>
-        {status ? SOURCE_LABEL[status.source] : 'キーの状態を確認しています'}
-        。保存したキーを優先し、なければ環境変数 {envVar} を使います。
+        {t('keyStatusLine', { status: t(status ? SOURCE_KEYS[status.source] : 'keyChecking'), envVar })}
       </p>
-      {status?.supported === false && <p className={styles.help}>キーの安全な保存は、現在 Windows だけで使えます。</p>}
+      {status?.supported === false && <p className={styles.help}>{t('keyWindowsOnly')}</p>}
       <TextField
-        label={`${backend.label} の API キー`}
+        label={t('keyLabel', { backend: backend.label })}
         type="password"
         autoComplete="new-password"
         spellCheck={false}
@@ -90,14 +82,14 @@ export function ApiKeySettings({ backend, envVar }: { backend: BackendInfo; envV
         onChange={setKey}
         disabled={disabled}
         maxLength={2560}
-        hint="Windows の資格情報マネージャーに保存します。保存済みのキーは表示しません。"
+        hint={t('keyHint')}
       />
       <div className={styles.sectionAction}>
         <Button size="sm" disabled={disabled || !key.trim()} onClick={() => void change('set')}>
-          {hasSavedKey ? '更新' : '保存'}
+          {hasSavedKey ? t('keyUpdate') : t('keySave')}
         </Button>
         <Button size="sm" disabled={busy || !hasSavedKey} onClick={() => void change('delete')}>
-          削除
+          {t('keyDelete')}
         </Button>
       </div>
       <p role="status" className={styles.help}>

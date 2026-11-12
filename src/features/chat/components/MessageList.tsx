@@ -13,6 +13,7 @@ import { mentionsHuman } from '../model/messages';
 import { buildTimeline } from '../model/timeline';
 import { MessageItem } from './MessageItem';
 import { DaySeparator, LogStart, SystemNotice } from './TimelineParts';
+import { t } from '../i18n';
 import styles from './MessageList.module.css';
 
 /** メッセージ一覧（日付の区切り・システム発言・同じ人の連続投稿のまとまり） */
@@ -44,7 +45,12 @@ export function MessageList({ channel }: { channel: Channel }) {
   return (
     <div className={styles.frame}>
       <div ref={scrollerRef} className={styles.scroller} onScroll={scroll.onScroll}>
-        <div ref={contentRef} className={styles.content} role="log" aria-label={`#${channel.name} のメッセージ`}>
+        <div
+          ref={contentRef}
+          className={styles.content}
+          role="log"
+          aria-label={t('logLabel', { channel: channel.name })}
+        >
           <LogStart
             channel={channel}
             ready={log.ready}
@@ -75,7 +81,7 @@ export function MessageList({ channel }: { channel: Channel }) {
       </div>
       {scroll.showJump && (
         <button type="button" className={styles.jump} onClick={scroll.jumpToBottom}>
-          新しいメッセージ
+          {t('newMessages')}
           <Icon name="arrowDown" />
         </button>
       )}

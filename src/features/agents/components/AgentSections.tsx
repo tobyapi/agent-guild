@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
 import { BackendTag, useAgentActivity, useBackend } from '@/features/runtime';
 import { Avatar, Button, Icon, SideRow, SideSection, VisuallyHidden } from '@/shared/ui';
 import type { Agent } from '@/shared/types/domain';
+import { tEditor } from '../i18n/editor';
 import { useActiveAgents, useTemplates } from '../hooks/useAgents';
 import { groupByPrimaryTag } from '../model/groups';
 import type { TagGroup } from '../model/groups';
@@ -17,7 +17,8 @@ import styles from './AgentSections.module.css';
 export function AgentSections() {
   const agents = useActiveAgents();
   const templates = useTemplates();
-  const groups = useMemo(() => groupByPrimaryTag(agents, templates), [agents, templates]);
+  // 区分の見出し（タグなし）と並び順は言語で変わるので、描画のたびに求める（数は少ない）
+  const groups = groupByPrimaryTag(agents, templates);
   return (
     <>
       {groups.map((group) => (
@@ -25,7 +26,7 @@ export function AgentSections() {
       ))}
       <Button variant="ghost" size="sm" className={styles.add} onClick={() => openAgentCreator(null)}>
         <Icon name="plus" />
-        エージェントを追加
+        {tEditor('addAgent')}
       </Button>
     </>
   );
@@ -34,11 +35,15 @@ export function AgentSections() {
 /** 区画の「＋」: 対応するテンプレートがなければタグだけを入れる（タグなしは出さない） */
 function addAction(group: TagGroup): { run: () => void; label: string } | undefined {
   const { template } = group;
-  if (template) return { run: () => openAgentCreator(template.id), label: `${template.label}を作成` };
+  if (template)
+    return {
+      run: () => openAgentCreator(template.id),
+      label: tEditor('createFromTemplate', { label: template.label }),
+    };
   if (group.key === null) return undefined;
   return {
     run: () => openAgentCreator(null, group.label),
-    label: `タグ「${group.label}」のエージェントを作成`,
+    label: tEditor('createWithTag', { tag: group.label }),
   };
 }
 
@@ -73,7 +78,7 @@ function AgentRow({ agent }: { agent: Agent }) {
         label={
           <>
             {agent.name}
-            {activity && <VisuallyHidden>（動作中: {activity.detail}）</VisuallyHidden>}
+            {activity && <VisuallyHidden>{tEditor('busyActivity', { detail: activity.detail })}</VisuallyHidden>}
           </>
         }
         trailing={<BackendTag backendId={agent.backend} />}

@@ -1,67 +1,46 @@
 import { preset } from './types';
-import type { AgentPreset } from './types';
+import type { PresetEntry } from './types';
 
-export const EXPERT_PRESETS: readonly AgentPreset[] = [
-  preset('editor', 'expert', '編集者', {
-    name: 'アカペン',
+export const EXPERT_PRESETS: readonly PresetEntry[] = [
+  preset('editor', 'expert', {
     avatar: '🖍️',
     color: '#ea856b',
-    role: '文章のレビュー担当',
-    expertise: '日本語の文章の校正と構成のレビュー',
     personality: 'perfectionist',
     tone: 'polite',
   }),
-  preset('security', 'expert', 'セキュリティ', {
-    name: 'マモル',
+  preset('security', 'expert', {
     avatar: '🛡️',
     color: '#7ca2f6',
-    role: 'セキュリティのレビュー担当',
-    expertise: 'Web アプリのセキュリティと脆弱性の診断',
     personality: 'careful',
     tone: 'business',
   }),
-  preset('designer', 'expert', 'デザイナー', {
-    name: 'イロハ',
+  preset('designer', 'expert', {
     avatar: '🎨',
     color: '#d285cb',
-    role: 'UI デザインのレビュー担当',
-    expertise: 'UI / UX デザインとアクセシビリティ',
     personality: 'empathetic',
     tone: 'teacher',
   }),
-  preset('analyst', 'expert', 'データ分析', {
-    name: 'カズ',
+  preset('analyst', 'expert', {
     avatar: '📊',
     color: '#cb9d2a',
-    role: 'データ分析のレビュー担当',
-    expertise: '統計とデータ分析の妥当性のチェック',
     personality: 'calm',
     tone: 'reasoning',
   }),
-  preset('devils-advocate', 'expert', '反対意見役', {
-    name: 'ハンロン',
+  preset('devils-advocate', 'expert', {
     avatar: '🦔',
     color: '#ea856b',
-    role: '案の弱点とリスクを、あえて率直に指摘する担当',
-    expertise: 'リスクの洗い出しと反論',
     personality: 'blunt',
     tone: 'reasoning',
   }),
-  preset('first-timer', 'expert', '初めての利用者', {
-    name: 'ハジメ',
+  preset('first-timer', 'expert', {
     avatar: '🙋',
     color: '#22b5e1',
-    role: '初めて使う人の立場で、感想と困りごとを伝える担当',
-    expertise: '初めて使う人の目線',
     personality: 'cheerful',
     tone: 'casual',
   }),
-  preset('non-technical-user', 'expert', 'IT が苦手な利用者', {
-    name: 'ゲン',
+  preset('non-technical-user', 'expert', {
     avatar: '👴',
     color: '#b191ea',
-    role: '機械が苦手な利用者の立場で、使いやすさを確かめる担当',
-    expertise: '機械が苦手な人の目線',
     personality: 'easygoing',
     tone: 'gentle',
   }),

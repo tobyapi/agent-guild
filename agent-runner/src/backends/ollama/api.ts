@@ -1,13 +1,13 @@
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { BackendError } from '../types.ts';
 import { localHttp } from './http.ts';
+import { t } from './texts/index.ts';
 
 const PROBE_TIMEOUT_MS = 5000;
-const CONNECTION_HELP = 'Ollama アプリを起動して「再確認」を押してください。';
 
 export class OllamaStopped extends BackendError {
   constructor() {
-    super('internal', `Ollama に接続できませんでした。${CONNECTION_HELP}`);
+    super('internal', t('connectFailed'));
   }
 }
 
@@ -29,16 +29,15 @@ export async function ollamaRequest(
     (error: unknown) => {
       signal.throwIfAborted();
       if (path === '/api/tags' && isJsonObject(error) && error.code === 'ECONNREFUSED') throw new OllamaStopped();
-      throw new BackendError('internal', `Ollama に接続できませんでした。${CONNECTION_HELP}`);
+      throw new BackendError('internal', t('connectFailed'));
     },
   );
   if (status !== 200) {
     if (status === 404 && path !== '/api/tags') {
-      throw new BackendError('model_not_found', 'Ollama のローカルモデルが見つかりません。モデルを確認してください。');
+      throw new BackendError('model_not_found', t('localModelMissing'));
     }
-    if (status === 413)
-      throw new BackendError('bad_request', 'Ollama に渡す入力が大きすぎます。添付画像を減らしてください。');
-    throw new BackendError('internal', `Ollama からエラーが返りました（HTTP ${status}）。${CONNECTION_HELP}`);
+    if (status === 413) throw new BackendError('bad_request', t('inputTooLarge'));
+    throw new BackendError('internal', t('httpError', { status }));
   }
   return parseResponse(text);
 }
@@ -50,7 +49,7 @@ function parseResponse(text: string): JsonObject {
   } catch {
     // サーバーのエラー本文は会話に出さない。
   }
-  throw new BackendError('internal', 'Ollama の応答を読み取れませんでした。');
+  throw new BackendError('internal', t('responseUnreadable'));
 }
 
 function capabilities(value: unknown): string[] | undefined {
@@ -84,7 +83,7 @@ export async function localChatModels(cancel?: AbortSignal): Promise<LocalModel[
   const deadline = AbortSignal.timeout(PROBE_TIMEOUT_MS);
   const signal = cancel ? AbortSignal.any([deadline, cancel]) : deadline;
   const { models } = await ollamaRequest('/api/tags', signal);
-  if (!Array.isArray(models)) throw new BackendError('internal', 'Ollama のモデル一覧を読み取れませんでした。');
+  if (!Array.isArray(models)) throw new BackendError('internal', t('modelsUnreadable'));
   const found = await Promise.all(models.map((entry: unknown) => chatModel(entry, signal)));
   return found.filter((model) => model !== null).sort((a, b) => a.id.localeCompare(b.id, 'en'));
 }

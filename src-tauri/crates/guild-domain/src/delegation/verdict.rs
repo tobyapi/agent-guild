@@ -2,17 +2,53 @@
 
 use crate::conversation::{JobMode, JobSpec, Routing};
 use crate::ids::MessageId;
+use crate::locale::Language;
 
-/// [PASS]・空の返答で終わった
-pub const NO_ANSWER: &str = "回答がありませんでした";
-/// 実行が失敗した
-pub const RUN_FAILED: &str = "失敗しました";
-/// 時間切れで中断した
-pub const TIMED_OUT: &str = "時間切れで中断しました";
-/// 担当者が削除された・チャンネルから外された
-pub const ASSIGNEE_REMOVED: &str = "担当者が外れました";
-/// task ジョブが実行されないまま消えた
-pub const NOT_STARTED: &str = "実行されませんでした";
+/// サブタスクが失敗で決着した理由（作った時点の言語の文面で保存する）
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SubtaskNote {
+    /// [PASS]・空の返答で終わった
+    NoAnswer,
+    /// 実行が失敗した
+    RunFailed,
+    /// 時間切れで中断した
+    TimedOut,
+    /// 担当者が削除された・チャンネルから外された
+    AssigneeRemoved,
+    /// task ジョブが実行されないまま消えた
+    NotStarted,
+}
+
+impl SubtaskNote {
+    pub fn text(self, language: Language) -> &'static str {
+        language.pick(match self {
+            Self::NoAnswer => {
+                ["回答がありませんでした", "No answer.", "没有回答。", "沒有回答。", "답변이 없었습니다."]
+            }
+            Self::RunFailed => ["失敗しました", "Failed.", "执行失败。", "執行失敗。", "실패했습니다."],
+            Self::TimedOut => [
+                "時間切れで中断しました",
+                "Timed out.",
+                "已超时中断。",
+                "已逾時中斷。",
+                "시간이 초과되어 중단했습니다.",
+            ],
+            Self::AssigneeRemoved => [
+                "担当者が外れました",
+                "The assignee was removed.",
+                "负责人已被移除。",
+                "負責人已被移除。",
+                "담당자가 빠졌습니다.",
+            ],
+            Self::NotStarted => ["実行されませんでした", "Never ran.", "未执行。", "未執行。", "실행되지 않았습니다."],
+        })
+    }
+
+    /// この理由での失敗の決着（理由は language の文面）
+    pub fn settle(self, language: Language, message: Option<MessageId>) -> Settlement {
+        Settlement::Failed { note: self.text(language), message }
+    }
+}
 
 /// サブタスクの決着のしかた
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -44,14 +80,14 @@ pub enum Verdict {
     Settle(Settlement),
 }
 
-/// サブタスクを持つジョブが、その担当者のジョブとして終わったときの判定
-pub fn judge(turn: Turn<'_>) -> Verdict {
+/// サブタスクを持つジョブが、その担当者のジョブとして終わったときの判定（失敗の理由は language の文面）
+pub fn judge(turn: Turn<'_>, language: Language) -> Verdict {
     let settlement = match turn {
         Turn::Replied { continues: true, .. } => return Verdict::Waiting,
         Turn::Replied { message, continues: false } => Settlement::Done(message.clone()),
-        Turn::Passed => Settlement::Failed { note: NO_ANSWER, message: None },
-        Turn::Failed { error } => Settlement::Failed { note: RUN_FAILED, message: Some(error.clone()) },
-        Turn::TimedOut { error } => Settlement::Failed { note: TIMED_OUT, message: Some(error.clone()) },
+        Turn::Passed => SubtaskNote::NoAnswer.settle(language, None),
+        Turn::Failed { error } => SubtaskNote::RunFailed.settle(language, Some(error.clone())),
+        Turn::TimedOut { error } => SubtaskNote::TimedOut.settle(language, Some(error.clone())),
     };
     Verdict::Settle(settlement)
 }

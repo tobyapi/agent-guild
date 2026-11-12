@@ -7,6 +7,7 @@ use super::notices;
 use crate::agent::Agent;
 use crate::channel::Channel;
 use crate::ids::AgentId;
+use crate::locale::Language;
 use crate::message::Message;
 
 /// AI 同士の往復の上限（この depth に達した返答からは振り分けない）
@@ -38,13 +39,14 @@ pub enum Notice {
 }
 
 impl Notice {
-    pub fn text(&self) -> String {
+    /// その言語の文面（作った時点の言語で保存する）
+    pub fn text(&self, language: Language) -> String {
         match self {
-            Self::NoResponder => notices::NO_RESPONDER.to_owned(),
-            Self::DepthLimit => notices::DEPTH_LIMIT.to_owned(),
-            Self::Undeliverable(name) => notices::undeliverable(name),
-            Self::Unassignable(names) => notices::unassignable(names),
-            Self::TooManyTasks(names) => notices::too_many_tasks(names),
+            Self::NoResponder => notices::no_responder(language).to_owned(),
+            Self::DepthLimit => notices::depth_limit(language).to_owned(),
+            Self::Undeliverable(name) => notices::undeliverable(language, name),
+            Self::Unassignable(names) => notices::unassignable(language, names),
+            Self::TooManyTasks(names) => notices::too_many_tasks(language, names),
         }
     }
 }
@@ -111,11 +113,17 @@ pub fn route_reply(reply: &Message, job: &JobSpec, ctx: &RoutingContext<'_>) -> 
     limit_depth(routing, reply.depth)
 }
 
-/// §7-3: returnTo を持つジョブが返答なしで終わったら、注記つきで呼び出し元に戻す
-pub fn route_no_answer(job: &JobSpec, author: &Agent, reason: NoAnswer, ctx: &RoutingContext<'_>) -> Routing {
+/// §7-3: returnTo を持つジョブが返答なしで終わったら、注記（language の文面）つきで呼び出し元に戻す
+pub fn route_no_answer(
+    job: &JobSpec,
+    author: &Agent,
+    reason: NoAnswer,
+    language: Language,
+    ctx: &RoutingContext<'_>,
+) -> Routing {
     let note = match reason {
-        NoAnswer::Passed => notices::did_not_answer(&author.name),
-        NoAnswer::Failed => notices::failed(&author.name),
+        NoAnswer::Passed => notices::did_not_answer(language, &author.name),
+        NoAnswer::Failed => notices::failed(language, &author.name),
     };
     let jobs = targets::returnable(job, &author.id, ctx)
         .into_iter()

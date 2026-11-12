@@ -7,8 +7,9 @@ use std::path::PathBuf;
 
 use guild_domain::agent::Agent;
 use guild_domain::conversation::{notices, parse_mentions};
-use guild_domain::delegation::{parse_tasks, ASSIGNEE_REMOVED, NOT_STARTED, NO_ANSWER, RUN_FAILED, TIMED_OUT};
+use guild_domain::delegation::{parse_tasks, SubtaskNote};
 use guild_domain::ids::AgentId;
+use guild_domain::locale::Language;
 use serde_json::{json, Value};
 
 use crate::support::agent;
@@ -74,22 +75,22 @@ fn tasks_blocks_follow_the_shared_examples() {
     }
 }
 
-#[test]
-fn notices_follow_the_shared_examples() {
-    let expected = fixture("notices.json");
-    let one = |key: &str, write: fn(&str) -> String| {
+/// 1つの言語の文面（実例の名前を使って作る）
+fn notices_in(language: Language, expected: &Value) -> Value {
+    let one = |key: &str, write: fn(Language, &str) -> String| {
         let name = text(&expected[key]["name"]);
-        json!({ "name": name, "text": write(name) })
+        json!({ "name": name, "text": write(language, name) })
     };
-    let many = |key: &str, write: fn(&[String]) -> String| {
+    let many = |key: &str, write: fn(Language, &[String]) -> String| {
         let list = names(&expected[key]["names"]);
-        json!({ "names": list, "text": write(&list) })
+        json!({ "names": list, "text": write(language, &list) })
     };
-    let actual = json!({
-        "stopped": notices::STOPPED,
-        "depthLimit": notices::DEPTH_LIMIT,
-        "noResponder": notices::NO_RESPONDER,
-        "timedOut": notices::TIMED_OUT,
+    let note = |note: SubtaskNote| note.text(language);
+    json!({
+        "stopped": notices::stopped(language),
+        "depthLimit": notices::depth_limit(language),
+        "noResponder": notices::no_responder(language),
+        "timedOut": notices::timed_out(language),
         "joined": one("joined", notices::joined),
         "undeliverable": one("undeliverable", notices::undeliverable),
         "didNotAnswer": one("didNotAnswer", notices::did_not_answer),
@@ -98,12 +99,22 @@ fn notices_follow_the_shared_examples() {
         "tooManyTasks": many("tooManyTasks", notices::too_many_tasks),
         "interrupted": many("interrupted", notices::interrupted),
         "subtaskNotes": {
-            "noAnswer": NO_ANSWER,
-            "runFailed": RUN_FAILED,
-            "timedOut": TIMED_OUT,
-            "assigneeRemoved": ASSIGNEE_REMOVED,
-            "notStarted": NOT_STARTED,
+            "noAnswer": note(SubtaskNote::NoAnswer),
+            "runFailed": note(SubtaskNote::RunFailed),
+            "timedOut": note(SubtaskNote::TimedOut),
+            "assigneeRemoved": note(SubtaskNote::AssigneeRemoved),
+            "notStarted": note(SubtaskNote::NotStarted),
         },
-    });
-    assert_eq!(actual, expected);
+    })
+}
+
+/// 実例は言語のコードごとに同じ形（{ "ja": {...}, "en": {...}, ... }）
+#[test]
+fn notices_follow_the_shared_examples() {
+    let fixture = fixture("notices.json");
+    for language in Language::ALL {
+        let expected = &fixture[language.code()];
+        assert!(expected.is_object(), "{} の実例がありません", language.code());
+        assert_eq!(notices_in(language, expected), *expected, "{}", language.code());
+    }
 }

@@ -8,12 +8,13 @@ mod permission_policy;
 mod permissions;
 mod tags;
 mod template_model;
+mod template_texts;
 mod templates;
 mod validation;
 
 pub use behavior::Behavior;
 pub use model::{Agent, AgentInput};
-pub use name::{ensure_unique_name, name_key, normalize_name, NAME_MAX_CHARS};
+pub use name::{ensure_unique_name, name_key, name_taken, normalize_name, NAME_MAX_CHARS};
 pub use permission_policy::{role_permissions, usable_permissions};
 pub use permissions::{effective_permissions, PermissionKey, Permissions};
 pub use tags::{normalize_tags, TAG_MAX_CHARS, TAG_MAX_COUNT};

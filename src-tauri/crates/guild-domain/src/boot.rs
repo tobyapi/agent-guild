@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::locale::Language;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum BootState {
@@ -37,6 +39,9 @@ pub struct BootStatus {
     pub message: String,
     /// 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）がまだ（React が初期設定のダイアログを出す）
     pub needs_setup: bool,
+    /// settings.json に保存した言語（まだ選んでいなければ null。React は OS の言語を使う）
+    #[serde(default)]
+    pub language: Option<Language>,
 }
 
 impl BootStatus {
@@ -47,6 +52,7 @@ impl BootStatus {
             data_dir: data_dir.into(),
             message: String::new(),
             needs_setup,
+            language: None,
         }
     }
 
@@ -57,7 +63,13 @@ impl BootStatus {
             data_dir: data_dir.into(),
             message: message.into(),
             needs_setup: false,
+            language: None,
         }
+    }
+
+    /// 保存した言語を添える
+    pub fn with_language(self, language: Option<Language>) -> Self {
+        Self { language, ..self }
     }
 
     pub fn is_ok(&self) -> bool {

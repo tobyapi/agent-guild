@@ -1,0 +1,48 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const ko: Messages<typeof ja> = {
+  summary: '스킬',
+  emptyTitle: '아직 스킬이 없습니다',
+  emptyBody:
+    '전문 지식의 안내서를 Markdown으로 작성하거나 내장 스킬, 스킬 폴더에서 추가하면, 상담할 때 읽고 나서 답변합니다.',
+  writeSkill: '스킬 작성',
+  addBuiltin: '내장 스킬에서 추가',
+  addLibrary: '스킬 라이브러리에서 추가',
+  editSkill: '{name} 편집',
+  newSkill: '새 스킬',
+  nameLabel: '이름',
+  nameHint: '{rule}. 예: code-review',
+  descriptionLabel: '설명',
+  descriptionHint: '언제 사용하는 스킬인지 적습니다. 에이전트는 이것을 보고 읽을지 결정합니다.',
+  bodyLabel: '본문(SKILL.md)',
+  bodyHint: 'Markdown으로 절차나 관점을 적습니다.',
+  cancel: '취소',
+  saving: '저장하는 중…',
+  save: '저장',
+  saved: '스킬을 저장했습니다',
+  nameDuplicate: '같은 이름의 스킬이 이미 있습니다',
+  viewBody: '{name}의 본문 보기',
+  openSkillFolder: '{name}의 폴더 열기',
+  detachSkill: '{name} 해제',
+  deleteSkill: '{name} 삭제',
+  bodyOf: '{name}의 본문',
+  viewerLinked:
+    '원래 폴더 {path}을(를) 참조하고 있습니다. 실행할 때마다 다시 읽으므로, 내용을 바꾸려면 원래 SKILL.md를 편집하십시오.',
+  viewerBuiltin:
+    '앱에 포함된 내장 스킬입니다. 앱을 업데이트하면 내용도 새로워집니다. 직접 고쳐 쓰려면 먼저 해제한 뒤 "내장 스킬에서 추가"의 "복사해서 추가"로 가져오십시오.',
+  noBody: '(본문이 없습니다)',
+  openFolder: '폴더 열기',
+  close: '닫기',
+  markLinked: '링크',
+  markBuiltin: '내장',
+  detached: '스킬을 해제했습니다',
+  deleted: '스킬을 삭제했습니다',
+  detachTitle: '{name}을(를) 해제하시겠습니까?',
+  deleteTitle: '{name}을(를) 삭제하시겠습니까?',
+  detachBuiltinMessage: '이 에이전트에서 내장 스킬을 해제합니다. 나중에 "내장 스킬에서 추가"로 다시 붙일 수 있습니다.',
+  detachLinkedMessage: '이 에이전트에서 링크를 해제합니다. 원래 폴더와 SKILL.md는 지워지지 않습니다.',
+  deleteMessage: '스킬의 내용이 지워지며 되돌릴 수 없습니다.',
+  detachConfirm: '해제',
+  deleteConfirm: '삭제',
+};

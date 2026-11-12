@@ -1,6 +1,7 @@
 // バックエンド固有設定（BackendInfo.options の OptionSpec）を汎用フォームで扱う（docs/ui-design.md §5.10）。
 // 入力中の値は、boolean はそのまま、それ以外は文字列で持つ。値がない・空欄 = 既定値（キーを保存しない）。
 import type { OptionSpec } from '@/shared/types/domain';
+import { tBrain } from '../i18n/brain';
 
 export type OptionValue = string | boolean;
 export type OptionValues = Readonly<Record<string, OptionValue>>;
@@ -39,9 +40,9 @@ function parseOne(spec: OptionSpec, raw: OptionValue | undefined): Parsed {
   const text = String(raw).trim();
   if (spec.type === 'number') {
     const number = Number(text);
-    return Number.isFinite(number) ? { ok: true, value: number } : { ok: false, error: '数値を入力してください' };
+    return Number.isFinite(number) ? { ok: true, value: number } : { ok: false, error: tBrain('errorNumber') };
   }
-  if (spec.type === 'select' && !spec.choices.includes(text)) return { ok: false, error: '選択肢から選んでください' };
+  if (spec.type === 'select' && !spec.choices.includes(text)) return { ok: false, error: tBrain('errorChoice') };
   return { ok: true, value: text };
 }
 

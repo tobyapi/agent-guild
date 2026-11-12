@@ -24,7 +24,15 @@ const sortedKeys = (value: object): string[] => Object.keys(value).sort();
 describe('contracts/runner', () => {
   it('requests.jsonl の要求はすべて検証を通り、書き戻すと元と一致する', () => {
     const requests = fixture('requests.jsonl');
-    expect(requests.map((request) => request.type)).toEqual(['run', 'login', 'cancel', 'probe', 'shutdown', 'apiKey']);
+    expect(requests.map((request) => request.type)).toEqual([
+      'run',
+      'login',
+      'cancel',
+      'probe',
+      'setLanguage',
+      'shutdown',
+      'apiKey',
+    ]);
     for (const expected of requests) {
       const decoded = decodeRequest(expected);
       expect(decoded.ok).toBe(true);

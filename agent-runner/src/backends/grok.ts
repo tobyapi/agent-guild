@@ -3,9 +3,10 @@ import { apiKeyEnvironment } from '../credentials/store.ts';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { withoutSecrets } from './agent-env.ts';
-import { findCodex, CODEX_NOT_FOUND } from './codex-runtime/executable.ts';
+import { findCodex, codexNotFound } from './codex-runtime/executable.ts';
 import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex, type CodexProvider } from './codex-runtime.ts';
+import { t } from './codex-runtime/texts/index.ts';
 import {
   BackendError,
   NO_SETUP,
@@ -16,52 +17,52 @@ import {
   type RunRequest,
 } from './types.ts';
 
-const CATALOG: ModelCatalog = {
-  defaultModel: 'grok-4.7',
+const MODEL = 'grok-4.7';
+const EFFORTS = ['low', 'medium', 'high', 'xhigh'];
+
+/** 画面に出る文字列は、呼んだ時点の言語で作る */
+const catalog = (): ModelCatalog => ({
+  defaultModel: MODEL,
   models: [
     {
-      id: 'grok-4.7',
-      label: 'Grok 4.7（実験対応・実API未検証）',
-      description: 'Codex SDK経由。Web検索・X検索は未対応。API利用料が発生する。',
-      efforts: ['low', 'medium', 'high', 'xhigh'],
+      id: MODEL,
+      label: t('experimental', { name: 'Grok 4.7' }),
+      description: t('providerModel', { search: t('webAndXSearch') }),
+      efforts: [...EFFORTS],
       defaultEffort: 'high',
     },
   ],
-};
+});
 
 /** アプリに保存した API キーがなければ、この環境変数のキーを使う */
 const API_KEY = { envVar: 'XAI_API_KEY' };
 
 async function probe(): Promise<BackendProbe> {
-  if (findCodex() === null) return Promise.resolve({ status: 'unavailable', statusMessage: CODEX_NOT_FOUND });
+  if (findCodex() === null) return Promise.resolve({ status: 'unavailable', statusMessage: codexNotFound() });
   const env = await apiKeyEnvironment('grok', API_KEY.envVar);
   return Promise.resolve(
     env.XAI_API_KEY?.trim()
       ? {
           status: 'ready',
-          statusMessage: '実験対応・実API未検証。readyはAPIキーとCLIの存在確認のみで、接続成功を意味しない。',
+          statusMessage: t('providerReady'),
         }
       : {
           status: 'needs_auth',
-          statusMessage:
-            '設定 → バックエンドでAPIキーを保存するか、環境変数 XAI_API_KEY を設定してアプリを再起動してください。GrokのWebログインは使えません。',
+          statusMessage: t('providerNeedsKey', { envVar: API_KEY.envVar, name: 'Grok' }),
         },
   );
 }
 
 // Provider failures may contain headers or credentials. Never publish their raw text.
 function failure(detail: string): BackendError {
-  return new BackendError(
-    classifyErrorText(detail),
-    'Grokの実行に失敗した。APIキー・利用枠・モデル名・接続を確認してください。',
-  );
+  return new BackendError(classifyErrorText(detail), t('providerFailed', { name: 'Grok' }));
 }
 
 export function grokProvider(stateDir: string, env: NodeJS.ProcessEnv = process.env): CodexProvider {
-  if (!env.XAI_API_KEY?.trim()) throw new BackendError('auth', '環境変数 XAI_API_KEY が必要です。');
+  if (!env.XAI_API_KEY?.trim()) throw new BackendError('auth', t('providerKeyRequired', { envVar: API_KEY.envVar }));
   return {
     label: 'Grok',
-    catalog: CATALOG,
+    catalog: catalog(),
     failure,
     env: { ...withoutSecrets(env, (name) => name === 'XAI_API_KEY'), CODEX_HOME: join(stateDir, 'codex') },
     config: {
@@ -84,18 +85,21 @@ export function grokProvider(stateDir: string, env: NodeJS.ProcessEnv = process.
 
 function validate(request: RunRequest): void {
   if (request.permissions.webSearch) {
-    throw new BackendError('unsupported_permission', 'GrokのWeb検索・X検索は未対応です。Web検索を無効にしてください。');
+    throw new BackendError(
+      'unsupported_permission',
+      t('providerNoWebSearch', { name: 'Grok', search: t('webAndXSearch') }),
+    );
   }
   const effort = request.options.effort;
-  if (effort !== undefined && (typeof effort !== 'string' || !['low', 'medium', 'high', 'xhigh'].includes(effort))) {
-    throw new BackendError('bad_request', 'Grokの推論の深さは low / medium / high / xhigh から選んでください。');
+  if (effort !== undefined && (typeof effort !== 'string' || !EFFORTS.includes(effort))) {
+    throw new BackendError('bad_request', t('providerEffort', { name: 'Grok', choices: EFFORTS.join(' / ') }));
   }
 }
 
 export const grokAdapter: BackendAdapter = {
   info: () => ({
     id: 'grok',
-    label: 'Grok（実験対応・実API未検証）',
+    label: t('experimental', { name: 'Grok' }),
     capabilities: {
       webSearch: false,
       webFetch: true,
@@ -117,7 +121,7 @@ export const grokAdapter: BackendAdapter = {
     setup: { ...NO_SETUP, apiKey: API_KEY },
   }),
   probe,
-  catalog: () => Promise.resolve(structuredClone(CATALOG)),
+  catalog: () => Promise.resolve(catalog()),
   async run(request, context) {
     context.signal.throwIfAborted();
     validate(request);

@@ -3,6 +3,7 @@
 // モデルが空なら既定のモデル（defaultModel）で考える。推論の深さは空 = 選ばない = 既定（キーを保存しない）。
 import { EFFORT_OPTION } from '@/shared/types/domain';
 import type { BackendInfo, ModelSpec } from '@/shared/types/domain';
+import { t } from './i18n';
 
 /** 実際に使うモデル（空なら既定のモデル）の定義。バックエンドかモデルが一覧に無ければ undefined */
 export function modelSpecOf(backend: BackendInfo | undefined, model: string): ModelSpec | undefined {
@@ -15,8 +16,8 @@ export function modelSpecOf(backend: BackendInfo | undefined, model: string): Mo
 export function checkEffort(backend: BackendInfo | undefined, model: string, effort: string): string | null {
   const spec = modelSpecOf(backend, model);
   if (effort === '' || !spec || spec.efforts.includes(effort)) return null;
-  if (spec.efforts.length === 0) return `「${spec.label}」では推論の深さを選べません`;
-  return `「${spec.label}」では推論の深さ「${effort}」を選べません`;
+  if (spec.efforts.length === 0) return t('effortUnsupported', { model: spec.label });
+  return t('effortInvalid', { model: spec.label, effort });
 }
 
 /** backendOptions の推論の深さ（なければ空 = 既定） */

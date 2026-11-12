@@ -8,6 +8,7 @@ use tokio::sync::watch;
 
 use crate::connection::Connection;
 use crate::shared::Shared;
+use crate::wire::Request;
 use crate::{BackendInfo, RunnerStatus};
 
 const INITIAL_BACKOFF: Duration = Duration::from_millis(250);
@@ -29,24 +30,43 @@ pub(crate) async fn supervise(shared: Arc<Shared>) {
                 if started.elapsed() >= STABLE_AFTER {
                     backoff = INITIAL_BACKOFF;
                 }
-                "ランナーが終了しました".to_owned()
+                let exited = [
+                    "ランナーが終了しました",
+                    "The agent runtime exited",
+                    "运行环境已退出",
+                    "執行環境已結束",
+                    "실행 환경이 종료되었습니다",
+                ];
+                shared.pick(exited).to_owned()
             }
-            Err(error) => error.to_string(),
+            Err(error) => error.message(&shared.language()),
         };
         if shared.is_closing() {
             break;
         }
         log::warn!("{reason}。{} ミリ秒後に起動し直します", backoff.as_millis());
-        shared.status.send_replace(RunnerStatus::Unavailable {
-            message: format!("{reason}（自動で起動し直します）")
-        });
+        let message = shared.pick([
+            format!("{reason}（自動で起動し直します）"),
+            format!("{reason} (restarting automatically)"),
+            format!("{reason}（将自动重新启动）"),
+            format!("{reason}（將自動重新啟動）"),
+            format!("{reason} (자동으로 다시 시작합니다)"),
+        ]);
+        shared.status.send_replace(RunnerStatus::Unavailable { message });
         tokio::select! {
             () = tokio::time::sleep(backoff) => {}
             _ = closing.wait_for(|closing| *closing) => {}
         }
         backoff = (backoff * 2).min(MAX_BACKOFF);
     }
-    shared.status.send_replace(RunnerStatus::Unavailable { message: "ランナーを停止しました".to_owned() });
+    let stopped = shared.pick([
+        "ランナーを停止しました",
+        "The agent runtime was stopped",
+        "运行环境已停止",
+        "執行環境已停止",
+        "실행 환경을 중지했습니다",
+    ]);
+    shared.status.send_replace(RunnerStatus::Unavailable { message: stopped.to_owned() });
 }
 
 /// ready の間、接続を公開して終了を待つ。shutdown による終了なら接続の後始末は shutdown() に任せる
@@ -57,6 +77,11 @@ async fn serve(
     closing: &mut watch::Receiver<bool>,
 ) {
     shared.set_current(Arc::clone(&connection));
+    // 起動してから ready までに言語が変わっていたら伝える（set_language は ready の接続にしか送らない）
+    let language = shared.language();
+    if language != connection.language {
+        let _ = connection.send(&Request::SetLanguage { language: &language }).await;
+    }
     shared.backends.send_replace(backends);
     shared.status.send_replace(RunnerStatus::Ready);
     let closed_by_itself = tokio::select! {

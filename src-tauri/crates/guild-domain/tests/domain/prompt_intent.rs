@@ -4,6 +4,7 @@ use guild_domain::agent::{effective_permissions, Agent};
 use guild_domain::author::Author;
 use guild_domain::conversation::{JobMode, JobSpec};
 use guild_domain::ids::{AgentId, MessageId};
+use guild_domain::locale::Language;
 use guild_domain::message::Message;
 use guild_domain::profile::Profile;
 use guild_domain::prompt::{build_intent, PromptContext, INTENT_MESSAGE_LIMIT};
@@ -34,6 +35,7 @@ fn intent(history: &[Message], job: &JobSpec) -> String {
         time_label: &|_| String::new(),
         attachment_path: &|_, _| String::new(),
         delegation: None,
+        language: Language::Ja,
     };
     build_intent(&ctx, history, job)
 }

@@ -9,6 +9,7 @@ import { applyRuntimeSnapshot, currentActivityRevision, setActivity } from '@/fe
 import { openSetup } from '@/features/settings';
 import { reloadSkillLibraryIfLoaded, reloadSkillsIfLoaded } from '@/features/skills';
 import { invoke } from '@/shared/api';
+import { applyBootLanguage } from '@/shared/i18n';
 import { errorMessage } from '@/shared/lib/errors';
 import { reportError } from '@/shared/ui';
 import type { BootStatus, Snapshot } from '@/shared/types/domain';
@@ -50,6 +51,7 @@ export function useBootstrap() {
     const start = async (): Promise<BootState> => {
       await events.ready;
       const boot = await invoke('get_boot_status');
+      applyBootLanguage(boot.language, boot.needsSetup);
       if (boot.state === 'recovery') return { phase: 'recovery', boot };
       await sync.refresh();
       // 初回起動なら、本体の上に初期設定のダイアログを出す

@@ -8,6 +8,7 @@ use std::path::Path;
 use std::thread;
 use std::time::{Duration, Instant};
 
+use guild_domain::locale;
 use serde::{Deserialize, Serialize};
 
 pub const MARKER_FILE: &str = "guild-data.json";
@@ -63,7 +64,13 @@ pub fn read_marker(dir: &Path) -> MarkerState {
         Ok(marker) if marker.app != APP => MarkerState::Foreign,
         Ok(marker) if marker.layout_version > LAYOUT_VERSION => MarkerState::Newer(marker.layout_version),
         Ok(_) => MarkerState::Valid,
-        Err(error) => MarkerState::Unreadable(format!("{MARKER_FILE} を読めません: {error}")),
+        Err(error) => MarkerState::Unreadable(locale::pick([
+            format!("{MARKER_FILE} を読めません: {error}"),
+            format!("Cannot read {MARKER_FILE}: {error}"),
+            format!("无法读取 {MARKER_FILE}：{error}"),
+            format!("無法讀取 {MARKER_FILE}：{error}"),
+            format!("{MARKER_FILE}을(를) 읽을 수 없습니다: {error}"),
+        ])),
     }
 }
 

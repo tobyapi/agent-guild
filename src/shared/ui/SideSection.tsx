@@ -4,6 +4,7 @@ import { cx } from '@/shared/lib/cx';
 import { IconButton } from './Button';
 import { Icon } from './Icon';
 import styles from './SideSection.module.css';
+import { t } from './i18n';
 
 export interface SideSectionProps {
   title: ReactNode;
@@ -31,7 +32,7 @@ export function SideSection({ title, mark, count, onAdd, addLabel, emptyText, is
         </h2>
         {count !== undefined && <span className={styles.count}>{count}</span>}
         {onAdd && (
-          <IconButton className={styles.add} label={addLabel ?? '追加'} onClick={onAdd}>
+          <IconButton className={styles.add} label={addLabel ?? t('add')} onClick={onAdd}>
             <Icon name="plus" />
           </IconButton>
         )}

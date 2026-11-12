@@ -41,6 +41,10 @@ fn requests_fixture_round_trips() {
             }),
             Some("cancel") => serde_json::to_value(Request::Cancel { id }),
             Some("probe") => serde_json::to_value(Request::Probe { id }),
+            Some("setLanguage") => {
+                let language = expected["language"].as_str().unwrap_or_default();
+                serde_json::to_value(Request::SetLanguage { language })
+            }
             Some("shutdown") => serde_json::to_value(Request::Shutdown),
             other => panic!("知らない要求の実例: {other:?}"),
         };

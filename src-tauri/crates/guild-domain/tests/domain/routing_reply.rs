@@ -5,6 +5,7 @@ use guild_domain::conversation::{
     route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, Notice, Routing, RoutingContext, MAX_DEPTH,
 };
 use guild_domain::ids::{AgentId, MessageId};
+use guild_domain::locale::Language;
 use guild_domain::message::Message;
 
 use super::support::{agent, by, channel, ids, message};
@@ -110,16 +111,18 @@ fn no_answer_returns_to_callers_with_a_note() {
     let lobby = channel("c1", &["me", "haru", "logica"]);
     let agents = agents();
     let ctx = RoutingContext { channel: &lobby, agents: &agents, ready_backends: &[] };
-    let passed = route_no_answer(&job, &logica, NoAnswer::Passed, &ctx);
+    let passed = route_no_answer(&job, &logica, NoAnswer::Passed, Language::Ja, &ctx);
     assert_eq!(summary(&passed), vec![("haru".to_owned(), JobMode::Return, vec![])]);
     assert_eq!(passed.jobs[0].notes, vec!["ロジカ は回答しませんでした".to_owned()]);
     assert!(passed.jobs[0].triggers.is_empty());
     assert_eq!(passed.jobs[0].depth, 3);
-    let failed = route_no_answer(&job, &logica, NoAnswer::Failed, &ctx);
+    let failed = route_no_answer(&job, &logica, NoAnswer::Failed, Language::Ja, &ctx);
     assert_eq!(failed.jobs[0].notes, vec!["ロジカ は失敗しました".to_owned()]);
+    let english = route_no_answer(&job, &logica, NoAnswer::Passed, Language::En, &ctx);
+    assert_eq!(english.jobs[0].notes, vec!["ロジカ did not answer.".to_owned()], "注記は渡した言語の文面");
 
     let (_, plain) = reply("haru", 1, &[], &[]);
-    assert_eq!(route_no_answer(&plain, &logica, NoAnswer::Failed, &ctx), Routing::default());
+    assert_eq!(route_no_answer(&plain, &logica, NoAnswer::Failed, Language::Ja, &ctx), Routing::default());
 }
 
 #[test]

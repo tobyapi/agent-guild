@@ -2,15 +2,17 @@
 // 「その AI で実際に使える操作」だけで、役割の権限を広げずに求める（supportedPermissions・modelPermissions）。
 // Rust の agent/permission_policy.rs と同じ規則を UI とモックで使う。
 import type { AgentTemplate, BackendInfo, PermissionKey, Permissions } from '@/shared/types/domain';
+import { t } from './i18n';
 import { normalizeName } from './names';
-import { effectivePermissions, PERMISSION_LABELS, PERMISSION_ORDER } from './permissions';
+import { effectivePermissions, PERMISSION_ORDER, quotedPermissions } from './permissions';
 
 export function permissionRole(
   templates: readonly AgentTemplate[],
   tags: readonly string[],
 ): AgentTemplate | undefined {
   const head = normalizeName(tags[0] ?? '');
-  return templates.find((template) => normalizeName(template.defaults.tags[0] ?? '') === head);
+  // どの言語の表示名のタグでも同じ役割（作成したときの言語のタグが保存されている）
+  return templates.find((template) => template.roleTags.some((tag) => normalizeName(tag) === head));
 }
 
 /** 役割未設定は参照とスキルだけ。独自タグを作業者として扱わない。 */
@@ -80,8 +82,6 @@ export interface UnusablePermission {
   reason: string;
 }
 
-const quoted = (keys: readonly PermissionKey[]) => keys.map((key) => `「${PERMISSION_LABELS[key]}」`).join('と');
-
 /**
  * 役割では許可されているのに、その AI では使わない操作と理由。権限を広げて使えるようにはしない
  * （守れない操作を外すだけ）ので、利用者に権限の変更は促さない。
@@ -95,16 +95,17 @@ export function unusablePermissions(
   if (!backend) return [];
   const usable = modelPermissions(permissions, backend, model, options);
   const withTools = supportedPermissions(permissions, backend);
-  const toolsLabel = backend.options.find((option) => option.key === backend.toolsOption)?.label ?? '道具の利用';
+  const toolsLabel = backend.options.find((option) => option.key === backend.toolsOption)?.label ?? t('toolsFallback');
   return PERMISSION_ORDER.filter((key) => permissions[key] && !usable[key]).map((key) => {
     if (withTools[key]) {
-      return { key, reason: `「${toolsLabel}」をオンにして、道具に対応したモデルを選ぶと使えます` };
+      return { key, reason: t('unusableNeedsTools', { tools: t('quote', { text: toolsLabel }) }) };
     }
-    if (!backend.capabilities[key]) return { key, reason: `${backend.label}には、この操作の道具がありません` };
+    if (!backend.capabilities[key]) return { key, reason: t('unusableNoTool', { backend: backend.label }) };
     const rule = backend.permissionRules.find((candidate) => candidate.when === key);
     const missing = rule?.requires.filter((required) => !withTools[required]) ?? [];
-    const needs = missing.length > 0 ? `${quoted(missing)}も許されている役割でだけ使います` : '使いません';
-    return { key, reason: `${backend.label}では単独で安全に守れないため、${needs}` };
+    const needs =
+      missing.length > 0 ? t('unusableNeedsRole', { missing: quotedPermissions(missing) }) : t('unusableNever');
+    return { key, reason: t('unusableUnsafe', { backend: backend.label, needs }) };
   });
 }
 

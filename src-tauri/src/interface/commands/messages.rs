@@ -7,6 +7,7 @@ use guild_domain::attachment::{AttachmentInput, NewAttachment};
 use guild_domain::delegation::Delegation;
 use guild_domain::error::{CommandError, ValidationError};
 use guild_domain::ids::{AttachmentId, ChannelId, MessageId};
+use guild_domain::locale;
 use guild_domain::message::Message;
 use tauri::State;
 
@@ -71,8 +72,17 @@ pub async fn list_delegations(state: State<'_, AppState>, channel_id: ChannelId)
 
 /// base64 の中身をデコードする（形式・大きさの検証はユースケースが行う）
 fn decode(input: AttachmentInput) -> Result<NewAttachment, CommandError> {
-    let bytes = STANDARD
-        .decode(input.data.as_bytes())
-        .map_err(|_| reject(AppError::from(ValidationError::on("attachments", "画像を読み取れませんでした"))))?;
+    let bytes = STANDARD.decode(input.data.as_bytes()).map_err(|_| {
+        reject(AppError::from(ValidationError::on(
+            "attachments",
+            locale::pick([
+                "画像を読み取れませんでした",
+                "Could not read the image",
+                "无法读取图片",
+                "無法讀取圖片",
+                "이미지를 읽을 수 없습니다",
+            ]),
+        )))
+    })?;
     Ok(NewAttachment { name: input.name, media_type: input.media_type, bytes })
 }

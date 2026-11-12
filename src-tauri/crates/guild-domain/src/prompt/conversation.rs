@@ -3,10 +3,11 @@
 //! （関係のない話に引きずられないように）。
 //! まとめ（report）のジョブでは、未対応の発言の代わりにサブタスクごとの結果を並べる。
 //! 「最後の発言」という指し方はしない（あとから他の発言が続いても取り違えないように）。
+//! 日本語以外の言語では、最後にその言語で書く念押しを1行足す（language.rs）。
 //! 添付は「# 添付画像」（どの発言の画像か）と「# 添付ファイル」（読めるパス）で伝える（attachments.rs）。
 
 use super::members::display_name;
-use super::{attachments, modes, report, PromptContext};
+use super::{attachments, language, modes, report, PromptContext};
 use crate::author::Author;
 use crate::conversation::{file_attachments, image_messages, JobMode, JobSpec};
 use crate::message::{Message, MessageKind};
@@ -68,6 +69,14 @@ pub fn build_conversation_prompt(
         prompt.push_str(&format!("# 注記\n{}\n\n", notes.join("\n")));
     }
     prompt.push_str(&modes::instruction(ctx, job, sources));
+    let reminder = language::reminder(ctx.language);
+    if !reminder.is_empty() {
+        prompt.push_str(&format!(
+            "
+
+{reminder}"
+        ));
+    }
     prompt
 }
 

@@ -6,10 +6,10 @@ import {
   isTooLargeFile,
   rejectionMessage,
   remainingSlots,
-  TOTAL_TOO_LARGE,
   type PendingAttachment,
 } from '../model/pendingAttachments';
 import { readAttachment } from '../model/readAttachment';
+import { tComposer } from '../i18n/composer';
 
 const hasFiles = (event: DragEvent): boolean => event.dataTransfer.types.includes('Files');
 
@@ -35,11 +35,11 @@ export function useComposerAttachments() {
         const read: PendingAttachment[] = [];
         results.forEach((result, index) => {
           if (result.status === 'rejected')
-            notifyError(`${accepted[index]?.name || 'ファイル'} を読み込めませんでした`);
+            notifyError(tComposer('fileReadFailed', { name: accepted[index]?.name || tComposer('fileFallback') }));
           else read.push({ ...result.value, key: `pending-${(counter.current += 1)}` });
         });
         if (exceedsTotal(attachments, read)) {
-          notifyError(TOTAL_TOO_LARGE);
+          notifyError(tComposer('totalTooLarge'));
           return;
         }
         setAttachments((current) => [...current, ...read.slice(0, remainingSlots(current.length))]);

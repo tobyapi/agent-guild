@@ -6,6 +6,7 @@ import { useAttachmentSrc } from '../hooks/useAttachmentSrc';
 import { isVideoType } from '../model/mediaUrl';
 import { isImageType, sizeLabel } from '../model/pendingAttachments';
 import { AttachmentVideo } from './AttachmentVideo';
+import { t } from '../i18n';
 import styles from './MessageAttachments.module.css';
 
 /**
@@ -35,7 +36,7 @@ export function MessageAttachments({ message }: { message: Message }) {
           type="button"
           className={styles.file}
           onClick={() => void revealAttachment(message.id, attachment.id).catch(reportError)}
-          title={`${attachment.name} をフォルダで表示`}
+          title={t('revealInFolder', { name: attachment.name })}
         >
           <Icon name="file" className={styles.fileIcon} />
           <span className={styles.fileName}>{attachment.name}</span>
@@ -49,7 +50,7 @@ export function MessageAttachments({ message }: { message: Message }) {
 function MessageImage({ messageId, attachment }: { messageId: string; attachment: Attachment }) {
   const { src, failed } = useAttachmentSrc(messageId, attachment.id);
   const [open, setOpen] = useState(false);
-  if (failed) return <span className={styles.failed}>画像を読み込めませんでした（{attachment.name}）</span>;
+  if (failed) return <span className={styles.failed}>{t('imageLoadFailed', { name: attachment.name })}</span>;
   return (
     <>
       <button
@@ -57,7 +58,7 @@ function MessageImage({ messageId, attachment }: { messageId: string; attachment
         className={styles.thumb}
         onClick={() => setOpen(true)}
         disabled={src === null}
-        aria-label={`${attachment.name} を大きく表示`}
+        aria-label={t('viewLarger', { name: attachment.name })}
         title={attachment.name}
       >
         {src ? <img src={src} alt={attachment.name} className={styles.image} /> : <span className={styles.loading} />}

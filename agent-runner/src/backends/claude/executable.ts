@@ -6,10 +6,10 @@ import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { findInDirs, isFile, overridePath, pathDirs } from '../executables.ts';
+import { t } from './texts/index.ts';
 
 /** 見つからないときの案内 */
-export const CLAUDE_NOT_FOUND =
-  'Claude のセットアップが必要です。AIギルドの「設定 → バックエンド → Claude」から進めてください。';
+export const claudeNotFound = (): string => t('notFound');
 
 export interface ClaudeLookup {
   env?: NodeJS.ProcessEnv;

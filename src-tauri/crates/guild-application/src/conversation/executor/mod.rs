@@ -64,7 +64,16 @@ impl JobReporter {
 impl Drop for JobReporter {
     fn drop(&mut self) {
         if let Some(finished) = self.finished.take() {
-            finished(RunOutcome::Failed("内部エラーで実行が止まりました".to_owned()));
+            finished(RunOutcome::Failed(
+                guild_domain::locale::pick([
+                    "内部エラーで実行が止まりました",
+                    "The run stopped because of an internal error.",
+                    "因内部错误，执行已停止。",
+                    "因內部錯誤，執行已停止。",
+                    "내부 오류로 실행이 멈췄습니다.",
+                ])
+                .to_owned(),
+            ));
         }
     }
 }

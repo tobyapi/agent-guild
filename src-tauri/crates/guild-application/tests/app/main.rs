@@ -9,6 +9,7 @@ mod flow;
 mod history;
 mod interruption;
 mod lanes;
+mod language;
 mod progress;
 mod scheduling;
 mod skill_library;

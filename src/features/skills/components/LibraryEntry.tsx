@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { folderName } from '@/shared/lib/paths';
 import { Button, Icon, notifyInfo, reportError } from '@/shared/ui';
 import type { LibraryAddMode, LibrarySkill, Skill } from '@/shared/types/domain';
+import { tLibrary as t } from '../i18n/library';
 import { libraryEntryState } from '../model/library';
 import { addLibrarySkill } from '../store';
 import styles from './LibraryPicker.module.css';
@@ -19,19 +20,12 @@ export function LibraryEntry({ agentId, entry, existing }: LibraryEntryProps) {
   const add = (mode: LibraryAddMode) => {
     setBusy(true);
     void addLibrarySkill(agentId, entry.path, mode)
-      .then(
-        () => notifyInfo(mode === 'link' ? `${entry.name} を追加しました` : `${entry.name} をコピーして追加しました`),
-        reportError,
-      )
+      .then(() => notifyInfo(t(mode === 'link' ? 'added' : 'copiedAdded', { name: entry.name })), reportError)
       .finally(() => setBusy(false));
   };
   const reason =
-    state.kind === 'problem'
-      ? state.reason
-      : state.kind === 'nameTaken'
-        ? `同じ名前のスキル「${entry.name}」がすでにあります。`
-        : null;
-  const extras = entry.fileCount > 0 ? `付属ファイル ${entry.fileCount} 個` : '付属ファイルなし';
+    state.kind === 'problem' ? state.reason : state.kind === 'nameTaken' ? t('nameTaken', { name: entry.name }) : null;
+  const extras = entry.fileCount > 0 ? t('extraFiles', { count: entry.fileCount }) : t('noExtraFiles');
   return (
     <li className={styles.entry} data-disabled={state.kind === 'available' ? undefined : ''}>
       <div className={styles.entryText}>
@@ -41,7 +35,7 @@ export function LibraryEntry({ agentId, entry, existing }: LibraryEntryProps) {
             {folderName(entry.libraryDir)} · {extras}
           </span>
         </span>
-        <span className={styles.description}>{entry.description || '（説明がありません）'}</span>
+        <span className={styles.description}>{entry.description || t('noDescription')}</span>
         {reason && (
           <span className={styles.warning}>
             <Icon name="alert" className={styles.warningIcon} />
@@ -53,25 +47,21 @@ export function LibraryEntry({ agentId, entry, existing }: LibraryEntryProps) {
         {state.kind === 'added' ? (
           <span className={styles.added}>
             <Icon name="check" />
-            追加済み
+            {t('addedMark')}
           </span>
         ) : (
           <>
             <Button size="sm" variant="primary" onClick={() => add('link')} disabled={busy || reason !== null}>
-              追加
+              {t('add')}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => add('copy')}
               disabled={busy || reason !== null}
-              title={
-                entry.fileCount > 0
-                  ? `SKILL.md の本文だけを取り込みます（付属ファイル ${entry.fileCount} 個は持ち込みません）`
-                  : 'SKILL.md の本文を取り込みます'
-              }
+              title={entry.fileCount > 0 ? t('copyTitleWithFiles', { count: entry.fileCount }) : t('copyTitle')}
             >
-              コピーして追加
+              {t('copyAdd')}
             </Button>
           </>
         )}

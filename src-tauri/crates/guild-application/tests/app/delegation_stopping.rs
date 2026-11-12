@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use guild_domain::author::MemberId;
-use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus, ASSIGNEE_REMOVED};
+use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus};
 use tokio::sync::Notify;
 
 use crate::support::records::statuses;
@@ -66,7 +66,7 @@ async fn a_removed_assignee_fails_their_subtask_and_the_rest_still_reports() {
 
     let delegation = delegation(&app);
     assert_eq!(statuses(&delegation), [SubtaskStatus::Failed, SubtaskStatus::Done]);
-    assert_eq!(delegation.subtasks[0].note.as_deref(), Some(ASSIGNEE_REMOVED));
+    assert_eq!(delegation.subtasks[0].note.as_deref(), Some("担当者が外れました"));
     assert_eq!(delegation.status, DelegationStatus::Done);
     assert!(app.runtime.requests_for(kaname.id.as_str())[1].prompt.contains("理由: 担当者が外れました"));
 }
@@ -86,7 +86,7 @@ async fn removing_an_assignee_from_the_channel_fails_their_subtask() {
     app.settle().await;
 
     let delegation = delegation(&app);
-    assert_eq!(delegation.subtasks[0].note.as_deref(), Some(ASSIGNEE_REMOVED));
+    assert_eq!(delegation.subtasks[0].note.as_deref(), Some("担当者が外れました"));
     assert_eq!(delegation.status, DelegationStatus::Done, "全員決着したのでまとめに進み、[PASS] で done");
 }
 

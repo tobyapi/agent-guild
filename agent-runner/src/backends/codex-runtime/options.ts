@@ -18,6 +18,7 @@ import {
   type RunRequest,
 } from '../types.ts';
 import { CODEX_EFFORTS, defaultEffortOf } from './models.ts';
+import { t } from './texts/index.ts';
 
 /** developer_instructions はコマンドライン引数で渡るので、Windows のコマンドラインの上限（32767 文字）に収める */
 export const MAX_SYSTEM_PROMPT_LENGTH = 24_000;
@@ -81,23 +82,14 @@ function sandboxModeOf(permissions: Permissions): ThreadOptions['sandboxMode'] {
  * 守れない権限の組み合わせ（下の unenforceableReason を参照）。書き込みを許すなら、コマンドの実行も許す必要がある。
  * 作業場所の外への書き込みは sandbox を外すので、ネットワーク（webFetch）も止められない。
  */
-const RULES: readonly ExplainedRule[] = [
-  {
-    when: 'writeFiles',
-    requires: ['runCommands'],
-    reason:
-      '書き込みを許すと、作業場所の中でのコマンド（プログラム）の実行を止められません。runCommands も許可してください',
-  },
-  {
-    when: 'writeAnywhere',
-    requires: ['writeFiles', 'webFetch'],
-    reason:
-      '作業場所の外への書き込みは sandbox を外して行うので、ネットワークアクセスも止められません。writeFiles と webFetch も許可してください',
-  },
+const rules = (): readonly ExplainedRule[] => [
+  // 理由は画面に出るので、使うときの言語で作る
+  { when: 'writeFiles', requires: ['runCommands'], reason: t('ruleWrite') },
+  { when: 'writeAnywhere', requires: ['writeFiles', 'webFetch'], reason: t('ruleWriteAnywhere') },
 ];
 
 /** 申告する権限の規則（BackendInfo.permissionRules） */
-export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(RULES);
+export const PERMISSION_RULES: readonly PermissionRule[] = declaredRules(rules());
 
 /**
  * 持ち出しの危険がある組（BackendInfo.leakRisks）。sandbox はどこでも読めて、コマンドの実行は止められないので、
@@ -119,7 +111,7 @@ export const UNRESTRICTED: readonly PermissionKey[] = ['readAnywhere', 'writeFil
  * ネットワークは webFetch のときだけ開く。指定フォルダ（folder）では、利用者全体のスキルの場所を読めないので、スキルは問わない。
  */
 export function unenforceableReason(permissions: Permissions, folder = false): string | null {
-  if (!permissions.readFiles) return 'ファイルの読み取りを止められません（Codex はシェルで読み取ります）';
-  if (!permissions.skills && !folder) return '利用者全体のスキルを含め、スキルの利用を止められません';
-  return brokenRule(RULES, permissions)?.reason ?? null;
+  if (!permissions.readFiles) return t('cannotStopReads');
+  if (!permissions.skills && !folder) return t('cannotStopSkills');
+  return brokenRule(rules(), permissions)?.reason ?? null;
 }

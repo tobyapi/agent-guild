@@ -8,6 +8,7 @@ import { chatApi } from './api';
 import { primeAttachment } from './attachmentStore';
 import { toAttachmentInput, type PendingAttachment } from './model/pendingAttachments';
 import { mergeMessages } from './model/messages';
+import { tComposer } from './i18n/composer';
 
 export interface ChannelLog {
   /** seq の昇順 */
@@ -82,8 +83,8 @@ export function receiveMessage(message: Message): void {
 /** 送信の失敗の伝え方: 理由が分かればそれを、分からなければ「もう一度お試しください」 */
 function sendFailureMessage(error: unknown): string {
   const code = errorCode(error);
-  if (code === null || code === 'internal') return '送信できませんでした。もう一度お試しください。';
-  return `送信できませんでした。${errorMessage(error)}`;
+  if (code === null || code === 'internal') return tComposer('sendFailedRetry');
+  return tComposer('sendFailed', { reason: errorMessage(error) });
 }
 
 /** 送信する（届いた画像の添付には手元のプレビューを当てておく）。失敗したら「再送信」つきで知らせる */
@@ -102,7 +103,7 @@ export async function sendMessage(
     return true;
   } catch (error) {
     notifyError(sendFailureMessage(error), {
-      label: '再送信',
+      label: tComposer('resend'),
       run: () => void sendMessage(channelId, content, attachments),
     });
     return false;

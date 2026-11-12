@@ -4,6 +4,7 @@ use guild_domain::author::{Author, MemberId};
 use guild_domain::channel::Channel;
 use guild_domain::conversation::notices;
 use guild_domain::ids::{AgentId, ChannelId, MessageId};
+use guild_domain::locale;
 use guild_domain::message::{Message, MessageKind, NewMessage};
 
 use crate::error::{AppError, AppResult};
@@ -80,7 +81,7 @@ pub(crate) fn join(ports: &Ports, origin: &Origin, agents: &[AgentId]) -> AppRes
     for id in agents {
         ports.channels.add_member(&origin.channel_id, &MemberId::Agent(id.clone()))?;
         if let Some(agent) = all.iter().find(|agent| &agent.id == id) {
-            post_notice(ports, origin, &notices::joined(&agent.name))?;
+            post_notice(ports, origin, &notices::joined(locale::current(), &agent.name))?;
         }
     }
     ports.events.state_changed();
@@ -88,7 +89,7 @@ pub(crate) fn join(ports: &Ports, origin: &Origin, agents: &[AgentId]) -> AppRes
 }
 
 pub(crate) fn require_channel(ports: &Ports, id: &ChannelId) -> AppResult<Channel> {
-    ports.channels.get(id)?.ok_or(AppError::NotFound("チャンネル"))
+    ports.channels.get(id)?.ok_or(AppError::NotFound(locale::pick(["チャンネル", "Channel", "频道", "頻道", "채널"])))
 }
 
 /// status が ready のバックエンドの ID

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use guild_application::ports::{LaunchSettings, SettingsStore, Workspace};
 use guild_domain::ids::AgentId;
+use guild_domain::locale::Language;
 use serde_json::{json, Value};
 
 use super::TempDir;
@@ -27,6 +28,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         data_dir: Some(PathBuf::from("D:\\GuildData")),
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
         setup_done: true,
+        language: Some(Language::ZhHant),
     };
     settings.save(&chosen).unwrap();
     let expected = json!({
@@ -34,6 +36,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         "dataDir": "D:\\GuildData",
         "skillLibraryDirs": ["D:\\skills", "E:\\shared-skills"],
         "setupDone": true,
+        "language": "zh-Hant",
         "theme": "dark"
     });
     assert_eq!(read_json(&path), expected);
@@ -43,6 +46,22 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     assert_eq!(read_json(&path)["dataDir"], Value::Null);
     assert_eq!(read_json(&path)["skillLibraryDirs"], json!([]));
     assert_eq!(read_json(&path)["setupDone"], json!(false));
+    assert_eq!(read_json(&path)["language"], json!("zh-Hant"), "言語を持たない保存では書き換えない");
+}
+
+#[test]
+fn a_missing_or_unknown_language_reads_as_none() {
+    let config = TempDir::new("language");
+    let path = config.0.join("settings.json");
+    let settings = SettingsFile::in_dir(&config.0);
+    fs::write(&path, r#"{ "version": 1, "dataDir": null, "setupDone": true }"#).unwrap();
+    assert_eq!(settings.load().unwrap().language, None, "言語の設定がなかった版のファイル");
+    for odd in [r#""fr""#, "3", "null"] {
+        fs::write(&path, format!(r#"{{ "version": 1, "language": {odd} }}"#)).unwrap();
+        assert_eq!(settings.load().unwrap().language, None, "{odd}");
+    }
+    fs::write(&path, r#"{ "version": 1, "language": "ko" }"#).unwrap();
+    assert_eq!(settings.load().unwrap().language, Some(Language::Ko));
 }
 
 #[test]

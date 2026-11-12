@@ -32,5 +32,7 @@ pub struct AgentTemplate {
     pub accent: Option<String>,
     /// 作成・役割変更時に参照として追加する内蔵スキル
     pub builtin_skills: Vec<String>,
+    /// この役割になる先頭タグ（全言語の表示名。defaults.tags の先頭はいまの言語のもの）
+    pub role_tags: Vec<String>,
     pub defaults: AgentTemplateDefaults,
 }

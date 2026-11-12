@@ -2,5 +2,6 @@
 //! node が PATH にあること。
 
 mod jobs;
+mod language;
 mod lifecycle;
 mod support;

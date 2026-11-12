@@ -114,7 +114,7 @@ export function changeRole(
     canDelegate,
     tags: [
       ...template.defaults.tags,
-      ...extras.filter((tag) => tagKey(tag) !== tagKey(template.defaults.tags[0] ?? '')),
+      ...extras.filter((tag) => !template.roleTags.some((roleTag) => tagKey(roleTag) === tagKey(tag))),
     ],
   };
 }

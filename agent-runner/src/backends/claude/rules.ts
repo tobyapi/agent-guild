@@ -6,23 +6,17 @@
 import { commandSandboxReady } from '../command-sandbox.ts';
 import type { PermissionKey, PermissionRule, Permissions } from '../../protocol.ts';
 import { brokenRule, declaredRules, type ExplainedRule } from '../types.ts';
+import { t } from './texts/index.ts';
 
 /** Bash をそのまま渡すのに要る権限（Bash はファイルとネットワークを自由に使える） */
 const BASH_REQUIRES: readonly PermissionKey[] = ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'];
 
-const WRITE_RULE: ExplainedRule = {
-  when: 'writeAnywhere',
-  requires: ['writeFiles'],
-  reason: '作業場所の外への書き込みを許すなら、ファイルの書き込みも許してください',
-};
-const BASH_RULE: ExplainedRule = {
-  when: 'runCommands',
-  requires: [...BASH_REQUIRES],
-  reason: 'コマンドの実行を許すと、作業場所の外も含めたファイルの読み書きやネットワークアクセスを止められません',
-};
+// 理由は画面に出るので、使うときの言語で作る
+const writeRule = (): ExplainedRule => ({ when: 'writeAnywhere', requires: ['writeFiles'], reason: t('ruleWrite') });
+const bashRule = (): ExplainedRule => ({ when: 'runCommands', requires: [...BASH_REQUIRES], reason: t('ruleBash') });
 
 /** 隔離の中でコマンドを動かせる（sandboxed）なら、コマンドは単独でも守れる */
-const rules = (sandboxed: boolean): readonly ExplainedRule[] => (sandboxed ? [WRITE_RULE] : [WRITE_RULE, BASH_RULE]);
+const rules = (sandboxed: boolean): readonly ExplainedRule[] => (sandboxed ? [writeRule()] : [writeRule(), bashRule()]);
 
 /** 申告する権限の規則（BackendInfo.permissionRules）。隔離が使える PC では、コマンドの規則がなくなる */
 export function permissionRules(sandboxed: boolean = commandSandboxReady()): PermissionRule[] {

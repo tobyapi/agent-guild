@@ -21,6 +21,8 @@ pub(crate) struct Shared {
     pub(crate) job_object: Option<KillOnCloseJob>,
     /// ready になった接続（ready でなければ None）
     current: Mutex<Option<Arc<Connection>>>,
+    /// いまの言語のコード（起動のたびに読む。set_language で変わる）
+    language: Mutex<String>,
 }
 
 impl Shared {
@@ -29,13 +31,14 @@ impl Shared {
             .inspect_err(|error| log::warn!("ジョブオブジェクトを作れませんでした（孤児プロセス対策なし）: {error}"))
             .ok();
         Self {
-            config,
             jobs: Jobs::default(),
             status: watch::Sender::new(crate::RunnerStatus::Starting),
             backends: watch::Sender::new(Vec::new()),
             closing: watch::Sender::new(false),
             job_object,
             current: Mutex::new(None),
+            language: Mutex::new(config.language.clone()),
+            config,
         }
     }
 
@@ -61,5 +64,18 @@ impl Shared {
 
     pub(crate) fn take_current(&self) -> Option<Arc<Connection>> {
         self.current.lock().take()
+    }
+
+    pub(crate) fn language(&self) -> String {
+        self.language.lock().clone()
+    }
+
+    pub(crate) fn set_language(&self, language: &str) {
+        *self.language.lock() = language.to_owned();
+    }
+
+    /// いまの言語の文言を選ぶ（日本語・英語・簡体字・繁体字・韓国語の順）
+    pub(crate) fn pick<T>(&self, texts: [T; 5]) -> T {
+        crate::text::pick(&self.language.lock(), texts)
     }
 }

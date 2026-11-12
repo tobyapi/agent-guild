@@ -14,6 +14,7 @@ pub mod delegation;
 pub mod error;
 pub mod ids;
 pub mod link;
+pub mod locale;
 pub mod message;
 pub mod profile;
 pub mod prompt;

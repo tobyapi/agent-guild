@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { cx } from '@/shared/lib/cx';
 import { Icon } from '../Icon';
 import styles from './Field.module.css';
+import { t } from '../i18n';
 
 /** 入力要素に渡す属性（ラベル・補足・エラーとの結びつけ） */
 export interface ControlProps {
@@ -34,7 +35,7 @@ export function Field({ label, hint, error, optional, labelAction, className, ch
       <div className={styles.labelRow}>
         <label htmlFor={id} className={styles.label}>
           {label}
-          {optional && <span className={styles.labelNote}>任意</span>}
+          {optional && <span className={styles.labelNote}>{t('optional')}</span>}
         </label>
         {labelAction}
       </div>

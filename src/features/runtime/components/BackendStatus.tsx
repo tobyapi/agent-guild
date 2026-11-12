@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Button, Icon, reportError } from '@/shared/ui';
 import type { BackendInfo } from '@/shared/types/domain';
 import { useCheckingBackends, useLoggingIn, useStartingBackend } from '../hooks/useRuntime';
-import { BACKEND_STATUS_TONES, BACKEND_STATUS_WORDS } from '../model/status';
+import { t } from '../i18n';
+import { BACKEND_STATUS_TONES, backendStatusWord } from '../model/status';
 import { loginBackend, refreshBackends, startBackend } from '../store';
 import styles from './BackendStatus.module.css';
 
@@ -20,7 +21,7 @@ export function BackendStatus({ backend }: BackendStatusProps) {
       <p className={styles.ready}>
         <span className={styles.dot} aria-hidden="true" />
         <span className={styles.text}>
-          {BACKEND_STATUS_WORDS.ready}
+          {backendStatusWord('ready')}
           {backend.statusMessage && <span className={styles.message}>{backend.statusMessage}</span>}
         </span>
       </p>
@@ -33,7 +34,7 @@ export function BackendStatus({ backend }: BackendStatusProps) {
 function StoppedBackend({ backend }: BackendStatusProps) {
   const checking = useCheckingBackends();
   const starting = useStartingBackend() === backend.id;
-  const message = starting ? `${backend.label} の起動とモデル一覧の読み込みを待っています。` : backend.statusMessage;
+  const message = starting ? t('startingModels', { backend: backend.label }) : backend.statusMessage;
   return (
     <BackendProblem backend={backend} message={message}>
       <Button
@@ -42,7 +43,7 @@ function StoppedBackend({ backend }: BackendStatusProps) {
         onClick={() => void startBackend(backend.id).catch(reportError)}
         disabled={checking}
       >
-        {starting ? '起動中…' : `${backend.label} を起動`}
+        {starting ? t('starting') : t('start', { backend: backend.label })}
       </Button>
     </BackendProblem>
   );
@@ -61,7 +62,7 @@ function BackendLoginStatus({ backend }: BackendStatusProps) {
           onClick={() => void loginBackend(backend.id).catch(reportError)}
           disabled={loggingIn !== null}
         >
-          {mine ? 'ログイン中…' : login.label}
+          {mine ? t('loggingIn') : login.label}
         </Button>
       )}
     </BackendProblem>
@@ -74,13 +75,13 @@ function BackendProblem({ backend, message, children }: BackendStatusProps & { m
     <div className={styles.problem} data-tone={BACKEND_STATUS_TONES[backend.status]} role="status">
       <Icon name="alert" className={styles.icon} />
       <div className={styles.text}>
-        <b className={styles.word}>{BACKEND_STATUS_WORDS[backend.status]}</b>
+        <b className={styles.word}>{backendStatusWord(backend.status)}</b>
         {message && <span className={styles.message}>{message}</span>}
       </div>
       <div className={styles.actions}>
         {children}
         <Button size="sm" onClick={() => void refreshBackends().catch(reportError)} disabled={checking}>
-          {checking ? '確認中…' : '再確認'}
+          {checking ? t('checking') : t('recheck')}
         </Button>
       </div>
     </div>

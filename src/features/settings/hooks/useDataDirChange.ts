@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { errorCode, errorMessage } from '@/shared/lib/errors';
 import { notifyInfo, reportError } from '@/shared/ui';
 import type { DataDirMode } from '@/shared/types/domain';
+import { tStorage as t } from '../i18n/storage';
 import { changeDataDir } from '../store';
 
 /**
@@ -23,7 +24,7 @@ export function useDataDirChange(path: string) {
     setError(null);
     try {
       await changeDataDir(path, mode);
-      notifyInfo('保存先を変更しました。アプリを再起動します…');
+      notifyInfo(t('changedRestarting'));
     } catch (reason) {
       const code = errorCode(reason);
       if (code === 'conflict') setMode('open');

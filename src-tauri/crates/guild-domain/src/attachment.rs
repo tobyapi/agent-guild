@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use super::error::ValidationError;
 use super::ids::AttachmentId;
+use super::locale;
 
 /// 1つの発言に添えられる数（画像とファイルの合計）
 pub const MAX_ATTACHMENTS: usize = 10;
@@ -83,29 +84,71 @@ pub fn is_image(media_type: &str) -> bool {
 /// 数・種類・大きさを検証する（違反は field `attachments`）
 pub fn validate_attachments(items: &[NewAttachment]) -> Result<(), ValidationError> {
     if items.len() > MAX_ATTACHMENTS {
-        return Err(invalid(format!("添付は1回に{MAX_ATTACHMENTS}個までです")));
+        return Err(invalid(locale::pick([
+            format!("添付は1回に{MAX_ATTACHMENTS}個までです"),
+            format!("You can attach up to {MAX_ATTACHMENTS} files at a time"),
+            format!("每次最多可添加 {MAX_ATTACHMENTS} 个附件"),
+            format!("每次最多可附加 {MAX_ATTACHMENTS} 個附件"),
+            format!("첨부 파일은 한 번에 {MAX_ATTACHMENTS}개까지입니다"),
+        ])));
     }
     items.iter().try_for_each(validate_one)?;
     if items.iter().map(|item| item.bytes.len()).sum::<usize>() > MAX_TOTAL_BYTES {
-        return Err(invalid("添付の合計は 30MB までです"));
+        return Err(invalid(locale::pick([
+            "添付の合計は 30MB までです",
+            "Attachments can total up to 30 MB",
+            "附件总大小不能超过 30MB",
+            "附件總大小不能超過 30MB",
+            "첨부 파일은 합계 30MB까지입니다",
+        ])));
     }
     Ok(())
 }
 
 fn validate_one(item: &NewAttachment) -> Result<(), ValidationError> {
     if !is_media_type(&item.media_type) {
-        return Err(invalid("ファイルの種類が正しくありません"));
+        return Err(invalid(locale::pick([
+            "ファイルの種類が正しくありません",
+            "The file type is invalid",
+            "文件类型不正确",
+            "檔案類型不正確",
+            "파일 형식이 올바르지 않습니다",
+        ])));
     }
     if item.bytes.is_empty() {
-        return Err(invalid("空のファイルは添付できません"));
+        return Err(invalid(locale::pick([
+            "空のファイルは添付できません",
+            "Empty files cannot be attached",
+            "不能添加空文件",
+            "無法附加空白檔案",
+            "빈 파일은 첨부할 수 없습니다",
+        ])));
     }
     let (limit, message) = if is_image(&item.media_type) {
-        (MAX_IMAGE_BYTES, "画像は1枚 5MB までです")
+        (
+            MAX_IMAGE_BYTES,
+            [
+                "画像は1枚 5MB までです",
+                "Each image can be up to 5 MB",
+                "每张图片最大 5MB",
+                "每張圖片最大 5MB",
+                "이미지는 한 장에 5MB까지입니다",
+            ],
+        )
     } else {
-        (MAX_FILE_BYTES, "ファイルは1つ 10MB までです")
+        (
+            MAX_FILE_BYTES,
+            [
+                "ファイルは1つ 10MB までです",
+                "Each file can be up to 10 MB",
+                "每个文件最大 10MB",
+                "每個檔案最大 10MB",
+                "파일은 하나에 10MB까지입니다",
+            ],
+        )
     };
     if item.bytes.len() > limit {
-        return Err(invalid(message));
+        return Err(invalid(locale::pick(message)));
     }
     Ok(())
 }

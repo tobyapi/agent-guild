@@ -1,0 +1,33 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const ko: Messages<typeof ja> = {
+  languageSection: '언어',
+  languageLabel: '표시 및 대화 언어',
+  languageHint: '앱 화면과 에이전트의 대화에 사용하는 언어입니다. 에이전트에는 다음 답변부터 반영됩니다.',
+  settingsTitle: '설정',
+  close: '닫기',
+  sectionProfile: '프로필',
+  sectionTheme: '테마',
+  sectionBackends: '백엔드',
+  sectionSkillLibrary: '스킬 폴더',
+  sectionStorage: '데이터 저장 위치',
+  sectionUpdate: '앱 업데이트',
+  themeLabel: '테마',
+  themeDark: '다크',
+  themeLight: '라이트',
+  themeSystem: 'OS 설정에 맞춤',
+  setupTitle: 'AI 길드에 오신 것을 환영합니다',
+  setupDescription: '먼저 다음 4가지를 정해 주십시오. 모두 나중에 설정에서 바꿀 수 있습니다.',
+  setupStart: '시작하기',
+  setupStartWithData: '그 데이터로 시작하기',
+  setupYourName: '내 이름',
+  setupNameLabel: '이름',
+  setupNameHint: '에이전트가 나를 부를 때 사용하는 이름입니다.',
+  setupDataDirHelp: '채널, 에이전트, 대화를 저장하는 위치입니다. {source}',
+  setupOpenHelp: '이 폴더에 있는 길드 데이터로 시작합니다. 이름과 에이전트는 그 데이터의 것을 사용합니다.',
+  setupCopyHelp: '현재 데이터를 이 폴더에 복사해서 사용합니다(시작하기를 누르면 다시 시작합니다).',
+  setupConflict: '이 폴더에는 이미 길드 데이터가 있습니다. 그 데이터로 시작하거나 다른 폴더를 선택하십시오.',
+  setupRestarting: '저장 위치를 변경했습니다. 앱을 다시 시작합니다…',
+  resetDataDir: '되돌리기',
+};

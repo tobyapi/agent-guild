@@ -4,6 +4,7 @@ import { cx } from '@/shared/lib/cx';
 import { IconButton } from './Button';
 import { Icon } from './Icon';
 import styles from './Dialog.module.css';
+import { t } from './i18n';
 
 export interface DialogProps {
   title: ReactNode;
@@ -54,7 +55,7 @@ export function Dialog({ title, onClose, children, footer, description, size = '
           )}
         </div>
         {onClose && (
-          <IconButton label="閉じる" onClick={onClose}>
+          <IconButton label={t('close')} onClick={onClose}>
             <Icon name="close" />
           </IconButton>
         )}

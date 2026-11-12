@@ -4,6 +4,7 @@ import type { AgentTemplate } from '@/shared/types/domain';
 export const MOCK_TEMPLATES: AgentTemplate[] = [
   {
     id: 'worker',
+    roleTags: ['作業者', 'Worker', '执行者', '執行者', '작업자'],
     builtinSkills: [],
     label: '作業者',
     description: '必要なことを調べ、作り、試して、仕事を完成させます。メンションがなくても答えます。',
@@ -30,6 +31,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   },
   {
     id: 'ideator',
+    roleTags: ['発想役', 'Ideator', '创意者', '發想者', '아이디어 담당'],
     builtinSkills: ['concept-shift', 'introspection'],
     label: '発想役',
     description: '複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。',
@@ -56,6 +58,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   },
   {
     id: 'expert',
+    roleTags: ['専門家', 'Expert', '专家', '專家', '전문가'],
     builtinSkills: ['universal-critique'],
     label: '専門家',
     description: '専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。',
@@ -82,6 +85,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   },
   {
     id: 'manager',
+    roleTags: ['マネージャー', 'Manager', '经理', '經理', '매니저'],
     builtinSkills: [],
     label: 'マネージャー',
     description: '分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。',

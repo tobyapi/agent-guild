@@ -1,4 +1,5 @@
 import { Button, Crest } from '@/shared/ui';
+import { t } from './i18n';
 import styles from './StartupScreen.module.css';
 
 export interface StartupScreenProps {
@@ -14,14 +15,14 @@ export function StartupScreen({ error, onRetry }: StartupScreenProps) {
       <div className={styles.content} role={error ? 'alert' : 'status'}>
         <Crest size="lg" lit={error === undefined} />
         {error === undefined ? (
-          <p className={styles.text}>AIギルドを準備しています…</p>
+          <p className={styles.text}>{t('preparing')}</p>
         ) : (
           <>
-            <h1 className={styles.title}>起動できませんでした</h1>
+            <h1 className={styles.title}>{t('startFailed')}</h1>
             <p className={styles.text}>{error}</p>
             {onRetry && (
               <Button variant="primary" onClick={onRetry}>
-                再試行
+                {t('retry')}
               </Button>
             )}
           </>

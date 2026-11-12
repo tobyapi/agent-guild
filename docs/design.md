@@ -28,7 +28,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | `canDelegate` | tasks ブロックでタスクを割り振れる（マネージャー。§7.1） |
 | `autonomyEnabled` | 自発活動をする |
 | スキル | どのエージェントにも付けられる |
-| `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない |
+| `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない。役割の名前はどの言語の表示名でもよい（テンプレートの `roleTags` のどれかに一致すればその役割。作成時はいまの言語の表示名が入る） |
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
 **権限は役割だけで決まり、どのバックエンドでも同じ**（保存する値・Snapshot の `permissions`・ランナーへ渡す値のどれも）。バックエンドごとに違ってよいのは「その AI で実際に使える操作（実効権限）」だけで、道具がない操作（`capabilities`）と、単独では守れない操作（`permissionRules`）を、依存関係が収束するまで取り除いて求める。許可を追加して解決しない。実効権限はプロンプトの「できること」と画面の表示に使い、ランナーは渡された権限から同じ規則で自分でも取り除く（§5。考え方と各バックエンドの守り方は role-permissions.md）。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
@@ -81,11 +81,12 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 
 ## 3. Tauri コマンド
 
-JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変換）。**コマンドはすべて async**。失敗時は `CommandError { code, message, field }` で reject する（message は日本語）。`field` は validation のとき、どの入力のことか（コマンドの入力の camelCase のキー: `name`・`avatar`・`backend`・`backendOptions`・`tags`・`permissions`・`autonomyIntervalMin`・`description`・`topic`・`content`・`attachments`・`path`・`url`）。入力に結びつかない失敗は `null`。
+JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変換）。**コマンドはすべて async**。失敗時は `CommandError { code, message, field }` で reject する（message はいまの言語。docs/i18n.md）。`field` は validation のとき、どの入力のことか（コマンドの入力の camelCase のキー: `name`・`avatar`・`backend`・`backendOptions`・`tags`・`permissions`・`autonomyIntervalMin`・`description`・`topic`・`content`・`attachments`・`path`・`url`）。入力に結びつかない失敗は `null`。
 
 | コマンド | 引数 | 戻り値 | emit | 主なエラー |
 |---|---|---|---|---|
-| `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す） | – | – |
+| `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す。`language` は settings.json に保存した言語で、まだ選んでいなければ null） | – | – |
+| `set_language` | `{ language: Language }`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`） | `null`（settings.json の `language` に保存し、Rust のいまの言語にして、ランナーに `setLanguage` を送る。以後のお知らせ・エラー・プロンプトの言語になる。docs/i18n.md） | – | storage（settings.json が新しい版のもの・書けない） |
 | `complete_setup` | – | `null`（settings.json に `setupDone: true` を書く。名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） | – | storage |
 | `get_snapshot` | – | `Snapshot` | – | unavailable |
 | `create_agent` | `{ input: AgentInput }` | `Agent` | state-changed | validation |
@@ -130,7 +131,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `check_update` | – | `UpdateStatus`（いまの版と、あれば新しい版。配布元の latest.json を見る） | – | unavailable（配布元に届かない・読めない） |
 | `install_update` | – | `null`（ダウンロード → 署名の検証 → ランナーを止める → 入れ替え → 再起動。Windows はインストーラーに任せて終了するので戻らない） | – | conflict（新しい版がない）, unavailable（ダウンロード・署名の検証・入れ替えの失敗） |
 
-復旧モード（§11）では `get_boot_status`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url`・`check_update`・`install_update` だけが動き、他は `unavailable` を返す。
+復旧モード（§11）では `get_boot_status`・`set_language`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url`・`check_update`・`install_update` だけが動き、他は `unavailable` を返す。
 
 - 発言の本文は信頼できない入力として描く（`src/features/chat/model/`）: 生の HTML は文字として見せ、できた HTML は DOMPurify に通す（img・video・iframe などの要素は通さない）。画像・動画・コードブロックの操作・図は、HTML に置いた差し込み口（`data-embed`）へ React の部品として足す。
   - 本文の中の画像・動画（`![名前](URL)`）: https のものは、利用者が札を押してから読み込む（発言を開いただけでは外へ通信しない。URL に情報を載せた持ち出しを防ぐため。Referer は送らない）。data: の画像（PNG・JPEG・GIF・WebP の base64）はそのまま見せる。http はリンクのまま、ほかのスキームは文字だけ。CSP は img-src・media-src に `https:` と `data:` を許す（押す前に読み込まないのは描画側の決まりで、CSP は種類を絞るだけ）。
@@ -169,6 +170,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - **中断**: cancel 後、終端イベントが来るか猶予（10秒）を過ぎたら `Cancelled` として扱い、以後その id のイベントは捨てる。中断は失敗ではない（error 発言を出さない）。
 - **認証状態**: アダプタは ready / probe のときに認証の有無を確認し、`status` と `statusMessage` に載せる。macOS では `claude auth status`・`codex login status` に聞く。ほかの確認は資格情報ファイルや環境変数の存在を見る。
 - **ログイン**: `BackendInfo.setup.login` を申告したアダプタは `login` 要求を受け付ける。アダプタは利用者がログインを終えるまで待つ。成功時は result（text は空）、失敗時は error（auth）で終える。Dispatcher は終端イベントの前に状態を確かめ直して `backends` を送る。cancel でログインを中断する。
+- **言語**: ランナーが作る画面向けの文字列（`BackendInfo` の説明・設定項目・セットアップの文言・途中経過・エラーの文面）は「いまの言語」で作る（`agent-runner/src/i18n.ts`。docs/i18n.md）。起動時は環境変数 `GUILD_LANGUAGE`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`。ない・知らない値なら `ja`）、以後は `setLanguage`（`{ type: 'setLanguage', language }`。id も返事もない。知らない言語は bad_request の扱い）で変わる。ランナーは言語を変えたら状態を確かめ直して `backends` を送り直す（状態の説明は確かめた時点の言語で作るため）。モデルへの指示と道具の結果は訳さない。
 - **バックエンドごとの違いの申告**: Rust と React は、バックエンドの ID で分岐しない。違いはアダプタが `BackendInfo` で申告する。
   - `folderScope`: 指定フォルダのチャンネルでの範囲の守り方。`files` はファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、`sandbox` はシェルごと OS の隔離に入れる（コマンドも範囲の中で使える）、`null` は指定フォルダでは実行できない。
   - `toolsOption`: 道具を使うかどうかを切り替える設定（`options` の真偽値の項目の key）。`null` なら役割の権限どおりに使う。key があるバックエンドは、その設定が true で、選んだモデルが道具に対応している（`ModelSpec.tools`）ときだけ道具を使い、それまでは会話専用。
@@ -278,6 +280,8 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - 会話プロンプト: 「# この会話のこれまでの発言」として**返答する会話（同じ起点）の発言**（起点の発言は必ず入れ、ほかは新しい方から30件まで。seq 順、1件3000文字まで。合流したジョブは関わる会話すべて。エージェント同士のやりとりでは、別の会話の発言は入れない）。**人間の発言に応えるジョブ**は、チャンネルの最近の10件も合わせて「# この会話と、チャンネル #名前 の最近の発言」とする（人間の発言は1件ずつが新しい起点なので、「それ」「さっきの」が指す直前の流れは別の会話にある。エージェントのセッションは毎回新しく、送らないものは覚えていない）。会話のない自発活動のジョブは「# チャンネル #名前 の最近の発言」として最近の10件だけ＋「**あなた宛ての未対応の発言**」としてきっかけの発言を全文で引用（1件8000文字まで）＋モード別の指示（reply / return と注記 / autonomous）。「最後の発言」という指し方はしない。途中の投稿（kind=progress）は数が多い（1分に1回）ので、上の件数（会話の30件・チャンネルの最近の10件）には数えない。それぞれの範囲（入れる発言のいちばん古いものよりあと）にあるものを、新しい方から10件まで足す（返答が途中経過に押し出されないように。古い流れの途中経過は入れない）。最後の返答と取り違えないように、発言者の後ろに「（途中経過）」を添える。
 - **添付**: 添付のある発言は見出しに「（画像 n 枚・ファイル n 個）」を添える。渡すのはきっかけの発言と会話の起点（プロンプトに入れる発言かきっかけにあるとき。会話のあるジョブでは起点の発言を必ず入れるので、いつも届く）の添付。起点を含めるので、割り振られた作業者や相談相手にも人間が最初に添えたものが届く。画像は run の images で渡し、どの発言の画像かを「# 添付画像」の節で伝える（1回に8枚まで。超えるなら新しい発言を優先し、1つの発言の画像は途中で切らない）。ほかのファイルは「# 添付ファイル」の節に名前・大きさ・絶対パスを並べて読んでもらい、そのチャンネルの添付のフォルダを readableDirs に入れる（readFiles がなければ、読めないことを伝える）。
 - 相談のジョブでは、呼び出し元エージェントの作業場所を `readableDirs` に入れ、プロンプトでもその場所を伝える（専門家が成果物を直接読める）。
+- **会話の言語**（docs/i18n.md）: プロンプトの組み立ては言語を引数で受け取る（application がジョブの時点のいまの言語を渡す）。日本語以外なら、システムプロンプトの先頭に「# Language」などその言語で書いた節（返答・途中経過の投稿・tasks ブロックの指示・相談への回答・MEMORY.md のメモをすべてその言語で書く。指示が日本語でも、ほかのメンバーや資料が別の言語でも同じ。コード・識別子・ファイル名・@メンション・名前・[PASS] などの印はそのまま）を、会話プロンプトの最後にその言語で1行の念押しを入れる。本文の節は日本語のまま。日本語のときは何も入れない（言語の設定がなかった版とプロンプトは同じ）。
+- **お知らせの言語**: システムの発言（「停止しました」など）とプロンプトの注記・サブタスクの失敗の理由は、作った時点のいまの言語で作って保存する。あとで言語を変えても保存済みのものは書き換えない。文面は Rust（`conversation::notices`・`delegation::SubtaskNote`）が正で、`contracts/behavior/notices.json`（言語のコードごと）でモックと同じことを検査する。
 - **操作の確認に渡す依頼**（run の `intent`、guild-domain の `build_intent`）: 「# 人間の依頼」としてこの会話（合流したジョブなら関わる会話すべて）の人間の発言（新しい方から5件、1件2000文字まで。なければその旨）と、「# エージェント」として名前・役割・得意分野・できること。資料や仲間（エージェント）の発言は入れない（資料に紛れた指示が、確かめる側に届かないように）。
 
 ## 9. 削除・除外・変更の扱い
@@ -326,7 +330,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - エージェントが自分の SDK 設定（Claude の `.claude/settings.json` や hooks、CLAUDE.md、Codex の設定）を書き換えて次の実行に影響させることはできないようにする。ただし writeAnywhere（作業場所の外にも書く）を許したエージェントは、データフォルダや Codex の利用者全体の設定（`~/.codex/config.toml`）も含めて PC のどこにでも書ける。これは止めず、編集画面の注意書きで伝える。アダプタは作業場所の設定ファイルを読み込ませない（Claude は `settingSources: []` とし、スキルは state 側のローカルプラグインで渡す。Codex で作業場所に置くしかないものは実行のたびに作り直す）。
 
 ### 場所の決定と起動手順
-1. データフォルダ = 環境変数 `GUILD_DATA_DIR` > `<app_config_dir>/settings.json` の `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない。setupDone は初回起動の初期設定を終えた印で、なければ false）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
+1. データフォルダ = 環境変数 `GUILD_DATA_DIR` > `<app_config_dir>/settings.json` の `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean, "language"?: Language }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない。setupDone は初回起動の初期設定を終えた印で、なければ false。language は表示とエージェントの会話の言語で、選んでから書く。ない・知らない値なら日本語として扱い、`BootStatus.language` は null。足しただけなので version は 1 のまま）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
 2. 既定の場所なら作成する。設定や環境変数で指定された場所が無いときは作らずに復旧モード（missing）。
 3. `.lock` を取る（再起動の重なりに備えて最大5秒再試行）。取れなければ復旧モード（locked）。
 4. guild-data.json を確認（空のフォルダなら作成）。app が違えば foreign、layoutVersion が新しければ newer_version。
@@ -334,6 +338,8 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 6. ランナーとサービスを起動し、スケジューラを動かす。
 
 **初回起動**: settings.json の `setupDone` が true でなければ（読めないときは除く）、`BootStatus.needsSetup` を true にして通常どおり起動する。React は本体の上に初期設定のダイアログ（名前・スキルのフォルダ・データの保存先。ui-design.md §5.11）を出し、「はじめる」で 名前（`update_profile`）→ `complete_setup` → 保存先を変えたなら `change_data_dir`（空のフォルダなら copy で、いまのデータと保存した名前を写す。ギルドのデータがあれば conflict を受けて open に切り替える。どちらも再起動する）の順に保存する。マシンごとの印なので、別の PC で同じデータフォルダを開くときも、その PC の初回起動では出る。
+
+**言語**: 1 のあと（利用者に見える文字列を作る前）に settings.json の `language`（なければ日本語）をプロセスのいまの言語にし、ランナーには起動のたびに環境変数 `GUILD_LANGUAGE` で渡す（復旧モードの理由の文面もこの言語）。
 
 **復旧モード**: 1〜5 のどこかで失敗したらサービスを起動せず、`get_boot_status` が `recovery` と理由を返す。React は復旧画面（理由の説明、「既定の場所に戻す」＝ `change_data_dir(defaultDataDir, 'open')`、「別のフォルダを選ぶ」、「再試行」＝ `restart_app`）を出す。
 

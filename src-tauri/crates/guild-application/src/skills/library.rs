@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use guild_domain::error::ValidationError;
 use guild_domain::ids::{AgentId, SkillId};
+use guild_domain::locale;
 use guild_domain::skill::{
     parse_skill_file, validate_library_dirs, LibraryAddMode, LibrarySkill, Skill, SkillLibrary, SkillSource,
     LIBRARY_SKILL_LIMIT,
@@ -51,19 +52,37 @@ impl SkillLibraryService {
         let path = path.trim();
         let folder = Path::new(path);
         if !folder.is_absolute() {
-            return Err(ValidationError::on("path", "スキルのフォルダは絶対パスで指定してください").into());
+            return Err(ValidationError::on(
+                "path",
+                locale::pick([
+                    "スキルのフォルダは絶対パスで指定してください",
+                    "Specify the skill folder as an absolute path",
+                    "请使用绝对路径指定技能文件夹",
+                    "請使用絕對路徑指定技能資料夾",
+                    "스킬 폴더는 절대 경로로 지정하십시오",
+                ]),
+            )
+            .into());
         }
         let text = self.ports.library.read_skill_file(folder).map_err(|error| match error {
-            SkillFileError::FolderMissing | SkillFileError::FileMissing => {
-                AppError::NotFound("SKILL.md のあるフォルダ")
-            }
+            SkillFileError::FolderMissing | SkillFileError::FileMissing => AppError::NotFound(locale::pick([
+                "SKILL.md のあるフォルダ",
+                "Folder containing SKILL.md",
+                "包含 SKILL.md 的文件夹",
+                "包含 SKILL.md 的資料夾",
+                "SKILL.md가 있는 폴더",
+            ])),
             SkillFileError::Unreadable(_) => AppError::validation(error.to_string()),
         })?;
         let file = parse_skill_file(&text, &folder_name(folder));
         if let Some(problem) = file.problem {
-            return Err(AppError::validation(format!(
-                "このスキルは Agent Skills の形式に合わないため追加できません: {problem}"
-            )));
+            return Err(AppError::validation(locale::pick([
+                format!("このスキルは Agent Skills の形式に合わないため追加できません: {problem}"),
+                format!("This skill cannot be added because it does not follow the Agent Skills format: {problem}"),
+                format!("此技能不符合 Agent Skills 的格式，无法添加：{problem}"),
+                format!("此技能不符合 Agent Skills 的格式，無法新增：{problem}"),
+                format!("이 스킬은 Agent Skills 형식에 맞지 않아 추가할 수 없습니다: {problem}"),
+            ])));
         }
         ensure_name_free(&self.ports, agent_id, &file.name, None)?;
         let source = match mode {
@@ -89,7 +108,7 @@ impl SkillLibraryService {
     pub fn reveal(&self, path: &str) -> AppResult<()> {
         let folder = Path::new(path.trim());
         if !folder.is_absolute() || !self.ports.library.is_folder(folder) {
-            return Err(AppError::NotFound("フォルダ"));
+            return Err(AppError::NotFound(locale::pick(["フォルダ", "Folder", "文件夹", "資料夾", "폴더"])));
         }
         self.folders.reveal(folder)
     }
@@ -97,7 +116,14 @@ impl SkillLibraryService {
 
 /// dirs の順に走査する。同じフォルダの中は name の順。全体で LIBRARY_SKILL_LIMIT 件まで
 fn scan(library: &dyn SkillLibraryScanner, dirs: &[PathBuf]) -> SkillLibrary {
-    let too_many = format!("スキルが多すぎるため、{LIBRARY_SKILL_LIMIT}件で打ち切りました");
+    let limit = LIBRARY_SKILL_LIMIT;
+    let too_many = locale::pick([
+        format!("スキルが多すぎるため、{limit}件で打ち切りました"),
+        format!("Too many skills; stopped after {limit}"),
+        format!("技能过多，已在 {limit} 个时停止"),
+        format!("技能過多，已在 {limit} 個時停止"),
+        format!("스킬이 너무 많아 {limit}개에서 중단했습니다"),
+    ]);
     let mut skills: Vec<LibrarySkill> = Vec::new();
     let mut dir_problems = BTreeMap::new();
     for dir in dirs {

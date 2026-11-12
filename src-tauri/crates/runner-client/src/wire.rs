@@ -31,6 +31,10 @@ pub(crate) enum Request<'a> {
     Probe {
         id: &'a str,
     },
+    /// 言語が変わった（返事はない。ランナーは backends を送り直す）
+    SetLanguage {
+        language: &'a str,
+    },
     Shutdown,
 }
 

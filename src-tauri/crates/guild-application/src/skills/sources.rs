@@ -3,6 +3,7 @@
 
 use std::path::Path;
 
+use guild_domain::locale;
 use guild_domain::skill::{find_builtin_skill, parse_skill_file, Skill, SkillFile};
 
 use crate::ports::SkillLibraryScanner;
@@ -28,7 +29,13 @@ fn read_builtin(name: &str) -> Result<SkillFile, String> {
         Some(found) => {
             Ok(SkillFile { name: found.name, description: found.description, body: found.body, problem: None })
         }
-        None => Err(format!("内蔵スキル「{name}」はこの版のアプリにありません")),
+        None => Err(locale::pick([
+            format!("内蔵スキル「{name}」はこの版のアプリにありません"),
+            format!("The built-in skill “{name}” is not included in this version of the app"),
+            format!("此版本的应用中没有内置技能“{name}”"),
+            format!("此版本的應用程式中沒有內建技能「{name}」"),
+            format!("이 버전의 앱에는 내장 스킬 \"{name}\"이(가) 없습니다"),
+        ])),
     }
 }
 

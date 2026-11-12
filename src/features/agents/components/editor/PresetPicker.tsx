@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { KeyboardEvent, RefObject } from 'react';
+import { tEditor } from '../../i18n/editor';
 import { searchPresets } from '../../model/personas/presetText';
 import type { AnyPreset } from '../../model/personas/types';
 import { PresetOptions } from './PresetOptions';
@@ -31,11 +32,11 @@ export function PresetPicker<T extends AnyPreset>({ label, presets, onReplace, o
         aria-haspopup="dialog"
         onClick={() => setOpen((value) => !value)}
       >
-        プリセット
+        {tEditor('presetButton')}
       </button>
       {open && (
         <PresetPopover
-          title={`${label}のプリセット`}
+          title={tEditor('presetTitle', { label })}
           presets={presets}
           anchorRef={anchorRef}
           onChoose={(preset, mode) => {
@@ -91,8 +92,8 @@ function PresetPopover<T extends AnyPreset>({ title, presets, anchorRef, onChoos
         className={styles.search}
         type="search"
         value={query}
-        placeholder="検索"
-        aria-label={`${title}を検索`}
+        placeholder={tEditor('presetSearch')}
+        aria-label={tEditor('presetSearchLabel', { title })}
         role="combobox"
         aria-expanded="true"
         aria-controls={listId}
@@ -105,7 +106,7 @@ function PresetPopover<T extends AnyPreset>({ title, presets, anchorRef, onChoos
         onKeyDown={onKeyDown}
       />
       {items.length === 0 ? (
-        <p className={styles.empty}>『{query.trim()}』に一致するプリセットはありません</p>
+        <p className={styles.empty}>{tEditor('presetNoMatch', { query: query.trim() })}</p>
       ) : (
         <PresetOptions
           id={listId}
@@ -118,7 +119,8 @@ function PresetPopover<T extends AnyPreset>({ title, presets, anchorRef, onChoos
       )}
       <p className={styles.hints}>
         <kbd>↑</kbd>
-        <kbd>↓</kbd> 選ぶ · <kbd>Enter</kbd> 決定 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 追記 · <kbd>Esc</kbd> 閉じる
+        <kbd>↓</kbd> {tEditor('presetKeyChoose')} · <kbd>Enter</kbd> {tEditor('presetKeyConfirm')} · <kbd>Shift</kbd>+
+        <kbd>Enter</kbd> {tEditor('presetKeyAppend')} · <kbd>Esc</kbd> {tEditor('presetKeyClose')}
       </p>
     </div>
   );

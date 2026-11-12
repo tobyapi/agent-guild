@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { prepareCommandSandbox } from '../command-sandbox.ts';
 import { toolDirs } from '../command-sandbox/policy.ts';
 import { BackendError, type RunRequest } from '../types.ts';
+import { t } from './texts/index.ts';
 
 /** 権限プロファイルの名前（Codex の設定の permissions.<名前>） */
 export const FOLDER_PROFILE = 'guild_folder';
@@ -75,10 +76,7 @@ export async function folderProfileScope(request: RunRequest, env: NodeJS.Proces
 export async function folderOverrides(request: RunRequest, env: NodeJS.ProcessEnv = process.env): Promise<string[]> {
   if (request.writableDirs === undefined) return [];
   if (process.platform !== 'win32' || !(await prepareCommandSandbox())) {
-    throw new BackendError(
-      'unsupported_permission',
-      'フォルダ制限には OS の隔離が必要です（このバックエンドでは、隔離が使える Windows 11 で使えます）',
-    );
+    throw new BackendError('unsupported_permission', t('folderNeedsSandbox'));
   }
   return profileOverrides(await folderProfileScope(request, env));
 }

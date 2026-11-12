@@ -1,5 +1,6 @@
 import { Avatar, Icon } from '@/shared/ui';
 import { useProfile } from '../hooks/useProfile';
+import { t } from '../i18n';
 import styles from './ProfileCard.module.css';
 
 export interface ProfileCardProps {
@@ -10,11 +11,16 @@ export interface ProfileCardProps {
 export function ProfileCard({ onOpenSettings }: ProfileCardProps) {
   const me = useProfile();
   return (
-    <button type="button" className={styles.card} onClick={onOpenSettings} aria-label={`${me.name}（設定を開く）`}>
+    <button
+      type="button"
+      className={styles.card}
+      onClick={onOpenSettings}
+      aria-label={t('openSettings', { name: me.name })}
+    >
       <Avatar avatar={me.avatar} name={me.name} color={me.color} size="row" human />
       <span className={styles.text}>
         <span className={styles.name}>{me.name}</span>
-        <span className={styles.sub}>あなた</span>
+        <span className={styles.sub}>{t('you')}</span>
       </span>
       <Icon name="settings" className={styles.icon} />
     </button>

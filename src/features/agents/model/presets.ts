@@ -1,29 +1,34 @@
 // 役割ごとの人格の書き出し例。利用者目線などは役割と独立した担当・得意分野として持つ。
-import { PERSONALITIES } from './personas/personalities';
+// 題・名前・担当・得意分野と性格・口調の文面は、いまの言語で引く。
+import { personalities } from './personas/personalities';
 import { findPreset } from './personas/presetText';
-import { TONES } from './personas/tones';
+import { tones } from './personas/tones';
 import { WORKER_PRESETS } from './presets/worker';
 import { IDEATOR_PRESETS } from './presets/ideator';
 import { EXPERT_PRESETS } from './presets/expert';
 import { MANAGER_PRESETS } from './presets/manager';
+import { localizePreset } from './presets/types';
 import type { AgentPreset, PresetValues } from './presets/types';
 export type { AgentPreset, PresetValues } from './presets/types';
 
-export const AGENT_PRESETS: readonly AgentPreset[] = [
-  ...WORKER_PRESETS,
-  ...IDEATOR_PRESETS,
-  ...EXPERT_PRESETS,
-  ...MANAGER_PRESETS,
-];
+const ENTRIES = [...WORKER_PRESETS, ...IDEATOR_PRESETS, ...EXPERT_PRESETS, ...MANAGER_PRESETS];
+
+/** すべての人格の例（いまの言語） */
+export function agentPresets(): AgentPreset[] {
+  return ENTRIES.map(localizePreset);
+}
 
 export function presetsFor(templateId: string | null): AgentPreset[] {
-  return AGENT_PRESETS.filter((candidate) => candidate.templateId === templateId);
+  return ENTRIES.filter((candidate) => candidate.templateId === templateId).map(localizePreset);
 }
 
 /** 人格の例の性格・口調の文面（プリセットの表から引く） */
-export function presetPersona(values: PresetValues): { personality: string; tone: string } {
+export function presetPersona(values: Pick<PresetValues, 'personality' | 'tone'>): {
+  personality: string;
+  tone: string;
+} {
   return {
-    personality: findPreset(PERSONALITIES, values.personality)?.text ?? '',
-    tone: findPreset(TONES, values.tone)?.text ?? '',
+    personality: findPreset(personalities(), values.personality)?.text ?? '',
+    tone: findPreset(tones(), values.tone)?.text ?? '',
   };
 }

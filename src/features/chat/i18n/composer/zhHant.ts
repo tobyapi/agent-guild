@@ -1,0 +1,32 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const zhHant: Messages<typeof ja> = {
+  composerUnavailable: '代理人暫時無法回覆（執行環境已停止）',
+  composerPlaceholder: '傳送訊息到 #{channel}（用 @ 呼叫，拖放檔案即可附加）',
+  composerLabel: '傳送到 #{channel} 的訊息',
+  send: '傳送',
+  sendHint: '傳送 Enter · 換行 Shift+Enter',
+  attachFile: '附加檔案（也可以拖放或貼上）',
+  mentionHeading: '呼叫對象',
+  mentionNoMatch: '沒有符合「{query}」的代理人',
+  mentionNoAgents: '還沒有代理人',
+  mentionOutsiders: '不在頻道中 — 呼叫後會加入',
+  hintSelect: '選擇',
+  hintConfirm: '確定',
+  hintClose: '關閉',
+  pendingLabel: '要傳送的附件',
+  removeAttachment: '移除 {name}',
+  fileFallback: '檔案',
+  fileReadFailed: '無法讀取 {name}',
+  totalTooLarge: '附件總大小不能超過 30MB',
+  fileTooLarge: '單一檔案不能超過 10MB',
+  tooMany: '每次最多附加 {max} 個檔案',
+  sendFailedRetry: '傳送失敗。請再試一次。',
+  sendFailed: '傳送失敗。{reason}',
+  resend: '重新傳送',
+  nameSeparator: '、',
+  activityWorking: '{names} 正在工作',
+  activityOthers: '另有 {count} 人正在工作',
+  activityDetail: '· {detail}',
+};

@@ -1,0 +1,53 @@
+import type { Messages } from '@/shared/i18n';
+import type { ja } from './ja';
+
+export const ko: Messages<typeof ja> = {
+  loading: '불러오는 중…',
+  reload: '다시 불러오기',
+  builtinTitle: '내장 스킬에서 추가',
+  closeBuiltin: '내장 스킬에서 추가 닫기',
+  builtinHelp:
+    '앱에 포함된 안내서입니다. "추가"는 내장 스킬을 참조하며, 앱을 업데이트하면 내용도 새로워집니다(앱에서는 편집할 수 없습니다). "복사해서 추가"는 SKILL.md의 본문만 가져오며, 앱에서 편집할 수 있습니다(부속 파일은 가져오지 않습니다).',
+  builtinList: '내장 스킬',
+  libraryTitle: '스킬 라이브러리에서 추가',
+  closeLibrary: '스킬 라이브러리에서 추가 닫기',
+  libraryHelp:
+    '"추가"는 원래 폴더를 참조하며, 실행할 때마다 SKILL.md와 부속 파일을 다시 읽습니다(앱에서는 편집할 수 없습니다). "복사해서 추가"는 SKILL.md의 본문만 가져오며, 앱에서 편집할 수 있습니다(부속 파일은 가져오지 않습니다).',
+  libraryList: '스킬 라이브러리의 스킬',
+  noDirsTitle: '아직 스킬 폴더를 지정하지 않았습니다',
+  noDirsBody:
+    '설정의 "스킬 폴더"에서 Agent Skills 폴더(이름/SKILL.md가 들어 있는 폴더)를 지정하면 여기에서 추가할 수 있습니다.',
+  openSettings: '설정 열기',
+  noSkillsTitle: '지정한 폴더에서 스킬을 찾을 수 없습니다',
+  noSkillsMissingDirs: '찾을 수 없는 폴더가 있습니다. 설정의 "스킬 폴더"를 확인하십시오.',
+  noSkillsHint: '폴더에 이름/SKILL.md가 있는지 확인하고 "다시 불러오기"를 누르십시오.',
+  search: '검색',
+  searchPlaceholder: '이름, 설명, 폴더로 검색',
+  missingDirs: '찾을 수 없는 폴더가 {count}개 있습니다(설정의 "스킬 폴더"에서 확인할 수 있습니다).',
+  noMatch: '"{query}"와(과) 일치하는 스킬이 없습니다.',
+  added: '{name}을(를) 추가했습니다',
+  copiedAdded: '{name}을(를) 복사해서 추가했습니다',
+  extraFiles: '부속 파일 {count}개',
+  noExtraFiles: '부속 파일 없음',
+  nameTaken: '같은 이름의 스킬 "{name}"이(가) 이미 있습니다.',
+  noDescription: '(설명이 없습니다)',
+  addedMark: '추가됨',
+  add: '추가',
+  copyAdd: '복사해서 추가',
+  copyTitleWithFiles: 'SKILL.md의 본문만 가져옵니다(부속 파일 {count}개는 가져오지 않습니다)',
+  copyTitle: 'SKILL.md의 본문을 가져옵니다',
+  sectionHelp:
+    'Agent Skills 폴더({path}가 들어 있는 폴더)를 지정하면 "스킬 라이브러리에서 추가"로 에이전트에 바로 스킬을 붙일 수 있습니다. 폴더 내용을 바꾼 뒤에는 "다시 불러오기"를 누르십시오.',
+  skillPath: '이름/SKILL.md',
+  noDirs: '아직 폴더를 지정하지 않았습니다.',
+  dirsLabel: '스킬 폴더(위에서부터 순서대로)',
+  addFolder: '폴더 추가…',
+  skillCount: '스킬 {count}개',
+  moveUp: '{dir} 위로 이동',
+  moveDown: '{dir} 아래로 이동',
+  openDir: '{dir} 열기',
+  removeDir: '{dir} 해제',
+  dirAlready: '이미 지정된 폴더입니다',
+  dirInside: '{parent} 안에 있는 폴더입니다. 그 안의 스킬은 이미 검색됩니다',
+  dirContains: '이미 지정된 {child}을(를) 포함하는 폴더입니다. 먼저 {child}을(를) 해제하십시오',
+};

@@ -4,7 +4,8 @@ import { execFile, spawn } from 'node:child_process';
 import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 import { BackendError, type LoginContext } from '../types.ts';
-import { CLAUDE_NOT_FOUND, findClaude } from './executable.ts';
+import { claudeNotFound, findClaude } from './executable.ts';
+import { t } from './texts/index.ts';
 
 /** アプリからログインを始められるか */
 export const CAN_LOGIN = process.platform === 'win32' || process.platform === 'darwin';
@@ -42,16 +43,13 @@ export function loginArguments(command: readonly string[]): string {
  */
 export function openLoginWindow({ signal }: LoginContext): Promise<void> {
   const executable = findClaude();
-  if (executable === null) return Promise.reject(new BackendError('internal', CLAUDE_NOT_FOUND));
+  if (executable === null) return Promise.reject(new BackendError('internal', claudeNotFound()));
   if (process.platform === 'darwin') {
     return auth(executable, 'login', 300_000, signal).then(
       () => undefined,
       () => {
         // CLI の出力には認証用の URL が含まれるため、表示やログには渡さない。
-        throw new BackendError(
-          'auth',
-          'Claude にログインできませんでした。ブラウザーを確認して、もう一度お試しください。',
-        );
+        throw new BackendError('auth', t('loginFailed'));
       },
     );
   }
@@ -71,7 +69,7 @@ export function openLoginWindow({ signal }: LoginContext): Promise<void> {
     signal.addEventListener('abort', close, { once: true });
     child.once('error', (error) => {
       signal.removeEventListener('abort', close);
-      reject(new BackendError('internal', `ログインの窓を開けませんでした（${error.message}）`));
+      reject(new BackendError('internal', t('loginWindowFailed', { reason: error.message })));
     });
     child.once('exit', () => {
       signal.removeEventListener('abort', close);

@@ -5,7 +5,9 @@ mod bootstrap;
 pub mod infrastructure;
 pub mod interface;
 
-use interface::commands::{agents, boot, channels, links, messages, profile, skills, snapshot, storage, update};
+use interface::commands::{
+    agents, boot, channels, language, links, messages, profile, skills, snapshot, storage, update,
+};
 use interface::state::BeforeUpdate;
 use tauri::Manager;
 
@@ -26,6 +28,7 @@ pub fn run() {
             boot::get_boot_status,
             boot::restart_app,
             boot::complete_setup,
+            language::set_language,
             snapshot::get_snapshot,
             snapshot::refresh_backends,
             snapshot::install_backend_cli,

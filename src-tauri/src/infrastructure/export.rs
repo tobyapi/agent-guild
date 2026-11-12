@@ -11,6 +11,8 @@ use std::sync::Arc;
 use guild_application::ports::DataExporter;
 use guild_application::{AppError, AppResult};
 
+use guild_domain::locale;
+
 use super::data_dir::{write_marker, AGENTS_DIR, ATTACHMENTS_DIR, DB_FILE, MARKER_FILE};
 use super::sqlite::Database;
 
@@ -36,7 +38,7 @@ impl DataExport {
             let from = self.data_dir.join(name);
             if from.exists() {
                 let temp = dir.join(temp_name(name));
-                copy_dir(&from, &temp).map_err(|e| format!("{name} フォルダをコピーできません: {e}"))?;
+                copy_dir(&from, &temp).map_err(|e| cannot_copy_folder(name, &e))?;
                 fs::rename(&temp, dir.join(name)).map_err(|e| e.to_string())?;
             }
         }
@@ -49,9 +51,25 @@ impl DataExporter for DataExport {
     fn export_to(&self, dir: &Path) -> AppResult<()> {
         self.export(dir).map_err(|reason| {
             clean_up(dir);
-            AppError::Storage(format!("データをコピーできませんでした: {reason}"))
+            AppError::Storage(locale::pick([
+                format!("データをコピーできませんでした: {reason}"),
+                format!("Could not copy the data: {reason}"),
+                format!("无法复制数据：{reason}"),
+                format!("無法複製資料：{reason}"),
+                format!("데이터를 복사할 수 없습니다: {reason}"),
+            ]))
         })
     }
+}
+
+fn cannot_copy_folder(name: &str, error: &io::Error) -> String {
+    locale::pick([
+        format!("{name} フォルダをコピーできません: {error}"),
+        format!("Cannot copy the {name} folder: {error}"),
+        format!("无法复制 {name} 文件夹：{error}"),
+        format!("無法複製 {name} 資料夾：{error}"),
+        format!("{name} 폴더를 복사할 수 없습니다: {error}"),
+    ])
 }
 
 fn temp_name(name: &str) -> String {

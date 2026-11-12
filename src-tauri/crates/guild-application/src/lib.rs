@@ -6,6 +6,7 @@ pub mod backends;
 pub mod channels;
 pub mod conversation;
 pub mod error;
+pub mod language;
 pub mod maintenance;
 pub mod ports;
 pub mod profile;
