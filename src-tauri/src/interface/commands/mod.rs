@@ -4,6 +4,8 @@
 pub mod agents;
 pub mod boot;
 pub mod channels;
+pub mod frames;
+pub mod guild;
 pub mod language;
 pub mod links;
 pub mod messages;

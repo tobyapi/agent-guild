@@ -16,6 +16,7 @@ fn channel(id: &str) -> Channel {
         id: ChannelId::new(id),
         name: id.to_owned(),
         topic: String::new(),
+        icon: String::new(),
         member_ids: vec![MemberId::Human],
         created_at: 1,
     }

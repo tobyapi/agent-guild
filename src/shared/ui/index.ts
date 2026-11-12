@@ -1,6 +1,6 @@
 // 汎用の UI 部品。見た目は CSS Modules とデザイントークン（theme/）で決める。
 export { Avatar } from './Avatar';
-export type { AvatarSize } from './Avatar';
+export type { AvatarProps, AvatarSize } from './Avatar';
 export { AvatarInput } from './AvatarInput';
 export { AvatarCropDialog } from './avatarCrop/AvatarCropDialog';
 export { Badge } from './Badge';
@@ -12,6 +12,8 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { Crest } from './Crest';
 export { Dialog } from './Dialog';
 export { EmptyState } from './EmptyState';
+export { AvatarFrame, BUILTIN_FRAMES, builtinFrame } from './frames';
+export type { BuiltinFrame, ResolvedFrame } from './frames';
 export { CheckboxField, RadioGroup } from './field/ChoiceFields';
 export type { RadioOption } from './field/ChoiceFields';
 export { Field, FieldError } from './field/Field';

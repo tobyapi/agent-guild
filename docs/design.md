@@ -76,12 +76,15 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 - `autonomyIntervalMin` は 5 以上。`backendOptions` は選んだバックエンドの OptionSpec に合う型だけ（未知のキーは保存時に捨てる）。推論の深さ `effort` は、モデル（空なら `defaultModel`）が `BackendInfo.models` にあれば、その `efforts` のどれかだけ（違反は field `backendOptions`）。一覧に無いモデル・一覧が分からないときは文字列なら残す（使えない値はアダプタが無視する）。
 - タグ: 0〜8個。各タグは前後の空白を除いて1〜16文字で、空白・`#`・`,`・`@` を含まない。NFKC＋大文字小文字無視で重複していたら1つにまとめる（エラーにはしない）。違反は field `tags`。
 - 権限は役割だけから算出して保存する（バックエンドでは変えない）。選んだバックエンドで使えない操作は、権限を変えずに実行時に取り除く（§5）。依存関係を利用者に解決させるエラーは出さない。
+- ギルドのプロフィール（`GuildProfile`。`Snapshot.guild`）: 名前は前後の空白を除いて32文字まで（空でよい。空なら画面は表示言語のアプリ名「AIギルド」を出す）。紋は形と色を決まった候補から選ぶ（既定は菱・`default` = 文字の色。色の値は React のトークン `--crest-<色>`）。
+- アイコンの枠（`Agent.frame`・`Profile.frame`）: 空（枠なし。既定）か、`builtin:<名前>`（内蔵の枠。絵は React の `shared/ui/frames` が持つ）か `custom:<ID>`（生成した枠。`Snapshot.frames`）。前後の空白を除き、`builtin:` / `custom:` の後ろは英数字とハイフンの1〜64文字（違反は field `frame`。規則は guild-domain の `normalize_frame_id`）。知らない内蔵の枠や消えた生成の枠の ID は保存してよく、画面は枠なしで描く。
+- 枠の生成（`generate_avatar_frame`）: 題材は前後の空白を除いて1〜200文字（違反は field `description`）。名前は空なら題材の1行目で、どちらも24文字で切る。描く AI は、枠の生成を申告していて（`BackendInfo.frameGeneration`）`status` が `ready` のバックエンドだけ（違反は field `backendId`。申告しないバックエンドと、使える状態でないバックエンドで文面を分ける。ID では選ばない）。
 - チャンネル: 名前は前後の空白と先頭の `#`（全角 `＃` を含む）を除いて1〜40文字、話題は前後の空白を除いて200文字まで（文字数はコードポイントで数える）。
 - 人間の発言: 前後の空白を除いて20000文字まで。添付がなければ1文字以上（違反は field `content`）。添付（画像・ファイル）は1回に10個まで。画像（PNG・JPEG・GIF・WebP）は1枚 5MB まで、ほかのファイルは種類を問わず1つ 10MB まで、合計 30MB まで。種類は MIME の形（type/subtype）であること（違反は field `attachments`。React は長辺 2560px か 5MB を超える画像を送る前に縮め、種類の分からないファイルは application/octet-stream で送る）。プロフィールの初期値は「ユーザー」（UI の「あなた」という表示と重ならない名前）。
 
 ## 3. Tauri コマンド
 
-JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変換）。**コマンドはすべて async**。失敗時は `CommandError { code, message, field }` で reject する（message はいまの言語。docs/i18n.md）。`field` は validation のとき、どの入力のことか（コマンドの入力の camelCase のキー: `name`・`avatar`・`backend`・`backendOptions`・`tags`・`permissions`・`autonomyIntervalMin`・`description`・`topic`・`content`・`attachments`・`path`・`url`）。入力に結びつかない失敗は `null`。
+JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変換）。**コマンドはすべて async**。失敗時は `CommandError { code, message, field }` で reject する（message はいまの言語。docs/i18n.md）。`field` は validation のとき、どの入力のことか（コマンドの入力の camelCase のキー: `name`・`avatar`・`backend`・`backendOptions`・`tags`・`permissions`・`autonomyIntervalMin`・`description`・`topic`・`icon`・`content`・`attachments`・`path`・`url`・`frame`・`backendId`）。入力に結びつかない失敗は `null`。
 
 | コマンド | 引数 | 戻り値 | emit | 主なエラー |
 |---|---|---|---|---|
@@ -103,9 +106,9 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `set_skill_library_dirs` | `{ dirs: string[] }` | `SkillLibrary` | skill-library-changed | validation（絶対パスでない・重複・互いに入れ子） |
 | `add_library_skill` | `{ agentId, path, mode: LibraryAddMode }` | `Skill` | skills-changed | not_found（エージェント・フォルダ）, validation（SKILL.md が標準に合わない）, conflict（同じ name のスキルがすでにある） |
 | `reveal_skill_folder` | `{ path }` | `null`（リンク先・ライブラリのフォルダをファイラで開く） | – | not_found |
-| `create_channel` | `{ name, topic, memberIds }` | `Channel` | state-changed | validation, not_found（存在しないメンバー） |
+| `create_channel` | `{ name, topic, icon, memberIds }`（icon は絵文字1つ。空と `#` は「なし」で、画面は # を出す。規則は guild-domain の `normalize_channel_icon`、実例は contracts/behavior/channel-icons.json） | `Channel` | state-changed | validation, not_found（存在しないメンバー） |
 | `get_channel_statistics` | `{ channelId }` | `ChannelStatistics`（全期間の割り振り・サブタスクの件数、モデル別の実行記録の集計） | – | not_found, storage |
-| `update_channel` | `{ id, name, topic }` | `Channel` | state-changed | not_found, validation |
+| `update_channel` | `{ id, name, topic, icon }` | `Channel` | state-changed | not_found, validation |
 | `set_channel_workspace` | `{ id, mode, folder }`（mode は `shared` / `folder` / `global`。folder は mode が folder のときの絶対パス、ほかは null） | `Channel`（作業範囲を変える。「チャンネルの作業範囲」の節） | state-changed | not_found, validation（実行中の作業がある・フォルダが不正） |
 | `delete_channel` | `{ id }` | `null` | state-changed, activity-changed | not_found |
 | `add_channel_member` | `{ channelId, memberId }` | `null` | state-changed, message-created | not_found |
@@ -117,6 +120,11 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `stop_channel` | `{ channelId }` | `null`（実行中の割り振りも打ち切る） | activity-changed, message-created, delegation-changed | not_found |
 | `list_delegations` | `{ channelId }` | `Delegation[]`（そのチャンネルの割り振り。createdAt の昇順、新しい方から最大200件） | – | not_found |
 | `update_profile` | `{ profile: Profile }` | `Profile` | state-changed | validation |
+| `generate_avatar_frame` | `{ backendId, description, name }` | `CustomFrame`（`{ id, name, kind: 'png', createdAt }`。id は `custom:<ID>`。下の「アイコンの枠の生成」） | state-changed | validation（field `description`・`backendId`。`backendId` は枠の生成を申告していない・`ready` でない・知らないバックエンド）, runtime（AI の失敗・画像ができなかった（ログインの種類やプランで画像の生成が使えないときも）・画像が検査に通らない・取り消し・10分の時間切れ）, storage |
+| `cancel_avatar_frame_generation` | – | `null`（生成中の枠をすべて取り消す。生成のコマンドは runtime で失敗する） | – | – |
+| `get_frame_image` | `{ id }` | `string`（画像の枠（`kind: 'png'`）の絵の data URL `data:image/png;base64,…`。CSP の img-src は data: を許している。React は枠ごとに一度だけ取って覚える） | – | not_found（知らない枠・SVG の枠・絵のファイルがない）, storage |
+| `delete_avatar_frame` | `{ id }` | `null`（画像の枠は絵のファイルも消す。その枠を選んでいたエージェント・人間は枠なしに戻る） | state-changed | not_found, storage |
+| `update_guild` | `{ guild: GuildProfile }`（`{ name, crest: { shape, color } }`。shape は `diamond` / `shield` / `circle` / `hexagon` / `star`、color は `default` / `gold` / `crimson` / `jade` / `azure` / `violet`） | `GuildProfile`（前後の空白を除いた名前。`Snapshot.guild` にも載る） | state-changed | validation（field `name`） |
 | `refresh_backends` | – | `null`（probe の結果を待つ。完了後は get_snapshot で取得可能。30秒の応答待ち超過・送信失敗・切断は reject） | state-changed | runtime |
 | `backend_api_key` | `{ backendId, action, key? }`（action は `status` / `set` / `delete`。`setup.apiKey` を申告しているバックエンドだけ） | `string`（`{ source, supported }` の JSON。キーそのものは返さない。backend-api-keys.md） | state-changed | validation, runtime |
 | `install_backend_cli` | `{ backendId }`（`setup.install` を申告しているバックエンドだけ） | `null`（macOS で、申告された公式インストーラーで CLI を利用者の `~/.local/bin` に入れ、probe で検出を確認する） | state-changed | runtime, validation |
@@ -133,6 +141,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 
 復旧モード（§11）では `get_boot_status`・`set_language`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url`・`check_update`・`install_update` だけが動き、他は `unavailable` を返す。
 
+- **アイコンの枠の生成**（guild-application の `frames`）: 会話のジョブとは別の1回きりの**画像の依頼**（ランナーの `image`。§5）。描かせるのは `frameGeneration` を申告していて `ready` のバックエンドだけ（いまは Codex のアダプタだけが申告する）。`Workspace.prepare_scratch("frames", backend)` の作業場所（`<dataDir>/tools/frames/work`・`state/<backend>`）で `AgentRuntime.generate_image` を呼ぶ。依頼は権限を持たない（アダプタは画像の生成と、スキルの手順に要る道具だけを使わせる。§5）。描き方は**内蔵スキル** `ornate-avatar-frame`（`src/shared/assets/skills/ornate-avatar-frame/`。利用者の Codex のスキルを同梱したもので、既定の納品サイズだけ 128×128px に変えてある。変えるときはフォルダを差し替える。ふつうの内蔵スキルなので、エージェントにも付けられる）に任せる: 依頼の `skills` に、内蔵スキルの一覧から引いたこのスキル（name は guild-domain の `FRAME_SKILL_NAME`。エージェントの実行と同じ `SkillPayload` で、付属ファイルがあれば中身ごと）を1つ添え、プロンプト（guild-domain の `frame/prompt.rs`。いまの言語）は、利用者が Codex に直接頼むときと同じく、スキルを名指ししてテーマを渡し、出来上がった PNG の保存先を伝えるだけにする（日本語なら「`$ornate-avatar-frame` でアイコンの枠を1つ生成して。テーマ: <説明>」と「完成した枠の PNG は <作業場所の frame.png の絶対パス> に保存して。」。説明は利用者の言葉のまま）。大きさ・穴・背景・手順などの決まりは足さず（大きさも指定しないので、スキルの既定の 128×128px になる）、システムプロンプトも空にする。`$<name>` をスキルの SKILL.md への参照に直すのはアダプタ（§5）。保存先は作業場所の `frame.png`（`ImageRuntimeRequest.output`。モデルが道具で書ける場所。前の実行の残りはアダプタが始める前に消し、保存されなければ生成した画像を写す）。取り込み（`FrameImageStore.import`。本体クレートの `infrastructure/frame_images/`）は: ファイルがない → 失敗（画像ができなかった）、8MB を超える → 失敗、PNG として読めない・正方形でない・一辺が 32〜2048px でない → 失敗。背景: 縁（一辺の 1/128・最低 2px の帯）の見本の 6 割以上が透明なら（スキルの絵はこれ）そのまま。そうでなければ縁の色の中央値をキーの色とし、鮮やか（最大と最小のチャンネルの差が 96 以上）で縁の 7 割以上がその色に近い（差 40 以内）ときだけ、色の差でなめらかに抜いて縁のにじみを抑える（透明を出せなかった絵への備え。白・灰色やまだらの背景は推測で抜かず失敗にする）。穴: 中央の行と列で帯の内側の縁（透明度 128 以上の最初の画素）を測り、その穴が決まった穴（内蔵の枠と同じ 128 の中の 20〜108。スキルの穴は約70〜80％なので、たいていは少し縮める）に重なるよう、画素を写すだけで（描き直さない）まわりに透明な余白を足して中心をそろえる（縮めるのは 0.75 倍まで。穴が小さければ、見える画素を切らない範囲で 1.2 倍まで切り出して広げる）。帯: 穴の縁（角はスキルの穴に合わせて半径 28 に丸めたもの）から外へ 128 の中の 12 までに、穴のまわりの向き（64 方向）の 7 割以上で見える画素がなければ失敗（枠がない。細い帯でも穴を囲んでいれば足りる）。大きさ: 512px より大きければ面積の平均（透明度を掛けた色）で 512px に縮め、小さければ拡大しない（64px の絵は 64px 前後のまま保存する）。くり抜き: 顔の来る穴の中ほど（中心から 128 の中の半径 32 の円。縁の1画素はなめらかに）だけを透明にする（スキルの枠は内蔵の枠と同じく角の飾りが穴の角に重なり、穴の角も決まった穴より丸いので、穴いっぱいはくり抜かない）。RGBA 8bit の PNG で `<dataDir>/frames/` に保存する。検査の失敗は runtime「描かれた枠を使えませんでした（理由）。もう一度生成してください」。保存したら `avatar_frames` に `kind = 'png'` で入れる（入らなければ絵を消す）。返事を10分待って来なければ中断して失敗にする（スキルの手順の生成・確認・縮小・描き直しで数分かかることがある）。以前の版は SVG を生成していた: その枠（`kind = 'svg'`）は、guild-domain の `sanitize_frame_svg` が許可リストで書き直した SVG が `avatar_frames.svg` に残っていて、React は描く前に DOMPurify でもう一度消毒し、`<img>` の data URL で描く（ui-design.md §6.8）。
 - 発言の本文は信頼できない入力として描く（`src/features/chat/model/`）: 生の HTML は文字として見せ、できた HTML は DOMPurify に通す（img・video・iframe などの要素は通さない）。画像・動画・コードブロックの操作・図は、HTML に置いた差し込み口（`data-embed`）へ React の部品として足す。
   - 本文の中の画像・動画（`![名前](URL)`）: https のものは、利用者が札を押してから読み込む（発言を開いただけでは外へ通信しない。URL に情報を載せた持ち出しを防ぐため。Referer は送らない）。data: の画像（PNG・JPEG・GIF・WebP の base64）はそのまま見せる。http はリンクのまま、ほかのスキームは文字だけ。CSP は img-src・media-src に `https:` と `data:` を許す（押す前に読み込まないのは描画側の決まりで、CSP は種類を絞るだけ）。
   - コードブロックは highlight.js で色分けする（言語が書かれていて分かるときだけ。出力は中身をエスケープした span だけ）。
@@ -175,8 +184,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
   - `folderScope`: 指定フォルダのチャンネルでの範囲の守り方。`files` はファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、`sandbox` はシェルごと OS の隔離に入れる（コマンドも範囲の中で使える）、`null` は指定フォルダでは実行できない。
   - `toolsOption`: 道具を使うかどうかを切り替える設定（`options` の真偽値の項目の key）。`null` なら役割の権限どおりに使う。key があるバックエンドは、その設定が true で、選んだモデルが道具に対応している（`ModelSpec.tools`）ときだけ道具を使い、それまでは会話専用。
   - `local`: この PC の中で動く（運用統計で、費用を 0 として出す）。
+  - `frameGeneration`: このバックエンドでアイコンの枠を生成できる（`generate_avatar_frame`）。申告するアダプタは `image` 要求（下の「画像の依頼」）を受け付ける。申告しないバックエンドには描かせず、React は申告するバックエンドが1つもなければ生成の操作を出さない。いまは Codex のアダプタだけが true（同じ実行系を使う Grok・Muse も申告しない）。Rust は申告のない古い形を false として読む。
   - `setup`: アプリからのセットアップでできること。`install`（CLI の公式インストーラーの案内。`install_backend_cli`）・`start`（止まっているアプリの起動。`start_backend`）・`login`（ボタンの文言と待っている間の案内。`login_backend`）・`apiKey`（API キーの保存と、代わりに使う環境変数の名前。`backend_api_key`）。できないものは `null`。
 - **作業の途中の投稿**: run は終端イベントの前に `post`（`{ id, text }`）を 0 回以上返してよい（Dispatcher は終端イベントを送ったあと・cancel のあとに届いたものを捨てる）。アダプタは投稿のしかたを `BackendInfo.midRunPost` で申告する: `'tool'` は投稿用のツールを呼ぶ、`'text'` はツールを使う前に書いた文章がそのまま投稿される、`null` は途中では投稿できない。Rust はこれでプロンプトの案内（§8）を変え、届いた投稿を §6 の規則で保存する。
+- **画像の依頼**（`{ type: 'image', id, backend, workspace, stateDir, systemPrompt, prompt, skills, output }`。プロトコルの版 4）: 画像を1枚描き、`output`（Rust が決める絶対パス。作業場所の中に置き、プロンプトで保存先として伝える）に PNG がある状態で result（text は空）で終える。`frameGeneration` を申告して `image` を持つアダプタだけが受け付け、ほかは bad_request。権限は持たない（run の permissions とは別の、画像の生成とスキルの手順だけの実行）。`systemPrompt` は空なら足さない。`skills` は描くときに従うスキルで、run の `skills` と同じ形（`SkillPayload`。`files` を含む）・同じ検証（欠けた項目は bad_request）・同じ展開（アダプタの責務。run と同じ置き場所に書く）。枠の生成では内蔵スキル `ornate-avatar-frame` を1つ渡す（§3「アイコンの枠の生成」）。アダプタはスキルの名前で分岐しない。途中経過（activity）は送ってよく、cancel で打ち切れる。画像ができなかったら error（文面はいまの言語で、理由と次にすることを書く）。**Codex**: 添えたスキルの手順（画像の生成 → 見て確かめる → 透明や大きさを直して保存 → 描き直す）をそのまま行えるよう、config の上書きで `features.image_generation`・`shell_tool`・`view_image` を true（image_generation は 0.163〜0.167 で既定でオンだが、利用者の config.toml で切っていても使えるよう明示する）、`apps`・`plugins`・`multi_agent`・`browser_use`・`computer_use`・`in_app_browser` を false にする。sandbox は `workspace-write`（書き込みは作業場所だけ。`sandbox_workspace_write` で TMPDIR と /tmp も除き、追加の書き込み先は渡さない。読み取りは run と同じく絞らない）・ネットワークなし・Web 検索は `disabled`・承認は `never`、人格は `systemPrompt` があるときだけ `developer_instructions`、作業場所の AGENTS.md は読まない、シェルに秘密らしい環境変数を渡さない、モデルは一覧の既定で推論の深さは選べれば `low`。スキルは run と同じく作業場所の `.agents/skills/<name>/` に書き（前の内容は消す。`codex-runtime/skills.ts` を run と共有）、依頼の本文の中の呼び出し `$<name>`（各スキルの最初の1つ）を、書いた SKILL.md へのリンク `[$<name>](<絶対パス>)` に直す（利用者が Codex で頼むときと同じ形。Codex はパスでスキルを決め、`<skill>` に `<name>`・`<path>`・中身を入れて差し込む。`$<name>` だけだと、同じ名前のスキルがほかの場所（利用者の `~/.codex/skills` など）にもあると曖昧として差し込まれない。0.163 で確かめた）。パスに空白・括弧があってリンクに書けなければ、かわりに SKILL.md を同じ `<skill>` の形で本文の前に置き、呼び出しは名前だけにする（二重に差し込まれないように）。始める前に `output` の前の残りを消し、終わったときに `output` が PNG（先頭の8バイトで見る）ならそれを使う。なければ、Codex が描いた画像を保存する `$CODEX_HOME/generated_images/<スレッドの ID>/<呼び出しの ID>.png`（exec の JSON の出来事には画像の項目がなく、画像は渡ってこない）から、`thread.started` の `thread_id` のフォルダで最後に書かれた PNG を `output` に写す（スレッドごとのフォルダなので、エージェントの会話など、ほかの実行が描いた画像を取り違えない）。どちらもなければ「Codex は画像を作らずに終わりました。画像の生成は、Codex に ChatGPT アカウントでログインしているときに使えます（API キーでのログインやプランによっては使えません）…」に Codex の返事の頭（200文字）を添えて error（internal）。Codex の画像の生成は透明な背景の PNG を出せる（`transparent_background`。スキルが有効にする）。
 - **モデルと推論の深さ**: アダプタは選べるモデルを `BackendInfo.models`（`{ id, label, description, efforts, defaultEffort }`。efforts は浅い順、空なら深さを選べない）で、モデルを選ばないときのモデルを `defaultModel` で申告する（ready / probe のたび。分からなければ空で、そのときモデルは自由入力）。推論の深さは `backendOptions` の `effort`（protocol.ts の `EFFORT_OPTION`）で run に渡り、空なら既定。
   - **Claude**: SDK の `supportedModels()`（`default` は除く）。取れなければ opus / sonnet / haiku の固定の一覧。既定のモデルは `sonnet`、既定の深さは決めない（Claude Code に任せる）。`effort` は SDK の `effort`（low / medium / high / xhigh / max）。
   - **Codex**: Codex CLI が保存する `$CODEX_HOME/models_cache.json`（既定 `~/.codex`）の `visibility` が `hide` でないモデルを `priority` の順に。既定のモデルは先頭のもの、既定の深さはそのモデルの `default_reasoning_level`。run ではモデル・深さが空でもこの既定を明示して渡す（利用者の config.toml の既定に頼らない）。キャッシュがなければ一覧は空。
@@ -313,8 +324,12 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
   agents/<agentId>/
     work/                エージェントの作業場所（cwd）。MEMORY.md と成果物
     state/<backendId>/   ランナーのアダプタの管理領域。実行のたびに作り直す
+  tools/frames/
+    work/ state/<backendId>/  アイコンの枠の生成の作業場所（エージェントに属さない1回きりの実行。work にはアダプタが置くスキルと、出来上がった枠の frame.png（次の生成の前に消す）。state は実行のたびに作り直す。保存先の変更では写さない）
   attachments/<channelId>/
     <attachmentId>.<拡張子>  人間が発言に添えた画像・ファイル（拡張子は画像なら形式から、ほかは元の名前から。メタデータは messages.attachments の JSON）
+  frames/
+    <枠の ID>.png        生成したアイコンの枠の絵（`kind = 'png'` の枠。ファイル名は ID の英数字・-・_ 以外を _ にしたもの。例: custom_<ID>.png。RGBA の正方形で、一辺は描かれた大きさのまま（スキルの既定なら 128px 前後）、512px を超えるものは 512px）
 ```
 
 | パス | 書いてよいもの | 読むもの |
@@ -323,9 +338,12 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 | agents/<id>/work/ | そのエージェント（writeFiles のとき。MEMORY.md はいつでも） | そのエージェント、Rust（MEMORY.md）、相談相手（readableDirs） |
 | agents/<id>/state/ | ランナーのアダプタだけ（エージェントからは書けない） | SDK |
 | attachments/<channelId>/ | Rust（送信時に保存し、チャンネルを消したら消す） | Rust（get_attachment）、ランナーのアダプタ（run の images のパス）、エージェント（readableDirs。添えられたファイルを読む） |
+| frames/ | Rust（生成した枠を取り込んだら保存し、枠を消したら消す） | Rust（get_frame_image） |
 
-- 保存先の変更（copy）は guild.db に加えて agents/ と attachments/ を写す。
+- 保存先の変更（copy）は guild.db に加えて agents/・attachments/・frames/ を写す。
 
+- ギルドの名前と紋（`update_guild`）はギルドのデータなので、DB の meta 表の `guild_profile` に JSON で置く（マイグレーションなし）。未保存・JSON でない値は既定にし、項目ごとに読んで、読めない項目（新しい版が足した形や色・長すぎる名前）だけを既定にする。React は起動中・復旧の画面のために、最後に見た紋（形と色）だけを localStorage（`agent-guild.crest`）にも写す。
+- アイコンの枠: メンバーが選んだ枠の ID は `agents.frame`・`profile.frame`（0003 の移行で足した列。古いデータは空 = 枠なし）。生成した枠はギルドのデータなので `avatar_frames` 表に置く。絵の種類は `kind`（0004 の移行で足した列。既定 `'svg'`）: `'svg'` は検査して書き直した SVG を `svg` 列に持ち（0003 の版が生成した枠）、`'png'` の絵は `frames/` にある（`svg` 列は空文字）。知らない種類の行は一覧に出さない。内蔵の枠の絵はアプリに同梱し、DB には ID だけを置く（内蔵の枠を消すと、選んでいたメンバーは枠なしで描かれる）。
 - 表示の好み（テーマ: ダーク / ライト / OS に合わせる）はこの端末だけのものなので、データフォルダにも DB にも入れず WebView の localStorage に置く（既定はダーク）。
 - エージェントが自分の SDK 設定（Claude の `.claude/settings.json` や hooks、CLAUDE.md、Codex の設定）を書き換えて次の実行に影響させることはできないようにする。ただし writeAnywhere（作業場所の外にも書く）を許したエージェントは、データフォルダや Codex の利用者全体の設定（`~/.codex/config.toml`）も含めて PC のどこにでも書ける。これは止めず、編集画面の注意書きで伝える。アダプタは作業場所の設定ファイルを読み込ませない（Claude は `settingSources: []` とし、スキルは state 側のローカルプラグインで渡す。Codex で作業場所に置くしかないものは実行のたびに作り直す）。
 
@@ -374,7 +392,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
   - `link`（既定）: スキルは `source = { kind: 'linked', path }` で保存する。DB には name・description・本文の写しも入れるが、**実行のたびに SKILL.md を読み直したものが正**。読めなければそのスキルを外して実行し、警告ログを残す（`list_skills` の `problem` にも理由が出る）。アプリ内では編集できない（`save_skill` は validation）。付属ファイルはランナーのアダプタが実行のたびにリンク先からコピーする（SkillPayload.dir）。
   - `copy`: いまの SKILL.md を読んで、ふつうのスキル（source = null）として保存する。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - どちらも、同じエージェントに同じ name のスキルがあれば `conflict`。
-- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。使用者のスキル集から取り込んだ4つだけを同梱する: ambiguous-word-rewrite・concept-shift・introspection・universal-critique（元のフォルダの README.md と、個人用の保存版の references/source-cache/・source-files/ は同梱しない）。
+- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。使用者のスキル集から取り込んだ4つ（ambiguous-word-rewrite・concept-shift・introspection・universal-critique。元のフォルダの README.md と、個人用の保存版の references/source-cache/・source-files/ は同梱しない）と、アイコンの枠の生成に使う ornate-avatar-frame（利用者の Codex のスキルをそのまま。§3「アイコンの枠の生成」）を同梱する。
   - `list_builtin_skills` で一覧し、`add_builtin_skill` でエージェントに付ける。`link`（既定）は `source = { kind: 'builtin', name }` で保存し、**一覧と実行のたびに同梱の SKILL.md を読み直したものが正**（アプリの更新に追従する）。この版にない name なら、そのスキルを外して実行し、`problem` に理由を出す。アプリ内では編集できない。付属ファイルは実行のたびに中身ごとランナーへ渡し（SkillPayload.files）、アダプタがスキルのフォルダへ書き出す。`copy` はふつうのスキル（source = null）として取り込む。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - DB の `skills.source` は SkillSource の JSON（アプリ内のスキルは NULL）。
 - **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。内蔵スキルには「内蔵」の印を出し、本文を見られるようにする。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。

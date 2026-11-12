@@ -4,6 +4,7 @@ use guild_domain::agent::Agent;
 use guild_domain::author::MemberId;
 use guild_domain::channel::Channel;
 use guild_domain::delegation::Delegation;
+use guild_domain::frame::CustomFrame;
 use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId, SkillId};
 use guild_domain::message::{Message, MessageKind, NewMessage};
 use guild_domain::profile::Profile;
@@ -116,6 +117,15 @@ pub trait ProfileRepository: Send + Sync {
     /// 未設定なら既定のプロフィール
     fn get(&self) -> AppResult<Profile>;
     fn set(&self, profile: &Profile) -> AppResult<()>;
+}
+
+/// 生成したアイコンの枠（ギルドのデータ）
+pub trait FrameRepository: Send + Sync {
+    /// 作成順
+    fn list(&self) -> AppResult<Vec<CustomFrame>>;
+    fn get(&self, id: &str) -> AppResult<Option<CustomFrame>>;
+    fn insert(&self, frame: &CustomFrame) -> AppResult<()>;
+    fn delete(&self, id: &str) -> AppResult<()>;
 }
 
 /// データベースの meta 表（スキーマ指紋や初期データ投入の記録）

@@ -17,6 +17,7 @@ export const ja = {
   cancelled: '実行を中断しました',
   noApiKey: '{backend} は API キーを保存できません',
   noLogin: '{backend} はアプリからログインできません',
+  noImage: '{backend} では画像（アイコンの枠）を生成できません',
   duplicateJob: '同じ id のジョブが実行中です: {id}',
   unknownBackend: '未知のバックエンドです: {backend}',
   folderUnsupported: '{backend} は範囲を守れないため、指定フォルダのチャンネルでは実行できません',

@@ -1,4 +1,4 @@
-//! 1回の実行の流れ: ready の接続を得る → 待ち手を登録 → run（または login）を送る → 終端イベント・接続断・cancel を待つ。
+//! 1回の実行の流れ: ready の接続を得る → 待ち手を登録 → run（または image・login など）を送る → 終端イベント・接続断・cancel を待つ。
 //! cancel 後は終端イベントか cancel_grace の早いほうで `Cancelled` を返す（以後その id のイベントは捨てる）。
 
 use std::sync::Arc;
@@ -8,7 +8,7 @@ use crate::connection::Connection;
 use crate::jobs::Jobs;
 use crate::shared::Shared;
 use crate::wire::Request;
-use crate::{RunRequest, RunnerError, RunnerStatus, UpdateFn};
+use crate::{ImageRequest, RunRequest, RunnerError, RunnerStatus, UpdateFn};
 
 /// 起動中の ready を待つとき、ready_timeout に足す余裕
 const STARTING_MARGIN: Duration = Duration::from_secs(1);
@@ -17,6 +17,8 @@ const STARTING_MARGIN: Duration = Duration::from_secs(1);
 #[derive(Clone, Copy)]
 pub(crate) enum Work<'a> {
     Run(&'a RunRequest),
+    /// 画像を1枚描く（PNG は依頼の output に書かれる）
+    Image(&'a ImageRequest),
     ApiKey {
         backend: &'a str,
         action: &'a str,
@@ -31,6 +33,7 @@ fn request<'a>(work: Work<'a>, id: &'a str) -> Request<'a> {
     match work {
         Work::ApiKey { backend, action, key } => Request::ApiKey { id, backend, action, key },
         Work::Run(request) => Request::Run { id, request },
+        Work::Image(request) => Request::Image { id, request },
         Work::Login(backend) => Request::Login { id, backend },
         Work::Probe => Request::Probe { id },
     }

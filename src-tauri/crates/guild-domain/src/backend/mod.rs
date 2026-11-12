@@ -123,6 +123,9 @@ pub struct BackendInfo {
     pub tools_option: Option<String>,
     /// この PC の中で動く（API の利用料がかからない）
     pub local: bool,
+    /// このバックエンドでアイコンの枠を生成できる（申告のない古い形は false として読む）
+    #[serde(default)]
+    pub frame_generation: bool,
     /// アプリからのセットアップでできること
     pub setup: BackendSetup,
 }

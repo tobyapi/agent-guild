@@ -2,8 +2,12 @@ import type { ActivityState } from './activity';
 import type { Agent, AgentTemplate } from './agent';
 import type { BackendInfo, RuntimeStatus } from './backend';
 import type { Channel, Profile } from './conversation';
+import type { CustomFrame } from './frame';
+import type { GuildProfile } from './guild';
 
 export interface Snapshot {
+  /** ギルドの名前と紋 */
+  guild: GuildProfile;
   me: Profile;
   /** 削除済み（deletedAt あり）も含む */
   agents: Agent[];
@@ -11,6 +15,8 @@ export interface Snapshot {
   backends: BackendInfo[];
   /** エージェント作成のテンプレート（作業者・専門家など） */
   templates: AgentTemplate[];
+  /** 生成したアイコンの枠（作成順。内蔵の枠は React が持つ） */
+  frames: CustomFrame[];
   runtime: RuntimeStatus;
   activity: ActivityState;
 }

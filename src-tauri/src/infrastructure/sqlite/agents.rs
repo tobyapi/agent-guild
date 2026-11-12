@@ -13,7 +13,7 @@ use super::database::{Database, DbError};
 
 const COLUMNS: &str = "id, name, avatar, color, tags, role, personality, tone, expertise, backend, model, \
      backend_options, permissions, unmentioned, consultable, can_delegate, autonomy_enabled, \
-     autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, deleted_at";
+     autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, deleted_at, frame";
 
 pub struct SqliteAgentRepository {
     db: Arc<Database>,
@@ -43,8 +43,8 @@ impl AgentRepository for SqliteAgentRepository {
                     "INSERT INTO agents (id, name, name_key, avatar, color, tags, role, personality, tone, expertise, \
                      backend, model, backend_options, permissions, unmentioned, consultable, can_delegate, \
                      autonomy_enabled, autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, \
-                     deleted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, \
-                     ?18, ?19, ?20, ?21, ?22, ?23)",
+                     deleted_at, frame) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, \
+                     ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24)",
                     params![
                         agent.id.as_str(),
                         agent.name,
@@ -69,6 +69,7 @@ impl AgentRepository for SqliteAgentRepository {
                         agent.last_autonomous_at,
                         agent.created_at,
                         agent.deleted_at,
+                        agent.frame,
                     ],
                 )
             })
@@ -84,7 +85,7 @@ impl AgentRepository for SqliteAgentRepository {
                      personality = ?8, tone = ?9, expertise = ?10, backend = ?11, model = ?12, backend_options = ?13, \
                      permissions = ?14, unmentioned = ?15, consultable = ?16, can_delegate = ?17, \
                      autonomy_enabled = ?18, autonomy_interval_min = ?19, autonomy_channel_id = ?20, \
-                     last_autonomous_at = ?21 WHERE id = ?1",
+                     last_autonomous_at = ?21, frame = ?22 WHERE id = ?1",
                     params![
                         agent.id.as_str(),
                         agent.name,
@@ -107,6 +108,7 @@ impl AgentRepository for SqliteAgentRepository {
                         agent.autonomy_interval_min,
                         agent.autonomy_channel_id.as_ref().map(ChannelId::as_str),
                         agent.last_autonomous_at,
+                        agent.frame,
                     ],
                 )
             })
@@ -139,6 +141,7 @@ fn read_agent(row: &Row<'_>) -> rusqlite::Result<Agent> {
         name: row.get(1)?,
         avatar: row.get(2)?,
         color: row.get(3)?,
+        frame: row.get(22)?,
         tags: json_column(row, 4)?,
         role: row.get(5)?,
         personality: row.get(6)?,

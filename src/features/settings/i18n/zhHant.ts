@@ -8,7 +8,6 @@ export const zhHant: Messages<typeof ja> = {
   settingsTitle: '設定',
   close: '關閉',
   sectionProfile: '個人資料',
-  sectionTheme: '主題',
   sectionBackends: '後端',
   sectionSkillLibrary: '技能資料夾',
   sectionStorage: '資料儲存位置',

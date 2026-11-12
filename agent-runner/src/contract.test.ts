@@ -26,6 +26,7 @@ describe('contracts/runner', () => {
     const requests = fixture('requests.jsonl');
     expect(requests.map((request) => request.type)).toEqual([
       'run',
+      'image',
       'login',
       'cancel',
       'probe',

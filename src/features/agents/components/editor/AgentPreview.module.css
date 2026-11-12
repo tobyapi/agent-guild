@@ -44,3 +44,8 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
+
+/* 枠はアバターの箱より外へはみ出すので、その分だけ上下を空ける */
+.avatar {
+  margin-block: calc(var(--avatar-lg) * (var(--frame-scale) - 1) / 2);
+}

@@ -12,4 +12,6 @@ export * from './delegation';
 export * from './backend';
 export * from './activity';
 export * from './statistics';
+export * from './guild';
+export * from './frame';
 export * from './system';

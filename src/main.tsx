@@ -4,11 +4,14 @@ import { createRoot } from 'react-dom/client';
 import '@/shared/ui/theme/tokens.css';
 import '@/shared/ui/theme/global.css';
 import { App } from '@/app/App';
-import { initTheme } from '@/features/settings';
+import { initAccent, initTheme } from '@/features/settings';
+import { initSounds } from '@/features/sounds';
 import { initLanguage } from '@/shared/i18n';
 
-// 最初の描画の前に、保存されていたテーマ（<html data-theme>）を反映する
+// 最初の描画の前に、保存されていたテーマとアクセントの色（<html data-theme> / data-accent）を反映する
 initTheme();
+initAccent();
+initSounds();
 initLanguage();
 
 const container = document.getElementById('root');

@@ -6,7 +6,7 @@ pub mod infrastructure;
 pub mod interface;
 
 use interface::commands::{
-    agents, boot, channels, language, links, messages, profile, skills, snapshot, storage, update,
+    agents, boot, channels, frames, guild, language, links, messages, profile, skills, snapshot, storage, update,
 };
 use interface::state::BeforeUpdate;
 use tauri::Manager;
@@ -62,7 +62,12 @@ pub fn run() {
             messages::reveal_attachment,
             messages::stop_channel,
             messages::list_delegations,
+            guild::update_guild,
             profile::update_profile,
+            frames::generate_avatar_frame,
+            frames::cancel_avatar_frame_generation,
+            frames::get_frame_image,
+            frames::delete_avatar_frame,
             storage::get_storage_info,
             storage::choose_folder,
             storage::change_data_dir,

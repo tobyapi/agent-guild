@@ -1,3 +1,4 @@
+import { channelTitle } from '@/shared/lib/channelIcon';
 import { formatDateTime, formatDayLabel, formatTime, isoTime } from '@/shared/lib/time';
 import { Button, Icon } from '@/shared/ui';
 import type { IconName } from '@/shared/ui';
@@ -73,7 +74,7 @@ export function LogStart({ channel, ready, hasMore, loadingOlder, onLoadOlder }:
   }
   return (
     <div className={styles.intro}>
-      <h2 className={styles.introTitle}>{t('welcome', { channel: channel.name })}</h2>
+      <h2 className={styles.introTitle}>{t('welcome', { channel: channelTitle(channel) })}</h2>
       <p className={styles.introText}>
         {/* 話題と案内の間は日本語では全角スペース（docs/ui-design.md §7 の文例どおり） */}
         {channel.topic && `${channel.topic}${t('introSpacer')}`}

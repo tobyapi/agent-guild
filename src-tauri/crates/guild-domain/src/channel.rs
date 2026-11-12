@@ -7,6 +7,9 @@ use super::error::{ensure_max_chars, ValidationError};
 use super::ids::{AgentId, ChannelId};
 use crate::locale;
 
+mod icon;
+pub use icon::{normalize_channel_icon, CHANNEL_ICON_MAX_BYTES};
+
 /// チャンネル名の最大文字数
 pub const CHANNEL_NAME_MAX_CHARS: usize = 40;
 /// 話題の最大文字数
@@ -20,6 +23,8 @@ pub struct Channel {
     pub id: ChannelId,
     pub name: String,
     pub topic: String,
+    /// 絵文字1つ。空なら画面は # を出す（normalize_channel_icon。0002 の移行で足した列。既定は空）
+    pub icon: String,
     /// 最初からあるロビー（消せない）
     pub is_lobby: bool,
     /// 参加順。人間は常に入る

@@ -4,7 +4,6 @@ export const ja = {
   createChannel: 'チャンネルを作成',
   noChannelBody: '話題ごとにチャンネルを分けると、エージェントが文脈を取り違えにくくなります。',
   sidebar: 'サイドバー',
-  appName: 'AIギルド',
   navigation: 'チャンネルとエージェント',
   preparing: 'AIギルドを準備しています…',
   startFailed: '起動できませんでした',

@@ -63,6 +63,24 @@ pub struct RuntimeRequest {
     pub options: Map<String, Value>,
 }
 
+/// 画像を1枚描く依頼（protocol.ts の image）。権限は持たず、ランナーのアダプタは画像の生成と、スキルの手順に要る道具
+/// （作業場所の中だけに書けるコマンド・画像を見る道具）だけを使わせる
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ImageRuntimeRequest {
+    pub backend: String,
+    /// cwd（書き込みはここだけ）
+    pub workspace: PathBuf,
+    /// ランナーのアダプタの管理領域
+    pub state_dir: PathBuf,
+    /// 空なら足さない
+    pub system_prompt: String,
+    pub prompt: String,
+    /// 描くときに従うスキル（枠の生成では内蔵スキル ornate-avatar-frame。展開は run と同じくランナーのアダプタ）
+    pub skills: Vec<SkillPayload>,
+    /// 出来上がった PNG の絶対パス（作業場所の中に置き、プロンプトで保存先として伝える。保存されなければアダプタが書く）
+    pub output: PathBuf,
+}
+
 /// 実行中（終わる前）に届く知らせ
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunUpdate {
@@ -94,6 +112,14 @@ pub trait AgentRuntime: Send + Sync {
     fn backends(&self) -> Vec<BackendInfo>;
     /// 1回実行して最終テキストを返す。途中経過と途中の投稿は on_update に届く。ランナーが使えなければ即座に Failed
     async fn run(&self, job_id: &str, request: RuntimeRequest, on_update: UpdateSink) -> Result<String, RuntimeError>;
+    /// 画像を1枚描いてもらう（枠の生成を申告したバックエンドだけ）。成功したら PNG は request.output にある。
+    /// 途中経過は on_update に届く。ランナーが使えなければ即座に Failed
+    async fn generate_image(
+        &self,
+        job_id: &str,
+        request: ImageRuntimeRequest,
+        on_update: UpdateSink,
+    ) -> Result<(), RuntimeError>;
     /// 実行中のジョブを中断する（なければ何もしない）
     async fn cancel(&self, job_id: &str);
     /// バックエンドの状態（認証など）を確認し直す。結果は状態の変化として届く

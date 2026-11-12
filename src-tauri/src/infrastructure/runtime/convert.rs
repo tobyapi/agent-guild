@@ -1,6 +1,6 @@
 //! runner-client の型と、ドメイン・ポートの型の変換。
 
-use guild_application::ports::{ImagePayload, RunUpdate, RuntimeRequest, SkillPayload};
+use guild_application::ports::{ImagePayload, ImageRuntimeRequest, RunUpdate, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
     ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, InstallGuide, LoginSpec, MidRunPost, ModelSpec,
@@ -41,6 +41,7 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         }),
         tools_option: info.tools_option,
         local: info.local,
+        frame_generation: info.frame_generation,
         setup: setup(info.setup),
     }
 }
@@ -143,6 +144,18 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
         skills: request.skills.into_iter().map(skill).collect(),
         images: request.images.into_iter().map(image).collect(),
         options: request.options,
+    }
+}
+
+pub(super) fn image_request(request: ImageRuntimeRequest) -> runner::ImageRequest {
+    runner::ImageRequest {
+        backend: request.backend,
+        workspace: request.workspace,
+        state_dir: request.state_dir,
+        system_prompt: request.system_prompt,
+        prompt: request.prompt,
+        skills: request.skills.into_iter().map(skill).collect(),
+        output: request.output,
     }
 }
 

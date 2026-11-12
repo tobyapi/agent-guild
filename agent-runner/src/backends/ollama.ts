@@ -169,6 +169,7 @@ export const ollamaAdapter: BackendAdapter = {
     folderScope: 'files',
     toolsOption: 'enableTools',
     local: true,
+    frameGeneration: false,
     setup: { ...NO_SETUP, start: process.platform === 'darwin' ? { macBundleId: 'com.electron.ollama' } : null },
   }),
   probe,

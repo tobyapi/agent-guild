@@ -47,6 +47,9 @@ pub trait Workspace: Send + Sync {
     fn read_scoped_memory(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> AppResult<String>;
     /// エージェント共通の作業場所を、実行の前に用意する: work/ を作り、state/<backend>/ を作り直す
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths>;
+    /// エージェントに属さない一度きりの実行（アイコンの枠の生成など）の作業場所: tools/<purpose>/work と
+    /// state/<backend>/ を、実行の前に用意する（state は作り直す）
+    fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths>;
     /// work/ の場所（作らない。相談相手に読ませるときに使う）
     fn work_dir(&self, agent: &AgentId) -> PathBuf;
     /// work/MEMORY.md の内容（なければ空）

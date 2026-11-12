@@ -1,8 +1,16 @@
 {
+  "guild": {
+    "name": "灯の団",
+    "crest": {
+      "shape": "shield",
+      "color": "jade"
+    }
+  },
   "me": {
     "name": "ユーザー",
     "avatar": "🙂",
-    "color": "#f0ba5f"
+    "color": "#f0ba5f",
+    "frame": "builtin:teatime"
   },
   "agents": [
     {
@@ -10,6 +18,7 @@
       "name": "ハル",
       "avatar": "🌱",
       "color": "#67dab2",
+      "frame": "builtin:moth",
       "tags": [
         "作業者",
         "リサーチ"
@@ -46,6 +55,7 @@
       "name": "ロジカ",
       "avatar": "🧐",
       "color": "#c6aafa",
+      "frame": "custom:f0000000-0000-4000-8000-000000000001",
       "tags": [
         "専門家",
         "レビュー"
@@ -82,6 +92,7 @@
       "name": "ソラ",
       "avatar": "🛠️",
       "color": "#8cc3fc",
+      "frame": "",
       "tags": [
         "作業者",
         "実装"
@@ -121,6 +132,7 @@
       "id": "c0000000-0000-4000-8000-000000000001",
       "name": "ロビー",
       "topic": "みんなの雑談と相談の場",
+      "icon": "",
       "memberIds": [
         "me",
         "a0000000-0000-4000-8000-000000000001",
@@ -233,6 +245,7 @@
       "folderScope": null,
       "toolsOption": null,
       "local": false,
+      "frameGeneration": false,
       "setup": {
         "install": {
           "cli": "Claude Code",
@@ -327,6 +340,7 @@
       "folderScope": "sandbox",
       "toolsOption": null,
       "local": false,
+      "frameGeneration": true,
       "setup": {
         "install": {
           "cli": "Codex CLI",
@@ -429,6 +443,7 @@
       "folderScope": "files",
       "toolsOption": "enableTools",
       "local": true,
+      "frameGeneration": false,
       "setup": {
         "install": null,
         "start": {
@@ -584,6 +599,21 @@
         "經理",
         "매니저"
       ]
+    }
+  ],
+  "frames": [
+    {
+      "id": "custom:f0000000-0000-4000-8000-000000000001",
+      "name": "月夜の薔薇と鎖",
+      "kind": "svg",
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 128 128\"><circle cx=\"64\" cy=\"64\" r=\"52\" fill=\"none\" stroke=\"#c9a23f\" stroke-width=\"6\"/></svg>",
+      "createdAt": 1793320500000
+    },
+    {
+      "id": "custom:f0000000-0000-4000-8000-000000000002",
+      "name": "灯火の蛾",
+      "kind": "png",
+      "createdAt": 1793320600000
     }
   ],
   "runtime": {

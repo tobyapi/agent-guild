@@ -1,10 +1,10 @@
-import { join } from 'node:path';
 import { Codex, type CodexOptions } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
 import { codexNotFound, findCodex } from './codex-runtime/executable.ts';
 import { folderOverrides } from './codex-runtime/folder-profile.ts';
 import { codexCatalog } from './codex-runtime/models.ts';
+import { installCodexSkills } from './codex-runtime/skills.ts';
 import { t } from './codex-runtime/texts/index.ts';
 import {
   codexConfig,
@@ -15,7 +15,6 @@ import {
 } from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
 import { assertSandboxedFolderScope } from './folder-scope.ts';
-import { writeSkills } from './skill-files.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
 
 export interface CodexProvider {
@@ -47,7 +46,7 @@ export async function runCodex(
   const executable = findCodex();
   if (executable === null) throw new BackendError('internal', codexNotFound());
   try {
-    await writeSkills(join(request.workspace, '.agents', 'skills'), request.skills);
+    await installCodexSkills(request.workspace, request.skills);
     const codex = new Codex({
       config: { ...provider.config, ...codexConfig(request) },
       // 指定フォルダでは、読み書きの範囲を OS の隔離で守る権限プロファイルを渡す（使えない PC では実行しない）

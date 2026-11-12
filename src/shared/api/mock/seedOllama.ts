@@ -80,5 +80,6 @@ export const MOCK_OLLAMA: BackendInfo = {
   folderScope: 'files',
   toolsOption: 'enableTools',
   local: true,
+  frameGeneration: false,
   setup: OLLAMA_SETUP,
 };

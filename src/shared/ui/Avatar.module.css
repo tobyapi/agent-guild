@@ -20,6 +20,12 @@
   border-radius: var(--radius-full);
 }
 
+/* 枠を付けたら、人間も AI も枠の穴（角丸の正方形）いっぱいの肖像にする。縁は枠が覆うので線は引かない */
+.avatar[data-framed] {
+  border-radius: var(--radius-avatar-framed);
+  box-shadow: none;
+}
+
 .avatar[data-deleted] {
   filter: grayscale(1);
   opacity: 0.5;
@@ -48,9 +54,10 @@
   object-fit: cover;
 }
 
-/* 灯（動作中の印） */
+/* 灯（動作中の印）。枠を付けていても枠の上に出す */
 .lamp {
   position: absolute;
+  z-index: 1;
   inset-inline-end: calc(var(--space-1) * -0.75);
   inset-block-end: calc(var(--space-1) * -0.75);
   inline-size: var(--space-2);

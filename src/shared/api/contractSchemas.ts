@@ -3,6 +3,7 @@
 import { arrayOf, nullable, nullValue, objectOf, string } from '@/shared/types/schema';
 import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
+import { customFrameSchema, guildProfileSchema } from '@/shared/types/schemas/guild';
 import { agentSchema, channelSchema, messageSchema, profileSchema } from '@/shared/types/schemas/entities';
 import {
   builtinSkillSchema,
@@ -58,6 +59,11 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   stop_channel: nullValue,
   list_delegations: arrayOf(delegation),
   update_profile: objectOf(profileSchema),
+  update_guild: objectOf(guildProfileSchema),
+  generate_avatar_frame: customFrameSchema,
+  get_frame_image: string,
+  cancel_avatar_frame_generation: nullValue,
+  delete_avatar_frame: nullValue,
   backend_api_key: string,
   refresh_backends: nullValue,
   install_backend_cli: nullValue,

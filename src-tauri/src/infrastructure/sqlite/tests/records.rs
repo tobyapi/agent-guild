@@ -96,7 +96,12 @@ fn the_profile_defaults_until_saved_and_meta_stores_records() {
     let db = memory();
     let profile = SqliteProfileRepository::new(db.clone());
     assert_eq!(profile.get().unwrap(), Profile::default());
-    let mine = Profile { name: "ランド".to_owned(), avatar: "🦊".to_owned(), color: "#f0ba5f".to_owned() };
+    let mine = Profile {
+        name: "ランド".to_owned(),
+        avatar: "🦊".to_owned(),
+        color: "#f0ba5f".to_owned(),
+        frame: String::new(),
+    };
     profile.set(&mine).unwrap();
     assert_eq!(profile.get().unwrap(), mine);
 

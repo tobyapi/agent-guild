@@ -19,6 +19,14 @@
   letter-spacing: 0.06em;
 }
 
+/* ギルド名（長い名前は省略し、全体はツールチップで出す） */
+.name {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .scroll {
   flex: 1;
   min-block-size: 0;

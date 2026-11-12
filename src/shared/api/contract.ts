@@ -8,10 +8,12 @@ import type {
   BootStatus,
   BuiltinSkill,
   Channel,
+  CustomFrame,
   ChannelStatistics,
   DataDirMode,
   Language,
   Delegation,
+  GuildProfile,
   LibraryAddMode,
   Message,
   Profile,
@@ -51,13 +53,13 @@ export interface CommandMap {
   add_library_skill: { args: { agentId: string; path: string; mode: LibraryAddMode }; result: Skill };
   /** リンク先・ライブラリのフォルダを OS のファイラで開く */
   reveal_skill_folder: { args: { path: string }; result: null };
-  create_channel: { args: { name: string; topic: string; memberIds: string[] }; result: Channel };
+  create_channel: { args: { name: string; topic: string; icon: string; memberIds: string[] }; result: Channel };
   get_channel_statistics: { args: { channelId: string }; result: ChannelStatistics };
   set_channel_workspace: {
     args: { id: string; mode: WorkspaceMode; folder: string | null };
     result: Channel;
   };
-  update_channel: { args: { id: string; name: string; topic: string }; result: Channel };
+  update_channel: { args: { id: string; name: string; topic: string; icon: string }; result: Channel };
   delete_channel: { args: { id: string }; result: null };
   add_channel_member: { args: { channelId: string; memberId: string }; result: null };
   remove_channel_member: { args: { channelId: string; memberId: string }; result: null };
@@ -74,6 +76,19 @@ export interface CommandMap {
   /** そのチャンネルの割り振り（createdAt の昇順、新しい方から最大200件） */
   list_delegations: { args: { channelId: string }; result: Delegation[] };
   update_profile: { args: { profile: Profile }; result: Profile };
+  /**
+   * 説明（題材）から、枠の生成を申告していて status が ready のバックエンドにアイコンの枠の画像を描いてもらい、
+   * 検査して整えて保存する（kind は png）。返事を待つ（最長5分）。name が空なら説明の頭を名前にする
+   */
+  generate_avatar_frame: { args: { backendId: string; description: string; name: string }; result: CustomFrame };
+  /** 生成中の枠を取り消す（生成のコマンドは runtime で失敗する） */
+  cancel_avatar_frame_generation: { args: NoArgs; result: null };
+  /** 画像の枠（kind が png）の絵の data URL */
+  get_frame_image: { args: { id: string }; result: string };
+  /** 生成した枠を消す（選んでいたメンバーは枠なしに戻る） */
+  delete_avatar_frame: { args: { id: string }; result: null };
+  /** ギルドの名前と紋を保存する（名前は前後の空白を除いた値が返る） */
+  update_guild: { args: { guild: GuildProfile }; result: GuildProfile };
   /**
    * API キーの状態を確かめる・保存する・消す（BackendInfo.setup.apiKey のあるバックエンドだけ）。
    * 結果は `{ source, supported }` の JSON 文字列で、キーそのものは返さない

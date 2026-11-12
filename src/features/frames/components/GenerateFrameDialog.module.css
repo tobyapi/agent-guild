@@ -1,0 +1,17 @@
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pending {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  animation: var(--animation-fade);
+}
+
+/* どのアカウントで描くかの案内（描く AI は選ばせない） */
+.note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}

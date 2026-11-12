@@ -7,6 +7,7 @@ import { checkTags, cleanTags } from '@/shared/lib/tags';
 import type { AgentInput, BackendInfo, OptionSpec } from '@/shared/types/domain';
 import { activeAgents, fail } from '../runtime';
 import type { MockCore } from '../runtime';
+import { checkFrameId } from './frames';
 
 function matchesType(spec: OptionSpec, value: unknown): boolean {
   if (spec.type === 'select') return typeof value === 'string' && spec.choices.includes(value);
@@ -53,6 +54,7 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
   return {
     ...input,
     name: input.name.trim(),
+    frame: checkFrameId(input.frame),
     tags: cleanTags(input.tags),
     permissions: rolePermissions(core.state.templates, input.tags),
     backendOptions: pickOptions(backend, input),

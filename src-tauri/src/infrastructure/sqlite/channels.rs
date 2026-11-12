@@ -27,7 +27,7 @@ impl ChannelRepository for SqliteChannelRepository {
         self.db
             .with(|conn| {
                 let mut channels: Vec<Channel> = conn
-                    .prepare("SELECT id, name, topic, created_at, is_lobby, workspace_json FROM channels ORDER BY created_at, rowid")?
+                    .prepare("SELECT id, name, topic, created_at, is_lobby, workspace_json, icon FROM channels ORDER BY created_at, rowid")?
                     .query_map([], read_channel)?
                     .collect::<rusqlite::Result<_>>()?;
                 let mut members = conn.prepare("SELECT channel_id, member_id FROM channel_members ORDER BY rowid")?;
@@ -46,7 +46,8 @@ impl ChannelRepository for SqliteChannelRepository {
     fn get(&self, id: &ChannelId) -> AppResult<Option<Channel>> {
         self.db
             .with(|conn| {
-                let sql = "SELECT id, name, topic, created_at, is_lobby, workspace_json FROM channels WHERE id = ?1";
+                let sql =
+                    "SELECT id, name, topic, created_at, is_lobby, workspace_json, icon FROM channels WHERE id = ?1";
                 let Some(mut channel) = conn.query_row(sql, [id.as_str()], read_channel).optional()? else {
                     return Ok(None);
                 };
@@ -61,8 +62,8 @@ impl ChannelRepository for SqliteChannelRepository {
             .with(|conn| {
                 let tx = conn.unchecked_transaction()?;
                 tx.execute(
-                    "INSERT INTO channels (id, name, topic, created_at, is_lobby, workspace_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at, channel.is_lobby, serde_json::to_string(&channel.workspace).map_err(encode_error)?],
+                    "INSERT INTO channels (id, name, topic, created_at, is_lobby, workspace_json, icon) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at, channel.is_lobby, serde_json::to_string(&channel.workspace).map_err(encode_error)?, channel.icon],
                 )?;
                 for member in &channel.member_ids {
                     add(&tx, &channel.id, member)?;
@@ -76,8 +77,8 @@ impl ChannelRepository for SqliteChannelRepository {
         self.db
             .with(|conn| {
                 conn.execute(
-                    "UPDATE channels SET name = ?2, topic = ?3, is_lobby = ?4 WHERE id = ?1",
-                    params![channel.id.as_str(), channel.name, channel.topic, channel.is_lobby],
+                    "UPDATE channels SET name = ?2, topic = ?3, is_lobby = ?4, icon = ?5 WHERE id = ?1",
+                    params![channel.id.as_str(), channel.name, channel.topic, channel.is_lobby, channel.icon],
                 )
             })
             .map(|_| ())
@@ -153,6 +154,7 @@ fn read_channel(row: &Row<'_>) -> rusqlite::Result<Channel> {
         id: ChannelId::new(row.get::<_, String>(0)?),
         name: row.get(1)?,
         topic: row.get(2)?,
+        icon: row.get(6)?,
         member_ids: Vec::new(),
         created_at: row.get(3)?,
         is_lobby: row.get(4)?,

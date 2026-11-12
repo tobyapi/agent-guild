@@ -7,7 +7,7 @@ export const ko: Messages<typeof ja> = {
   loading: '불러오는 중…',
   loadingOlder: '이전 메시지를 불러오는 중…',
   loadOlder: '이전 메시지 불러오기',
-  welcome: '#{channel}에 오신 것을 환영합니다',
+  welcome: '{channel}에 오신 것을 환영합니다',
   introSpacer: ' ',
   intro: '#{channel}의 시작입니다. @로 에이전트를 불러 보세요.',
   unknownMember: '(알 수 없는 멤버)',

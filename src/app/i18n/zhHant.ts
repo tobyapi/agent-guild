@@ -6,7 +6,6 @@ export const zhHant: Messages<typeof ja> = {
   createChannel: '建立頻道',
   noChannelBody: '依話題分開頻道，代理人就比較不會弄混上下文。',
   sidebar: '側邊欄',
-  appName: 'AI 公會',
   navigation: '頻道和代理人',
   preparing: '正在準備 AI 公會…',
   startFailed: '無法啟動',

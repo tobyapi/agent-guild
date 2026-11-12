@@ -25,6 +25,7 @@ const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => ({
   name: 'ミライ',
   avatar: '🔭',
   color: '#8cc3fc',
+  frame: '',
   tags: ['作業者'],
   role: '調査',
   personality: '',
@@ -88,7 +89,12 @@ describe('モックのコマンド', () => {
   it('create_agent: フラグなしの同名チャンネルには参加しない', async () => {
     const mock = await createHarness();
     await mock.transport.invoke('delete_channel', { id: SEED_IDS.lobby });
-    const channel = await mock.transport.invoke('create_channel', { name: 'ロビー', topic: '', memberIds: [] });
+    const channel = await mock.transport.invoke('create_channel', {
+      name: 'ロビー',
+      topic: '',
+      icon: '',
+      memberIds: [],
+    });
     await mock.transport.invoke('create_agent', { input: agentInput() });
     const snapshot = await mock.transport.invoke('get_snapshot', {});
     expect(snapshot.channels.find((entry) => entry.id === channel.id)?.memberIds).toEqual([HUMAN_ID]);
@@ -96,7 +102,7 @@ describe('モックのコマンド', () => {
 
   it('create_agent: 名前を変えたフラグ付きロビーへ一度参加し、削除後も作成できる', async () => {
     const mock = await createHarness();
-    await mock.transport.invoke('update_channel', { id: SEED_IDS.lobby, name: 'Lounge', topic: '' });
+    await mock.transport.invoke('update_channel', { id: SEED_IDS.lobby, name: 'Lounge', topic: '', icon: '' });
     const before = await mock.transport.invoke('get_snapshot', {});
     const created = await mock.transport.invoke('create_agent', { input: agentInput() });
     const after = await mock.transport.invoke('get_snapshot', {});

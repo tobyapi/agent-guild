@@ -2,6 +2,7 @@
 import { codexCatalog } from './codex-runtime/models.ts';
 import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex } from './codex-runtime.ts';
+import { generateCodexImage } from './codex-runtime/image.ts';
 import { CAN_LOGIN, loginCodex } from './codex/login.ts';
 import { probeCodex } from './codex/probe.ts';
 import { t } from './codex-runtime/texts/index.ts';
@@ -30,6 +31,8 @@ const info = (): BackendDescriptor => ({
   folderScope: 'sandbox',
   toolsOption: null,
   local: false,
+  // 枠の生成（image 要求。Codex の組み込みの画像の生成）は Codex だけが申告する（同じ実行系を使う Grok・Muse は申告しない）
+  frameGeneration: true,
   setup: {
     ...NO_SETUP,
     install: {
@@ -51,5 +54,6 @@ export const codexAdapter: BackendAdapter = {
   probe: probeCodex,
   catalog: () => Promise.resolve(codexCatalog()),
   run: runCodex,
+  image: generateCodexImage,
   login: loginCodex,
 };

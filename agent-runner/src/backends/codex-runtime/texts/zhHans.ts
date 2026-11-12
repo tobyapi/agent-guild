@@ -10,6 +10,10 @@ export const zhHans: Messages<typeof ja> = {
   loginFailed: '无法登录 ChatGPT。请检查浏览器后重试。',
   runFailed: 'Codex 执行失败（{detail}）',
   longPath: '在 Windows 上，路径超过 260 个字符时无法启动 Codex CLI。请将项目放在较短的路径中。',
+  drawing: '正在绘制图像…',
+  imageMissing:
+    'Codex 未生成图像就结束了。图像生成需要 Codex 使用 ChatGPT 账户登录（使用 API 密钥登录或某些套餐可能无法使用）。请检查登录后重试。',
+  imageReply: '（Codex 的回复：{text}）',
   systemPromptTooLong: '传给 Codex 的系统提示最多 {max} 个字符',
   folderNeedsSandbox: '文件夹限制需要操作系统隔离（此后端可在支持隔离的 Windows 11 上使用）',
   ruleWrite: '允许写入后，将无法阻止在工作区内执行命令（程序）。请同时允许 runCommands',

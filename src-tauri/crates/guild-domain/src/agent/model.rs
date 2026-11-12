@@ -13,6 +13,9 @@ pub struct AgentInput {
     pub name: String,
     pub avatar: String,
     pub color: String,
+    /// アイコンの枠の ID（空は枠なし。古いデータにはないので既定は空）
+    #[serde(default)]
+    pub frame: String,
     pub tags: Vec<String>,
     pub role: String,
     pub personality: String,
@@ -39,6 +42,9 @@ pub struct Agent {
     /// 絵文字、または data:image/... の画像
     pub avatar: String,
     pub color: String,
+    /// アイコンの枠の ID（空は枠なし。`builtin:<名前>` か `custom:<ID>`。guild-domain の frame）
+    #[serde(default)]
+    pub frame: String,
     /// 先頭は固定権限を決める役割。残りは表示と絞り込み用の自由なタグ
     pub tags: Vec<String>,
     pub role: String,
@@ -75,6 +81,7 @@ impl Agent {
             name,
             avatar,
             color,
+            frame,
             tags,
             role,
             personality,
@@ -96,6 +103,7 @@ impl Agent {
             name,
             avatar,
             color,
+            frame,
             tags,
             role,
             personality,

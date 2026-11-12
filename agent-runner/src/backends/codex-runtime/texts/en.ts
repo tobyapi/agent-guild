@@ -11,6 +11,10 @@ export const en: Messages<typeof ja> = {
   runFailed: 'Codex failed to run ({detail})',
   longPath:
     'On Windows, Codex CLI cannot start when the path is longer than 260 characters. Move the project to a shorter path.',
+  drawing: 'Drawing an image…',
+  imageMissing:
+    'Codex finished without creating an image. Image generation works when Codex is signed in with a ChatGPT account (it may be unavailable with an API key or on some plans). Check the sign-in and try again.',
+  imageReply: '(Codex replied: {text})',
   systemPromptTooLong: 'The system prompt for Codex can be up to {max} characters',
   folderNeedsSandbox:
     'The folder restriction requires OS isolation (with this backend, it works on Windows 11 where isolation is available)',

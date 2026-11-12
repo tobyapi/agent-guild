@@ -19,6 +19,7 @@ export const en: Messages<typeof ja> = {
   cancelled: 'The run was stopped',
   noApiKey: '{backend} cannot store an API key',
   noLogin: '{backend} does not support signing in from the app',
+  noImage: '{backend} cannot generate images (avatar frames)',
   duplicateJob: 'A job with the same id is already running: {id}',
   unknownBackend: 'Unknown backend: {backend}',
   folderUnsupported: '{backend} cannot stay within the folder scope, so it cannot run in designated folder channels',

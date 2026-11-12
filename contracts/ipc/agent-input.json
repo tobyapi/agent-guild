@@ -2,6 +2,7 @@
   "name": "ハル",
   "avatar": "🌱",
   "color": "#67dab2",
+  "frame": "builtin:harbor",
   "tags": [
     "作業者",
     "リサーチ"

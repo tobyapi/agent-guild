@@ -1,4 +1,5 @@
 // チャンネルの作成・更新・削除とメンバーの出入り。
+import { normalizeChannelIcon } from '@/shared/lib/channelIcon';
 import { CHANNEL_NAME_MAX, CHANNEL_TOPIC_MAX, cleanChannelName } from '@/shared/lib/limits';
 import { checkText } from '@/shared/lib/validation';
 import { HUMAN_ID } from '@/shared/types/domain';
@@ -15,14 +16,16 @@ type ChannelCommands =
   | 'add_channel_member'
   | 'remove_channel_member';
 
-/** 名前（先頭の # は除く）と話題を検証して整える */
-function cleanFields(name: string, topic: string): Pick<Channel, 'name' | 'topic'> {
+/** 名前（先頭の # は除く）・話題・アイコンを検証して整える */
+function cleanFields(name: string, topic: string, icon: string): Pick<Channel, 'name' | 'topic' | 'icon'> {
   const cleanName = cleanChannelName(name);
   const nameProblem = checkText(cleanName, { label: 'チャンネル名', required: true, max: CHANNEL_NAME_MAX });
   if (nameProblem !== null) fail('validation', nameProblem, 'name');
   const topicProblem = checkText(topic, { label: '話題', max: CHANNEL_TOPIC_MAX });
   if (topicProblem !== null) fail('validation', topicProblem, 'topic');
-  return { name: cleanName, topic: topic.trim() };
+  const cleanIcon = normalizeChannelIcon(icon);
+  if (cleanIcon === null) fail('validation', 'アイコンは絵文字1つにしてください', 'icon');
+  return { name: cleanName, topic: topic.trim(), icon: cleanIcon };
 }
 
 export const channelHandlers: HandlerGroup<ChannelCommands> = {
@@ -43,7 +46,7 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
     };
   },
 
-  create_channel({ name, topic, memberIds }, runtime) {
+  create_channel({ name, topic, icon, memberIds }, runtime) {
     const agentIds = activeAgents(runtime)
       .map((agent) => agent.id)
       .filter((id) => memberIds.includes(id));
@@ -51,7 +54,7 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
       id: runtime.env.newId(),
       isLobby: false,
       workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
-      ...cleanFields(name, topic),
+      ...cleanFields(name, topic, icon),
       memberIds: [HUMAN_ID, ...agentIds],
       createdAt: runtime.env.now(),
     };
@@ -60,9 +63,9 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
     return channel;
   },
 
-  update_channel({ id, name, topic }, runtime) {
+  update_channel({ id, name, topic, icon }, runtime) {
     const channel = requireChannel(runtime, id);
-    Object.assign(channel, cleanFields(name, topic));
+    Object.assign(channel, cleanFields(name, topic, icon));
     emitStateChanged(runtime);
     return channel;
   },

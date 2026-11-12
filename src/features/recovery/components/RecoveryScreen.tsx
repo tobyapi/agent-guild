@@ -1,3 +1,4 @@
+import { useGuildCrest } from '@/features/guild';
 import { Button, Crest, FormAlert, Icon } from '@/shared/ui';
 import type { BootStatus } from '@/shared/types/domain';
 import { useRecovery } from '../hooks/useRecovery';
@@ -11,6 +12,8 @@ const ACTION_LABELS = { retry: 'retry', choose: 'choose', useDefault: 'useDefaul
 /** 復旧画面（データフォルダを開けなかったとき、アプリ全体の代わりに出す。docs/ui-design.md §6.5） */
 export function RecoveryScreen({ boot }: { boot: BootStatus }) {
   const recovery = useRecovery(boot);
+  // データフォルダを開けていないので、前回覚えた紋で出す
+  const crest = useGuildCrest();
   const copy = reasonCopy(boot.reason);
   const [primary, ...others] = orderedActions(recommendedAction(boot.reason, recovery.atDefault));
   const actionButton = (action: RecoveryAction, variant: 'primary' | 'secondary') => (
@@ -28,7 +31,7 @@ export function RecoveryScreen({ boot }: { boot: BootStatus }) {
   return (
     <main className={styles.screen}>
       <div className={styles.card}>
-        <Crest size="lg" />
+        <Crest size="lg" shape={crest.shape} color={crest.color} />
         <p className={styles.kicker}>{t('kicker')}</p>
         <h1 className={styles.title}>{copy.title}</h1>
         <p className={styles.description}>{copy.description}</p>

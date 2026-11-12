@@ -46,6 +46,7 @@ describe('Ollama', () => {
         folderScope: 'files',
         toolsOption: 'enableTools',
         local: true,
+        frameGeneration: false,
         setup: { install: null, login: null, apiKey: null },
       },
     ]);

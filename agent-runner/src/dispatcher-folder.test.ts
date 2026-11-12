@@ -36,6 +36,7 @@ const adapter = (id: string, seen: RunRequest[], folderScope: FolderScope | null
     folderScope,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: NO_SETUP,
   }),
   probe: () => Promise.resolve({ status: 'ready', statusMessage: '' }),

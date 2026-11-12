@@ -1,4 +1,5 @@
-import { Avatar, Icon } from '@/shared/ui';
+import { MemberAvatar } from '@/features/frames';
+import { Icon } from '@/shared/ui';
 import { useProfile } from '../hooks/useProfile';
 import { t } from '../i18n';
 import styles from './ProfileCard.module.css';
@@ -17,7 +18,7 @@ export function ProfileCard({ onOpenSettings }: ProfileCardProps) {
       onClick={onOpenSettings}
       aria-label={t('openSettings', { name: me.name })}
     >
-      <Avatar avatar={me.avatar} name={me.name} color={me.color} size="row" human />
+      <MemberAvatar avatar={me.avatar} name={me.name} color={me.color} frame={me.frame} size="row" human />
       <span className={styles.text}>
         <span className={styles.name}>{me.name}</span>
         <span className={styles.sub}>{t('you')}</span>

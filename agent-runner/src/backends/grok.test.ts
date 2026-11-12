@@ -41,6 +41,7 @@ describe('Grok provider', () => {
       folderScope: 'sandbox',
       toolsOption: null,
       local: false,
+      frameGeneration: false,
       setup: { install: null, start: null, login: null, apiKey: { envVar: 'XAI_API_KEY' } },
       capabilities: { webSearch: false },
       midRunPost: 'text',

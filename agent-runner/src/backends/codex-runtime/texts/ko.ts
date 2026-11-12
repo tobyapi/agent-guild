@@ -10,6 +10,10 @@ export const ko: Messages<typeof ja> = {
   loginFailed: 'ChatGPT에 로그인할 수 없습니다. 브라우저를 확인하고 다시 시도하십시오.',
   runFailed: 'Codex 실행에 실패했습니다({detail})',
   longPath: 'Windows에서는 경로가 260자를 넘으면 Codex CLI를 시작할 수 없습니다. 프로젝트를 짧은 경로에 두십시오.',
+  drawing: '이미지를 그리고 있습니다…',
+  imageMissing:
+    'Codex가 이미지를 만들지 않고 끝났습니다. 이미지 생성은 Codex에 ChatGPT 계정으로 로그인했을 때 사용할 수 있습니다(API 키 로그인이나 일부 요금제에서는 사용할 수 없습니다). 로그인을 확인하고 다시 시도하십시오.',
+  imageReply: '(Codex의 답변: {text})',
   systemPromptTooLong: 'Codex에 전달하는 시스템 프롬프트는 {max}자까지입니다',
   folderNeedsSandbox:
     '폴더 제한에는 OS 격리가 필요합니다(이 백엔드는 격리를 쓸 수 있는 Windows 11에서 사용할 수 있습니다)',

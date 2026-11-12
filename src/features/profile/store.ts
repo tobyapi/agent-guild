@@ -7,8 +7,13 @@ interface ProfileStoreState {
 }
 
 export const useProfileStore = create<ProfileStoreState>()(() => ({
-  me: { name: '', avatar: '', color: '' },
+  me: { name: '', avatar: '', color: '', frame: '' },
 }));
+
+/** いまのプロフィール（描画の外から読む。届いた発言が自分宛てかの判定などに使う） */
+export function currentProfile(): Profile {
+  return useProfileStore.getState().me;
+}
 
 export function applyProfileSnapshot(me: Profile): void {
   useProfileStore.setState({ me });

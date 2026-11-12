@@ -26,7 +26,7 @@ describe('モックの会話', () => {
 
   it('メンションした相手がチャンネル外なら参加させてから返答する', async () => {
     const mock = await createHarness();
-    const channel = await mock.transport.invoke('create_channel', { name: '企画', topic: '', memberIds: [] });
+    const channel = await mock.transport.invoke('create_channel', { name: '企画', topic: '', icon: '', memberIds: [] });
     await mock.transport.invoke('send_message', {
       channelId: channel.id,
       content: '@ロジカ 見てください',

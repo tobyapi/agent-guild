@@ -18,6 +18,7 @@ const adapter = (id: string, envVar?: string): BackendAdapter => ({
     folderScope: null,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: { ...NO_SETUP, apiKey: envVar ? { envVar } : null },
     options: [],
     permissionRules: [],

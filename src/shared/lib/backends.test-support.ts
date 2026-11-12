@@ -30,6 +30,7 @@ export function backendInfo(overrides: Partial<BackendInfo> = {}): BackendInfo {
     folderScope: null,
     toolsOption: null,
     local: false,
+    frameGeneration: false,
     setup: NO_SETUP,
     ...overrides,
   };

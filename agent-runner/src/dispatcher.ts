@@ -2,7 +2,7 @@ import { assertBackendFolderScope } from './backends/folder-scope.ts';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
-import { usableRequest, type BackendAdapter, type RunRequest } from './backends/types.ts';
+import { usableRequest, type BackendAdapter, type ImageRequest, type RunRequest } from './backends/types.ts';
 import type { ParsedLine } from './line-parser.ts';
 import { setLanguage } from './i18n.ts';
 import { logError } from './log.ts';
@@ -70,6 +70,7 @@ export class Dispatcher {
 
   #handle(request: RunnerRequest): void {
     if (request.type === 'run') this.#run(request);
+    else if (request.type === 'image') this.#image(request);
     else if (request.type === 'apiKey') this.#apiKey(request);
     else if (request.type === 'login') this.#login(request);
     else if (request.type === 'cancel') this.cancel(request.id);
@@ -135,6 +136,25 @@ export class Dispatcher {
         onPost: (text) => send({ type: 'post', id, text }),
         onUsage: (usage) => send({ type: 'usage', id, usage }),
       });
+    });
+  }
+
+  /** 画像を描く（枠の生成を申告して image を持つアダプタだけ）。PNG を output に書いたら result（text は空） */
+  #image(request: ImageRequest): void {
+    const { id } = request;
+    const adapter = this.#claim(id, request.backend);
+    if (!adapter) return;
+    const { image } = adapter;
+    if (!image || !adapter.info().frameGeneration) {
+      this.#fail(id, 'bad_request', t('noImage', { backend: adapter.info().label }));
+      return;
+    }
+    this.#track(id, async (signal, isCurrent) => {
+      const onActivity = (detail: string): void => {
+        if (isCurrent()) this.#options.send({ type: 'activity', id, detail });
+      };
+      await image(request, { signal, onActivity });
+      return '';
     });
   }
 

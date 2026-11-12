@@ -1,5 +1,6 @@
 import { useAllAgents } from '@/features/agents';
 import { useChannelActivities, useChannelQueue } from '@/features/runtime';
+import { channelMark } from '@/shared/lib/channelIcon';
 import { Icon, IconButton, Lamp, reportError } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
 import { useMemberPanelOpen } from '../hooks/useChannels';
@@ -10,14 +11,14 @@ import { ChannelStatisticsButton } from './ChannelStatistics';
 import { t } from '../i18n';
 import styles from './ChannelHeader.module.css';
 
-/** チャンネルヘッダー: #名前・話題・作業中の表示と停止・編集・メンバーパネルの開閉 */
+/** チャンネルヘッダー: #名前（アイコンがあれば # の代わりに出す）・話題・作業中の表示と停止・編集・メンバーパネルの開閉 */
 export function ChannelHeader({ channel }: { channel: Channel }) {
   const membersOpen = useMemberPanelOpen();
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>
         <span className={styles.hash} aria-hidden="true">
-          #
+          {channelMark(channel)}
         </span>
         {channel.name}
       </h1>

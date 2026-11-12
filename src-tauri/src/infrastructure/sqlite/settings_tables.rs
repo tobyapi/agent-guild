@@ -26,8 +26,8 @@ impl ProfileRepository for SqliteProfileRepository {
         let stored = self
             .db
             .with(|conn| {
-                conn.query_row("SELECT name, avatar, color FROM profile WHERE id = 1", [], |row| {
-                    Ok(Profile { name: row.get(0)?, avatar: row.get(1)?, color: row.get(2)? })
+                conn.query_row("SELECT name, avatar, color, frame FROM profile WHERE id = 1", [], |row| {
+                    Ok(Profile { name: row.get(0)?, avatar: row.get(1)?, color: row.get(2)?, frame: row.get(3)? })
                 })
                 .optional()
             })
@@ -39,9 +39,10 @@ impl ProfileRepository for SqliteProfileRepository {
         self.db
             .with(|conn| {
                 conn.execute(
-                    "INSERT INTO profile (id, name, avatar, color) VALUES (1, ?1, ?2, ?3) \
-                     ON CONFLICT (id) DO UPDATE SET name = excluded.name, avatar = excluded.avatar, color = excluded.color",
-                    params![profile.name, profile.avatar, profile.color],
+                    "INSERT INTO profile (id, name, avatar, color, frame) VALUES (1, ?1, ?2, ?3, ?4) \
+                     ON CONFLICT (id) DO UPDATE SET name = excluded.name, avatar = excluded.avatar, \
+                     color = excluded.color, frame = excluded.frame",
+                    params![profile.name, profile.avatar, profile.color, profile.frame],
                 )
             })
             .map(|_| ())

@@ -3,11 +3,15 @@
  * - コンポーネントは色・余白・文字サイズ・角丸・影・動きを必ずこの変数で指定する（生の値を書かない）
  * - 名前は契約。足すのは自由（docs/ui-design.md に追記）。消す・改名するときは使っている箇所を同時に直す
  * - 既定はダーク。ライトは <html data-theme="light">（tokens-light.css が色だけ上書きする）
- * - 寸法と重なり順は tokens-layout.css。どちらもここから読み込むので、使う側は tokens.css だけ import する
+ * - アクセントの色の選択は <html data-accent="...">（tokens-accent.css がアクセントの組だけ上書きする）
+ * - 寸法と重なり順は tokens-layout.css。どれもここから読み込むので、使う側は tokens.css だけ import する
  * 使い分けは docs/ui-design.md、見本は docs/design/style-tile.html
  */
 @import './tokens-layout.css';
 @import './tokens-light.css';
+@import './tokens-crest.css';
+@import './tokens-frames.css';
+@import './tokens-accent.css';
 
 :root {
   color-scheme: dark;
@@ -133,6 +137,7 @@
   --radius-xl: 16px; /* ダイアログ */
   --radius-full: 999px;
   --radius-avatar: 30%; /* エージェント（角丸）。人間は --radius-full */
+  --radius-avatar-framed: 11.4%; /* 枠を付けたアバター（人間も AI も、枠の穴に合わせた角丸の正方形。10 / 88） */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.25), 0 8px 20px -6px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 16px -8px rgba(0, 0, 0, 0.45), 0 28px 56px -12px rgba(0, 0, 0, 0.65);

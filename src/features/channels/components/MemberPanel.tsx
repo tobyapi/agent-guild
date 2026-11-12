@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { AccentMark, HUMAN_ACCENT, openAgentEditor, useActiveAgents, useTemplates } from '@/features/agents';
 import { useProfile } from '@/features/profile';
 import { BackendTag, useAgentActivity, useBackend } from '@/features/runtime';
-import { Avatar, Button, Icon, IconButton, reportError, SideSection } from '@/shared/ui';
+import { MemberAvatar } from '@/features/frames';
+import { Button, Icon, IconButton, reportError, SideSection } from '@/shared/ui';
 import type { Agent, Channel } from '@/shared/types/domain';
 import { memberGroups } from '../model/channels';
 import { MEMBER_PANEL_ID } from '../model/ids';
@@ -28,7 +29,7 @@ export function MemberPanel({ channel }: { channel: Channel }) {
       <div className={styles.scroll}>
         <SideSection title={t('you')} mark={<AccentMark accent={HUMAN_ACCENT} human />}>
           <li className={styles.row}>
-            <Avatar avatar={me.avatar} name={me.name} color={me.color} size="row" human />
+            <MemberAvatar avatar={me.avatar} name={me.name} color={me.color} frame={me.frame} size="row" human />
             <div className={styles.text}>
               <span className={styles.name}>
                 {me.name}
@@ -67,7 +68,14 @@ function MemberRow({ agent, channelId }: { agent: Agent; channelId: string }) {
   const backend = useBackend(agent.backend);
   return (
     <li className={styles.row} title={activity?.detail}>
-      <Avatar avatar={agent.avatar} name={agent.name} color={agent.color} size="row" busy={activity !== undefined} />
+      <MemberAvatar
+        avatar={agent.avatar}
+        name={agent.name}
+        color={agent.color}
+        frame={agent.frame}
+        size="row"
+        busy={activity !== undefined}
+      />
       <div className={styles.text}>
         <span className={styles.name}>{agent.name}</span>
         <span className={styles.sub}>

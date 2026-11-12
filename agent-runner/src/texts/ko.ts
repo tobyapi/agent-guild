@@ -19,6 +19,7 @@ export const ko: Messages<typeof ja> = {
   cancelled: '실행을 중지했습니다',
   noApiKey: '{backend}은(는) API 키를 저장할 수 없습니다',
   noLogin: '{backend}은(는) 앱에서 로그인할 수 없습니다',
+  noImage: '{backend}에서는 이미지(아이콘 테두리)를 생성할 수 없습니다',
   duplicateJob: '같은 id의 작업이 실행 중입니다: {id}',
   unknownBackend: '알 수 없는 백엔드입니다: {backend}',
   folderUnsupported: '{backend}은(는) 범위를 지킬 수 없으므로 지정 폴더 채널에서 실행할 수 없습니다',

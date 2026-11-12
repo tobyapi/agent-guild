@@ -10,6 +10,10 @@ export const zhHant: Messages<typeof ja> = {
   loginFailed: '無法登入 ChatGPT。請檢查瀏覽器後再試一次。',
   runFailed: 'Codex 執行失敗（{detail}）',
   longPath: '在 Windows 上，路徑超過 260 個字元時無法啟動 Codex CLI。請將專案放在較短的路徑中。',
+  drawing: '正在繪製圖像…',
+  imageMissing:
+    'Codex 未產生圖像就結束了。圖像產生需要 Codex 使用 ChatGPT 帳戶登入（使用 API 金鑰登入或某些方案可能無法使用）。請確認登入後再試一次。',
+  imageReply: '（Codex 的回覆：{text}）',
   systemPromptTooLong: '傳給 Codex 的系統提示最多 {max} 個字元',
   folderNeedsSandbox: '資料夾限制需要作業系統隔離（此後端可在支援隔離的 Windows 11 上使用）',
   ruleWrite: '允許寫入後，將無法阻止在工作區內執行命令（程式）。請同時允許 runCommands',

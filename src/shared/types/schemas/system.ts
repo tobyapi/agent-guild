@@ -34,6 +34,7 @@ import {
   permissionsSchema,
   profileSchema,
 } from './entities';
+import { customFrameSchema, guildProfileSchema } from './guild';
 
 export const optionSpecSchema = {
   key: string,
@@ -74,6 +75,7 @@ export const backendInfoSchema = {
   folderScope: nullable(folderScope),
   toolsOption: nullable(string),
   local: boolean,
+  frameGeneration: boolean,
   setup: objectOf(backendSetupSchema),
 } satisfies Schema<BackendInfo>;
 
@@ -100,11 +102,13 @@ export const activityStateSchema = {
 } satisfies Schema<ActivityState>;
 
 export const snapshotSchema = {
+  guild: objectOf(guildProfileSchema),
   me: objectOf(profileSchema),
   agents: arrayOf(objectOf(agentSchema)),
   channels: arrayOf(objectOf(channelSchema)),
   backends: arrayOf(objectOf(backendInfoSchema)),
   templates: arrayOf(objectOf(agentTemplateSchema)),
+  frames: arrayOf(customFrameSchema),
   runtime: objectOf(runtimeStatusSchema),
   activity: objectOf(activityStateSchema),
 } satisfies Schema<Snapshot>;

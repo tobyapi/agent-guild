@@ -67,6 +67,7 @@ const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
   folderScope: null,
   toolsOption: null,
   local: false,
+  frameGeneration: false,
   setup: {
     ...NO_SETUP,
     install: {

@@ -13,6 +13,7 @@ pub fn input(template: &str, name: &str) -> AgentInput {
         name: name.to_owned(),
         avatar: "🙂".to_owned(),
         color: "#5865f2".to_owned(),
+        frame: String::new(),
         tags: defaults.tags,
         role: format!("{name}の役割"),
         personality: "まじめ".to_owned(),
@@ -48,6 +49,7 @@ pub fn channel(id: &str, members: &[&str]) -> Channel {
         id: ChannelId::new(id),
         name: "ロビー".to_owned(),
         topic: "雑談".to_owned(),
+        icon: String::new(),
         member_ids: members.iter().map(|m| MemberId::from((*m).to_owned())).collect(),
         created_at: 0,
     }
@@ -110,6 +112,7 @@ pub fn backend(id: &str) -> BackendInfo {
         folder_scope: None,
         tools_option: None,
         local: false,
+        frame_generation: false,
         setup: BackendSetup::default(),
     }
 }

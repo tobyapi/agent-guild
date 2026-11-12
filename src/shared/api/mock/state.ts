@@ -4,7 +4,9 @@ import type {
   BackendInfo,
   BootStatus,
   Channel,
+  CustomFrame,
   Delegation,
+  GuildProfile,
   Message,
   Profile,
   RuntimeStatus,
@@ -16,7 +18,11 @@ import type {
 /** 偽バックエンドが持つ全データ（Rust の DB とランナーの代わり）。配列は古い順に並べる */
 export interface MockState {
   boot: BootStatus;
+  /** ギルドの名前と紋（Rust では DB の meta 表） */
+  guild: GuildProfile;
   me: Profile;
+  /** 生成したアイコンの枠（Rust では DB の avatar_frames 表） */
+  frames: CustomFrame[];
   /** 削除済み（deletedAt あり）も含む */
   agents: Agent[];
   channels: Channel[];

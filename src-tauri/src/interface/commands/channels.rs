@@ -27,15 +27,16 @@ pub async fn set_channel_workspace(
     state.services()?.conversation.configure_workspace(&id, mode, folder).await.map_err(reject)
 }
 
-/// 人間は常にメンバーに入る
+/// 人間は常にメンバーに入る。icon は絵文字1つ（空なら # を出す）
 #[tauri::command]
 pub async fn create_channel(
     state: State<'_, AppState>,
     name: String,
     topic: String,
+    icon: String,
     member_ids: Vec<MemberId>,
 ) -> CommandResult<Channel> {
-    state.services()?.channels.create(&name, &topic, &member_ids).map_err(reject)
+    state.services()?.channels.create(&name, &topic, &icon, &member_ids).map_err(reject)
 }
 
 #[tauri::command]
@@ -44,8 +45,9 @@ pub async fn update_channel(
     id: ChannelId,
     name: String,
     topic: String,
+    icon: String,
 ) -> CommandResult<Channel> {
-    state.services()?.channels.update(&id, &name, &topic).map_err(reject)
+    state.services()?.channels.update(&id, &name, &topic, &icon).map_err(reject)
 }
 
 #[tauri::command]

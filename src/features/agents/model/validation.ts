@@ -56,6 +56,7 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
     name: draft.name.trim(),
     avatar: draft.avatar.trim(),
     color: draft.color,
+    frame: draft.frame,
     tags: cleanTags(draft.tags),
     role: draft.role.trim(),
     personality: draft.personality.trim(),

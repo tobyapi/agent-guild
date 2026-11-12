@@ -19,6 +19,8 @@ export interface Channel {
   id: string;
   name: string;
   topic: string;
+  /** 絵文字1つ。空なら画面は # を出す（規則は shared/lib/channelIcon.ts。正は Rust） */
+  icon: string;
   /** 最初からあるロビー（消せない） */
   isLobby: boolean;
   /** HUMAN_ID またはエージェントID */
@@ -74,4 +76,6 @@ export interface Profile {
   name: string;
   avatar: string;
   color: string;
+  /** アイコンの枠の ID（Agent.frame と同じ形。空は枠なし） */
+  frame: string;
 }

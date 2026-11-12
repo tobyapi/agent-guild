@@ -9,11 +9,14 @@ use crate::autonomy::AutonomyService;
 use crate::backends::BackendService;
 use crate::channels::ChannelService;
 use crate::conversation::ConversationService;
+use crate::frames::FrameService;
+use crate::guild::GuildService;
 use crate::maintenance::Maintenance;
 use crate::ports::{
     AgentRepository, AgentRuntime, AppControl, AttachmentStore, ChannelRepository, Clock, DataExporter,
-    DelegationRepository, EventPublisher, Folders, IdGenerator, MessageRepository, MetaRepository, ProfileRepository,
-    SettingsStore, SkillLibraryScanner, SkillRepository, Spawner, StatisticsRepository, Workspace,
+    DelegationRepository, EventPublisher, Folders, FrameImageStore, FrameRepository, IdGenerator, MessageRepository,
+    MetaRepository, ProfileRepository, SettingsStore, SkillLibraryScanner, SkillRepository, Spawner,
+    StatisticsRepository, Workspace,
 };
 use crate::profile::ProfileService;
 use crate::skills::library::SkillLibraryService;
@@ -35,6 +38,10 @@ pub struct Ports {
     /// スキルライブラリのフォルダ（読むだけ）
     pub library: Arc<dyn SkillLibraryScanner>,
     pub profile: Arc<dyn ProfileRepository>,
+    /// 生成したアイコンの枠
+    pub frames: Arc<dyn FrameRepository>,
+    /// 生成した枠の絵（PNG）
+    pub frame_images: Arc<dyn FrameImageStore>,
     pub meta: Arc<dyn MetaRepository>,
     pub runtime: Arc<dyn AgentRuntime>,
     pub events: Arc<dyn EventPublisher>,
@@ -61,7 +68,9 @@ pub struct AppServices {
     pub channels: ChannelService,
     pub skills: SkillService,
     pub library: SkillLibraryService,
+    pub guild: GuildService,
     pub profile: ProfileService,
+    pub frames: FrameService,
     pub snapshot: SnapshotService,
     pub backends: BackendService,
     pub conversation: ConversationService,
@@ -81,7 +90,9 @@ impl AppServices {
             channels: ChannelService::new(ports.clone(), conversation.clone()),
             skills: SkillService::new(ports.clone()),
             library: SkillLibraryService::new(ports.clone(), storage.settings.clone(), storage.folders.clone()),
+            guild: GuildService::new(ports.clone()),
             profile: ProfileService::new(ports.clone()),
+            frames: FrameService::new(ports.clone()),
             snapshot: SnapshotService::new(ports.clone(), conversation.clone()),
             backends: BackendService::new(ports.runtime.clone()),
             autonomy: AutonomyService::new(ports, conversation.clone(), maintenance, started_at),
