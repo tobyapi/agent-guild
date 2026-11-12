@@ -6,7 +6,7 @@ import { notifyInfo } from '@/shared/ui';
 import { settingsApi, type SetupBackend } from './api';
 
 /** 開いたときに見せる区画（ほかの画面から案内するとき） */
-export type SettingsSection = 'skillLibrary';
+export type SettingsSection = 'skillLibrary' | 'update';
 
 interface SettingsStoreState {
   open: boolean;

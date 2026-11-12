@@ -10,6 +10,7 @@ pub mod profile;
 pub mod skills;
 pub mod snapshot;
 pub mod storage;
+pub mod update;
 
 use guild_application::AppError;
 use guild_domain::error::CommandError;

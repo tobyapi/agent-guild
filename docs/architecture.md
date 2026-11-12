@@ -39,8 +39,8 @@ src-tauri/
       app_control.rs           再起動
       clock.rs, ids.rs         SystemClock（現在日時の表示用文字列も）、UuidGenerator
     interface/
-      commands/                Tauri コマンド（薄い）: 引数 → サービス → CommandError（open_url と choose_folder は OS の機能を直接呼ぶ）
-      state.rs                 Tauri の State として持つもの（通常時は AppServices、復旧モードでは BootStatus と最小限のサービス）
+      commands/                Tauri コマンド（薄い）: 引数 → サービス → CommandError（open_url と choose_folder は OS の機能を、check_update と install_update は更新プラグインを直接呼ぶ）
+      state.rs                 Tauri の State として持つもの（通常時は AppServices、復旧モードでは BootStatus と最小限のサービス。更新を入れる直前の片付け BeforeUpdate）
 ```
 
 ### guild-domain（依存: serde, serde_json, unicode-normalization のみ）
@@ -138,7 +138,7 @@ src/
   main.tsx
   app/                       組み立て（AppShell、起動処理: 先に購読 → get_boot_status → 通常なら get_snapshot、復旧なら復旧画面）
   features/
-    agents/ channels/ chat/ skills/ profile/ settings/ recovery/ runtime/
+    agents/ channels/ chat/ skills/ profile/ settings/ recovery/ runtime/ update/
       index.ts               公開 API（他から使ってよいのはここだけ）
       api.ts                 この feature が使うコマンド（shared/api の型付きクライアント経由）
       store.ts               zustand のストア

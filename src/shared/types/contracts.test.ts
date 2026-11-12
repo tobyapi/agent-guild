@@ -19,6 +19,7 @@ import {
   commandErrorSchema,
   snapshotSchema,
   storageInfoSchema,
+  updateStatusSchema,
 } from './schemas/system';
 
 const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: true, import: 'default' });
@@ -38,6 +39,7 @@ const CASES: Record<string, Validator> = {
   'activity-state.json': objectOf(activityStateSchema),
   'skills-changed.json': objectOf(skillsChangedSchema),
   'storage-info.json': objectOf(storageInfoSchema),
+  'update-status.json': objectOf(updateStatusSchema),
   'boot-status-recovery.json': objectOf(bootStatusSchema),
   'command-error.json': objectOf(commandErrorSchema),
 };

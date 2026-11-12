@@ -125,8 +125,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `reveal_data_dir` | – | `null` | – | storage |
 | `restart_app` | – | `null` | – | – |
 | `open_url` | `{ url }` | `null`（OS の既定のブラウザで開く。発言の Markdown のリンク用） | – | validation（http・https 以外） |
+| `check_update` | – | `UpdateStatus`（いまの版と、あれば新しい版。配布元の latest.json を見る） | – | unavailable（配布元に届かない・読めない） |
+| `install_update` | – | `null`（ダウンロード → 署名の検証 → ランナーを止める → 入れ替え → 再起動。Windows はインストーラーに任せて終了するので戻らない） | – | conflict（新しい版がない）, unavailable（ダウンロード・署名の検証・入れ替えの失敗） |
 
-復旧モード（§11）では `get_boot_status`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url` だけが動き、他は `unavailable` を返す。
+復旧モード（§11）では `get_boot_status`・`get_storage_info`・`choose_folder`・`change_data_dir`（open のみ。copy は元のデータを開けていないので `unavailable`）・`reveal_data_dir`・`restart_app`・`open_url`・`check_update`・`install_update` だけが動き、他は `unavailable` を返す。
 
 - 発言の本文は信頼できない入力として描く（`src/features/chat/model/`）: 生の HTML は文字として見せ、できた HTML は DOMPurify に通す（img・video・iframe などの要素は通さない）。画像・動画・コードブロックの操作・図は、HTML に置いた差し込み口（`data-embed`）へ React の部品として足す。
   - 本文の中の画像・動画（`![名前](URL)`）: https のものは、利用者が札を押してから読み込む（発言を開いただけでは外へ通信しない。URL に情報を載せた持ち出しを防ぐため。Referer は送らない）。data: の画像（PNG・JPEG・GIF・WebP の base64）はそのまま見せる。http はリンクのまま、ほかのスキームは文字だけ。CSP は img-src・media-src に `https:` と `data:` を許す（押す前に読み込まないのは描画側の決まりで、CSP は種類を絞るだけ）。
@@ -383,3 +385,20 @@ Only Grok and Muse are supported. See [backend-api-keys.md](backend-api-keys.md)
 folder モードではランナープロトコル v2 の `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・スキルは無効。コマンドは、ファイルの道具ごとに範囲を確かめるバックエンド（Ollama）では無効、シェルごと OS の隔離に入れるバックエンド（Codex・Grok・Muse）では範囲の中でだけ使える。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Codex・Grok・Muse は、Windows 11 の MXC が使えるときに、Codex の権限プロファイルで読める場所・書ける場所・通信を決める（`docs/codex-folder-scope.md`。使えない PC では実行を停止する）。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。未対応のバックエンドも理由を示して実行を停止する。
 
 今回の統合検証は `docs/ollama-channel-validation-20261111.md`。`docs/ollama-tools-validation.md` は過去試作の記録として区別する。
+
+## アプリの更新（自動アップデート）
+
+配布済みのアプリが、GitHub のリリースから新しい版を見つけて入れ替える。Tauri の更新プラグイン（`tauri-plugin-updater`）を Rust の API だけで使い、JS には権限を渡さない（コマンドは `check_update`・`install_update`。`interface/commands/update.rs`）。
+
+- **配布元**: `https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`（`tauri.conf.json` の `plugins.updater.endpoints`）。公開済みの最新のリリースに添付した `latest.json` を見る。**下書きのリリースと、非公開のリポジトリは見えない**（確認は `unavailable` で失敗する）。
+- **署名**: 更新用の配布物は、更新用の鍵（minisign）で署名する。公開鍵は `plugins.updater.pubkey` に入れてアプリに埋め込み、署名の合わない配布物はプラグインが入れずに失敗にする。OS のコード署名とは別物で、どちらかがもう一方の代わりにはならない。
+  - 秘密鍵はリポジトリに置かない。GitHub の Secrets（`TAURI_SIGNING_PRIVATE_KEY`。パスワードつきの鍵なら `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` も）に登録し、控えを別の場所に持つ（Secrets は登録後に読み出せない）。
+  - 秘密鍵をなくすと、配布済みのアプリは更新できなくなる（新しい鍵の版を手で入れ直してもらう）。鍵を替えるときは、古い鍵で署名した版に新しい公開鍵を入れて配り、その版に上がった人から切り替える。
+- **配布物**: Windows は NSIS のインストーラーそのもの（`*-setup.exe`）、macOS はアプリを固めたもの（`*.app.tar.gz`）。それぞれの署名（`*.sig`）は、`bundle.createUpdaterArtifacts`（`src-tauri/tauri.updater.conf.json`。鍵があるときだけ CI が `--config` で足す）でビルド時に作る。鍵のない手元の `npm run bundle` はこれまでどおり動く。
+- **latest.json**: CI（`build.yml` の manifest ジョブ）が `scripts/update-manifest.mjs` で、両方の OS の署名から作ってリリースに添付する。形は `{ version, notes, pub_date, platforms: { "windows-x86_64" | "darwin-aarch64": { signature, url } } }`。`url` はそのリリースの添付ファイル。
+- **版の決まり**: タグは `v<アプリの版>`（`tauri.conf.json` の `version`）。合わないタグでは latest.json を作らずに失敗させる（合わないまま配ると、更新した後も「新しい版があります」が出続ける）。版を上げるときは `tauri.conf.json`・`src-tauri/Cargo.toml`・`package.json` をそろえる。
+- **リリースの手順**: 版を上げてコミット → `v<版>` のタグを push → CI が下書きのリリースにインストーラー・更新用の配布物・`latest.json` を添付 → 内容を確かめて**公開する**。公開した時点で、配布済みのアプリが見つける。
+- **確認のタイミング**: 起動時と、その後は6時間ごと（React の `app/useUpdateNotice.ts`）。新しい版があればトーストで1回だけ知らせる。確かめられなくても何も出さない（オフラインでも静かに動く）。設定の［更新を確認］では理由を出す。自動では入れない（入れるのは利用者が［更新して再起動］を押したときだけ）。
+- **入れ替え**: ダウンロードして署名を確かめたあと、ランナーに shutdown を送って止めてから入れ替える（同梱の Node.js が動いたままだと、Windows のインストーラーがファイルを置き換えられない）。作業中のジョブはここで止まる。Windows はインストーラーを起動してアプリを終え、インストーラーが新しい版を起動する。macOS はアプリを置き換えてから起動し直す。
+- **データ**: データフォルダはアプリの外にあるので、更新しても残る。新しい版が古いデータを開くときの扱いは §11・§12 のとおり（リリース後は、データフォルダとスキル形式の互換を保つ）。
+

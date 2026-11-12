@@ -17,6 +17,7 @@ use guild_domain::skill::{BuiltinSkill, LibraryAddMode, Skill, SkillInput, Skill
 use guild_domain::snapshot::Snapshot;
 use guild_domain::statistics::ChannelStatistics;
 use guild_domain::storage::StorageInfo;
+use guild_domain::update::UpdateStatus;
 
 fn fixture(name: &str) -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../contracts/ipc").join(name);
@@ -97,6 +98,11 @@ fn event_payloads() {
 fn storage_and_boot() {
     assert_round_trip::<StorageInfo>("storage-info.json");
     assert_round_trip::<BootStatus>("boot-status-recovery.json");
+}
+
+#[test]
+fn update_status() {
+    assert_round_trip::<UpdateStatus>("update-status.json");
 }
 
 #[test]

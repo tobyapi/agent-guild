@@ -21,3 +21,4 @@ pub mod skill;
 pub mod snapshot;
 pub mod statistics;
 pub mod storage;
+pub mod update;

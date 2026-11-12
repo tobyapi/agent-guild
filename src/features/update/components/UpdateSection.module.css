@@ -1,0 +1,40 @@
+/* 設定の「アプリの更新」（docs/ui-design.md §6.7） */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.summary {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 新しい版の説明と、入れるボタン */
+.available {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+}
+
+.notes {
+  max-block-size: 12em;
+  overflow-y: auto;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.help {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}

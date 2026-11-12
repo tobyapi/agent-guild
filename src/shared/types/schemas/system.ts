@@ -2,6 +2,7 @@
 import type {
   ActivityState,
   AgentActivity,
+  AvailableUpdate,
   BackendInfo,
   BackendStatus,
   BootReason,
@@ -19,6 +20,7 @@ import type {
   Snapshot,
   StorageInfo,
   StorageSource,
+  UpdateStatus,
 } from '../domain';
 import { anyOf, arrayOf, boolean, nullable, number, objectOf, oneOf, string } from '../schema';
 import type { Schema } from '../schema';
@@ -107,6 +109,11 @@ export const storageInfoSchema = {
   defaultDataDir: string,
   source: oneOf<StorageSource>({ default: true, settings: true, env: true }),
 } satisfies Schema<StorageInfo>;
+
+export const updateStatusSchema = {
+  currentVersion: string,
+  latest: nullable(objectOf({ version: string, notes: string } satisfies Schema<AvailableUpdate>)),
+} satisfies Schema<UpdateStatus>;
 
 export const bootStatusSchema = {
   state: oneOf<BootState>({ ok: true, recovery: true }),

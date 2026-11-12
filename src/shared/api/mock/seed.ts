@@ -165,6 +165,7 @@ export function createSeedState(
     storage: bootFailure
       ? { dataDir: MOCK_BROKEN_DATA_DIR, defaultDataDir: MOCK_DEFAULT_DATA_DIR, source: 'settings' }
       : { dataDir: MOCK_DEFAULT_DATA_DIR, defaultDataDir: MOCK_DEFAULT_DATA_DIR, source: 'default' },
+    update: { currentVersion: '0.1.0', latest: null },
     nextSeq: messages.length + 1,
   };
 }

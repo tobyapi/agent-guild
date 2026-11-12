@@ -5,13 +5,23 @@ mod bootstrap;
 pub mod infrastructure;
 pub mod interface;
 
-use interface::commands::{agents, boot, channels, links, messages, profile, skills, snapshot, storage};
+use interface::commands::{agents, boot, channels, links, messages, profile, skills, snapshot, storage, update};
+use interface::state::BeforeUpdate;
+use tauri::Manager;
+
+/// 起動時の組み立て。更新を入れる直前の片付け（ランナーを止める）もここで渡す
+fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let handle = app.handle().clone();
+    app.manage(BeforeUpdate::new(move || bootstrap::stop_runner(handle.clone())));
+    bootstrap::setup(app)
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .setup(|app| bootstrap::setup(app))
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .setup(setup)
         .invoke_handler(tauri::generate_handler![
             boot::get_boot_status,
             boot::restart_app,
@@ -55,8 +65,15 @@ pub fn run() {
             storage::change_data_dir,
             storage::reveal_data_dir,
             links::open_url,
+            update::check_update,
+            update::install_update,
         ])
         .build(tauri::generate_context!());
+    start(app);
+}
+
+/// 窓を開いて動かす。終了時（再起動を含む）にランナーを止める
+fn start(app: tauri::Result<tauri::App>) {
     match app {
         Ok(app) => app.run(|handle, event| {
             if let tauri::RunEvent::Exit = event {

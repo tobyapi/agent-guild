@@ -19,6 +19,7 @@ import type {
   SkillLibrary,
   Snapshot,
   StorageInfo,
+  UpdateStatus,
 } from '@/shared/types/domain';
 
 /** 引数を取らないコマンド */
@@ -86,6 +87,10 @@ export interface CommandMap {
   restart_app: { args: NoArgs; result: null };
   /** OS の既定のブラウザでリンクを開く（http・https だけ。それ以外は validation） */
   open_url: { args: { url: string }; result: null };
+  /** 新しい版があるかを配布元（GitHub のリリース）に確かめる */
+  check_update: { args: NoArgs; result: UpdateStatus };
+  /** 新しい版をダウンロードし、署名を確かめて入れ、アプリを起動し直す */
+  install_update: { args: NoArgs; result: null };
 }
 
 export type CommandName = keyof CommandMap;
@@ -104,6 +109,8 @@ export const RECOVERY_COMMANDS = [
   'reveal_data_dir',
   'restart_app',
   'open_url',
+  'check_update',
+  'install_update',
 ] as const satisfies readonly CommandName[];
 
 export interface SkillsChanged {

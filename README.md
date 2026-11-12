@@ -52,7 +52,7 @@ npm run app
 | `npm run format` | コードを整形する（TS・CSS は Prettier、Rust は cargo fmt） |
 | `npm run check` | 整形の確認・型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
 
-GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
+GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。タグのビルドでは、自動アップデート用の署名と `latest.json` も作り、下書きのリリースに添付します。リリースを公開すると、配布済みのアプリが新しい版を見つけます（仕組みと手順は [docs/design.md](docs/design.md) の「アプリの更新」）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
 
 ローカルでは変更に関係するテスト・型チェック・lint だけを選びます。文書だけの変更は差分の確認で十分です。全チェックは CI を基本とし、広範囲の変更など必要なときに実行します。詳しくは [CLAUDE.md](CLAUDE.md) の「ローカルでの検証」を参照してください。
 
