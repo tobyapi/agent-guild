@@ -1,6 +1,5 @@
 // Claude で権限を守る仕組み: ファイル操作をパスで判定する canUseTool（守れない権限の組み合わせは rules.ts）。
 
-import { folderFileResult } from '../folder-scope.ts';
 import { divergentPathForm, globEscapeReason, strayPathField, toolPath, unsafePathForm } from '../tool-paths.ts';
 import { relative, resolve } from 'node:path';
 import type { CanUseTool, HookCallback, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
@@ -71,8 +70,6 @@ function fileDecision(request: RunRequest): FileDecision {
     (isMemory || permissions.writeFiles) &&
     (anywhere || (await insideRoots(target, [workspace])));
   return async (toolName, input) => {
-    const folder = await folderFileResult(request, toolName, input);
-    if (folder) return folder;
     const registered = registeredToolResult(toolName, permissions, input);
     if (registered) return registered;
     const target = targetOf(toolName, input, workspace);

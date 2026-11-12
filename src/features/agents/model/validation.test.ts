@@ -95,10 +95,11 @@ describe('agentErrorField', () => {
   });
 });
 
-it('Ollama でも権限は役割のまま保存し、道具は明示有効化した対応モデルだけで使う', () => {
+it('道具の利用を切り替えるバックエンドでも権限は役割のまま保存し、道具は明示有効化した対応モデルだけで使う', () => {
   const info: BackendInfo = {
     ...(BACKENDS[0] as BackendInfo),
     id: 'ollama',
+    toolsOption: 'enableTools',
     capabilities: allCapabilities,
     models: [{ id: 'small', label: 'small', description: '', efforts: [], defaultEffort: null, tools: true }],
     defaultModel: 'small',

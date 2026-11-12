@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { BackendRegistry } from './backends/registry.ts';
+import { PLAIN } from './backends/descriptor.test-support.ts';
 import { BackendError, type BackendAdapter, type BackendDescriptor } from './backends/types.ts';
 import { Dispatcher } from './dispatcher.ts';
 import { parseLine } from './line-parser.ts';
@@ -23,8 +24,8 @@ const INFO: BackendDescriptor = {
   permissionRules: [],
   leakRisks: [],
   unrestricted: [],
-  canLogin: false,
   midRunPost: 'tool',
+  ...PLAIN,
 };
 
 /** prompt で振る舞いを変える偽アダプタ */

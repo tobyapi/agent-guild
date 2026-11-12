@@ -21,8 +21,11 @@ export const BACKEND = {
   permissionRules: [{ when: 'writeFiles', requires: ['runCommands'] }],
   leakRisks: [['webFetch']],
   unrestricted: ['readAnywhere'],
-  canLogin: true,
   midRunPost: 'tool',
+  folderScope: 'sandbox',
+  toolsOption: null,
+  local: false,
+  setup: { install: null, start: null, login: { label: 'ログイン', waiting: 'ログインを待っています' }, apiKey: null },
   addedLater: true, // 未知のフィールドは無視されるはず
 };
 
@@ -61,7 +64,7 @@ function cancelJob(id, waiting) {
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
 }
 
-export function startFakeRunner({ protocolVersion = 2, sendReady = true, probeMode = 'reply' } = {}) {
+export function startFakeRunner({ protocolVersion = 3, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
   const handlers = {
     run: (request) => {

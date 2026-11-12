@@ -1,26 +1,13 @@
 import { Button, notifyError, notifyInfo, reportError, TextAreaField } from '@/shared/ui';
-import { settingsApi, type SetupBackend } from '../api';
+import type { BackendInfo, InstallGuide } from '@/shared/types/domain';
+import { settingsApi } from '../api';
 import { setUpBackend, useSettingsStore } from '../store';
 import styles from './SettingsDialog.module.css';
 
-const GUIDES = {
-  claude: {
-    label: 'Claude',
-    cli: 'Claude Code',
-    publisher: 'Anthropic',
-    command: 'curl -fsSL https://claude.ai/install.sh | bash',
-    docs: 'https://code.claude.com/docs/ja/quickstart',
-    login: 'claude auth login',
-  },
-  codex: {
-    label: 'Codex',
-    cli: 'Codex CLI',
-    publisher: 'OpenAI',
-    command: 'curl -fsSL https://chatgpt.com/codex/install.sh | sh',
-    docs: 'https://learn.chatgpt.com/docs/codex/cli#install-codex',
-    login: 'codex login',
-  },
-};
+/** 利用者がターミナルで実行するコマンド（公式のインストーラーを取得して、そのシェルで動かす） */
+function installCommand(guide: InstallGuide): string {
+  return `curl -fsSL ${guide.scriptUrl} | ${guide.shell.split('/').pop() ?? 'sh'}`;
+}
 
 async function copyInstallCommand(command: string) {
   try {
@@ -31,11 +18,11 @@ async function copyInstallCommand(command: string) {
   }
 }
 
-export function BackendInstallGuide({ backendId }: { backendId: SetupBackend }) {
+/** CLI のインストールの案内（インストールできると申告している、使えない状態のバックエンドに出す） */
+export function BackendInstallGuide({ backend, guide }: { backend: BackendInfo; guide: InstallGuide }) {
   const settingUp = useSettingsStore((state) => state.settingUpBackend);
-  const error = useSettingsStore((state) => state.setupErrors[backendId]);
-  const guide = GUIDES[backendId];
-  const inProgress = settingUp === backendId;
+  const error = useSettingsStore((state) => state.setupErrors[backend.id]);
+  const inProgress = settingUp === backend.id;
   const mac = typeof navigator !== 'undefined' && /Macintosh/.test(navigator.userAgent);
   return (
     <>
@@ -44,10 +31,10 @@ export function BackendInstallGuide({ backendId }: { backendId: SetupBackend }) 
           <Button
             size="sm"
             variant="primary"
-            onClick={() => void setUpBackend(backendId, guide.label)}
+            onClick={() => void setUpBackend(backend.id, backend.label)}
             disabled={settingUp !== null}
           >
-            {inProgress ? 'セットアップ中…' : error ? 'もう一度試す' : `${guide.label} をセットアップ`}
+            {inProgress ? 'セットアップ中…' : error ? 'もう一度試す' : `${backend.label} をセットアップ`}
           </Button>
           {inProgress && (
             <p className={styles.help} role="status">
@@ -62,7 +49,8 @@ export function BackendInstallGuide({ backendId }: { backendId: SetupBackend }) 
   );
 }
 
-function ManualInstallGuide({ guide }: { guide: (typeof GUIDES)[SetupBackend] }) {
+function ManualInstallGuide({ guide }: { guide: InstallGuide }) {
+  const command = installCommand(guide);
   return (
     <details>
       <summary className={styles.guideSummary}>{guide.cli} のインストール手順</summary>
@@ -73,7 +61,7 @@ function ManualInstallGuide({ guide }: { guide: (typeof GUIDES)[SetupBackend] })
         </p>
         <TextAreaField
           label="ターミナルで実行するコマンド（macOS・Linux）"
-          value={guide.command}
+          value={command}
           onChange={() => {}}
           onFocus={(event) => event.currentTarget.select()}
           rows={2}
@@ -81,16 +69,16 @@ function ManualInstallGuide({ guide }: { guide: (typeof GUIDES)[SetupBackend] })
           readOnly
         />
         <div className={styles.guideActions}>
-          <Button size="sm" onClick={() => void copyInstallCommand(guide.command)}>
+          <Button size="sm" onClick={() => void copyInstallCommand(command)}>
             コマンドをコピー
           </Button>
-          <Button size="sm" variant="link" onClick={() => void settingsApi.openUrl(guide.docs).catch(reportError)}>
+          <Button size="sm" variant="link" onClick={() => void settingsApi.openUrl(guide.docsUrl).catch(reportError)}>
             {guide.publisher} の公式手順（Windows も含む）
           </Button>
         </div>
         <p className={styles.help}>
           インストールが完了したら、この画面の「再確認」を押してください。ターミナルからログインする場合は、新しいターミナルで{' '}
-          <code>{guide.login}</code> を実行してください。
+          <code>{guide.loginCommand}</code> を実行してください。
         </p>
       </div>
     </details>

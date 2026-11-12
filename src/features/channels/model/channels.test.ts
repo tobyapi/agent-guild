@@ -1,19 +1,24 @@
 import { describe, expect, it } from 'vitest';
+import { backendInfo } from '@/shared/lib/backends.test-support';
 import type { Agent, AgentTemplate, Channel } from '@/shared/types/domain';
 import {
   addableAgents,
   channelErrorField,
   cleanChannelName,
+  folderScopeHint,
   memberGroups,
   resolveActiveChannel,
   validateChannelDraft,
   workingSummary,
 } from './channels';
+import type { ChannelDraft } from './channels';
 
 const channel = (id: string, memberIds: string[] = ['me']): Channel => ({
   id,
   name: id,
   topic: '',
+  isLobby: false,
+  workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
   memberIds,
   createdAt: 0,
 });
@@ -70,19 +75,37 @@ describe('workingSummary', () => {
   });
 });
 
+const draft = (fields: Partial<ChannelDraft>): ChannelDraft => ({
+  name: '',
+  topic: '',
+  memberIds: [],
+  workspaceMode: 'shared',
+  workspaceFolder: '',
+  ...fields,
+});
+
 describe('validateChannelDraft', () => {
+  it('指定フォルダを選んだら、作業フォルダは絶対パスで入れる', () => {
+    const folder = (workspaceFolder: string) => draft({ name: '企画', workspaceMode: 'folder', workspaceFolder });
+    expect(validateChannelDraft(folder(''))).toEqual({ workspaceFolder: '作業フォルダの絶対パスを入力してください' });
+    expect(validateChannelDraft(folder('projects/site'))).toHaveProperty('workspaceFolder');
+    expect(validateChannelDraft(folder('/projects/site'))).toEqual({});
+    expect(validateChannelDraft(folder('D:\\projects\\site'))).toEqual({});
+    expect(validateChannelDraft(draft({ name: '企画', workspaceFolder: 'projects/site' }))).toEqual({});
+  });
+
   it('名前は必須（先頭の # は外して数える）', () => {
     expect(cleanChannelName('  #企画 ')).toBe('企画');
-    expect(validateChannelDraft({ name: '#', topic: '', memberIds: [] })).toEqual({
+    expect(validateChannelDraft(draft({ name: '#', topic: '' }))).toEqual({
       name: 'チャンネル名を入力してください',
     });
-    expect(validateChannelDraft({ name: '企画', topic: '新しい企画', memberIds: [] })).toEqual({});
+    expect(validateChannelDraft(draft({ name: '企画', topic: '新しい企画' }))).toEqual({});
     expect(cleanChannelName('＃企画')).toBe('企画');
   });
 
   it('名前は40文字・話題は200文字まで（サーバと同じ上限）', () => {
-    expect(validateChannelDraft({ name: 'あ'.repeat(40), topic: 'い'.repeat(200), memberIds: [] })).toEqual({});
-    expect(validateChannelDraft({ name: 'あ'.repeat(41), topic: 'い'.repeat(201), memberIds: [] })).toEqual({
+    expect(validateChannelDraft(draft({ name: 'あ'.repeat(40), topic: 'い'.repeat(200) }))).toEqual({});
+    expect(validateChannelDraft(draft({ name: 'あ'.repeat(41), topic: 'い'.repeat(201) }))).toEqual({
       name: 'チャンネル名は40文字以内にしてください',
       topic: '話題は200文字以内にしてください',
     });
@@ -95,5 +118,26 @@ describe('channelErrorField', () => {
     expect(channelErrorField('topic')).toBe('topic');
     expect(channelErrorField(null)).toBeNull();
     expect(channelErrorField('memberIds')).toBeNull();
+  });
+});
+
+describe('folderScopeHint', () => {
+  it('バックエンドの申告から、指定フォルダで使えるものの案内を作る', () => {
+    const hint = folderScopeHint([
+      backendInfo({ label: 'Ollama', folderScope: 'files' }),
+      backendInfo({ label: 'Codex', folderScope: 'sandbox' }),
+      backendInfo({ label: 'Grok', folderScope: 'sandbox' }),
+      backendInfo({ label: 'Claude', folderScope: null }),
+    ]);
+    expect(hint).toContain('Ollamaは、ファイルの操作だけを使えます');
+    expect(hint).toContain('Codex・Grokは、コマンドも範囲の中で使えます');
+    expect(hint).toContain('Claudeは範囲を守れないため、このチャンネルでは実行しません');
+  });
+
+  it('当てはまるバックエンドがない行は出さない', () => {
+    const hint = folderScopeHint([backendInfo({ label: 'Codex', folderScope: 'sandbox' })]);
+    expect(hint).not.toContain('ファイルの操作だけ');
+    expect(hint).not.toContain('範囲を守れないため');
+    expect(folderScopeHint([])).toContain('同じフォルダを複数のチャンネルで共有できます');
   });
 });

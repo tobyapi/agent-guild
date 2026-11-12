@@ -13,7 +13,7 @@ type SystemCommands =
   | 'update_profile'
   | 'refresh_backends'
   | 'install_backend_cli'
-  | 'start_ollama'
+  | 'start_backend'
   | 'login_backend'
   | 'backend_api_key'
   | 'restart_app'
@@ -74,12 +74,13 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
   },
 
   install_backend_cli({ backendId }, runtime) {
-    if (backendId !== 'claude' && backendId !== 'codex') fail('validation', 'セットアップの対象が不正です');
+    const target = runtime.state.backends.find((backend) => backend.id === backendId);
+    if (!target?.setup.install) fail('validation', 'セットアップの対象が不正です');
     return new Promise<null>((resolve) => {
       runtime.env.schedule(PROBE_MS, () => {
         runtime.state.backends = runtime.state.backends.map((backend) =>
           backend.id === backendId && backend.status === 'unavailable'
-            ? { ...backend, status: 'needs_auth', statusMessage: 'ブラウザーでログインしてください。', canLogin: true }
+            ? { ...backend, status: 'needs_auth', statusMessage: 'ブラウザーでログインしてください。' }
             : backend,
         );
         emitStateChanged(runtime);
@@ -88,11 +89,14 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     });
   },
 
-  start_ollama(_args, runtime) {
+  start_backend({ backendId }, runtime) {
+    const target = runtime.state.backends.find((backend) => backend.id === backendId);
+    if (!target) fail('not_found', 'バックエンドが見つかりません');
+    if (!target.setup.start) fail('validation', `${target.label} はアプリから起動できません`);
     return new Promise<null>((resolve) => {
       runtime.env.schedule(PROBE_MS, () => {
         runtime.state.backends = runtime.state.backends.map((backend) =>
-          backend.id === 'ollama'
+          backend.id === backendId
             ? { ...backend, status: 'ready', statusMessage: 'この PC のモデルを使います。' }
             : backend,
         );
@@ -106,7 +110,7 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
   login_backend({ backendId }, runtime) {
     const backend = runtime.state.backends.find((item) => item.id === backendId);
     if (!backend) fail('not_found', 'バックエンドが見つかりません');
-    if (!backend.canLogin) fail('validation', `${backend.label} はアプリからログインできません`);
+    if (!backend.setup.login) fail('validation', `${backend.label} はアプリからログインできません`);
     runtime.env.schedule(LOGIN_MS, () => {
       runtime.state.backends = runtime.state.backends.map((item) =>
         item.id === backendId ? { ...item, status: 'ready', statusMessage: '' } : item,

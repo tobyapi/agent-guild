@@ -8,7 +8,9 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use guild_application::ports::{AgentRuntime, RunUpdate, RuntimeError, RuntimeRequest, UpdateSink};
 use guild_domain::agent::Permissions;
-use guild_domain::backend::{BackendInfo, BackendStatus, RuntimeState, RuntimeStatus};
+use guild_domain::backend::{
+    BackendInfo, BackendSetup, BackendStatus, InstallGuide, LoginSpec, RuntimeState, RuntimeStatus, StartSpec,
+};
 use guild_domain::statistics::RunUsage;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
@@ -99,8 +101,16 @@ pub fn ready_backend(id: &str) -> BackendInfo {
         permission_rules: Vec::new(),
         leak_risks: Vec::new(),
         unrestricted: Vec::new(),
-        can_login: true,
         mid_run_post: None,
+        folder_scope: None,
+        tools_option: None,
+        local: false,
+        setup: BackendSetup {
+            login: Some(LoginSpec {
+                label: "ログイン".to_owned(), waiting: "ログインを待っています".to_owned()
+            }),
+            ..BackendSetup::default()
+        },
     }
 }
 
@@ -167,8 +177,20 @@ impl AgentRuntime for FakeRuntime {
         Ok(())
     }
 
+    async fn install_cli(&self, _guide: &InstallGuide) -> Result<(), RuntimeError> {
+        Ok(())
+    }
+
+    async fn start(&self, _label: &str, _spec: &StartSpec) -> Result<(), RuntimeError> {
+        Ok(())
+    }
+
     async fn login(&self, backend: &str) -> Result<(), RuntimeError> {
         self.logins.lock().push(backend.to_owned());
         Ok(())
+    }
+
+    async fn api_key(&self, _backend: &str, _action: &str, _key: Option<&str>) -> Result<String, RuntimeError> {
+        Ok(String::new())
     }
 }

@@ -12,7 +12,8 @@ interface RuntimeStoreState {
   activityRevision: number;
   /** 「再確認」の結果を取得するまで */
   checkingBackends: boolean;
-  startingOllama: boolean;
+  /** 起動を待っているバックエンド（［起動］を押してから、使えるようになるまで） */
+  startingBackend: string | null;
   /** ログイン中のバックエンド（［ログイン］を押してから、窓が閉じるまで） */
   loggingIn: string | null;
 }
@@ -23,7 +24,7 @@ export const useRuntimeStore = create<RuntimeStoreState>()(() => ({
   activity: { activities: [], queues: [] },
   activityRevision: 0,
   checkingBackends: false,
-  startingOllama: false,
+  startingBackend: null,
   loggingIn: null,
 }));
 
@@ -55,8 +56,8 @@ export function setActivity(activity: ActivityState): void {
 }
 
 export async function refreshBackends(): Promise<void> {
-  const { checkingBackends, startingOllama } = useRuntimeStore.getState();
-  if (checkingBackends || startingOllama) return;
+  const { checkingBackends, startingBackend } = useRuntimeStore.getState();
+  if (checkingBackends || startingBackend !== null) return;
   useRuntimeStore.setState({ checkingBackends: true });
   try {
     await runtimeApi.refreshBackends();
@@ -67,15 +68,15 @@ export async function refreshBackends(): Promise<void> {
   }
 }
 
-export async function startOllama(): Promise<void> {
-  const { checkingBackends, startingOllama } = useRuntimeStore.getState();
-  if (checkingBackends || startingOllama) return;
-  useRuntimeStore.setState({ startingOllama: true });
+export async function startBackend(backendId: string): Promise<void> {
+  const { checkingBackends, startingBackend } = useRuntimeStore.getState();
+  if (checkingBackends || startingBackend !== null) return;
+  useRuntimeStore.setState({ startingBackend: backendId });
   try {
-    await runtimeApi.startOllama();
+    await runtimeApi.startBackend(backendId);
     await applyLatestBackendSnapshot();
   } finally {
-    useRuntimeStore.setState({ startingOllama: false });
+    useRuntimeStore.setState({ startingBackend: null });
   }
 }
 

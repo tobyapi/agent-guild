@@ -50,6 +50,7 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
     const channel: Channel = {
       id: runtime.env.newId(),
       isLobby: false,
+      workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
       ...cleanFields(name, topic),
       memberIds: [HUMAN_ID, ...agentIds],
       createdAt: runtime.env.now(),
@@ -68,14 +69,15 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
 
   set_channel_workspace({ id, mode, folder }, runtime) {
     const channel = requireChannel(runtime, id);
-    if (!['legacy', 'folder', 'global'].includes(mode)) fail('validation', '作業範囲を選んでください');
+    if (!['shared', 'folder', 'global'].includes(mode)) fail('validation', '作業範囲を選んでください');
     if (mode === 'folder' && (!folder?.trim() || !/^(?:\/|[A-Za-z]:[\\/])/.test(folder)))
       fail('validation', '作業フォルダの絶対パスを入力してください');
     if (mode !== 'folder' && folder !== null) fail('validation', 'フォルダモード以外では割り当てを空にしてください');
+    if (channel.workspace.mode === mode && channel.workspace.folder === folder) return channel;
     channel.workspace = {
       mode,
       folder,
-      revision: (channel.workspace?.revision ?? 0) + 1,
+      revision: channel.workspace.revision + 1,
       afterSeq: Math.max(0, ...runtime.state.messages.filter((m) => m.channelId === id).map((m) => m.seq)),
     };
     emitStateChanged(runtime);

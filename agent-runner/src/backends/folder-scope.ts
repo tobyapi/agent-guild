@@ -1,36 +1,31 @@
-import { lstat, opendir, realpath } from 'node:fs/promises';
+// 指定フォルダのチャンネル（依頼に writableDirs が付く）の範囲の確認。どのバックエンドがどう守るかは、アダプタの申告
+// （BackendInfo.folderScope）で決まる。ここにはバックエンドの ID による分岐を置かない。
+import { lstat, realpath } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
-import type { HookCallback, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
-import { isJsonObject } from '../line-parser.ts';
-import { BackendError, isInside, type BackendAdapter, type RunRequest } from './types.ts';
-
-const READ = new Set(['Read', 'Grep', 'Glob', 'LS']);
-const WRITE = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+import { BackendError, isInside, type BackendDescriptor, type RunRequest } from './types.ts';
 
 /**
- * 指定フォルダの依頼は、範囲の守り方を申告したアダプタ（folderScope を持つもの）だけが受ける。Dispatcher が実行の前に呼ぶ。
- * 申告のないアダプタには渡さない（指定フォルダの依頼を、黙って範囲の外で動かさない）
+ * 指定フォルダの依頼を、申告された守り方で受けられるか確かめる（Dispatcher が実行の前に呼ぶ）。守り方を申告していない
+ * バックエンドには渡さない（指定フォルダの依頼を、黙って範囲の外で動かさない）
  */
-export function assertAdapterFolderScope(adapter: BackendAdapter, request: RunRequest): void {
+export function assertBackendFolderScope(info: BackendDescriptor, request: RunRequest): void {
   if (request.writableDirs === undefined) return;
-  if (adapter.folderScope === undefined)
-    throw new BackendError('unsupported_permission', 'このバックエンドはフォルダ制限に未対応です');
-  adapter.folderScope(request);
+  if (info.folderScope === null) {
+    throw new BackendError(
+      'unsupported_permission',
+      `${info.label} は範囲を守れないため、指定フォルダのチャンネルでは実行できません`,
+    );
+  }
+  if (info.folderScope === 'files') assertFolderScope(request);
+  else assertSandboxedFolderScope(request);
 }
 
 /**
- * 道具ごとにパスを確かめて範囲を守るバックエンド（Ollama）の、指定フォルダの依頼の確認。コマンドとスキルは確認を
- * すり抜けるので両立しない。Claude は同じ方式では守れないので、理由を付けて断る
+ * ファイルの道具ごとにパスを確かめて範囲を守るバックエンド（folderScope: 'files'）の、指定フォルダの依頼の確認。
+ * コマンドとスキルは確認をすり抜けるので、PC 全体の読み書きと合わせて両立しない
  */
 export function assertFolderScope(request: RunRequest): void {
   if (request.writableDirs === undefined) return;
-  if (request.backend === 'claude')
-    throw new BackendError(
-      'unsupported_permission',
-      'Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません',
-    );
-  if (request.backend !== 'ollama')
-    throw new BackendError('unsupported_permission', 'このバックエンドはフォルダ制限に未対応です');
   if (
     request.permissions.readAnywhere ||
     request.permissions.writeAnywhere ||
@@ -43,8 +38,8 @@ export function assertFolderScope(request: RunRequest): void {
 }
 
 /**
- * シェルごと OS の隔離に入れて範囲を守るバックエンド（Codex 系）の、指定フォルダの依頼の確認。道具ごとのパスの判定は
- * しないので、コマンドは使ってよい。PC 全体の読み書きとは両立しない
+ * シェルごと OS の隔離に入れて範囲を守るバックエンド（folderScope: 'sandbox'）の、指定フォルダの依頼の確認。道具ごとの
+ * パスの判定はしないので、コマンドは使ってよい。PC 全体の読み書きとは両立しない
  */
 export function assertSandboxedFolderScope(request: RunRequest): void {
   if (request.writableDirs === undefined) return;
@@ -54,7 +49,7 @@ export function assertSandboxedFolderScope(request: RunRequest): void {
     throw new BackendError('bad_request', 'フォルダ制限には絶対パスが必要です');
 }
 
-/** Resolve missing file tails without accepting dangling symlinks. */
+/** まだないファイルは、いちばん近い既存の親まで実体を解決する。壊れたリンクは受け付けない */
 async function physical(path: string): Promise<string> {
   try {
     return await realpath(path);
@@ -69,6 +64,10 @@ async function physical(path: string): Promise<string> {
   }
 }
 
+/**
+ * 指定フォルダの範囲の中のパスなら、その実体のパスを返す（外・相談相手のメモ・特殊ファイル・ハードリンクは BackendError）。
+ * write は書き込み先として確かめる
+ */
 export async function scopedTarget(request: RunRequest, path: string, write: boolean): Promise<string> {
   const lexical = resolve(request.workspace, path);
   const roots = [request.workspace, ...(write ? (request.writableDirs ?? []) : request.readableDirs)];
@@ -77,7 +76,7 @@ export async function scopedTarget(request: RunRequest, path: string, write: boo
     roots.map(async (root) => isInside(lexical, root) && isInside(actual, await realpath(root))),
   );
   if (!approved.some(Boolean)) throw new BackendError('unsupported_permission', 'チャンネルの作業範囲外です');
-  // Consultation grants artifacts, never another agent's private memory.
+  // 相談で読めるのは成果物だけで、相談相手のメモ（MEMORY.md）は読ませない
   const writable = [request.workspace, ...(request.writableDirs ?? [])];
   for (const root of request.readableDirs) {
     if (!writable.includes(root) && actual === join(await realpath(root), 'MEMORY.md'))
@@ -94,66 +93,4 @@ async function ordinaryFile(actual: string, write: boolean): Promise<void> {
   });
   if (info && ((!info.isFile() && !info.isDirectory()) || (info.isFile() && info.nlink > 1)))
     throw new BackendError('unsupported_permission', '特殊ファイルやハードリンクは扱えません');
-}
-
-function checkGlob(tool: string, input: Record<string, unknown>): void {
-  if (tool !== 'Glob') return;
-  if (typeof input.pattern !== 'string' || isAbsolute(input.pattern) || /\.\.|[\\{}~]/.test(input.pattern))
-    throw new BackendError('unsupported_permission', 'Globには起点内の相対パターンを指定してください');
-}
-
-async function inspect(request: RunRequest, path: string, state = { count: 0 }, depth = 0): Promise<void> {
-  if (++state.count > 10000 || depth > 64)
-    throw new BackendError('unsupported_permission', '検索の点検上限です。起点を狭いフォルダにしてください');
-  await scopedTarget(request, path, false);
-  const info = await lstat(path);
-  if (info.isSymbolicLink())
-    throw new BackendError('unsupported_permission', 'リンクを含むフォルダの一括検索は使えません');
-  if (info.isDirectory())
-    for await (const entry of await opendir(path)) await inspect(request, join(path, entry.name), state, depth + 1);
-}
-
-export async function folderFileResult(
-  request: RunRequest,
-  tool: string,
-  input: Record<string, unknown>,
-): Promise<PermissionResult | null> {
-  if (request.writableDirs === undefined || (!READ.has(tool) && !WRITE.has(tool))) return null;
-  try {
-    assertFolderScope(request);
-    const write = WRITE.has(tool);
-    const field = ['file_path', 'notebook_path', 'path'].find(
-      (key) => typeof input[key] === 'string' && input[key] !== '',
-    );
-    const path = field ? (input[field] as string) : request.workspace;
-    const memory = resolve(request.workspace, path) === join(request.workspace, 'MEMORY.md');
-    if (!(write ? request.permissions.writeFiles : request.permissions.readFiles) && !memory)
-      throw new BackendError('unsupported_permission', 'この役割では操作できません');
-    checkGlob(tool, input);
-    const target = await scopedTarget(request, path, write);
-    if (['Grep', 'Glob', 'LS'].includes(tool)) await inspect(request, target);
-    return { behavior: 'allow', updatedInput: { ...input, [field ?? 'path']: target } };
-  } catch (error) {
-    return {
-      behavior: 'deny',
-      message: error instanceof BackendError ? error.message : 'チャンネルの作業範囲を確認できませんでした',
-    };
-  }
-}
-
-/** Covers SDK auto-approved file calls as well as canUseTool. */
-export function folderFileHook(request: RunRequest): HookCallback {
-  return async (input) => {
-    if (input.hook_event_name !== 'PreToolUse' || !isJsonObject(input.tool_input)) return {};
-    const result = await folderFileResult(request, input.tool_name, input.tool_input);
-    if (!result) return {};
-    return {
-      hookSpecificOutput: {
-        hookEventName: 'PreToolUse',
-        ...(result.behavior === 'deny'
-          ? { permissionDecision: 'deny', permissionDecisionReason: result.message }
-          : { updatedInput: result.updatedInput }),
-      },
-    };
-  };
 }

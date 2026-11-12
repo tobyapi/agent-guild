@@ -18,7 +18,6 @@ import type { MockHandlers, MockRuntime } from './handlers/types';
 import { defaultEnv, emitStateChanged, fail } from './runtime';
 import type { MockEnv } from './runtime';
 import { createSeedState } from './seed';
-import { migrateLobby } from './lobby';
 
 const handlers: MockHandlers = {
   ...systemHandlers,
@@ -109,7 +108,6 @@ function startRunner(runtime: MockRuntime, startupMs: number, failure: string | 
 export function createMockTransport(options: MockTransportOptions = {}): Transport {
   const env: MockEnv = { ...defaultEnv(), ...options.env };
   const state = createSeedState(env.now(), options.bootFailure ?? null, options.demo ?? false);
-  migrateLobby(state);
   if (options.emptySkillLibrary) state.skillLibraryDirs = [];
   if (options.updateAvailable) state.update = { ...state.update, latest: MOCK_UPDATE };
   if (options.firstRun && state.boot.state === 'ok') state.boot = { ...state.boot, needsSetup: true };

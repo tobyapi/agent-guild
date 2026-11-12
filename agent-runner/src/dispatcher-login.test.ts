@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BackendRegistry } from './backends/registry.ts';
-import { BackendError, type BackendAdapter, type BackendDescriptor, type LoginContext } from './backends/types.ts';
+import {
+  NO_SETUP,
+  BackendError,
+  type BackendAdapter,
+  type BackendDescriptor,
+  type LoginContext,
+} from './backends/types.ts';
 import { Dispatcher } from './dispatcher.ts';
 import { parseLine } from './line-parser.ts';
 import type { RunnerEvent } from './protocol.ts';
@@ -23,15 +29,18 @@ const INFO: BackendDescriptor = {
   permissionRules: [],
   leakRisks: [],
   unrestricted: [],
-  canLogin: true,
   midRunPost: null,
+  folderScope: null,
+  toolsOption: null,
+  local: false,
+  setup: { ...NO_SETUP, login: { label: 'ログイン', waiting: 'ログインを待っています' } },
 };
 
 /** ログインの成り行きを外から決める偽アダプタ（ログインが済むと状態が ready になる） */
 function loginAdapter(outcome: (context: LoginContext) => Promise<void>, canLogin = true): BackendAdapter {
   let loggedIn = false;
   return {
-    info: () => ({ ...INFO, canLogin }),
+    info: () => (canLogin ? INFO : { ...INFO, setup: NO_SETUP }),
     probe: () =>
       Promise.resolve(
         loggedIn
@@ -69,7 +78,9 @@ describe('Dispatcher の login', () => {
     receive(LOGIN);
     await flush();
     expect(events.map((event) => event.type)).toEqual(['backends', 'result']);
-    expect(events[0]).toMatchObject({ backends: [{ id: 'fake', status: 'ready', canLogin: true }] });
+    expect(events[0]).toMatchObject({
+      backends: [{ id: 'fake', status: 'ready', setup: { login: { label: 'ログイン' } } }],
+    });
     expect(events[1]).toEqual({ type: 'result', id: 'login-1', text: '' });
   });
 
@@ -83,7 +94,7 @@ describe('Dispatcher の login', () => {
     expect(events[1]).toEqual({ type: 'error', id: 'login-1', code: 'auth', message: '完了しませんでした' });
   });
 
-  it('canLogin でないバックエンドと未知のバックエンドは受け付けない', async () => {
+  it('ログインを申告していないバックエンドと未知のバックエンドは受け付けない', async () => {
     const { events, receive } = setup(loginAdapter(() => Promise.resolve(), false));
     receive(LOGIN);
     receive({ ...LOGIN, id: 'login-2', backend: 'nope' });

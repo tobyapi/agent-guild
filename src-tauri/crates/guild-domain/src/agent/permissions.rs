@@ -44,7 +44,6 @@ pub struct Permissions {
     pub web_search: bool,
     pub web_fetch: bool,
     pub read_files: bool,
-    #[serde(default)]
     pub read_anywhere: bool,
     pub write_files: bool,
     pub write_anywhere: bool,
@@ -106,18 +105,9 @@ impl Permissions {
 /// 役割の権限のうち、このエージェントのバックエンドが実際に使える操作（役割の権限を超えない）。
 /// 保存済みの個別権限には依存しない。
 pub fn effective_permissions(agent: &Agent, backend: Option<&BackendInfo>) -> Permissions {
-    if agent.backend == "ollama" && !ollama_tools_enabled(&agent.backend_options, &agent.model, backend) {
+    // 道具の利用を切り替えるバックエンドでは、有効にしていて、モデルが道具に対応しているときだけ使える（それまでは会話専用）
+    if backend.is_some_and(|info| !info.tools_enabled(&agent.backend_options, &agent.model)) {
         return Permissions::default();
     }
     usable_permissions(agent.behavior().permissions, backend)
-}
-
-/// 保存値がない既存エージェントは会話専用のまま。能力が不明なモデルも拒否する。
-pub(super) fn ollama_tools_enabled(
-    options: &serde_json::Map<String, serde_json::Value>,
-    model: &str,
-    backend: Option<&BackendInfo>,
-) -> bool {
-    options.get("enableTools").and_then(serde_json::Value::as_bool) == Some(true)
-        && backend.and_then(|info| info.model_spec(model)).and_then(|spec| spec.tools) == Some(true)
 }

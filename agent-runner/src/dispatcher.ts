@@ -1,4 +1,4 @@
-import { assertAdapterFolderScope } from './backends/folder-scope.ts';
+import { assertBackendFolderScope } from './backends/folder-scope.ts';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
@@ -68,9 +68,15 @@ export class Dispatcher {
   #handle(request: RunnerRequest): void {
     if (request.type === 'run') this.#run(request);
     else if (request.type === 'apiKey') {
-      if (!this.#claim(request.id, request.backend)) return;
+      const info = this.#claim(request.id, request.backend)?.info();
+      if (!info) return;
+      const spec = info.setup.apiKey;
+      if (spec === null) {
+        this.#fail(request.id, 'bad_request', `${info.label} は API キーを保存できません`);
+        return;
+      }
       this.#track(request.id, async () => {
-        const status = await manageApiKey(request.backend, request.action, request.key);
+        const status = await manageApiKey(request.backend, spec.envVar, request.action, request.key);
         await this.#probe();
         return status;
       });
@@ -111,7 +117,7 @@ export class Dispatcher {
       const send = (event: RunnerEvent): void => {
         if (isCurrent()) this.#options.send(event);
       };
-      assertAdapterFolderScope(adapter, request);
+      assertBackendFolderScope(adapter.info(), request);
       // 依頼の権限は役割で決まる（バックエンドでは変わらない）。アダプタには、その中でこのバックエンドが守れる操作だけを渡す
       return adapter.run(usableRequest(request, adapter.info()), {
         signal,
@@ -127,7 +133,7 @@ export class Dispatcher {
     const adapter = this.#claim(id, backend);
     if (!adapter) return;
     const { login } = adapter;
-    if (!login || !adapter.info().canLogin) {
+    if (!login || adapter.info().setup.login === null) {
       this.#fail(id, 'bad_request', `${adapter.info().label} はアプリからログインできません`);
       return;
     }

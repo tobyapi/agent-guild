@@ -23,8 +23,11 @@ const backend = (overrides: Partial<BackendInfo>): BackendInfo => ({
   permissionRules: [],
   leakRisks: [],
   unrestricted: [],
-  canLogin: false,
   midRunPost: 'text',
+  folderScope: null,
+  toolsOption: null,
+  local: false,
+  setup: { install: null, start: null, login: null, apiKey: null },
   ...overrides,
 });
 

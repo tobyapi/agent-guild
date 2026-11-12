@@ -23,7 +23,7 @@ pub trait EventPublisher: Send + Sync {
     fn delegation_changed(&self, delegation: &Delegation);
 }
 
-/// エージェントの作業場所（agents/<id>/work）とアダプタの管理領域（agents/<id>/state/<backend>）
+/// エージェントの作業場所（共通は agents/<id>/work、チャンネル専用は agents/<id>/channels/…/work）とアダプタの管理領域
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkspacePaths {
     pub work: PathBuf,
@@ -31,25 +31,21 @@ pub struct WorkspacePaths {
 }
 
 pub trait Workspace: Send + Sync {
-    fn validate_folder(&self, _folder: &str) -> AppResult<String> {
-        Err(crate::error::AppError::validation("フォルダ割り当てに対応していません"))
-    }
+    /// チャンネルに割り当てるフォルダを確かめ、正規化したパスを返す（実在する絶対パスで、データフォルダと重ならないこと）
+    fn validate_folder(&self, folder: &str) -> AppResult<String>;
+    /// チャンネル専用の作業場所（agents/<id>/channels/<channel>/<revision>/work）と管理領域を、実行の前に用意する
     fn prepare_scoped(
         &self,
-        _agent: &AgentId,
-        _backend: &str,
-        _channel: &ChannelId,
-        _scope: &ChannelWorkspace,
-    ) -> AppResult<WorkspacePaths> {
-        Err(crate::error::AppError::validation("チャンネル別作業場所に対応していません"))
-    }
-    fn scoped_work_dir(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> PathBuf {
-        PathBuf::new()
-    }
-    fn read_scoped_memory(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> AppResult<String> {
-        Ok(String::new())
-    }
-    /// 実行の前に用意する: work/ を作り、state/<backend>/ を作り直す
+        agent: &AgentId,
+        backend: &str,
+        channel: &ChannelId,
+        scope: &ChannelWorkspace,
+    ) -> AppResult<WorkspacePaths>;
+    /// チャンネル専用の work/ の場所（作らない。相談相手に読ませるときに使う）
+    fn scoped_work_dir(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> PathBuf;
+    /// チャンネル専用の work/MEMORY.md の内容（なければ空）
+    fn read_scoped_memory(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> AppResult<String>;
+    /// エージェント共通の作業場所を、実行の前に用意する: work/ を作り、state/<backend>/ を作り直す
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths>;
     /// work/ の場所（作らない。相談相手に読ませるときに使う）
     fn work_dir(&self, agent: &AgentId) -> PathBuf;

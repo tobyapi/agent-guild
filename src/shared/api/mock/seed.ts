@@ -144,6 +144,7 @@ export function createSeedState(
         id: SEED_IDS.lobby,
         name: 'ロビー',
         isLobby: true,
+        workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
         topic: 'みんなの雑談と相談の場',
         memberIds: [HUMAN_ID, ...agents.map((agent) => agent.id)],
         createdAt,

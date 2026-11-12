@@ -24,6 +24,7 @@ import type {
 } from '../domain';
 import { anyOf, arrayOf, boolean, nullable, number, objectOf, oneOf, string } from '../schema';
 import type { Schema } from '../schema';
+import { backendSetupSchema, folderScope } from './backendSetup';
 import {
   agentSchema,
   agentTemplateSchema,
@@ -68,8 +69,11 @@ export const backendInfoSchema = {
   permissionRules: arrayOf(objectOf(permissionRuleSchema)),
   leakRisks: arrayOf(arrayOf(permissionKey)),
   unrestricted: arrayOf(permissionKey),
-  canLogin: boolean,
   midRunPost: nullable(oneOf<MidRunPost>({ tool: true, text: true })),
+  folderScope: nullable(folderScope),
+  toolsOption: nullable(string),
+  local: boolean,
+  setup: objectOf(backendSetupSchema),
 } satisfies Schema<BackendInfo>;
 
 export const runtimeStatusSchema = {

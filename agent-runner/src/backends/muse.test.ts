@@ -1,5 +1,5 @@
 vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: (_backend: string, env = process.env) => Promise.resolve(env),
+  apiKeyEnvironment: (_backend: string, _envVar: string, env = process.env) => Promise.resolve(env),
 }));
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { museAdapter, museProvider } from './muse.ts';
@@ -46,7 +46,8 @@ describe('Muse Spark provider', () => {
   it('publishes model selection and unsupported capabilities', async () => {
     expect(museAdapter.info()).toMatchObject({
       id: 'muse',
-      canLogin: false,
+      folderScope: 'sandbox',
+      setup: { apiKey: { envVar: 'MODEL_API_KEY' } },
       capabilities: { webSearch: false },
       midRunPost: 'text',
     });

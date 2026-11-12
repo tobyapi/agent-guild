@@ -27,7 +27,7 @@ export const agentHandlers: HandlerGroup<AgentCommands> = {
     runtime.state.agents.push(agent);
     addRoleSkills(runtime, agent);
     // 表示名に依存せず、保存されたロビーフラグで探す。
-    const lobby = runtime.state.channels.find((channel) => channel.isLobby === true);
+    const lobby = runtime.state.channels.find((channel) => channel.isLobby);
     if (lobby && !lobby.memberIds.includes(agent.id)) joinChannel(runtime, lobby, agent);
     emitStateChanged(runtime);
     return agent;

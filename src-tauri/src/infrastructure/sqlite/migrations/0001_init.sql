@@ -1,5 +1,5 @@
--- AIギルドのスキーマ 0001。リリース前はこの1本を直接書き換える（指紋が変わるとデバッグビルドは作り直す）。
--- リリース時に凍結し、以後は 0002 以降を追記する。meta 表は移行の仕組み（migrations.rs）が作る。
+-- AIギルドのスキーマ 0001。凍結済み: この内容は書き換えない（配布済みのアプリのデータベースと指紋が合わなくなる）。
+-- スキーマを変えるときは 0002 以降を追記する。meta 表は移行の仕組み（migrations.rs）が作る。
 
 CREATE TABLE agents (
   id TEXT PRIMARY KEY,
@@ -42,9 +42,10 @@ CREATE TABLE skills (
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   body TEXT NOT NULL,
-  -- linked のスキルの参照先（SKILL.md があるフォルダの絶対パス）。アプリ内のスキルは NULL。
-  -- linked の name・description・body は追加した時点の写しで、実行のたびに読み直した SKILL.md が正
-  source_path TEXT,
+  -- スキルの出どころ（SkillSource の JSON。{"kind":"linked","path":…} / {"kind":"builtin","name":…}）。アプリ内のスキルは NULL。
+  -- linked・builtin の name・description・body は追加した時点の写しで、実行のたびに読み直した参照先
+  -- （ライブラリの SKILL.md・同梱の内蔵スキル）が正
+  source TEXT,
   updated_at INTEGER NOT NULL,
   UNIQUE (agent_id, name)
 );
@@ -53,7 +54,11 @@ CREATE TABLE channels (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   topic TEXT NOT NULL,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  -- 最初からあるロビー（消せない。0/1）
+  is_lobby INTEGER NOT NULL CHECK (is_lobby IN (0, 1)),
+  -- JSON オブジェクト（ChannelWorkspace。作業範囲: mode・folder・revision・afterSeq）
+  workspace_json TEXT NOT NULL
 );
 
 -- 参加順は rowid の順
@@ -120,3 +125,17 @@ CREATE TABLE profile (
   avatar TEXT NOT NULL,
   color TEXT NOT NULL
 );
+
+-- 実行ごとの計測（運用統計。モデル別の時間・トークン数・推定費用）
+CREATE TABLE run_measurements (
+  job_id TEXT PRIMARY KEY,
+  channel_id TEXT NOT NULL REFERENCES channels (id) ON DELETE CASCADE,
+  backend TEXT NOT NULL,
+  model TEXT,
+  started_at INTEGER NOT NULL,
+  duration_ms INTEGER NOT NULL,
+  input_tokens INTEGER,
+  output_tokens INTEGER,
+  estimated_cost_nano_usd INTEGER
+);
+CREATE INDEX run_measurements_channel_model ON run_measurements (channel_id, backend, model);

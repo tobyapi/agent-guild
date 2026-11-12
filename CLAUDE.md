@@ -26,8 +26,12 @@
 
 ## 開発方針
 
-- 拡張性と互換性の保ちやすさが最優先。ただし**リリース前の今は後方互換のコードを書かない**。より良い形があれば壊して作り直す（DB マイグレーションも 0001 を直接書き換える）。
-- 互換性の境界（データフォルダ・スキル形式）には版管理の仕組みを最初から持たせる。IPC とランナープロトコルは同梱の内部契約で、文書とフィクスチャを常に正しく保つ。
+- 拡張性と互換性の保ちやすさが最優先。**後方互換を保つ**: 配布済みのアプリが保存したデータ（データフォルダ・SQLite・settings.json）とスキル形式を、新しい版で開けなくしない。
+  - DB のスキーマは、マイグレーションを追記して変える。`migrations/` の既存のファイルは書き換えない（0001 は凍結済み。指紋を固定するテストがある）。
+  - 保存する値の形（JSON の列・settings.json・guild-data.json）を変えるときは、古い形も読めるようにするか、マイグレーションで直す。
+  - 互換のために残すコードには、何のためのものかと、消せる条件をコメントに書く。
+- 互換性の境界（データフォルダ・スキル形式）は版管理の仕組みで守る。IPC とランナープロトコルは、同じアプリに同梱して同時に出荷する内部契約なので、互換を保たずに変えてよい。ただし文書とフィクスチャを常に正しく保つ。
+- バックエンドごとの違いは、アダプタの申告（`BackendInfo`。能力・設定項目・指定フォルダの守り方・セットアップなど）で表す。Rust と React では、バックエンドの ID で分岐しない（新しいバックエンドは、agent-runner にアダプタを足すだけで済ませる）。
 - 契約（domain.ts・protocol.ts・design.md の表）を変えたら、`contracts/` のフィクスチャと両側の型を同じ変更で直す。
 - Rust と TS の両方に実装がある規則（メンション解析・tasks ブロックの読み取り・お知らせの文面）は Rust が正。変えたら、`contracts/behavior/` の実例と、TS 側（`src/shared/lib/`・モック）を同じ変更で直す。
 
@@ -55,7 +59,7 @@
 - 依存の向き `guild-domain` ← `guild-application` ← 本体（infrastructure / interface / bootstrap）は**クレートの依存で強制**する。guild-domain と guild-application の依存は architecture.md の許可リストの範囲だけ（arch-harness が Cargo.toml を検査）。
 - 本体の中: `interface` は `infrastructure`・`bootstrap` を参照しない。`infrastructure` は `interface`・`bootstrap` を参照しない。組み立ては `bootstrap/`・`lib.rs`・`main.rs` だけ。
 - `#[tauri::command]` は `src/interface/commands/` だけ。`rusqlite` は `src/infrastructure/sqlite/` だけ。`runner_client` は `src/infrastructure/runtime/` だけ。
-- 権限と基本の役割の指示は先頭タグに対応する役割の表から決める（`agent/permission_policy.rs`）。バックエンドの制約は許可を広げず解決する。会話の振り分けは本人の設定（unmentioned・consultable・canDelegate・autonomyEnabled）で決める。タグの文字列やテンプレート ID をハードコードして分岐しない（ID は `agent/templates.rs` の表だけ。arch-harness が検査）。
+- 権限と基本の役割の指示は先頭タグに対応する役割の表から決める（`agent/permission_policy.rs`）。バックエンドの制約は許可を広げず解決する。会話の振り分けは本人の設定（unmentioned・consultable・canDelegate・autonomyEnabled）で決める。タグの文字列やテンプレート ID をハードコードして分岐しない（ID は `agent/templates.rs` の表だけ。arch-harness が検査）。バックエンドの ID でも分岐しない（`BackendInfo` の申告を見る）。
 - コマンドはすべて async。タスクの生成は Spawner ポート経由。parking_lot のガードを await をまたいで持たない。
 - 本番コードで `unwrap()` / `expect()` を使わない（テストは可）。
 - clippy: 関数60行まで、認知的複雑度15まで（src-tauri/clippy.toml）。`cargo clippy --workspace --all-targets -- -D warnings` が通ること。

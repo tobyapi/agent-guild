@@ -3,7 +3,15 @@
 // environment.ts・executables.ts・skill-files.ts（と skill-files/）に置く。
 
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import type { BackendInfo, ErrorCode, PermissionRule, Permissions, RunnerRequest, RunUsage } from '../protocol.ts';
+import type {
+  BackendInfo,
+  BackendSetup,
+  ErrorCode,
+  PermissionRule,
+  Permissions,
+  RunnerRequest,
+  RunUsage,
+} from '../protocol.ts';
 
 /** 検証済みの run 要求 */
 export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
@@ -13,6 +21,9 @@ export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage' | '
 export type BackendProbe = Pick<BackendInfo, 'status' | 'statusMessage'> & Partial<ModelCatalog>;
 /** 選べるモデルと、モデルを選ばないときのモデル（probe のたびに聞き直す） */
 export type ModelCatalog = Pick<BackendInfo, 'models' | 'defaultModel'>;
+
+/** アプリからのセットアップでできることが何もない申告 */
+export const NO_SETUP: BackendSetup = { install: null, start: null, login: null, apiKey: null };
 
 /** モデルの一覧が分からないとき（モデルは自由入力、深さは選べない） */
 export const EMPTY_CATALOG: ModelCatalog = { models: [], defaultModel: '' };
@@ -42,12 +53,7 @@ export interface BackendAdapter {
   /** 1回実行して最終テキストを返す。分類できる失敗は BackendError で投げる */
   run(request: RunRequest, context: RunContext): Promise<string>;
   /**
-   * 指定フォルダのチャンネルの依頼（writableDirs つき）を、範囲を守って実行できるか確かめる。守れなければ BackendError で
-   * 投げる。Dispatcher が run の前に呼ぶ。持たないアダプタには、指定フォルダの依頼を渡さない（folder-scope.ts）
-   */
-  folderScope?: (request: RunRequest) => void;
-  /**
-   * ログインを始め、利用者が終える（窓が閉じる）まで待つ。info().canLogin のときだけ呼ばれる。
+   * ログインを始め、利用者が終える（窓が閉じる）まで待つ。info().setup.login があるときだけ呼ばれる。
    * 完了しなかったら BackendError で投げる。終わったあとの状態の確認し直しは Dispatcher が行う
    */
   login?: (context: LoginContext) => Promise<void>;

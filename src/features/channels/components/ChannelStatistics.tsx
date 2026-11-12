@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useBackend } from '@/features/runtime';
 import { errorMessage } from '@/shared/lib/errors';
 import type { Channel, ChannelStatistics, DelegationStatistics, ModelStatistics } from '@/shared/types/domain';
 import { Button, Dialog, Icon, IconButton } from '@/shared/ui';
@@ -190,7 +191,8 @@ function ModelRow({ model }: { model: ModelStatistics }) {
 const tokenCount = (count: number | null): string => (count === null ? '未取得' : integer.format(count));
 
 function RunCost({ model }: { model: ModelStatistics }) {
-  if (model.backend === 'ollama')
+  const local = useBackend(model.backend)?.local === true;
+  if (local)
     return (
       <>
         0 USD<small>ローカル実行</small>

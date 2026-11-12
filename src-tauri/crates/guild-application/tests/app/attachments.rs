@@ -91,7 +91,7 @@ async fn login_goes_to_the_runtime_only_for_backends_that_allow_it() {
     app.services.backends.login("claude").await.unwrap();
     assert_eq!(*app.runtime.logins.lock(), ["claude"]);
     assert!(matches!(app.services.backends.login("nope").await, Err(AppError::NotFound(_))));
-    app.runtime.backends.lock()[0].can_login = false;
+    app.runtime.backends.lock()[0].setup.login = None;
     assert!(matches!(app.services.backends.login("claude").await, Err(AppError::Validation(_))));
     assert_eq!(app.runtime.logins.lock().len(), 1);
 }

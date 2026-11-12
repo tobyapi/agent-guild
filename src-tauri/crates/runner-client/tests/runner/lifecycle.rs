@@ -128,7 +128,7 @@ async fn probe_reports_stopped_runner() {
 #[tokio::test]
 async fn login_waits_for_the_runner_and_the_refreshed_backends_arrive_first() {
     let client = ready_client("ok.mjs").await;
-    assert!(client.backends()[0].can_login);
+    assert!(client.backends()[0].setup.login.is_some());
     let mut backends = client.watch_backends();
     backends.mark_unchanged();
     client.probe().await.expect("probe succeeds");

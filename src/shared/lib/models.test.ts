@@ -31,8 +31,11 @@ const backend: BackendInfo = {
   permissionRules: [],
   leakRisks: [],
   unrestricted: [],
-  canLogin: false,
   midRunPost: 'tool',
+  folderScope: null,
+  toolsOption: null,
+  local: false,
+  setup: { install: null, start: null, login: null, apiKey: null },
 };
 
 describe('modelSpecOf', () => {

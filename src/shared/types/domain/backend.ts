@@ -1,6 +1,6 @@
 import type { PermissionKey, Permissions } from './permissions';
 
-/** バックエンドID。ランナーが申告したもの（'claude' | 'codex' | 将来の追加分） */
+/** バックエンドID。ランナーが申告したもの。画面は ID で分岐せず、BackendInfo の申告だけを見る */
 export type BackendId = string;
 
 export type BackendStatus = 'ready' | 'needs_auth' | 'stopped' | 'unavailable';
@@ -38,7 +38,7 @@ export interface ModelSpec {
   description: string;
   efforts: string[];
   defaultEffort: string | null;
-  /** アプリがOllamaへ道具を提供できるか（native または JSON）。省略時は非対応。 */
+  /** アプリがこのモデルへ道具を提供できるか（BackendInfo.toolsOption のあるバックエンドで使う）。省略時は非対応 */
   tools?: boolean;
 }
 
@@ -67,10 +67,73 @@ export interface BackendInfo {
   leakRisks: PermissionKey[][];
   /** 役割で許可していなくても、このバックエンドでは止められない操作（編集画面で知らせる。権限そのものは役割で決まる） */
   unrestricted: PermissionKey[];
-  /** アプリからログインを始められる（login_backend） */
-  canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
   midRunPost: MidRunPost | null;
+  /** 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら null） */
+  folderScope: FolderScope | null;
+  /**
+   * 道具を使うかどうかを切り替える設定（options にある真偽値の項目の key）。null なら役割の権限どおりに使う。
+   * key があるときは、その設定が true で、選んだモデルが道具に対応している（ModelSpec.tools）ときだけ使う
+   */
+  toolsOption: string | null;
+  /** この PC の中で動く（API の利用料がかからない） */
+  local: boolean;
+  /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
+  setup: BackendSetup;
+}
+
+/**
+ * 指定フォルダの範囲の守り方。files = ファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、
+ * sandbox = シェルごと OS の隔離に入れる（コマンドも範囲の中で使える）
+ */
+export type FolderScope = 'files' | 'sandbox';
+
+export interface BackendSetup {
+  /** 使えない（unavailable）ときに出す、CLI のインストールの案内（install_backend_cli。なければ null） */
+  install: InstallGuide | null;
+  /** 止まっている（stopped）ときに、アプリから起動できる（start_backend。できないなら null） */
+  start: StartSpec | null;
+  /** アプリからログインを始められる（login_backend。できないなら null） */
+  login: LoginSpec | null;
+  /** アプリに API キーを保存できる（backend_api_key。できないなら null） */
+  apiKey: ApiKeySpec | null;
+}
+
+/** CLI の公式インストーラー（macOS・Linux 用のシェルスクリプト） */
+export interface InstallGuide {
+  /** 入れる CLI の名前（例: 「Claude Code」） */
+  cli: string;
+  /** 配布元（例: 「Anthropic」） */
+  publisher: string;
+  /** インストーラーの URL（https） */
+  scriptUrl: string;
+  /** インストーラーを実行するシェル（絶対パス） */
+  shell: string;
+  /** 入る実行ファイルの名前 */
+  binary: string;
+  /** インストーラーに渡す環境変数 */
+  env: Record<string, string>;
+  /** 公式の手順のページ */
+  docsUrl: string;
+  /** ターミナルからログインするときのコマンド */
+  loginCommand: string;
+}
+
+export interface StartSpec {
+  /** 起動する macOS のアプリ（bundle ID） */
+  macBundleId: string;
+}
+
+export interface LoginSpec {
+  /** ログインのボタンの文言 */
+  label: string;
+  /** ログインを待っている間の案内 */
+  waiting: string;
+}
+
+export interface ApiKeySpec {
+  /** 保存したキーがないときに使う環境変数の名前 */
+  envVar: string;
 }
 
 export type RuntimeState = 'starting' | 'ready' | 'unavailable';

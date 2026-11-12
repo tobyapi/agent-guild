@@ -20,6 +20,7 @@ import type {
   Snapshot,
   StorageInfo,
   UpdateStatus,
+  WorkspaceMode,
 } from '@/shared/types/domain';
 
 /** 引数を取らないコマンド */
@@ -50,7 +51,7 @@ export interface CommandMap {
   create_channel: { args: { name: string; topic: string; memberIds: string[] }; result: Channel };
   get_channel_statistics: { args: { channelId: string }; result: ChannelStatistics };
   set_channel_workspace: {
-    args: { id: string; mode: 'legacy' | 'folder' | 'global'; folder: string | null };
+    args: { id: string; mode: WorkspaceMode; folder: string | null };
     result: Channel;
   };
   update_channel: { args: { id: string; name: string; topic: string }; result: Channel };
@@ -70,13 +71,17 @@ export interface CommandMap {
   /** そのチャンネルの割り振り（createdAt の昇順、新しい方から最大200件） */
   list_delegations: { args: { channelId: string }; result: Delegation[] };
   update_profile: { args: { profile: Profile }; result: Profile };
-  /** ランナーの probe 結果を待つ。失敗・応答待ち超過は reject。結果は get_snapshot で取得できる */
+  /**
+   * API キーの状態を確かめる・保存する・消す（BackendInfo.setup.apiKey のあるバックエンドだけ）。
+   * 結果は `{ source, supported }` の JSON 文字列で、キーそのものは返さない
+   */
   backend_api_key: { args: { backendId: string; action: 'status' | 'set' | 'delete'; key?: string }; result: string };
+  /** ランナーの probe 結果を待つ。失敗・応答待ち超過は reject。結果は get_snapshot で取得できる */
   refresh_backends: { args: NoArgs; result: null };
-  /** 公式 CLI のセットアップを行い、バックエンドの状態を更新する（macOS） */
-  install_backend_cli: { args: { backendId: 'claude' | 'codex' }; result: null };
-  /** Ollama を起動し、モデル一覧を更新する（macOS） */
-  start_ollama: { args: NoArgs; result: null };
+  /** 公式の CLI を入れ、バックエンドの状態を更新する（BackendInfo.setup.install のあるバックエンドだけ。macOS） */
+  install_backend_cli: { args: { backendId: string }; result: null };
+  /** 止まっているバックエンドのアプリを開き、モデル一覧を更新する（BackendInfo.setup.start のあるバックエンドだけ） */
+  start_backend: { args: { backendId: string }; result: null };
   /** ログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く */
   login_backend: { args: { backendId: string }; result: null };
   get_storage_info: { args: NoArgs; result: StorageInfo };

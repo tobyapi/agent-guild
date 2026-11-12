@@ -1,6 +1,6 @@
 import { apiKeyEnvironment } from '../credentials/store.ts';
 vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: vi.fn((_backend: string, env = process.env) => Promise.resolve(env)),
+  apiKeyEnvironment: vi.fn((_backend: string, _envVar: string, env = process.env) => Promise.resolve(env)),
 }));
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { runContext, runRequest } from './run.test-support.ts';

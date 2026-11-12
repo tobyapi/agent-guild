@@ -32,9 +32,10 @@ pub async fn install_backend_cli(state: State<'_, AppState>, backend_id: String)
     state.services()?.backends.install_cli(&backend_id).await.map_err(reject)
 }
 
+/// 止まっているバックエンドのアプリを開き、使えるようになるまで待つ（起動を申告しているバックエンドだけ）
 #[tauri::command]
-pub async fn start_ollama(state: State<'_, AppState>) -> CommandResult<()> {
-    state.services()?.backends.start_ollama().await.map_err(reject)
+pub async fn start_backend(state: State<'_, AppState>, backend_id: String) -> CommandResult<()> {
+    state.services()?.backends.start(&backend_id).await.map_err(reject)
 }
 
 /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わった後の状態は state-changed で届く

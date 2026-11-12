@@ -1,6 +1,7 @@
 //! ランナーが申告するバックエンド（Claude / Codex / 将来の追加分）とランナー自体の状態。Rust では列挙しない。
 
 mod options;
+mod setup;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -8,6 +9,7 @@ use serde_json::Value;
 use super::agent::{PermissionKey, Permissions};
 
 pub use options::sanitize_backend_options;
+pub use setup::{ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec};
 
 /// backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか）
 pub const EFFORT_OPTION: &str = "effort";
@@ -113,15 +115,33 @@ pub struct BackendInfo {
     pub leak_risks: Vec<Vec<PermissionKey>>,
     /// 役割で許可していなくても、このバックエンドでは止められない操作（React が編集画面で知らせる。権限そのものは役割で決まる）
     pub unrestricted: Vec<PermissionKey>,
-    /// アプリからログインを始められる（login_backend）
-    pub can_login: bool,
     /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）
     pub mid_run_post: Option<MidRunPost>,
+    /// 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら None）
+    pub folder_scope: Option<FolderScope>,
+    /// 道具を使うかどうかを切り替える設定（options の真偽値の項目の key）。None なら役割の権限どおりに使う
+    pub tools_option: Option<String>,
+    /// この PC の中で動く（API の利用料がかからない）
+    pub local: bool,
+    /// アプリからのセットアップでできること
+    pub setup: BackendSetup,
 }
 
 impl BackendInfo {
     pub fn is_ready(&self) -> bool {
         self.status == BackendStatus::Ready
+    }
+
+    /// 道具を使う設定（tools_option）を、利用者が有効にしているか（切り替えのないバックエンドでは false）
+    pub fn tools_requested(&self, options: &serde_json::Map<String, Value>) -> bool {
+        self.tools_option.as_ref().is_some_and(|key| options.get(key).and_then(Value::as_bool) == Some(true))
+    }
+
+    /// このエージェントの設定で道具を使えるか。切り替えのないバックエンドは常に使える。切り替えがあるバックエンドは、
+    /// 有効にしていて、選んだモデルが道具に対応しているときだけ
+    pub fn tools_enabled(&self, options: &serde_json::Map<String, Value>, model: &str) -> bool {
+        self.tools_option.is_none()
+            || (self.tools_requested(options) && self.model_spec(model).and_then(|spec| spec.tools) == Some(true))
     }
 
     /// 実際に使うモデル（空なら既定のモデル）の定義。モデルの一覧に無ければ None

@@ -1,8 +1,12 @@
 //! プロトコルでやりとりする値の型（`agent-runner/src/protocol.ts` と同じ JSON。camelCase）。
 
+mod setup;
+
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
+
+pub use setup::{ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec};
 
 /// この実行で取得できた使用量の増分。省略された値は未取得。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -25,7 +29,6 @@ pub struct Permissions {
     pub web_search: bool,
     pub web_fetch: bool,
     pub read_files: bool,
-    #[serde(default)]
     pub read_anywhere: bool,
     pub write_files: bool,
     pub write_anywhere: bool,
@@ -130,11 +133,16 @@ pub struct BackendInfo {
     /// どれかの組をすべて許すと、PC のどのファイルでも読めて外へも送れる権限の組（React が編集画面で知らせる）
     pub leak_risks: Vec<Vec<PermissionKey>>,
     pub unrestricted: Vec<PermissionKey>,
-    /// アプリからログインを始められる（login 要求を受け付ける）
-    pub can_login: bool,
     /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）
-    #[serde(default)]
     pub mid_run_post: Option<MidRunPost>,
+    /// 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら None）
+    pub folder_scope: Option<FolderScope>,
+    /// 道具を使うかどうかを切り替える設定（options の真偽値の項目の key）
+    pub tools_option: Option<String>,
+    /// この PC の中で動く（API の利用料がかからない）
+    pub local: bool,
+    /// アプリからのセットアップでできること
+    pub setup: BackendSetup,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

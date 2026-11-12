@@ -71,7 +71,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         state_dir: paths.state,
         readable_dirs,
         writable_dirs,
-        system_prompt: super::request_scope::with_scope(build_system_prompt(&ctx), &channel, &agent.backend),
+        system_prompt: super::request_scope::with_scope(build_system_prompt(&ctx), &channel, backend),
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
         intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),
@@ -116,7 +116,7 @@ fn consult_sources(
         .iter()
         .filter_map(|id| agents.iter().find(|agent| &agent.id == id && agent.is_active()))
         .map(|caller| {
-            let path = if channel.workspace.mode == WorkspaceMode::Legacy && channel.workspace.revision == 0 {
+            let path = if channel.workspace.mode == WorkspaceMode::Shared {
                 ports.workspace.work_dir(&caller.id)
             } else {
                 ports.workspace.scoped_work_dir(&caller.id, &channel.id, channel.workspace.revision)

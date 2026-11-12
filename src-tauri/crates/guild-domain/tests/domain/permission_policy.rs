@@ -95,10 +95,11 @@ fn chained_dependencies_are_resolved_without_widening_access() {
 }
 
 #[test]
-fn ollama_requires_explicit_opt_in_and_a_tool_capable_model() {
+fn a_tools_option_requires_explicit_opt_in_and_a_tool_capable_model() {
     use guild_domain::backend::{ModelSpec, OptionSpec, OptionType};
     use serde_json::json;
     let mut info = backend("ollama");
+    info.tools_option = Some("enableTools".to_owned());
     info.default_model = "small".to_owned();
     info.models = vec![ModelSpec {
         id: "small".to_owned(),
@@ -131,5 +132,6 @@ fn ollama_requires_explicit_opt_in_and_a_tool_capable_model() {
     info.models[0].tools = Some(false);
     assert!(normalize_agent_input(raw, Some(&info)).is_err());
     assert_eq!(effective_permissions(&existing, Some(&info)), Permissions::default());
-    assert_eq!(effective_permissions(&existing, None), Permissions::default());
+    // 申告が届いていない（ランナーが起動していない）あいだは、役割の権限のまま
+    assert_eq!(effective_permissions(&existing, None), existing.behavior().permissions);
 }

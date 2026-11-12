@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { Button, Icon, reportError } from '@/shared/ui';
 import type { BackendInfo } from '@/shared/types/domain';
-import { useCheckingBackends, useLoggingIn, useStartingOllama } from '../hooks/useRuntime';
-import { BACKEND_STATUS_TONES, BACKEND_STATUS_WORDS, LOGGING_IN_MESSAGE } from '../model/status';
-import { loginBackend, refreshBackends, startOllama } from '../store';
+import { useCheckingBackends, useLoggingIn, useStartingBackend } from '../hooks/useRuntime';
+import { BACKEND_STATUS_TONES, BACKEND_STATUS_WORDS } from '../model/status';
+import { loginBackend, refreshBackends, startBackend } from '../store';
 import styles from './BackendStatus.module.css';
 
 export interface BackendStatusProps {
@@ -11,8 +11,8 @@ export interface BackendStatusProps {
 }
 
 /**
- * バックエンドの状態の行: 準備 OK、または ⚠ 状態 ＋ 案内 ＋［ログイン］（アプリからログインできるとき）＋［再確認］
- * （docs/ui-design.md §6.2）。ログインは窓が閉じるまで待ち、その間は案内を差し替える
+ * バックエンドの状態の行: 準備 OK、または ⚠ 状態 ＋ 案内 ＋［起動］か［ログイン］（アプリからできるとき）＋［再確認］
+ * （docs/ui-design.md §6.2）。何ができるかはバックエンドの申告（setup）で決まる。ログインは窓が閉じるまで待ち、その間は案内を差し替える
  */
 export function BackendStatus({ backend }: BackendStatusProps) {
   if (backend.status === 'ready') {
@@ -26,18 +26,23 @@ export function BackendStatus({ backend }: BackendStatusProps) {
       </p>
     );
   }
-  if (backend.id === 'ollama' && backend.status === 'stopped') return <StoppedOllama backend={backend} />;
+  if (backend.setup.start !== null && backend.status === 'stopped') return <StoppedBackend backend={backend} />;
   return <BackendLoginStatus backend={backend} />;
 }
 
-function StoppedOllama({ backend }: BackendStatusProps) {
+function StoppedBackend({ backend }: BackendStatusProps) {
   const checking = useCheckingBackends();
-  const starting = useStartingOllama();
-  const message = starting ? 'Ollama の起動とモデル一覧の読み込みを待っています。' : backend.statusMessage;
+  const starting = useStartingBackend() === backend.id;
+  const message = starting ? `${backend.label} の起動とモデル一覧の読み込みを待っています。` : backend.statusMessage;
   return (
     <BackendProblem backend={backend} message={message}>
-      <Button size="sm" variant="primary" onClick={() => void startOllama().catch(reportError)} disabled={checking}>
-        {starting ? '起動中…' : 'Ollama を起動'}
+      <Button
+        size="sm"
+        variant="primary"
+        onClick={() => void startBackend(backend.id).catch(reportError)}
+        disabled={checking}
+      >
+        {starting ? '起動中…' : `${backend.label} を起動`}
       </Button>
     </BackendProblem>
   );
@@ -45,21 +50,18 @@ function StoppedOllama({ backend }: BackendStatusProps) {
 
 function BackendLoginStatus({ backend }: BackendStatusProps) {
   const loggingIn = useLoggingIn();
-  const canLogin = backend.canLogin && backend.status === 'needs_auth';
+  const login = backend.status === 'needs_auth' ? backend.setup.login : null;
   const mine = loggingIn === backend.id;
-  const loginMessage = backend.id === 'codex' ? 'ブラウザーで ChatGPT にログインしてください。' : LOGGING_IN_MESSAGE;
-  const loginLabel =
-    backend.id === 'codex' ? 'ChatGPT でログイン' : backend.id === 'claude' ? 'Claude Code でログイン' : 'ログイン';
   return (
-    <BackendProblem backend={backend} message={mine ? loginMessage : backend.statusMessage}>
-      {canLogin && (
+    <BackendProblem backend={backend} message={mine && login ? login.waiting : backend.statusMessage}>
+      {login && (
         <Button
           size="sm"
           variant="primary"
           onClick={() => void loginBackend(backend.id).catch(reportError)}
           disabled={loggingIn !== null}
         >
-          {mine ? 'ログイン中…' : loginLabel}
+          {mine ? 'ログイン中…' : login.label}
         </Button>
       )}
     </BackendProblem>

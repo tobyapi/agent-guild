@@ -3,11 +3,11 @@
 //! 状態（starting / ready / unavailable）やバックエンド一覧が変わったら state-changed を出す。
 
 #[cfg(target_os = "macos")]
+mod app_launcher;
+#[cfg(target_os = "macos")]
 mod cli_installer;
 mod convert;
 mod launch;
-#[cfg(target_os = "macos")]
-mod ollama_launcher;
 #[cfg(test)]
 mod tests;
 mod user_path;
@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use guild_application::ports::{AgentRuntime, EventPublisher, RuntimeError, RuntimeRequest, Spawner, UpdateSink};
-use guild_domain::backend::{BackendInfo, RuntimeStatus};
+use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeStatus, StartSpec};
 use runner_client::{RunnerClient, RunnerStatus};
 use tokio::sync::watch;
 
@@ -88,13 +88,25 @@ impl AgentRuntime for RunnerRuntime {
     }
 
     #[cfg(target_os = "macos")]
-    async fn install_cli(&self, backend: &str) -> Result<(), RuntimeError> {
-        cli_installer::install(backend).await
+    async fn install_cli(&self, guide: &InstallGuide) -> Result<(), RuntimeError> {
+        cli_installer::install(guide).await
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    async fn install_cli(&self, _guide: &InstallGuide) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed("この環境ではアプリからセットアップできません".to_owned()))
     }
 
     #[cfg(target_os = "macos")]
-    async fn open_ollama(&self) -> Result<(), RuntimeError> {
-        ollama_launcher::open().await
+    async fn start(&self, label: &str, spec: &StartSpec) -> Result<(), RuntimeError> {
+        app_launcher::open(label, spec).await
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    async fn start(&self, label: &str, _spec: &StartSpec) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed(format!(
+            "この環境では {label} を直接起動できません。{label} を開いて再確認してください。"
+        )))
     }
 
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {

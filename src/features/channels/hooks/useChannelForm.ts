@@ -22,9 +22,9 @@ async function persist(
     saved = created;
     onCreated(created);
   }
-  const mode = draft.workspaceMode ?? 'legacy';
-  const folder = mode === 'folder' ? (draft.workspaceFolder ?? '').trim() : null;
-  if (mode !== (saved.workspace?.mode ?? 'legacy') || folder !== (saved.workspace?.folder ?? null)) {
+  const mode = draft.workspaceMode;
+  const folder = mode === 'folder' ? draft.workspaceFolder.trim() : null;
+  if (mode !== saved.workspace.mode || folder !== saved.workspace.folder) {
     await setChannelWorkspace(saved.id, mode, folder);
   }
   notifyInfo(channel ? '保存しました' : `#${saved.name} を作成しました`);
@@ -37,8 +37,8 @@ export function useChannelForm(channel: Channel | null) {
     name: channel?.name ?? '',
     topic: channel?.topic ?? '',
     memberIds: [],
-    workspaceMode: channel?.workspace?.mode ?? 'legacy',
-    workspaceFolder: channel?.workspace?.folder ?? '',
+    workspaceMode: channel?.workspace.mode ?? 'shared',
+    workspaceFolder: channel?.workspace.folder ?? '',
   }));
   const [persisted, setPersisted] = useState<Channel | null>(channel);
   const [serverError, setServerError] = useState<{ field: ChannelField | null; message: string } | null>(null);

@@ -1,8 +1,6 @@
 // アプリが渡した道具だけを使う。canUseTool を省略する SDK の許可経路にも PreToolUse で適用する。
 import type { HookCallback, Options, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import type { Permissions } from '../../protocol.ts';
-import { folderFileHook } from '../folder-scope.ts';
-import type { RunRequest } from '../types.ts';
 import { COMMAND_TOOL } from './command.ts';
 import { POST_SERVER, POST_TOOL } from './post.ts';
 import { commandMode } from './rules.ts';
@@ -84,7 +82,6 @@ export function registeredToolsHook(tools: readonly string[]): HookCallback {
 /** 通常実行と、道具を一切使わない判定用モデルに同じ抑止を適用する。extraHooks は通常実行のパスの判定（permissions.ts）。 */
 export function isolatedToolOptions(
   tools: readonly string[],
-  request?: RunRequest,
   extraHooks: readonly HookCallback[] = [],
 ): Pick<Options, 'strictMcpConfig' | 'hooks'> {
   return {
@@ -92,11 +89,7 @@ export function isolatedToolOptions(
     hooks: {
       PreToolUse: [
         {
-          hooks: [
-            registeredToolsHook(tools),
-            ...(request?.writableDirs === undefined ? [] : [folderFileHook(request)]),
-            ...extraHooks,
-          ],
+          hooks: [registeredToolsHook(tools), ...extraHooks],
         },
       ],
     },

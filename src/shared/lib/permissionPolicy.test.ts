@@ -70,16 +70,20 @@ describe('役割で決まる権限と、バックエンドで使える操作（R
   });
 });
 
-it('Ollama は有効化と対応モデルがそろったときだけ役割の権限を使う', async () => {
+it('道具の利用を切り替えるバックエンドは、有効化と対応モデルがそろったときだけ役割の権限を使う', async () => {
   const { modelPermissions } = await import('./permissionPolicy');
   const permissions = rolePermissions(snapshot.templates as AgentTemplate[], ['作業者']);
   const backend: BackendInfo = {
     ...(snapshot.backends[0] as BackendInfo),
-    id: 'ollama',
+    id: 'local',
+    toolsOption: 'enableTools',
     capabilities: permissions,
     models: [{ id: 'tools', label: 'tools', description: '', efforts: [], defaultEffort: null, tools: true }],
     defaultModel: 'tools',
   };
+  // 切り替えのないバックエンドは、設定にかかわらず役割の権限どおり
+  const always = { ...backend, toolsOption: null };
+  expect(modelPermissions(permissions, always, 'unknown', {})).toEqual(supportedPermissions(permissions, always));
   expect(Object.values(modelPermissions(permissions, backend, '', {})).every((value) => !value)).toBe(true);
   expect(modelPermissions(permissions, backend, '', { enableTools: true })).toEqual(
     supportedPermissions(permissions, backend),

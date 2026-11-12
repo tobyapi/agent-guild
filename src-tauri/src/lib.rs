@@ -29,7 +29,7 @@ pub fn run() {
             snapshot::get_snapshot,
             snapshot::refresh_backends,
             snapshot::install_backend_cli,
-            snapshot::start_ollama,
+            snapshot::start_backend,
             snapshot::backend_api_key,
             snapshot::login_backend,
             agents::create_agent,

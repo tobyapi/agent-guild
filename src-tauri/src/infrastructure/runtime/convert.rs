@@ -3,8 +3,8 @@
 use guild_application::ports::{ImagePayload, RunUpdate, RuntimeError, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
-    BackendInfo, BackendStatus, MidRunPost, ModelSpec, OptionSpec, OptionType, PermissionRule, RuntimeState,
-    RuntimeStatus,
+    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, InstallGuide, LoginSpec, MidRunPost, ModelSpec,
+    OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus, StartSpec,
 };
 use runner_client as runner;
 
@@ -34,8 +34,32 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         permission_rules: info.permission_rules.into_iter().map(rule).collect(),
         leak_risks: info.leak_risks.into_iter().map(|risk| risk.into_iter().map(key).collect()).collect(),
         unrestricted: info.unrestricted.into_iter().map(key).collect(),
-        can_login: info.can_login,
         mid_run_post: info.mid_run_post.map(mid_run_post),
+        folder_scope: info.folder_scope.map(|scope| match scope {
+            runner::FolderScope::Files => FolderScope::Files,
+            runner::FolderScope::Sandbox => FolderScope::Sandbox,
+        }),
+        tools_option: info.tools_option,
+        local: info.local,
+        setup: setup(info.setup),
+    }
+}
+
+fn setup(setup: runner::BackendSetup) -> BackendSetup {
+    BackendSetup {
+        install: setup.install.map(|guide| InstallGuide {
+            cli: guide.cli,
+            publisher: guide.publisher,
+            script_url: guide.script_url,
+            shell: guide.shell,
+            binary: guide.binary,
+            env: guide.env,
+            docs_url: guide.docs_url,
+            login_command: guide.login_command,
+        }),
+        start: setup.start.map(|spec| StartSpec { mac_bundle_id: spec.mac_bundle_id }),
+        login: setup.login.map(|spec| LoginSpec { label: spec.label, waiting: spec.waiting }),
+        api_key: setup.api_key.map(|spec| ApiKeySpec { env_var: spec.env_var }),
     }
 }
 

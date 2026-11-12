@@ -5,7 +5,6 @@
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
-import { assertFolderScope } from './folder-scope.ts';
 import { OPERATION_CHECK_OPTION } from './claude/check.ts';
 import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
@@ -18,6 +17,7 @@ import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
 import {
   BackendError,
+  NO_SETUP,
   classifyErrorText,
   rejectUnenforceable,
   type BackendAdapter,
@@ -61,11 +61,40 @@ const INFO: Omit<BackendDescriptor, 'permissionRules'> = {
   ],
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   unrestricted: [],
-  canLogin: CAN_LOGIN,
   midRunPost: 'tool',
+  // 指定フォルダでは実行しない（点検のあとのリンクの差し替えを止められない）
+  folderScope: null,
+  toolsOption: null,
+  local: false,
+  setup: {
+    ...NO_SETUP,
+    install: {
+      cli: 'Claude Code',
+      publisher: 'Anthropic',
+      scriptUrl: 'https://claude.ai/install.sh',
+      shell: '/bin/bash',
+      binary: 'claude',
+      env: {},
+      docsUrl: 'https://code.claude.com/docs/ja/quickstart',
+      loginCommand: 'claude auth login',
+    },
+    login: CAN_LOGIN
+      ? {
+          label: 'Claude Code でログイン',
+          waiting: '開いた窓とブラウザでログインを進めてください。終わると自動で状態が変わります。',
+        }
+      : null,
+  },
 };
 
 async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }: RunContext): Promise<string> {
+  // Dispatcher が先に止める（folderScope: null）。直接呼ばれても、指定フォルダの依頼を範囲の外で動かさない
+  if (request.writableDirs !== undefined) {
+    throw new BackendError(
+      'unsupported_permission',
+      'Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません',
+    );
+  }
   await prepareCommandSandbox();
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const executable = findClaude();
@@ -109,7 +138,5 @@ export const claudeAdapter: BackendAdapter = {
   },
   catalog: claudeCatalog,
   run,
-  // 指定フォルダでは実行しない（点検のあとのリンクの差し替えを止められない）。理由を付けて断る
-  folderScope: assertFolderScope,
   login,
 };

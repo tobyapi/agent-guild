@@ -2,7 +2,7 @@
 
 use guild_domain::agent::{find_template, Agent, AgentInput, Permissions};
 use guild_domain::author::{Author, MemberId};
-use guild_domain::backend::{BackendInfo, BackendStatus};
+use guild_domain::backend::{BackendInfo, BackendSetup, BackendStatus};
 use guild_domain::channel::Channel;
 use guild_domain::ids::{AgentId, ChannelId, MessageId};
 use guild_domain::message::{Message, MessageKind};
@@ -106,7 +106,10 @@ pub fn backend(id: &str) -> BackendInfo {
         permission_rules: Vec::new(),
         leak_risks: Vec::new(),
         unrestricted: Vec::new(),
-        can_login: false,
         mid_run_post: None,
+        folder_scope: None,
+        tools_option: None,
+        local: false,
+        setup: BackendSetup::default(),
     }
 }

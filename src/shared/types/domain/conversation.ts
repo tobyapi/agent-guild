@@ -1,17 +1,26 @@
+/**
+ * チャンネルの作業範囲の種類。shared = エージェント共通の作業場所とメモ（どのチャンネルでも同じ）、
+ * folder = 割り当てたフォルダとチャンネル専用の作業場所だけ、global = チャンネル専用の作業場所とメモ。
+ * shared と global の権限は役割どおり
+ */
+export type WorkspaceMode = 'shared' | 'folder' | 'global';
+
+/** チャンネルの作業範囲。変えるたびに revision が増え、afterSeq より前の発言は以後のプロンプトに入らない */
 export interface ChannelWorkspace {
-  mode: 'legacy' | 'folder' | 'global';
+  mode: WorkspaceMode;
+  /** mode が folder のときの割り当て先（絶対パス）。ほかは null */
   folder: string | null;
   revision: number;
   afterSeq: number;
 }
 
 export interface Channel {
-  workspace?: ChannelWorkspace;
+  workspace: ChannelWorkspace;
   id: string;
   name: string;
   topic: string;
-  /** 古いデータで未設定なら false として扱う */
-  isLobby?: boolean;
+  /** 最初からあるロビー（消せない） */
+  isLobby: boolean;
   /** HUMAN_ID またはエージェントID */
   memberIds: string[];
   createdAt: number;

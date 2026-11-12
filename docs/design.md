@@ -105,6 +105,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `create_channel` | `{ name, topic, memberIds }` | `Channel` | state-changed | validation, not_found（存在しないメンバー） |
 | `get_channel_statistics` | `{ channelId }` | `ChannelStatistics`（全期間の割り振り・サブタスクの件数、モデル別の実行記録の集計） | – | not_found, storage |
 | `update_channel` | `{ id, name, topic }` | `Channel` | state-changed | not_found, validation |
+| `set_channel_workspace` | `{ id, mode, folder }`（mode は `shared` / `folder` / `global`。folder は mode が folder のときの絶対パス、ほかは null） | `Channel`（作業範囲を変える。「チャンネルの作業範囲」の節） | state-changed | not_found, validation（実行中の作業がある・フォルダが不正） |
 | `delete_channel` | `{ id }` | `null` | state-changed, activity-changed | not_found |
 | `add_channel_member` | `{ channelId, memberId }` | `null` | state-changed, message-created | not_found |
 | `remove_channel_member` | `{ channelId, memberId }` | `null` | state-changed, activity-changed | not_found, validation（人間は外せない） |
@@ -116,9 +117,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `list_delegations` | `{ channelId }` | `Delegation[]`（そのチャンネルの割り振り。createdAt の昇順、新しい方から最大200件） | – | not_found |
 | `update_profile` | `{ profile: Profile }` | `Profile` | state-changed | validation |
 | `refresh_backends` | – | `null`（probe の結果を待つ。完了後は get_snapshot で取得可能。30秒の応答待ち超過・送信失敗・切断は reject） | state-changed | runtime |
-| `install_backend_cli` | `{ backendId }`（`claude` または `codex`） | `null`（macOS で公式 CLI を利用者の `~/.local/bin` にインストールし、probe で検出を確認する） | state-changed | runtime, validation |
-| `start_ollama` | – | `null`（macOS でインストール済みの Ollama を開き、停止中でなくなるまで probe する。待機は最長20秒） | state-changed | runtime |
-| `login_backend` | `{ backendId }` | `null`（ランナーに login を送り、利用者がログインを終える＝窓が閉じるまで待つ。終わったときの状態は state-changed で届く） | state-changed | not_found, validation（canLogin でない）, runtime（ログインが完了しなかった・中断した） |
+| `backend_api_key` | `{ backendId, action, key? }`（action は `status` / `set` / `delete`。`setup.apiKey` を申告しているバックエンドだけ） | `string`（`{ source, supported }` の JSON。キーそのものは返さない。backend-api-keys.md） | state-changed | validation, runtime |
+| `install_backend_cli` | `{ backendId }`（`setup.install` を申告しているバックエンドだけ） | `null`（macOS で、申告された公式インストーラーで CLI を利用者の `~/.local/bin` に入れ、probe で検出を確認する） | state-changed | runtime, validation |
+| `start_backend` | `{ backendId }`（`setup.start` を申告しているバックエンドだけ） | `null`（macOS で、申告されたアプリを開き、停止中でなくなるまで probe する。待機は最長20秒） | state-changed | not_found, validation, runtime |
+| `login_backend` | `{ backendId }` | `null`（ランナーに login を送り、利用者がログインを終える＝窓が閉じるまで待つ。終わったときの状態は state-changed で届く） | state-changed | not_found, validation（`setup.login` を申告していない）, runtime（ログインが完了しなかった・中断した） |
 | `get_storage_info` | – | `StorageInfo` | – | – |
 | `choose_folder` | – | `string \| null`（OS のフォルダ選択） | – | – |
 | `change_data_dir` | `{ path, mode: DataDirMode }` | `null`（成功するとアプリが再起動する） | – | validation, conflict, storage |
@@ -166,7 +168,12 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - アプリ終了時は shutdown を送り、猶予を過ぎたら kill。Windows ではジョブオブジェクト（KILL_ON_JOB_CLOSE）に入れて孤児プロセスを残さない。ランナーは stdin の EOF でも終了する。子の stderr は常に読み取って log に流す。
 - **中断**: cancel 後、終端イベントが来るか猶予（10秒）を過ぎたら `Cancelled` として扱い、以後その id のイベントは捨てる。中断は失敗ではない（error 発言を出さない）。
 - **認証状態**: アダプタは ready / probe のときに認証の有無を確認し、`status` と `statusMessage` に載せる。macOS では `claude auth status`・`codex login status` に聞く。ほかの確認は資格情報ファイルや環境変数の存在を見る。
-- **ログイン**: `BackendInfo.canLogin` のアダプタは `login` 要求を受け付ける。アダプタは利用者がログインを終えるまで待つ。成功時は result（text は空）、失敗時は error（auth）で終える。Dispatcher は終端イベントの前に状態を確かめ直して `backends` を送る。cancel でログインを中断する。
+- **ログイン**: `BackendInfo.setup.login` を申告したアダプタは `login` 要求を受け付ける。アダプタは利用者がログインを終えるまで待つ。成功時は result（text は空）、失敗時は error（auth）で終える。Dispatcher は終端イベントの前に状態を確かめ直して `backends` を送る。cancel でログインを中断する。
+- **バックエンドごとの違いの申告**: Rust と React は、バックエンドの ID で分岐しない。違いはアダプタが `BackendInfo` で申告する。
+  - `folderScope`: 指定フォルダのチャンネルでの範囲の守り方。`files` はファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、`sandbox` はシェルごと OS の隔離に入れる（コマンドも範囲の中で使える）、`null` は指定フォルダでは実行できない。
+  - `toolsOption`: 道具を使うかどうかを切り替える設定（`options` の真偽値の項目の key）。`null` なら役割の権限どおりに使う。key があるバックエンドは、その設定が true で、選んだモデルが道具に対応している（`ModelSpec.tools`）ときだけ道具を使い、それまでは会話専用。
+  - `local`: この PC の中で動く（運用統計で、費用を 0 として出す）。
+  - `setup`: アプリからのセットアップでできること。`install`（CLI の公式インストーラーの案内。`install_backend_cli`）・`start`（止まっているアプリの起動。`start_backend`）・`login`（ボタンの文言と待っている間の案内。`login_backend`）・`apiKey`（API キーの保存と、代わりに使う環境変数の名前。`backend_api_key`）。できないものは `null`。
 - **作業の途中の投稿**: run は終端イベントの前に `post`（`{ id, text }`）を 0 回以上返してよい（Dispatcher は終端イベントを送ったあと・cancel のあとに届いたものを捨てる）。アダプタは投稿のしかたを `BackendInfo.midRunPost` で申告する: `'tool'` は投稿用のツールを呼ぶ、`'text'` はツールを使う前に書いた文章がそのまま投稿される、`null` は途中では投稿できない。Rust はこれでプロンプトの案内（§8）を変え、届いた投稿を §6 の規則で保存する。
 - **モデルと推論の深さ**: アダプタは選べるモデルを `BackendInfo.models`（`{ id, label, description, efforts, defaultEffort }`。efforts は浅い順、空なら深さを選べない）で、モデルを選ばないときのモデルを `defaultModel` で申告する（ready / probe のたび。分からなければ空で、そのときモデルは自由入力）。推論の深さは `backendOptions` の `effort`（protocol.ts の `EFFORT_OPTION`）で run に渡り、空なら既定。
   - **Claude**: SDK の `supportedModels()`（`default` は除く）。取れなければ opus / sonnet / haiku の固定の一覧。既定のモデルは `sonnet`、既定の深さは決めない（Claude Code に任せる）。`effort` は SDK の `effort`（low / medium / high / xhigh / max）。
@@ -184,7 +191,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 | 設定の読み込み | `settingSources: []`（作業場所の .claude/・hooks・CLAUDE.md を読まない） | `project_doc_max_bytes=0`（作業場所の AGENTS.md を読まない） |
 | 人格 | systemPrompt | config 上書きの `developer_instructions` |
 | 画像（run の images） | 画像（base64）と本文を1つのユーザーメッセージにして、1件だけ流す入力（AsyncIterable）で渡す。読めない画像は実行前に bad_request | `local_image` の入力として本文のあとに並べる（Codex がファイルを読む。sandbox の読み取りの制限とは関係ない） |
-| ログイン | `canLogin`（macOS・Windows）。Claude Code の `auth login` に認証を任せる。Windows では `cmd /c start /wait` でコンソールを開き、終了後に probe する | `canLogin`（macOS のみ）。`codex login` でブラウザーを開き、認証の完了を待つ。ほかの OS ではターミナルで `codex login` |
+| ログイン | `setup.login`（macOS・Windows）。Claude Code の `auth login` に認証を任せる。Windows では `cmd /c start /wait` でコンソールを開き、終了後に probe する | `setup.login`（macOS のみ）。`codex login` でブラウザーを開き、認証の完了を待つ。ほかの OS ではターミナルで `codex login` |
 | 途中の投稿 | `midRunPost: 'tool'`。プロセス内の MCP ツール `mcp__guild__post`（createSdkMcpServer。パスを扱わないので allowedTools で確認なしに許す）。呼ばれたら post を送り「投稿しました」を返す（空なら投稿せずにエラーを返す） | `midRunPost: 'text'`。SDK にプロセス内のツールがないので、agent_message をいったん手元に置き、あとに作業の項目（コマンド・ファイルの変更・Web 検索・MCP・reasoning）が来たら post として送る。最後まで手元に残ったものが最終返答（to-do と警告は作業に数えない。同じ文章を二重に投稿しない） |
 | スキル | `<stateDir>/guild-skills` をローカルプラグインとして渡す | 作業場所の `.agents/skills` に実行のたびに作り直す（Codex はそこしか読まない。エージェント単位の排他で取り合わない） |
 | 読み取りの範囲 | canUseTool でパスを検査し、作業場所と readableDirs だけを許す（リンクをたどった実体もその中にあること。readAnywhere または writeAnywhere ならどこでも。readAnywhere は秘密の場所を除く: secret-read-exclusion.md） | sandbox はどこでも読める（readableDirs は渡さない。additionalDirectories は書き込み可能な場所になってしまうため） |
@@ -339,10 +346,10 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 
 - **リリース後に壊してはいけない境界**: (1) データフォルダ（構成・guild-data.json・SQLite スキーマ・settings.json）(2) スキル形式（Agent Skills の SKILL.md 標準）(3) 将来のエージェント定義のエクスポート形式。
 - React ⇄ Rust の IPC と Rust ⇄ ランナーのプロトコルは、同じアプリに同梱して同時に出荷する**内部契約**。自由に変えてよいが、文書とフィクスチャは常に正しく保つ。
-- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**既存の割り振りを保持するため 0001 は固定し、運用統計の 0002・スキルの出どころの 0003 以降は追記する。** 指紋が変わったら、デバッグビルドは古い DB を `guild.db.bak-<日時>` に退避して作り直す（リリースビルドでは決してしない）。リリース時に 0001 を凍結し、内容のハッシュを固定するテストを足す。以後は追記のみ。
+- SQLite: `PRAGMA application_id` で自分の DB だと確認し、`PRAGMA user_version` で順に適用するマイグレーションを管理する。meta 表にスキーマ指紋と初期データの記録を持つ。**0001 は凍結済み**（内容の指紋を固定するテストがある）。スキーマを変えるときは 0002 以降を追記し、既存の移行は書き換えない。古い版のデータベースは、開くときに未適用の移行だけが当たる。指紋が合わないデータベース（開発中に移行を書き換えた場合だけ起きる）は、デバッグビルドでは `guild.db.bak-<日時>` に退避して作り直し、リリースビルドでは開かない（決して作り直さない）。
 - 発言の並びは seq（INTEGER PRIMARY KEY AUTOINCREMENT）。エージェントは論理削除。外部キー: skills → agents、channel_members・messages → channels（ON DELETE CASCADE）。
-- **拡張の余白**: バックエンドの能力・状態・設定項目はランナーが申告する（Rust・React は列挙しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。
-- **リリース前の今は、後方互換のための分岐・移行コード・非推奨 API を書かない。** より良い形があれば壊して作り直す。
+- **拡張の余白**: バックエンドの能力・状態・設定項目と、バックエンドごとの違い（§5 の「バックエンドごとの違いの申告」）はランナーが申告する（Rust・React は列挙せず、ID で分岐しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。
+- **後方互換を保つ。** 配布済みのアプリが保存したデータを、新しい版で開けなくしない。保存する値の形（JSON の列・settings.json・guild-data.json）を変えるときは、古い形も読めるようにするか、マイグレーションで直す。互換のために残すコードには、何のためのものかと、消せる条件を書く。IPC とランナープロトコルは内部契約なので、この対象ではない。
 
 ## 13. 初期データ（初回だけ）
 
@@ -367,22 +374,23 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。内蔵スキルには「内蔵」の印を出し、本文を見られるようにする。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。
 - **安全**: 付属ファイルは作業場所ではなく stateDir 側に展開し、エージェントからは書き換えられない。ライブラリのフォルダはアプリから書き換えない（読むだけ）。
 
-## Backend API key IPC
+## バックエンドの API キー
 
-`backend_api_key({ backendId, action, key? })` returns a JSON string containing only
-`source` (saved/environment/unset) and `supported` (boolean). Actions: status/set/delete.
-Only Grok and Muse are supported. See [backend-api-keys.md](backend-api-keys.md).
+`backend_api_key({ backendId, action, key? })` は、API キーを保存できると申告しているバックエンド（`BackendInfo.setup.apiKey`）のキーの状態を確かめる（`status`）・保存する（`set`）・消す（`delete`）。戻り値は `source`（saved / environment / unset）と `supported`（この PC で保存できるか）だけを持つ JSON 文字列で、キーそのものは返さない。保存先と優先順位は [backend-api-keys.md](backend-api-keys.md)。
 
+## チャンネルの作業範囲
 
-## チャンネルの作業範囲（2026-11-11 追加）
+`Channel.workspace` は `{ mode: "shared" | "folder" | "global", folder: string | null, revision: number, afterSeq: number }`。SQLite の `channels.workspace_json` に保存する。新しいチャンネルは shared・revision 0。
 
-`Channel.workspace` は `{ mode: "legacy" | "folder" | "global", folder: string | null, revision: number, afterSeq: number }`。SQLite の `channels.workspace_json` に保存し、migration 0005 で既存行を legacy・revision 0 にする。既存移行は変更しない。
+- **shared**（既定）: エージェント共通の作業場所（`agents/<agent>/work`）とメモを使う。どのチャンネルでも同じ場所で、権限は役割どおり。
+- **folder**: 割り当てたフォルダとチャンネル専用の作業場所だけを読み書きする。
+- **global**: チャンネル専用の作業場所とメモを使う。権限は役割どおり。
 
 `set_channel_workspace({ id, mode, folder }) -> Channel` は実行管理のアクターで直列化する。実行中・待機中のジョブまたは未完了の割り振りがあれば拒否する。フォルダは実在する絶対パスを正規化し、アプリ保存領域とその祖先・子孫は拒否する。同じ設定の再保存は revision を増やさない。名前・話題の保存は作業範囲を更新しない。
 
-変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。以前の MEMORY.md とセッションは自動投入しない。legacy に戻す場合も新しい revision を使う。
+変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。チャンネル専用の作業場所には、エージェント共通の MEMORY.md とセッションを自動では渡さない。shared に戻すと、エージェント共通の作業場所とメモに戻る（revision は増え、戻す前の会話は渡さない）。
 
-folder モードではランナープロトコル v2 の `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・スキルは無効。コマンドは、ファイルの道具ごとに範囲を確かめるバックエンド（Ollama）では無効、シェルごと OS の隔離に入れるバックエンド（Codex・Grok・Muse）では範囲の中でだけ使える。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Codex・Grok・Muse は、Windows 11 の MXC が使えるときに、Codex の権限プロファイルで読める場所・書ける場所・通信を決める（`docs/codex-folder-scope.md`。使えない PC では実行を停止する）。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。未対応のバックエンドも理由を示して実行を停止する。
+folder モードではランナープロトコルの `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・スキルは無効。どう守るかは、バックエンドの申告（`BackendInfo.folderScope`）で決まる。コマンドは、ファイルの道具ごとに範囲を確かめるバックエンド（`files`。いまは Ollama）では無効、シェルごと OS の隔離に入れるバックエンド（`sandbox`。いまは Codex・Grok・Muse）では範囲の中でだけ使える。守り方を申告していないバックエンド（`null`。いまは Claude）は、指定フォルダのチャンネルでは実行しない。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Codex・Grok・Muse は、Windows 11 の MXC が使えるときに、Codex の権限プロファイルで読める場所・書ける場所・通信を決める（`docs/codex-folder-scope.md`。使えない PC では実行を停止する）。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。未対応のバックエンドも理由を示して実行を停止する。
 
 今回の統合検証は `docs/ollama-channel-validation-20261111.md`。`docs/ollama-tools-validation.md` は過去試作の記録として区別する。
 

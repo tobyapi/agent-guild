@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use async_trait::async_trait;
 use guild_application::ports::{AgentRuntime, AppControl, EventPublisher, RuntimeError, RuntimeRequest, UpdateSink};
 use guild_domain::activity::ActivityState;
-use guild_domain::backend::{BackendInfo, RuntimeStatus};
+use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeStatus, StartSpec};
 use guild_domain::delegation::Delegation;
 use guild_domain::ids::AgentId;
 use guild_domain::message::Message;
@@ -54,7 +54,16 @@ impl AgentRuntime for NoRuntime {
     async fn probe(&self) -> Result<(), RuntimeError> {
         Ok(())
     }
+    async fn install_cli(&self, _guide: &InstallGuide) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
+    }
+    async fn start(&self, _label: &str, _spec: &StartSpec) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
+    }
     async fn login(&self, _backend: &str) -> Result<(), RuntimeError> {
+        Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
+    }
+    async fn api_key(&self, _backend: &str, _action: &str, _key: Option<&str>) -> Result<String, RuntimeError> {
         Err(RuntimeError::Failed("テストではランナーを使いません".to_owned()))
     }
 }

@@ -15,19 +15,19 @@ pub const CHANNEL_TOPIC_MAX_CHARS: usize = 200;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Channel {
-    #[serde(default)]
     pub workspace: ChannelWorkspace,
     pub id: ChannelId,
     pub name: String,
     pub topic: String,
-    #[serde(default)]
+    /// 最初からあるロビー（消せない）
     pub is_lobby: bool,
     /// 参加順。人間は常に入る
     pub member_ids: Vec<MemberId>,
     pub created_at: i64,
 }
 
-/// Human-controlled file scope. Every change starts a fresh memory/history epoch.
+/// チャンネルの作業範囲（人間が決める。TS の ChannelWorkspace）。変えるたびに revision が増え、
+/// after_seq より前の発言は以後のプロンプトに入れない
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ChannelWorkspace {
@@ -40,9 +40,12 @@ pub struct ChannelWorkspace {
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum WorkspaceMode {
+    /// エージェント共通の作業場所とメモを使う（どのチャンネルでも同じ。権限は役割どおり）
     #[default]
-    Legacy,
+    Shared,
+    /// 割り当てたフォルダとチャンネル専用の作業場所だけを読み書きする
     Folder,
+    /// チャンネル専用の作業場所とメモを使う（権限は役割どおり）
     Global,
 }
 

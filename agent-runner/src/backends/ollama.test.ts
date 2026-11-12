@@ -43,7 +43,10 @@ describe('Ollama', () => {
           { id: deepseek.model, description: '8.2B · 文章に対応 · JSON 操作（試作）', tools: true },
           { id: gemma.model, description: '画像と文章に対応 · JSON 操作（試作）', tools: true },
         ],
-        canLogin: false,
+        folderScope: 'files',
+        toolsOption: 'enableTools',
+        local: true,
+        setup: { install: null, login: null, apiKey: null },
       },
     ]);
     expect(http.mock.calls.map(([path, , body]) => [path, body])).toEqual([

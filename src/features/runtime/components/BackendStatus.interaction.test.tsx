@@ -2,7 +2,8 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ToastViewport } from '@/shared/ui';
-import type { BackendInfo, Snapshot } from '@/shared/types/domain';
+import { backendInfo, NO_SETUP } from '@/shared/lib/backends.test-support';
+import type { Snapshot } from '@/shared/types/domain';
 import { runtimeApi } from '../api';
 import { useRuntimeStore } from '../store';
 import { useToastStore } from '@/shared/ui/toast/store';
@@ -19,20 +20,19 @@ function BackendsSection() {
   );
 }
 
-vi.mock('../api', () => ({ runtimeApi: { refreshBackends: vi.fn(), snapshot: vi.fn(), startOllama: vi.fn() } }));
+vi.mock('../api', () => ({ runtimeApi: { refreshBackends: vi.fn(), snapshot: vi.fn(), startBackend: vi.fn() } }));
 
-const grok = {
+const grok = backendInfo({
   id: 'grok',
   label: 'Grok',
   status: 'needs_auth',
   statusMessage: 'APIキーを設定してください',
-  canLogin: false,
-} as BackendInfo;
+});
 
 beforeEach(() => {
   vi.clearAllMocks();
   useToastStore.setState({ toasts: [] });
-  useRuntimeStore.setState({ checkingBackends: false, startingOllama: false, backends: [grok] });
+  useRuntimeStore.setState({ checkingBackends: false, startingBackend: null, backends: [grok] });
 });
 afterEach(cleanup);
 
@@ -90,11 +90,16 @@ it('shows the failure and re-enables recheck after a rejected command', async ()
   expect(screen.queryByText(/再確認が完了/)).toBeNull();
 });
 
-it('Ollama を起動し、一覧の取得が終わるまで再クリックを防ぐ', async () => {
-  const ollama: BackendInfo = { ...grok, id: 'ollama', label: 'Ollama（この PC）', status: 'stopped' };
+it('起動を申告しているバックエンドを起動し、一覧の取得が終わるまで再クリックを防ぐ', async () => {
+  const ollama = backendInfo({
+    id: 'ollama',
+    label: 'Ollama',
+    status: 'stopped',
+    setup: { ...NO_SETUP, start: { macBundleId: 'com.electron.ollama' } },
+  });
   useRuntimeStore.setState({ backends: [ollama] });
   let complete!: () => void;
-  vi.mocked(runtimeApi.startOllama).mockReturnValueOnce(
+  vi.mocked(runtimeApi.startBackend).mockReturnValueOnce(
     new Promise((resolve) => {
       complete = () => resolve(null);
     }),
@@ -110,7 +115,8 @@ it('Ollama を起動し、一覧の取得が終わるまで再クリックを防
   const pending = screen.getByRole<HTMLButtonElement>('button', { name: '起動中…' });
   expect(pending.disabled).toBe(true);
   fireEvent.click(pending);
-  expect(runtimeApi.startOllama).toHaveBeenCalledTimes(1);
+  expect(runtimeApi.startBackend).toHaveBeenCalledTimes(1);
+  expect(runtimeApi.startBackend).toHaveBeenCalledWith('ollama');
   await act(async () => {
     complete();
     await Promise.resolve();

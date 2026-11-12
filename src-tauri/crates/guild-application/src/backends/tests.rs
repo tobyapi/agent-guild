@@ -3,7 +3,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use guild_domain::backend::{BackendInfo, BackendStatus, RuntimeStatus};
+use guild_domain::backend::{
+    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, InstallGuide, RuntimeStatus, StartSpec,
+};
 use parking_lot::Mutex;
 
 use super::BackendService;
@@ -13,8 +15,9 @@ use crate::ports::{AgentRuntime, RuntimeError, RuntimeRequest, UpdateSink};
 struct Runtime {
     calls: Mutex<Vec<(String, String, Option<String>)>>,
     probe_failure: bool,
-    ollama_states: Mutex<VecDeque<BackendInfo>>,
-    ollama_opened: AtomicBool,
+    /// probe のたびに先頭から1つ進む、バックエンド一覧の移り変わり
+    states: Mutex<VecDeque<Vec<BackendInfo>>>,
+    started: AtomicBool,
 }
 
 #[async_trait]
@@ -23,7 +26,7 @@ impl AgentRuntime for Runtime {
         panic!("unused")
     }
     fn backends(&self) -> Vec<BackendInfo> {
-        self.ollama_states.lock().front().cloned().into_iter().collect()
+        self.states.lock().front().cloned().unwrap_or_default()
     }
     async fn run(&self, _: &str, _: RuntimeRequest, _: UpdateSink) -> Result<String, RuntimeError> {
         panic!("unused")
@@ -33,14 +36,17 @@ impl AgentRuntime for Runtime {
         if self.probe_failure {
             return Err(RuntimeError::Failed("バックエンドの再確認がタイムアウトしました".to_owned()));
         }
-        let mut states = self.ollama_states.lock();
+        let mut states = self.states.lock();
         if states.len() > 1 {
             states.pop_front();
         }
         Ok(())
     }
-    async fn open_ollama(&self) -> Result<(), RuntimeError> {
-        self.ollama_opened.store(true, Ordering::Relaxed);
+    async fn install_cli(&self, _: &InstallGuide) -> Result<(), RuntimeError> {
+        panic!("unused")
+    }
+    async fn start(&self, _: &str, _: &StartSpec) -> Result<(), RuntimeError> {
+        self.started.store(true, Ordering::Relaxed);
         Ok(())
     }
     async fn login(&self, _: &str) -> Result<(), RuntimeError> {
@@ -55,12 +61,30 @@ impl AgentRuntime for Runtime {
     }
 }
 
+/// 契約の実例（contracts/ipc/snapshot.json）にあるバックエンドの申告
+fn declared(id: &str) -> BackendInfo {
+    let snapshot: guild_domain::snapshot::Snapshot =
+        serde_json::from_str(include_str!("../../../../../contracts/ipc/snapshot.json")).unwrap();
+    snapshot.backends.into_iter().find(|backend| backend.id == id).unwrap()
+}
+
+/// API キーを保存できると申告するバックエンド
+fn keyed(id: &str) -> BackendInfo {
+    let api_key = Some(ApiKeySpec { env_var: "EXAMPLE_API_KEY".to_owned() });
+    BackendInfo { id: id.to_owned(), setup: BackendSetup { api_key, ..BackendSetup::default() }, ..declared("codex") }
+}
+
+fn service_with(backends: Vec<BackendInfo>) -> (Arc<Runtime>, BackendService) {
+    let runtime = Arc::new(Runtime { states: Mutex::new(VecDeque::from([backends])), ..Runtime::default() });
+    (runtime.clone(), BackendService::new(runtime))
+}
+
 #[tokio::test]
 async fn validates_before_forwarding_to_the_runtime() {
-    let runtime = Arc::new(Runtime::default());
-    let service = BackendService::new(runtime.clone());
+    let (runtime, service) = service_with(vec![declared("claude"), keyed("grok"), keyed("muse")]);
     for (backend, action, key) in [
         ("claude", "set", Some("dummy")),
+        ("unknown", "set", Some("dummy")),
         ("grok", "get", None),
         ("muse", "set", None),
         ("grok", "set", Some("  ")),
@@ -77,7 +101,7 @@ async fn validates_before_forwarding_to_the_runtime() {
 
 #[tokio::test]
 async fn redacts_runtime_failures() {
-    let service = BackendService::new(Arc::new(Runtime::default()));
+    let (_, service) = service_with(vec![keyed("grok")]);
     let error = service.api_key("grok", "set", Some("fail-dummy")).await.unwrap_err().to_string();
     assert!(!error.contains("private-dummy-error"));
     assert!(!error.contains("fail-dummy"));
@@ -91,17 +115,25 @@ async fn refresh_returns_probe_failures_to_the_caller() {
 }
 
 #[tokio::test(start_paused = true)]
-async fn start_ollama_waits_for_the_model_list_after_opening() {
-    let snapshot: guild_domain::snapshot::Snapshot =
-        serde_json::from_str(include_str!("../../../../../contracts/ipc/snapshot.json")).unwrap();
-    let ready = snapshot.backends.into_iter().find(|backend| backend.id == "ollama").unwrap();
+async fn start_opens_the_app_and_waits_for_the_model_list() {
+    let ready = declared("ollama");
     let stopped = BackendInfo { status: BackendStatus::Stopped, models: Vec::new(), ..ready.clone() };
-    let runtime = Arc::new(Runtime {
-        ollama_states: Mutex::new(VecDeque::from([stopped.clone(), stopped, ready])),
-        ..Runtime::default()
-    });
+    let states = VecDeque::from([vec![stopped.clone()], vec![stopped], vec![ready]]);
+    let runtime = Arc::new(Runtime { states: Mutex::new(states), ..Runtime::default() });
     let service = BackendService::new(runtime.clone());
-    assert!(service.start_ollama().await.is_ok());
-    assert!(runtime.ollama_opened.load(Ordering::Relaxed));
+    assert!(service.start("ollama").await.is_ok());
+    assert!(runtime.started.load(Ordering::Relaxed));
     assert!(!runtime.backends()[0].models.is_empty());
+}
+
+#[tokio::test]
+async fn setup_actions_are_limited_to_what_the_backend_declares() {
+    let (runtime, service) = service_with(vec![declared("claude"), declared("ollama")]);
+    let cannot_start = service.start("claude").await.unwrap_err().to_string();
+    assert!(cannot_start.contains("アプリから起動できません"), "{cannot_start}");
+    assert!(service.start("unknown").await.is_err());
+    assert!(!runtime.started.load(Ordering::Relaxed));
+    assert!(service.install_cli("ollama").await.is_err());
+    assert!(service.install_cli("unknown").await.is_err());
+    assert!(service.login("ollama").await.unwrap_err().to_string().contains("ログインできません"));
 }

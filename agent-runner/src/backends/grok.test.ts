@@ -1,5 +1,5 @@
 vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: (_backend: string, env = process.env) => Promise.resolve(env),
+  apiKeyEnvironment: (_backend: string, _envVar: string, env = process.env) => Promise.resolve(env),
 }));
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { grokAdapter, grokProvider } from './grok.ts';
@@ -38,7 +38,10 @@ describe('Grok provider', () => {
   it('publishes model selection and unsupported capabilities', async () => {
     expect(grokAdapter.info()).toMatchObject({
       id: 'grok',
-      canLogin: false,
+      folderScope: 'sandbox',
+      toolsOption: null,
+      local: false,
+      setup: { install: null, start: null, login: null, apiKey: { envVar: 'XAI_API_KEY' } },
       capabilities: { webSearch: false },
       midRunPost: 'text',
     });

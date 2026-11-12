@@ -3,19 +3,17 @@ import { join } from 'node:path';
 import { BackendError } from '../backends/types.ts';
 import { WINDOWS_CREDENTIAL_SCRIPT } from './windows-script.ts';
 
-export type KeyBackend = 'grok' | 'muse';
+// バックエンドの API キーを OS の資格情報ストアに保存する。どのバックエンドが使えるか・代わりに使う環境変数の名前は、
+// アダプタが申告する（BackendInfo.setup.apiKey）。
 export type KeyAction = 'status' | 'set' | 'delete';
-export const KEY_ENV = { grok: 'XAI_API_KEY', muse: 'MODEL_API_KEY' } as const;
+/** 資格情報の名前に使えるバックエンド ID の形（windows-script.ts も同じ形だけを受け付ける） */
+const BACKEND_ID = /^[a-z][a-z0-9-]{0,31}$/;
 const STORE_FAILURE = 'OSの資格情報ストアを利用できない。Windowsの資格情報管理とPowerShellを確認してください。';
-const pending = new Map<KeyBackend, Promise<unknown>>();
-
-export function isKeyBackend(value: unknown): value is KeyBackend {
-  return value === 'grok' || value === 'muse';
-}
+const pending = new Map<string, Promise<unknown>>();
 
 // No plaintext fallback. A failed read must never silently select a different credential.
 export function credentialStore(
-  backend: KeyBackend,
+  backend: string,
   action: 'get' | 'set' | 'delete',
   key?: string,
 ): Promise<string | null> {
@@ -30,7 +28,8 @@ export function credentialStore(
   return operation;
 }
 
-async function operate(backend: KeyBackend, action: 'get' | 'set' | 'delete', key?: string): Promise<string | null> {
+async function operate(backend: string, action: 'get' | 'set' | 'delete', key?: string): Promise<string | null> {
+  if (!BACKEND_ID.test(backend)) throw new BackendError('bad_request', 'APIキーを保存できないバックエンドです。');
   if (process.platform !== 'win32') {
     if (action === 'get') return null;
     throw new BackendError('unsupported_permission', 'APIキーの安全な保存は現在Windowsのみ対応しています。');
@@ -87,15 +86,17 @@ async function operate(backend: KeyBackend, action: 'get' | 'set' | 'delete', ke
   });
 }
 
+/** 保存したキーがあれば envVar に入れた環境変数（なければ、もとの環境変数のまま） */
 export async function apiKeyEnvironment(
-  backend: KeyBackend,
+  backend: string,
+  envVar: string,
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<NodeJS.ProcessEnv> {
   const saved = await credentialStore(backend, 'get');
-  return { ...env, [KEY_ENV[backend]]: saved ?? env[KEY_ENV[backend]] };
+  return { ...env, [envVar]: saved ?? env[envVar] };
 }
 
-export async function manageApiKey(backend: KeyBackend, action: KeyAction, key?: string): Promise<string> {
+export async function manageApiKey(backend: string, envVar: string, action: KeyAction, key?: string): Promise<string> {
   if (action === 'set') {
     if (!key?.trim() || Buffer.byteLength(key.trim(), 'utf8') > 2560 || /[\r\n\0]/.test(key)) {
       throw new BackendError('bad_request', 'APIキーを1行・2560バイト以内で入力してください。');
@@ -103,6 +104,6 @@ export async function manageApiKey(backend: KeyBackend, action: KeyAction, key?:
     await credentialStore(backend, 'set', key.trim());
   } else if (action === 'delete') await credentialStore(backend, 'delete');
   const saved = await credentialStore(backend, 'get');
-  const source = saved !== null ? 'saved' : process.env[KEY_ENV[backend]]?.trim() ? 'environment' : 'unset';
+  const source = saved !== null ? 'saved' : process.env[envVar]?.trim() ? 'environment' : 'unset';
   return JSON.stringify({ source, supported: process.platform === 'win32' });
 }

@@ -18,7 +18,11 @@
 //   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
 //   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
 
-export const PROTOCOL_VERSION = 2;
+export const PROTOCOL_VERSION = 3;
+
+import type { BackendSetup, FolderScope } from './protocol-backend.ts';
+
+export type { ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec } from './protocol-backend.ts';
 
 export type PermissionKey =
   'webSearch' | 'webFetch' | 'readFiles' | 'readAnywhere' | 'writeFiles' | 'writeAnywhere' | 'runCommands' | 'skills';
@@ -88,10 +92,19 @@ export interface BackendInfo {
    * 権限は役割で決まり、どのバックエンドでも同じだが、ここに挙げた操作だけは役割の権限より広く動きうる
    */
   unrestricted: PermissionKey[];
-  /** アプリからログインを始められる（login 要求を受け付ける） */
-  canLogin: boolean;
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
   midRunPost: MidRunPost | null;
+  /** 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら null） */
+  folderScope: FolderScope | null;
+  /**
+   * 道具を使うかどうかを切り替える設定（options にある真偽値の項目の key）。null なら役割の権限どおりに使う。
+   * key があるときは、その設定が true で、選んだモデルが道具に対応している（ModelSpec.tools）ときだけ使う
+   */
+  toolsOption: string | null;
+  /** この PC の中で動く（API の利用料がかからない） */
+  local: boolean;
+  /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
+  setup: BackendSetup;
 }
 
 export interface SkillPayload {
@@ -162,9 +175,9 @@ export type RunnerRequest =
     }
   | { type: 'cancel'; id: string }
   /** バックエンドの状態（認証など）を確認し直して backends を送る */
-  | { type: 'apiKey'; id: string; backend: 'grok' | 'muse'; action: 'status' | 'set' | 'delete'; key?: string }
+  | { type: 'apiKey'; id: string; backend: string; action: 'status' | 'set' | 'delete'; key?: string }
   | { type: 'probe'; id: string }
-  /** ログインを始める（canLogin のものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
+  /** ログインを始める（setup.login のあるものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
   | { type: 'login'; id: string; backend: string }
   | { type: 'shutdown' };
 

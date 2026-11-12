@@ -8,7 +8,7 @@ import type { AgentInput, BackendInfo, ErrorCode } from '@/shared/types/domain';
 import { checkIntervalMin, DEFAULT_INTERVAL_MIN, parseIntervalMin } from './autonomy';
 import { parseOptionValues } from './backendOptions';
 import type { AgentDraft } from './draft';
-import { rolePermissions } from '@/shared/lib/permissionPolicy';
+import { rolePermissions, toolsEnabled, toolsRequested } from '@/shared/lib/permissionPolicy';
 import type { AgentTemplate } from '@/shared/types/domain';
 
 export type AgentField =
@@ -96,9 +96,7 @@ export function agentErrorField(code: ErrorCode | null, field: string | null): A
 }
 
 function toolModelError(draft: AgentDraft, ctx: ValidationContext): string | null {
-  if (draft.backend !== 'ollama' || draft.optionValues.enableTools !== true) return null;
   const info = ctx.backends.find((candidate) => candidate.id === draft.backend);
-  return info?.models.find((model) => model.id === (draft.model || info.defaultModel))?.tools === true
-    ? null
-    : '道具に対応したモデルを選んでください';
+  if (!info || !toolsRequested(info, draft.optionValues)) return null;
+  return toolsEnabled(info, draft.model, draft.optionValues) ? null : '道具に対応したモデルを選んでください';
 }

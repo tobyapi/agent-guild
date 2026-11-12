@@ -1,4 +1,6 @@
 //! 順序付きマイグレーション（`PRAGMA user_version`）とスキーマ指紋（meta 表）。
+//! 一覧にある移行は凍結済みで、中身を書き換えない。スキーマを変えるときは末尾に新しい移行を足す
+//! （古い版のデータベースは、開くときに未適用の分だけが当たる）。
 //! 適用済みの移行の中身が今のコードと違えば `fingerprint_matches` が false になり、Database::open が
 //! デバッグビルドでは古い DB を退避して作り直す（リリースビルドでは決してしない）。
 
@@ -7,14 +9,8 @@ use rusqlite::{params, Connection, OptionalExtension};
 /// 自分の DB である印（PRAGMA application_id。"GUIL"）
 pub const APPLICATION_ID: i32 = 0x4755_494C;
 
-/// 移行の一覧（index + 1 が user_version）
-const MIGRATIONS: &[&str] = &[
-    include_str!("migrations/0001_init.sql"),
-    include_str!("migrations/0002_run_measurements.sql"),
-    include_str!("migrations/0003_skill_source.sql"),
-    include_str!("migrations/0004_lobby.sql"),
-    include_str!("migrations/0005_channel_workspace.sql"),
-];
+/// 移行の一覧（index + 1 が user_version）。並びと中身は変えず、末尾に足すだけ
+const MIGRATIONS: &[&str] = &[include_str!("migrations/0001_init.sql")];
 
 /// 移行の仕組みが使う表（指紋・初期データの記録）。移行の外で作る
 const META_TABLE: &str = "CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)";
@@ -72,7 +68,7 @@ pub fn migrate(conn: &Connection) -> rusqlite::Result<()> {
 }
 
 /// 先頭 count 本の移行の指紋（FNV-1a 64bit。改行コードの違いは無視する）
-fn fingerprint(count: usize) -> String {
+pub(super) fn fingerprint(count: usize) -> String {
     let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
     for sql in MIGRATIONS.iter().take(count) {
         for byte in sql.replace("\r\n", "\n").bytes().chain(std::iter::once(0)) {

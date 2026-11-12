@@ -18,8 +18,8 @@ it('reads the Grok credential environment on every recheck', async () => {
   expect(await grokAdapter.probe()).toMatchObject({ status: 'needs_auth' });
   const result = await grokAdapter.probe();
   expect(result.status).toBe('ready');
-  expect(apiKeyEnvironment).toHaveBeenNthCalledWith(1, 'grok');
-  expect(apiKeyEnvironment).toHaveBeenNthCalledWith(2, 'grok');
+  expect(apiKeyEnvironment).toHaveBeenNthCalledWith(1, 'grok', 'XAI_API_KEY');
+  expect(apiKeyEnvironment).toHaveBeenNthCalledWith(2, 'grok', 'XAI_API_KEY');
   expect(JSON.stringify(result)).not.toContain('dummy-saved-key');
 });
 

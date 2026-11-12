@@ -1,10 +1,11 @@
-//! バックエンドの状態の確認し直し（refresh_backends）と、アプリからのログイン（login_backend）。
-//! 結果はランタイムの状態の変化（state-changed）で届く。
+//! バックエンドの状態の確認し直し（refresh_backends）と、アプリからのセットアップ（インストール・起動・ログイン・API キー）。
+//! どのバックエンドで何ができるかは、アダプタの申告（BackendInfo.setup）だけで決める。結果はランタイムの状態の変化
+//! （state-changed）で届く。
 
 use std::sync::Arc;
 use std::time::Duration;
 
-use guild_domain::backend::BackendStatus;
+use guild_domain::backend::{BackendInfo, BackendStatus};
 use guild_domain::error::ValidationError;
 
 use crate::error::{AppError, AppResult};
@@ -23,8 +24,15 @@ impl BackendService {
         Self { runtime }
     }
 
+    /// 申告されているバックエンド（ランナーが ready でなければ見つからない）
+    fn find(&self, backend_id: &str) -> AppResult<BackendInfo> {
+        let found = self.runtime.backends().into_iter().find(|backend| backend.id == backend_id);
+        found.ok_or(AppError::NotFound("バックエンド"))
+    }
+
     pub async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> AppResult<String> {
-        if !matches!(backend, "grok" | "muse") || !matches!(action, "status" | "set" | "delete") {
+        let supported = self.find(backend).is_ok_and(|info| info.setup.api_key.is_some());
+        if !supported || !matches!(action, "status" | "set" | "delete") {
             return Err(AppError::Validation(ValidationError::new("APIキー設定の対象・操作が不正です")));
         }
         if action == "set"
@@ -45,47 +53,48 @@ impl BackendService {
         self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
     }
 
-    pub async fn start_ollama(&self) -> AppResult<()> {
-        if self.ollama_status() == Some(BackendStatus::Ready) {
+    /// 止まっているバックエンドのアプリを開き、使えるようになる（か、使えないと分かる）まで待つ
+    pub async fn start(&self, backend_id: &str) -> AppResult<()> {
+        let backend = self.find(backend_id)?;
+        let Some(spec) = backend.setup.start else {
+            return Err(AppError::validation(format!("{} はアプリから起動できません", backend.label)));
+        };
+        if backend.status == BackendStatus::Ready {
             return Ok(());
         }
-        self.runtime.open_ollama().await.map_err(|error| AppError::Runtime(error.to_string()))?;
-        tokio::time::timeout(Duration::from_secs(20), async {
+        self.runtime.start(&backend.label, &spec).await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        let settled = async {
             loop {
                 self.refresh().await?;
-                if matches!(self.ollama_status(), Some(BackendStatus::Ready | BackendStatus::Unavailable)) {
+                if matches!(self.find(backend_id)?.status, BackendStatus::Ready | BackendStatus::Unavailable) {
                     return Ok(());
                 }
                 tokio::time::sleep(Duration::from_millis(400)).await;
             }
-        })
-        .await
-        .map_err(|_| {
-            AppError::Runtime(
-                "Ollama の起動を確認できませんでした。Ollama の画面を確認して「再確認」を押してください。".to_owned(),
-            )
+        };
+        tokio::time::timeout(Duration::from_secs(20), settled).await.map_err(|_| {
+            AppError::Runtime(format!(
+                "{0} の起動を確認できませんでした。{0} の画面を確認して「再確認」を押してください。",
+                backend.label
+            ))
         })?
     }
 
-    fn ollama_status(&self) -> Option<BackendStatus> {
-        self.runtime.backends().into_iter().find(|backend| backend.id == "ollama").map(|backend| backend.status)
-    }
-
+    /// 使えないバックエンドの CLI を、公式のインストーラーで入れる
     pub async fn install_cli(&self, backend_id: &str) -> AppResult<()> {
-        let label = match backend_id {
-            "claude" => "Claude Code",
-            "codex" => "Codex",
-            _ => return Err(AppError::validation("セットアップの対象が不正です")),
+        let Some(guide) = self.find(backend_id).ok().and_then(|backend| backend.setup.install) else {
+            return Err(AppError::validation("セットアップの対象が不正です"));
         };
         if self.is_available(backend_id) {
             return Ok(());
         }
-        self.runtime.install_cli(backend_id).await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        self.runtime.install_cli(&guide).await.map_err(|error| AppError::Runtime(error.to_string()))?;
         self.refresh().await?;
         if self.is_available(backend_id) {
             Ok(())
         } else {
-            Err(AppError::Runtime(format!("インストールした {label} を確認できませんでした。再確認をお試しください。")))
+            let cli = guide.cli;
+            Err(AppError::Runtime(format!("インストールした {cli} を確認できませんでした。再確認をお試しください。")))
         }
     }
 
@@ -97,13 +106,8 @@ impl BackendService {
 
     /// ログインを始め、利用者が終える（窓が閉じる）まで待つ。ログインできなければ runtime エラー
     pub async fn login(&self, backend_id: &str) -> AppResult<()> {
-        let backend = self
-            .runtime
-            .backends()
-            .into_iter()
-            .find(|backend| backend.id == backend_id)
-            .ok_or(AppError::NotFound("バックエンド"))?;
-        if !backend.can_login {
+        let backend = self.find(backend_id)?;
+        if backend.setup.login.is_none() {
             let message = format!("{} はアプリからログインできません", backend.label);
             return Err(AppError::Validation(ValidationError::new(message)));
         }

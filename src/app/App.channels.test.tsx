@@ -21,9 +21,9 @@ it('作業フォルダを画面で保存し、開き直すと設定が復元さ�
   const reopened = within(openDialog());
   expect(reopened.getByLabelText<HTMLSelectElement>('ファイルの範囲').value).toBe('folder');
   expect(reopened.getByRole<HTMLInputElement>('textbox', { name: '作業フォルダ' }).value).toBe('/tmp/guild-project');
-  fireEvent.change(reopened.getByLabelText('ファイルの範囲'), { target: { value: 'legacy' } });
+  fireEvent.change(reopened.getByLabelText('ファイルの範囲'), { target: { value: 'shared' } });
   fireEvent.click(reopened.getByRole('button', { name: '保存' }));
   await advance(1000);
   fireEvent.click(screen.getByRole('button', { name: 'チャンネルを編集' }));
-  expect(within(openDialog()).getByLabelText<HTMLSelectElement>('ファイルの範囲').value).toBe('legacy');
+  expect(within(openDialog()).getByLabelText<HTMLSelectElement>('ファイルの範囲').value).toBe('shared');
 });

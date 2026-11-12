@@ -1,14 +1,20 @@
 import { readFile } from 'node:fs/promises';
 import type { ImagePayload, ModelSpec, Permissions } from '../protocol.ts';
 import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
-import { BackendError, type BackendAdapter, type BackendProbe, type RunContext, type RunRequest } from './types.ts';
+import {
+  BackendError,
+  NO_SETUP,
+  type BackendAdapter,
+  type BackendProbe,
+  type RunContext,
+  type RunRequest,
+} from './types.ts';
 import { prepareSkills } from './ollama/skills.ts';
 import { jsonChat } from './ollama/json-chat.ts';
 import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
 import { toolChat } from './ollama/chat.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
-import { assertFolderScope } from './folder-scope.ts';
 
 const NO_TOOLS: Permissions = {
   webSearch: false,
@@ -158,10 +164,12 @@ export const ollamaAdapter: BackendAdapter = {
     permissionRules: PERMISSION_RULES,
     leakRisks: [],
     unrestricted: [],
-    canLogin: false,
     midRunPost: 'tool',
+    folderScope: 'files',
+    toolsOption: 'enableTools',
+    local: true,
+    setup: { ...NO_SETUP, start: process.platform === 'darwin' ? { macBundleId: 'com.electron.ollama' } : null },
   }),
   probe,
   run,
-  folderScope: assertFolderScope,
 };

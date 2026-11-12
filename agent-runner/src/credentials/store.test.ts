@@ -54,22 +54,22 @@ afterEach(() => {
 describe('OS credential settings', () => {
   it('saves, replaces and deletes independently; status never returns a key', async () => {
     vi.stubEnv('XAI_API_KEY', 'environment-grok');
-    await manageApiKey('grok', 'set', 'first-grok');
-    await manageApiKey('muse', 'set', 'saved-muse');
-    expect(await apiKeyEnvironment('grok')).toHaveProperty('XAI_API_KEY', 'first-grok');
-    expect(await manageApiKey('grok', 'set', 'replacement')).toBe('{"source":"saved","supported":true}');
-    expect(await apiKeyEnvironment('grok')).toHaveProperty('XAI_API_KEY', 'replacement');
-    expect(await manageApiKey('grok', 'delete')).toBe('{"source":"environment","supported":true}');
-    expect(await apiKeyEnvironment('grok')).toHaveProperty('XAI_API_KEY', 'environment-grok');
-    expect(await apiKeyEnvironment('muse')).toHaveProperty('MODEL_API_KEY', 'saved-muse');
-    await manageApiKey('muse', 'delete');
-    await manageApiKey('muse', 'delete');
+    await manageApiKey('grok', 'XAI_API_KEY', 'set', 'first-grok');
+    await manageApiKey('muse', 'MODEL_API_KEY', 'set', 'saved-muse');
+    expect(await apiKeyEnvironment('grok', 'XAI_API_KEY')).toHaveProperty('XAI_API_KEY', 'first-grok');
+    expect(await manageApiKey('grok', 'XAI_API_KEY', 'set', 'replacement')).toBe('{"source":"saved","supported":true}');
+    expect(await apiKeyEnvironment('grok', 'XAI_API_KEY')).toHaveProperty('XAI_API_KEY', 'replacement');
+    expect(await manageApiKey('grok', 'XAI_API_KEY', 'delete')).toBe('{"source":"environment","supported":true}');
+    expect(await apiKeyEnvironment('grok', 'XAI_API_KEY')).toHaveProperty('XAI_API_KEY', 'environment-grok');
+    expect(await apiKeyEnvironment('muse', 'MODEL_API_KEY')).toHaveProperty('MODEL_API_KEY', 'saved-muse');
+    await manageApiKey('muse', 'MODEL_API_KEY', 'delete');
+    await manageApiKey('muse', 'MODEL_API_KEY', 'delete');
     vi.stubEnv('MODEL_API_KEY', '');
-    expect(await manageApiKey('muse', 'status')).toContain('"source":"unset"');
+    expect(await manageApiKey('muse', 'MODEL_API_KEY', 'status')).toContain('"source":"unset"');
   });
   it('passes secrets via stdin, with a fixed executable and fixed script arguments', async () => {
     const key = 'dummy-$(must-not-run)-`literal`';
-    await manageApiKey('grok', 'set', key);
+    await manageApiKey('grok', 'XAI_API_KEY', 'set', key);
     expect(JSON.stringify(spawn.mock.calls)).not.toContain(key);
     expect(requests[0]).toEqual({ backend: 'grok', action: 'set', key });
     expect(spawn.mock.calls[0]?.[2]).toMatchObject({ windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -77,10 +77,10 @@ describe('OS credential settings', () => {
   it('does not expose helper failures or fall back when the store is inaccessible', async () => {
     control.fail = true;
     vi.stubEnv('XAI_API_KEY', 'environment-grok');
-    await expect(manageApiKey('grok', 'set', 'private-dummy')).rejects.not.toThrow('private-dummy');
-    await expect(apiKeyEnvironment('grok')).rejects.toThrow('資格情報');
+    await expect(manageApiKey('grok', 'XAI_API_KEY', 'set', 'private-dummy')).rejects.not.toThrow('private-dummy');
+    await expect(apiKeyEnvironment('grok', 'XAI_API_KEY')).rejects.toThrow('資格情報');
     control.fail = false;
-    expect(await manageApiKey('grok', 'status')).toContain('environment');
+    expect(await manageApiKey('grok', 'XAI_API_KEY', 'status')).toContain('environment');
   });
   it('serializes operations on each backend, including reads after updates', async () => {
     const first = credentialStore('grok', 'set', 'first');
@@ -92,7 +92,7 @@ describe('OS credential settings', () => {
   });
   it('rejects invalid keys without starting the credential helper', async () => {
     for (const key of ['', '  ', 'line\nbreak', 'nul\0byte', 'x'.repeat(2561)]) {
-      await expect(manageApiKey('muse', 'set', key)).rejects.toThrow('APIキー');
+      await expect(manageApiKey('muse', 'MODEL_API_KEY', 'set', key)).rejects.toThrow('APIキー');
     }
     expect(spawn).not.toHaveBeenCalled();
   });
@@ -101,9 +101,12 @@ describe('OS credential settings', () => {
       'process',
       Object.defineProperty(Object.create(process) as NodeJS.Process, 'platform', { value: 'linux' }),
     );
-    expect(await apiKeyEnvironment('muse', { MODEL_API_KEY: 'env-muse' })).toHaveProperty('MODEL_API_KEY', 'env-muse');
-    expect(await manageApiKey('muse', 'status')).toContain('"supported":false');
-    await expect(manageApiKey('muse', 'set', 'dummy')).rejects.toThrow('Windows');
+    expect(await apiKeyEnvironment('muse', 'MODEL_API_KEY', { MODEL_API_KEY: 'env-muse' })).toHaveProperty(
+      'MODEL_API_KEY',
+      'env-muse',
+    );
+    expect(await manageApiKey('muse', 'MODEL_API_KEY', 'status')).toContain('"supported":false');
+    await expect(manageApiKey('muse', 'MODEL_API_KEY', 'set', 'dummy')).rejects.toThrow('Windows');
     expect(spawn).not.toHaveBeenCalled();
   });
 });

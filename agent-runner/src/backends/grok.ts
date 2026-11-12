@@ -6,9 +6,9 @@ import { withoutSecrets } from './agent-env.ts';
 import { findCodex, CODEX_NOT_FOUND } from './codex-runtime/executable.ts';
 import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex, type CodexProvider } from './codex-runtime.ts';
-import { assertSandboxedFolderScope } from './folder-scope.ts';
 import {
   BackendError,
+  NO_SETUP,
   classifyErrorText,
   type BackendAdapter,
   type BackendProbe,
@@ -29,9 +29,12 @@ const CATALOG: ModelCatalog = {
   ],
 };
 
+/** アプリに保存した API キーがなければ、この環境変数のキーを使う */
+const API_KEY = { envVar: 'XAI_API_KEY' };
+
 async function probe(): Promise<BackendProbe> {
   if (findCodex() === null) return Promise.resolve({ status: 'unavailable', statusMessage: CODEX_NOT_FOUND });
-  const env = await apiKeyEnvironment('grok');
+  const env = await apiKeyEnvironment('grok', API_KEY.envVar);
   return Promise.resolve(
     env.XAI_API_KEY?.trim()
       ? {
@@ -107,17 +110,19 @@ export const grokAdapter: BackendAdapter = {
     permissionRules: [...PERMISSION_RULES],
     leakRisks: LEAK_RISKS.map((risk) => [...risk]),
     unrestricted: [...UNRESTRICTED],
-    canLogin: false,
     midRunPost: 'text',
+    folderScope: 'sandbox',
+    toolsOption: null,
+    local: false,
+    setup: { ...NO_SETUP, apiKey: API_KEY },
   }),
   probe,
   catalog: () => Promise.resolve(structuredClone(CATALOG)),
   async run(request, context) {
     context.signal.throwIfAborted();
     validate(request);
-    const provider = grokProvider(request.stateDir, await apiKeyEnvironment('grok'));
+    const provider = grokProvider(request.stateDir, await apiKeyEnvironment('grok', API_KEY.envVar));
     await mkdir(provider.env.CODEX_HOME!, { recursive: true });
     return runCodex(request, context, provider);
   },
-  folderScope: assertSandboxedFolderScope,
 };

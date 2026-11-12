@@ -3,7 +3,7 @@ import { CHANNEL_NAME_MAX, CHANNEL_TOPIC_MAX, cleanChannelName } from '@/shared/
 import { groupByPrimaryTag } from '@/features/agents';
 import type { TagGroup } from '@/features/agents';
 import { checkText } from '@/shared/lib/validation';
-import type { Agent, AgentTemplate, Channel } from '@/shared/types/domain';
+import type { Agent, AgentTemplate, BackendInfo, Channel, FolderScope, WorkspaceMode } from '@/shared/types/domain';
 
 /** 開いているチャンネル: 今のものが残っていればそれ、なければ先頭（チャンネルがなければ null） */
 export function resolveActiveChannel(channels: readonly Channel[], currentId: string | null): string | null {
@@ -38,8 +38,9 @@ export interface ChannelDraft {
   name: string;
   topic: string;
   memberIds: string[];
-  workspaceMode?: 'legacy' | 'folder' | 'global';
-  workspaceFolder?: string;
+  workspaceMode: WorkspaceMode;
+  /** workspaceMode が folder のときだけ使う */
+  workspaceFolder: string;
 }
 
 export type ChannelField = 'name' | 'topic' | 'workspaceFolder';
@@ -58,10 +59,32 @@ export function validateChannelDraft(draft: ChannelDraft): Partial<Record<Channe
     ['topic', checkText(draft.topic, { label: '話題', max: CHANNEL_TOPIC_MAX })],
     [
       'workspaceFolder',
-      draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test((draft.workspaceFolder ?? '').trim())
+      draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test(draft.workspaceFolder.trim())
         ? '作業フォルダの絶対パスを入力してください'
         : null,
     ],
   ];
   return Object.fromEntries(entries.filter((entry): entry is [ChannelField, string] => entry[1] !== null));
+}
+
+/**
+ * 指定フォルダのチャンネルで、どのバックエンドが何を使えるかの案内。バックエンドの申告（folderScope）から作る
+ * （名前を決め打ちしないので、バックエンドが増えても直さなくてよい）
+ */
+export function folderScopeHint(backends: readonly BackendInfo[]): string {
+  const labels = (scope: FolderScope | null): string =>
+    backends
+      .filter((backend) => backend.folderScope === scope)
+      .map((backend) => backend.label)
+      .join('・');
+  const lines: Array<[string, string]> = [
+    [labels('files'), 'は、ファイルの操作だけを使えます（コマンドは使えません）。'],
+    [labels('sandbox'), 'は、コマンドも範囲の中で使えます。'],
+    [labels(null), 'は範囲を守れないため、このチャンネルでは実行しません。'],
+  ];
+  return [
+    '同じフォルダを複数のチャンネルで共有できます。範囲を変えたあとは、それまでの会話とメモを AI に渡しません。スキルは使えません。',
+    ...lines.filter(([names]) => names !== '').map(([names, text]) => names + text),
+    '範囲を守るための OS の隔離が使えない PC では、実行を止めます。',
+  ].join('');
 }

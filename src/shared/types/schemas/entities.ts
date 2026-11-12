@@ -12,6 +12,7 @@ import type {
   Permissions,
   Profile,
   UnmentionedPolicy,
+  WorkspaceMode,
 } from '../domain';
 import { anything, arrayOf, boolean, nullable, number, objectOf, omitKeys, oneOf, recordOf, string } from '../schema';
 import type { Schema } from '../schema';
@@ -93,14 +94,14 @@ export const agentTemplateSchema = {
 } satisfies Schema<AgentTemplate>;
 
 const workspaceSchema = objectOf({
-  mode: oneOf<'legacy' | 'folder' | 'global'>({ legacy: true, folder: true, global: true }),
+  mode: oneOf<WorkspaceMode>({ shared: true, folder: true, global: true }),
   folder: nullable(string),
   revision: number,
   afterSeq: number,
 });
 export const channelSchema = {
-  workspace: (value, path) => (value === undefined ? [] : workspaceSchema(value, path)),
-  isLobby: (value, path) => (value === undefined ? [] : boolean(value, path)),
+  workspace: workspaceSchema,
+  isLobby: boolean,
   id: string,
   name: string,
   topic: string,

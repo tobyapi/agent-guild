@@ -4,7 +4,6 @@ mod channels_messages;
 mod delegations;
 mod opening;
 mod records;
-mod skill_source;
 mod statistics;
 
 use std::fs;

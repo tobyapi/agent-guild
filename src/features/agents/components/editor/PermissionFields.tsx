@@ -32,8 +32,8 @@ export function PermissionFields({ backendId, model, options, tags, permissions,
   const backend = useBackend(backendId);
   const role = permissionRole(useTemplates(), tags);
   const granted = PERMISSION_ORDER.filter((key) => permissions[key]);
-  const usable = modelPermissions(permissions, backend, model, options, backendId);
-  const unusable = unusablePermissions(permissions, backend, model, options, backendId);
+  const usable = modelPermissions(permissions, backend, model, options);
+  const unusable = unusablePermissions(permissions, backend, model, options);
   const unrestricted = unrestrictedPermissions(permissions, backend);
   const reasonOf = (key: keyof Permissions) => unusable.find((item) => item.key === key)?.reason;
   return (

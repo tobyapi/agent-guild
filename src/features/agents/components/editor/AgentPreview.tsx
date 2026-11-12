@@ -12,7 +12,7 @@ export function AgentPreview({ draft }: { draft: AgentDraft }) {
   const name = draft.name.trim();
   // 注意の札は、役割の権限のうちこの AI で実際に使える操作について出す
   const backend = useBackend(draft.backend);
-  const usable = modelPermissions(draft.permissions, backend, draft.model, draft.optionValues, draft.backend);
+  const usable = modelPermissions(draft.permissions, backend, draft.model, draft.optionValues);
   const risky = riskyGrants(usable);
   const leaky = leakRisk(backend, usable) !== null;
   const behaviors = behaviorSummary(draft);

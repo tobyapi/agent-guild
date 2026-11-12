@@ -46,6 +46,9 @@ impl Workspace for FakeWorkspace {
             work,
         })
     }
+    fn read_scoped_memory(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> AppResult<String> {
+        Ok(String::new())
+    }
 
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
         let root = PathBuf::from("/ws").join(agent.as_str());

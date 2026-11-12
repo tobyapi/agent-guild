@@ -50,7 +50,7 @@ export function claudeOptions(
   const guildTools = sandboxed ? [POST_TOOL, COMMAND_TOOL] : [POST_TOOL];
   return {
     // ファイル道具のパスの判定は、canUseTool が呼ばれない（Claude Code が確認なしで通す）呼び出しにも PreToolUse で適用する
-    ...isolatedToolOptions([...tools, ...guildTools], request, [fileAccessHook(request)]),
+    ...isolatedToolOptions([...tools, ...guildTools], [fileAccessHook(request)]),
     pathToClaudeCodeExecutable: executable,
     cwd: request.workspace,
     additionalDirectories: permissions.readFiles ? request.readableDirs : [],

@@ -56,7 +56,7 @@ Seatbeltは既定拒否、管理領域への書き込みとその祖先の移動
 
 チャンネル専用の作業場所・履歴境界・メモを維持します。指定フォルダモードは、Ollama で、macOS と隔離が使える Windows 11 のときに使えます（Codex 系の守り方は codex-folder-scope.md）。割り当てフォルダと専用作業場所だけを書き込み先にします。相談相手の成果物と添付は読取専用です。相談相手の `MEMORY.md`、範囲外へのリンク、ハードリンクは拒否します。コマンド・スキル・readAnywhere・writeAnywhereとの併用も拒否します。Rustで権限を絞り、ランナーと実行処理でも再検査します。
 
-道具設定は既存の `agents.backend_options` JSONへ保存します。チャンネルの作業フォルダ保存にはリモート変更のmigration 0005を維持しています。
+道具設定は `agents.backend_options` の JSON に、チャンネルの作業範囲は `channels.workspace_json` に保存します。
 
 ## 上限と残る制約
 

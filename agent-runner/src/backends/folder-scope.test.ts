@@ -4,12 +4,12 @@ import { join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
 import { runRequest } from './run.test-support.ts';
 import {
+  assertBackendFolderScope,
   assertFolderScope,
   assertSandboxedFolderScope,
-  folderFileHook,
-  folderFileResult,
   scopedTarget,
 } from './folder-scope.ts';
+import type { BackendDescriptor } from './types.ts';
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -39,70 +39,58 @@ async function fixture() {
   return { request, shared, peer, outside };
 }
 
-it('permits project writes and peer artifacts, rejects outside and peer memory', async () => {
+it('指定先への書き込みと相談相手の成果物の読み取りを通し、範囲の外と相談相手のメモは断る', async () => {
   const { request, shared, peer, outside } = await fixture();
-  expect(
-    (await folderFileResult(request, 'Write', { file_path: join(shared, 'new.txt'), content: 'ok' }))?.behavior,
-  ).toBe('allow');
-  expect((await folderFileResult(request, 'Read', { file_path: join(peer, 'artifact.txt') }))?.behavior).toBe('allow');
-  expect((await folderFileResult(request, 'Read', { file_path: join(peer, 'MEMORY.md') }))?.behavior).toBe('deny');
-  expect(
-    (await folderFileResult(request, 'Write', { file_path: join(peer, 'new.txt'), content: 'no' }))?.behavior,
-  ).toBe('deny');
+  expect(await scopedTarget(request, join(shared, 'new.txt'), true)).toBe(join(shared, 'new.txt'));
+  expect(await scopedTarget(request, join(peer, 'artifact.txt'), false)).toBe(join(peer, 'artifact.txt'));
+  expect(await scopedTarget(request, 'notes.md', true)).toBe(join(request.workspace, 'notes.md'));
+  await expect(scopedTarget(request, join(peer, 'MEMORY.md'), false)).rejects.toThrow('共有されません');
+  await expect(scopedTarget(request, join(peer, 'new.txt'), true)).rejects.toThrow('範囲外');
   await expect(scopedTarget(request, join(outside, 'outside.txt'), false)).rejects.toThrow('範囲外');
+  await expect(scopedTarget(request, '../outside/outside.txt', false)).rejects.toThrow('範囲外');
 });
 
-it('rejects external symlinks, hardlinks and absolute/traversing glob patterns', async () => {
+it('範囲の外へ出るリンクと、ハードリンクを断る', async () => {
   const { request, shared, outside } = await fixture();
   await symlink(outside, join(shared, 'escape'));
   await link(join(outside, 'outside.txt'), join(shared, 'hardlink'));
-  for (const path of ['escape/outside.txt', 'hardlink'])
-    expect((await folderFileResult(request, 'Read', { file_path: join(shared, path) }))?.behavior).toBe('deny');
-  for (const pattern of [join(outside, '*'), '../outside/*', '{../outside,src}/*'])
-    expect((await folderFileResult(request, 'Glob', { path: shared, pattern }))?.behavior).toBe('deny');
-  expect((await folderFileResult(request, 'Grep', { path: shared, pattern: 'outside' }))?.behavior).toBe('deny');
+  await expect(scopedTarget(request, join(shared, 'escape/outside.txt'), false)).rejects.toThrow('範囲外');
+  await expect(scopedTarget(request, join(shared, 'hardlink'), false)).rejects.toThrow('ハードリンク');
+  await expect(scopedTarget(request, join(shared, 'hardlink'), true)).rejects.toThrow('ハードリンク');
 });
 
-it('checks SDK auto-approved calls and rejects incompatible backends/permissions', async () => {
-  const { request, outside } = await fixture();
-  const hook = folderFileHook(request);
-  const result = await hook(
-    {
-      hook_event_name: 'PreToolUse',
-      tool_name: 'Read',
-      tool_input: { file_path: join(outside, 'outside.txt') },
-    } as never,
-    undefined,
-    { signal: new AbortController().signal },
-  );
-  expect(result).toMatchObject({ hookSpecificOutput: { permissionDecision: 'deny' } });
-  expect(() => assertFolderScope({ ...request, backend: 'claude' })).toThrow('リンク差し替え');
-  expect(() => assertFolderScope({ ...request, backend: 'codex' })).toThrow('未対応');
-  expect(() => assertFolderScope({ ...request, permissions: { ...request.permissions, writeAnywhere: true } })).toThrow(
-    '両立',
-  );
-});
-
-it('keeps the own-memory exception and denies permissions removed from roles', async () => {
-  const { request, shared } = await fixture();
-  request.permissions.readFiles = false;
-  request.permissions.writeFiles = false;
-  expect((await folderFileResult(request, 'Write', { file_path: 'MEMORY.md', content: 'memo' }))?.behavior).toBe(
-    'allow',
-  );
-  expect((await folderFileResult(request, 'Write', { file_path: join(shared, 'file'), content: 'no' }))?.behavior).toBe(
-    'deny',
-  );
-});
-
-it('lets sandboxed backends keep commands, but not machine-wide access or relative paths', async () => {
+it('ファイルの道具で守るバックエンドは、コマンド・スキル・PC 全体の読み書きと両立しない', async () => {
   const { request } = await fixture();
-  const codex = { ...request, backend: 'codex', permissions: { ...request.permissions, runCommands: true } };
-  expect(() => assertSandboxedFolderScope(codex)).not.toThrow();
-  expect(() => assertSandboxedFolderScope({ ...codex, writableDirs: undefined, workspace: 'relative' })).not.toThrow();
-  for (const key of ['readAnywhere', 'writeAnywhere'] as const)
-    expect(() => assertSandboxedFolderScope({ ...codex, permissions: { ...codex.permissions, [key]: true } })).toThrow(
+  expect(() => assertFolderScope(request)).not.toThrow();
+  for (const key of ['readAnywhere', 'writeAnywhere', 'skills', 'runCommands'] as const)
+    expect(() => assertFolderScope({ ...request, permissions: { ...request.permissions, [key]: true } })).toThrow(
       '両立',
     );
-  expect(() => assertSandboxedFolderScope({ ...codex, writableDirs: ['project'] })).toThrow('絶対パス');
+  expect(() => assertFolderScope({ ...request, writableDirs: ['project'] })).toThrow('絶対パス');
+  expect(() => assertFolderScope({ ...request, writableDirs: undefined, workspace: 'relative' })).not.toThrow();
+});
+
+it('隔離で守るバックエンドは、コマンドは使えるが、PC 全体の読み書きと相対パスは断る', async () => {
+  const { request } = await fixture();
+  const sandboxed = { ...request, permissions: { ...request.permissions, runCommands: true } };
+  expect(() => assertSandboxedFolderScope(sandboxed)).not.toThrow();
+  expect(() =>
+    assertSandboxedFolderScope({ ...sandboxed, writableDirs: undefined, workspace: 'relative' }),
+  ).not.toThrow();
+  for (const key of ['readAnywhere', 'writeAnywhere'] as const)
+    expect(() =>
+      assertSandboxedFolderScope({ ...sandboxed, permissions: { ...sandboxed.permissions, [key]: true } }),
+    ).toThrow('両立');
+  expect(() => assertSandboxedFolderScope({ ...sandboxed, writableDirs: ['project'] })).toThrow('絶対パス');
+});
+
+it('守り方は、ID ではなくバックエンドの申告で決まる', async () => {
+  const { request } = await fixture();
+  const commands = { ...request, permissions: { ...request.permissions, runCommands: true } };
+  const info = (folderScope: BackendDescriptor['folderScope']) => ({ label: 'Fake', folderScope }) as BackendDescriptor;
+  expect(() => assertBackendFolderScope(info('files'), request)).not.toThrow();
+  expect(() => assertBackendFolderScope(info('files'), commands)).toThrow('両立');
+  expect(() => assertBackendFolderScope(info('sandbox'), commands)).not.toThrow();
+  expect(() => assertBackendFolderScope(info(null), request)).toThrow('Fake は範囲を守れないため');
+  expect(() => assertBackendFolderScope(info(null), { ...request, writableDirs: undefined })).not.toThrow();
 });

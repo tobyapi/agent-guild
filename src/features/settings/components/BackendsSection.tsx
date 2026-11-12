@@ -4,7 +4,10 @@ import { ApiKeySettings } from './ApiKeySettings';
 import { BackendInstallGuide } from './BackendInstallGuide';
 import styles from './SettingsDialog.module.css';
 
-/** バックエンド: すべてのバックエンドの状態と［すべて再確認］（docs/ui-design.md §6.2） */
+/**
+ * バックエンド: すべてのバックエンドの状態と［すべて再確認］（docs/ui-design.md §6.2）。インストールの案内と API キーの欄は、
+ * バックエンドが申告している（setup）ときだけ出す
+ */
 export function BackendsSection() {
   const backends = useBackends();
   const checking = useCheckingBackends();
@@ -24,10 +27,10 @@ export function BackendsSection() {
               <Tag>{backend.id}</Tag>
             </div>
             <BackendStatus backend={backend} />
-            {(backend.id === 'claude' || backend.id === 'codex') && backend.status === 'unavailable' && (
-              <BackendInstallGuide backendId={backend.id} />
+            {backend.setup.install && backend.status === 'unavailable' && (
+              <BackendInstallGuide backend={backend} guide={backend.setup.install} />
             )}
-            {(backend.id === 'grok' || backend.id === 'muse') && <ApiKeySettings backendId={backend.id} />}
+            {backend.setup.apiKey && <ApiKeySettings backend={backend} envVar={backend.setup.apiKey.envVar} />}
           </li>
         ))}
       </ul>

@@ -89,3 +89,14 @@ fn export_writes_a_consistent_copy() {
     drop((db, copied));
     fs::remove_dir_all(dir).unwrap();
 }
+
+/// 凍結した移行は書き換えない: 配布済みのアプリのデータベースと指紋が合わなくなり、開けなくなる。
+/// スキーマを変えるときは新しい移行を末尾に足し、その指紋をここに足す（既存の行は変えない）
+#[test]
+fn frozen_migrations_keep_their_fingerprints() {
+    let frozen = ["b9ebe7d784f86fd1"];
+    assert_eq!(frozen.len(), migrations::latest_version(), "足した移行の指紋を、この一覧にも足す");
+    for (index, expected) in frozen.iter().enumerate() {
+        assert_eq!(&migrations::fingerprint(index + 1), expected, "移行 {:04} までの指紋", index + 1);
+    }
+}

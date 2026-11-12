@@ -2,7 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { useBackends } from '@/features/runtime';
-import type { BackendInfo } from '@/shared/types/domain';
+import { backendInfo, NO_SETUP } from '@/shared/lib/backends.test-support';
 import { settingsApi } from '../api';
 import { useSettingsStore } from '../store';
 import { BackendsSection } from './BackendsSection';
@@ -13,7 +13,24 @@ vi.mock('@/features/runtime', async (importOriginal) => ({
 }));
 vi.mock('../api', () => ({ settingsApi: { openUrl: vi.fn().mockResolvedValue(null), installBackendCli: vi.fn() } }));
 
-const codex = { id: 'codex', label: 'Codex', status: 'unavailable', canLogin: false } as BackendInfo;
+const codex = backendInfo({
+  id: 'codex',
+  label: 'Codex',
+  status: 'unavailable',
+  setup: {
+    ...NO_SETUP,
+    install: {
+      cli: 'Codex CLI',
+      publisher: 'OpenAI',
+      scriptUrl: 'https://chatgpt.com/codex/install.sh',
+      shell: '/bin/sh',
+      binary: 'codex',
+      env: {},
+      docsUrl: 'https://learn.chatgpt.com/docs/codex/cli#install-codex',
+      loginCommand: 'codex login',
+    },
+  },
+});
 const GUIDE = 'Codex CLI のインストール手順';
 
 afterEach(() => {
@@ -41,7 +58,8 @@ it('インストール後にログインが必要になったら、インスト�
   vi.mocked(useBackends).mockReturnValue([codex]);
   const view = render(<BackendsSection />);
   expect(screen.getByText(GUIDE)).toBeTruthy();
-  vi.mocked(useBackends).mockReturnValue([{ ...codex, status: 'needs_auth', canLogin: true }]);
+  const login = { label: 'ChatGPT でログイン', waiting: 'ブラウザーで ChatGPT にログインしてください。' };
+  vi.mocked(useBackends).mockReturnValue([{ ...codex, status: 'needs_auth', setup: { ...codex.setup, login } }]);
   view.rerender(<BackendsSection />);
   expect(screen.queryByText(GUIDE)).toBeNull();
   expect(screen.getByText('ログインが必要')).toBeTruthy();

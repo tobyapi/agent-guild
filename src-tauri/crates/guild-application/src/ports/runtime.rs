@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use async_trait::async_trait;
 use guild_domain::agent::Permissions;
-use guild_domain::backend::{BackendInfo, RuntimeStatus};
+use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeStatus, StartSpec};
 use guild_domain::statistics::RunUsage;
 use serde_json::{Map, Value};
 
@@ -97,21 +97,13 @@ pub trait AgentRuntime: Send + Sync {
     async fn cancel(&self, job_id: &str);
     /// バックエンドの状態（認証など）を確認し直す。結果は状態の変化として届く
     async fn probe(&self) -> Result<(), RuntimeError>;
-    /// 利用者の操作でバックエンドの CLI をインストールする。
-    async fn install_cli(&self, _backend: &str) -> Result<(), RuntimeError> {
-        Err(RuntimeError::Failed("この環境ではアプリからセットアップできません".to_owned()))
-    }
-    /// 利用者の操作で Ollama アプリを開く。
-    async fn open_ollama(&self) -> Result<(), RuntimeError> {
-        Err(RuntimeError::Failed(
-            "この環境では Ollama を直接起動できません。Ollama を開いて再確認してください。".to_owned(),
-        ))
-    }
+    /// 利用者の操作で、バックエンドの CLI を公式のインストーラーで入れる（できない OS では Failed）
+    async fn install_cli(&self, guide: &InstallGuide) -> Result<(), RuntimeError>;
+    /// 利用者の操作で、止まっているバックエンドのアプリを開く（できない OS では Failed）。label は案内に出す名前
+    async fn start(&self, label: &str, spec: &StartSpec) -> Result<(), RuntimeError>;
     /// バックエンドのログインを始め、利用者が終える（窓が閉じる）まで待つ。終わると状態の確認し直しが届く。
     /// ログインできなければ Failed
     async fn login(&self, backend: &str) -> Result<(), RuntimeError>;
-    /// Status contains metadata only, never the saved API key.
-    async fn api_key(&self, _backend: &str, _action: &str, _key: Option<&str>) -> Result<String, RuntimeError> {
-        Err(RuntimeError::Failed("APIキー設定に対応していません".to_owned()))
-    }
+    /// API キーの状態を確かめる・保存する・消す。返すのは状態（保存の有無など）だけで、キーそのものは返さない
+    async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError>;
 }

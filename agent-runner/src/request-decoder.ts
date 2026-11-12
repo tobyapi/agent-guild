@@ -1,7 +1,6 @@
 // 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
-import { isKeyBackend } from './credentials/store.ts';
 import type { RunRequest } from './backends/types.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
 import type {
@@ -167,10 +166,14 @@ function decodeStrings(value: unknown): string[] | null {
   return items.every(isString) ? items : null;
 }
 
+/** API キーを保存できるバックエンド ID の形（資格情報の名前になる。保存できるバックエンドかは Dispatcher が確かめる） */
+const BACKEND_ID = /^[a-z][a-z0-9-]{0,31}$/;
+
 function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
   if (
     id === null ||
-    !isKeyBackend(value.backend) ||
+    !isString(value.backend) ||
+    !BACKEND_ID.test(value.backend) ||
     (value.action !== 'status' && value.action !== 'set' && value.action !== 'delete') ||
     (value.action === 'set' && typeof value.key !== 'string')
   )

@@ -61,11 +61,11 @@ describe('モックの画像・ファイルつきの発言', () => {
 });
 
 describe('モックのログイン', () => {
-  it('canLogin のバックエンドだけ受け付け、少し後に状態の変化を知らせる', async () => {
+  it('ログインを申告しているバックエンドだけ受け付け、少し後に状態の変化を知らせる', async () => {
     const mock = await createHarness();
     await mock.settle();
     const { backends } = await mock.transport.invoke('get_snapshot', {});
-    expect(backends.map((backend) => [backend.id, backend.canLogin])).toEqual([
+    expect(backends.map((backend) => [backend.id, backend.setup.login !== null])).toEqual([
       ['claude', true],
       ['codex', false],
       ['ollama', false],

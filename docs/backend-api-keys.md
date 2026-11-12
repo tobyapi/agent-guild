@@ -1,15 +1,15 @@
 # バックエンドのAPIキー設定
 
-設定 → バックエンドのGrok・Muse Spark欄で、APIキーを保存・更新・削除する。
+設定 → バックエンドで、APIキーを保存できると申告しているバックエンド（`BackendInfo.setup.apiKey`。いまは Grok と Muse Spark）の欄から、APIキーを保存・更新・削除する。
 入力はpasswordフィールドで伏せ字にし、送信開始時と画面を閉じたときに入力値を破棄する。
 保存済みキーを読み戻して画面に表示する機能はない。
 
-- 優先順位は、保存済みキー → Grokの`XAI_API_KEY`／Museの`MODEL_API_KEY`。
+- 優先順位は、保存済みキー → アダプタが申告した環境変数（`setup.apiKey.envVar`。Grokは`XAI_API_KEY`、Museは`MODEL_API_KEY`）。
 - 削除すると保存済みキーだけを消す。環境変数が残っていれば、引き続き認証に使う。
 - キーはprobeと実行開始のたびに読み直す。変更完了後の次の実行から反映する。
   実行中のSDKは開始時のキーを保持する。環境変数自体の変更にはアプリの再起動が必要。
 - 保存先はWindows資格情報マネージャーの汎用資格情報。
-  `AI-Guild/backend-api-key/grok`と`AI-Guild/backend-api-key/muse`を分ける。
+  名前は`AI-Guild/backend-api-key/<バックエンドのID>`で、バックエンドごとに分ける。
   現在のWindowsユーザー・端末で永続化し、アプリのデータフォルダやSQLiteには保存しない。
   同じWindowsユーザーのアプリインスタンス・データフォルダ間ではキーを共有する。
 - 現在、安全な保存に対応するのはWindowsのみ。他OSは従来の環境変数認証を使う。
@@ -35,8 +35,7 @@ Rust → runner: `apiKey`要求。既存のresult／errorで完了し、成功�
 
 Vitestで保存・更新・削除・環境変数への復帰・バックエンド分離・操作順序・エラー秘匿を検査する。
 SDKモックで実行ごとのキー再読込と他方のキー除外を検査する。
-Windows資格情報ストア・Tauri画面の実機往復、Rustのコンパイル・テストはこの作業環境では未検証。
-詳細は納品の`backend-api-keys-verification.md`を参照する。有料APIは呼び出していない。
+Windows資格情報ストアとTauri画面の実機での往復は未検証。有料APIは呼び出していない。
 
 Windows APIの構造体と永続化の根拠:
 [Microsoft CREDENTIALW](https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw)、

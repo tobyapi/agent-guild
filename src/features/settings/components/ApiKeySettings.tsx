@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
+import type { BackendInfo } from '@/shared/types/domain';
 import { Button, TextField } from '@/shared/ui';
 import { settingsApi } from '../api';
 import styles from './SettingsDialog.module.css';
 
 type KeyStatus = { source: 'saved' | 'environment' | 'unset'; supported: boolean };
-const SOURCE_LABEL = { saved: '保存済みキーを使用', environment: '環境変数のキーを使用', unset: '未設定' };
+const SOURCE_LABEL = {
+  saved: '保存済みのキーを使っています',
+  environment: '環境変数のキーを使っています',
+  unset: 'キーは未設定です',
+};
 
 function parseStatus(text: string): KeyStatus {
   const value: unknown = JSON.parse(text);
@@ -21,7 +26,7 @@ function parseStatus(text: string): KeyStatus {
   return value as KeyStatus;
 }
 
-function useApiKeySettings(backendId: 'grok' | 'muse') {
+function useApiKeySettings(backendId: string) {
   const [key, setKey] = useState('');
   const [status, setStatus] = useState<KeyStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -34,7 +39,7 @@ function useApiKeySettings(backendId: 'grok' | 'muse') {
         if (active) setStatus(parseStatus(text));
       })
       .catch(() => {
-        if (active) setMessage('資格情報ストアを確認できない。実行環境を確認して、設定を開き直してください。');
+        if (active) setMessage('資格情報ストアを確認できませんでした。実行環境を確認して、設定を開き直してください。');
       });
     return () => {
       active = false;
@@ -50,10 +55,12 @@ function useApiKeySettings(backendId: 'grok' | 'muse') {
       const text = await settingsApi.backendApiKey(backendId, action, submitted);
       setStatus(parseStatus(text));
       setMessage(
-        action === 'set' ? '保存した。次の実行から使用する。' : '保存済みキーを削除した。環境変数があれば使用する。',
+        action === 'set'
+          ? '保存しました。次の実行から使います。'
+          : '保存済みのキーを削除しました。環境変数にキーがあれば、それを使います。',
       );
     } catch {
-      setMessage('変更できなかった。資格情報ストアと実行環境を確認して、必要なら再入力してください。');
+      setMessage('変更できませんでした。資格情報ストアと実行環境を確認して、必要ならもう一度入力してください。');
     } finally {
       setBusy(false);
     }
@@ -62,19 +69,20 @@ function useApiKeySettings(backendId: 'grok' | 'muse') {
   return { key, setKey, status, busy, message, change };
 }
 
-export function ApiKeySettings({ backendId }: { backendId: 'grok' | 'muse' }) {
-  const { key, setKey, status, busy, message, change } = useApiKeySettings(backendId);
+/** API キーの保存（保存できると申告しているバックエンドにだけ出す。envVar は、保存したキーがないときに使う環境変数） */
+export function ApiKeySettings({ backend, envVar }: { backend: BackendInfo; envVar: string }) {
+  const { key, setKey, status, busy, message, change } = useApiKeySettings(backend.id);
   const disabled = busy || !status?.supported;
   const hasSavedKey = status?.source === 'saved';
   return (
     <div>
       <p className={styles.help}>
-        {status ? SOURCE_LABEL[status.source] : 'キーの状態を確認中'}。 保存したキーを優先し、未設定なら
-        {backendId === 'grok' ? 'XAI_API_KEY' : 'MODEL_API_KEY'}を使う。
+        {status ? SOURCE_LABEL[status.source] : 'キーの状態を確認しています'}
+        。保存したキーを優先し、なければ環境変数 {envVar} を使います。
       </p>
-      {status?.supported === false && <p className={styles.help}>安全なキー保存は現在Windowsのみ対応。</p>}
+      {status?.supported === false && <p className={styles.help}>キーの安全な保存は、現在 Windows だけで使えます。</p>}
       <TextField
-        label={`${backendId === 'grok' ? 'Grok' : 'Muse Spark'} APIキー`}
+        label={`${backend.label} の API キー`}
         type="password"
         autoComplete="new-password"
         spellCheck={false}
@@ -82,7 +90,7 @@ export function ApiKeySettings({ backendId }: { backendId: 'grok' | 'muse' }) {
         onChange={setKey}
         disabled={disabled}
         maxLength={2560}
-        hint="Windows資格情報マネージャーに保存する。保存済みキーは表示しない。"
+        hint="Windows の資格情報マネージャーに保存します。保存済みのキーは表示しません。"
       />
       <div className={styles.sectionAction}>
         <Button size="sm" disabled={disabled || !key.trim()} onClick={() => void change('set')}>

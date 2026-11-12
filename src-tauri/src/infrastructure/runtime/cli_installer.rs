@@ -5,26 +5,24 @@ use std::process::Stdio;
 use std::time::Duration;
 
 use guild_application::ports::RuntimeError;
+use guild_domain::backend::InstallGuide;
 use tokio::process::Command;
 use tokio::sync::Mutex;
 use tokio::time::timeout;
 
 static INSTALL_LOCK: Mutex<()> = Mutex::const_new(());
 
-pub(super) async fn install(backend: &str) -> Result<(), RuntimeError> {
-    let (label, binary, url, shell) = match backend {
-        "claude" => ("Claude Code", "claude", "https://claude.ai/install.sh", "/bin/bash"),
-        "codex" => ("Codex", "codex", "https://chatgpt.com/codex/install.sh", "/bin/sh"),
-        _ => return Err(failed("セットアップの対象が不正です")),
-    };
+pub(super) async fn install(guide: &InstallGuide) -> Result<(), RuntimeError> {
+    let label = guide.cli.as_str();
+    check(guide)?;
     let _install = INSTALL_LOCK.lock().await;
     let home = std::env::home_dir().ok_or_else(|| failed("ホームフォルダが見つかりませんでした。"))?;
     let bin = home.join(".local").join("bin");
-    let executable = bin.join(binary);
+    let executable = bin.join(&guide.binary);
     if executable.is_file() {
         return Ok(());
     }
-    let script = download(url, label).await?;
+    let script = download(&guide.script_url, label).await?;
     // インストール先を PATH に含めると、公式インストーラーはシェルの設定を編集しない。
     let path = std::env::join_paths([
         bin.as_path(),
@@ -34,7 +32,7 @@ pub(super) async fn install(backend: &str) -> Result<(), RuntimeError> {
         Path::new("/sbin"),
     ])
     .map_err(|_| failed("インストール先のフォルダを使えませんでした。"))?;
-    let mut installer = Command::new(shell);
+    let mut installer = Command::new(&guide.shell);
     installer
         .arg("-c")
         .arg(script)
@@ -44,8 +42,9 @@ pub(super) async fn install(backend: &str) -> Result<(), RuntimeError> {
         .current_dir(home)
         .stdin(Stdio::null())
         .kill_on_drop(true);
-    if backend == "codex" {
-        installer.env("CODEX_INSTALL_DIR", bin).env("CODEX_NON_INTERACTIVE", "1");
+    let bin = bin.to_string_lossy();
+    for (name, value) in &guide.env {
+        installer.env(name, value.replace("{bin}", &bin));
     }
     let error = format!("{label} をインストールできませんでした。接続と空き容量を確認して、もう一度お試しください。");
     let output = timeout(Duration::from_secs(600), installer.output())
@@ -93,4 +92,14 @@ fn logged_failure(message: &str, cause: impl std::fmt::Display) -> RuntimeError 
 
 fn failed(message: &str) -> RuntimeError {
     RuntimeError::Failed(message.to_owned())
+}
+
+/// 申告されたインストーラーの形を確かめる（https の URL・絶対パスのシェル・フォルダを含まない実行ファイル名）
+fn check(guide: &InstallGuide) -> Result<(), RuntimeError> {
+    let plain_name = !guide.binary.is_empty() && !guide.binary.contains(['/', '\\']) && guide.binary != "..";
+    if guide.script_url.starts_with("https://") && Path::new(&guide.shell).is_absolute() && plain_name {
+        Ok(())
+    } else {
+        Err(failed("セットアップの対象が不正です"))
+    }
 }

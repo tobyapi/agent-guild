@@ -46,19 +46,29 @@ export function supportedPermissions(permissions: Permissions, backend: BackendI
   return effective;
 }
 
-/** 役割の権限のうち、その AI（バックエンド・モデル・設定）で使える操作。Ollama は明示的な有効化とアプリ側の道具対応が必要。 */
+/** 道具の利用を切り替える設定（BackendInfo.toolsOption）を、利用者が有効にしているか（切り替えのないバックエンドでは false） */
+export function toolsRequested(backend: BackendInfo, options: Readonly<Record<string, unknown>>): boolean {
+  return backend.toolsOption !== null && options[backend.toolsOption] === true;
+}
+
+/**
+ * その設定で道具を使えるか。切り替えのないバックエンドは常に使える。切り替えがあるバックエンドは、有効にしていて、
+ * 選んだモデルが道具に対応しているときだけ（Rust の BackendInfo::tools_enabled と同じ）
+ */
+export function toolsEnabled(backend: BackendInfo, model: string, options: Readonly<Record<string, unknown>>): boolean {
+  if (backend.toolsOption === null) return true;
+  const spec = backend.models.find((candidate) => candidate.id === (model || backend.defaultModel));
+  return toolsRequested(backend, options) && spec?.tools === true;
+}
+
+/** 役割の権限のうち、その AI（バックエンド・モデル・設定）で使える操作。道具を使えない設定なら何も使えない（会話専用） */
 export function modelPermissions(
   permissions: Permissions,
   backend: BackendInfo | undefined,
   model: string,
   options: Readonly<Record<string, unknown>>,
-  backendId = backend?.id,
 ): Permissions {
-  if (
-    backendId === 'ollama' &&
-    (options.enableTools !== true ||
-      backend?.models.find((candidate) => candidate.id === (model || backend.defaultModel))?.tools !== true)
-  ) {
+  if (backend && !toolsEnabled(backend, model, options)) {
     return Object.fromEntries(Object.keys(permissions).map((key) => [key, false])) as Permissions;
   }
   return supportedPermissions(permissions, backend);
@@ -81,14 +91,14 @@ export function unusablePermissions(
   backend: BackendInfo | undefined,
   model: string,
   options: Readonly<Record<string, unknown>>,
-  backendId = backend?.id,
 ): UnusablePermission[] {
   if (!backend) return [];
-  const usable = modelPermissions(permissions, backend, model, options, backendId);
+  const usable = modelPermissions(permissions, backend, model, options);
   const withTools = supportedPermissions(permissions, backend);
+  const toolsLabel = backend.options.find((option) => option.key === backend.toolsOption)?.label ?? '道具の利用';
   return PERMISSION_ORDER.filter((key) => permissions[key] && !usable[key]).map((key) => {
     if (withTools[key]) {
-      return { key, reason: '「道具の利用を有効にする」をオンにして、道具に対応したモデルを選ぶと使えます' };
+      return { key, reason: `「${toolsLabel}」をオンにして、道具に対応したモデルを選ぶと使えます` };
     }
     if (!backend.capabilities[key]) return { key, reason: `${backend.label}には、この操作の道具がありません` };
     const rule = backend.permissionRules.find((candidate) => candidate.when === key);

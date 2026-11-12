@@ -2,6 +2,7 @@
 // アダプタに渡す（アダプタは申告した以上の操作を受け取らない）。
 import { describe, expect, it } from 'vitest';
 import { BackendRegistry } from './backends/registry.ts';
+import { PLAIN } from './backends/descriptor.test-support.ts';
 import type { BackendAdapter, BackendDescriptor, RunRequest } from './backends/types.ts';
 import { Dispatcher } from './dispatcher.ts';
 import { parseLine } from './line-parser.ts';
@@ -30,8 +31,8 @@ const DESCRIPTORS: readonly BackendDescriptor[] = [
     permissionRules: [{ when: 'runCommands', requires: ['writeAnywhere', 'webFetch'] }],
     leakRisks: [],
     unrestricted: [],
-    canLogin: false,
     midRunPost: null,
+    ...PLAIN,
   },
   {
     id: 'sandboxed',
@@ -41,8 +42,8 @@ const DESCRIPTORS: readonly BackendDescriptor[] = [
     permissionRules: [],
     leakRisks: [],
     unrestricted: [],
-    canLogin: false,
     midRunPost: null,
+    ...PLAIN,
   },
 ];
 

@@ -31,7 +31,7 @@ public static class GuildCredentials {
 }
 '@
 $request = [Console]::In.ReadToEnd() | ConvertFrom-Json
-if ($request.backend -notin @('grok', 'muse')) { throw 'backend' }
+if ($request.backend -cnotmatch '^[a-z][a-z0-9-]{0,31}$') { throw 'backend' }
 $target = 'AI-Guild/backend-api-key/' + $request.backend
 switch ($request.action) {
   'set' {
