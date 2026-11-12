@@ -27,15 +27,30 @@ export function buildTarget() {
   );
 }
 
+/** 配布元への接続は一時的に失敗することがあるので、間を空けてやり直す */
+async function download(url, attempts = 4) {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(120_000) });
+      if (!response.ok) throw new Error(`Node.js のダウンロードに失敗しました (${response.status}): ${url}`);
+      return Buffer.from(await response.arrayBuffer());
+    } catch (error) {
+      if (attempt >= attempts) throw error;
+      console.warn(
+        `Node.js のダウンロードをやり直します (${attempt}/${attempts - 1}): ${error.cause?.message ?? error}`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, attempt * 5_000));
+    }
+  }
+}
+
 export async function stageNode(out) {
   const target = buildTarget();
   if (!Object.hasOwn(RELEASES, target)) throw new Error(`Node.js の同梱に対応していないビルド対象です: ${target}`);
   const [asset, sha256] = RELEASES[target];
   const filename = `node-${VERSION}-${asset}`;
   const url = `https://nodejs.org/dist/${VERSION}/${filename}`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(120_000) });
-  if (!response.ok) throw new Error(`Node.js のダウンロードに失敗しました (${response.status}): ${url}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
+  const bytes = await download(url);
   if (createHash('sha256').update(bytes).digest('hex') !== sha256) {
     throw new Error(`Node.js の SHA-256 が一致しません: ${filename}`);
   }
