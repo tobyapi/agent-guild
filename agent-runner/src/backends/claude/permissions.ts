@@ -1,7 +1,7 @@
 // Claude で権限を守る仕組み: ファイル操作をパスで判定する canUseTool（守れない権限の組み合わせは rules.ts）。
 
 import { folderFileResult } from '../folder-scope.ts';
-import { globEscapeReason, strayPathField, toolPath, unsafePathForm } from '../tool-paths.ts';
+import { divergentPathForm, globEscapeReason, strayPathField, toolPath, unsafePathForm } from '../tool-paths.ts';
 import { relative, resolve } from 'node:path';
 import type { CanUseTool, HookCallback, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import { isJsonObject } from '../../line-parser.ts';
@@ -36,7 +36,9 @@ function formDenial(
     return `${toolName} に ${stray} は指定できません（この道具が使うパスの項目だけを指定してください）`;
   const form = unsafePathForm(target, roots);
   if (form !== null) return form;
-  return anywhere || toolName !== 'Glob' ? null : globEscapeReason(input.pattern);
+  // PC 全体を読み書きできる役割では、どこを指しても結果が変わらないので、書き方では止めない
+  if (anywhere) return null;
+  return divergentPathForm(toolName, input) ?? (toolName === 'Glob' ? globEscapeReason(input.pattern) : null);
 }
 
 /**

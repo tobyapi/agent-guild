@@ -8,10 +8,19 @@ import { secretRoots } from './secret-roots.ts';
 const SEARCH_ENTRY_LIMIT = 10_000;
 const SEARCH_DEPTH_LIMIT = 64;
 
-/** macOS の大小文字違いも、除外判定では同じ場所として扱う。 */
+/**
+ * macOS のデータボリュームの別名を外す。`/System/Volumes/Data/Users/me` は `/Users/me` と同じ場所だが、
+ * リンクではないので realpath では `/Users/me` にならない（外さないと、別名で書いた秘密の場所が除外に当たらない）。
+ */
+export function withoutDataVolume(path: string): string {
+  return path.replace(/^\/System\/Volumes\/Data(?=\/|$)/i, '') || '/';
+}
+
+/** macOS の大小文字違いとデータボリュームの別名も、除外判定では同じ場所として扱う。 */
 function comparable(path: string): string {
   const normalized = resolve(path).normalize('NFC');
-  return process.platform === 'darwin' || process.platform === 'win32' ? normalized.toLowerCase() : normalized;
+  if (process.platform === 'darwin') return withoutDataVolume(normalized).toLowerCase();
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
 }
 function inside(target: string, root: string): boolean {
   return isInside(comparable(target), comparable(root));

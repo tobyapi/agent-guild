@@ -51,11 +51,14 @@ export function judgeInput(request: RunRequest, operation: Operation): string {
   ].join('\n\n');
 }
 
-/** 返事の最初の ALLOW / DENY を読む。どちらもなければ止める */
+/**
+ * 返事を読む。通すのは、返事が ALLOW で始まり、どこにも DENY がないときだけ。DENY がどこかにあれば止め、
+ * どちらでもない返事（「I cannot allow this」のように文の途中に allow があるものを含む）も止める
+ */
 export function parseVerdict(text: string): Verdict {
-  const match = /\b(ALLOW|DENY)\b\s*[:：]?\s*(.*)/i.exec(text);
-  if (match?.[1]?.toUpperCase() === 'ALLOW') return { allow: true, reason: '' };
-  if (match) return { allow: false, reason: match[2]?.trim() || '理由は示されませんでした' };
+  const denied = /\bDENY\b\s*[:：]?\s*(.*)/i.exec(text);
+  if (denied) return { allow: false, reason: denied[1]?.trim() || '理由は示されませんでした' };
+  if (/^[\s「『"'`*]*ALLOW(?![A-Za-z])/.test(text)) return { allow: true, reason: '' };
   return { allow: false, reason: `判定の返事を読めませんでした（${text.trim().slice(0, 80)}）` };
 }
 

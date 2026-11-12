@@ -78,6 +78,17 @@ describe('fileAccessPolicy', () => {
     expect(await decide({ ...EXPERT, readFiles: false }, 'Read', { file_path: join(WORK, 'a.md') })).toBe('deny');
   });
 
+  it('道具がホームに読み替える「~」や前後の空白つきのパスは、作業場所の中に見えても拒否する', async () => {
+    expect(await decide(EXPERT, 'Grep', { pattern: 'PRIVATE KEY', path: '~/.ssh' })).toBe('deny');
+    expect(await decide(EXPERT, 'Glob', { pattern: '*', path: '~' })).toBe('deny');
+    expect(await decide(EXPERT, 'LS', { path: ' /etc' })).toBe('deny');
+    expect(await decide(EXPERT, 'Read', { file_path: '~/.aws/credentials' })).toBe('deny');
+    expect(await decide({ ...EXPERT, readAnywhere: true }, 'Grep', { pattern: 'KEY', path: '~/.ssh' })).toBe('deny');
+    expect(await decide({ ...WORKER, writeAnywhere: true }, 'Grep', { pattern: 'x', path: '~/projects' })).toBe(
+      'allow',
+    );
+  });
+
   it('writeAnywhere なら、作業場所の外でも読み書きできる（読み取りの権限がなければ読めない）', async () => {
     const anywhere = { ...WORKER, writeAnywhere: true };
     const elsewhere = resolve('/projects/app/README.md');

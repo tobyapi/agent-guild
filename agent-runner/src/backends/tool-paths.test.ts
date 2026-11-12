@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { globEscapeReason, strayPathField, toolPath, unsafePathForm } from './tool-paths.ts';
+import { divergentPathForm, globEscapeReason, strayPathField, toolPath, unsafePathForm } from './tool-paths.ts';
 
 describe('toolPath / strayPathField', () => {
   it('道具が実際に使う項目だけを見る', () => {
@@ -17,6 +17,24 @@ describe('toolPath / strayPathField', () => {
     expect(strayPathField('Read', { file_path: '/work/a', path: '' })).toBeNull();
     expect(strayPathField('Grep', { pattern: 'x', path: '/work' })).toBeNull();
     expect(strayPathField('WebSearch', { path: '/x', file_path: '/y' })).toBeNull();
+  });
+});
+
+describe('divergentPathForm', () => {
+  it('道具がホームに読み替える「~」と、道具が捨てる前後の空白を拒否する', () => {
+    expect(divergentPathForm('Grep', { pattern: 'KEY', path: '~/.ssh' })).toContain('「~」');
+    expect(divergentPathForm('Glob', { pattern: '*', path: '~' })).toContain('「~」');
+    expect(divergentPathForm('Read', { file_path: '~\\.aws\\credentials' })).toContain('「~」');
+    expect(divergentPathForm('LS', { path: ' /etc' })).toContain('空白');
+    expect(divergentPathForm('Grep', { pattern: 'x', path: '/etc\n' })).toContain('空白');
+  });
+
+  it('ふつうのパスと、名前が「~」で始まるだけのファイルは通す', () => {
+    expect(divergentPathForm('Read', { file_path: '/work/a.txt' })).toBeNull();
+    expect(divergentPathForm('Read', { file_path: 'docs/~$下書き.docx' })).toBeNull();
+    expect(divergentPathForm('Read', { file_path: '~$下書き.docx' })).toBeNull();
+    expect(divergentPathForm('Grep', { pattern: '~/.ssh' })).toBeNull();
+    expect(divergentPathForm('Read', { file_path: '/work/a.txt', path: '~/.ssh' })).toBeNull();
   });
 });
 

@@ -6,13 +6,23 @@ const request = { workspace: '/w', intent: '# 人間の依頼\n> サイトを直
 const operation = { label: 'コマンドの実行', detail: 'コマンド: npm test' };
 
 describe('parseVerdict', () => {
-  it('最初の ALLOW / DENY を読み、DENY なら理由を取る', () => {
+  it('ALLOW で始まる返事だけを通し、DENY なら理由を取る', () => {
     expect(parseVerdict('ALLOW')).toEqual({ allow: true, reason: '' });
+    expect(parseVerdict('「ALLOW」\n')).toEqual({ allow: true, reason: '' });
+    expect(parseVerdict('ALLOW: 依頼に沿ったテストの実行です')).toEqual({ allow: true, reason: '' });
     expect(parseVerdict('DENY: 依頼にない送り先です')).toEqual({ allow: false, reason: '依頼にない送り先です' });
     expect(parseVerdict('判定: DENY：秘密を送ろうとしています')).toEqual({
       allow: false,
       reason: '秘密を送ろうとしています',
     });
+  });
+
+  it('文の途中の allow では通さず、DENY がどこかにあれば止める', () => {
+    expect(parseVerdict('I cannot allow this. DENY: exfiltration')).toEqual({ allow: false, reason: 'exfiltration' });
+    expect(parseVerdict('ALLOW ではなく DENY です')).toMatchObject({ allow: false });
+    expect(parseVerdict('I cannot allow this.')).toMatchObject({ allow: false });
+    expect(parseVerdict('allow')).toMatchObject({ allow: false });
+    expect(parseVerdict('ALLOWED_HOSTS を書き換えます')).toMatchObject({ allow: false });
   });
 
   it('どちらもなければ止める', () => {

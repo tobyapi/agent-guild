@@ -1,6 +1,7 @@
 // ファイル道具の入力からパスを取り出す部品と、パスや Glob の pattern の「形」だけで拒否する判定。
 // 判定するパスと道具が実際に使うパスを食い違わせない（道具ごとに決まった項目だけを見る）ことと、
-// OS が特別に解釈する書き方（Windows のネットワークパス・デバイスパス・代替データストリーム）を通さないことが目的。
+// 道具が読み替える書き方（先頭の `~`・前後の空白）と、OS が特別に解釈する書き方（Windows のネットワークパス・
+// デバイスパス・代替データストリーム）を通さないことが目的。
 
 import { isAbsolute } from 'node:path';
 import { isInside } from './types.ts';
@@ -34,6 +35,21 @@ export function strayPathField(tool: string, input: Record<string, unknown>): st
   const field = TOOL_PATH_FIELD[tool];
   if (field === undefined) return null;
   return PATH_FIELDS.find((key) => key !== field && filled(input[key])) ?? null;
+}
+
+/**
+ * パスの書き方が、判定と道具の実際の対象を食い違わせるものなら理由を返す。Claude Code は path の前後の空白を捨て、
+ * 先頭の `~` をホームに置き換えてから使うが、判定は書かれたままを作業場所からの相対パスとして解決する
+ * （`~/.ssh` が「作業場所の中の ~ というフォルダ」に見えて通ってしまう）。
+ */
+export function divergentPathForm(tool: string, input: Record<string, unknown>): string | null {
+  const raw = toolPath(tool, input);
+  if (raw === undefined) return null;
+  if (raw !== raw.trim()) return 'パスの前後に空白は付けられません';
+  if (/^~(?:[\\/]|$)/.test(raw)) {
+    return '「~」で始まるパスは使えません。絶対パスか、作業場所からの相対パスを指定してください';
+  }
+  return null;
 }
 
 /**
