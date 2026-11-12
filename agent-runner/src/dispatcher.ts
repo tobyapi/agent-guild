@@ -1,4 +1,4 @@
-import { assertFolderScope } from './backends/folder-scope.ts';
+import { assertAdapterFolderScope } from './backends/folder-scope.ts';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import type { BackendRegistry } from './backends/registry.ts';
@@ -111,7 +111,7 @@ export class Dispatcher {
       const send = (event: RunnerEvent): void => {
         if (isCurrent()) this.#options.send(event);
       };
-      assertFolderScope(request);
+      assertAdapterFolderScope(adapter, request);
       // 依頼の権限は役割で決まる（バックエンドでは変わらない）。アダプタには、その中でこのバックエンドが守れる操作だけを渡す
       return adapter.run(usableRequest(request, adapter.info()), {
         signal,

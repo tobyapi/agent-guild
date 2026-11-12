@@ -4,6 +4,7 @@ import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/opti
 import { runCodex } from './codex-runtime.ts';
 import { CAN_LOGIN, loginCodex } from './codex/login.ts';
 import { probeCodex } from './codex/probe.ts';
+import { assertSandboxedFolderScope } from './folder-scope.ts';
 import type { BackendAdapter, BackendDescriptor } from './types.ts';
 
 const INFO: BackendDescriptor = {
@@ -33,5 +34,6 @@ export const codexAdapter: BackendAdapter = {
   probe: probeCodex,
   catalog: () => Promise.resolve(codexCatalog()),
   run: runCodex,
+  folderScope: assertSandboxedFolderScope,
   login: loginCodex,
 };

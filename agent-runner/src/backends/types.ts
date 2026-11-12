@@ -42,6 +42,11 @@ export interface BackendAdapter {
   /** 1回実行して最終テキストを返す。分類できる失敗は BackendError で投げる */
   run(request: RunRequest, context: RunContext): Promise<string>;
   /**
+   * 指定フォルダのチャンネルの依頼（writableDirs つき）を、範囲を守って実行できるか確かめる。守れなければ BackendError で
+   * 投げる。Dispatcher が run の前に呼ぶ。持たないアダプタには、指定フォルダの依頼を渡さない（folder-scope.ts）
+   */
+  folderScope?: (request: RunRequest) => void;
+  /**
    * ログインを始め、利用者が終える（窓が閉じる）まで待つ。info().canLogin のときだけ呼ばれる。
    * 完了しなかったら BackendError で投げる。終わったあとの状態の確認し直しは Dispatcher が行う
    */

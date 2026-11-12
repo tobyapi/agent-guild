@@ -5,6 +5,7 @@
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { errorMessage } from '../log.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
+import { assertFolderScope } from './folder-scope.ts';
 import { OPERATION_CHECK_OPTION } from './claude/check.ts';
 import { CLAUDE_NOT_FOUND, findClaude } from './claude/executable.ts';
 import { claudePrompt } from './claude/input.ts';
@@ -108,5 +109,7 @@ export const claudeAdapter: BackendAdapter = {
   },
   catalog: claudeCatalog,
   run,
+  // 指定フォルダでは実行しない（点検のあとのリンクの差し替えを止められない）。理由を付けて断る
+  folderScope: assertFolderScope,
   login,
 };

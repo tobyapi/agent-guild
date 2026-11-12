@@ -6,6 +6,7 @@ import { withoutSecrets } from './agent-env.ts';
 import { findCodex, CODEX_NOT_FOUND } from './codex-runtime/executable.ts';
 import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
 import { runCodex, type CodexProvider } from './codex-runtime.ts';
+import { assertSandboxedFolderScope } from './folder-scope.ts';
 import {
   BackendError,
   classifyErrorText,
@@ -132,4 +133,5 @@ export const museAdapter: BackendAdapter = {
     await mkdir(provider.env.CODEX_HOME!, { recursive: true });
     return runCodex(request, context, provider);
   },
+  folderScope: assertSandboxedFolderScope,
 };

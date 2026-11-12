@@ -113,7 +113,7 @@ agent-runner/src/
   log.ts               stderr 用のロガー（stdout はプロトコル専用）
   credentials/         バックエンドごとの API キーの保存と読み出し（Windows の資格情報マネージャー。docs/backend-api-keys.md）
   backends/
-    types.ts           BackendAdapter インターフェース（info()・probe()・run(request, ctx)・任意の login(ctx)）
+    types.ts           BackendAdapter インターフェース（info()・probe()・run(request, ctx)・任意の login(ctx)・任意の folderScope(request)）
     registry.ts        アダプタの登録表
     claude.ts, claude/ Claude Agent SDK（権限 → tools、settingSources: []、スキルは stateDir のローカルプラグイン、readableDirs → additionalDirectories、
                        画像は1件だけ流すユーザーメッセージ、ログインは同梱の claude.exe の auth login を別ウィンドウで。操作の確認は claude/check.ts と judge.ts。コマンドの渡し方は claude/rules.ts、隔離の中で動くコマンドの道具は claude/command.ts）
@@ -169,7 +169,7 @@ src/
 
 ## 拡張のしかた（足すだけで済むこと）
 
-- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Grok・Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目はアダプタが申告するので、Rust・React の変更は不要。
+- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Grok・Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目はアダプタが申告するので、Rust・React の変更は不要。指定フォルダのチャンネルで使えるようにするときだけは、アダプタに `folderScope`（範囲を守って実行できるかの確認）を足し、Rust の `request_scope.rs` の `folder_support` にも足す（どちらかがなければ、指定フォルダの依頼は実行の前に止まる）。
 - **新しいテンプレート**（例: マネージャー）: guild-domain の `agent/templates.rs` に1行。React は `Snapshot.templates` から自動で選択肢を出す。ランナーは変更不要。新しい振る舞いそのもの（今ある設定で表せないもの）が要るときだけ、Agent に設定項目を1つ足し、それを見るのは routing / prompt の該当箇所だけにする。
 - **新しいコマンド**: guild-application にユースケース → interface/commands にハンドラ → lib.rs に登録 → contract.ts と design.md の表 → フィクスチャ → feature の api.ts。
 - **新しいイベント**: EventPublisher → infrastructure/events.rs → contract.ts と design.md → フィクスチャ。

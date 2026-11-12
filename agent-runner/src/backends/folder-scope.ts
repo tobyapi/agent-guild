@@ -2,12 +2,26 @@ import { lstat, opendir, realpath } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import type { HookCallback, PermissionResult } from '@anthropic-ai/claude-agent-sdk';
 import { isJsonObject } from '../line-parser.ts';
-import { BackendError, isInside, type RunRequest } from './types.ts';
+import { BackendError, isInside, type BackendAdapter, type RunRequest } from './types.ts';
 
 const READ = new Set(['Read', 'Grep', 'Glob', 'LS']);
 const WRITE = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 
-/** No adapter may silently ignore a folder-channel request. */
+/**
+ * 指定フォルダの依頼は、範囲の守り方を申告したアダプタ（folderScope を持つもの）だけが受ける。Dispatcher が実行の前に呼ぶ。
+ * 申告のないアダプタには渡さない（指定フォルダの依頼を、黙って範囲の外で動かさない）
+ */
+export function assertAdapterFolderScope(adapter: BackendAdapter, request: RunRequest): void {
+  if (request.writableDirs === undefined) return;
+  if (adapter.folderScope === undefined)
+    throw new BackendError('unsupported_permission', 'このバックエンドはフォルダ制限に未対応です');
+  adapter.folderScope(request);
+}
+
+/**
+ * 道具ごとにパスを確かめて範囲を守るバックエンド（Ollama）の、指定フォルダの依頼の確認。コマンドとスキルは確認を
+ * すり抜けるので両立しない。Claude は同じ方式では守れないので、理由を付けて断る
+ */
 export function assertFolderScope(request: RunRequest): void {
   if (request.writableDirs === undefined) return;
   if (request.backend === 'claude')

@@ -8,6 +8,7 @@ import { PERMISSION_RULES, validatePermissions } from './ollama/policy.ts';
 import { toolChat } from './ollama/chat.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
+import { assertFolderScope } from './folder-scope.ts';
 
 const NO_TOOLS: Permissions = {
   webSearch: false,
@@ -162,4 +163,5 @@ export const ollamaAdapter: BackendAdapter = {
   }),
   probe,
   run,
+  folderScope: assertFolderScope,
 };
