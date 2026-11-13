@@ -31,7 +31,7 @@ export const ja = {
   outputTruncated: 'Ollama の出力が上限で途切れました（eval_count: {count}）。先頭: {head} / 末尾: {tail}',
   invalidToolCall: '道具の呼び出しが不正です',
   toolNotAllowed: '{name} は許可されていません',
-  operationDenied: '操作の確認で拒否されました',
+  operationDenied: '操作の確認で拒否されました（道具: {name}、引数: {args}、確認の応答: {answer}）',
   conversationTooLarge: '会話と道具の結果が4MiBを超えました',
   invalidResponse: 'Ollama の応答が不正です',
   toolsNotAllowed: 'このモデルには道具を許可していません',

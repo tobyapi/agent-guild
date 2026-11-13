@@ -32,7 +32,7 @@ export const zhHant: Messages<typeof ja> = {
   outputTruncated: 'Ollama 輸出達到上限後遭截斷（eval_count: {count}）。開頭: {head} / 結尾: {tail}',
   invalidToolCall: '工具呼叫無效',
   toolNotAllowed: '不允許使用 {name}',
-  operationDenied: '操作確認拒絕了此操作',
+  operationDenied: '操作確認拒絕了此操作（工具：{name}，參數：{args}，確認回覆：{answer}）',
   conversationTooLarge: '對話與工具結果超過了 4MiB',
   invalidResponse: 'Ollama 的回應無效',
   toolsNotAllowed: '未允許此模型使用工具',

@@ -7,6 +7,12 @@ import { executeAction, parseAction } from './actions.ts';
 import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { throwIfTruncated } from './response.ts';
+const OPERATION_DETAIL_LIMIT = 200;
+
+function operationDetail(value: string): string {
+  return value.length > OPERATION_DETAIL_LIMIT ? `${value.slice(0, OPERATION_DETAIL_LIMIT)}…` : value;
+}
+
 function thinkOption(model: LocalModel): boolean | undefined {
   return model.capabilities.includes('thinking') ? false : undefined;
 }
@@ -46,7 +52,19 @@ export async function checkOperation(
       { role: 'user', content: JSON.stringify({ trustedTask: request.intent, operation: { name, args } }) },
     ],
   });
-  if (replyText(verdict) !== 'ALLOW') throw new BackendError('unsupported_permission', t('operationDenied'));
+  const answer =
+    isJsonObject(verdict.message) && typeof verdict.message.content === 'string' ? verdict.message.content.trim() : '';
+  if (answer !== 'ALLOW') {
+    const operation = JSON.stringify(args) ?? String(args);
+    throw new BackendError(
+      'unsupported_permission',
+      t('operationDenied', {
+        name,
+        args: operationDetail(operation),
+        answer: operationDetail(answer),
+      }),
+    );
+  }
 }
 
 async function performCalls(

@@ -32,7 +32,8 @@ export const en: Messages<typeof ja> = {
   outputTruncated: 'Ollama output was truncated at the limit (eval_count: {count}). Start: {head} / End: {tail}',
   invalidToolCall: 'Invalid tool call',
   toolNotAllowed: '{name} is not allowed',
-  operationDenied: 'The operation was rejected by the operation check',
+  operationDenied:
+    'The operation was rejected by the operation check (tool: {name}, arguments: {args}, check reply: {answer})',
   conversationTooLarge: 'The conversation and tool results exceeded 4MiB',
   invalidResponse: 'Invalid response from Ollama',
   toolsNotAllowed: 'Tools are not allowed for this model',

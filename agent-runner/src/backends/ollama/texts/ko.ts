@@ -32,7 +32,7 @@ export const ko: Messages<typeof ja> = {
   outputTruncated: 'Ollama 출력이 한도에서 잘렸습니다(eval_count: {count}). 처음: {head} / 끝: {tail}',
   invalidToolCall: '도구 호출이 올바르지 않습니다',
   toolNotAllowed: '{name}은(는) 허용되지 않습니다',
-  operationDenied: '작업 확인에서 거부되었습니다',
+  operationDenied: '작업 확인에서 거부되었습니다 (도구: {name}, 인수: {args}, 확인 응답: {answer})',
   conversationTooLarge: '대화와 도구 결과가 4MiB를 초과했습니다',
   invalidResponse: 'Ollama의 응답이 올바르지 않습니다',
   toolsNotAllowed: '이 모델에는 도구를 허용하지 않았습니다',
