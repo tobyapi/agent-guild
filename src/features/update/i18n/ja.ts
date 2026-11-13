@@ -10,4 +10,7 @@ export const ja = {
   installHelp: '更新のあいだ、作業中のエージェントは止まります。会話とデータはそのまま残ります。',
   installing: '更新しています…',
   install: '更新して再起動',
+  autoCheck: '新しい版を自動で確認する',
+  autoCheckHelp:
+    '起動時と6時間ごとに GitHub のリリースを確かめます。オフにすると、［更新を確認］を押したときだけ確かめます。',
 };

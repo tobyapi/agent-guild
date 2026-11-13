@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SignPath のアーティファクト構成（Windows のインストーラー）。SignPath の画面にこの内容を貼る。
+  build.yml がインストーラーを zip にせず渡すので、ルートは pe-file。
+  version は build.yml が tauri.conf.json の version を渡す（製品名と版の制限は SignPath Foundation の条件）。
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <pe-file product-name="agent-guild" product-version="${version}">
+    <authenticode-sign />
+  </pe-file>
+</artifact-configuration>

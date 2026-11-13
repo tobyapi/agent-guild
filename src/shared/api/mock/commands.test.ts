@@ -52,7 +52,7 @@ describe('モックのコマンド', () => {
     expect(snapshot.agents).toMatchObject([
       {
         id: SEED_IDS.starter,
-        name: '白龙娘',
+        name: 'ハクア',
         tags: ['作業者', 'リサーチ'],
         unmentioned: 'answer',
         canDelegate: false,
@@ -71,7 +71,7 @@ describe('モックのコマンド', () => {
     expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
     const messages = await transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 20 });
     expect(messages).toMatchObject([{ kind: 'system' }]);
-    expect(messages[0]?.content).toContain('白龙娘');
+    expect(messages[0]?.content).toContain('ハクア');
   });
 
   it('list_messages は beforeSeq で古いほうへページングし、seq の昇順で返す', async () => {

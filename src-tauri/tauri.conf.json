@@ -45,9 +45,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "resources": {
-      "../src/shared/assets/gpt-avatar.NOTICE.txt": "gpt-avatar.NOTICE.txt"
-    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -2,3 +2,4 @@
 export { UpdateSection } from './components/UpdateSection';
 export { updateNotice, versionToNotify } from './model/update';
 export { checkForUpdate } from './store';
+export { useAutoCheckEnabled } from './autoCheckStore';

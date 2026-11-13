@@ -2,7 +2,9 @@
 # インストーラーには agent-runner と Node.js を同梱し、Claude Code・Codex CLI は利用者の環境のものを使う（docs/design.md §5）。
 # 動くのは、Actions の画面からの手動実行（Run workflow）と、v で始まるタグの push のとき。
 # できたインストーラーは成果物（Artifacts）に置き、タグのときは下書きのリリースにも添付する。
-# OS のコード署名はしない（macOS はアドホック署名のみ）ので、初回の起動で OS の警告が出る。
+# Windows のインストーラーは、SignPath の設定（Secrets の SIGNPATH_API_TOKEN と Variables の SIGNPATH_ORGANIZATION_ID）が
+# あればコード署名する（SignPath Foundation の無料の証明書。設定は docs/code-signing.md）。中のアプリ本体の exe は署名しない。
+# macOS はアドホック署名のみなので、初回の起動で OS の警告が出る。
 # 自動アップデート（docs/design.md「アプリの更新」）: Secrets に TAURI_SIGNING_PRIVATE_KEY（と、鍵にパスワードがあれば
 # TAURI_SIGNING_PRIVATE_KEY_PASSWORD）があれば、更新用の配布物に署名する。タグのときは、その署名から latest.json を作って
 # リリースに添付する（タグは v<アプリの版>。鍵がない・版が合わないタグのビルドは、latest.json を作るところで失敗する）。
@@ -77,6 +79,80 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run bundle -- --bundles ${{ matrix.bundles }} ${{ env.UPDATER_CONFIG }}
+
+      # Windows のインストーラーに SignPath でコード署名する（SignPath Foundation の無料の証明書）。
+      # Secrets の SIGNPATH_API_TOKEN と Variables の SIGNPATH_ORGANIZATION_ID がそろっているときだけ。
+      # タグのビルドは本番の証明書（release-signing。SignPath の画面で承認するまで待つ）、手動実行はテスト用（test-signing）
+      - name: Decide whether to sign the installer with SignPath
+        id: signpath
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          IS_TAG: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          if [ -z "$API_TOKEN" ] || [ -z "$ORGANIZATION_ID" ]; then
+            echo "::warning::SIGNPATH_API_TOKEN か SIGNPATH_ORGANIZATION_ID がないので、Windows のインストーラーにコード署名しません"
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          if [ "$IS_TAG" = true ]; then
+            echo "policy=${{ vars.SIGNPATH_RELEASE_POLICY_SLUG || 'release-signing' }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "policy=${{ vars.SIGNPATH_TEST_POLICY_SLUG || 'test-signing' }}" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$(node -p "require('./src-tauri/tauri.conf.json').version")" >> "$GITHUB_OUTPUT"
+
+      # SignPath は GitHub の成果物を取りに来る。zip にせずインストーラーをそのまま置く
+      - name: Upload the unsigned installer for SignPath
+        id: unsigned-installer
+        if: steps.signpath.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ matrix.installers }}
+          archive: false
+          if-no-files-found: error
+
+      - name: Sign the installer with SignPath
+        if: steps.signpath.outputs.enabled == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'agent-guild' }}
+          signing-policy-slug: ${{ steps.signpath.outputs.policy }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          # 本番の署名は、承認者が SignPath の画面で承認するまで待つ
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: signpath-signed
+          skip-decompress: true
+          parameters: |
+            version: "${{ steps.signpath.outputs.version }}"
+
+      # 署名済みのインストーラーに置き換える。自動アップデートの署名（.sig）は中身が変わったので作り直す
+      - name: Replace the installer with the signed one
+        if: steps.signpath.outputs.enabled == 'true'
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          installer=$(ls ${{ matrix.installers }})
+          cp "signpath-signed/$(basename "$installer")" "$installer"
+          if [ -n "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            rm -f "$installer.sig"
+            npx tauri signer sign --password "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" "$installer"
+          fi
+
+      - name: Check the Authenticode signature
+        if: steps.signpath.outputs.enabled == 'true'
+        shell: pwsh
+        run: |
+          $signature = Get-AuthenticodeSignature (Get-Item '${{ matrix.installers }}')
+          $signature | Format-List Status, StatusMessage, SignerCertificate
+          if ($signature.Status -eq 'NotSigned') { throw 'インストーラーに署名がありません' }
 
       - name: Check the signed macOS bundle without Node.js on PATH
         if: runner.os == 'macOS'

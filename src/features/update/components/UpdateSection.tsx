@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Button, FieldError, Icon } from '@/shared/ui';
+import { Button, FieldError, Icon, SwitchField } from '@/shared/ui';
+import { setAutoCheck, useAutoCheckStore } from '../autoCheckStore';
 import { t } from '../i18n';
 import { updateSummary } from '../model/update';
 import { checkForUpdate, installUpdate, useUpdateStore } from '../store';
@@ -14,10 +15,13 @@ export function UpdateSection() {
   const { phase, status, error } = state;
   const latest = status?.latest ?? null;
 
-  // まだ一度も確かめていなければ、開いたときに確かめる（起動時の確認が済んでいれば、その結果を出す）
+  const autoCheck = useAutoCheckStore((s) => s.enabled);
+
+  // まだ一度も確かめていなければ、開いたときに確かめる（起動時の確認が済んでいれば、その結果を出す）。
+  // 自動の確認をオフにしていれば、押されるまで確かめない
   useEffect(() => {
     const { status: known, error: failed } = useUpdateStore.getState();
-    if (known === null && failed === null) void checkForUpdate();
+    if (useAutoCheckStore.getState().enabled && known === null && failed === null) void checkForUpdate();
   }, []);
 
   return (
@@ -32,6 +36,7 @@ export function UpdateSection() {
         </Button>
       </div>
       {error !== null && <FieldError message={error} />}
+      <SwitchField label={t('autoCheck')} hint={t('autoCheckHelp')} checked={autoCheck} onChange={setAutoCheck} />
       {latest !== null && (
         <div className={styles.available}>
           {latest.notes !== '' && <p className={styles.notes}>{latest.notes}</p>}

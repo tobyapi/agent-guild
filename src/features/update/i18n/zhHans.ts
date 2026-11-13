@@ -12,4 +12,6 @@ export const zhHans: Messages<typeof ja> = {
   installHelp: '更新期间，正在工作的智能体会停止。对话和数据会保留。',
   installing: '正在更新…',
   install: '更新并重启',
+  autoCheck: '自动检查新版本',
+  autoCheckHelp: '启动时及之后每 6 小时检查一次 GitHub Releases。关闭后，只在点击“检查更新”时检查。',
 };

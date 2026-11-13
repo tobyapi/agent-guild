@@ -81,7 +81,7 @@ async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
     let snapshot = services.snapshot.get().unwrap();
     assert_eq!(snapshot.agents.len(), 1);
     let worker = &snapshot.agents[0];
-    assert_eq!(worker.name, "白龙娘");
+    assert_eq!(worker.name, "ハクア");
     assert_eq!(worker.tags, ["作業者", "リサーチ"]);
     assert_eq!((worker.backend.as_str(), worker.model.as_str()), ("codex", ""));
     assert!(worker.avatar.starts_with("data:image/jpeg;base64,/9j/"));
@@ -99,5 +99,5 @@ async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
 
     let welcome = services.conversation.list_messages(&lobby.id, None, None).unwrap();
     assert_eq!(welcome.len(), 1);
-    assert!(welcome[0].content.contains("白龙娘"));
+    assert!(welcome[0].content.contains("ハクア"));
 }

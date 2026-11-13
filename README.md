@@ -31,7 +31,7 @@ Claude と Codex の利用料は、それぞれのサービスのアカウント
 
 ## 動かす
 
-配布用のインストーラーはまだ公開していません。ソースからビルドして動かします。
+インストーラー（Windows x64・macOS Apple Silicon）は [GitHub のリリース](https://github.com/tobyapi/agent-guild/releases) から無料でダウンロードできます（最初のリリースは準備中です）。ソースからビルドして動かすこともできます。
 
 ビルドには Node.js 24、[Rust](https://www.rust-lang.org/)（1.89 以降）、[Tauri の前提ソフト](https://tauri.app/start/prerequisites/)（Windows なら WebView2 と Visual Studio Build Tools、macOS なら Xcode Command Line Tools）が要ります。
 
@@ -40,7 +40,7 @@ npm install
 npm run app
 ```
 
-初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「白龙娘」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
+初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「ハクア」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
 
 ### コマンド
 
@@ -78,14 +78,24 @@ GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）�
 
 構成は、React（画面）・Rust / Tauri（アプリの本体）・agent-runner（各バックエンドでエージェントを動かす Node のプロセス）の3つです。
 
+## Code signing policy
+
+Windows のインストーラーへのコード署名は、[SignPath Foundation](https://signpath.org/) の無料のプログラムに申請中です。承認されるまでは署名していません。何に、どう署名するか、担当者、プライバシーの方針は [Code signing policy](CODE_SIGNING_POLICY.md) にまとめています（英語）。設定と手順は [docs/code-signing.md](docs/code-signing.md)。
+
+## プライバシー（Privacy policy）
+
+このアプリは、利用者が求めたとき以外、情報をほかのネットワーク上のシステムへ送りません。例外は次のとおりです（英語の全文は [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)）。
+
+- **更新の確認**: 起動時とその後6時間ごとに、GitHub のリリース（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）から新しい版があるかを確かめます。送るのは通常の HTTPS のリクエストだけで、会話やファイルの中身は送りません。「設定 → アプリの更新」の「新しい版を自動で確認する」をオフにすると、［更新を確認］を押したときだけ確かめます。
+- **AI のバックエンド**: エージェントに話しかけると、そのエージェントに設定したバックエンド（Claude Code・Codex CLI・Ollama など）に会話を渡します。送り先とデータの扱いは、それぞれのサービスのプライバシーポリシーに従います。Ollama（この PC）は端末の外に送りません。
+- **キャラ図鑑**: 図鑑の選択画面を開いたときだけ、画像を図鑑のサイトから取得します。
+
 ## ライセンス
 
-ソフトウェアは [MIT](LICENSE) です。同梱のイラストには作者の利用条件が適用されます。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
+ソフトウェアは [MIT](LICENSE) です（ハクアの初期アイコン `src/shared/assets/starter-avatar.svg` を含む）。参加するときは [行動規範（Code of Conduct）](CODE_OF_CONDUCT.md) を守ってください。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
 
 ## 謝辞
 
 エージェントの「キャラ図鑑」は Gender Swap AI のキャラクター図鑑を参照しています。キャラクターイラストを公開している ZipZipPipe さんと、DeepSeek の原キャラクターを制作した上善无形さんに感謝します。[AI 擬人化キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
 図鑑の画像は選択画面を開いたときに取得し、選んだ画像の顔を正方形に切り抜いて端末に保存します。画像の作者・出典・利用条件は図鑑の各作品に記載されています。[DeepSeek の出典](https://genderswapai.com/ja/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
-
-白龙娘の初期アイコンは、ZipZipPipe さんの [GPT のドラゴン少女](https://genderswapai.com/ja/ai-gijinka/gpt) の顔を切り抜き、256 × 256 ピクセルに縮小したものです。[作者の投稿](https://www.bilibili.com/opus/1233069202138464289) · [素材の利用条件と出典](src/shared/assets/gpt-avatar.NOTICE.txt)

@@ -12,4 +12,6 @@ export const ko: Messages<typeof ja> = {
   installHelp: '업데이트하는 동안 작업 중인 에이전트는 중지됩니다. 대화와 데이터는 그대로 남습니다.',
   installing: '업데이트하는 중…',
   install: '업데이트 후 다시 시작',
+  autoCheck: '새 버전 자동 확인',
+  autoCheckHelp: '시작할 때와 6시간마다 GitHub 릴리스를 확인합니다. 끄면 [업데이트 확인]을 눌렀을 때만 확인합니다.',
 };

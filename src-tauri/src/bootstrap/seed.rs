@@ -13,7 +13,7 @@ use serde::Deserialize;
 
 const SEEDED_KEY: &str = "seeded";
 const STARTER: &str = include_str!("../../../src/shared/assets/starter.json");
-const AVATAR: &[u8] = include_bytes!("../../../src/shared/assets/gpt-avatar.jpg");
+const AVATAR: &[u8] = include_bytes!("../../../src/shared/assets/starter-avatar.jpg");
 const LOBBY_NAME: &str = "ロビー";
 const LOBBY_TOPIC: &str = "みんなの雑談と相談の場";
 

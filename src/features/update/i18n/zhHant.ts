@@ -12,4 +12,6 @@ export const zhHant: Messages<typeof ja> = {
   installHelp: '更新期間，正在工作的代理人會停止。對話和資料會保留。',
   installing: '正在更新…',
   install: '更新並重新啟動',
+  autoCheck: '自動檢查新版本',
+  autoCheckHelp: '啟動時及之後每 6 小時檢查一次 GitHub Releases。關閉後，只在點擊「檢查更新」時檢查。',
 };
