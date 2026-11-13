@@ -11,27 +11,29 @@ import { t } from './texts/index.ts';
 export const OUTPUT_FORMAT: JsonObject = {
   type: 'object',
   properties: {
-    type: { type: 'string', enum: ['tool', 'final'] },
-    tool: { type: 'string', enum: ['', 'read_file', 'list_files', 'write_file', 'run_command', 'read_skill', 'post'] },
+    action: {
+      type: 'string',
+      enum: ['final', 'read_file', 'list_files', 'write_file', 'run_command', 'read_skill', 'post'],
+    },
     text: { type: 'string' },
     path: { type: 'string' },
     content: { type: 'string' },
     command: { type: 'string' },
     name: { type: 'string' },
   },
-  required: ['type', 'tool', 'text', 'path', 'content', 'command', 'name'],
+  required: ['action', 'text', 'path', 'content', 'command', 'name'],
   additionalProperties: false,
 };
 
 export function toolInstructions(request: RunRequest): string {
   return [
-    '必ず JSON オブジェクト1つで応答してください。最終回答の例: {"type":"final","tool":"","text":"回答","path":"","content":"","command":"","name":""}。',
-    '実作業は type を tool にして1つずつ要求し、結果を確認して続けてください。',
+    '必ず JSON オブジェクト1つで応答してください。最終回答の例: {"action":"final","text":"回答","path":"","content":"","command":"","name":""}。',
+    '実作業は action に道具の名前を指定して1つずつ要求し、結果を確認して続けてください。',
     'read_file / list_files は path、write_file は path と content、run_command は command、read_skill は name、post は text を指定します。',
-    '保存する本文は content に入れます。write_file で result.txt に hello を保存する例: {"type":"tool","tool":"write_file","text":"","path":"result.txt","content":"hello","command":"","name":""}。',
+    '保存する本文は content に入れます。write_file で result.txt に hello を保存する例: {"action":"write_file","text":"","path":"result.txt","content":"hello","command":"","name":""}。',
     'path には依頼されたファイル名を指定してください。作業場所のフォルダ名を相対パスの先頭に追加しないでください。',
     '成功した操作を繰り返さず、依頼された操作が終わったら最終回答を返してください。',
-    'すべてのフィールドを含め、使わない文字列フィールドには空文字を入れてください。次の操作1件だけを選んでください。',
+    'action とすべての文字列フィールドを含め、使わない文字列フィールドには空文字を入れてください。次の操作1件だけを選んでください。',
     `応答のJSON Schema: ${JSON.stringify(OUTPUT_FORMAT)}`,
     `作業場所: ${request.workspace}。相対パスはここから解決します。`,
     `実効権限: ${JSON.stringify(request.permissions)}。許可されていない操作は要求しないでください。`,
@@ -64,7 +66,15 @@ export function parseAction(text: string): JsonObject {
   if (!text.trimStart().startsWith('{')) return { type: 'final', text };
   try {
     const value: unknown = JSON.parse(text);
-    if (isJsonObject(value) && (value.type === 'tool' || value.type === 'final')) return value;
+    if (isJsonObject(value)) {
+      if (typeof value.action === 'string') {
+        if (value.action === 'final') return { ...value, type: 'final' };
+        if (['read_file', 'list_files', 'write_file', 'run_command', 'read_skill', 'post'].includes(value.action))
+          return { ...value, type: 'tool', tool: value.action };
+        return { ...value, type: 'tool', tool: '' };
+      }
+      if (value.type === 'tool' || value.type === 'final') return value;
+    }
   } catch {
     /* 不正な操作は実行しない */
   }

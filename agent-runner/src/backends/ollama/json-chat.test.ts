@@ -154,7 +154,7 @@ it('空の tool 名を失敗として記録し、次の final まで続ける', 
   ).toBe('完了');
   const lines = (await readFile(join(stateDir, 'ollama-actions.jsonl'), 'utf8')).trim().split('\n');
   expect(lines).toHaveLength(1);
-  expect((JSON.parse(lines[0]!) as { error: string }).error).toContain('失敗: type が tool のときは');
+  expect((JSON.parse(lines[0]!) as { error: string }).error).toContain('失敗: action には');
 });
 
 it('許可されていない道具は停止エラーを JSONL に記録してから投げる', async () => {
