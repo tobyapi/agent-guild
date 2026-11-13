@@ -41,7 +41,7 @@ export const ja = {
   actionLimit: 'Ollama の操作回数が上限に達しました。完了していない作業があります。{history}',
   actionHistory: '操作 {count} 回（直近10件）:\n{items}',
   noActionHistory: '操作履歴なし',
-  actionStep: '{turn}回目 {name} {status}{error} {args}',
+  actionStep: '{turn}回目 {name} {status}{error} {args}{contentLength}',
   actionSucceeded: '成功',
   actionFailed: '失敗: ',
   actionUnreadable: 'Ollama の操作要求を読み取れませんでした。操作は実行していません。',

@@ -42,7 +42,7 @@ export const ko: Messages<typeof ja> = {
   actionLimit: 'Ollama 작업 횟수 한도에 도달했습니다. 완료되지 않은 작업이 있습니다. {history}',
   actionHistory: '작업 {count}회(최근 10개):\n{items}',
   noActionHistory: '작업 기록 없음',
-  actionStep: '{turn}번째 {name} {status}{error} {args}',
+  actionStep: '{turn}번째 {name} {status}{error} {args}{contentLength}',
   actionSucceeded: '성공',
   actionFailed: '실패: ',
   actionUnreadable: 'Ollama의 작업 요청을 읽을 수 없습니다. 작업은 실행하지 않았습니다.',

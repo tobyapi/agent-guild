@@ -149,6 +149,11 @@ async function executeFile(
 function writeContent(content: unknown): string {
   if (typeof content !== 'string' || Buffer.byteLength(content) > OUTPUT_LIMIT)
     throw new BackendError('bad_request', '書き込みは32KiBまでです');
+  if (!content.trim())
+    throw new BackendError(
+      'bad_request',
+      '書き込む内容が空です。content に保存する本文を入れて、もう一度 write_file を呼んでください',
+    );
   return content;
 }
 

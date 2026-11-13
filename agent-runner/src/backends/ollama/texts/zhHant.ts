@@ -42,7 +42,7 @@ export const zhHant: Messages<typeof ja> = {
   actionLimit: 'Ollama 操作次數達到上限。還有未完成的工作。{history}',
   actionHistory: '共操作 {count} 次（最近10筆）：\n{items}',
   noActionHistory: '沒有操作記錄',
-  actionStep: '第 {turn} 次 {name} {status}{error} {args}',
+  actionStep: '第 {turn} 次 {name} {status}{error} {args}{contentLength}',
   actionSucceeded: '成功',
   actionFailed: '失敗：',
   actionUnreadable: '無法讀取 Ollama 的操作請求。未執行任何操作。',

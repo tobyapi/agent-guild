@@ -43,7 +43,7 @@ export const en: Messages<typeof ja> = {
   actionLimit: 'The Ollama run reached the action limit. Some work is unfinished. {history}',
   actionHistory: '{count} actions (latest 10):\n{items}',
   noActionHistory: 'No action history',
-  actionStep: 'Turn {turn}: {name} {status}{error} {args}',
+  actionStep: 'Turn {turn}: {name} {status}{error} {args}{contentLength}',
   actionSucceeded: 'succeeded',
   actionFailed: 'failed: ',
   actionUnreadable: 'Could not read the action request from Ollama. No action was run.',

@@ -26,6 +26,15 @@ describe('Ollama tools', () => {
     request.permissions.writeFiles = false;
     expect(toolNames(request)).toEqual(['read_file', 'write_file', 'read_skill', 'post']);
   });
+  it('write_file は空または空白だけの content を拒否する', async () => {
+    const request = await fixture();
+    const prepared = { profile: '', workspace: request.workspace, isolated: false, container: false };
+    for (const content of ['', '  \n\t']) {
+      await expect(
+        executeTool(request, 'write_file', { path: 'empty.txt', content }, new AbortController().signal, prepared),
+      ).rejects.toThrow('書き込む内容が空です');
+    }
+  });
   it('Seatbelt は既定拒否・書き込み範囲限定・ネットワーク拒否・管理領域保護', () => {
     const request = runRequest('ollama');
     const profile = seatbeltProfile(request, '/work', ['/extra'], '/state');

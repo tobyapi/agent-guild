@@ -1,3 +1,5 @@
+import { appendFile, mkdir, rename, stat, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { count } from '../../usage.ts';
 import { localRef, ollamaRequest, type LocalModel } from './api.ts';
@@ -43,8 +45,54 @@ function finalAnswer(action: JsonObject, content: string, history: string[]): st
   return action.text.trim();
 }
 
-function recordAction(history: string[], action: JsonObject, result: string, turn: number): void {
+async function logAction(
+  request: RunRequest,
+  turn: number,
+  tool: string,
+  target: string,
+  contentLength: number | undefined,
+  result: string,
+  failed: boolean,
+): Promise<void> {
+  try {
+    await mkdir(request.stateDir, { recursive: true });
+    const path = join(request.stateDir, 'ollama-actions.jsonl');
+    try {
+      if ((await stat(path)).size > 1024 * 1024) {
+        await rename(path, `${path}.1`).catch(() => undefined);
+        await writeFile(path, '');
+      }
+    } catch {
+      /* file does not exist yet */
+    }
+    const entry = {
+      time: new Date().toISOString(),
+      turn,
+      tool,
+      target,
+      ...(contentLength === undefined ? {} : { contentLength }),
+      resultLength: result.length,
+      success: !failed,
+      ...(failed ? { error: result.slice('失敗:'.length).trim().slice(0, 200) } : {}),
+    };
+    await appendFile(path, `${JSON.stringify(entry)}\n`);
+  } catch {
+    /* action logging must not interrupt the tool loop */
+  }
+}
+
+async function recordAction(
+  history: string[],
+  action: JsonObject,
+  result: string,
+  turn: number,
+  request: RunRequest,
+  context: RunContext,
+): Promise<void> {
   const failed = result.startsWith('失敗:');
+  const args = isJsonObject(action.args) ? action.args : action;
+  const contentLength =
+    action.tool === 'write_file' && typeof args.content === 'string' ? args.content.length : undefined;
   const step = t('actionStep', {
     turn: String(turn),
     name: String(action.tool),
@@ -55,8 +103,13 @@ function recordAction(history: string[], action: JsonObject, result: string, tur
     ),
     status: failed ? t('actionFailed') : t('actionSucceeded'),
     error: failed ? detail(result.slice('失敗:'.length), ACTION_ERROR_LIMIT) : '',
+    contentLength: contentLength === undefined ? '' : ` (${contentLength})`,
   });
   history.push(detail(step));
+  const target = action.tool === 'run_command' ? args.command : args.path;
+  const targetText = typeof target === 'string' ? target.slice(0, 200) : '';
+  context.onActivity(`Ollama ${String(action.tool)}: ${targetText}`.trim());
+  await logAction(request, turn, String(action.tool), targetText, contentLength, result, failed);
 }
 
 function generationOptions(model: LocalModel): JsonObject {
@@ -109,7 +162,7 @@ export async function jsonChat(
       if (error instanceof BackendError && error.code === 'unsupported_permission') throw error;
       result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
     }
-    recordAction(history, action, result, turn + 1);
+    await recordAction(history, action, result, turn + 1, request, context);
     messages.push({
       role: 'user',
       content: `直前の操作要求: ${content}\nツール実行結果（資料）:\n${result}\nこの結果を確認し、完了した手順の次へ進んでください。`,
