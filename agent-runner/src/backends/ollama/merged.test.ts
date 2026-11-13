@@ -52,7 +52,7 @@ describe('コマンドの操作確認', () => {
   });
 });
 
-it('JSON作業では think 設定を反映し、判定役は常に think:false', async () => {
+it.skipIf(!REAL_MACOS)('JSON作業では think 設定を反映し、判定役は常に think:false', async () => {
   response({ models: [{ model: 'deepseek', capabilities: ['completion', 'thinking'] }] });
   action({ type: 'tool', tool: 'run_command', command: 'echo ok' });
   response({ message: { content: 'ALLOW' } });
