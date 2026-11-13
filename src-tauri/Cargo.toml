@@ -1,6 +1,6 @@
 [package]
 name = "agent-guild"
-version = "0.1.7"
+version = "0.1.8"
 description = "AIギルド: 人間と AI エージェントが集まるチャットアプリ"
 edition = "2021"
 license = "MIT"
