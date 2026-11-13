@@ -8,12 +8,15 @@ import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { throwIfTruncated } from './response.ts';
 
-const ACTION_DETAIL_LIMIT = 80;
+const ACTION_ITEM_LIMIT = 160;
+const ACTION_ARGUMENT_LIMIT = 60;
+const ACTION_ERROR_LIMIT = 60;
 const ACTION_HISTORY_LIMIT = 10;
 
-function detail(value: string): string {
+function detail(value: string, limit = ACTION_ITEM_LIMIT, fromEnd = false): string {
   const compact = value.replace(/\s+/g, ' ').trim();
-  return compact.length > ACTION_DETAIL_LIMIT ? `${compact.slice(0, ACTION_DETAIL_LIMIT)}…` : compact;
+  if (compact.length <= limit) return compact;
+  return fromEnd ? `…${compact.slice(-(limit - 1))}` : `${compact.slice(0, limit - 1)}…`;
 }
 
 function actionArgument(action: JsonObject): string {
@@ -45,9 +48,13 @@ function recordAction(history: string[], action: JsonObject, result: string, tur
   const step = t('actionStep', {
     turn: String(turn),
     name: String(action.tool),
-    args: detail(actionArgument(action)).slice(0, 25),
+    args: detail(
+      actionArgument(action),
+      ACTION_ARGUMENT_LIMIT,
+      action.tool === 'read_file' || action.tool === 'write_file',
+    ),
     status: failed ? t('actionFailed') : t('actionSucceeded'),
-    error: failed ? detail(result.slice('失敗:'.length)).slice(0, 20) : '',
+    error: failed ? detail(result.slice('失敗:'.length), ACTION_ERROR_LIMIT) : '',
   });
   history.push(detail(step));
 }
