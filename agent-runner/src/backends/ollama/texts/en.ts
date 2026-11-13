@@ -29,6 +29,7 @@ export const en: Messages<typeof ja> = {
   responseUnreadable: 'Could not read the response from Ollama.',
   modelsUnreadable: 'Could not read the Ollama model list.',
   noReply: 'No reply came from Ollama. Please try again.',
+  outputTruncated: 'Ollama output was truncated at the limit (eval_count: {count}). Start: {head} / End: {tail}',
   invalidToolCall: 'Invalid tool call',
   toolNotAllowed: '{name} is not allowed',
   operationDenied: 'The operation was rejected by the operation check',

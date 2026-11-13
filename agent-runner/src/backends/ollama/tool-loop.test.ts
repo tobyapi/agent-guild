@@ -57,6 +57,29 @@ describe('Ollama tool loop', () => {
     await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
     expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).not.toHaveProperty('tools');
     expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
+    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toMatchObject({ options: { num_predict: 32768 } });
+    const body = JSON.parse(http.mock.calls[2]?.[2] ?? '{}') as { options?: Record<string, unknown> };
+    expect(body.options).not.toHaveProperty('temperature');
+  });
+  it('JSON経路は非thinkingモデルで temperature 0 と出力上限を送る', async () => {
+    const plain = { model: 'plain:1b', capabilities: ['completion'] };
+    reply({ models: [plain] });
+    reply({ message: { content: '会話' } });
+    await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
+    expect(JSON.parse(http.mock.calls[1]?.[2] ?? '{}')).toMatchObject({
+      options: { num_predict: 32768, temperature: 0 },
+    });
+  });
+  it('JSON経路で done_reason length は操作を解析せず、出力断片とeval_countを含むエラーにする', async () => {
+    vi.mocked(executeTool).mockClear();
+    reply({ models: [deepseek] });
+    const head = 'H'.repeat(500);
+    const tail = 'T'.repeat(500);
+    reply({ message: { content: `${head}${'x'.repeat(20)}${tail}` }, done_reason: 'length', eval_count: 32768 });
+    await expect(
+      ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext()),
+    ).rejects.toThrow(new RegExp(`32768.*${head.slice(0, 20)}.*${tail.slice(-20)}`));
+    expect(executeTool).not.toHaveBeenCalled();
   });
   it('有効化していないのに道具を要求したら実行しない', async () => {
     start();
@@ -94,6 +117,7 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     expect(executeTool).toHaveBeenCalledTimes(1);
     expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toMatchObject({
       messages: expect.arrayContaining([{ role: 'tool', tool_name: 'read_file', content: 'tool result' }]) as unknown,
+      options: { num_predict: 32768 },
     });
   });
   it('権限のない道具を実行しない', async () => {
@@ -109,6 +133,20 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     for (let i = 0; i < 16; i++) reply(call());
     await expect(ollamaAdapter.run(request(), runContext())).rejects.toThrow('16ターン');
     expect(executeTool).toHaveBeenCalledTimes(16);
+  });
+  it('ネイティブ経路で done_reason length は道具を実行せず、出力断片とeval_countを含むエラーにする', async () => {
+    start();
+    const head = 'H'.repeat(500);
+    const tail = 'T'.repeat(500);
+    reply({
+      message: { content: `${head}${'x'.repeat(20)}${tail}`, tool_calls: [call().message.tool_calls[0]] },
+      done_reason: 'length',
+      eval_count: 32768,
+    });
+    await expect(ollamaAdapter.run(request(), runContext())).rejects.toThrow(
+      new RegExp(`32768.*${head.slice(0, 20)}.*${tail.slice(-20)}`),
+    );
+    expect(executeTool).not.toHaveBeenCalled();
   });
   it('1回に64件を超える道具を拒否する', async () => {
     start();

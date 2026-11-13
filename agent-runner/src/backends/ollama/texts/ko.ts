@@ -29,6 +29,7 @@ export const ko: Messages<typeof ja> = {
   responseUnreadable: 'Ollama의 응답을 읽을 수 없습니다.',
   modelsUnreadable: 'Ollama의 모델 목록을 읽을 수 없습니다.',
   noReply: 'Ollama에서 답변이 오지 않았습니다. 다시 시도하십시오.',
+  outputTruncated: 'Ollama 출력이 한도에서 잘렸습니다(eval_count: {count}). 처음: {head} / 끝: {tail}',
   invalidToolCall: '도구 호출이 올바르지 않습니다',
   toolNotAllowed: '{name}은(는) 허용되지 않습니다',
   operationDenied: '작업 확인에서 거부되었습니다',

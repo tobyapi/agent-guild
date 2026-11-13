@@ -28,6 +28,7 @@ export const ja = {
   responseUnreadable: 'Ollama の応答を読み取れませんでした。',
   modelsUnreadable: 'Ollama のモデル一覧を読み取れませんでした。',
   noReply: 'Ollama から返答が届きませんでした。もう一度お試しください。',
+  outputTruncated: 'Ollama の出力が上限で途切れました（eval_count: {count}）。先頭: {head} / 末尾: {tail}',
   invalidToolCall: '道具の呼び出しが不正です',
   toolNotAllowed: '{name} は許可されていません',
   operationDenied: '操作の確認で拒否されました',

@@ -29,6 +29,7 @@ export const zhHans: Messages<typeof ja> = {
   responseUnreadable: '无法读取 Ollama 的响应。',
   modelsUnreadable: '无法读取 Ollama 的模型列表。',
   noReply: '没有收到 Ollama 的回复。请重试。',
+  outputTruncated: 'Ollama 输出达到上限后被截断（eval_count: {count}）。开头: {head} / 结尾: {tail}',
   invalidToolCall: '工具调用无效',
   toolNotAllowed: '不允许使用 {name}',
   operationDenied: '操作确认拒绝了该操作',

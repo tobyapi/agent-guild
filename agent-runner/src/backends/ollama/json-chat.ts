@@ -5,6 +5,12 @@ import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { executeAction, OUTPUT_FORMAT, parseAction, toolInstructions } from './actions.ts';
 import { checkOperation } from './chat.ts';
 import { t } from './texts/index.ts';
+import { NUM_PREDICT } from './limits.ts';
+import { throwIfTruncated } from './response.ts';
+
+function generationOptions(model: LocalModel): JsonObject {
+  return { num_predict: NUM_PREDICT, ...(model.capabilities.includes('thinking') ? {} : { temperature: 0 }) };
+}
 
 function replyText({ message }: JsonObject): string {
   const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
@@ -31,11 +37,12 @@ export async function jsonChat(
       model: localRef(model.id),
       stream: false,
       format: OUTPUT_FORMAT,
-      options: { temperature: 0 },
+      options: generationOptions(model),
       ...(model.capabilities.includes('thinking') ? { think: false } : {}),
       messages,
     });
     context.signal.throwIfAborted();
+    throwIfTruncated(response);
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const content = replyText(response);
     const action = parseAction(content);

@@ -5,6 +5,8 @@ import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { assertToolPermission, executeTool, sandbox, toolDefinitions, TOOL_LIMIT, type Prepared } from './tools.ts';
 import { executeAction, parseAction } from './actions.ts';
 import { t } from './texts/index.ts';
+import { NUM_PREDICT } from './limits.ts';
+import { throwIfTruncated } from './response.ts';
 function thinkOption(model: LocalModel): boolean | undefined {
   return model.capabilities.includes('thinking') ? false : undefined;
 }
@@ -157,10 +159,12 @@ export async function toolChat(
     const response = await ollamaRequest('/api/chat', signal, {
       model: localRef(model.id),
       stream: false,
+      options: { num_predict: NUM_PREDICT },
       messages,
       ...(tools.length ? { tools } : {}),
     });
     context.signal.throwIfAborted();
+    throwIfTruncated(response);
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const message = response.message;
     if (!isJsonObject(message)) throw new BackendError('internal', t('invalidResponse'));
