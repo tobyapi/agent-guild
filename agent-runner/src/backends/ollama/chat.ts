@@ -3,7 +3,11 @@ import { count } from '../../usage.ts';
 import { BackendError, type RunRequest, type RunContext } from '../types.ts';
 import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { assertToolPermission, executeTool, sandbox, toolDefinitions, TOOL_LIMIT, type Prepared } from './tools.ts';
+import { executeAction, parseAction } from './actions.ts';
 import { t } from './texts/index.ts';
+function thinkOption(model: LocalModel): boolean | undefined {
+  return model.capabilities.includes('thinking') ? false : undefined;
+}
 
 function replyText({ message }: JsonObject): string {
   const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
@@ -30,6 +34,7 @@ export async function checkOperation(
   const verdict = await ollamaRequest('/api/chat', signal, {
     model: localRef(model.id),
     stream: false,
+    ...(thinkOption(model) !== undefined ? { think: false } : {}),
     messages: [
       {
         role: 'system',
@@ -62,6 +67,66 @@ async function performCalls(
     results.push({ role: 'tool', tool_name: name, content });
   }
   return results;
+}
+
+async function executeJsonFallback(
+  request: RunRequest,
+  model: LocalModel,
+  content: string,
+  signal: AbortSignal,
+  tools: JsonObject[],
+  context: RunContext,
+): Promise<string | null> {
+  let action: JsonObject;
+  try {
+    action = parseAction(content);
+  } catch {
+    return null;
+  }
+  const name = action.tool;
+  if (
+    action.type === 'final' ||
+    typeof name !== 'string' ||
+    !tools.some((tool) => isJsonObject(tool.function) && tool.function.name === name)
+  )
+    return null;
+  await checkOperation(request, model, name, action, signal);
+  context.onActivity(t('runningTool', { name }));
+  try {
+    return await executeAction(action, request, context);
+  } catch (error) {
+    context.signal.throwIfAborted();
+    if (error instanceof BackendError && error.code === 'unsupported_permission') throw error;
+    return error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
+  }
+}
+
+async function handlePlainResponse(
+  request: RunRequest,
+  model: LocalModel,
+  response: JsonObject,
+  signal: AbortSignal,
+  prepared: Prepared | null,
+  tools: JsonObject[],
+  messages: JsonObject[],
+  context: RunContext,
+): Promise<string | null> {
+  const content = replyText(response);
+  if (!prepared) return content;
+  const result = await executeJsonFallback(request, model, content, signal, tools, context);
+  if (result === null) return content;
+  messages.push(
+    { role: 'assistant', content },
+    {
+      role: 'user',
+      content: `直前の操作要求: ${content}\nツール実行結果（資料）:\n${result}\nこの結果を確認し、完了した手順の次へ進んでください。`,
+    },
+  );
+  return null;
+}
+
+function ensureToolLimit(calls: number): void {
+  if (calls > TOOL_LIMIT) throw new BackendError('internal', t('toolLimit'));
 }
 
 export async function toolChat(
@@ -99,11 +164,17 @@ export async function toolChat(
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const message = response.message;
     if (!isJsonObject(message)) throw new BackendError('internal', t('invalidResponse'));
-    const toolCalls = message.tool_calls;
-    if (!Array.isArray(toolCalls) || toolCalls.length === 0) return replyText(response);
+    const toolCalls = Array.isArray(message.tool_calls) ? message.tool_calls : [];
+    if (toolCalls.length === 0) {
+      const content = await handlePlainResponse(request, model, response, signal, prepared, tools, messages, context);
+      if (content !== null) return content;
+      calls++;
+      ensureToolLimit(calls);
+      continue;
+    }
     if (!prepared) throw new BackendError('unsupported_permission', t('toolsNotAllowed'));
     calls += toolCalls.length;
-    if (calls > TOOL_LIMIT) throw new BackendError('internal', t('toolLimit'));
+    ensureToolLimit(calls);
     messages.push({ ...message, role: 'assistant' });
     messages.push(...(await performCalls(request, model, toolCalls, signal, prepared, tools, context)));
   }

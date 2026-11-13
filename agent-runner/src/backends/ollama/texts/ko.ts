@@ -3,9 +3,8 @@ import type { ja } from './ja.ts';
 
 export const ko: Messages<typeof ja> = {
   label: 'Ollama(이 PC)',
-  toolProtocolLabel: '도구 요청 형식',
-  toolProtocolDescription:
-    'auto는 지원하는 모델의 네이티브 호출을 사용합니다. 작업을 호출하지 않는 DeepSeek 등에서는 json을 선택하십시오.',
+  timeoutMinutesLabel: '실행 시간 제한(분)',
+  timeoutMinutesDescription: '한 번의 응답에 허용되는 시간(분), 1~60분.',
   enableToolsLabel: '도구 사용 활성화',
   enableToolsDescription:
     '역할의 권한으로 도구(파일 읽기/쓰기, 스킬, 진행 상황 게시)를 실행합니다. DeepSeek 등은 JSON 작업을 사용합니다. 명령은 OS 격리 안에서만 실행합니다(macOS와 지원되는 Windows 11. 네트워크는 사용할 수 없습니다). 작업 폴더 밖에 쓰기는 macOS에서만 가능합니다.',

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
+import { parseAction } from './actions.ts';
 import { folderModeAvailable, pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
 import { localHttp } from './http.ts';
 import { fileTool } from './files.ts';
@@ -40,14 +41,25 @@ it('opt-in前のJSON操作は実行せず、形式制約も渡さない', async 
 describe('コマンドの操作確認', () => {
   pretendMacOS();
   it('JSONコマンドでも既定の操作確認が拒否したら実行しない', async () => {
-    startJson();
+    response({ models: [{ model: 'deepseek', capabilities: ['completion', 'thinking'] }] });
     action({ type: 'tool', tool: 'run_command', command: 'printf bad > bad' });
     response({ message: { content: 'DENY' } });
     await expect(ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext())).rejects.toThrow(
       '確認',
     );
     expect(await readdir(join(root, 'work'))).toEqual([]);
+    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
   });
+});
+
+it('JSON作業では think 設定を反映し、判定役は常に think:false', async () => {
+  response({ models: [{ model: 'deepseek', capabilities: ['completion', 'thinking'] }] });
+  action({ type: 'tool', tool: 'run_command', command: 'echo ok' });
+  response({ message: { content: 'ALLOW' } });
+  action({ type: 'final', text: '完了' });
+  await ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext());
+  expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
+  expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toHaveProperty('think', false);
 });
 
 it.skipIf(!(await folderModeAvailable()))('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
@@ -159,17 +171,22 @@ it('展開したスキルの付属ファイルをJSON経路から読み、終了
   expect(await readdir(req.stateDir)).toEqual([]);
 });
 
-it('tools対応を申告するモデルでもJSON操作を明示して実ファイルを保存できる', async () => {
-  response({ models: [{ model: 'deepseek', capabilities: ['completion', 'tools'] }] });
-  response({ capabilities: ['completion', 'tools'] });
+it('thinking 対応モデルで自動選択したJSON操作から実ファイルを保存できる', async () => {
+  response({ models: [{ model: 'deepseek', capabilities: ['completion', 'tools', 'thinking'] }] });
+  response({ capabilities: ['completion', 'tools', 'thinking'] });
   action({ type: 'tool', tool: 'write_file', path: 'forced-json', content: 'verified' });
   action({ type: 'final', text: '完了' });
   const req = request();
-  await ollamaAdapter.run({ ...req, options: { ...req.options, toolProtocol: 'json' } }, runContext());
+  await ollamaAdapter.run(req, runContext());
   const body: unknown = JSON.parse(http.mock.calls[2]?.[2] ?? '{}');
   expect(body).toHaveProperty('format');
   expect(body).not.toHaveProperty('tools');
   expect(await readFile(join(req.workspace, 'forced-json'), 'utf8')).toBe('verified');
+});
+
+it('JSONの前後に文章が付いた返答は既存パーサーで操作として読まない', () => {
+  const text = '要求です: {"type":"tool","tool":"read_file"} 完了しました';
+  expect(parseAction(text)).toEqual({ type: 'final', text });
 });
 
 it.skipIf(!REAL_MACOS)('MEMORYのファイル例外をコマンドの書き込み権限へ広げない', async () => {

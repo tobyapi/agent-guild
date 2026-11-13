@@ -38,13 +38,12 @@ export const MOCK_OLLAMA: BackendInfo = {
   statusMessage: 'この PC のモデルを使います。',
   options: [
     {
-      key: 'toolProtocol',
-      label: '道具の要求形式',
-      description:
-        'auto は対応モデルのネイティブ呼び出しを使います。操作を呼ばない DeepSeek などでは json を選んでください。',
-      type: 'select',
-      choices: ['auto', 'json'],
-      default: 'auto',
+      key: 'timeoutMinutes',
+      label: '1回の実行の上限（分）',
+      description: '1回の返答にかけられる時間（分）。1〜60分。',
+      type: 'number',
+      choices: [],
+      default: 5,
     },
     {
       key: 'enableTools',

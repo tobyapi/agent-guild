@@ -2,9 +2,8 @@
 // 日本語の表が正（キーの一覧）。モデルへの指示と道具の結果（actions.ts・tools.ts など）は訳さない。
 export const ja = {
   label: 'Ollama（この PC）',
-  toolProtocolLabel: '道具の要求形式',
-  toolProtocolDescription:
-    'auto は対応モデルのネイティブ呼び出しを使います。操作を呼ばない DeepSeek などでは json を選んでください。',
+  timeoutMinutesLabel: '1回の実行の上限（分）',
+  timeoutMinutesDescription: '1回の返答にかけられる時間（分）。1〜60分。',
   enableToolsLabel: '道具の利用を有効にする',
   enableToolsDescription:
     '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',

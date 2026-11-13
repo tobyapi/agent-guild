@@ -1,6 +1,6 @@
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { count } from '../../usage.ts';
-import { localRef, ollamaRequest } from './api.ts';
+import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { executeAction, OUTPUT_FORMAT, parseAction, toolInstructions } from './actions.ts';
 import { checkOperation } from './chat.ts';
@@ -15,7 +15,7 @@ function replyText({ message }: JsonObject): string {
 export async function jsonChat(
   request: RunRequest,
   context: RunContext,
-  model: string,
+  model: LocalModel,
   prompt: string,
   images: string[],
 ): Promise<string> {
@@ -28,10 +28,11 @@ export async function jsonChat(
     if (Buffer.byteLength(JSON.stringify(messages)) > 4 * 1024 * 1024)
       throw new BackendError('bad_request', t('conversationTooLarge'));
     const response = await ollamaRequest('/api/chat', context.signal, {
-      model: localRef(model),
+      model: localRef(model.id),
       stream: false,
       format: OUTPUT_FORMAT,
       options: { temperature: 0 },
+      ...(model.capabilities.includes('thinking') ? { think: false } : {}),
       messages,
     });
     context.signal.throwIfAborted();
@@ -45,13 +46,7 @@ export async function jsonChat(
     messages.push({ role: 'assistant', content });
     let result: string;
     try {
-      await checkOperation(
-        request,
-        { id: model, size: '', capabilities: [] },
-        String(action.tool),
-        action,
-        context.signal,
-      );
+      await checkOperation(request, model, String(action.tool), action, context.signal);
       result = await executeAction(action, request, context);
     } catch (error) {
       context.signal.throwIfAborted();

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
+import { timeoutMinutes } from '../ollama.ts';
 import { localHttp } from './http.ts';
 import { sandbox, executeTool } from './tools.ts';
 import { pretendMacOS, runContext, runRequest } from '../run.test-support.ts';
@@ -17,22 +18,45 @@ function reply(body: object): void {
 beforeEach(() => http.mockReset());
 pretendMacOS();
 describe('Ollama tool loop', () => {
+  it('timeoutMinutes は1〜60の正の整数だけを適用する', () => {
+    expect(timeoutMinutes({ timeoutMinutes: 12 })).toBe(12);
+    expect(timeoutMinutes({ timeoutMinutes: 0 })).toBe(5);
+    expect(timeoutMinutes({ timeoutMinutes: 61 })).toBe(5);
+    expect(timeoutMinutes({ timeoutMinutes: 2.5 })).toBe(5);
+  });
   const toolModel = { model: 'small:1b', capabilities: ['completion', 'tools'] };
   function start() {
     reply({ models: [toolModel] });
     reply({ capabilities: toolModel.capabilities });
   }
+  it('設定項目から think と toolProtocol を除き、timeoutMinutes を残す', () => {
+    const keys = ollamaAdapter.info().options.map((option) => option.key);
+    expect(keys).toContain('timeoutMinutes');
+    expect(keys).not.toContain('think');
+    expect(keys).not.toContain('toolProtocol');
+  });
   it('明示的に有効化しない既存エージェントには道具を渡さない', async () => {
-    start();
+    reply({ models: [{ model: 'thinking-chat:1b', capabilities: ['completion', 'thinking'] }] });
     reply({ message: { content: '会話' } });
     await expect(ollamaAdapter.run(runRequest('ollama'), runContext())).resolves.toBe('会話');
-    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).not.toHaveProperty('tools');
+    const body = JSON.parse(http.mock.calls[1]?.[2] ?? '{}') as Record<string, unknown>;
+    expect(body).not.toHaveProperty('tools');
+    expect(body).not.toHaveProperty('think');
   });
   it('ネイティブ非対応モデルは有効化後もnative toolsを渡さずJSON操作を使う', async () => {
     reply({ models: [deepseek] });
     reply({ message: { content: '会話' } });
     await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
     expect(JSON.parse(http.mock.calls[1]?.[2] ?? '{}')).not.toHaveProperty('tools');
+  });
+  it('thinking と native tools の両方に対応していてもJSON操作を使う', async () => {
+    const thinkingTools = { model: 'thinking-tools:1b', capabilities: ['completion', 'tools', 'thinking'] };
+    reply({ models: [thinkingTools] });
+    reply({ capabilities: thinkingTools.capabilities });
+    reply({ message: { content: '会話' } });
+    await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
+    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).not.toHaveProperty('tools');
+    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
   });
   it('有効化していないのに道具を要求したら実行しない', async () => {
     start();
@@ -46,7 +70,14 @@ describe('Ollama tool loop', () => {
 describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
   const model = { model: 'tools:1b', capabilities: ['completion', 'tools'] };
   const call = (name = 'read_file') => ({
-    message: { content: '', tool_calls: [{ function: { name, arguments: { path: 'hello' } } }] },
+    message: {
+      content: '',
+      tool_calls: [
+        {
+          function: { name, arguments: name === 'run_command' ? { command: 'echo hello' } : { path: 'hello' } },
+        },
+      ],
+    },
   });
   const request = () => ({ ...runRequest('ollama'), options: { enableTools: true, operationCheck: false } });
   function start() {
@@ -92,13 +123,28 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     expect(http).not.toHaveBeenCalled();
   });
   it('操作確認の拒否ではコマンドを動かさない', async () => {
-    start();
-    reply(call('run_command'));
+    const thinkingModel = { model: 'tools:1b', capabilities: ['completion', 'tools', 'thinking'] };
+    reply({ models: [thinkingModel] });
+    reply({ capabilities: thinkingModel.capabilities });
+    reply({
+      message: {
+        content: JSON.stringify({
+          type: 'tool',
+          tool: 'run_command',
+          text: '',
+          path: '',
+          content: '',
+          command: 'echo hello',
+          name: '',
+        }),
+      },
+    });
     reply({ message: { content: 'DENY' } });
     const req = request();
     req.options.operationCheck = true;
     await expect(ollamaAdapter.run(req, runContext())).rejects.toThrow('確認');
     expect(executeTool).not.toHaveBeenCalled();
+    expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toHaveProperty('think', false);
   });
 });
 

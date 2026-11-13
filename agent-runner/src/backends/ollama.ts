@@ -16,7 +16,13 @@ import { toolChat } from './ollama/chat.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
 import { t } from './ollama/texts/index.ts';
+import { optionPositiveInt } from './types.ts';
 
+const DEFAULT_TIMEOUT_MINUTES = 5;
+export function timeoutMinutes(options: Record<string, unknown>): number {
+  const value = optionPositiveInt(options, 'timeoutMinutes');
+  return value !== undefined && value <= 60 ? value : DEFAULT_TIMEOUT_MINUTES;
+}
 const NO_TOOLS: Permissions = {
   webSearch: false,
   webFetch: false,
@@ -72,7 +78,7 @@ async function encodeImage(image: ImagePayload, signal: AbortSignal): Promise<st
 async function run(request: RunRequest, context: RunContext): Promise<string> {
   let { signal } = context;
   const { onActivity, onUsage } = context;
-  signal = AbortSignal.any([signal, AbortSignal.timeout(5 * 60_000)]);
+  signal = AbortSignal.any([signal, AbortSignal.timeout(timeoutMinutes(request.options) * 60_000)]);
   signal.throwIfAborted();
   context = { ...context, signal };
   const enabled = request.options.enableTools === true;
@@ -112,8 +118,8 @@ async function respond(
 ): Promise<string> {
   const prepared = enabled ? await prepareSkills(request) : { request, cleanup: () => Promise.resolve() };
   try {
-    return enabled && (request.options.toolProtocol === 'json' || !model.capabilities.includes('tools'))
-      ? await jsonChat(prepared.request, context, model.id, prompt, images)
+    return enabled && (model.capabilities.includes('thinking') || !model.capabilities.includes('tools'))
+      ? await jsonChat(prepared.request, context, model, prompt, images)
       : await toolChat(prepared.request, model, prompt, images, context.signal, context);
   } finally {
     await prepared.cleanup();
@@ -138,12 +144,12 @@ export const ollamaAdapter: BackendAdapter = {
     },
     options: [
       {
-        key: 'toolProtocol',
-        label: t('toolProtocolLabel'),
-        description: t('toolProtocolDescription'),
-        type: 'select',
-        choices: ['auto', 'json'],
-        default: 'auto',
+        key: 'timeoutMinutes',
+        label: t('timeoutMinutesLabel'),
+        description: t('timeoutMinutesDescription'),
+        type: 'number',
+        choices: [],
+        default: DEFAULT_TIMEOUT_MINUTES,
       },
       {
         key: 'enableTools',

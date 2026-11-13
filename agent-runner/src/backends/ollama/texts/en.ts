@@ -3,9 +3,8 @@ import type { ja } from './ja.ts';
 
 export const en: Messages<typeof ja> = {
   label: 'Ollama (this PC)',
-  toolProtocolLabel: 'Tool request format',
-  toolProtocolDescription:
-    'auto uses native tool calls on models that support them. Choose json for models such as DeepSeek that do not call tools.',
+  timeoutMinutesLabel: 'Run time limit (minutes)',
+  timeoutMinutesDescription: 'Maximum time for one response, in minutes (1–60).',
   enableToolsLabel: 'Enable tools',
   enableToolsDescription:
     "Runs tools (reading and writing files, skills, progress updates) within the role's permissions. Models such as DeepSeek use JSON actions. Commands run only inside OS isolation (macOS and supported Windows 11; no network access). Writing outside the workspace is available only on macOS.",

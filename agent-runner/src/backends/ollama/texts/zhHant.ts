@@ -3,8 +3,8 @@ import type { ja } from './ja.ts';
 
 export const zhHant: Messages<typeof ja> = {
   label: 'Ollama（本機）',
-  toolProtocolLabel: '工具請求格式',
-  toolProtocolDescription: 'auto 會對支援的模型使用原生呼叫。對於 DeepSeek 等不呼叫操作的模型，請選擇 json。',
+  timeoutMinutesLabel: '單次執行上限（分鐘）',
+  timeoutMinutesDescription: '單次回覆允許的時間（分鐘），1 到 60 分鐘。',
   enableToolsLabel: '啟用工具',
   enableToolsDescription:
     '依角色的權限執行工具（讀寫檔案、技能、進度更新）。DeepSeek 等模型使用 JSON 操作。命令只在作業系統隔離中執行（macOS 與支援的 Windows 11；無法連網）。寫入工作資料夾之外僅限 macOS。',
