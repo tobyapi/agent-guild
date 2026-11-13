@@ -90,7 +90,7 @@ fn notices_in(language: Language, expected: &Value) -> Value {
         "stopped": notices::stopped(language),
         "depthLimit": notices::depth_limit(language),
         "noResponder": notices::no_responder(language),
-        "timedOut": notices::timed_out(language),
+        "timedOut": notices::timed_out(language, 15),
         "joined": one("joined", notices::joined),
         "undeliverable": one("undeliverable", notices::undeliverable),
         "didNotAnswer": one("didNotAnswer", notices::did_not_answer),

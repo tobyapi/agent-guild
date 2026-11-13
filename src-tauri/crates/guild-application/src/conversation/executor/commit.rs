@@ -35,8 +35,8 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
             let error = post_error(ports, job, &agent, message)?;
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::Failed(error)))
         }
-        RunOutcome::TimedOut => {
-            let error = post_error(ports, job, &agent, notices::timed_out(locale::current()).to_owned())?;
+        RunOutcome::TimedOut(minutes) => {
+            let error = post_error(ports, job, &agent, notices::timed_out(locale::current(), minutes))?;
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::TimedOut(error)))
         }
         RunOutcome::Cancelled | RunOutcome::Skipped => Ok(Committed::nothing()),

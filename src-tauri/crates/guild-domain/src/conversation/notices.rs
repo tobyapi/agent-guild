@@ -36,14 +36,26 @@ pub fn no_responder(language: Language) -> &'static str {
 }
 
 /// ジョブが時間切れになったとき（そのエージェント名義の error 発言）
-pub fn timed_out(language: Language) -> &'static str {
-    language.pick([
-        "時間切れで中断しました（15分）",
-        "Stopped because it took too long (15 minutes).",
-        "已超时中断（15 分钟）。",
-        "已逾時中斷（15 分鐘）。",
-        "시간이 초과되어 중단했습니다(15분).",
-    ])
+pub fn timed_out(language: Language, minutes: u64) -> String {
+    match language {
+        Language::Ja => format!("時間切れで中断しました（{minutes}分）"),
+        Language::En => format!("Stopped because it took too long ({minutes} minutes)."),
+        Language::ZhHans => format!("已超时中断（{minutes} 分钟）。"),
+        Language::ZhHant => format!("已逾時中斷（{minutes} 分鐘）。"),
+        Language::Ko => format!("시간이 초과되어 중단했습니다({minutes}분)."),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::timed_out;
+    use crate::locale::Language;
+
+    #[test]
+    fn timeout_notice_uses_the_actual_limit() {
+        assert_eq!(timed_out(Language::Ja, 30), "時間切れで中断しました（30分）");
+        assert_eq!(timed_out(Language::En, 30), "Stopped because it took too long (30 minutes).");
+    }
 }
 
 /// 前回アプリが終了したときに、待っていた・実行中だった返答が消えたとき（次の起動時に会話ごとに1回）
