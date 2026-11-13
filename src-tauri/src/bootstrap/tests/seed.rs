@@ -72,7 +72,7 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
 }
 
 #[tokio::test]
-async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
+async fn seeds_the_lobby_with_one_worker_once() {
     let dir = TempDir::new("seed");
     let (services, meta) = services(&dir);
     run_once(&services, meta.as_ref()).unwrap();
@@ -81,10 +81,10 @@ async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
     let snapshot = services.snapshot.get().unwrap();
     assert_eq!(snapshot.agents.len(), 1);
     let worker = &snapshot.agents[0];
-    assert_eq!(worker.name, "ハクア");
+    assert_eq!(worker.name, "ミナト");
     assert_eq!(worker.tags, ["作業者", "リサーチ"]);
     assert_eq!((worker.backend.as_str(), worker.model.as_str()), ("codex", ""));
-    assert!(worker.avatar.starts_with("data:image/jpeg;base64,/9j/"));
+    assert_eq!(worker.avatar, "🧭");
     assert!(worker.permissions.write_files && worker.permissions.run_commands && worker.permissions.write_anywhere);
     assert_eq!(
         (worker.unmentioned, worker.consultable, worker.can_delegate),
@@ -99,5 +99,5 @@ async fn seeds_the_lobby_with_one_worker_and_an_embedded_avatar_once() {
 
     let welcome = services.conversation.list_messages(&lobby.id, None, None).unwrap();
     assert_eq!(welcome.len(), 1);
-    assert!(welcome[0].content.contains("ハクア"));
+    assert!(welcome[0].content.contains("ミナト"));
 }

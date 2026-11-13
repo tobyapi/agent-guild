@@ -1,5 +1,4 @@
 // 初期データ（docs/design.md §13）、画面確認用のデモ、復旧モード。
-import starterAvatar from '@/shared/assets/starter-avatar.jpg?inline';
 import starter from '@/shared/assets/starter.json';
 import { DEFAULT_GUILD } from '@/shared/lib/guild';
 import { HUMAN_ID } from '@/shared/types/domain';
@@ -26,7 +25,7 @@ function templateOf(id: AgentTemplate['id']): AgentTemplate {
   return template;
 }
 
-const STARTER_AGENT: AgentSeed = { ...starter.agent, id: SEED_IDS.starter, avatar: starterAvatar };
+const STARTER_AGENT: AgentSeed = { ...starter.agent, id: SEED_IDS.starter };
 
 const DEMO_AGENTS: AgentSeed[] = [
   {

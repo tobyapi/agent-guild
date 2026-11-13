@@ -1,10 +1,8 @@
 //! 初期データ（design.md §13）。meta 表に seeded の記録がないときだけ、ロビーと作業者・歓迎の発言を入れる。
-//! 初期データと画像はブラウザーのモックと共有する。
+//! 初期データはブラウザーのモックと共有する。
 
 use std::error::Error;
 
-use base64::engine::general_purpose::STANDARD;
-use base64::Engine;
 use guild_application::ports::MetaRepository;
 use guild_application::AppServices;
 use guild_domain::agent::{find_template, AgentInput};
@@ -13,7 +11,6 @@ use serde::Deserialize;
 
 const SEEDED_KEY: &str = "seeded";
 const STARTER: &str = include_str!("../../../src/shared/assets/starter.json");
-const AVATAR: &[u8] = include_bytes!("../../../src/shared/assets/starter-avatar.jpg");
 const LOBBY_NAME: &str = "ロビー";
 const LOBBY_TOPIC: &str = "みんなの雑談と相談の場";
 
@@ -28,6 +25,8 @@ struct SeedAgent {
     /// 既定値を借りるテンプレートの ID
     template: String,
     name: String,
+    /// 絵文字（画像は同梱しない）
+    avatar: String,
     color: String,
     tags: Vec<String>,
     role: String,
@@ -57,7 +56,7 @@ fn agent_input(seed: SeedAgent) -> Result<AgentInput, String> {
         .defaults;
     Ok(AgentInput {
         name: seed.name,
-        avatar: format!("data:image/jpeg;base64,{}", STANDARD.encode(AVATAR)),
+        avatar: seed.avatar,
         color: seed.color,
         frame: String::new(),
         tags: seed.tags,

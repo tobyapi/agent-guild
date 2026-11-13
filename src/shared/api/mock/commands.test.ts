@@ -45,14 +45,14 @@ const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => ({
 });
 
 describe('モックのコマンド', () => {
-  it('get_snapshot は契約に合い、ロビーに画像アバターを持つ作業者1人を返す', async () => {
+  it('get_snapshot は契約に合い、ロビーに絵文字のアバターを持つ作業者1人を返す', async () => {
     const transport = createMockTransport({ latencyMs: 0, runtimeStartupMs: 0 });
     const snapshot = await transport.invoke('get_snapshot', {});
     expect(objectOf(snapshotSchema)(snapshot, 'snapshot')).toEqual([]);
     expect(snapshot.agents).toMatchObject([
       {
         id: SEED_IDS.starter,
-        name: 'ハクア',
+        name: 'ミナト',
         tags: ['作業者', 'リサーチ'],
         unmentioned: 'answer',
         canDelegate: false,
@@ -60,7 +60,7 @@ describe('モックのコマンド', () => {
         model: '',
       },
     ]);
-    expect(snapshot.agents[0]?.avatar).toMatch(/^data:image\/jpeg;base64,\/9j\//);
+    expect(snapshot.agents[0]?.avatar).toBe('🧭');
     expect(snapshot.templates.map((template) => template.label)).toEqual([
       '作業者',
       '発想役',
@@ -71,7 +71,7 @@ describe('モックのコマンド', () => {
     expect(snapshot.backends.find((backend) => backend.id === 'codex')?.status).toBe('needs_auth');
     const messages = await transport.invoke('list_messages', { channelId: SEED_IDS.lobby, beforeSeq: null, limit: 20 });
     expect(messages).toMatchObject([{ kind: 'system' }]);
-    expect(messages[0]?.content).toContain('ハクア');
+    expect(messages[0]?.content).toContain('ミナト');
   });
 
   it('list_messages は beforeSeq で古いほうへページングし、seq の昇順で返す', async () => {

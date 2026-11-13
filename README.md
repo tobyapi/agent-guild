@@ -40,7 +40,7 @@ npm install
 npm run app
 ```
 
-初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「ハクア」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
+初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「ミナト」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
 
 ### コマンド
 
@@ -92,7 +92,7 @@ Windows のインストーラーへのコード署名は、[SignPath Foundation]
 
 ## ライセンス
 
-ソフトウェアは [MIT](LICENSE) です（ハクアの初期アイコン `src/shared/assets/starter-avatar.svg` を含む）。参加するときは [行動規範（Code of Conduct）](CODE_OF_CONDUCT.md) を守ってください。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
+ソフトウェアは [MIT](LICENSE) です。参加するときは [行動規範（Code of Conduct）](CODE_OF_CONDUCT.md) を守ってください。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
 
 ## 謝辞
 
