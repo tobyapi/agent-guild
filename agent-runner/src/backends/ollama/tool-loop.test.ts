@@ -3,6 +3,7 @@ import { ollamaAdapter } from '../ollama.ts';
 import { timeoutMinutes } from '../ollama.ts';
 import { localHttp } from './http.ts';
 import { sandbox, executeTool } from './tools.ts';
+import { NUM_PREDICT } from './limits.ts';
 import { pretendMacOS, runContext, runRequest } from '../run.test-support.ts';
 vi.mock('./http.ts', () => ({ localHttp: vi.fn() }));
 vi.mock('./tools.ts', async (original) => ({
@@ -57,7 +58,7 @@ describe('Ollama tool loop', () => {
     await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
     expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).not.toHaveProperty('tools');
     expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
-    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toMatchObject({ options: { num_predict: 32768 } });
+    expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toMatchObject({ options: { num_predict: NUM_PREDICT } });
     const body = JSON.parse(http.mock.calls[2]?.[2] ?? '{}') as { options?: Record<string, unknown> };
     expect(body.options).not.toHaveProperty('temperature');
   });
@@ -67,7 +68,7 @@ describe('Ollama tool loop', () => {
     reply({ message: { content: '会話' } });
     await ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext());
     expect(JSON.parse(http.mock.calls[1]?.[2] ?? '{}')).toMatchObject({
-      options: { num_predict: 32768, temperature: 0 },
+      options: { num_predict: NUM_PREDICT, temperature: 0 },
     });
   });
   it('JSON経路で done_reason length は操作を解析せず、出力断片とeval_countを含むエラーにする', async () => {
@@ -75,10 +76,10 @@ describe('Ollama tool loop', () => {
     reply({ models: [deepseek] });
     const head = 'H'.repeat(500);
     const tail = 'T'.repeat(500);
-    reply({ message: { content: `${head}${'x'.repeat(20)}${tail}` }, done_reason: 'length', eval_count: 32768 });
+    reply({ message: { content: `${head}${'x'.repeat(20)}${tail}` }, done_reason: 'length', eval_count: NUM_PREDICT });
     await expect(
       ollamaAdapter.run({ ...runRequest('ollama'), options: { enableTools: true } }, runContext()),
-    ).rejects.toThrow(new RegExp(`32768.*${head.slice(0, 20)}.*${tail.slice(-20)}`));
+    ).rejects.toThrow(new RegExp(`${NUM_PREDICT}.*${head.slice(0, 20)}.*${tail.slice(-20)}`));
     expect(executeTool).not.toHaveBeenCalled();
   });
   it('有効化していないのに道具を要求したら実行しない', async () => {
@@ -117,7 +118,7 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     expect(executeTool).toHaveBeenCalledTimes(1);
     expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toMatchObject({
       messages: expect.arrayContaining([{ role: 'tool', tool_name: 'read_file', content: 'tool result' }]) as unknown,
-      options: { num_predict: 32768 },
+      options: { num_predict: NUM_PREDICT },
     });
   });
   it('権限のない道具を実行しない', async () => {
@@ -141,10 +142,10 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     reply({
       message: { content: `${head}${'x'.repeat(20)}${tail}`, tool_calls: [call().message.tool_calls[0]] },
       done_reason: 'length',
-      eval_count: 32768,
+      eval_count: NUM_PREDICT,
     });
     await expect(ollamaAdapter.run(request(), runContext())).rejects.toThrow(
-      new RegExp(`32768.*${head.slice(0, 20)}.*${tail.slice(-20)}`),
+      new RegExp(`${NUM_PREDICT}.*${head.slice(0, 20)}.*${tail.slice(-20)}`),
     );
     expect(executeTool).not.toHaveBeenCalled();
   });
