@@ -1,37 +1,24 @@
-import { appendFile, mkdir, rename, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
 import { count } from '../../usage.ts';
 import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { executeAction, OUTPUT_FORMAT, parseAction, toolInstructions } from './actions.ts';
+import { logAction, recordAction, recordPermissionStop } from './json-chat-log.ts';
 import { checkOperation } from './chat.ts';
 import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { replyMetrics, throwIfTruncated } from './response.ts';
 
 const ACTION_ITEM_LIMIT = 160;
-const ACTION_ARGUMENT_LIMIT = 60;
-const ACTION_ERROR_LIMIT = 60;
 const ACTION_HISTORY_LIMIT = 10;
+const TOOL_NAMES = new Set(['read_file', 'list_files', 'write_file', 'run_command', 'read_skill', 'post']);
+const INVALID_TOOL_RESULT =
+  '失敗: type が tool のときは、tool に道具の名前（read_file・list_files・write_file・run_command・read_skill・post のどれか）を入れてください。作業が終わったなら type を final にしてください';
 
 function detail(value: string, limit = ACTION_ITEM_LIMIT, fromEnd = false): string {
   const compact = value.replace(/\s+/g, ' ').trim();
   if (compact.length <= limit) return compact;
   return fromEnd ? `…${compact.slice(-(limit - 1))}` : `${compact.slice(0, limit - 1)}…`;
-}
-
-function actionArgument(action: JsonObject): string {
-  const args = isJsonObject(action.args) ? action.args : action;
-  const key =
-    action.tool === 'read_file' || action.tool === 'write_file'
-      ? 'path'
-      : action.tool === 'run_command'
-        ? 'command'
-        : '';
-  const value = key ? args[key] : args;
-  if (value === undefined) return '';
-  return typeof value === 'string' ? value : JSON.stringify(value);
 }
 
 function actionHistory(items: string[]): string {
@@ -43,82 +30,6 @@ function finalAnswer(action: JsonObject, content: string, history: string[]): st
   if (typeof action.text !== 'string' || !action.text.trim())
     throw new BackendError('internal', t('finalEmpty', { history: actionHistory(history), content: detail(content) }));
   return action.text.trim();
-}
-
-async function logAction(
-  request: RunRequest,
-  turn: number,
-  tool: string,
-  target: string,
-  contentLength: number | undefined,
-  result: string,
-  failed: boolean,
-  reply: {
-    eval_count?: number;
-    replyLength: number;
-    replyTrimmedLength: number;
-    replyHead: string;
-    fieldLengths?: Record<string, number>;
-  },
-): Promise<void> {
-  try {
-    await mkdir(request.stateDir, { recursive: true });
-    const path = join(request.stateDir, 'ollama-actions.jsonl');
-    try {
-      if ((await stat(path)).size > 1024 * 1024) {
-        await rename(path, `${path}.1`).catch(() => undefined);
-        await writeFile(path, '');
-      }
-    } catch {
-      /* file does not exist yet */
-    }
-    const entry = {
-      time: new Date().toISOString(),
-      turn,
-      tool,
-      target,
-      ...(contentLength === undefined ? {} : { contentLength }),
-      ...reply,
-      resultLength: result.length,
-      success: !failed,
-      ...(failed ? { error: result.slice('失敗:'.length).trim().slice(0, 200) } : {}),
-    };
-    await appendFile(path, `${JSON.stringify(entry)}\n`);
-  } catch {
-    /* action logging must not interrupt the tool loop */
-  }
-}
-
-async function recordAction(
-  history: string[],
-  action: JsonObject,
-  result: string,
-  turn: number,
-  request: RunRequest,
-  context: RunContext,
-  metrics: ReturnType<typeof replyMetrics>,
-): Promise<void> {
-  const failed = result.startsWith('失敗:');
-  const args = isJsonObject(action.args) ? action.args : action;
-  const contentLength =
-    action.tool === 'write_file' && typeof args.content === 'string' ? args.content.length : undefined;
-  const step = t('actionStep', {
-    turn: String(turn),
-    name: String(action.tool),
-    args: detail(
-      actionArgument(action),
-      ACTION_ARGUMENT_LIMIT,
-      action.tool === 'read_file' || action.tool === 'write_file',
-    ),
-    status: failed ? t('actionFailed') : t('actionSucceeded'),
-    error: failed ? detail(result.slice('失敗:'.length), ACTION_ERROR_LIMIT) : '',
-    contentLength: contentLength === undefined ? '' : ` (${contentLength})`,
-  });
-  history.push(detail(step));
-  const target = action.tool === 'run_command' ? args.command : args.path;
-  const targetText = typeof target === 'string' ? target.slice(0, 200) : '';
-  context.onActivity(`Ollama ${String(action.tool)}: ${targetText}`.trim());
-  await logAction(request, turn, String(action.tool), targetText, contentLength, result, failed, metrics);
 }
 
 function generationOptions(model: LocalModel): JsonObject {
@@ -171,13 +82,28 @@ export async function jsonChat(
     if (action.type === 'final') return finalAnswer(action, content, history);
     messages.push({ role: 'assistant', content });
     let result: string;
-    try {
-      await checkOperation(request, model, String(action.tool), action, context.signal);
-      result = await executeAction(action, request, context);
-    } catch (error) {
-      context.signal.throwIfAborted();
-      if (error instanceof BackendError && error.code === 'unsupported_permission') throw error;
-      result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
+    if (typeof action.tool !== 'string' || !TOOL_NAMES.has(action.tool)) {
+      result = INVALID_TOOL_RESULT;
+    } else {
+      try {
+        await checkOperation(request, model, action.tool, action, context.signal);
+        result = await executeAction(action, request, context);
+      } catch (error) {
+        context.signal.throwIfAborted();
+        if (error instanceof BackendError && error.code === 'unsupported_permission') {
+          await recordPermissionStop(
+            history,
+            action,
+            error,
+            turn + 1,
+            request,
+            context,
+            content,
+            count(response.eval_count),
+          );
+        }
+        result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
+      }
     }
     await recordAction(
       history,

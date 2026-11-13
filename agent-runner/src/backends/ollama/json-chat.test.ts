@@ -135,3 +135,54 @@ it('上限で途切れた応答も計測値を JSONL に記録してから失敗
     replyHead: '{\n   partial',
   });
 });
+
+it('空の tool 名を失敗として記録し、次の final まで続ける', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'ollama-json-chat-'));
+  tempDirs.push(root);
+  const stateDir = join(root, 'state');
+  await mkdir(stateDir);
+  reply(JSON.stringify({ type: 'tool', tool: '', path: '', content: '', command: '', name: '', text: '' }));
+  reply(JSON.stringify({ type: 'final', tool: '', path: '', content: '', command: '', name: '', text: '完了' }));
+  expect(
+    await jsonChat(
+      { ...runRequest('ollama'), stateDir, options: { enableTools: true } },
+      runContext(),
+      { id: deepseek.model, capabilities: deepseek.capabilities } as never,
+      'hello',
+      [],
+    ),
+  ).toBe('完了');
+  const lines = (await readFile(join(stateDir, 'ollama-actions.jsonl'), 'utf8')).trim().split('\n');
+  expect(lines).toHaveLength(1);
+  expect((JSON.parse(lines[0]!) as { error: string }).error).toContain('失敗: type が tool のときは');
+});
+
+it('許可されていない道具は停止エラーを JSONL に記録してから投げる', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'ollama-json-chat-'));
+  tempDirs.push(root);
+  const stateDir = join(root, 'state');
+  await mkdir(stateDir);
+  reply(
+    JSON.stringify({
+      type: 'tool',
+      tool: 'run_command',
+      path: '',
+      content: '',
+      command: 'echo hi',
+      name: '',
+      text: '',
+    }),
+  );
+  const request = {
+    ...runRequest('ollama'),
+    stateDir,
+    permissions: { ...runRequest('ollama').permissions, runCommands: false },
+    options: { enableTools: true },
+  };
+  await expect(
+    jsonChat(request, runContext(), { id: deepseek.model, capabilities: deepseek.capabilities } as never, 'hello', []),
+  ).rejects.toMatchObject({ code: 'unsupported_permission' });
+  const line: unknown = JSON.parse((await readFile(join(stateDir, 'ollama-actions.jsonl'), 'utf8')).trim());
+  expect(line).toMatchObject({ tool: 'run_command', success: false });
+  expect(line).toHaveProperty('error', expect.stringContaining('停止:'));
+});
