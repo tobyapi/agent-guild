@@ -9,7 +9,15 @@ use guild_domain::backend::{
 use parking_lot::Mutex;
 
 use super::BackendService;
-use crate::ports::{AgentRuntime, ImageRuntimeRequest, RuntimeError, RuntimeRequest, UpdateSink};
+use crate::ports::{AgentRuntime, ImageRuntimeRequest, LaunchSettings, RuntimeError, RuntimeRequest, SettingsStore, UpdateSink};
+use crate::{AppResult};
+
+#[derive(Default)]
+struct Settings(Mutex<LaunchSettings>);
+impl SettingsStore for Settings {
+    fn load(&self) -> AppResult<LaunchSettings> { Ok(self.0.lock().clone()) }
+    fn save(&self, settings: &LaunchSettings) -> AppResult<()> { *self.0.lock() = settings.clone(); Ok(()) }
+}
 
 #[derive(Default)]
 struct Runtime {
@@ -18,6 +26,7 @@ struct Runtime {
     /// probe のたびに先頭から1つ進む、バックエンド一覧の移り変わり
     states: Mutex<VecDeque<Vec<BackendInfo>>>,
     started: AtomicBool,
+    auth_modes: Mutex<Vec<(String, String)>>,
 }
 
 #[async_trait]
@@ -62,6 +71,10 @@ impl AgentRuntime for Runtime {
         }
         Ok("{\"source\":\"saved\",\"supported\":true}".to_owned())
     }
+    async fn set_backend_auth_mode(&self, backend: &str, mode: &str) -> Result<(), RuntimeError> {
+        self.auth_modes.lock().push((backend.to_owned(), mode.to_owned()));
+        Ok(())
+    }
 }
 
 /// 契約の実例（contracts/ipc/snapshot.json）にあるバックエンドの申告
@@ -79,7 +92,19 @@ fn keyed(id: &str) -> BackendInfo {
 
 fn service_with(backends: Vec<BackendInfo>) -> (Arc<Runtime>, BackendService) {
     let runtime = Arc::new(Runtime { states: Mutex::new(VecDeque::from([backends])), ..Runtime::default() });
-    (runtime.clone(), BackendService::new(runtime))
+    (runtime.clone(), BackendService::new(runtime, Arc::new(Settings::default())))
+}
+
+#[tokio::test]
+async fn auth_mode_is_validated_persisted_and_applied_to_the_runtime() {
+    let runtime = Arc::new(Runtime::default());
+    let settings = Arc::new(Settings::default());
+    let service = BackendService::new(runtime.clone(), settings.clone());
+    assert!(service.set_auth_mode("grok", "api").await.is_err());
+    assert!(service.set_auth_mode("claude", "invalid").await.is_err());
+    service.set_auth_mode("claude", "api").await.unwrap();
+    assert_eq!(settings.load().unwrap().backend_auth_modes.get("claude").map(String::as_str), Some("api"));
+    assert_eq!(&*runtime.auth_modes.lock(), &[("claude".to_owned(), "api".to_owned())]);
 }
 
 #[tokio::test]
@@ -112,7 +137,7 @@ async fn redacts_runtime_failures() {
 
 #[tokio::test]
 async fn refresh_returns_probe_failures_to_the_caller() {
-    let service = BackendService::new(Arc::new(Runtime { probe_failure: true, ..Runtime::default() }));
+    let service = BackendService::new(Arc::new(Runtime { probe_failure: true, ..Runtime::default() }), Arc::new(Settings::default()));
     let error = service.refresh().await.unwrap_err();
     assert!(matches!(error, crate::error::AppError::Runtime(message) if message.contains("タイムアウト")));
 }
@@ -123,7 +148,7 @@ async fn start_opens_the_app_and_waits_for_the_model_list() {
     let stopped = BackendInfo { status: BackendStatus::Stopped, models: Vec::new(), ..ready.clone() };
     let states = VecDeque::from([vec![stopped.clone()], vec![stopped], vec![ready]]);
     let runtime = Arc::new(Runtime { states: Mutex::new(states), ..Runtime::default() });
-    let service = BackendService::new(runtime.clone());
+    let service = BackendService::new(runtime.clone(), Arc::new(Settings::default()));
     assert!(service.start("ollama").await.is_ok());
     assert!(runtime.started.load(Ordering::Relaxed));
     assert!(!runtime.backends()[0].models.is_empty());

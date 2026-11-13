@@ -94,7 +94,7 @@ impl AppServices {
             profile: ProfileService::new(ports.clone()),
             frames: FrameService::new(ports.clone()),
             snapshot: SnapshotService::new(ports.clone(), conversation.clone()),
-            backends: BackendService::new(ports.runtime.clone()),
+            backends: BackendService::new(ports.runtime.clone(), storage.settings.clone()),
             autonomy: AutonomyService::new(ports, conversation.clone(), maintenance, started_at),
             storage: StorageService::new(storage, Some(copier)),
             conversation,

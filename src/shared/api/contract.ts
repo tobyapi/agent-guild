@@ -94,6 +94,8 @@ export interface CommandMap {
    * 結果は `{ source, supported }` の JSON 文字列で、キーそのものは返さない
    */
   backend_api_key: { args: { backendId: string; action: 'status' | 'set' | 'delete'; key?: string }; result: string };
+  get_backend_auth_modes: { args: NoArgs; result: Record<string, 'desktop' | 'api'> };
+  set_backend_auth_mode: { args: { backendId: string; mode: 'desktop' | 'api' }; result: null };
   /** ランナーの probe 結果を待つ。失敗・応答待ち超過は reject。結果は get_snapshot で取得できる */
   refresh_backends: { args: NoArgs; result: null };
   /** 公式の CLI を入れ、バックエンドの状態を更新する（BackendInfo.setup.install のあるバックエンドだけ。macOS） */

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { useBackends } from '@/features/runtime';
 import { backendInfo, NO_SETUP } from '@/shared/lib/backends.test-support';
@@ -10,8 +10,13 @@ import { BackendsSection } from './BackendsSection';
 vi.mock('@/features/runtime', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/features/runtime')>()),
   useBackends: vi.fn(),
+  refreshBackends: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock('../api', () => ({ settingsApi: { openUrl: vi.fn().mockResolvedValue(null), installBackendCli: vi.fn() } }));
+vi.mock('../api', () => ({ settingsApi: {
+  openUrl: vi.fn().mockResolvedValue(null), installBackendCli: vi.fn(),
+  backendAuthModes: vi.fn().mockResolvedValue({}), setBackendAuthMode: vi.fn().mockResolvedValue(null),
+  backendApiKey: vi.fn().mockResolvedValue('{"source":"unset","supported":true}'),
+} }));
 
 const codex = backendInfo({
   id: 'codex',
@@ -52,6 +57,19 @@ it('Codex が使えないとき、公式インストールコマンドを表示�
   fireEvent.click(screen.getByRole('button', { name: /OpenAI の公式手順/ }));
   expect(settingsApi.openUrl).toHaveBeenCalledWith('https://learn.chatgpt.com/docs/codex/cli#install-codex');
   expect(screen.getByRole('button', { name: '再確認' })).toBeTruthy();
+});
+
+it('Claude と Codex はデスクトップが初期値で、API にするとキー欄を表示し保存後に再確認する', async () => {
+  const backend = { ...codex, status: 'ready' as const, setup: { ...codex.setup, apiKey: { envVar: 'OPENAI_API_KEY' } } };
+  vi.mocked(useBackends).mockReturnValue([backend]);
+  render(<BackendsSection />);
+  await act(async () => { await Promise.resolve(); });
+  const group = screen.getByRole('group', { name: 'Codex の認証方法' });
+  expect(screen.getByRole('button', { name: 'デスクトップ' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.queryByLabelText('Codex の API キー')).toBeNull();
+  await act(async () => { fireEvent.click(within(group).getByRole('button', { name: 'API' })); await Promise.resolve(); });
+  expect(settingsApi.setBackendAuthMode).toHaveBeenCalledWith('codex', 'api');
+  expect(await screen.findByLabelText('Codex の API キー')).toBeTruthy();
 });
 
 it('インストール後にログインが必要になったら、インストール手順を閉じる', () => {

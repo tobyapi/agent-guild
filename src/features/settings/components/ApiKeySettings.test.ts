@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { backendInfo, NO_SETUP } from '@/shared/lib/backends.test-support';
 import { ApiKeySettings } from './ApiKeySettings';
+import styles from './SettingsDialog.module.css';
 
 vi.mock('../api', () => ({ settingsApi: { backendApiKey: vi.fn() } }));
 
@@ -20,6 +21,8 @@ describe('API key settings initial render', () => {
       expect(html).toContain(`環境変数 ${envVar} を使います`);
       expect(html).toContain(`${label} の API キー`);
       expect((html.match(/<button[^>]*disabled=""/g) ?? []).length).toBe(2);
+      expect(html).toContain(styles.keyActions);
+      expect(html).not.toContain(styles.sectionAction);
     }
   });
 });

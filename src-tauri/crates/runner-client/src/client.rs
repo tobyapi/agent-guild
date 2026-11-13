@@ -18,7 +18,11 @@ pub struct RunnerClient {
 impl RunnerClient {
     /// 失敗しない。tokio ランタイムの文脈で呼ぶこと（監視タスクを spawn し、起動・再起動はそのタスクが行う）。
     pub fn new(config: RunnerConfig) -> Self {
-        let shared = Arc::new(Shared::new(config));
+        Self::new_with_auth_modes(config, std::collections::BTreeMap::new())
+    }
+
+    pub fn new_with_auth_modes(config: RunnerConfig, auth_modes: std::collections::BTreeMap<String, String>) -> Self {
+        let shared = Arc::new(Shared::new(config, auth_modes));
         tokio::spawn(supervisor::supervise(Arc::clone(&shared)));
         Self { shared }
     }
@@ -73,6 +77,14 @@ impl RunnerClient {
         key: Option<&str>,
     ) -> Result<String, RunnerError> {
         run::run(&self.shared, id, run::Work::ApiKey { backend, action, key }, Box::new(|_| {})).await
+    }
+
+    pub async fn set_backend_auth_mode(&self, id: &str, backend: &str, mode: &str) -> Result<(), RunnerError> {
+        self.shared.set_backend_auth_mode(backend, mode);
+        if let Some(connection) = self.shared.current() {
+            connection.send(&Request::BackendAuthMode { id, backend, mode }).await?;
+        }
+        Ok(())
     }
 
     /// 言語（"ja"・"en"・"zh-Hans"・"zh-Hant"・"ko"）を変える。以後の起動の環境変数とこのクレートの文面に使い、

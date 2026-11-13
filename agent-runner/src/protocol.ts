@@ -177,6 +177,7 @@ export type RunnerRequest =
   | { type: 'cancel'; id: string }
   /** バックエンドの状態（認証など）を確認し直して backends を送る */
   | { type: 'apiKey'; id: string; backend: string; action: 'status' | 'set' | 'delete'; key?: string }
+  | { type: 'backendAuthMode'; id: string; backend: string; mode: 'desktop' | 'api' }
   | { type: 'probe'; id: string }
   /** ログインを始める（setup.login のあるものだけ）。終わったら backends を送り、result（text は空）か error で終える。cancel で打ち切れる */
   | { type: 'login'; id: string; backend: string }

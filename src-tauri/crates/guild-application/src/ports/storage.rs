@@ -1,6 +1,7 @@
 //! データフォルダとマシンごとの設定のポート（保存先の変更・復旧モード・スキルライブラリで使う）。
 
 use std::path::{Path, PathBuf};
+use std::collections::BTreeMap;
 
 use guild_domain::locale::Language;
 
@@ -57,6 +58,8 @@ pub struct LaunchSettings {
     pub setup_done: bool,
     /// 表示とエージェントの会話の言語（None = まだ選んでいない。日本語として扱う）
     pub language: Option<Language>,
+    /// Claude / Codex の認証モード。未指定の backend は desktop。
+    pub backend_auth_modes: BTreeMap<String, String>,
 }
 
 pub trait SettingsStore: Send + Sync {

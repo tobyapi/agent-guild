@@ -6,7 +6,7 @@ import type { useChannelForm } from '../hooks/useChannelForm';
 import { folderScopeHint } from '../model/channels';
 import { t } from '../i18n';
 
-/** チャンネルの作業範囲（エージェント共通・指定フォルダ・チャンネル専用）を選ぶ欄 */
+/** チャンネルの作業範囲（エージェントごと（全チャンネル共通）・指定フォルダ・チャンネル専用）を選ぶ欄 */
 export function ChannelWorkspaceFields({ form }: { form: ReturnType<typeof useChannelForm> }) {
   const backends = useBackends();
   return (

@@ -84,7 +84,7 @@ export function ApiKeySettings({ backend, envVar }: { backend: BackendInfo; envV
         maxLength={2560}
         hint={t('keyHint')}
       />
-      <div className={styles.sectionAction}>
+      <div className={styles.keyActions}>
         <Button size="sm" disabled={disabled || !key.trim()} onClick={() => void change('set')}>
           {hasSavedKey ? t('keyUpdate') : t('keySave')}
         </Button>

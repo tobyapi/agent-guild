@@ -64,6 +64,7 @@ it('キャラ図鑑から全15種の顔を読み込み、選んだ顔をアバ�
 
 it('Ollama のモデルと選んだアバターを保存し、サイドバーに出す', async () => {
   expect(sidebarText()).not.toContain('ミナ');
+  fireEvent.click(within(openDialog()).getByRole('tab', { name: 'AI と権限' }));
   fireEvent.change(within(openDialog()).getByRole('combobox', { name: 'バックエンド' }), {
     target: { value: 'ollama' },
   });
@@ -76,6 +77,7 @@ it('Ollama のモデルと選んだアバターを保存し、サイドバーに
   expect(enabledPermissions()).toContain('スキルを使う');
   await submitName('ミナ');
   expect(sidebarText()).toContain('ミナ');
+  fireEvent.click(within(openDialog()).getByRole('tab', { name: 'AI と権限' }));
   const sidebar = screen.getByRole('navigation', { name: 'チャンネルとエージェント' });
   expect(sidebar.querySelector(`img[src="${presetAvatar}"]`)).toBeTruthy();
   expect(nameField().hasAttribute('aria-invalid')).toBe(false);
@@ -84,6 +86,23 @@ it('Ollama のモデルと選んだアバターを保存し、サイドバーに
   ).toBe('true');
   expect(enabledPermissions()).toContain('スキルを使う');
   expect(within(openDialog()).getByRole<HTMLSelectElement>('combobox', { name: 'モデル' }).value).toBe('gemma4:26b');
+});
+
+it('keeps the auto-selected basics tab after the validation error is fixed', async () => {
+  fireEvent.click(screen.getByRole('button', { name: '作業者を作成' }));
+  await advance(500);
+  const dialog = within(openDialog());
+  const tabs = dialog.getAllByRole('tab');
+  fireEvent.click(tabs[3]!);
+  fireEvent.change(nameField(), { target: { value: '' } });
+  const form = openDialog().querySelector('form');
+  if (!form) throw new Error('Agent editor form was not found');
+  fireEvent.submit(form);
+  await advance(100);
+
+  expect(dialog.getAllByRole('tab')[0]?.getAttribute('aria-selected')).toBe('true');
+  fireEvent.change(nameField(), { target: { value: 'Tab persistence test' } });
+  expect(dialog.getAllByRole('tab')[0]?.getAttribute('aria-selected')).toBe('true');
 });
 
 const permissions = [
@@ -121,6 +140,7 @@ it('役割で権限が固定され、バックエンドを変えても個別ス�
     fireEvent.click(within(openDialog()).getByRole('radio', { name }));
     expect(enabledPermissions()).toEqual(['ファイルを読む', '作業フォルダの外も読む', ...workspaceOnly.slice(1)]);
   }
+  fireEvent.click(within(openDialog()).getByRole('tab', { name: 'AI と権限' }));
   fireEvent.change(within(openDialog()).getByRole('combobox', { name: 'バックエンド' }), {
     target: { value: 'claude' },
   });
@@ -151,6 +171,7 @@ it('役割は4つで、発想役は呼ばれたときだけ答える設定で作
     'マネージャー',
   ]);
   fireEvent.click(within(roles).getByRole('radio', { name: /^発想役/ }));
+  fireEvent.click(within(openDialog()).getByRole('tab', { name: '振る舞い' }));
   expect(within(openDialog()).getByRole<HTMLInputElement>('radio', { name: /^答えない/ }).checked).toBe(true);
   expect(within(openDialog()).getByRole('switch', { name: '相談相手になる' }).getAttribute('aria-checked')).toBe(
     'true',
@@ -158,6 +179,7 @@ it('役割は4つで、発想役は呼ばれたときだけ答える設定で作
   expect(within(openDialog()).getByRole('switch', { name: 'タスクを割り振れる' }).getAttribute('aria-checked')).toBe(
     'false',
   );
+  fireEvent.click(within(openDialog()).getByRole('tab', { name: '基本' }));
   fireEvent.change(within(openDialog()).getByRole('combobox', { name: /^人格の例/ }), {
     target: { value: 'idea-maker' },
   });

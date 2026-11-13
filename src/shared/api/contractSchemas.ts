@@ -1,6 +1,6 @@
 // コマンドの戻り値とイベントのペイロードの検証表（開発時に、受け取った値が契約に合うかを確かめる）。
 // 型は { [C in CommandName]: Validator } なので、コマンドを足して検証を書き忘れるとコンパイルエラーになる。
-import { arrayOf, nullable, nullValue, objectOf, string } from '@/shared/types/schema';
+import { arrayOf, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
 import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { customFrameSchema, guildProfileSchema } from '@/shared/types/schemas/guild';
@@ -65,6 +65,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   cancel_avatar_frame_generation: nullValue,
   delete_avatar_frame: nullValue,
   backend_api_key: string,
+  get_backend_auth_modes: recordOf(oneOf({ desktop: true, api: true })),
+  set_backend_auth_mode: nullValue,
   refresh_backends: nullValue,
   install_backend_cli: nullValue,
   start_backend: nullValue,

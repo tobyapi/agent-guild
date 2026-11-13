@@ -42,10 +42,11 @@ impl RunnerRuntime {
         spawner: &dyn Spawner,
         resource_dir: Option<&Path>,
         language: Language,
+        auth_modes: std::collections::BTreeMap<String, String>,
     ) -> Arc<Self> {
         let handle = tauri::async_runtime::handle();
         let _context = handle.inner().enter();
-        let client = RunnerClient::new(launch::runner_config(resource_dir, language));
+        let client = RunnerClient::new_with_auth_modes(launch::runner_config(resource_dir, language), auth_modes);
         let watcher = notify_changes(client.watch_status(), client.watch_backends(), events);
         spawner.spawn(Box::pin(watcher));
         Arc::new(Self { client, logins: AtomicU64::new(0) })
@@ -147,6 +148,11 @@ impl AgentRuntime for RunnerRuntime {
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError> {
         let id = format!("api-key-{}", self.logins.fetch_add(1, Ordering::Relaxed) + 1);
         self.client.api_key(&id, backend, action, key).await.map_err(failure::error)
+    }
+
+    async fn set_backend_auth_mode(&self, backend: &str, mode: &str) -> Result<(), RuntimeError> {
+        let id = format!("backend-auth-mode-{}", self.logins.fetch_add(1, Ordering::Relaxed) + 1);
+        self.client.set_backend_auth_mode(&id, backend, mode).await.map_err(failure::error)
     }
 
     async fn set_language(&self, language: Language) {

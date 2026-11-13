@@ -44,6 +44,17 @@ const RUN = {
 };
 
 describe('decodeRequest', () => {
+  it('decodes only supported backend authentication mode changes', () => {
+    expect(decodeRequest({ type: 'backendAuthMode', id: 'mode-1', backend: 'claude', mode: 'api' })).toEqual({
+      ok: true,
+      request: { type: 'backendAuthMode', id: 'mode-1', backend: 'claude', mode: 'api' },
+    });
+    expect(decodeRequest({ type: 'backendAuthMode', id: 'mode-2', backend: 'grok', mode: 'api' })).toMatchObject({
+      ok: false,
+      id: 'mode-2',
+    });
+  });
+
   it('run を検証し、未知のフィールドは捨てる', () => {
     const decoded = decodeRequest({
       ...RUN,

@@ -8,6 +8,8 @@ import type { BackendProbe } from '../types.ts';
 import { claudeNotFound, findClaude } from './executable.ts';
 import { CAN_LOGIN, claudeLoginStatus } from './login.ts';
 import { t } from './texts/index.ts';
+import { backendAuthMode } from '../auth-mode.ts';
+import { apiKeyEnvironment } from '../../credentials/store.ts';
 
 /** どれかがあれば認証の手段があるとみなす（API キー・トークン・クラウド事業者経由） */
 const CREDENTIAL_ENVS = [
@@ -24,7 +26,13 @@ const READY: BackendProbe = { status: 'ready', statusMessage: '' };
 export async function probeClaude(): Promise<BackendProbe> {
   const executable = findClaude();
   if (executable === null) return { status: 'unavailable', statusMessage: claudeNotFound() };
-  if (definedEnv(CREDENTIAL_ENVS)) return READY;
+  if (backendAuthMode('claude') === 'api') {
+    const env = await apiKeyEnvironment('claude', 'ANTHROPIC_API_KEY');
+    return env.ANTHROPIC_API_KEY?.trim()
+      ? READY
+      : { status: 'needs_auth', statusMessage: t('needsLoginTerminal') };
+  }
+  if (definedEnv(CREDENTIAL_ENVS.filter((name) => name !== 'ANTHROPIC_API_KEY'))) return READY;
   if (process.platform === 'darwin') {
     const signedIn = await claudeLoginStatus(executable);
     if (signedIn === true) return READY;

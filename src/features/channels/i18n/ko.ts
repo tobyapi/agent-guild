@@ -32,7 +32,7 @@ export const ko: Messages<typeof ja> = {
   deleteMessage: '이 채널의 메시지가 모두 삭제되며 되돌릴 수 없습니다.',
   deleteConfirm: '삭제',
   fileScope: '파일 범위',
-  scopeShared: '에이전트 공용 작업 공간(역할 권한)',
+  scopeShared: '에이전트별 작업 공간(모든 채널 공통, 역할 권한)',
   scopeFolder: '지정 폴더',
   scopeGlobal: '이 채널 전용 작업 공간(역할 권한)',
   folderLabel: '지정 폴더',

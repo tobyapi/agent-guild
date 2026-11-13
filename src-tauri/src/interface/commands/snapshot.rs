@@ -17,6 +17,18 @@ pub async fn backend_api_key(
 }
 
 #[tauri::command]
+pub fn get_backend_auth_modes(state: State<'_, AppState>) -> CommandResult<std::collections::BTreeMap<String, String>> {
+    state.services()?.backends.auth_modes().map_err(reject)
+}
+
+#[tauri::command]
+pub async fn set_backend_auth_mode(
+    state: State<'_, AppState>, backend_id: String, mode: String,
+) -> CommandResult<()> {
+    state.services()?.backends.set_auth_mode(&backend_id, &mode).await.map_err(reject)
+}
+
+#[tauri::command]
 pub async fn get_snapshot(state: State<'_, AppState>) -> CommandResult<Snapshot> {
     state.services()?.snapshot.get().map_err(reject)
 }

@@ -34,6 +34,8 @@ pub fn run() {
             snapshot::install_backend_cli,
             snapshot::start_backend,
             snapshot::backend_api_key,
+            snapshot::get_backend_auth_modes,
+            snapshot::set_backend_auth_mode,
             snapshot::login_backend,
             agents::create_agent,
             agents::update_agent,

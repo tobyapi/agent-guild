@@ -83,6 +83,18 @@
   padding-block-start: var(--space-2);
 }
 
+.keyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.authMode {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
 .guideActions {
   display: flex;
   flex-wrap: wrap;

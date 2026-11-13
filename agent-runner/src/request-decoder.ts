@@ -1,4 +1,4 @@
-// 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
+﻿// 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
 import type { RunRequest } from './backends/types.ts';
@@ -41,6 +41,7 @@ const idOf = (value: JsonObject): string | null => (isString(value.id) && value.
 
 export function decodeRequest(value: JsonObject): DecodeResult {
   const id = idOf(value);
+  if (value.type === 'backendAuthMode') return decodeBackendAuthMode(value, id);
   switch (value.type) {
     case 'run':
       return decodeRun(value, id);
@@ -51,9 +52,7 @@ export function decodeRequest(value: JsonObject): DecodeResult {
     case 'login':
       return decodeLogin(value, id);
     case 'cancel':
-      return id === null
-        ? reject(null, 'cancel には id（文字列）が必要です')
-        : { ok: true, request: { type: 'cancel', id } };
+      return decodeCancel(id);
     case 'probe':
       return id === null ? reject(null, 'probe requires an id') : { ok: true, request: { type: 'probe', id } };
     case 'setLanguage':
@@ -63,6 +62,17 @@ export function decodeRequest(value: JsonObject): DecodeResult {
     default:
       return reject(id, isString(value.type) ? `未知の type です: ${value.type}` : 'type（文字列）がありません');
   }
+}
+
+function decodeCancel(id: string | null): DecodeResult {
+  return id === null ? reject(null, 'cancel には id（文字列）が必要です') : { ok: true, request: { type: 'cancel', id } };
+}
+
+function decodeBackendAuthMode(value: JsonObject, id: string | null): DecodeResult {
+  if (id === null || !['claude', 'codex'].includes(String(value.backend)) || !['desktop', 'api'].includes(String(value.mode))) {
+    return reject(id, 'Invalid backend authentication mode');
+  }
+  return { ok: true, request: { type: 'backendAuthMode', id, backend: value.backend as string, mode: value.mode as 'desktop' | 'api' } };
 }
 
 /** id も返事もない要求。知らない言語は不正（id がなければ記録だけ） */

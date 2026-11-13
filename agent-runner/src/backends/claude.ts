@@ -16,6 +16,7 @@ import { LEAK_RISKS, permissionRules, unenforceableReason } from './claude/rules
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
 import { t } from './claude/texts/index.ts';
+import { claudeAuthEnvironment } from './auth-mode.ts';
 import {
   BackendError,
   NO_SETUP,
@@ -70,6 +71,7 @@ const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
   frameGeneration: false,
   setup: {
     ...NO_SETUP,
+    apiKey: { envVar: 'ANTHROPIC_API_KEY' },
     install: {
       cli: 'Claude Code',
       publisher: 'Anthropic',
@@ -99,6 +101,7 @@ async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }:
   try {
     const pluginDir = request.permissions.skills ? await writeSkillPlugin(request.stateDir, request.skills) : null;
     const options = claudeOptions(request, { abortController, pluginDir, onPost, onUsage, executable });
+    options.env = await claudeAuthEnvironment(options.env ?? process.env);
     const prompt = await claudePrompt(request.prompt, request.images);
     if (options.model) onUsage({ model: options.model });
     return await consumeMessages(query({ prompt, options }), onActivity, onUsage);

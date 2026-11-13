@@ -4,6 +4,12 @@ export const ja = {
   editTitle: '{name} を編集',
   newTitle: '新しいエージェント',
   newDescription: 'ギルドに新しい仲間を迎えます。あとからいつでも変えられます。',
+  tabBasics: '基本',
+  tabPersona: '人格',
+  tabBehavior: '振る舞い',
+  tabBrain: 'AI と権限',
+  tabSkills: 'スキル',
+  tabHasErrors: 'このタブに入力エラーがあります',
   saved: '保存しました',
   welcomed: '{name} を迎えました',
   // サイドバー

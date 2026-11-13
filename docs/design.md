@@ -348,7 +348,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - エージェントが自分の SDK 設定（Claude の `.claude/settings.json` や hooks、CLAUDE.md、Codex の設定）を書き換えて次の実行に影響させることはできないようにする。ただし writeAnywhere（作業場所の外にも書く）を許したエージェントは、データフォルダや Codex の利用者全体の設定（`~/.codex/config.toml`）も含めて PC のどこにでも書ける。これは止めず、編集画面の注意書きで伝える。アダプタは作業場所の設定ファイルを読み込ませない（Claude は `settingSources: []` とし、スキルは state 側のローカルプラグインで渡す。Codex で作業場所に置くしかないものは実行のたびに作り直す）。
 
 ### 場所の決定と起動手順
-1. データフォルダ = 環境変数 `GUILD_DATA_DIR` > `<app_config_dir>/settings.json` の `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean, "language"?: Language }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない。setupDone は初回起動の初期設定を終えた印で、なければ false。language は表示とエージェントの会話の言語で、選んでから書く。ない・知らない値なら日本語として扱い、`BootStatus.language` は null。足しただけなので version は 1 のまま）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
+1. 設定フォルダ = 環境変数 `GUILD_CONFIG_DIR` > `<app_config_dir>`。開発版で設定ファイルをインストール済みアプリから分離するときに指定する。データフォルダ = 環境変数 `GUILD_DATA_DIR` > 設定フォルダの `settings.json` にある `dataDir` > 既定（`app_local_data_dir()/data`。直下には WebView2 のプロファイル EBWebView が置かれるのでサブフォルダにする）。settings.json は `{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean, "language"?: Language }`（skillLibraryDirs は §14。マシンごとのパスなのでデータフォルダには入れない。setupDone は初回起動の初期設定を終えた印で、なければ false。language は表示とエージェントの会話の言語で、選んでから書く。ない・知らない値なら日本語として扱い、`BootStatus.language` は null。足しただけなので version は 1 のまま）で、未知のフィールドは保持して書き戻す。version が新しすぎれば読み取り専用で使い、書き換えない。
 2. 既定の場所なら作成する。設定や環境変数で指定された場所が無いときは作らずに復旧モード（missing）。
 3. `.lock` を取る（再起動の重なりに備えて最大5秒再試行）。取れなければ復旧モード（locked）。
 4. guild-data.json を確認（空のフォルダなら作成）。app が違えば foreign、layoutVersion が新しければ newer_version。
@@ -406,13 +406,13 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 
 `Channel.workspace` は `{ mode: "shared" | "folder" | "global", folder: string | null, revision: number, afterSeq: number }`。SQLite の `channels.workspace_json` に保存する。新しいチャンネルは shared・revision 0。
 
-- **shared**（既定）: エージェント共通の作業場所（`agents/<agent>/work`）とメモを使う。どのチャンネルでも同じ場所で、権限は役割どおり。
+- **shared**（既定）: エージェントごとの作業場所（全チャンネル共通。`agents/<agent>/work`）とメモを使う。どのチャンネルでも同じ場所で、権限は役割どおり。
 - **folder**: 割り当てたフォルダとチャンネル専用の作業場所だけを読み書きする。
 - **global**: チャンネル専用の作業場所とメモを使う。権限は役割どおり。
 
 `set_channel_workspace({ id, mode, folder }) -> Channel` は実行管理のアクターで直列化する。実行中・待機中のジョブまたは未完了の割り振りがあれば拒否する。フォルダは実在する絶対パスを正規化し、アプリ保存領域とその祖先・子孫は拒否する。同じ設定の再保存は revision を増やさない。名前・話題の保存は作業範囲を更新しない。
 
-変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。チャンネル専用の作業場所には、エージェント共通の MEMORY.md とセッションを自動では渡さない。shared に戻すと、エージェント共通の作業場所とメモに戻る（revision は増え、戻す前の会話は渡さない）。
+変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。チャンネル専用の作業場所には、エージェントごとの MEMORY.md とセッションを自動では渡さない。shared に戻すと、エージェントごとの作業場所（全チャンネル共通）とメモに戻る（revision は増え、戻す前の会話は渡さない）。
 
 folder モードではランナープロトコルの `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・スキルは無効。どう守るかは、バックエンドの申告（`BackendInfo.folderScope`）で決まる。コマンドは、ファイルの道具ごとに範囲を確かめるバックエンド（`files`。いまは Ollama）では無効、シェルごと OS の隔離に入れるバックエンド（`sandbox`。いまは Codex・Grok・Muse）では範囲の中でだけ使える。守り方を申告していないバックエンド（`null`。いまは Claude）は、指定フォルダのチャンネルでは実行しない。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Codex・Grok・Muse は、Windows 11 の MXC が使えるときに、Codex の権限プロファイルで読める場所・書ける場所・通信を決める（`docs/codex-folder-scope.md`。使えない PC では実行を停止する）。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。未対応のバックエンドも理由を示して実行を停止する。
 

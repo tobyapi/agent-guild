@@ -82,6 +82,10 @@ async fn serve(
     if language != connection.language {
         let _ = connection.send(&Request::SetLanguage { language: &language }).await;
     }
+    for (backend, mode) in shared.backend_auth_modes() {
+        let id = format!("backend-auth-mode-init-{backend}");
+        let _ = connection.send(&Request::BackendAuthMode { id: &id, backend: &backend, mode: &mode }).await;
+    }
     shared.backends.send_replace(backends);
     shared.status.send_replace(RunnerStatus::Ready);
     let closed_by_itself = tokio::select! {

@@ -32,7 +32,7 @@ export const en: Messages<typeof ja> = {
   deleteMessage: 'All messages in this channel will be deleted. This cannot be undone.',
   deleteConfirm: 'Delete',
   fileScope: 'File access',
-  scopeShared: 'Workspace shared by all agents (role permissions)',
+  scopeShared: "Each agent's own workspace (all channels, role permissions)",
   scopeFolder: 'A designated folder',
   scopeGlobal: 'Workspace for this channel only (role permissions)',
   folderLabel: 'Designated folder',

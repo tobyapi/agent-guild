@@ -4,6 +4,8 @@ import type { DataDirMode, Language } from '@/shared/types/domain';
 export const settingsApi = {
   backendApiKey: (backendId: string, action: 'status' | 'set' | 'delete', key?: string) =>
     invoke('backend_api_key', { backendId, action, key }),
+  backendAuthModes: () => invoke('get_backend_auth_modes'),
+  setBackendAuthMode: (backendId: string, mode: 'desktop' | 'api') => invoke('set_backend_auth_mode', { backendId, mode }),
   storageInfo: () => invoke('get_storage_info'),
   chooseFolder: () => invoke('choose_folder'),
   /** 成功するとアプリが再起動する */

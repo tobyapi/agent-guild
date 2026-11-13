@@ -35,6 +35,7 @@ const info = (): BackendDescriptor => ({
   frameGeneration: true,
   setup: {
     ...NO_SETUP,
+    apiKey: { envVar: 'OPENAI_API_KEY' },
     install: {
       cli: 'Codex CLI',
       publisher: 'OpenAI',

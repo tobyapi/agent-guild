@@ -6,7 +6,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use guild_application::language::LanguageService;
-use guild_application::ports::{AgentRuntime, Clock, EventPublisher, Spawner};
+use guild_application::ports::{AgentRuntime, Clock, EventPublisher, SettingsStore, Spawner};
 use guild_application::storage::StorageService;
 use guild_application::{AppServices, Ports, StoragePorts};
 use guild_domain::boot::BootStatus;
@@ -48,8 +48,9 @@ pub fn ready(
     let events: Arc<dyn EventPublisher> = Arc::new(TauriEventPublisher::new(app.clone()));
     let spawner: Arc<dyn Spawner> = Arc::new(TauriSpawner);
     let clock: Arc<dyn Clock> = Arc::new(SystemClock::new());
-    let runtime =
-        RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref(), locale::current());
+    let settings_file = SettingsFile::in_dir(&paths.config_dir);
+    let auth_modes = settings_file.load()?.backend_auth_modes;
+    let runtime = RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref(), locale::current(), auth_modes);
     let ports = Ports {
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),

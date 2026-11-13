@@ -15,6 +15,7 @@ import {
 } from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
 import { assertSandboxedFolderScope } from './folder-scope.ts';
+import { codexAuthEnvironment } from './auth-mode.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
 
 export interface CodexProvider {
@@ -38,6 +39,11 @@ export async function runCodex(
   provider = defaultProvider(),
 ): Promise<string> {
   assertSandboxedFolderScope(request);
+  try {
+    provider = { ...provider, env: await codexAuthEnvironment(provider.env) };
+  } catch {
+    throw new BackendError('auth', t('needsLoginTerminal'));
+  }
   rejectUnenforceable(provider.label, unenforceableReason(request.permissions, request.writableDirs !== undefined));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
     throw new BackendError('bad_request', t('systemPromptTooLong', { max: MAX_SYSTEM_PROMPT_LENGTH }));

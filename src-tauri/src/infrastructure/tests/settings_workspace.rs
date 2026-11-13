@@ -29,6 +29,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
         setup_done: true,
         language: Some(Language::ZhHant),
+        backend_auth_modes: [("claude".to_owned(), "api".to_owned())].into_iter().collect(),
     };
     settings.save(&chosen).unwrap();
     let expected = json!({
@@ -37,6 +38,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         "skillLibraryDirs": ["D:\\skills", "E:\\shared-skills"],
         "setupDone": true,
         "language": "zh-Hant",
+        "backendAuthModes": {"claude": "api"},
         "theme": "dark"
     });
     assert_eq!(read_json(&path), expected);
@@ -62,6 +64,19 @@ fn a_missing_or_unknown_language_reads_as_none() {
     }
     fs::write(&path, r#"{ "version": 1, "language": "ko" }"#).unwrap();
     assert_eq!(settings.load().unwrap().language, Some(Language::Ko));
+}
+
+#[test]
+fn backend_auth_modes_round_trip_and_ignore_invalid_values() {
+    let config = TempDir::new("auth-modes");
+    let path = config.0.join("settings.json");
+    let settings = SettingsFile::in_dir(&config.0);
+    fs::write(&path, r#"{"version":1,"backendAuthModes":{"claude":"api","codex":"desktop","grok":"api","muse":"invalid"}}"#).unwrap();
+    let loaded = settings.load().unwrap();
+    assert_eq!(loaded.backend_auth_modes.len(), 2);
+    assert_eq!(loaded.backend_auth_modes.get("claude").map(String::as_str), Some("api"));
+    settings.save(&loaded).unwrap();
+    assert_eq!(read_json(&path)["backendAuthModes"], json!({"claude":"api","codex":"desktop"}));
 }
 
 #[test]

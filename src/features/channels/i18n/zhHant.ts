@@ -32,7 +32,7 @@ export const zhHant: Messages<typeof ja> = {
   deleteMessage: '此頻道的所有訊息都會被刪除，且無法復原。',
   deleteConfirm: '刪除',
   fileScope: '檔案範圍',
-  scopeShared: '所有代理人共用的工作區（依角色權限）',
+  scopeShared: '每個代理人各自的工作區（所有頻道通用・依角色權限）',
   scopeFolder: '指定資料夾',
   scopeGlobal: '此頻道專用的工作區（依角色權限）',
   folderLabel: '指定資料夾',

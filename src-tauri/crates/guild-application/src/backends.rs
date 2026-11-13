@@ -10,7 +10,7 @@ use guild_domain::error::ValidationError;
 use guild_domain::locale;
 
 use crate::error::{AppError, AppResult};
-use crate::ports::{AgentRuntime, RuntimeError};
+use crate::ports::{AgentRuntime, RuntimeError, SettingsStore};
 
 mod messages;
 #[cfg(test)]
@@ -19,11 +19,27 @@ mod tests;
 #[derive(Clone)]
 pub struct BackendService {
     runtime: Arc<dyn AgentRuntime>,
+    settings: Arc<dyn SettingsStore>,
 }
 
 impl BackendService {
-    pub fn new(runtime: Arc<dyn AgentRuntime>) -> Self {
-        Self { runtime }
+    pub fn new(runtime: Arc<dyn AgentRuntime>, settings: Arc<dyn SettingsStore>) -> Self {
+        Self { runtime, settings }
+    }
+
+    pub fn auth_modes(&self) -> AppResult<std::collections::BTreeMap<String, String>> {
+        Ok(self.settings.load()?.backend_auth_modes)
+    }
+
+    pub async fn set_auth_mode(&self, backend: &str, mode: &str) -> AppResult<()> {
+        if !["claude", "codex"].contains(&backend) || !["desktop", "api"].contains(&mode) {
+            return Err(AppError::Validation(ValidationError::new("Invalid backend authentication mode")));
+        }
+        let mut settings = self.settings.load()?;
+        settings.backend_auth_modes.insert(backend.to_owned(), mode.to_owned());
+        self.settings.save(&settings)?;
+        self.runtime.set_backend_auth_mode(backend, mode).await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
     }
 
     /// 申告されているバックエンド（ランナーが ready でなければ見つからない）

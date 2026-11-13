@@ -1,4 +1,5 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
+import type { FormEvent } from 'react';
 import { SkillManager } from '@/features/skills';
 import { Dialog, FormAlert } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
@@ -9,14 +10,11 @@ import { useEditorTarget } from '../hooks/useAgents';
 import { closeAgentEditor } from '../store';
 import type { EditorTarget } from '../store';
 import { AgentPreview } from './editor/AgentPreview';
-import { AutonomyFields } from './editor/AutonomyFields';
-import { BasicsFields } from './editor/BasicsFields';
-import { BehaviorFields } from './editor/BehaviorFields';
-import { BrainFields } from './editor/BrainFields';
+import { AgentEditorPanels } from './editor/AgentEditorPanels';
+import { editorErrorsByTab } from './editor/AgentEditorPanels';
+import { AgentEditorPanel, AgentEditorTabs } from './editor/AgentEditorTabs';
+import type { EditorTab } from './editor/AgentEditorTabs';
 import { EditorFooter } from './editor/EditorFooter';
-import { PermissionFields } from './editor/PermissionFields';
-import { PersonaFields } from './editor/PersonaFields';
-import { TemplatePicker } from './editor/TemplatePicker';
 import styles from './AgentEditorDialog.module.css';
 
 type ChannelChoiceSource = ReadonlyArray<Pick<Channel, 'id' | 'name' | 'memberIds'>>;
@@ -48,11 +46,22 @@ function AgentEditor({
   channels,
   onOpenSkillLibrarySettings,
 }: AgentEditorDialogProps & { target: EditorTarget }) {
-  const { agent, draft, templateId, replaced, update, setBackend, setModel, chooseTemplate, choosePreset } =
-    useAgentDraft(target);
+  const state = useAgentDraft(target);
+  const { agent, draft } = state;
   const save = useAgentSave(agent, draft);
   const formId = useId();
-  const sectionProps = { draft, update, errors: save.errors, touch: save.touch };
+  const tabsId = useId();
+  const [submitAttempt, setSubmitAttempt] = useState(0);
+  const [selection, setSelection] = useState<{ tab: EditorTab; submitAttempt: number }>({
+    tab: 'basics',
+    submitAttempt: 0,
+  });
+  const errorTabs = editorErrorsByTab(save.errors, save.optionErrors);
+  const firstErrorTab = errorTabs[0];
+  if (selection.submitAttempt !== submitAttempt && firstErrorTab) {
+    setSelection({ tab: firstErrorTab, submitAttempt });
+  }
+  const selected = selection.submitAttempt === submitAttempt ? selection.tab : (firstErrorTab ?? selection.tab);
   return (
     <Dialog
       size="lg"
@@ -64,43 +73,34 @@ function AgentEditor({
       <div className={styles.layout}>
         <AgentPreview draft={draft} />
         <div className={styles.main}>
-          <form id={formId} className={styles.form} onSubmit={save.onSubmit} noValidate>
+          <AgentEditorTabs
+            id={tabsId}
+            errorTabs={errorTabs}
+            showSkills={agent !== null}
+            tabsLabel={agent?.name ?? tEditor('newTitle')}
+            selected={selected}
+            onSelect={(tab) => setSelection({ tab, submitAttempt })}
+          />
+          <form
+            id={formId}
+            className={styles.form}
+            onSubmit={(event: FormEvent<HTMLFormElement>) => {
+              setSubmitAttempt((attempt) => attempt + 1);
+              save.onSubmit(event);
+            }}
+            noValidate
+          >
             {save.formError && <FormAlert>{save.formError}</FormAlert>}
-            <TemplatePicker
-              templateId={templateId}
-              replaced={replaced}
-              onTemplate={chooseTemplate}
-              onPreset={choosePreset}
-              editing={agent !== null}
-            />
-            <BasicsFields {...sectionProps} />
-            <PersonaFields draft={draft} update={update} />
-            <BehaviorFields draft={draft} update={update} />
-            <BrainFields
-              draft={draft}
-              errors={save.errors}
-              optionErrors={save.optionErrors}
-              update={update}
-              onBackend={setBackend}
-              onModel={setModel}
-            />
-            <PermissionFields
-              backendId={draft.backend}
-              model={draft.model}
-              options={draft.optionValues}
-              permissions={draft.permissions}
-              tags={draft.tags}
-              error={save.errors.permissions}
-            />
-            <AutonomyFields agent={agent} channels={channels} {...sectionProps} />
+            <AgentEditorPanels state={state} save={save} channels={channels} selected={selected} id={tabsId} />
           </form>
-          {/* 相談相手になる人は知識（スキル）が要なので、スキルの区画を開いておく */}
           {agent && (
-            <SkillManager
-              agentId={agent.id}
-              defaultOpen={agent.consultable}
-              onOpenLibrarySettings={onOpenSkillLibrarySettings}
-            />
+            <AgentEditorPanel id={tabsId} tab="skills" selected={selected}>
+              <SkillManager
+                agentId={agent.id}
+                defaultOpen={agent.consultable}
+                onOpenLibrarySettings={onOpenSkillLibrarySettings}
+              />
+            </AgentEditorPanel>
           )}
         </div>
       </div>

@@ -32,7 +32,7 @@ export const zhHans: Messages<typeof ja> = {
   deleteMessage: '此频道的所有消息都将被删除，且无法恢复。',
   deleteConfirm: '删除',
   fileScope: '文件范围',
-  scopeShared: '所有智能体共用的工作区（按角色权限）',
+  scopeShared: '每个智能体各自的工作区（所有频道通用・按角色权限）',
   scopeFolder: '指定文件夹',
   scopeGlobal: '此频道专用的工作区（按角色权限）',
   folderLabel: '指定文件夹',

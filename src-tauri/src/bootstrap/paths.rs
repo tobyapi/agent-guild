@@ -30,7 +30,12 @@ impl AppPaths {
 }
 
 pub fn resolve(app: &AppHandle) -> tauri::Result<AppPaths> {
-    let config_dir = app.path().app_config_dir()?;
+    // 開発版は GUILD_CONFIG_DIR で設定ファイルも本番環境から分離できる
+    let config_dir = std::env::var_os("GUILD_CONFIG_DIR")
+        .filter(|value| !value.is_empty())
+        .map(PathBuf::from)
+        .map(Ok)
+        .unwrap_or_else(|| app.path().app_config_dir())?;
     // app_local_data_dir の直下には WebView2 のプロファイル（EBWebView）が置かれるので、サブフォルダを使う
     let default_data_dir = app.path().app_local_data_dir()?.join("data");
     let (data_dir, source) = choose(&config_dir, &default_data_dir);
