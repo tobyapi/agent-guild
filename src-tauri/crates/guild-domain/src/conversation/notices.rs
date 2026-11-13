@@ -46,18 +46,6 @@ pub fn timed_out(language: Language, minutes: u64) -> String {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::timed_out;
-    use crate::locale::Language;
-
-    #[test]
-    fn timeout_notice_uses_the_actual_limit() {
-        assert_eq!(timed_out(Language::Ja, 30), "時間切れで中断しました（30分）");
-        assert_eq!(timed_out(Language::En, 30), "Stopped because it took too long (30 minutes).");
-    }
-}
-
 /// 前回アプリが終了したときに、待っていた・実行中だった返答が消えたとき（次の起動時に会話ごとに1回）
 pub fn interrupted(language: Language, names: &[String]) -> String {
     let names = list(language, names);
@@ -144,5 +132,17 @@ pub fn failed(language: Language, name: &str) -> String {
         Language::ZhHans => format!("{name} 执行失败。"),
         Language::ZhHant => format!("{name} 執行失敗。"),
         Language::Ko => format!("{name} 님은 실패했습니다."),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::timed_out;
+    use crate::locale::Language;
+
+    #[test]
+    fn timeout_notice_uses_the_actual_limit() {
+        assert_eq!(timed_out(Language::Ja, 30), "時間切れで中断しました（30分）");
+        assert_eq!(timed_out(Language::En, 30), "Stopped because it took too long (30 minutes).");
     }
 }
