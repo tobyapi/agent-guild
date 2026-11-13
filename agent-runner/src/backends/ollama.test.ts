@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from './ollama.ts';
+import { jsonChat } from './ollama/json-chat.ts';
 import { localHttp } from './ollama/http.ts';
 import { BackendRegistry } from './registry.ts';
 import { pretendMacOS, runContext, runRequest } from './run.test-support.ts';
@@ -21,6 +22,63 @@ beforeEach(() => http.mockReset());
 pretendMacOS();
 
 describe('Ollama', () => {
+  it('空の最終回答に直前までの操作とモデルの文章を含める', async () => {
+    reply({
+      message: {
+        content:
+          '{"type":"tool","tool":"read_file","path":"missing.txt","content":"","command":"","name":"","text":""}',
+      },
+    });
+    reply({
+      message: {
+        content: '{"type":"final","tool":"","path":"","content":"","command":"","name":"","text":""}',
+      },
+    });
+    await expect(
+      jsonChat(
+        { ...runRequest('ollama'), options: { enableTools: true } },
+        runContext(),
+        { id: deepseek.model, capabilities: deepseek.capabilities } as never,
+        'hello',
+        [],
+      ),
+    ).rejects.toThrow(/read_file.*missing\.txt.*"type":"final"/);
+  });
+
+  it('操作上限のエラーには全体回数と直近10件だけを含める', async () => {
+    for (let index = 0; index < 40; index++) {
+      reply({
+        message: {
+          content: JSON.stringify({
+            type: 'tool',
+            tool: 'read_file',
+            path: `file-${index}.txt`,
+            content: '',
+            command: '',
+            name: '',
+            text: '',
+          }),
+        },
+      });
+    }
+    let failure: unknown;
+    try {
+      await jsonChat(
+        { ...runRequest('ollama'), options: { enableTools: true } },
+        runContext(),
+        { id: deepseek.model, capabilities: deepseek.capabilities } as never,
+        'hello',
+        [],
+      );
+    } catch (error) {
+      failure = error;
+    }
+    expect(String(failure)).toContain('40 回（直近10件）');
+    expect(String(failure)).toContain('file-39.txt');
+    expect(String(failure)).toContain('file-30.txt');
+    expect(String(failure)).not.toContain('file-29.txt');
+  });
+
   it('ローカルの会話モデルだけを選べる。能力が一覧にないときは詳細から取得する', async () => {
     reply({
       models: [

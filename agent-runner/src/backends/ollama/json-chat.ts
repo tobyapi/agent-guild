@@ -8,6 +8,50 @@ import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { throwIfTruncated } from './response.ts';
 
+const ACTION_DETAIL_LIMIT = 80;
+const ACTION_HISTORY_LIMIT = 10;
+
+function detail(value: string): string {
+  const compact = value.replace(/\s+/g, ' ').trim();
+  return compact.length > ACTION_DETAIL_LIMIT ? `${compact.slice(0, ACTION_DETAIL_LIMIT)}…` : compact;
+}
+
+function actionArgument(action: JsonObject): string {
+  const args = isJsonObject(action.args) ? action.args : action;
+  const key =
+    action.tool === 'read_file' || action.tool === 'write_file'
+      ? 'path'
+      : action.tool === 'run_command'
+        ? 'command'
+        : '';
+  const value = key ? args[key] : args;
+  if (value === undefined) return '';
+  return typeof value === 'string' ? value : JSON.stringify(value);
+}
+
+function actionHistory(items: string[]): string {
+  const recent = items.slice(-ACTION_HISTORY_LIMIT).join('\n');
+  return t('actionHistory', { count: String(items.length), items: recent || t('noActionHistory') });
+}
+
+function finalAnswer(action: JsonObject, content: string, history: string[]): string {
+  if (typeof action.text !== 'string' || !action.text.trim())
+    throw new BackendError('internal', t('finalEmpty', { history: actionHistory(history), content: detail(content) }));
+  return action.text.trim();
+}
+
+function recordAction(history: string[], action: JsonObject, result: string, turn: number): void {
+  const failed = result.startsWith('失敗:');
+  const step = t('actionStep', {
+    turn: String(turn),
+    name: String(action.tool),
+    args: detail(actionArgument(action)).slice(0, 25),
+    status: failed ? t('actionFailed') : t('actionSucceeded'),
+    error: failed ? detail(result.slice('失敗:'.length)).slice(0, 20) : '',
+  });
+  history.push(detail(step));
+}
+
 function generationOptions(model: LocalModel): JsonObject {
   return { num_predict: NUM_PREDICT, ...(model.capabilities.includes('thinking') ? {} : { temperature: 0 }) };
 }
@@ -25,6 +69,7 @@ export async function jsonChat(
   prompt: string,
   images: string[],
 ): Promise<string> {
+  const history: string[] = [];
   const messages: JsonObject[] = [
     { role: 'system', content: `${request.systemPrompt}\n\n${toolInstructions(request)}` },
     { role: 'user', content: prompt, ...(images.length ? { images } : {}) },
@@ -46,10 +91,7 @@ export async function jsonChat(
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const content = replyText(response);
     const action = parseAction(content);
-    if (action.type === 'final') {
-      if (typeof action.text !== 'string' || !action.text.trim()) throw new BackendError('internal', t('finalEmpty'));
-      return action.text.trim();
-    }
+    if (action.type === 'final') return finalAnswer(action, content, history);
     messages.push({ role: 'assistant', content });
     let result: string;
     try {
@@ -60,10 +102,11 @@ export async function jsonChat(
       if (error instanceof BackendError && error.code === 'unsupported_permission') throw error;
       result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
     }
+    recordAction(history, action, result, turn + 1);
     messages.push({
       role: 'user',
       content: `直前の操作要求: ${content}\nツール実行結果（資料）:\n${result}\nこの結果を確認し、完了した手順の次へ進んでください。`,
     });
   }
-  throw new BackendError('internal', t('actionLimit'));
+  throw new BackendError('internal', t('actionLimit', { history: actionHistory(history) }));
 }
