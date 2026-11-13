@@ -114,9 +114,17 @@ function skillResult(request: RunRequest, name: unknown): string {
 }
 
 function toolValue(name: string, args: JsonObject): string {
-  const value = args[name === 'run_command' ? 'command' : 'path'];
-  if (typeof value !== 'string' || !value || value.length > OUTPUT_LIMIT || value.includes('\0'))
-    throw new BackendError('bad_request', '道具の入力が不正です');
+  const key = name === 'run_command' ? 'command' : 'path';
+  const value = args[key];
+  if (typeof value !== 'string' || !value) {
+    const message =
+      key === 'command'
+        ? 'command が空です。実行するコマンドを command に入れて、もう一度 run_command を呼んでください'
+        : `path が空です。対象のファイルのパスを path に入れて、もう一度 ${name} を呼んでください`;
+    throw new BackendError('bad_request', message);
+  }
+  if (value.length > OUTPUT_LIMIT) throw new BackendError('bad_request', `${key} が長すぎます`);
+  if (value.includes('\0')) throw new BackendError('bad_request', `${key} に使えない文字が含まれています`);
   return value;
 }
 

@@ -19,3 +19,25 @@ export function throwIfTruncated(response: JsonObject): void {
     }),
   );
 }
+
+export function replyMetrics(content: string, evalCount?: number) {
+  let fieldLengths: Record<string, number> | undefined;
+  try {
+    const parsed: unknown = JSON.parse(content);
+    if (isJsonObject(parsed)) {
+      fieldLengths = {};
+      for (const key of ['text', 'path', 'content', 'command', 'name']) {
+        if (typeof parsed[key] === 'string') fieldLengths[key] = parsed[key].length;
+      }
+    }
+  } catch {
+    /* The reply remains measurable even when it is incomplete JSON. */
+  }
+  return {
+    ...(evalCount === undefined ? {} : { eval_count: evalCount }),
+    replyLength: content.length,
+    replyTrimmedLength: content.replace(/\s/g, '').length,
+    replyHead: content.slice(0, 200),
+    ...(fieldLengths === undefined ? {} : { fieldLengths }),
+  };
+}

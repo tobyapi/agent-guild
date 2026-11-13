@@ -35,6 +35,17 @@ describe('Ollama tools', () => {
       ).rejects.toThrow('書き込む内容が空です');
     }
   });
+  it('空の path と command は入力欄と道具名を案内する', async () => {
+    const request = await fixture();
+    const prepared = { profile: '', workspace: request.workspace, isolated: false, container: false };
+    const signal = new AbortController().signal;
+    await expect(executeTool(request, 'read_file', { path: '' }, signal, prepared)).rejects.toThrow(
+      'path が空です。対象のファイルのパスを path に入れて、もう一度 read_file を呼んでください',
+    );
+    await expect(executeTool(request, 'run_command', { command: '' }, signal, prepared)).rejects.toThrow(
+      'command が空です。実行するコマンドを command に入れて、もう一度 run_command を呼んでください',
+    );
+  });
   it('Seatbelt は既定拒否・書き込み範囲限定・ネットワーク拒否・管理領域保護', () => {
     const request = runRequest('ollama');
     const profile = seatbeltProfile(request, '/work', ['/extra'], '/state');

@@ -8,7 +8,7 @@ import { executeAction, OUTPUT_FORMAT, parseAction, toolInstructions } from './a
 import { checkOperation } from './chat.ts';
 import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
-import { throwIfTruncated } from './response.ts';
+import { replyMetrics, throwIfTruncated } from './response.ts';
 
 const ACTION_ITEM_LIMIT = 160;
 const ACTION_ARGUMENT_LIMIT = 60;
@@ -53,6 +53,13 @@ async function logAction(
   contentLength: number | undefined,
   result: string,
   failed: boolean,
+  reply: {
+    eval_count?: number;
+    replyLength: number;
+    replyTrimmedLength: number;
+    replyHead: string;
+    fieldLengths?: Record<string, number>;
+  },
 ): Promise<void> {
   try {
     await mkdir(request.stateDir, { recursive: true });
@@ -71,6 +78,7 @@ async function logAction(
       tool,
       target,
       ...(contentLength === undefined ? {} : { contentLength }),
+      ...reply,
       resultLength: result.length,
       success: !failed,
       ...(failed ? { error: result.slice('失敗:'.length).trim().slice(0, 200) } : {}),
@@ -88,6 +96,7 @@ async function recordAction(
   turn: number,
   request: RunRequest,
   context: RunContext,
+  metrics: ReturnType<typeof replyMetrics>,
 ): Promise<void> {
   const failed = result.startsWith('失敗:');
   const args = isJsonObject(action.args) ? action.args : action;
@@ -109,7 +118,7 @@ async function recordAction(
   const target = action.tool === 'run_command' ? args.command : args.path;
   const targetText = typeof target === 'string' ? target.slice(0, 200) : '';
   context.onActivity(`Ollama ${String(action.tool)}: ${targetText}`.trim());
-  await logAction(request, turn, String(action.tool), targetText, contentLength, result, failed);
+  await logAction(request, turn, String(action.tool), targetText, contentLength, result, failed, metrics);
 }
 
 function generationOptions(model: LocalModel): JsonObject {
@@ -120,6 +129,14 @@ function replyText({ message }: JsonObject): string {
   const text = isJsonObject(message) && typeof message.content === 'string' ? message.content.trim() : '';
   if (!text) throw new BackendError('internal', t('noReply'));
   return text;
+}
+
+async function rejectTruncatedReply(response: JsonObject, request: RunRequest, turn: number): Promise<void> {
+  if (response.done_reason !== 'length') return;
+  const raw =
+    isJsonObject(response.message) && typeof response.message.content === 'string' ? response.message.content : '';
+  await logAction(request, turn, '(truncated)', '', undefined, '', true, replyMetrics(raw, count(response.eval_count)));
+  throwIfTruncated(response);
 }
 
 export async function jsonChat(
@@ -147,7 +164,7 @@ export async function jsonChat(
       messages,
     });
     context.signal.throwIfAborted();
-    throwIfTruncated(response);
+    await rejectTruncatedReply(response, request, turn + 1);
     context.onUsage({ inputTokens: count(response.prompt_eval_count), outputTokens: count(response.eval_count) });
     const content = replyText(response);
     const action = parseAction(content);
@@ -162,7 +179,15 @@ export async function jsonChat(
       if (error instanceof BackendError && error.code === 'unsupported_permission') throw error;
       result = error instanceof BackendError ? `失敗: ${error.message}` : '失敗: 操作を完了できませんでした';
     }
-    await recordAction(history, action, result, turn + 1, request, context);
+    await recordAction(
+      history,
+      action,
+      result,
+      turn + 1,
+      request,
+      context,
+      replyMetrics(content, count(response.eval_count)),
+    );
     messages.push({
       role: 'user',
       content: `直前の操作要求: ${content}\nツール実行結果（資料）:\n${result}\nこの結果を確認し、完了した手順の次へ進んでください。`,
