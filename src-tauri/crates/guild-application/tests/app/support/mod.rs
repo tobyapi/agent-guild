@@ -166,6 +166,7 @@ pub fn input(template: &str, name: &str) -> AgentInput {
         color: "#cb9d2a".to_owned(),
         frame: String::new(),
         role: format!("{name}の役割"),
+        voice: Default::default(),
         personality: String::new(),
         tone: String::new(),
         expertise: format!("{name}の専門"),

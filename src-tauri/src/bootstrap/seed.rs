@@ -59,6 +59,7 @@ fn agent_input(seed: SeedAgent) -> Result<AgentInput, String> {
         avatar: seed.avatar,
         color: seed.color,
         frame: String::new(),
+        voice: Default::default(),
         tags: seed.tags,
         role: seed.role,
         personality: seed.personality,

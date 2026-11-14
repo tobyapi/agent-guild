@@ -16,6 +16,7 @@ pub fn input(template: &str, name: &str) -> AgentInput {
         frame: String::new(),
         tags: defaults.tags,
         role: format!("{name}の役割"),
+        voice: Default::default(),
         personality: "まじめ".to_owned(),
         tone: "丁寧語".to_owned(),
         expertise: format!("{name}の専門"),

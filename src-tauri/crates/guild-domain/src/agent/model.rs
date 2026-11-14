@@ -20,6 +20,8 @@ pub struct AgentInput {
     pub role: String,
     pub personality: String,
     pub tone: String,
+    #[serde(default)]
+    pub voice: crate::voice::VoiceSettings,
     pub expertise: String,
     pub backend: String,
     pub model: String,
@@ -50,6 +52,8 @@ pub struct Agent {
     pub role: String,
     pub personality: String,
     pub tone: String,
+    #[serde(default)]
+    pub voice: crate::voice::VoiceSettings,
     /// 得意分野（空でもよい）。相談相手の一覧やプロンプトに出る
     pub expertise: String,
     /// ランナーが申告したバックエンド ID（Rust では列挙しない）
@@ -86,6 +90,7 @@ impl Agent {
             role,
             personality,
             tone,
+            voice,
             expertise,
             backend,
             model,
@@ -108,6 +113,7 @@ impl Agent {
             role,
             personality,
             tone,
+            voice,
             expertise,
             backend,
             model,

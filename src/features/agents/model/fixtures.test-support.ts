@@ -81,6 +81,7 @@ export function agentFixture(overrides: Partial<Agent> = {}): Agent {
     frame: '',
     tags: ['作業者'],
     role: '',
+    voice: { mode: 'auto', intensity: 'weak' },
     personality: '',
     tone: '',
     expertise: '',

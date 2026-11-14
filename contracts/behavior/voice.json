@@ -1,0 +1,17 @@
+[
+  { "input": "45", "expected": null },
+  { "input": "045", "expected": null },
+  { "input": "＃０４５", "expected": null },
+  { "input": " 傍白 ", "expected": null },
+  { "input": "心の声", "expected": null },
+  { "input": "感情音だけ", "expected": null },
+  { "input": "AUTO", "expected": "auto" },
+  { "input": "自動", "expected": "auto" },
+  { "input": "いつもの口調", "expected": "off" },
+  { "input": "off", "expected": "off" },
+  { "input": "061", "expected": null },
+  { "input": "003", "expected": null },
+  { "input": "+45", "expected": null },
+  { "input": "", "expected": null },
+  { "input": "知らない文体", "expected": null }
+]

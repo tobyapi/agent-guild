@@ -1,0 +1,4 @@
+interface:
+  display_name: "キャラクター会話・27文体"
+  short_description: "性格と会話に合う文体を返答ごとに自動で選ぶ"
+  default_prompt: "$character-voice 性格・一人称・普段の口調を保ち、会話に合う表現を自動で選んで。強度は弱。"

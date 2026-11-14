@@ -51,6 +51,7 @@ export const agentSchema = {
   role: string,
   personality: string,
   tone: string,
+  voice: objectOf({ mode: string, intensity: oneOf({ weak: true, medium: true, strong: true }) }),
   expertise: string,
   backend: string,
   model: string,

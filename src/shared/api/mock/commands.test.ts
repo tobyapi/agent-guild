@@ -2,47 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { objectOf } from '@/shared/types/schema';
 import { snapshotSchema } from '@/shared/types/schemas/system';
 import { HUMAN_ID } from '@/shared/types/domain';
-import type { AgentInput } from '@/shared/types/domain';
+import { agentInput, allowAll } from './agent.test-support';
 import { createMockTransport } from './index';
 import { SEED_IDS } from './seedIds';
 import { createHarness } from './harness.test-support';
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
-
-const allowAll = {
-  webSearch: true,
-  webFetch: true,
-  readFiles: true,
-  readAnywhere: false,
-  writeFiles: true,
-  writeAnywhere: true,
-  runCommands: true,
-  skills: true,
-};
-
-const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => ({
-  name: 'ミライ',
-  avatar: '🔭',
-  color: '#8cc3fc',
-  frame: '',
-  tags: ['作業者'],
-  role: '調査',
-  personality: '',
-  tone: '',
-  expertise: '',
-  backend: 'claude',
-  model: '',
-  backendOptions: { maxTurns: 10, unknownKey: true },
-  permissions: allowAll,
-  unmentioned: 'answer',
-  consultable: false,
-  canDelegate: false,
-  autonomyEnabled: false,
-  autonomyIntervalMin: 60,
-  autonomyChannelId: null,
-  ...overrides,
-});
 
 describe('モックのコマンド', () => {
   it('get_snapshot は契約に合い、ロビーに絵文字のアバターを持つ作業者1人を返す', async () => {

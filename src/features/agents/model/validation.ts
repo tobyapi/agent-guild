@@ -1,4 +1,6 @@
 // エージェントの入力の検証と AgentInput への変換（docs/design.md §2 入力規則。正はサーバの validation）。
+import { resolveVoiceMode } from '@/shared/lib/voice';
+import { tVoice } from '../i18n/voice';
 import { checkAvatar } from '@/shared/lib/avatar';
 import { isHexColor } from '@/shared/lib/colors';
 import { checkEffort, withEffort } from '@/shared/lib/models';
@@ -13,9 +15,10 @@ import { rolePermissions, toolsEnabled, toolsRequested } from '@/shared/lib/perm
 import type { AgentTemplate } from '@/shared/types/domain';
 
 export type AgentField =
-  'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
+  'voice' | 'name' | 'avatar' | 'color' | 'tags' | 'backend' | 'effort' | 'permissions' | 'autonomyIntervalMin';
 
 const AGENT_FIELDS: readonly AgentField[] = [
+  'voice',
   'name',
   'avatar',
   'color',
@@ -39,6 +42,7 @@ export type DraftResult =
 function fieldErrors(draft: AgentDraft, ctx: ValidationContext): AgentErrors {
   const backend = ctx.backends.find((candidate) => candidate.id === draft.backend);
   const entries: Array<[AgentField, string | null]> = [
+    ['voice', resolveVoiceMode(draft.voice.mode) ? null : tVoice('invalid')],
     ['name', checkMemberName(draft.name, ctx.takenNames)],
     ['avatar', checkAvatar(draft.avatar)],
     ['color', isHexColor(draft.color) ? null : tBrain('chooseColor')],
@@ -61,6 +65,7 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
     role: draft.role.trim(),
     personality: draft.personality.trim(),
     tone: draft.tone.trim(),
+    voice: { ...draft.voice, mode: resolveVoiceMode(draft.voice.mode) ?? draft.voice.mode },
     expertise: draft.expertise.trim(),
     backend: draft.backend,
     model: draft.model.trim(),

@@ -6,6 +6,7 @@
 export * from './ids';
 export * from './permissions';
 export * from './agent';
+export * from './voice';
 export * from './skill';
 export * from './conversation';
 export * from './delegation';

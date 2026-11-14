@@ -1,4 +1,5 @@
 // エージェントの入力の検証と正規化（docs/design.md §2 入力規則をモック用に）。
+import { DEFAULT_VOICE, resolveVoiceMode } from '@/shared/lib/voice';
 import { AUTONOMY_INTERVAL_MIN } from '@/shared/lib/limits';
 import { checkEffort, effortFrom, withEffort } from '@/shared/lib/models';
 import { checkMemberName } from '@/shared/lib/names';
@@ -35,6 +36,8 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
   const taken = activeAgents(core)
     .filter((agent) => agent.id !== selfId)
     .map((agent) => agent.name);
+  const voice = input.voice ?? DEFAULT_VOICE;
+  const mode = resolveVoiceMode(voice.mode) ?? fail('validation', '文体は自動かいつもの口調を選んでください', 'voice');
   const nameProblem = checkMemberName(input.name, [...taken, core.state.me.name]);
   if (nameProblem !== null) fail('validation', nameProblem, 'name');
   const tagProblem = checkTags(input.tags);
@@ -53,6 +56,7 @@ export function validateAgentInput(core: MockCore, input: AgentInput, selfId: st
     fail('validation', '道具に対応したモデルを選んでください', 'permissions');
   return {
     ...input,
+    voice: { ...voice, mode },
     name: input.name.trim(),
     frame: checkFrameId(input.frame),
     tags: cleanTags(input.tags),

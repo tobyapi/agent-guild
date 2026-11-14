@@ -1,5 +1,6 @@
 import type { BackendId } from './backend';
 import type { Permissions } from './permissions';
+import type { VoiceSettings } from './voice';
 
 /**
  * メンションのない人間の発言への反応。上の段に1人でも（ready な）該当者がいれば、下の段の人は答えない。
@@ -24,6 +25,7 @@ export interface Agent {
   role: string;
   personality: string;
   tone: string;
+  voice: VoiceSettings;
   /** 得意分野。相談相手の一覧やプロンプトに出る（空でもよい） */
   expertise: string;
   backend: BackendId;

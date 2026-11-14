@@ -39,6 +39,7 @@ pub(super) fn input(template: &str, name: &str) -> AgentInput {
         color: "#cb9d2a".to_owned(),
         frame: String::new(),
         role: "リサーチ".to_owned(),
+        voice: Default::default(),
         personality: "好奇心旺盛".to_owned(),
         tone: "丁寧語".to_owned(),
         expertise: String::new(),
@@ -64,3 +65,5 @@ pub(super) fn saved_agent(db: &Arc<Database>, id: &str, name: &str, created_at: 
 }
 
 mod channel_workspace;
+
+mod voice;

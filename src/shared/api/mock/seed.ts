@@ -105,6 +105,7 @@ function toAgent({ template, ...seed }: AgentSeed, index: number, createdAt: num
   return {
     expertise: defaults.expertise,
     frame: '',
+    voice: { mode: 'auto', intensity: 'weak' },
     backend: 'claude',
     model: '',
     backendOptions: {},

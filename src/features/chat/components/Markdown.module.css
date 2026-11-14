@@ -98,6 +98,7 @@
 
 .markdown :global(.typePath) {
   display: inline-block;
+  fill: currentColor;
   width: min(100%, 30em);
   height: 6em;
   vertical-align: middle;

@@ -48,7 +48,11 @@
       "autonomyChannelId": null,
       "lastAutonomousAt": null,
       "createdAt": 1793320000000,
-      "deletedAt": null
+      "deletedAt": null,
+      "voice": {
+        "mode": "auto",
+        "intensity": "weak"
+      }
     },
     {
       "id": "a0000000-0000-4000-8000-000000000002",
@@ -85,7 +89,11 @@
       "autonomyChannelId": null,
       "lastAutonomousAt": null,
       "createdAt": 1793320001000,
-      "deletedAt": null
+      "deletedAt": null,
+      "voice": {
+        "mode": "auto",
+        "intensity": "weak"
+      }
     },
     {
       "id": "a0000000-0000-4000-8000-000000000003",
@@ -124,7 +132,11 @@
       "autonomyChannelId": null,
       "lastAutonomousAt": null,
       "createdAt": 1793320002000,
-      "deletedAt": 1793325000000
+      "deletedAt": 1793325000000,
+      "voice": {
+        "mode": "auto",
+        "intensity": "weak"
+      }
     }
   ],
   "channels": [

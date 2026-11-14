@@ -18,6 +18,7 @@ mod report;
 mod rules;
 mod safeguards;
 mod skills;
+mod voice;
 
 pub use conversation::{
     build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, PROGRESS_LIMIT, RECENT_CHANNEL_LIMIT,
@@ -71,6 +72,7 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
     let sections = [
         language::section(ctx.language),
         persona::section(ctx.agent),
+        voice::section(ctx.agent),
         answering::work_section(ctx),
         answering::consultee_section(ctx),
         delegating::section(ctx),
