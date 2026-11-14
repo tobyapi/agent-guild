@@ -104,7 +104,7 @@ const ROWS: [Row; 4] = [
     },
     Row {
         id: "manager",
-        builtin_skills: &["universal-manager"],
+        builtin_skills: &["universal-manager", "reflection"],
         label: ["マネージャー", "Manager", "经理", "經理", "매니저"],
         description: [
             "分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。",

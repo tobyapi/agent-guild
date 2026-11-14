@@ -1,6 +1,13 @@
 //! 内蔵スキル: 同梱の SKILL.md がすべて Agent Skills 標準に合い、フォルダ名と name がそろっていること。付属ファイルも渡せること。
 
+use guild_domain::agent::find_template;
 use guild_domain::skill::{builtin_skill_files, builtin_skills, bundled_skills, find_builtin_skill, parse_skill_file};
+
+#[test]
+fn manager_template_includes_reflection() {
+    let manager = find_template("manager").expect("manager template");
+    assert_eq!(manager.builtin_skills, ["universal-manager", "reflection"]);
+}
 
 const IMPORTED_BUILTIN_NAMES: [&str; 6] = [
     "ambiguous-word-rewrite",

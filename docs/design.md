@@ -58,7 +58,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | 作業者 | なし |
 | 発想役 | concept-shift, introspection |
 | 専門家 | universal-critique |
-| マネージャー | universal-manager |
+| マネージャー | universal-manager, reflection |
 
 - 標準の役割は「作業者・発想役・専門家・マネージャー」の4つ。調査・議事録は作業者の人格例、反対意見・利用者目線は専門家の人格例にまとめる。追加タグ・担当・得意分野で視点を表現できる。
 - 発想役は指名・相談・割り振りがあったときにだけ答え、自発活動は既定で無効。案ごとの狙いと違いをまとめて返す。

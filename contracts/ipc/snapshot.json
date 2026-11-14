@@ -592,7 +592,8 @@
         "autonomyEnabled": false
       },
       "builtinSkills": [
-        "universal-manager"
+        "universal-manager",
+        "reflection"
       ],
       "roleTags": [
         "マネージャー",
