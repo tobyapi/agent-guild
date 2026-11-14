@@ -26,7 +26,7 @@ function example(title: string): string {
   return source.replace(/\r\n/g, '\n');
 }
 const cases: [string, string, string | null][] = [
-  ['切れ端メモ', '鍵。受付に届け済み。持ち主、確認中。', null],
+  ['走り書き', '鍵。受付に届け済み。持ち主、確認中。', null],
   ['同義反復', '無事に、何事もなく、鍵は持ち主へ戻りました。', null],
   ['隠喩の語り', '心の窓が、ようやく開いた気がします。', null],
   ['先回り案内', '受付で鍵の形を伝えれば、次に受け取り方法を確認できるでしょう。', null],
