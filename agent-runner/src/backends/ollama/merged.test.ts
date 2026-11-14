@@ -168,7 +168,7 @@ it('展開したスキルの付属ファイルをJSON経路から読み、終了
   };
   await ollamaAdapter.run(req, runContext());
   expect(http.mock.calls[3]?.[2]).toContain('ATTACHMENT-7319');
-  expect(await readdir(req.stateDir)).toEqual([]);
+  expect(await readdir(req.stateDir)).toEqual(['ollama-actions.jsonl']);
 });
 
 it('thinking 対応モデルで自動選択したJSON操作から実ファイルを保存できる', async () => {

@@ -83,7 +83,7 @@ describe('Ollama worker', () => {
     await ollamaAdapter.run(req, runContext());
     expect(http.mock.calls[2]?.[2]).toContain('手順です');
     const { readdir } = await import('node:fs/promises');
-    expect(await readdir(req.stateDir)).toEqual([]);
+    expect(await readdir(req.stateDir)).toEqual(['ollama-actions.jsonl']);
   });
 
   it('不正な操作のJSONを実行しない', async () => {
