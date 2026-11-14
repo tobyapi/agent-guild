@@ -86,7 +86,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   {
     id: 'manager',
     roleTags: ['マネージャー', 'Manager', '经理', '經理', '매니저'],
-    builtinSkills: [],
+    builtinSkills: ['universal-manager'],
     label: 'マネージャー',
     description: '分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。',
     accent: 'manager',

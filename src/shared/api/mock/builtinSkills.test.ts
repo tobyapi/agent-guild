@@ -19,7 +19,9 @@ describe('モックの内蔵スキル', () => {
       'concept-shift',
       'introspection',
       'ornate-avatar-frame',
+      'reflection',
       'universal-critique',
+      'universal-manager',
     ]);
     expect(builtins.every((skill) => skill.description !== '' && !skill.body.startsWith('---'))).toBe(true);
     expect(builtins.every((skill) => !skill.description.startsWith('"') && !skill.description.startsWith("'"))).toBe(

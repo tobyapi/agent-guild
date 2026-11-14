@@ -591,7 +591,9 @@
         "canDelegate": true,
         "autonomyEnabled": false
       },
-      "builtinSkills": [],
+      "builtinSkills": [
+        "universal-manager"
+      ],
       "roleTags": [
         "マネージャー",
         "Manager",

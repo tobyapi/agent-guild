@@ -58,7 +58,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | 作業者 | なし |
 | 発想役 | concept-shift, introspection |
 | 専門家 | universal-critique |
-| マネージャー | なし |
+| マネージャー | universal-manager |
 
 - 標準の役割は「作業者・発想役・専門家・マネージャー」の4つ。調査・議事録は作業者の人格例、反対意見・利用者目線は専門家の人格例にまとめる。追加タグ・担当・得意分野で視点を表現できる。
 - 発想役は指名・相談・割り振りがあったときにだけ答え、自発活動は既定で無効。案ごとの狙いと違いをまとめて返す。
@@ -392,7 +392,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
   - `link`（既定）: スキルは `source = { kind: 'linked', path }` で保存する。DB には name・description・本文の写しも入れるが、**実行のたびに SKILL.md を読み直したものが正**。読めなければそのスキルを外して実行し、警告ログを残す（`list_skills` の `problem` にも理由が出る）。アプリ内では編集できない（`save_skill` は validation）。付属ファイルはランナーのアダプタが実行のたびにリンク先からコピーする（SkillPayload.dir）。
   - `copy`: いまの SKILL.md を読んで、ふつうのスキル（source = null）として保存する。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - どちらも、同じエージェントに同じ name のスキルがあれば `conflict`。
-- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。使用者のスキル集から取り込んだ4つ（ambiguous-word-rewrite・concept-shift・introspection・universal-critique。元のフォルダの README.md と、個人用の保存版の references/source-cache/・source-files/ は同梱しない）と、アイコンの枠の生成に使う ornate-avatar-frame（利用者の Codex のスキルをそのまま。§3「アイコンの枠の生成」）を同梱する。
+- **内蔵スキル**: アプリに同梱する Agent Skills（`src/shared/assets/skills/<name>/` の SKILL.md と付属ファイル）。guild-domain の build.rs がフォルダを走査して埋め込む（フォルダを足すだけで増える）。SKILL.md 以外のファイル（references/ など。UTF-8 のテキストだけ）は付属ファイルで、`BuiltinSkill.files` に相対パスを出す。ブラウザのモックも同じフォルダを読む。フォルダ名と frontmatter の name をそろえ、すべて標準に合うこと・付属ファイルのパスが相対パスであることをテストで確かめる。使用者のスキル集から取り込んだ6つ（ambiguous-word-rewrite・concept-shift・introspection・universal-critique・reflection・universal-manager。出典と人名を除き、アプリの役割の呼び方に合わせて同梱する。元のフォルダの README.md・tests/、個人用の保存版の source-cache/・source-files/、source-notes.md・foundations.md・FOUNDATIONS.md、出典の節・人名と年は同梱しない。例文中の担当者名と日付は残す）と、アイコンの枠の生成に使う ornate-avatar-frame（利用者の Codex のスキルをそのまま。§3「アイコンの枠の生成」）を同梱する。
   - `list_builtin_skills` で一覧し、`add_builtin_skill` でエージェントに付ける。`link`（既定）は `source = { kind: 'builtin', name }` で保存し、**一覧と実行のたびに同梱の SKILL.md を読み直したものが正**（アプリの更新に追従する）。この版にない name なら、そのスキルを外して実行し、`problem` に理由を出す。アプリ内では編集できない。付属ファイルは実行のたびに中身ごとランナーへ渡し（SkillPayload.files）、アダプタがスキルのフォルダへ書き出す。`copy` はふつうのスキル（source = null）として取り込む。付属ファイルは持ち込まない（UI でその旨を伝える）。
   - DB の `skills.source` は SkillSource の JSON（アプリ内のスキルは NULL）。
 - **エージェント側の表示**: リンクしたスキルにはリンクの印と元のフォルダを出し、「フォルダを開く」（`reveal_skill_folder`）を置く。内蔵スキルには「内蔵」の印を出し、本文を見られるようにする。problem があれば注意を出す。外すのは `delete_skill`（元のフォルダは消さない）。

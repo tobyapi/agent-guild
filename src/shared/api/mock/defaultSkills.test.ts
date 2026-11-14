@@ -5,7 +5,7 @@ import { createHarness } from './harness.test-support';
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
-it('発想役と専門家だけに既定スキルを付け、通常の保存では外したものを復活させない', async () => {
+it('役割に応じた既定スキルを付け、通常の保存では外したものを復活させない', async () => {
   const { transport } = await createHarness({ demo: false });
   const snapshot = await transport.invoke('get_snapshot', {});
   const starter = snapshot.agents[0]!;
@@ -16,7 +16,9 @@ it('発想役と専門家だけに既定スキルを付け、通常の保存で�
     const agent = await transport.invoke('create_agent', { input });
     const skills = await transport.invoke('list_skills', { agentId: agent.id });
     expect(skills.map((skill) => skill.name).sort()).toEqual([...template.builtinSkills].sort());
-    expect(skills).toHaveLength(template.id === 'ideator' ? 2 : template.id === 'expert' ? 1 : 0);
+    expect(skills).toHaveLength(
+      template.id === 'ideator' ? 2 : template.id === 'expert' || template.id === 'manager' ? 1 : 0,
+    );
     expect(skills.every((skill) => skill.source?.kind === 'builtin')).toBe(true);
   }
   const ideator = snapshot.templates.find((item) => item.id === 'ideator')!;

@@ -2,6 +2,15 @@
 
 use guild_domain::skill::{builtin_skill_files, builtin_skills, bundled_skills, find_builtin_skill, parse_skill_file};
 
+const IMPORTED_BUILTIN_NAMES: [&str; 6] = [
+    "ambiguous-word-rewrite",
+    "concept-shift",
+    "introspection",
+    "reflection",
+    "universal-critique",
+    "universal-manager",
+];
+
 #[test]
 fn every_bundled_skill_file_follows_the_standard_and_matches_its_folder() {
     let bundled = bundled_skills();
@@ -30,10 +39,65 @@ fn builtins_are_sorted_unique_and_found_by_name() {
     assert_eq!(names, sorted, "name の順で重なりがない");
     assert_eq!(
         names,
-        ["ambiguous-word-rewrite", "concept-shift", "introspection", "ornate-avatar-frame", "universal-critique"]
+        [
+            "ambiguous-word-rewrite",
+            "concept-shift",
+            "introspection",
+            "ornate-avatar-frame",
+            "reflection",
+            "universal-critique",
+            "universal-manager",
+        ]
     );
     assert_eq!(find_builtin_skill("introspection").map(|skill| skill.name).as_deref(), Some("introspection"));
     assert_eq!(find_builtin_skill("nothing"), None);
+}
+
+#[test]
+fn imported_builtins_exclude_source_notes_and_urls() {
+    for name in IMPORTED_BUILTIN_NAMES {
+        let skill = bundled_skills().iter().find(|skill| skill.folder == name).expect(name);
+        assert!(
+            skill.files.iter().all(|(path, _)| path.rsplit('/').next() != Some("source-notes.md")),
+            "{name}: source-notes.md は同梱しない"
+        );
+        for (path, content) in std::iter::once(("SKILL.md", skill.skill_md)).chain(skill.files.iter().copied()) {
+            assert!(
+                !content.contains("http://") && !content.contains("https://"),
+                "{name}/{path}: 出典の URL は同梱しない"
+            );
+        }
+    }
+}
+
+#[test]
+fn imported_builtins_exclude_source_author_names() {
+    const SOURCE_AUTHOR_NAMES: [&str; 12] = [
+        "ソクラテス",
+        "ポパー",
+        "アルトシュラー",
+        "ボーデン",
+        "ヴェルフリン",
+        "ウリポ",
+        "墨家",
+        "de Bono",
+        "Boden",
+        "Aristotle",
+        "Popper",
+        "Woelfflin",
+    ];
+    for name in IMPORTED_BUILTIN_NAMES {
+        let skill = bundled_skills().iter().find(|skill| skill.folder == name).expect(name);
+        for (path, content) in std::iter::once(("SKILL.md", skill.skill_md)).chain(skill.files.iter().copied()) {
+            let lowercase = content.to_lowercase();
+            for author in SOURCE_AUTHOR_NAMES {
+                assert!(
+                    !lowercase.contains(&author.to_lowercase()),
+                    "{name}/{path}: 出典の人名・団体名（{author}）は同梱しない"
+                );
+            }
+        }
+    }
 }
 
 #[test]
@@ -44,5 +108,10 @@ fn referenced_files_are_bundled_with_their_skill() {
     assert_eq!(files.iter().map(|file| file.path.clone()).collect::<Vec<_>>(), critique.files);
     assert!(files.iter().all(|file| !file.content.is_empty()));
     assert!(find_builtin_skill("introspection").expect("introspection").files.is_empty());
+    assert_eq!(find_builtin_skill("reflection").expect("reflection").files, ["references/examples.md"]);
+    assert_eq!(
+        find_builtin_skill("universal-manager").expect("universal-manager").files,
+        ["references/ROUTING.md", "references/SCENARIOS.md"]
+    );
     assert!(builtin_skill_files("nothing").is_empty());
 }
