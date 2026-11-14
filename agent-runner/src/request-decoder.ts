@@ -65,14 +65,23 @@ export function decodeRequest(value: JsonObject): DecodeResult {
 }
 
 function decodeCancel(id: string | null): DecodeResult {
-  return id === null ? reject(null, 'cancel には id（文字列）が必要です') : { ok: true, request: { type: 'cancel', id } };
+  return id === null
+    ? reject(null, 'cancel には id（文字列）が必要です')
+    : { ok: true, request: { type: 'cancel', id } };
 }
 
 function decodeBackendAuthMode(value: JsonObject, id: string | null): DecodeResult {
-  if (id === null || !['claude', 'codex'].includes(String(value.backend)) || !['desktop', 'api'].includes(String(value.mode))) {
+  if (
+    id === null ||
+    !['claude', 'codex'].includes(String(value.backend)) ||
+    !['desktop', 'api'].includes(String(value.mode))
+  ) {
     return reject(id, 'Invalid backend authentication mode');
   }
-  return { ok: true, request: { type: 'backendAuthMode', id, backend: value.backend as string, mode: value.mode as 'desktop' | 'api' } };
+  return {
+    ok: true,
+    request: { type: 'backendAuthMode', id, backend: value.backend as string, mode: value.mode as 'desktop' | 'api' },
+  };
 }
 
 /** id も返事もない要求。知らない言語は不正（id がなければ記録だけ） */

@@ -28,9 +28,7 @@ export async function probeClaude(): Promise<BackendProbe> {
   if (executable === null) return { status: 'unavailable', statusMessage: claudeNotFound() };
   if (backendAuthMode('claude') === 'api') {
     const env = await apiKeyEnvironment('claude', 'ANTHROPIC_API_KEY');
-    return env.ANTHROPIC_API_KEY?.trim()
-      ? READY
-      : { status: 'needs_auth', statusMessage: t('needsLoginTerminal') };
+    return env.ANTHROPIC_API_KEY?.trim() ? READY : { status: 'needs_auth', statusMessage: t('needsLoginTerminal') };
   }
   if (definedEnv(CREDENTIAL_ENVS.filter((name) => name !== 'ANTHROPIC_API_KEY'))) return READY;
   if (process.platform === 'darwin') {

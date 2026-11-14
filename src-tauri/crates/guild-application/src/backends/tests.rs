@@ -9,14 +9,21 @@ use guild_domain::backend::{
 use parking_lot::Mutex;
 
 use super::BackendService;
-use crate::ports::{AgentRuntime, ImageRuntimeRequest, LaunchSettings, RuntimeError, RuntimeRequest, SettingsStore, UpdateSink};
-use crate::{AppResult};
+use crate::ports::{
+    AgentRuntime, ImageRuntimeRequest, LaunchSettings, RuntimeError, RuntimeRequest, SettingsStore, UpdateSink,
+};
+use crate::AppResult;
 
 #[derive(Default)]
 struct Settings(Mutex<LaunchSettings>);
 impl SettingsStore for Settings {
-    fn load(&self) -> AppResult<LaunchSettings> { Ok(self.0.lock().clone()) }
-    fn save(&self, settings: &LaunchSettings) -> AppResult<()> { *self.0.lock() = settings.clone(); Ok(()) }
+    fn load(&self) -> AppResult<LaunchSettings> {
+        Ok(self.0.lock().clone())
+    }
+    fn save(&self, settings: &LaunchSettings) -> AppResult<()> {
+        *self.0.lock() = settings.clone();
+        Ok(())
+    }
 }
 
 #[derive(Default)]
@@ -137,7 +144,10 @@ async fn redacts_runtime_failures() {
 
 #[tokio::test]
 async fn refresh_returns_probe_failures_to_the_caller() {
-    let service = BackendService::new(Arc::new(Runtime { probe_failure: true, ..Runtime::default() }), Arc::new(Settings::default()));
+    let service = BackendService::new(
+        Arc::new(Runtime { probe_failure: true, ..Runtime::default() }),
+        Arc::new(Settings::default()),
+    );
     let error = service.refresh().await.unwrap_err();
     assert!(matches!(error, crate::error::AppError::Runtime(message) if message.contains("タイムアウト")));
 }

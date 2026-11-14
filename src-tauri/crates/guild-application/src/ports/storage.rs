@@ -1,7 +1,7 @@
 //! データフォルダとマシンごとの設定のポート（保存先の変更・復旧モード・スキルライブラリで使う）。
 
-use std::path::{Path, PathBuf};
 use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
 
 use guild_domain::locale::Language;
 

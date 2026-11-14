@@ -1,15 +1,12 @@
 ﻿import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: vi.fn((_backend: string, envVar: string) => Promise.resolve({ ...process.env, [envVar]: 'saved-api-key' })),
+  apiKeyEnvironment: vi.fn((_backend: string, envVar: string) =>
+    Promise.resolve({ ...process.env, [envVar]: 'saved-api-key' }),
+  ),
 }));
 
-import {
-  backendAuthMode,
-  claudeAuthEnvironment,
-  codexAuthEnvironment,
-  setBackendAuthMode,
-} from './auth-mode.ts';
+import { backendAuthMode, claudeAuthEnvironment, codexAuthEnvironment, setBackendAuthMode } from './auth-mode.ts';
 
 describe('backend authentication mode', () => {
   afterEach(() => {

@@ -38,7 +38,10 @@ impl BackendService {
         let mut settings = self.settings.load()?;
         settings.backend_auth_modes.insert(backend.to_owned(), mode.to_owned());
         self.settings.save(&settings)?;
-        self.runtime.set_backend_auth_mode(backend, mode).await.map_err(|error| AppError::Runtime(error.to_string()))?;
+        self.runtime
+            .set_backend_auth_mode(backend, mode)
+            .await
+            .map_err(|error| AppError::Runtime(error.to_string()))?;
         self.runtime.probe().await.map_err(|error| AppError::Runtime(error.to_string()))
     }
 

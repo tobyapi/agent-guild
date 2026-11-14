@@ -71,8 +71,7 @@ export class Dispatcher {
     else if (request.type === 'apiKey') this.#apiKey(request);
     else if (request.type === 'backendAuthMode') {
       this.#track(request.id, () => applyBackendAuthMode(request.backend, request.mode, () => this.#refreshBackends()));
-    }
-    else if (request.type === 'login') this.#login(request);
+    } else if (request.type === 'login') this.#login(request);
     else if (request.type === 'cancel') this.cancel(request.id);
     else if (request.type === 'setLanguage') {
       // 霑比ｺ九・縺ｪ縺・・ackendInfo 縺ｮ隱ｬ譏趣ｼ育憾諷九・隱ｬ譏弱・遒ｺ縺九ａ縺滓凾轤ｹ縺ｮ險隱槭〒菴懊ｋ・峨ｒ譁ｰ縺励＞險隱槭〒騾√ｊ逶ｴ縺・

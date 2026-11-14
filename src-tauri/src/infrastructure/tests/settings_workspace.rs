@@ -71,7 +71,11 @@ fn backend_auth_modes_round_trip_and_ignore_invalid_values() {
     let config = TempDir::new("auth-modes");
     let path = config.0.join("settings.json");
     let settings = SettingsFile::in_dir(&config.0);
-    fs::write(&path, r#"{"version":1,"backendAuthModes":{"claude":"api","codex":"desktop","grok":"api","muse":"invalid"}}"#).unwrap();
+    fs::write(
+        &path,
+        r#"{"version":1,"backendAuthModes":{"claude":"api","codex":"desktop","grok":"api","muse":"invalid"}}"#,
+    )
+    .unwrap();
     let loaded = settings.load().unwrap();
     assert_eq!(loaded.backend_auth_modes.len(), 2);
     assert_eq!(loaded.backend_auth_modes.get("claude").map(String::as_str), Some("api"));

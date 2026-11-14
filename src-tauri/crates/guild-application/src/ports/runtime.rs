@@ -134,7 +134,9 @@ pub trait AgentRuntime: Send + Sync {
     /// API キーの状態を確かめる・保存する・消す。返すのは状態（保存の有無など）だけで、キーそのものは返さない
     async fn api_key(&self, backend: &str, action: &str, key: Option<&str>) -> Result<String, RuntimeError>;
     /// Change Claude/Codex authentication and refresh backend status.
-    async fn set_backend_auth_mode(&self, _backend: &str, _mode: &str) -> Result<(), RuntimeError> { Ok(()) }
+    async fn set_backend_auth_mode(&self, _backend: &str, _mode: &str) -> Result<(), RuntimeError> {
+        Ok(())
+    }
     /// 表示とエージェントの会話の言語を変える（ランナーが作る文字列の言語。以後の起動にも使う）。
     /// ランナーが使えなくても失敗しない（次の起動で伝わる）。言語を扱わないフェイクは何もしなくてよい
     async fn set_language(&self, _language: Language) {}

@@ -22,7 +22,8 @@ export async function probeCodex(): Promise<BackendProbe> {
       ? { status: 'ready', statusMessage: '' }
       : { status: 'needs_auth', statusMessage: t('needsLoginTerminal') };
   }
-  if (definedEnv(CREDENTIAL_ENVS.filter((name) => name !== 'OPENAI_API_KEY'))) return { status: 'ready', statusMessage: '' };
+  if (definedEnv(CREDENTIAL_ENVS.filter((name) => name !== 'OPENAI_API_KEY')))
+    return { status: 'ready', statusMessage: '' };
   const codexHome = process.env.CODEX_HOME || join(homedir(), '.codex');
   const signedIn = CAN_LOGIN ? await hasCodexLogin(executable) : await fileExists(join(codexHome, 'auth.json'));
   if (signedIn) return { status: 'ready', statusMessage: '' };

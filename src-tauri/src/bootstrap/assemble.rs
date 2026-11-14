@@ -50,7 +50,13 @@ pub fn ready(
     let clock: Arc<dyn Clock> = Arc::new(SystemClock::new());
     let settings_file = SettingsFile::in_dir(&paths.config_dir);
     let auth_modes = settings_file.load()?.backend_auth_modes;
-    let runtime = RunnerRuntime::start(events.clone(), spawner.as_ref(), paths.resource_dir.as_deref(), locale::current(), auth_modes);
+    let runtime = RunnerRuntime::start(
+        events.clone(),
+        spawner.as_ref(),
+        paths.resource_dir.as_deref(),
+        locale::current(),
+        auth_modes,
+    );
     let ports = Ports {
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),

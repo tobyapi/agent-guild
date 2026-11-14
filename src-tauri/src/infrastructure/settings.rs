@@ -91,18 +91,31 @@ impl SettingsStore for SettingsFile {
         if let Some(language) = settings.language {
             object.insert("language".to_owned(), Value::String(language.code().to_owned()));
         }
-        object.insert("backendAuthModes".to_owned(), serde_json::to_value(&settings.backend_auth_modes).map_err(|e| AppError::Storage(e.to_string()))?);
+        object.insert(
+            "backendAuthModes".to_owned(),
+            serde_json::to_value(&settings.backend_auth_modes).map_err(|e| AppError::Storage(e.to_string()))?,
+        );
         self.write(&object).map_err(|e| AppError::Storage(not_saved(&e)))
     }
 }
 
 fn auth_modes_of(object: &Map<String, Value>) -> std::collections::BTreeMap<String, String> {
-    object.get("backendAuthModes").and_then(Value::as_object).map(|modes| {
-        ["claude", "codex"].into_iter().filter_map(|backend| {
-            modes.get(backend).and_then(Value::as_str).filter(|mode| matches!(*mode, "desktop" | "api"))
-                .map(|mode| (backend.to_owned(), mode.to_owned()))
-        }).collect()
-    }).unwrap_or_default()
+    object
+        .get("backendAuthModes")
+        .and_then(Value::as_object)
+        .map(|modes| {
+            ["claude", "codex"]
+                .into_iter()
+                .filter_map(|backend| {
+                    modes
+                        .get(backend)
+                        .and_then(Value::as_str)
+                        .filter(|mode| matches!(*mode, "desktop" | "api"))
+                        .map(|mode| (backend.to_owned(), mode.to_owned()))
+                })
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 fn unreadable(path: &Path, error: &str) -> String {

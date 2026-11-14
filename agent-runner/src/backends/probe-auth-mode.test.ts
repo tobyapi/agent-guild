@@ -1,13 +1,18 @@
 import { afterEach, expect, it, vi } from 'vitest';
 
 vi.mock('./claude/executable.ts', () => ({ findClaude: () => ({ path: 'claude' }), claudeNotFound: () => 'missing' }));
-vi.mock('./codex-runtime/executable.ts', () => ({ findCodex: () => ({ path: 'codex' }), codexNotFound: () => 'missing' }));
+vi.mock('./codex-runtime/executable.ts', () => ({
+  findCodex: () => ({ path: 'codex' }),
+  codexNotFound: () => 'missing',
+}));
 vi.mock('../environment.ts', () => ({ definedEnv: () => false, fileExists: () => Promise.resolve(false) }));
 vi.mock('./claude/login.ts', () => ({ CAN_LOGIN: false, claudeLoginStatus: () => Promise.resolve(false) }));
 vi.mock('./codex/login.ts', () => ({ CAN_LOGIN: false, hasCodexLogin: () => Promise.resolve(false) }));
-vi.mock('../credentials/store.ts', () => ({ apiKeyEnvironment: vi.fn((_backend: string, envVar: string) =>
-  Promise.resolve(process.env[envVar] ? { [envVar]: process.env[envVar] } : {}),
-) }));
+vi.mock('../credentials/store.ts', () => ({
+  apiKeyEnvironment: vi.fn((_backend: string, envVar: string) =>
+    Promise.resolve(process.env[envVar] ? { [envVar]: process.env[envVar] } : {}),
+  ),
+}));
 
 import { setBackendAuthMode } from './auth-mode.ts';
 import { probeClaude } from './claude/probe.ts';

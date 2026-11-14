@@ -17,8 +17,15 @@ export function BackendsSection() {
   const [authModes, setAuthModes] = useState<Record<string, 'desktop' | 'api'>>({});
   useEffect(() => {
     let active = true;
-    void settingsApi.backendAuthModes().then((modes) => { if (active) setAuthModes(modes); }).catch(reportError);
-    return () => { active = false; };
+    void settingsApi
+      .backendAuthModes()
+      .then((modes) => {
+        if (active) setAuthModes(modes);
+      })
+      .catch(reportError);
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function changeAuthMode(backendId: string, mode: 'desktop' | 'api') {
@@ -45,22 +52,32 @@ export function BackendsSection() {
             {backend.setup.install && backend.status === 'unavailable' && (
               <BackendInstallGuide backend={backend} guide={backend.setup.install} />
             )}
-            {(['claude', 'codex'].includes(backend.id)) && (
+            {['claude', 'codex'].includes(backend.id) && (
               <div>
-                <div className={styles.authMode} role="group" aria-label={t('authModeLabel', { backend: backend.label })}>
+                <div
+                  className={styles.authMode}
+                  role="group"
+                  aria-label={t('authModeLabel', { backend: backend.label })}
+                >
                   {(['desktop', 'api'] as const).map((mode) => (
-                    <Button key={mode} size="sm" aria-pressed={(authModes[backend.id] ?? 'desktop') === mode}
-                      onClick={() => void changeAuthMode(backend.id, mode).catch(reportError)}>
+                    <Button
+                      key={mode}
+                      size="sm"
+                      aria-pressed={(authModes[backend.id] ?? 'desktop') === mode}
+                      onClick={() => void changeAuthMode(backend.id, mode).catch(reportError)}
+                    >
                       {t(mode === 'desktop' ? 'authDesktop' : 'authApi')}
                     </Button>
                   ))}
                 </div>
-                {(authModes[backend.id] ?? 'desktop') === 'api' && backend.setup.apiKey &&
-                  <ApiKeySettings backend={backend} envVar={backend.setup.apiKey.envVar} />}
+                {(authModes[backend.id] ?? 'desktop') === 'api' && backend.setup.apiKey && (
+                  <ApiKeySettings backend={backend} envVar={backend.setup.apiKey.envVar} />
+                )}
               </div>
             )}
-            {!['claude', 'codex'].includes(backend.id) && backend.setup.apiKey &&
-              <ApiKeySettings backend={backend} envVar={backend.setup.apiKey.envVar} />}
+            {!['claude', 'codex'].includes(backend.id) && backend.setup.apiKey && (
+              <ApiKeySettings backend={backend} envVar={backend.setup.apiKey.envVar} />
+            )}
           </li>
         ))}
       </ul>

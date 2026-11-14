@@ -1,7 +1,7 @@
 //! RunnerClient・監視タスク・読み取りタスクが共有する状態。
 
-use std::sync::Arc;
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use parking_lot::Mutex;
 use tokio::sync::watch;
@@ -77,8 +77,12 @@ impl Shared {
         *self.language.lock() = language.to_owned();
     }
 
-    pub(crate) fn backend_auth_modes(&self) -> BTreeMap<String, String> { self.backend_auth_modes.lock().clone() }
-    pub(crate) fn set_backend_auth_mode(&self, backend: &str, mode: &str) { self.backend_auth_modes.lock().insert(backend.to_owned(), mode.to_owned()); }
+    pub(crate) fn backend_auth_modes(&self) -> BTreeMap<String, String> {
+        self.backend_auth_modes.lock().clone()
+    }
+    pub(crate) fn set_backend_auth_mode(&self, backend: &str, mode: &str) {
+        self.backend_auth_modes.lock().insert(backend.to_owned(), mode.to_owned());
+    }
 
     /// いまの言語の文言を選ぶ（日本語・英語・簡体字・繁体字・韓国語の順）
     pub(crate) fn pick<T>(&self, texts: [T; 5]) -> T {

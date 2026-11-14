@@ -46,6 +46,7 @@ export const RUNNER_BACKEND_COMMON_MODULES = new Set([
   'executables',
   'skill-files',
   'agent-env',
+  'auth-mode',
   'codex-runtime',
   'folder-scope',
   'tool-paths',

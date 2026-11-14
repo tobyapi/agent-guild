@@ -18,7 +18,10 @@ export async function claudeAuthEnvironment(env: NodeJS.ProcessEnv): Promise<Rec
   if (backendAuthMode('claude') === 'desktop') return withoutSecrets(env, (name) => name !== 'ANTHROPIC_API_KEY');
   const credentials = await apiKeyEnvironment('claude', 'ANTHROPIC_API_KEY');
   if (!credentials.ANTHROPIC_API_KEY?.trim()) throw new Error('Claude API key is required in API mode');
-  return { ...withoutSecrets(env, (name) => name !== 'ANTHROPIC_API_KEY'), ANTHROPIC_API_KEY: credentials.ANTHROPIC_API_KEY };
+  return {
+    ...withoutSecrets(env, (name) => name !== 'ANTHROPIC_API_KEY'),
+    ANTHROPIC_API_KEY: credentials.ANTHROPIC_API_KEY,
+  };
 }
 
 export async function codexAuthEnvironment(env: NodeJS.ProcessEnv): Promise<Record<string, string>> {

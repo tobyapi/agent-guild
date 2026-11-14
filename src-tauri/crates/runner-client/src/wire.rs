@@ -34,7 +34,11 @@ pub(crate) enum Request<'a> {
         #[serde(skip_serializing_if = "Option::is_none")]
         key: Option<&'a str>,
     },
-    BackendAuthMode { id: &'a str, backend: &'a str, mode: &'a str },
+    BackendAuthMode {
+        id: &'a str,
+        backend: &'a str,
+        mode: &'a str,
+    },
     Probe {
         id: &'a str,
     },
