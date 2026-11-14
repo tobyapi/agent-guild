@@ -88,6 +88,12 @@
   writing-mode: vertical-rl;
   width: 100%;
   height: min(70vh, 40em);
+  transform-origin: top right;
+}
+
+.markdown :global(.typeVertical[style*='transform:rotate(']) {
+  width: calc(100% - 5em);
+  margin-right: 5em;
 }
 
 .markdown :global(.typePath) {
