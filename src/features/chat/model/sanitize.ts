@@ -1,6 +1,9 @@
 import DOMPurify from 'dompurify';
 import type { Config } from 'dompurify';
 import { escapeHtml } from '@/shared/lib/html';
+import { installTypographySanitizer } from './typographySanitize';
+
+let typographySanitizerInstalled = false;
 
 const CONFIG: Config = {
   // DOMPurify はこの正規表現を、URL を持つ属性だけでなく「値を問わない」と分かっている属性以外のすべてに当てる
@@ -18,5 +21,9 @@ const CONFIG: Config = {
  */
 export function sanitizeHtml(html: string): string {
   if (!DOMPurify.isSupported) return escapeHtml(html);
+  if (!typographySanitizerInstalled) {
+    installTypographySanitizer();
+    typographySanitizerInstalled = true;
+  }
   return DOMPurify.sanitize(html, CONFIG);
 }

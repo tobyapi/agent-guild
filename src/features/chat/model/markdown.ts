@@ -10,6 +10,7 @@ import { escapeHtml } from '@/shared/lib/html';
 import { matchMentionAt, sortByNameLength } from '@/shared/lib/mentions';
 import type { MentionTarget } from '@/shared/lib/mentions';
 import { codeBlockHtml, mediaHtml } from './markdownEmbeds';
+import { typographyInline, typographyLayout } from './typographyMarkdown';
 import { t } from '../i18n';
 
 /** チップにする相手。kind は data-kind、accent は色（--kind-<accent> の CSS 変数。null なら既定の色） */
@@ -68,7 +69,7 @@ export function createMarkdownRenderer(targets: readonly ChipTarget[]): (markdow
     gfm: true,
     breaks: true,
     async: false,
-    extensions: [mentionExtension(targets)],
+    extensions: [typographyLayout, typographyInline, mentionExtension(targets)],
     renderer: {
       html: ({ text }) => escapeHtml(text),
       link({ href, title, tokens }) {

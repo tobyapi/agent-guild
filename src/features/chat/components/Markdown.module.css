@@ -66,6 +66,37 @@
   font-variant-numeric: tabular-nums;
 }
 
+.markdown :global(.typeText),
+.markdown :global(.typeChar) {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.markdown :global(.typeChars) {
+  white-space: pre;
+}
+
+.markdown :global(.typeLayout) {
+  white-space: pre;
+  overflow: auto;
+  overflow-wrap: normal;
+  max-inline-size: 100%;
+  transform-origin: center;
+}
+
+.markdown :global(.typeVertical) {
+  writing-mode: vertical-rl;
+  width: 100%;
+  height: min(70vh, 40em);
+}
+
+.markdown :global(.typePath) {
+  display: inline-block;
+  width: min(100%, 30em);
+  height: 6em;
+  vertical-align: middle;
+}
+
 /* メンションのチップ: 色は相手の先頭のタグのテンプレートの accent（チップの style で --tag-fg / --tag-bg を渡す）。
    自分宛ては人間の色。色の決まらない相手・削除済み・不明は既定の色（中立） */
 .markdown :global(.mention) {

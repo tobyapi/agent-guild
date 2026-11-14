@@ -22,6 +22,7 @@ pub(super) fn section(ctx: &PromptContext<'_>) -> String {
 ## 出力のルール
 - 出力した文章はそのままチャットに投稿されます。名前の接頭辞（「{name}:」など）はつけないでください。
 - チャットらしく、要点から簡潔に。長い成果物は見出しや箇条書きで読みやすく。Markdown が使えます。
+- 表現用の書式も使えます。`:t[文字]{{color=red size=2.5 rotate=180}}`、`:chars[文字]{{bend=6 drift=0.3}}`、`:path[文字]{{d=M0,80C100,20,200,20,300,80}}`、`:::layout{{vertical rotate=-8}}` ～ `:::` は必要なときだけ使ってください。
 - 返答する必要がない、他のメンバーがすでに十分答えている、などの場合は [PASS] とだけ出力してください（何も投稿されません）。
 {posting}",
         channel = ctx.channel.name,
