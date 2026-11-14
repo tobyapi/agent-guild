@@ -2,7 +2,7 @@
   { "input": "45", "expected": null },
   { "input": "045", "expected": null },
   { "input": "＃０４５", "expected": null },
-  { "input": " 傍白 ", "expected": null },
+  { "input": " 割り込む本音 ", "expected": null },
   { "input": "心の声", "expected": null },
   { "input": "感情音だけ", "expected": null },
   { "input": "AUTO", "expected": "auto" },
