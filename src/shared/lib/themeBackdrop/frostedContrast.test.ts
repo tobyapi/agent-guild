@@ -18,14 +18,14 @@ const saturate = (rgb: number[]) => {
 
 describe('full-window frosted veil', () => {
   for (const scheme of ['dark', 'light'] as const) {
-    for (const asset of ['tile-turtle', 'dawn', 'night', 'aurora']) {
+    for (const asset of ['tile-turtle']) {
       it(`${scheme}/${asset} bounds every blurred pixel, saturation and floating card at AA`, () => {
         const block =
           scheme === 'dark' ? css.split('}')[0]! : css.split(":root[data-theme='light']")[1]!.split('}')[0]!;
         const alpha = Number(block.match(/--glass-veil-weight: ([\d.]+)%;/)![1]) / 100;
         const hex = block.match(/--glass-veil-color: #([\da-f]{6});/)![1]!;
         const veil = hex.match(/../g)!.map((c) => parseInt(c, 16) / 255);
-        // Blur is a convex average. All RGB, including every aurora frame, is
+        // Blur is a convex average. All RGB, including every turtle pixel, is
         // enclosed by these corners. Recheck saturation of the already veiled
         // screen for floating cards, including half an 8-bit step of rounding.
         const corners = Array.from({ length: 8 }, (_, mask) =>
@@ -48,7 +48,7 @@ describe('full-window frosted veil', () => {
                 ? (inkLow + 0.05) / (luminance(high) + 0.05)
                 : (luminance(low) + 0.05) / (inkHigh + 0.05);
             worst = Math.min(worst, ratio);
-            // Cards retain 4.6 even on legacy assets whose pane threshold is 4.5.
+            // Retain the 4.6 minimum for every resolved text row.
             expect(ratio, `${unit.name}/${row.name}`).toBeGreaterThanOrEqual(4.6);
           }
         }

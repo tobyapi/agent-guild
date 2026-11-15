@@ -35,19 +35,6 @@
 .preview[data-scheme='system'] {
   background: linear-gradient(90deg, var(--theme-preview-dark) 50%, var(--theme-preview-light) 50%);
 }
-.preview[data-art='dawn'] {
-  background-image: url('../../../shared/ui/theme/assets/dawn.svg');
-}
-.preview[data-art='night'],
-.preview[data-art='aurora'] {
-  background-image: url('../../../shared/ui/theme/assets/night.svg');
-}
-.preview[data-art='aurora']::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--backdrop-aurora);
-}
 .preview > svg {
   inline-size: 100%;
   block-size: 100%;

@@ -194,4 +194,4 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
-背景定義はデータだけ。shared/theme の登録 ID で自作同梱 SVG（dawn/night）と CSS scene（aurora）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、null はテーマ既定（guild は none）、未登録 ID は背景だけ none。背景と motion は新 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
+背景定義はデータだけ。shared/theme の登録 ID で生成背景（ウミガメ）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、null はテーマ既定（guild は none）、未登録 ID は背景だけ none。背景と motion は新 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。

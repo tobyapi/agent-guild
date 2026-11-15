@@ -6,9 +6,6 @@ export const themeCards = [
   { id: 'guild-light', themeId: 'guild', scheme: 'light', background: { kind: 'none' } },
   { id: 'guild-system', themeId: 'guild', scheme: 'system', background: { kind: 'none' } },
   { id: 'turtle', themeId: 'turtle', scheme: 'light', background: { kind: 'generated', presetId: 'tile-turtle' } },
-  { id: 'dawn', themeId: 'dawn', scheme: 'light', background: { kind: 'image', assetId: 'dawn' } },
-  { id: 'night', themeId: 'night', scheme: 'dark', background: { kind: 'image', assetId: 'night' } },
-  { id: 'aurora', themeId: 'aurora', scheme: 'dark', background: { kind: 'scene', sceneId: 'aurora' } },
 ] as const satisfies ReadonlyArray<{
   id: string;
   themeId: string;

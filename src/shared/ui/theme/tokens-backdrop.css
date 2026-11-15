@@ -7,10 +7,6 @@
   --scrim-chat: 89%;
   --scrim-sidebar: 89%;
   --scrim-members: 89%;
-  --backdrop-duration: 24s;
-  --backdrop-aurora:
-    radial-gradient(ellipse at 30% 30%, #30dcb5c0, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, #a18affb0, transparent 60%);
   --backdrop-state-ink: #c8d2ff;
   --backdrop-active-weight: 9%;
   --backdrop-overlay: #06080c;
@@ -25,7 +21,7 @@
   --backdrop-overlay: #1c180e;
 }
 
-/* Reserved for the generated palette; legacy images/scenes keep their original density. */
+/* Generated background palette. */
 :root[data-background-source='generated'] {
   --scrim-chat: calc(220 / 255 * 100%);
   --scrim-sidebar: calc(211 / 255 * 100%);

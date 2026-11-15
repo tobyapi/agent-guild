@@ -61,9 +61,9 @@ describe('appearance lifecycle', () => {
       backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'image', assetId: 'dawn' } });
-    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'image' });
+    expect(h.root.hasAttribute('data-background')).toBe(false);
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'scene', sceneId: 'aurora' } });
-    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'scene' });
+    expect(h.root.hasAttribute('data-background-source')).toBe(false);
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'none' } });
     expect(h.root.hasAttribute('data-background')).toBe(false);
     expect(h.root.hasAttribute('data-background-source')).toBe(false);
@@ -145,7 +145,7 @@ it('switches the effective material with the OS, retains both choices and disabl
   const preference = {
     ...defaultAppearance(),
     schemePreference: 'system' as const,
-    backgroundOverride: { kind: 'image' as const, assetId: 'night' },
+    backgroundOverride: { kind: 'generated' as const, presetId: 'tile-turtle' },
     glass: { dark: 'liquid' as const, light: 'frosted' as const },
   };
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });

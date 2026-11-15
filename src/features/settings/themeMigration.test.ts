@@ -37,9 +37,11 @@ it.each(
     const expected = {
       ...legacy,
       version: 2,
-      themeId,
+      themeId: ['dawn', 'night', 'aurora'].includes(themeId) ? 'guild' : themeId,
       schemePreference: fixed ?? scheme,
-      backgroundOverride: background ?? { kind: 'none' },
+      backgroundOverride: ['dawn', 'night', 'aurora'].includes(themeId)
+        ? { kind: 'none' }
+        : (background ?? { kind: 'none' }),
     };
     expect(h.controller.store.getState().preference).toEqual(expected);
     expect(JSON.parse(h.values.get(KEY)!)).toEqual(expected);
@@ -80,11 +82,12 @@ it('canonicalizes old independent overrides on an art theme', () => {
   h.query.matches = true;
   h.controller.init();
   expect(h.controller.store.getState().preference).toMatchObject({
-    themeId: 'night',
+    themeId: 'guild',
     schemePreference: 'dark',
-    backgroundOverride: { kind: 'image', assetId: 'night' },
+    backgroundOverride: { kind: 'none' },
   });
-  expect(h.root.dataset).toMatchObject({ theme: 'dark', backgroundSource: 'image' });
+  expect(h.root.dataset.theme).toBe('dark');
+  expect(h.root.hasAttribute('data-background-source')).toBe(false);
 });
 
 it.each(themeCards)('migrates the saved v1 card $id without modifying any old key', (card) => {
@@ -113,13 +116,68 @@ it.each(themeCards)('migrates the saved v1 card $id without modifying any old ke
 it('never reapplies the v1 art priority to a v2 independent selection', () => {
   const preference = {
     ...defaultAppearance(),
-    themeId: 'night',
-    schemePreference: 'light' as const,
-    backgroundOverride: { kind: 'image' as const, assetId: 'dawn' },
+    themeId: 'turtle',
+    schemePreference: 'dark' as const,
+    backgroundOverride: { kind: 'none' as const },
   };
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
   h.controller.init();
   expect(h.controller.store.getState().preference).toEqual(preference);
-  expect(h.root.dataset).toMatchObject({ theme: 'light', backgroundSource: 'image' });
+  expect(h.root.dataset.theme).toBe('dark');
+  expect(h.root.hasAttribute('data-background-source')).toBe(false);
   expect(h.storage.setItem).not.toHaveBeenCalled();
 });
+
+it.each(
+  (['dark', 'light', 'system'] as const).flatMap((schemePreference) =>
+    backgrounds
+      .slice(2, 5)
+      .flatMap(([backgroundOverride, retiredId]) =>
+        ['guild', retiredId].map((themeId) => ({ schemePreference, backgroundOverride, themeId })),
+      ),
+  ),
+)('clears retired v2 $themeId/$schemePreference without losing independent preferences', (selection) => {
+  const preference = {
+    ...defaultAppearance(),
+    ...selection,
+    glass: { dark: 'liquid' as const, light: 'frosted' as const },
+    accentOverride: 'sky' as const,
+    motionPreference: 'off' as const,
+  };
+  const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
+  h.controller.init();
+  expect(h.controller.store.getState().preference).toEqual({
+    ...preference,
+    themeId: 'guild',
+    backgroundOverride: { kind: 'none' },
+  });
+  expect(JSON.parse(h.values.get(KEY)!)).toEqual(h.controller.store.getState().preference);
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  expect(h.root.hasAttribute('data-background')).toBe(false);
+});
+
+it.each(backgrounds.slice(2, 5))(
+  'migrates retired v1 card %j with its original scheme',
+  (background, themeId, scheme) => {
+    const legacy = {
+      ...defaultAppearance(),
+      version: 1,
+      themeId,
+      schemePreference: 'system',
+      backgroundOverride: background,
+    };
+    const stored = JSON.stringify(legacy);
+    const h = appearanceHarness({ [OLD]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
+    h.controller.init();
+    expect(h.controller.store.getState().preference).toMatchObject({
+      version: 2,
+      themeId: 'guild',
+      schemePreference: scheme,
+      backgroundOverride: { kind: 'none' },
+    });
+    expect(h.values.get(OLD)).toBe(stored);
+    expect(h.values.get(THEME)).toBe('light');
+    expect(h.values.get(ACCENT)).toBe('sky');
+    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  },
+);

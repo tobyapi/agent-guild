@@ -8,46 +8,6 @@
   background-size: cover;
 }
 
-.backdrop[data-asset='dawn'] {
-  background-image: url('./assets/dawn.svg');
-}
-
-.backdrop[data-asset='night'] {
-  background-image: url('./assets/night.svg');
-}
-
-.backdrop[data-scene='aurora'] {
-  background-image: url('./assets/night.svg');
-}
-
-.backdrop[data-scene='aurora']::after {
-  position: absolute;
-  inset: -25%;
-  background: var(--backdrop-aurora);
-  content: '';
-  animation: aurora var(--backdrop-duration) ease-in-out infinite alternate;
-  animation-play-state: paused;
-}
-
-.backdrop[data-scene='aurora'][data-running='true']::after {
-  animation-play-state: running;
-}
-
-@keyframes aurora {
-  from {
-    transform: translate(-8%, -5%) rotate(-8deg);
-  }
-  to {
-    transform: translate(8%, 5%) rotate(8deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .backdrop[data-scene='aurora'][data-running='true']::after {
-    animation-play-state: paused;
-  }
-}
-
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
     :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .backdrop {

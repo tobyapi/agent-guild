@@ -15,9 +15,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function parseAppearance(stored: string, registry: ThemeRegistry): AppearancePreference {
-  const value: unknown = JSON.parse(stored);
-  if (!isRecord(value) || (value.version !== 1 && value.version !== 2))
+  const parsed: unknown = JSON.parse(stored);
+  if (!isRecord(parsed) || (parsed.version !== 1 && parsed.version !== 2))
     throw new AppearanceValidationError('unsupported appearance version');
+  const value = migrateRetiredBackground(parsed);
   validateFields(value, registry);
   const background = parseBackground(value.backgroundOverride);
   const preference: AppearancePreference = {
@@ -30,6 +31,22 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
     motionPreference: value.motionPreference,
   };
   return value.version === 1 ? unifyAppearance(preference) : preference;
+}
+
+/** Keep retired v1/v2 selections readable until those storage versions are retired. */
+function migrateRetiredBackground(value: Record<string, unknown>): Record<string, unknown> {
+  const retired = ['dawn', 'night', 'aurora'];
+  const theme = retired.includes(String(value.themeId)) ? String(value.themeId) : null;
+  const background = isRecord(value.backgroundOverride) ? value.backgroundOverride : {};
+  const id = background.kind === 'image' ? background.assetId : background.sceneId;
+  const legacy = theme ?? (value.themeId === 'guild' && retired.includes(String(id)) ? String(id) : null);
+  return {
+    ...value,
+    themeId: theme ? 'guild' : value.themeId,
+    ...(value.version === 1 && legacy
+      ? { schemePreference: legacy === 'dawn' ? 'light' : 'dark', backgroundOverride: { kind: 'none' } }
+      : {}),
+  };
 }
 
 function validateFields(

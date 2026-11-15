@@ -13,9 +13,6 @@ const labels = {
   'guild-light': 'themeGuildLight',
   'guild-system': 'themeGuildSystem',
   turtle: 'themeTurtle',
-  dawn: 'themeDawn',
-  night: 'themeNight',
-  aurora: 'themeAurora',
 } as const;
 
 function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {

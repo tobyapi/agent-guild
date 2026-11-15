@@ -2473,12 +2473,7 @@
     },
     {
       "file": "src/features/settings/components/ThemePicker.module.css",
-      "line": 49,
-      "expression": "background: var(--backdrop-aurora);"
-    },
-    {
-      "file": "src/features/settings/components/ThemePicker.module.css",
-      "line": 61,
+      "line": 48,
       "expression": "background: linear-gradient(90deg, transparent 23%, var(--glass-edge) 23%, var(--glass-edge) 24%, transparent 24%);"
     },
     {
@@ -3583,12 +3578,7 @@
     },
     {
       "file": "src/shared/ui/theme/ThemeBackdrop.module.css",
-      "line": 26,
-      "expression": "background: var(--backdrop-aurora);"
-    },
-    {
-      "file": "src/shared/ui/theme/ThemeBackdrop.module.css",
-      "line": 53,
+      "line": 13,
       "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .backdrop {"
     },
     {
@@ -4354,121 +4344,111 @@
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 10,
-      "expression": "--backdrop-duration: 24s;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 11,
-      "expression": "--backdrop-aurora:"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 14,
       "expression": "--backdrop-state-ink: #c8d2ff;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 15,
+      "line": 11,
       "expression": "--backdrop-active-weight: 9%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 16,
+      "line": 12,
       "expression": "--backdrop-overlay: #06080c;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 20,
+      "line": 16,
       "expression": "--scrim-chat: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 21,
+      "line": 17,
       "expression": "--scrim-sidebar: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 22,
+      "line": 18,
       "expression": "--scrim-members: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 23,
+      "line": 19,
       "expression": "--backdrop-state-ink: #282414;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 24,
+      "line": 20,
       "expression": "--backdrop-active-weight: 8%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 25,
+      "line": 21,
       "expression": "--backdrop-overlay: #1c180e;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 30,
+      "line": 26,
       "expression": "--scrim-chat: calc(220 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 31,
+      "line": 27,
       "expression": "--scrim-sidebar: calc(211 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 32,
+      "line": 28,
       "expression": "--scrim-members: calc(214 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 36,
+      "line": 32,
       "expression": "--scrim-chat: calc(217 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 37,
+      "line": 33,
       "expression": "--scrim-sidebar: calc(231 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 38,
+      "line": 34,
       "expression": "--scrim-members: calc(224 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 41,
+      "line": 37,
       "expression": ":root[data-background='active'] {"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 42,
+      "line": 38,
       "expression": "--surface-chat: var(--bg-app);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 43,
+      "line": 39,
       "expression": "--surface-sidebar: var(--bg-sidebar);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 44,
+      "line": 40,
       "expression": "--surface-members: var(--bg-panel);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 45,
+      "line": 41,
       "expression": "--bg-hover: color-mix(in srgb, var(--backdrop-state-ink) 5%, var(--bg-app));"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 46,
+      "line": 42,
       "expression": "--bg-active: color-mix(in srgb, var(--backdrop-state-ink) var(--backdrop-active-weight), var(--bg-app));"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 47,
+      "line": 43,
       "expression": "--bg-overlay: var(--backdrop-overlay);"
     },
     {

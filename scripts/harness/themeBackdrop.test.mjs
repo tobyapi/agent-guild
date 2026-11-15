@@ -17,7 +17,7 @@ test('surfaces default to opaque and only become transparent inside the glass gu
   assert.ok(glass.includes('(forced-colors: active)'));
 });
 
-test('state faces stay opaque and the actual animation is paused unless explicitly running', () => {
+test('state faces stay opaque and retired decoration stays absent', () => {
   assert.ok(tokens.includes('--bg-hover: color-mix(in srgb, var(--backdrop-state-ink) 5%, var(--bg-app));'));
   assert.ok(
     tokens.includes(
@@ -28,8 +28,6 @@ test('state faces stay opaque and the actual animation is paused unless explicit
   for (const name of ['input', 'sunken', 'elevated']) assert.ok(!tokens.includes(`--bg-${name}:`));
   const css = read('src/shared/ui/theme/ThemeBackdrop.module.css');
   assert.ok(css.includes('pointer-events: none;'));
-  assert.ok(css.includes('animation-play-state: paused;'));
-  assert.ok(css.includes("[data-running='true']::after"));
-  assert.ok(css.includes('@media (prefers-reduced-motion: reduce)'));
+  assert.doesNotMatch(css, /data-asset|data-scene|@keyframes|animation:/);
   assert.doesNotMatch(css, /opacity\s*:|z-index:\s*-/);
 });
