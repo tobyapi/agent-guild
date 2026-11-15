@@ -28,6 +28,7 @@ mod skill_file;
 mod skill_library;
 mod support;
 mod tasks;
+mod theme_backdrop_json;
 mod values;
 
 mod voice;
