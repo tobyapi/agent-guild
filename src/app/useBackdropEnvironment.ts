@@ -1,12 +1,21 @@
 import { useSyncExternalStore } from 'react';
 
 function subscribe(update: () => void) {
-  const observer = new MutationObserver(update);
+  let frame: number | null = null;
+  const schedule = () => {
+    if (frame !== null) return;
+    frame = requestAnimationFrame(() => {
+      frame = null;
+      update();
+    });
+  };
+  const observer = new MutationObserver(schedule);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  window.addEventListener('resize', update);
+  window.addEventListener('resize', schedule);
   return () => {
+    if (frame !== null) cancelAnimationFrame(frame);
     observer.disconnect();
-    window.removeEventListener('resize', update);
+    window.removeEventListener('resize', schedule);
   };
 }
 
