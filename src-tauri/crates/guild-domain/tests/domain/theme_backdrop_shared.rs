@@ -6,23 +6,28 @@ use serde_json::{json, Value};
 
 fn fixture(name: &str) -> Vec<Value> {
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../contracts/behavior").join(name);
-    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    serde_json::from_str(&text).unwrap_or_else(|e| panic!("{name}: {e}"))
 }
 
 fn recipe(name: &Value) -> Value {
-    fixture("theme-backdrop-recipe.json").into_iter().find(|v| &v["name"] == name).unwrap()["input"].clone()
+    fixture("theme-backdrop-recipe.json")
+        .into_iter()
+        .find(|v| &v["name"] == name)
+        .unwrap_or_else(|| panic!("missing recipe {name}"))["input"]
+        .clone()
 }
 
 fn rgb(value: &Value) -> [f64; 3] {
-    serde_json::from_value(value.clone()).unwrap()
+    serde_json::from_value(value.clone()).unwrap_or_else(|e| panic!("invalid RGB {value}: {e}"))
 }
 
 fn cost(value: &Value) -> DrawingCost {
     DrawingCost {
-        primitives: value["primitives"].as_u64().unwrap(),
-        dom: value["dom"].as_u64().unwrap(),
-        definitions: value["definitions"].as_u64().unwrap(),
-        moving_groups: value["movingGroups"].as_u64().unwrap(),
+        primitives: value["primitives"].as_u64().unwrap_or_else(|| panic!("invalid cost {value}")),
+        dom: value["dom"].as_u64().unwrap_or_else(|| panic!("invalid cost {value}")),
+        definitions: value["definitions"].as_u64().unwrap_or_else(|| panic!("invalid cost {value}")),
+        moving_groups: value["movingGroups"].as_u64().unwrap_or_else(|| panic!("invalid cost {value}")),
     }
 }
 
