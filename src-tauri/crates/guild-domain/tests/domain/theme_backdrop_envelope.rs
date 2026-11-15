@@ -69,7 +69,7 @@ fn red_green_midpoint_is_inside_box_and_darker_than_either_endpoint() {
     assert!((luminance - 0.198587).abs() < 0.000001);
     assert!(luminance < 0.2126 && luminance < 0.7152);
     // A background equal to the text must not pass at alpha zero.
-    assert!(alpha(envelope, [1.0; 3], midpoint) > 0.0);
+    assert!(alpha(envelope, [0.0; 3], midpoint) > 0.0);
 }
 
 #[test]
