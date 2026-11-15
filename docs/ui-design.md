@@ -715,10 +715,10 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 ### 独立した外観設定（v2）
 
-明るさ（dark/light/system）、背景（なし）、明るさ別のガラスの種類（frosted/liquid）を独立して設定する。アクセントと背景の動きは保持する。背景変更で明るさを書き換えない。背景カードは静止プレビューで、矢印・Home・Endキーでも選べる。明るさとガラスのセグメントは矢印キーで選べる。
+明るさ（dark/light/system）と背景を独立して設定する。アクセントと背景の動きは保持する。背景変更で明るさを書き換えない。背景カードは静止プレビューで、矢印・Home・Endキーでも選べる。明るさのセグメントは矢印キーで選べる。ぼかしの設定は保存せず、設定画面にも表示しない。
 
 `agent-guild.appearance.v2` に version 2 と dark/light 各ガラス（初期値frosted）を保存する。v2がなければ旧v1、次に旧明暗・アクセントキーから移行する。旧キーは書き換え・削除しない。v1の登録済み絵テーマを優先する規則は移行時に一度だけ適用し、その後は明るさと背景を結び直さない。旧guildの明暗は背景なしなら維持し、ウミガメと朝の丘はlight、夜とオーロラはdarkへ移行する。未知の背景IDはnone、不正な設定はguild/systemへ復旧する。
 
-解決したガラスの種類はrootの `data-glass`（frosted/liquid/none）へ反映する。systemのOS明暗変化でdark/lightのガラスも切り替わる。背景なしではnoneとし、選んだガラス自体は保持する。①aでは描画CSS・11eのblurと保護濃度を変更しない。手元画像、全面ガラス、Codex生成は後続の作業。
+rootの `data-glass` は背景画像があればfrosted、なければnoneに自動解決する。明暗やOSの変更でこの判定は変わらない。透明効果の抑制・強制配色・非対応環境のフォールバックを保つ。覆いの濃さはダーク74%／ライト80%とし、ガラスの上の文字色とコントラスト下限4.6を保つ。旧v2のglassは欠落・不正な値も含めて読み取り時に無視し、書き込みには含めない。
 
-Retired bundled backgrounds (including tile-turtle) resolve to none. V2 keeps scheme, glass, accent and motion. V1 retains the original art scheme once; old storage keys remain read-only.
+Retired bundled backgrounds (including tile-turtle) resolve to none. V2 keeps scheme, accent and motion. V1 retains the original art scheme once; old storage keys remain read-only.
