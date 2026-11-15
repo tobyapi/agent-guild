@@ -43,3 +43,5 @@
 `behavior/role-permissions.json` は、役割で決まる権限（`permissions`。同じ役割ならどのバックエンドでも同じ）と、そのバックエンドで実際に使える操作（`usable`。権限の部分集合）の共有実例。Rust の保存・実行、ランナーの絞り込み、TypeScript の編集画面で同じ結果を検査する。
 
 `behavior/channel-workspaces.json` は旧 shared・folder・global の保存値と、読み込み後に返す shared の形の実例。Rust の契約・SQLite 読み込みテストと TypeScript の IPC 検証で照合する。
+
+Stage 3b Recipe reader/cost/color shared examples: [behavior/theme-backdrop-calculations.md](behavior/theme-backdrop-calculations.md) (`theme-backdrop-raw.json`, `theme-backdrop-cost.json`, `theme-backdrop-color.json`).

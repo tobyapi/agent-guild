@@ -130,3 +130,7 @@ foreground/background の相関を捨てた区間で最悪値を取るため、R
 The raw reader preserves Rust's 32768-byte and depth-8 limits, decoded duplicate-key detection, malformed JSON rejection, and rejection of unpaired UTF-16 surrogates. Structure/catalog order and all 18 shared examples match Rust. TS numbers use saturating accumulation at `Number.MAX_SAFE_INTEGER`, safely above all drawing budgets; this preserves budget rejection without integer overflow. Expansion counts must be nonnegative integers, while periods and viewport dimensions must be positive finite numbers.
 
 Reader tests cover shared examples and input immutability, syntax boundaries, all 220 catalog combinations (32 accepted), pattern counts, shadow/underlay boxes, midpoint containment, state overlays, opaque fallback thresholds, and the same six-recipe alpha values used in Rust tests. These are synthetic calculation inputs, not proof about rendered components. Stage 3b may extend cross-language fixtures; no new shared fixture format, UI, persistence, or drawing-component connection is introduced here.
+
+## Stage 3b: shared reader and calculation examples
+
+See [theme-backdrop-calculations.md](theme-backdrop-calculations.md) for the raw JSON, area/cost and color-envelope fixtures consumed by both Rust and TS. Values formerly duplicated in language-specific tests now live in these shared files. Existing six valid and twelve invalid Recipe cases are unchanged.
