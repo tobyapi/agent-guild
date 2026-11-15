@@ -10,3 +10,5 @@ export type { Rgba, TextState, Protection } from './protection';
 export { buildBackdropSkeleton } from './skeleton';
 export type { BackdropLayer, SvgLayerFrame, BackdropSkeleton } from './skeleton';
 export type { BackdropAnchor, PlacementRect } from './placement';
+export type { BackdropGeometry, BackdropClip } from './clipping';
+export type { ArtworkFrame } from './artwork';

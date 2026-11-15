@@ -28,8 +28,8 @@ describe('Backdrop SVG skeleton', () => {
     expect(input).toEqual(before);
     expect(first.svg.viewBox).toEqual([0, 0, 1000, 1000]);
     expect(first.svg.ariaHidden).toBe(true);
-    expect(first.cost.dom).toBe(1 + input.layers.length);
-    expect(first.cost.primitives).toBe(0);
+    expect(first.cost.dom).toBe(7 + 3 * input.layers.length);
+    expect(first.cost.primitives).toBe(4);
   });
 
   it('changes only placement when seed changes, without global random or time', () => {
@@ -41,9 +41,9 @@ describe('Backdrop SVG skeleton', () => {
       ...skeleton,
       svg: {
         ...skeleton.svg,
-        children: skeleton.svg.children.map(({ frame, transform, ...layer }) => {
+        children: skeleton.svg.children.map(({ frame, transform, artwork, ...layer }) => {
           expect(transform).toBe(`translate(${frame.x} ${frame.y})`);
-          return layer;
+          return { ...layer, artwork: { ...artwork, motionEnvelope: undefined } };
         }),
       },
     });
@@ -84,7 +84,7 @@ describe('Backdrop SVG skeleton', () => {
     const result = buildBackdropSkeleton(input);
     expect(result.svg.children.map((group) => group.layer)).toEqual(input.layers);
     expect(result.svg.children.map((group) => group.index)).toEqual([0, 1, 2]);
-    expect(result.cost).toEqual({ primitives: 0, dom: 4, definitions: 0, movingGroups: 2 });
+    expect(result.cost).toEqual({ primitives: 4, dom: 16, definitions: 1, movingGroups: 2 });
     input.layers[2] = { ...input.layers[0]! };
     expect(() => buildBackdropSkeleton(input)).toThrow(expect.objectContaining({ code: 'motion_budget_exceeded' }));
   });

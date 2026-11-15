@@ -40,8 +40,8 @@ describe('SVG skeleton cost connection', () => {
       { ...input.base, dom: input.base.dom + 1 },
       result.expansions,
     );
-    expect(fixtureTotal).toEqual({ ...expected.cost, dom: expected.cost!.dom + 1 + value.layers.length });
-    expect(result.cost.primitives).toBe(expected.cost!.primitives - input.base.primitives);
+    expect(fixtureTotal).toEqual({ ...expected.cost, dom: expected.cost!.dom + 1 + 3 * value.layers.length });
+    expect(result.cost.primitives).toBe(expected.cost!.primitives - input.base.primitives + 4);
     expect(result.cost).toEqual(validateRecipeCost(value, [1000, 1000], result.baseCost, result.expansions));
     expect(content).toEqual(before);
     result.expansions[0]!.cost.dom = 0;
