@@ -134,3 +134,7 @@ Reader tests cover shared examples and input immutability, syntax boundaries, al
 ## Stage 3b: shared reader and calculation examples
 
 See [theme-backdrop-calculations.md](theme-backdrop-calculations.md) for the raw JSON, area/cost and color-envelope fixtures consumed by both Rust and TS. Values formerly duplicated in language-specific tests now live in these shared files. Existing six valid and twelve invalid Recipe cases are unchanged.
+
+## Stage 4a: SVG skeleton and seed
+
+See [theme-backdrop-skeleton.md](theme-backdrop-skeleton.md) for the pure SVG descriptor API, normalized anchor frames, deterministic seed algorithm and shell/component cost connection. Artwork, protection clips and UI integration remain outside this stage.
