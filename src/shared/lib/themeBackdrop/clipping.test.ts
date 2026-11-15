@@ -24,7 +24,16 @@ describe('fixed protection clip and physical artwork bounds', () => {
           for (const motion of ['none', 'drift', 'sway'] as const) {
             const input = structuredClone(valid[0]!.input);
             input.seed = seed;
-            input.layers = [{ ...input.layers[0]!, kind: 'paper', motif: 'wave', anchor, scale, motion }];
+            input.layers = [
+              {
+                ...input.layers[0]!,
+                kind: 'paper',
+                motif: motion === 'sway' ? 'seaweed' : 'wave',
+                anchor,
+                scale,
+                motion,
+              },
+            ];
             const result = buildBackdropSkeleton(input, undefined, { viewport });
             const group = result.svg.children[0]!;
             const box = group.artwork.motionEnvelope;
@@ -45,6 +54,34 @@ describe('fixed protection clip and physical artwork bounds', () => {
       }
     }
     expect(checked).toBe(144);
+  });
+
+  it('contains physically rotated corners at boundary and intermediate sway angles', () => {
+    const input = structuredClone(valid[0]!.input);
+    input.layers = [{ ...input.layers[0]!, kind: 'paper', motif: 'seaweed', motion: 'sway' }];
+    for (const viewport of viewports) {
+      const group = buildBackdropSkeleton(input, undefined, { viewport }).svg.children[0]!;
+      const art = group.artwork;
+      const envelope = art.motionEnvelope;
+      for (const degrees of [-2, -1, 0, 1, 2]) {
+        const t = (degrees * Math.PI) / 180;
+        const [b, c] = art.motion.swayMatrixScale;
+        for (const u of [-0.5, 0.5]) {
+          for (const v of [-0.5, 0.5]) {
+            const x = u * art.bounds.width;
+            const y = v * art.bounds.height;
+            const rx = Math.cos(t) * x - c * Math.sin(t) * y;
+            const ry = b * Math.sin(t) * x + Math.cos(t) * y;
+            expect(Math.abs(rx) * 2).toBeLessThanOrEqual(envelope.width + 1e-10);
+            expect(Math.abs(ry) * 2).toBeLessThanOrEqual(envelope.height + 1e-10);
+            expect(Math.hypot(rx * viewport[0], ry * viewport[1])).toBeCloseTo(
+              Math.hypot(x * viewport[0], y * viewport[1]),
+              8,
+            );
+          }
+        }
+      }
+    }
   });
 
   it('applies a stationary shared clip to every layer, excluding overlapping text regions', () => {
@@ -88,6 +125,17 @@ describe('fixed protection clip and physical artwork bounds', () => {
     });
     expect(covered.svg.defs.clip.rectangles).toEqual([]);
     expect(covered.baseCost).toEqual({ primitives: 0, dom: 3, definitions: 1, movingGroups: 0 });
+  });
+
+  it('counts protection definitions before enforcing the existing budget', () => {
+    expect(() =>
+      buildBackdropSkeleton(valid[0]!.input, [
+        {
+          cost: { primitives: 0, dom: 0, definitions: 32, movingGroups: 0 },
+          patterns: [],
+        },
+      ]),
+    ).toThrow(expect.objectContaining({ code: 'definition_budget_exceeded' }));
   });
 
   it('rejects invalid app geometry and insufficient space for drift', () => {
