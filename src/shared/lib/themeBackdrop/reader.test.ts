@@ -37,8 +37,8 @@ describe('Recipe reader: Rust contract', () => {
   it('accepts exact byte/depth boundaries and escaped strings', () => {
     expect(parseRecipeJson(' '.repeat(32766) + '{}')).toEqual({});
     expect(parseRecipeJson('['.repeat(8) + ']'.repeat(8))).toEqual([[[[[[[[]]]]]]]]);
-    expect(parseRecipeJson('{"a":"a\\\"b","emoji":"\\ud83d\\ude00"}')).toEqual({ a: 'a"b', emoji: '😀' });
-    expect(diagnostics(() => parseRecipeJson('"' + 'あ'.repeat(10923) + '"'))[0].code).toBe('input_too_large');
+    expect(parseRecipeJson('{"a":"a\\u0022b","emoji":"\\ud83d\\ude00"}')).toEqual({ a: 'a"b', emoji: '😀' });
+    expect(diagnostics(() => parseRecipeJson('"' + 'あ'.repeat(10923) + '"'))[0]!.code).toBe('input_too_large');
   });
 
   it('fixes numeric, title, required and safe parent diagnostics', () => {
@@ -50,15 +50,15 @@ describe('Recipe reader: Rust contract', () => {
       ['title', '😀'.repeat(41), 'invalid_title'],
       ['title', 'a\u0085', 'invalid_title'],
     ] as const) {
-      const recipe = { ...cases[0].input, [field]: value };
+      const recipe = { ...cases[0]!.input, [field]: value };
       expect(diagnostics(() => validateRecipeStructure(recipe))).toEqual([{ field, code }]);
     }
-    const recipe = structuredClone(cases[0].input);
+    const recipe = structuredClone(cases[0]!.input);
     delete recipe.title;
     expect(diagnostics(() => validateRecipeStructure(recipe))).toEqual([{ field: 'title', code: 'required' }]);
     recipe['untrusted-secret-key'] = 'private';
     expect(diagnostics(() => validateRecipeStructure(recipe))).toEqual([{ field: '$', code: 'additional_property' }]);
-    expect(() => validateRecipeStructure({ ...cases[0].input, title: '😀'.repeat(40) })).not.toThrow();
+    expect(() => validateRecipeStructure({ ...cases[0]!.input, title: '😀'.repeat(40) })).not.toThrow();
   });
 });
 

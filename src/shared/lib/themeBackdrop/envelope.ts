@@ -21,7 +21,7 @@ export class ColorEnvelope {
     if (!['dark', 'light'].includes(scheme)) reject('palette', 'invalid_scheme');
     if (expansion.underlay && !validRgb(expansion.underlay)) reject('$', 'invalid_expansion');
     const palettes = (recipe as { palette: Record<string, string[]> }).palette;
-    const colors: Rgb[] = palettes[scheme].map((color) => [
+    const colors: Rgb[] = palettes[scheme]!.map((color) => [
       parseInt(color.slice(1, 3), 16) / 255,
       parseInt(color.slice(3, 5), 16) / 255,
       parseInt(color.slice(5, 7), 16) / 255,
@@ -46,7 +46,7 @@ export class ColorEnvelope {
 
   over(color: Rgb, alpha: number): ColorEnvelope {
     const blend = (bound: Rgb): Rgb =>
-      [0, 1, 2].map((i) => alpha * color[i] + (1 - alpha) * bound[i]) as unknown as Rgb;
+      ([0, 1, 2] as const).map((i) => alpha * color[i] + (1 - alpha) * bound[i]) as unknown as Rgb;
     return new ColorEnvelope(blend(this.low), blend(this.high));
   }
 
@@ -58,5 +58,5 @@ export class ColorEnvelope {
 
 function luminance(rgb: Rgb): number {
   const linear = rgb.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+  return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
 }

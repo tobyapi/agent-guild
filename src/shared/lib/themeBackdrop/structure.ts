@@ -69,7 +69,7 @@ function catalog(layer: Record<string, unknown>, index: number): void {
   const field = `layers[${index}]`;
   const kind = text(layer.kind, `${field}.kind`);
   const motif = text(layer.motif, `${field}.motif`);
-  if (!MOTIFS[kind].includes(motif)) reject(`${field}.motif`, 'unsupported_motif');
+  if (!MOTIFS[kind]!.includes(motif)) reject(`${field}.motif`, 'unsupported_motif');
   if (kind !== 'paper' && layer.depth !== 1) reject(`${field}.depth`, 'invalid_depth');
   if (kind === 'paper' && layer.density !== 0.5) reject(`${field}.density`, 'invalid_density');
   if (!allowedMotion(kind, motif, layer.motion)) reject(`${field}.motion`, 'unsupported_motion');

@@ -10,7 +10,7 @@ interface Recipe {
 const cases =
   behaviorFixture<{ name: string; input: Recipe; expected: { valid: boolean } }[]>('theme-backdrop-recipe.json');
 const zero: DrawingCost = { primitives: 0, dom: 0, definitions: 0, movingGroups: 0 };
-const recipe = cases[0].input;
+const recipe = cases[0]!.input;
 
 describe('Recipe calculations: same Rust inputs', () => {
   it.each([
