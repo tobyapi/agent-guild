@@ -12,3 +12,5 @@ export type { BackdropLayer, SvgLayerFrame, BackdropSkeleton } from './skeleton'
 export type { BackdropAnchor, PlacementRect } from './placement';
 export type { BackdropGeometry, BackdropClip } from './clipping';
 export type { ArtworkFrame } from './artwork';
+export { buildTileTurtleBackdrop } from './tileTurtle';
+export type { TileTurtleBackdrop } from './tileTurtle';
