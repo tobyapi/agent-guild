@@ -3,6 +3,7 @@
   inline-size: calc(var(--space-2) - 1px);
   block-size: calc(var(--space-2) - 1px);
   border-radius: var(--radius-full);
+  --glass-ink-weight: 0%;
   background: var(--activity);
   box-shadow: 0 0 8px 1px var(--activity-glow);
   animation: var(--animation-lamp);

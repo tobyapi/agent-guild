@@ -11,6 +11,7 @@
   block-size: var(--badge-height);
   padding: 0 var(--space-1);
   border-radius: var(--radius-sm);
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   color: var(--text-secondary);
   font-size: var(--text-sm);

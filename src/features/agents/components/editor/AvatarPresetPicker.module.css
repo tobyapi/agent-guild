@@ -15,6 +15,7 @@
   inline-size: 100%;
   min-block-size: 100%;
   padding: var(--space-3) var(--space-2);
+  --glass-ink-weight: 0%;
   background: var(--bg-app);
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
@@ -24,6 +25,7 @@
 
 .grid .tile:hover:not(:disabled) {
   border-color: var(--border-hover);
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 

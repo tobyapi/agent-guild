@@ -4,6 +4,7 @@
   overflow: hidden;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
 }
 

@@ -15,6 +15,7 @@
 }
 
 .row:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 

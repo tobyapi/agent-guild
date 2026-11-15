@@ -6,6 +6,7 @@
   padding: var(--space-0-5);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
 }
 
@@ -29,6 +30,7 @@
 }
 
 .item[aria-checked='true'] {
+  --glass-ink-weight: 0%;
   background: var(--bg-elevated);
   color: var(--text-primary);
   box-shadow:

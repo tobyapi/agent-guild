@@ -34,6 +34,7 @@
 .markdown :global(code) {
   padding: 0.12em 0.36em;
   border-radius: var(--radius-sm);
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   font-size: 0.86em;
   -webkit-box-decoration-break: clone;
@@ -57,6 +58,7 @@
 }
 
 .markdown :global(th) {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   font-weight: var(--weight-semibold);
   text-align: start;

@@ -58,6 +58,7 @@
 }
 
 :global(:root[data-background='active']) .card.checked {
+  --glass-ink-weight: 0%;
   background: var(--b-accent-soft);
 }
 

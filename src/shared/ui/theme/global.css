@@ -62,6 +62,7 @@ body,
 body {
   overflow: hidden;
   overscroll-behavior: none;
+  --glass-ink-weight: 0%;
   background: var(--bg-app);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -124,6 +125,7 @@ body {
   border: 1px solid var(--border-strong);
   border-bottom-width: 2px;
   border-radius: var(--radius-sm);
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-secondary);
   font-size: var(--text-xs);

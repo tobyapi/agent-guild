@@ -8,6 +8,7 @@
   gap: var(--space-4);
   padding: var(--space-2);
   text-align: start;
+  --glass-ink-weight: 0%;
   background: var(--bg-panel);
   color: var(--text-primary);
   border: 1px solid var(--border-strong);

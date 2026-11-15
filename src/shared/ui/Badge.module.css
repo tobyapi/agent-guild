@@ -14,6 +14,7 @@
 }
 
 .neutral {
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   color: var(--text-secondary);
 }
@@ -49,15 +50,19 @@
 }
 
 :global(:root[data-background='active']) .accent {
+  --glass-ink-weight: 0%;
   background: var(--b-accent-soft);
 }
 :global(:root[data-background='active']) .danger {
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }
 :global(:root[data-background='active']) .warning {
+  --glass-ink-weight: 0%;
   background: var(--b-warning-soft);
 }
 :global(:root[data-background='active']) .autonomous {
+  --glass-ink-weight: 0%;
   background: var(--b-autonomous-soft);
 }
 :global(:root[data-background='active']) .tinted {

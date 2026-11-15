@@ -12,6 +12,7 @@
 }
 
 .message:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 
@@ -21,7 +22,7 @@
 
 .message[data-self] {
   background: var(--mention-self-bg);
-  box-shadow: inset 2px 0 0 var(--kind-human);
+  box-shadow: inset 2px 0 0 var(--solid-kind-human);
 }
 
 /* 「結果を見る」などで移ってきた発言を一度だけ光らせる: 地を --accent-soft にし、--duration-slow で戻す */
@@ -115,7 +116,7 @@
   max-inline-size: var(--measure);
   margin-block-start: var(--space-1);
   padding: var(--space-2) var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--solid-danger) 30%, transparent);
   border-radius: var(--radius-md);
   background: var(--danger-soft);
 }
@@ -136,16 +137,19 @@
 }
 
 :global(:root[data-background='active']) .error {
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }
 
 :global(:root[data-background='active']) .message[data-self] {
   --surface: color-mix(in srgb, var(--raw-mention-self-bg-ink) var(--raw-mention-self-bg-weight), var(--bg-app));
+  --glass-ink-weight: 0%;
   background: var(--surface);
 }
 
 :global(:root[data-background='active']) .message[data-highlight='on'] {
   --surface: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--bg-app));
+  --glass-ink-weight: 0%;
   background: var(--surface);
 }
 

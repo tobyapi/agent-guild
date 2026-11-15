@@ -18,6 +18,7 @@
 }
 
 .option[aria-selected='true'] {
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
 }
 

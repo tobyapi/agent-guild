@@ -3,8 +3,26 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { behaviorFixture } from '../behaviorFixtures.test-support';
 import type { TokenTable } from './tokenTable';
+import { resolveTokenColor } from './tokenColors';
+import type { ColorDefinitions } from './tokenColors';
 
 const css = readFileSync('src/shared/ui/theme/tokens-glass.css', 'utf8');
+const inkCss = readFileSync('src/shared/ui/theme/tokens-glass-ink.css', 'utf8');
+function glassInk(name: string, scheme: string, accent: string, original: readonly number[]) {
+  const defs: Record<string, ColorDefinitions[string]> = {};
+  for (const block of inkCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selector = block[1]!.replace(/\/\*[\s\S]*?\*\//g, '').trim();
+    if (!selector.startsWith(':root') || selector.includes('data-background')) continue;
+    if (selector.includes("data-theme='light'") && scheme !== 'light') continue;
+    const selected = /data-accent='([^']+)'/.exec(selector)?.[1];
+    if (selected && selected !== accent) continue;
+    for (const declaration of block[2]!.matchAll(/(--[\w-]+): ([^;]+);/g))
+      defs[declaration[1]!] = { file: 'tokens-glass-ink.css', line: 1, expression: declaration[2]! };
+  }
+  const solid = '--solid-' + name.slice(2);
+  defs[solid] = { file: 'original', line: 1, expression: `rgb(${original.map((c) => c * 255).join(',')})` };
+  return resolveTokenColor(`var(--glass-${name.slice(2)}, var(${solid}))`, defs)!.rgb;
+}
 const table = behaviorFixture<TokenTable>('theme-backdrop-token-table.json');
 const luminance = (rgb: readonly number[]) =>
   rgb.reduce(
@@ -20,6 +38,7 @@ describe('full-window frosted veil', () => {
   for (const scheme of ['dark', 'light'] as const) {
     it(`${scheme}/arbitrary-image bounds every blurred pixel, saturation and floating card at AA`, () => {
       const block = scheme === 'dark' ? css.split('}')[0]! : css.split(":root[data-theme='light']")[1]!.split('}')[0]!;
+      expect(block).toContain(`--glass-veil-weight: ${scheme === 'dark' ? 74 : 80}%;`);
       const alpha = Number(block.match(/--glass-veil-weight: ([\d.]+)%;/)![1]) / 100;
       const hex = block.match(/--glass-veil-color: #([\da-f]{6});/)![1]!;
       const veil = hex.match(/../g)!.map((c) => parseInt(c, 16) / 255);
@@ -39,8 +58,9 @@ describe('full-window frosted veil', () => {
       let worst = Infinity;
       for (const unit of table.units.filter((u) => u.scheme === scheme)) {
         for (const row of unit.rows.filter((r) => r.status === 'resolved' && r.overlays.length === 0)) {
-          const inkLow = luminance(row.text!.rgb.map((c) => Math.max(0, c - 0.5 / 255)));
-          const inkHigh = luminance(row.text!.rgb.map((c) => Math.min(1, c + 0.5 / 255)));
+          const ink = glassInk(row.name, scheme, row.accent, row.text!.rgb);
+          const inkLow = luminance(ink.map((c) => Math.max(0, c - 0.5 / 255)));
+          const inkHigh = luminance(ink.map((c) => Math.min(1, c + 0.5 / 255)));
           const ratio =
             scheme === 'dark' ? (inkLow + 0.05) / (luminance(high) + 0.05) : (luminance(low) + 0.05) / (inkHigh + 0.05);
           worst = Math.min(worst, ratio);

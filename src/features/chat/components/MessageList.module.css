@@ -108,6 +108,7 @@
   padding: 0 var(--space-3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
+  --glass-ink-weight: 0%;
   background: var(--bg-elevated);
   box-shadow: var(--shadow-md);
   color: var(--text-primary);
@@ -137,6 +138,7 @@
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
     :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .jump {
+      --glass-ink-weight: 100%;
       background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
       border-color: transparent;

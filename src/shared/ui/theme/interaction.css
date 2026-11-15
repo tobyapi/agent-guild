@@ -45,5 +45,6 @@
 }
 
 :root[data-background='active'] ::selection {
+  --glass-ink-weight: 0%;
   background-color: var(--b-selection-bg);
 }

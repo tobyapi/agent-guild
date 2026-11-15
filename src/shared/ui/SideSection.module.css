@@ -65,11 +65,13 @@
 }
 
 .row:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .row[aria-current='page'] {
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   color: var(--text-primary);
   font-weight: var(--weight-medium);

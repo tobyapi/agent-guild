@@ -9,6 +9,7 @@
   padding: var(--space-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-elevated);
   box-shadow: var(--shadow-md);
   animation: var(--animation-rise);
@@ -41,6 +42,7 @@
 }
 
 .option[aria-selected='true'] {
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
 }
 
@@ -105,6 +107,7 @@
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
     :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .popover {
+      --glass-ink-weight: 100%;
       background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
       border-color: transparent;

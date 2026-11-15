@@ -23,6 +23,7 @@
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   cursor: grab;
   touch-action: none;
@@ -74,6 +75,7 @@
   block-size: var(--avatar-md);
   overflow: hidden;
   border-radius: var(--crop-radius);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
 }
 

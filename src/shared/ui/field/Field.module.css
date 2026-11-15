@@ -33,6 +33,7 @@
   padding: 0 var(--space-3);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-input);
   color: var(--text-primary);
   font-size: var(--text-md);
@@ -51,11 +52,11 @@
 }
 
 .control[aria-invalid='true'] {
-  border-color: var(--danger);
+  border-color: var(--solid-danger);
 }
 
 .control[aria-invalid='true']:focus-visible {
-  border-color: var(--danger);
+  border-color: var(--solid-danger);
   box-shadow: 0 0 0 2px var(--danger-soft);
 }
 

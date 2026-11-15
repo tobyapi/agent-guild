@@ -20,6 +20,7 @@
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
 }
 

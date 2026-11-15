@@ -10,6 +10,7 @@
   padding: var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
+  --glass-ink-weight: 0%;
   background: var(--bg-input);
   transition: border-color var(--duration-fast) var(--ease-standard);
 }
@@ -40,6 +41,7 @@
 }
 
 .attach:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-primary);
 }
@@ -80,15 +82,18 @@
 }
 
 .send[data-ready] {
+  --glass-ink-weight: 0%;
   background: var(--accent);
   color: var(--text-on-accent);
 }
 
 .send[data-ready]:hover {
+  --glass-ink-weight: 0%;
   background: var(--accent-hover);
 }
 
 :global(:root[data-background='active']) .composer[data-dragging] {
+  --glass-ink-weight: 0%;
   background: var(--b-accent-soft);
 }
 
@@ -105,6 +110,7 @@
   @supports (backdrop-filter: blur(1px)) {
     :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']))
       .composer:not([data-dragging]) {
+      --glass-ink-weight: 100%;
       background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
       border-color: transparent;

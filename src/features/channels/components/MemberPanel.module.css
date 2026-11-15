@@ -4,6 +4,7 @@
   flex-direction: column;
   min-block-size: 0;
   border-inline-start: 1px solid var(--border-subtle);
+  --glass-ink-weight: 0%;
   background: var(--surface-members);
 }
 
@@ -43,6 +44,7 @@
 }
 
 .row:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 
@@ -137,6 +139,7 @@
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
     :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .panel {
+      --glass-ink-weight: 100%;
       background: var(--surface-members);
       border-color: transparent;
       box-shadow: inset 0 0 0 1px var(--glass-edge);

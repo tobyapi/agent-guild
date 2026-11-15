@@ -6,6 +6,7 @@
   block-size: var(--switch-height);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-full);
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   transition:
     background-color var(--duration-normal) var(--ease-standard),
@@ -19,7 +20,7 @@
   inline-size: var(--switch-knob);
   block-size: var(--switch-knob);
   border-radius: var(--radius-full);
-  background: var(--text-secondary);
+  background: var(--solid-text-secondary);
   content: '';
   transition:
     transform var(--duration-normal) var(--ease-standard),
@@ -28,6 +29,7 @@
 
 .switch[aria-checked='true'] {
   border-color: transparent;
+  --glass-ink-weight: 0%;
   background: var(--accent);
 }
 
@@ -37,10 +39,11 @@
 }
 
 .switch[data-tone='warning'][aria-checked='true'] {
-  background: var(--warning);
+  background: var(--solid-warning);
 }
 
 .switch[data-tone='warning'][aria-checked='true']::after {
+  --glass-ink-weight: 0%;
   background: var(--bg-elevated);
 }
 

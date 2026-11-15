@@ -4,6 +4,7 @@
   block-size: 100%;
   overflow-y: auto;
   padding: var(--space-12) var(--space-4);
+  --glass-ink-weight: 0%;
   background: var(--bg-sidebar);
 }
 
@@ -15,6 +16,7 @@
   padding: var(--space-10) var(--space-8) var(--space-8);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
+  --glass-ink-weight: 0%;
   background: var(--bg-app);
   box-shadow: var(--shadow-lg);
 }
@@ -55,6 +57,7 @@
   min-inline-size: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   font-size: var(--text-sm);
   overflow-wrap: anywhere;
@@ -90,6 +93,7 @@
   margin-block-start: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   font-size: var(--text-xs);
   white-space: pre-wrap;

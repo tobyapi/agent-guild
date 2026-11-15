@@ -3,7 +3,7 @@
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--solid-danger) 30%, transparent);
   border-radius: var(--radius-md);
   background: var(--danger-soft);
   color: var(--text-primary);
@@ -16,5 +16,6 @@
 }
 
 :global(:root[data-background='active']) .alert {
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }

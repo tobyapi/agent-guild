@@ -17,20 +17,22 @@
 }
 
 .tag[data-tone='warning'] {
-  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  border-color: color-mix(in srgb, var(--solid-warning) 40%, transparent);
   background: var(--warning-soft);
   color: var(--warning);
 }
 
 .tag[data-tone='danger'] {
-  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  border-color: color-mix(in srgb, var(--solid-danger) 40%, transparent);
   background: var(--danger-soft);
   color: var(--danger);
 }
 
 :global(:root[data-background='active']) .tag[data-tone='warning'] {
+  --glass-ink-weight: 0%;
   background: var(--b-warning-soft);
 }
 :global(:root[data-background='active']) .tag[data-tone='danger'] {
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }

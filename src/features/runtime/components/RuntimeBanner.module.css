@@ -5,13 +5,14 @@
   min-block-size: var(--banner-height);
   padding: 0 var(--space-2) 0 var(--space-4);
   border-block-end: 1px solid var(--border-subtle);
+  --glass-ink-weight: 0%;
   background: var(--bg-panel);
   color: var(--text-secondary);
   font-size: var(--text-sm);
 }
 
 .banner[data-state='unavailable'] {
-  border-block-end-color: color-mix(in srgb, var(--danger) 30%, transparent);
+  border-block-end-color: color-mix(in srgb, var(--solid-danger) 30%, transparent);
   background: var(--danger-soft);
 }
 
@@ -44,6 +45,7 @@
 }
 :global(:root[data-background='active']) .banner[data-state='unavailable'] {
   --surface: var(--bg-app);
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }
 

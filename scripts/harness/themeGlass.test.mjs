@@ -60,3 +60,23 @@ test('every backdrop-filter declaration is opt-in and reduced/forced-color safe'
     read('src/features/chat/components/Composer.module.css').includes('outline: 2px solid var(--focus-color);'),
   );
 });
+
+test('glass ink preserves opaque paint and enables only the guarded transparent panes', () => {
+  const ink = read('src/shared/ui/theme/tokens-glass-ink.css');
+  assert.ok(ink.includes('@media (prefers-reduced-transparency: no-preference) and (forced-colors: none)'));
+  assert.ok(ink.includes('@supports (backdrop-filter: blur(1px))'));
+  assert.ok(ink.includes("[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) *"));
+  assert.ok(ink.includes('var(--glass-ink-weight, 0%)'));
+  for (const [file, selector] of materials.filter(([, selector]) => selector !== '.backdrop')) {
+    const css = read(file);
+    const guarded = css.slice(css.indexOf('@media (prefers-reduced-transparency: no-preference)'));
+    assert.ok(guarded.includes('--glass-ink-weight: 100%;'), `${file}/${selector}`);
+  }
+  for (const file of [
+    'src/features/chat/components/MarkdownCode.module.css',
+    'src/features/chat/components/TaskCard.module.css',
+    'src/shared/ui/field/Field.module.css',
+  ]) {
+    assert.ok(read(file).includes('--glass-ink-weight: 0%;'), file);
+  }
+});

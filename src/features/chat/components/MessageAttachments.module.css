@@ -23,6 +23,7 @@
   padding: 0;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   cursor: zoom-in;
 }
@@ -43,6 +44,7 @@
   display: block;
   inline-size: 160px;
   block-size: 120px;
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 
@@ -61,12 +63,14 @@
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   text-align: start;
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
 .file:hover {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
 }
 

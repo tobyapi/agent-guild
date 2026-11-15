@@ -1,0 +1,178 @@
+/* Glass ink is recomputed at each consumer; opaque paint resets its inherited weight. */
+:root {
+  --solid-accent-text: var(--accent-text);
+  --glass-accent-text: var(--solid-accent-text);
+  --solid-autonomous: var(--autonomous);
+  --glass-autonomous: var(--solid-autonomous);
+  --solid-danger: var(--danger);
+  --glass-danger: var(--solid-danger);
+  --solid-kind-expert: var(--kind-expert);
+  --glass-kind-expert: var(--solid-kind-expert);
+  --solid-kind-human: var(--kind-human);
+  --glass-kind-human: var(--solid-kind-human);
+  --solid-kind-ideator: var(--kind-ideator);
+  --glass-kind-ideator: var(--solid-kind-ideator);
+  --solid-kind-manager: var(--kind-manager);
+  --glass-kind-manager: var(--solid-kind-manager);
+  --solid-kind-worker: var(--kind-worker);
+  --glass-kind-worker: var(--solid-kind-worker);
+  --solid-success: var(--success);
+  --glass-success: var(--solid-success);
+  --solid-syntax-comment: var(--syntax-comment);
+  --glass-syntax-comment: var(--solid-syntax-comment);
+  --solid-syntax-keyword: var(--syntax-keyword);
+  --glass-syntax-keyword: var(--solid-syntax-keyword);
+  --solid-syntax-number: var(--syntax-number);
+  --glass-syntax-number: var(--solid-syntax-number);
+  --solid-syntax-string: var(--syntax-string);
+  --glass-syntax-string: var(--solid-syntax-string);
+  --solid-syntax-title: var(--syntax-title);
+  --glass-syntax-title: var(--solid-syntax-title);
+  --solid-syntax-type: var(--syntax-type);
+  --glass-syntax-type: var(--solid-syntax-type);
+  --solid-text-muted: var(--text-muted);
+  --glass-text-muted: var(--solid-text-muted);
+  --solid-text-secondary: var(--text-secondary);
+  --glass-text-secondary: var(--solid-text-secondary);
+  --solid-warning: var(--warning);
+  --glass-warning: var(--solid-warning);
+}
+
+:root {
+  --glass-text-secondary: #cdd1d9;
+  --glass-text-muted: #bcbfc5;
+  --glass-danger: #ffa7ac;
+  --glass-warning: #fcae6e;
+  --glass-kind-manager: #aabdff;
+  --glass-kind-expert: #ccb3fb;
+  --glass-syntax-keyword: #aabdff;
+  --glass-syntax-type: #ccb3fb;
+  --glass-syntax-comment: #bcbfc5;
+}
+
+:root[data-accent='vermilion'] {
+  --glass-accent-text: #ffaa8e;
+}
+
+:root[data-accent='sakura'] {
+  --glass-accent-text: #f6a8ca;
+}
+
+:root[data-accent='sky'] {
+  --glass-accent-text: #92c2ff;
+}
+
+:root[data-accent='violet'] {
+  --glass-accent-text: #c6b4ff;
+}
+
+:root[data-theme='light'] {
+  --glass-accent-text: var(--solid-accent-text);
+  --glass-autonomous: var(--solid-autonomous);
+  --glass-danger: var(--solid-danger);
+  --glass-kind-expert: var(--solid-kind-expert);
+  --glass-kind-human: var(--solid-kind-human);
+  --glass-kind-ideator: var(--solid-kind-ideator);
+  --glass-kind-manager: var(--solid-kind-manager);
+  --glass-kind-worker: var(--solid-kind-worker);
+  --glass-success: var(--solid-success);
+  --glass-syntax-comment: var(--solid-syntax-comment);
+  --glass-syntax-keyword: var(--solid-syntax-keyword);
+  --glass-syntax-number: var(--solid-syntax-number);
+  --glass-syntax-string: var(--solid-syntax-string);
+  --glass-syntax-title: var(--solid-syntax-title);
+  --glass-syntax-type: var(--solid-syntax-type);
+  --glass-text-muted: var(--solid-text-muted);
+  --glass-text-secondary: var(--solid-text-secondary);
+  --glass-warning: var(--solid-warning);
+  --glass-text-muted: #4f535a;
+  --glass-accent-text: #774801;
+  --glass-danger: #a01e2b;
+  --glass-warning: #863e08;
+  --glass-success: #1a5f30;
+  --glass-kind-ideator: #455a08;
+  --glass-kind-worker: #115d4b;
+  --glass-kind-manager: #414b9d;
+  --glass-kind-expert: #643f98;
+  --glass-kind-human: #774801;
+  --glass-autonomous: #6b4e03;
+  --glass-syntax-keyword: #414b9d;
+  --glass-syntax-string: #455a08;
+  --glass-syntax-number: #774801;
+  --glass-syntax-title: #115d4b;
+  --glass-syntax-type: #643f98;
+  --glass-syntax-comment: #4f535a;
+}
+
+:root[data-theme='light'][data-accent='vermilion'] {
+  --glass-accent-text: #923410;
+}
+
+:root[data-theme='light'][data-accent='sakura'] {
+  --glass-accent-text: #972555;
+}
+
+:root[data-theme='light'][data-accent='green'] {
+  --glass-accent-text: #285e1f;
+}
+
+:root[data-theme='light'][data-accent='sky'] {
+  --glass-accent-text: #1c5390;
+}
+
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
+  @supports (backdrop-filter: blur(1px)) {
+    :root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) * {
+      --accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));
+      --autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));
+      --danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));
+      --kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));
+      --kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));
+      --kind-ideator: color-mix(
+        in srgb,
+        var(--glass-kind-ideator) var(--glass-ink-weight, 0%),
+        var(--solid-kind-ideator)
+      );
+      --kind-manager: color-mix(
+        in srgb,
+        var(--glass-kind-manager) var(--glass-ink-weight, 0%),
+        var(--solid-kind-manager)
+      );
+      --kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));
+      --success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));
+      --syntax-comment: color-mix(
+        in srgb,
+        var(--glass-syntax-comment) var(--glass-ink-weight, 0%),
+        var(--solid-syntax-comment)
+      );
+      --syntax-keyword: color-mix(
+        in srgb,
+        var(--glass-syntax-keyword) var(--glass-ink-weight, 0%),
+        var(--solid-syntax-keyword)
+      );
+      --syntax-number: color-mix(
+        in srgb,
+        var(--glass-syntax-number) var(--glass-ink-weight, 0%),
+        var(--solid-syntax-number)
+      );
+      --syntax-string: color-mix(
+        in srgb,
+        var(--glass-syntax-string) var(--glass-ink-weight, 0%),
+        var(--solid-syntax-string)
+      );
+      --syntax-title: color-mix(
+        in srgb,
+        var(--glass-syntax-title) var(--glass-ink-weight, 0%),
+        var(--solid-syntax-title)
+      );
+      --syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));
+      --text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));
+      --text-secondary: color-mix(
+        in srgb,
+        var(--glass-text-secondary) var(--glass-ink-weight, 0%),
+        var(--solid-text-secondary)
+      );
+      --warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));
+    }
+  }
+}

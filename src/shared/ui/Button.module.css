@@ -35,23 +35,27 @@
 }
 
 .primary {
+  --glass-ink-weight: 0%;
   background: var(--accent);
   color: var(--text-on-accent);
   font-weight: var(--weight-semibold);
 }
 
 .primary:hover:not(:disabled) {
+  --glass-ink-weight: 0%;
   background: var(--accent-hover);
 }
 
 .secondary {
   border-color: var(--border-strong);
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .secondary:hover:not(:disabled) {
   border-color: var(--border-hover);
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
 }
 
@@ -60,6 +64,7 @@
 }
 
 .ghost:hover:not(:disabled) {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-primary);
 }
@@ -70,17 +75,20 @@
 }
 
 .danger:hover:not(:disabled) {
-  background: var(--danger);
+  --glass-ink-weight: 0%;
+  background: var(--solid-danger);
   color: var(--text-on-danger);
 }
 
 .dangerSolid {
-  background: var(--danger);
+  --glass-ink-weight: 0%;
+  background: var(--solid-danger);
   color: var(--text-on-danger);
   font-weight: var(--weight-semibold);
 }
 
 .dangerSolid:hover:not(:disabled) {
+  --glass-ink-weight: 0%;
   background: var(--danger-hover);
 }
 
@@ -113,16 +121,19 @@
 }
 
 .iconButton:hover:not(:disabled) {
+  --glass-ink-weight: 0%;
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .iconButton[aria-pressed='true'] {
+  --glass-ink-weight: 0%;
   background: var(--bg-active);
   color: var(--text-primary);
 }
 
 :global(:root[data-background='active']) .danger {
+  --glass-ink-weight: 0%;
   background: var(--b-danger-soft);
 }
 
