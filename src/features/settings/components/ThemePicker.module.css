@@ -1,0 +1,62 @@
+.cards {
+  display: grid;
+  gap: var(--space-2);
+}
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2);
+  text-align: start;
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+}
+.card[aria-checked='true'] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.preview {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 var(--theme-preview-width);
+  block-size: var(--theme-preview-height);
+  border-radius: var(--radius-md);
+  background: var(--theme-preview-dark);
+  background-size: cover;
+  background-position: center;
+}
+.preview[data-scheme='light'] {
+  background-color: var(--theme-preview-light);
+}
+.preview[data-scheme='system'] {
+  background: linear-gradient(90deg, var(--theme-preview-dark) 50%, var(--theme-preview-light) 50%);
+}
+.preview[data-art='dawn'] {
+  background-image: url('../../../shared/ui/theme/assets/dawn.svg');
+}
+.preview[data-art='night'],
+.preview[data-art='aurora'] {
+  background-image: url('../../../shared/ui/theme/assets/night.svg');
+}
+.preview[data-art='aurora']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--backdrop-aurora);
+}
+.preview > svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.sample {
+  position: absolute;
+  inset: var(--space-3);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--glass-shadow);
+  background: linear-gradient(90deg, transparent 23%, var(--glass-edge) 23%, var(--glass-edge) 24%, transparent 24%);
+}

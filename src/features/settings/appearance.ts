@@ -1,12 +1,14 @@
+import { selectThemeCard } from '@/shared/theme/catalog';
+import type { ThemeCard } from '@/shared/theme/catalog';
 import { useStore } from 'zustand';
-import type { AppearancePreference, BackgroundSpec, MotionPreference, SchemePreference } from '@/shared/theme/types';
+import type { AppearancePreference, MotionPreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
 const controller = createAppearanceStore();
 
-export function setBackground(backgroundOverride: BackgroundSpec | null): void {
-  controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
+export function setThemeCard(card: ThemeCard): void {
+  controller.setPreference(selectThemeCard(controller.store.getState().preference, card));
 }
 
 export function setMotionPreference(motionPreference: MotionPreference): void {
@@ -21,10 +23,6 @@ export function initAppearance(): () => void {
 
 export function useAppearanceStore<T>(selector: (state: { preference: AppearancePreference }) => T): T {
   return useStore(controller.store, selector);
-}
-
-export function setThemePreference(schemePreference: SchemePreference): void {
-  controller.setPreference({ ...controller.store.getState().preference, schemePreference });
 }
 
 export function setAccent(accent: Accent): void {

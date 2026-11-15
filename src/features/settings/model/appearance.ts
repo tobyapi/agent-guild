@@ -1,3 +1,4 @@
+import { unifyAppearance } from '@/shared/theme/catalog';
 import { defaultAppearance, hasThemeVariants } from '@/shared/theme/registry';
 import { resolveBackground } from '@/shared/theme/backgrounds';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
@@ -28,14 +29,14 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
     throw new AppearanceValidationError('invalid motion preference');
   }
   const background = parseBackground(value.backgroundOverride);
-  return {
+  return unifyAppearance({
     version: 1,
     themeId: value.themeId,
     schemePreference: value.schemePreference as AppearancePreference['schemePreference'],
     accentOverride: value.accentOverride as AppearancePreference['accentOverride'],
     backgroundOverride: background,
     motionPreference: value.motionPreference,
-  };
+  });
 }
 
 function parseBackground(value: unknown): AppearancePreference['backgroundOverride'] {

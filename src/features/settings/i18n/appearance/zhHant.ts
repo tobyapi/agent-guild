@@ -2,6 +2,14 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  themeLabel: '主題',
+  themeGuildDark: '公會深色',
+  themeGuildLight: '公會淺色',
+  themeGuildSystem: '跟隨系統',
+  themeTurtle: '海龜',
+  themeDawn: '晨曦山丘',
+  themeNight: '夜晚',
+  themeAurora: '極光',
   sectionTitle: '外觀',
   accentLabel: '強調色',
   accentDefault: '燈金（預設）',

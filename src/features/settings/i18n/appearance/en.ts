@@ -2,6 +2,14 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  themeLabel: 'Theme',
+  themeGuildDark: 'Guild Dark',
+  themeGuildLight: 'Guild Light',
+  themeGuildSystem: 'Follow system',
+  themeTurtle: 'Sea turtle',
+  themeDawn: 'Dawn hills',
+  themeNight: 'Night',
+  themeAurora: 'Aurora',
   sectionTitle: 'Appearance',
   accentLabel: 'Accent color',
   accentDefault: 'Lamp gold (default)',

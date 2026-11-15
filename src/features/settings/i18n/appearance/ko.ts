@@ -2,6 +2,14 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  themeLabel: '테마',
+  themeGuildDark: '길드 다크',
+  themeGuildLight: '길드 라이트',
+  themeGuildSystem: '시스템 설정',
+  themeTurtle: '바다거북',
+  themeDawn: '아침 언덕',
+  themeNight: '밤',
+  themeAurora: '오로라',
   sectionTitle: '모양',
   accentLabel: '강조 색상',
   accentDefault: '등불 금색(기본)',

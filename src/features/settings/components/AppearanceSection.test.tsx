@@ -30,35 +30,61 @@ afterEach(() => {
   cleanup();
   stopAppearance();
   vi.unstubAllGlobals();
-  for (const attribute of ['data-theme', 'data-theme-id', 'data-accent', 'data-background']) {
+  for (const attribute of ['data-theme', 'data-theme-id', 'data-accent', 'data-background', 'data-background-source']) {
     document.documentElement.removeAttribute(attribute);
   }
 });
 
-it('背景と動きを新キーに保存し、none・テーマ既定・再起動を反映する', () => {
+it('7枚のテーマカードで背景と明暗を保存し、アクセントと動きも再起動後に保持する', () => {
   render(<AppearanceSection />);
-  const select = screen.getByRole('combobox', { name: '背景' });
-  fireEvent.change(select, { target: { value: 'dawn' } });
+  expect(screen.queryByRole('combobox', { name: '背景' })).toBeNull();
+  const group = screen.getByRole('radiogroup', { name: 'テーマ' });
+  expect(group.querySelectorAll('[role="radio"]')).toHaveLength(7);
+  expect(group.querySelectorAll('[data-art]')).toHaveLength(7);
+  fireEvent.click(screen.getByRole('radio', { name: 'ウミガメ' }));
+  fireEvent.click(screen.getByRole('radio', { name: '空' }));
   fireEvent.click(screen.getByRole('radio', { name: '停止' }));
-  expect(document.documentElement.dataset.background).toBe('active');
+  expect(document.documentElement.dataset).toMatchObject({
+    theme: 'light',
+    themeId: 'turtle',
+    backgroundSource: 'generated',
+  });
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
-    backgroundOverride: { kind: 'image', assetId: 'dawn' },
+    themeId: 'turtle',
+    schemePreference: 'light',
+    backgroundOverride: null,
+    accentOverride: 'sky',
     motionPreference: 'off',
   });
-  expect(values.get(THEME_STORAGE_KEY)).toBe('dark');
-  expect(values.get(ACCENT_STORAGE_KEY)).toBe('default');
   cleanup();
   stopAppearance();
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
-  expect(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }).value).toBe('dawn');
+  expect(screen.getByRole('radio', { name: 'ウミガメ' }).getAttribute('aria-checked')).toBe('true');
   expect(screen.getByRole('radio', { name: '停止' }).getAttribute('aria-checked')).toBe('true');
-  fireEvent.change(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }), { target: { value: 'none' } });
+  fireEvent.keyDown(screen.getByRole('radio', { name: 'ウミガメ' }), { key: 'ArrowDown' });
+  expect(document.activeElement).toBe(screen.getByRole('radio', { name: '朝の丘' }));
+  expect(document.documentElement.dataset).toMatchObject({
+    theme: 'light',
+    themeId: 'dawn',
+    backgroundSource: 'image',
+  });
+  fireEvent.keyDown(document.activeElement!, { key: 'End' });
+  expect(document.documentElement.dataset).toMatchObject({
+    theme: 'dark',
+    themeId: 'aurora',
+    backgroundSource: 'scene',
+  });
+  fireEvent.keyDown(document.activeElement!, { key: 'Home' });
   expect(document.documentElement.dataset.background).toBeUndefined();
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ backgroundOverride: { kind: 'none' } });
-  fireEvent.change(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }), { target: { value: 'default' } });
-  expect(document.documentElement.dataset.background).toBeUndefined();
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ backgroundOverride: null });
+  expect(document.documentElement.dataset.backgroundSource).toBeUndefined();
+  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
+    themeId: 'guild',
+    schemePreference: 'dark',
+    backgroundOverride: null,
+    accentOverride: 'sky',
+    motionPreference: 'off',
+  });
 });
 
 it('アクセントの色の見本を選ぶと <html data-accent> に反映し、既定に戻すと属性を外す', () => {
@@ -86,7 +112,7 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
   stopAppearance = initAppearance();
   expect(document.documentElement.dataset).toMatchObject({ theme: 'light', themeId: 'guild', accent: 'sky' });
   render(<AppearanceSection />);
-  expect(screen.getByRole('radio', { name: 'ライト' }).getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByRole('radio', { name: 'ギルド ライト' }).getAttribute('aria-checked')).toBe('true');
   expect(screen.getByRole('radio', { name: '空' }).getAttribute('aria-checked')).toBe('true');
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
     schemePreference: 'light',
@@ -96,12 +122,12 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
 
 it('明暗とアクセントを相互に保持して新旧に保存し、再起動後もUIを復元する', () => {
   stopAppearance();
-  const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: { kind: 'none' } };
+  const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: null };
   values.set(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
-  fireEvent.click(screen.getByRole('radio', { name: 'ライト' }));
+  fireEvent.click(screen.getByRole('radio', { name: 'ギルド ライト' }));
   expect(document.documentElement.dataset).toMatchObject({ theme: 'light', accent: 'sky' });
   expect(document.documentElement.hasAttribute('style')).toBe(false);
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toEqual({
@@ -115,7 +141,7 @@ it('明暗とアクセントを相互に保持して新旧に保存し、再起�
   stopAppearance();
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
-  expect(screen.getByRole('radio', { name: 'ライト' }).getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByRole('radio', { name: 'ギルド ライト' }).getAttribute('aria-checked')).toBe('true');
   expect(screen.getByRole('radio', { name: '空' }).getAttribute('aria-checked')).toBe('true');
   fireEvent.click(screen.getByRole('radio', { name: '灯の金（既定）' }));
   expect(document.documentElement.dataset.theme).toBe('light');
@@ -125,14 +151,14 @@ it('明暗とアクセントを相互に保持して新旧に保存し、再起�
 
 it('OSに合わせる選択でOSの変更に追従し、明示選択は保持する', () => {
   render(<AppearanceSection />);
-  fireEvent.click(screen.getByRole('radio', { name: 'OS に合わせる' }));
+  fireEvent.click(screen.getByRole('radio', { name: 'システムに合わせる' }));
   expect(document.documentElement.dataset.theme).toBe('dark');
   query.matches = true;
   query.dispatchEvent(new Event('change'));
   expect(document.documentElement.dataset.theme).toBe('light');
   expect(values.get(THEME_STORAGE_KEY)).toBe('system');
-  expect(screen.getByRole('radio', { name: 'OS に合わせる' }).getAttribute('aria-checked')).toBe('true');
-  fireEvent.click(screen.getByRole('radio', { name: 'ダーク' }));
+  expect(screen.getByRole('radio', { name: 'システムに合わせる' }).getAttribute('aria-checked')).toBe('true');
+  fireEvent.click(screen.getByRole('radio', { name: 'ギルド ダーク' }));
   query.dispatchEvent(new Event('change'));
   expect(document.documentElement.dataset.theme).toBe('dark');
 });

@@ -19,7 +19,11 @@ export function loadAppearance(io: AppearancePersistence, registry: ThemeRegistr
   try {
     const storage = io.storage();
     const stored = storage.getItem(key);
-    if (stored !== null) return parseAppearance(stored, registry);
+    if (stored !== null) {
+      const preference = parseAppearance(stored, registry);
+      if (JSON.stringify(preference) !== stored) saveAppearance(io, preference);
+      return preference;
+    }
     key = THEME_STORAGE_KEY;
     const theme = storage.getItem(key);
     key = ACCENT_STORAGE_KEY;

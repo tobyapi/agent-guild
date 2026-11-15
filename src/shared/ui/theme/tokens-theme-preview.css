@@ -1,0 +1,7 @@
+/* Static thumbnails represent both schemes independently of the current root theme. */
+:root {
+  --theme-preview-width: 90px;
+  --theme-preview-height: 50px;
+  --theme-preview-dark: #191c21;
+  --theme-preview-light: #fcfbf8;
+}

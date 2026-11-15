@@ -62,9 +62,10 @@ describe('invalid appearance recovery', () => {
       }),
     });
     h.controller.init();
-    expect(h.controller.store.getState().preference.backgroundOverride).toEqual({
-      kind: 'generated',
-      presetId: 'tile-turtle',
+    expect(h.controller.store.getState().preference).toMatchObject({
+      themeId: 'turtle',
+      schemePreference: 'light',
+      backgroundOverride: null,
     });
     expect(h.root.dataset.backgroundSource).toBe('generated');
   });
@@ -135,7 +136,7 @@ describe('invalid appearance recovery', () => {
     expect(h.controller.store.getState().preference).toEqual({
       ...defaultAppearance(),
       accentOverride: 'sky',
-      backgroundOverride: { kind: 'none' },
+      backgroundOverride: null,
     });
   });
 });

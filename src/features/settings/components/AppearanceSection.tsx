@@ -1,24 +1,30 @@
 import { Segment } from '@/shared/ui';
-import { t } from '../i18n';
-import { themeChoices } from '../model/theme';
-import { setThemePreference, useAppearanceStore } from '../appearance';
+import { setMotionPreference, useAppearanceStore } from '../appearance';
+import { tAppearance as t } from '../i18n/appearance';
 import { AccentPicker } from './AccentPicker';
-import { BackgroundPicker } from './BackgroundPicker';
+import { ThemePicker } from './ThemePicker';
 import styles from './AccentPicker.module.css';
 
-/** 外観: テーマ（ダーク / ライト / OS に合わせる）とアクセントの色（どちらもこの端末だけの表示の好み） */
 export function AppearanceSection() {
-  const preference = useAppearanceStore((state) => state.preference.schemePreference);
+  const motion = useAppearanceStore((state) => state.preference.motionPreference);
   return (
     <div className={styles.appearance}>
+      <ThemePicker />
+      <AccentPicker />
       <div className={styles.field}>
         <span className={styles.label} aria-hidden="true">
-          {t('themeLabel')}
+          {t('motionLabel')}
         </span>
-        <Segment label={t('themeLabel')} value={preference} options={themeChoices()} onChange={setThemePreference} />
+        <Segment
+          label={t('motionLabel')}
+          value={motion}
+          options={[
+            { value: 'system', label: t('motionSystem') },
+            { value: 'off', label: t('motionOff') },
+          ]}
+          onChange={setMotionPreference}
+        />
       </div>
-      <AccentPicker />
-      <BackgroundPicker />
     </div>
   );
 }

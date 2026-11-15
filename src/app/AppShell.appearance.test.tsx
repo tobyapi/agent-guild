@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterAll, beforeAll, expect, it } from 'vitest';
-import { initAppearance, setBackground } from '@/features/settings';
+import { initAppearance, setThemeCard } from '@/features/settings';
+import { themeCards } from '@/shared/theme/catalog';
 import { advance, bootApp, closeApp } from './appFlow.test-support';
 
 let stop: () => void;
@@ -20,15 +21,8 @@ it('keeps the active chat, draft, scroll node and focus while switching a single
   fireEvent.change(input, { target: { value: 'background draft' } });
   input.focus();
   log.scrollTop = 123;
-  for (const background of [
-    { kind: 'generated', presetId: 'tile-turtle' },
-    { kind: 'image', assetId: 'dawn' },
-    { kind: 'image', assetId: 'night' },
-    { kind: 'scene', sceneId: 'aurora' },
-    { kind: 'none' },
-    null,
-  ] as const) {
-    act(() => setBackground(background));
+  for (const card of themeCards) {
+    act(() => setThemeCard(card));
     await advance(0);
     expect(screen.getByRole('log')).toBe(log);
     expect(screen.getByRole('textbox', { name: /メッセージ/ })).toBe(input);
@@ -36,7 +30,7 @@ it('keeps the active chat, draft, scroll node and focus while switching a single
     expect(document.activeElement).toBe(input);
     expect(log.scrollTop).toBe(123);
     expect(document.querySelectorAll('[data-asset], [data-scene], [data-generated]').length).toBe(
-      background && background.kind !== 'none' ? 1 : 0,
+      card.background.kind !== 'none' ? 1 : 0,
     );
   }
 });

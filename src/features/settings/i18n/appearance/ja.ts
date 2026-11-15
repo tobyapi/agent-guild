@@ -1,5 +1,13 @@
 // 外観（テーマ・アクセントの色）の文言（日本語。キーの正）
 export const ja = {
+  themeLabel: 'テーマ',
+  themeGuildDark: 'ギルド ダーク',
+  themeGuildLight: 'ギルド ライト',
+  themeGuildSystem: 'システムに合わせる',
+  themeTurtle: 'ウミガメ',
+  themeDawn: '朝の丘',
+  themeNight: '夜',
+  themeAurora: 'オーロラ',
   sectionTitle: '外観',
   accentLabel: 'アクセントの色',
   accentDefault: '灯の金（既定）',
