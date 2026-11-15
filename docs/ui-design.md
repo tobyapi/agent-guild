@@ -703,7 +703,7 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
-背景定義はデータだけ。shared/theme の登録 ID で生成背景（ウミガメ）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、旧nullもv2ではnoneに正規化し、未登録 ID は背景だけ none。背景と motion はv2 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
+背景定義はデータだけ。shared/theme の登録 ID で生成背景（現在は登録なし）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、旧nullもv2ではnoneに正規化し、未登録 ID は背景だけ none。背景と motion はv2 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
 
 ### 背景ありのガラス素材
 
@@ -715,8 +715,10 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 ### 独立した外観設定（v2）
 
-明るさ（dark/light/system）、背景（なし・ウミガメ・朝の丘・夜・オーロラ）、明るさ別のガラスの種類（frosted/liquid）を独立して設定する。アクセントと背景の動きは保持する。背景変更で明るさを書き換えない。背景カードは静止プレビューで、矢印・Home・Endキーでも選べる。明るさとガラスのセグメントは矢印キーで選べる。
+明るさ（dark/light/system）、背景（なし）、明るさ別のガラスの種類（frosted/liquid）を独立して設定する。アクセントと背景の動きは保持する。背景変更で明るさを書き換えない。背景カードは静止プレビューで、矢印・Home・Endキーでも選べる。明るさとガラスのセグメントは矢印キーで選べる。
 
 `agent-guild.appearance.v2` に version 2 と dark/light 各ガラス（初期値frosted）を保存する。v2がなければ旧v1、次に旧明暗・アクセントキーから移行する。旧キーは書き換え・削除しない。v1の登録済み絵テーマを優先する規則は移行時に一度だけ適用し、その後は明るさと背景を結び直さない。旧guildの明暗は背景なしなら維持し、ウミガメと朝の丘はlight、夜とオーロラはdarkへ移行する。未知の背景IDはnone、不正な設定はguild/systemへ復旧する。
 
 解決したガラスの種類はrootの `data-glass`（frosted/liquid/none）へ反映する。systemのOS明暗変化でdark/lightのガラスも切り替わる。背景なしではnoneとし、選んだガラス自体は保持する。①aでは描画CSS・11eのblurと保護濃度を変更しない。手元画像、全面ガラス、Codex生成は後続の作業。
+
+Retired bundled backgrounds (including tile-turtle) resolve to none. V2 keeps scheme, glass, accent and motion. V1 retains the original art scheme once; old storage keys remain read-only.

@@ -5,7 +5,6 @@ export const themeCards = [
   { id: 'guild-dark', themeId: 'guild', scheme: 'dark', background: { kind: 'none' } },
   { id: 'guild-light', themeId: 'guild', scheme: 'light', background: { kind: 'none' } },
   { id: 'guild-system', themeId: 'guild', scheme: 'system', background: { kind: 'none' } },
-  { id: 'turtle', themeId: 'turtle', scheme: 'light', background: { kind: 'generated', presetId: 'tile-turtle' } },
 ] as const satisfies ReadonlyArray<{
   id: string;
   themeId: string;

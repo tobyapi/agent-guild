@@ -35,18 +35,26 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
 
 /** Keep retired v1/v2 selections readable until those storage versions are retired. */
 function migrateRetiredBackground(value: Record<string, unknown>): Record<string, unknown> {
-  const retired = ['dawn', 'night', 'aurora'];
+  const retired = ['dawn', 'night', 'aurora', 'turtle'];
   const theme = retired.includes(String(value.themeId)) ? String(value.themeId) : null;
   const background = isRecord(value.backgroundOverride) ? value.backgroundOverride : {};
-  const id = background.kind === 'image' ? background.assetId : background.sceneId;
+  const id = retiredBackgroundId(background);
   const legacy = theme ?? (value.themeId === 'guild' && retired.includes(String(id)) ? String(id) : null);
   return {
     ...value,
     themeId: theme ? 'guild' : value.themeId,
     ...(value.version === 1 && legacy
-      ? { schemePreference: legacy === 'dawn' ? 'light' : 'dark', backgroundOverride: { kind: 'none' } }
+      ? {
+          schemePreference: legacy === 'dawn' || legacy === 'turtle' ? 'light' : 'dark',
+          backgroundOverride: { kind: 'none' },
+        }
       : {}),
   };
+}
+
+function retiredBackgroundId(background: Record<string, unknown>): unknown {
+  if (background.kind === 'generated') return background.presetId === 'tile-turtle' ? 'turtle' : null;
+  return background.kind === 'image' ? background.assetId : background.sceneId;
 }
 
 function validateFields(

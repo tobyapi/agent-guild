@@ -54,7 +54,7 @@ describe('legacy appearance migration', () => {
 });
 
 describe('invalid appearance recovery', () => {
-  it('loads a bundled generated ID while discarding embedded recipe fields', () => {
+  it('discards a retired generated ID and embedded recipe fields', () => {
     const h = appearanceHarness({
       [KEY]: JSON.stringify({
         ...defaultAppearance(),
@@ -65,9 +65,9 @@ describe('invalid appearance recovery', () => {
     expect(h.controller.store.getState().preference).toMatchObject({
       themeId: 'guild',
       schemePreference: 'dark',
-      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
+      backgroundOverride: { kind: 'none' },
     });
-    expect(h.root.dataset.backgroundSource).toBe('generated');
+    expect(h.root.dataset.backgroundSource).toBeUndefined();
   });
   it.each([
     ['{bad', 'malformed JSON'],

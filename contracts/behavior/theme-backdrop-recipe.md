@@ -139,79 +139,8 @@ See [theme-backdrop-calculations.md](theme-backdrop-calculations.md) for the raw
 
 See [theme-backdrop-skeleton.md](theme-backdrop-skeleton.md) for the pure SVG descriptor API, normalized anchor frames, deterministic seed algorithm and shell/component cost connection. Artwork, protection clips and UI integration remain outside this stage.
 
-### Stage 5a: fixed tile turtle rendering
+### Retired bundled renderer
 
-`buildTileTurtleBackdrop(recipe, scheme, geometry)` validates the Recipe, accepts only
-`tile × turtle`, builds the app-owned artwork expansion, and passes the exact counts to
-`buildBackdropSkeleton`. Other currently valid kind/motif pairs fail explicitly with
-`unsupported_artwork` in this renderer; their Recipe validation rules are unchanged.
-`TileTurtleBackdrop` in `shared/ui/theme` renders that model as React SVG elements.
-The UI adapter depends on the pure library, and the library has no React dependency.
-
-The sprite is a fixed 16×16 grid. Dots are transparent, and the three digit roles map to
-`layer.color`, `layer.color % (palette.length - 1) + 1`, and palette index 1. No external
-colors, strokes, filters, black shadows, or fonts are emitted. Palette 0 is the opaque
-full-canvas underlay and is included in the returned `ColorExpansion` with
-`usesBlackShadow=false`. This metadata is ready for later text-token protection wiring;
-this static renderer does not resolve text tokens or scrim alpha.
-
-Tile repeats across the full anchor: left/right use an 18%-wide full-height band;
-bottom anchors use an 18% by 18% corner. This specializes the Stage 4a generic
-seeded square placement only for tile; generic skeleton placement is unchanged.
-Tile count uses a supported viewport aspect interval **9:21 through 32:9** (tall
-phone through super-wide desktop); CSS resolution is unrestricted. Outside that
-interval only the repetition aspect is clamped. Physical sizing still uses actual
-CSS dimensions so even extreme viewports keep square pixels and whole sprites.
-The 1.2 coefficient lets a sparse side band fit the unchanged DOM budget across
-this interval while keeping the normal corner example visible.
-
-```text
-r = clamp(viewportWidth / viewportHeight, 9/21, 32/9)
-(Aw, Ah) = (anchorViewBoxWidth * r, anchorViewBoxHeight)
-p = 1.2 * scale * (2 - density)
-columns = max(1, ceil((Aw / min(Aw,Ah)) / p))
-rows    = max(1, ceil((Ah / min(Aw,Ah)) / p))
-S = min(actualFrameCSSWidth, actualFrameCSSHeight) * 1.2 * scale
-cellWidth = actualFrameCSSWidth / columns
-cellHeight = actualFrameCSSHeight / rows
-spriteSide = min(S, 0.9*cellWidth, 0.9*cellHeight)
-```
-
-The whole anchor is divided into equal cells; Mulberry32 sets the same fractional
-offset within each cell's spare space. No heads or feet are clipped at the edge.
-The sprite is a 16×16 top view with head, four feet, tail and shell divisions,
-merged into 62 horizontal same-role rectangles.
-
-Admission happens before actual viewport artwork is allocated. For each layer,
-compute counts at both supported aspect endpoints and reserve the larger count.
-This is a proof over the full interval, not sampled viewport testing: the product
-is `ceil(1/p) * ceil(max(Aw/Ah,Ah/Aw)/p)`, whose maximum is at an endpoint.
-Sum these per-layer maxima, add the actual clip/shell/underlay counts, and call the
-existing cost validator. This sum is a conservative bound if different layers peak
-at different endpoints. `budgetCost` exposes that reservation; `skeleton.cost`
-continues to count actual emitted nodes. Additional text protection also counts.
-Accepted Recipes cannot first exceed budget on resize; rejected Recipes receive
-`layers/dom_budget_exceeded` (or the other existing applicable budget code) at every
-viewport. Limits remain 2000/400/32/2. This renderer-owned reservation does not change
-the shared Rust/TS cost arithmetic, fixtures, or Recipe structure validation.
-
-Normal example: 1920×1080 and 3440×1440 each emit 2 sprites, **129 primitives /
-135 DOM / 1 definition / 0 moving groups**. Worst supported case is 32:9 with 3
-sprites: **191 primitives / 197 DOM / 1 definition / 0 moving groups**. At 9:21 it
-uses 2 sprites. These replace the previous resolution-dependent 4/6/8/12 counts.
-
-Direct node expansion was chosen instead of SVG pattern so actual emitted rectangles
-and DOM are counted exactly, without conservative full-viewport pattern repetition.
-There is no pattern definition and no change to the shared area-conversion formula.
-The repeated canvas fills a rectangular anchor; each individual sprite retains the
-Stage 4b unit-square contract. Its normalized rectangle coordinates compensate for
-the rectangular canvas transform using actual CSS dimensions, keeping every pixel
-square in 16:9, 21:9 and 9:16. All repeated geometry stays strictly inside the anchor.
-Tile motion remains none by the catalog. Other artwork still uses fitArtwork unchanged.
-
-Rendering preserves the stationary clipped outer `g` → translated motion `g` →
-aspect-corrected artwork `g` hierarchy. `shapeRendering=crispEdges` is set on the artwork.
-An actual CSS viewport and a document-unique `geometry.clipId` must be supplied by the
-integration; resize observation and motion playback are outside this step. Arbitrary
-CSS-size overrides without rebuilding geometry invalidate the aspect-ratio guarantee.
-The raw-JSON gate (`parseRecipeJson`) remains mandatory before admitting external JSON.
+The fixed tile turtle renderer and bundled preset were removed. Generic Recipe
+validation, motif catalog, cost gates, geometry and text protection remain for
+future generated backgrounds; shared recipe fixtures are unchanged.

@@ -1,4 +1,3 @@
-import { themeCards } from './catalog';
 import type { AppearancePreference, ThemeDefinition, ThemeRegistry } from './types';
 
 const guild: ThemeDefinition = {
@@ -7,19 +6,7 @@ const guild: ThemeDefinition = {
   variants: { dark: { background: { kind: 'none' } }, light: { background: { kind: 'none' } } },
 };
 
-export const themeRegistry: ThemeRegistry = Object.fromEntries([
-  ['guild', guild],
-  ...themeCards
-    .filter((card) => card.themeId !== 'guild')
-    .map((card): [string, ThemeDefinition] => [
-      card.themeId,
-      {
-        schemaVersion: 1,
-        id: card.themeId,
-        variants: { dark: { background: card.background }, light: { background: card.background } },
-      },
-    ]),
-]);
+export const themeRegistry: ThemeRegistry = { guild };
 
 export function hasThemeVariants(registry: ThemeRegistry, id: string): boolean {
   const theme = Object.hasOwn(registry, id) ? registry[id] : undefined;

@@ -2677,11 +2677,6 @@
       "expression": "const color = CREST_COLORS.includes(guild.crest.color) ? guild.crest.color : DEFAULT_GUILD.crest.color;"
     },
     {
-      "file": "src/shared/theme/generatedBackgrounds.ts",
-      "line": 19,
-      "expression": "color: 2,"
-    },
-    {
       "file": "src/shared/types/domain/guild.ts",
       "line": 9,
       "expression": "color: CrestColor;"
@@ -19007,23 +19002,6 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
-        },
-        {
           "name": "src/shared/types/domain/guild.ts:9",
           "state": "source-cascade",
           "accent": "all",
@@ -34503,23 +34481,6 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
-        },
-        {
           "name": "src/shared/types/domain/guild.ts:9",
           "state": "source-cascade",
           "accent": "all",
@@ -48599,23 +48560,6 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
-        },
-        {
           "name": "src/shared/types/domain/guild.ts:9",
           "state": "source-cascade",
           "accent": "all",
@@ -62693,23 +62637,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -78191,23 +78118,6 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
-        },
-        {
           "name": "src/shared/types/domain/guild.ts:9",
           "state": "source-cascade",
           "accent": "all",
@@ -92285,23 +92195,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/generatedBackgrounds.ts:19",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/generatedBackgrounds.ts",
-              "line": 19,
-              "expression": "color: 2,"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",

@@ -56,10 +56,13 @@ describe('appearance lifecycle', () => {
       ...defaultAppearance(),
       backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
-    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'generated' });
+    expect(h.root.hasAttribute('data-background')).toBe(false);
     expect(JSON.parse(h.values.get(KEY)!)).toMatchObject({
       backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
+    h.controller.dispose();
+    h.controller.init();
+    expect(h.controller.store.getState().preference.backgroundOverride).toEqual({ kind: 'none' });
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'image', assetId: 'dawn' } });
     expect(h.root.hasAttribute('data-background')).toBe(false);
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'scene', sceneId: 'aurora' } });
@@ -141,7 +144,7 @@ describe('storage exceptions', () => {
   });
 });
 
-it('switches the effective material with the OS, retains both choices and disables it for none', () => {
+it('retains both material choices through OS changes while retired backgrounds disable glass', () => {
   const preference = {
     ...defaultAppearance(),
     schemePreference: 'system' as const,
@@ -150,11 +153,11 @@ it('switches the effective material with the OS, retains both choices and disabl
   };
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
   h.controller.init();
-  expect(h.root.dataset.glass).toBe('liquid');
+  expect(h.root.dataset.glass).toBe('none');
   h.changeScheme(true);
-  expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'frosted' });
+  expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'none' });
   h.changeScheme(false);
-  expect(h.root.dataset.glass).toBe('liquid');
+  expect(h.root.dataset.glass).toBe('none');
   h.controller.setPreference({ ...preference, backgroundOverride: { kind: 'none' } });
   expect(h.root.dataset.glass).toBe('none');
   expect(h.controller.store.getState().preference.glass).toEqual(preference.glass);

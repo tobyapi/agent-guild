@@ -37,9 +37,9 @@ it.each(
     const expected = {
       ...legacy,
       version: 2,
-      themeId: ['dawn', 'night', 'aurora'].includes(themeId) ? 'guild' : themeId,
+      themeId: ['dawn', 'night', 'aurora', 'turtle'].includes(themeId) ? 'guild' : themeId,
       schemePreference: fixed ?? scheme,
-      backgroundOverride: ['dawn', 'night', 'aurora'].includes(themeId)
+      backgroundOverride: ['dawn', 'night', 'aurora', 'turtle'].includes(themeId)
         ? { kind: 'none' }
         : (background ?? { kind: 'none' }),
     };
@@ -116,7 +116,7 @@ it.each(themeCards)('migrates the saved v1 card $id without modifying any old ke
 it('never reapplies the v1 art priority to a v2 independent selection', () => {
   const preference = {
     ...defaultAppearance(),
-    themeId: 'turtle',
+    themeId: 'guild',
     schemePreference: 'dark' as const,
     backgroundOverride: { kind: 'none' as const },
   };
@@ -131,7 +131,7 @@ it('never reapplies the v1 art priority to a v2 independent selection', () => {
 it.each(
   (['dark', 'light', 'system'] as const).flatMap((schemePreference) =>
     backgrounds
-      .slice(2, 5)
+      .slice(2)
       .flatMap(([backgroundOverride, retiredId]) =>
         ['guild', retiredId].map((themeId) => ({ schemePreference, backgroundOverride, themeId })),
       ),
@@ -156,28 +156,48 @@ it.each(
   expect(h.root.hasAttribute('data-background')).toBe(false);
 });
 
-it.each(backgrounds.slice(2, 5))(
-  'migrates retired v1 card %j with its original scheme',
-  (background, themeId, scheme) => {
-    const legacy = {
-      ...defaultAppearance(),
-      version: 1,
-      themeId,
-      schemePreference: 'system',
-      backgroundOverride: background,
-    };
-    const stored = JSON.stringify(legacy);
-    const h = appearanceHarness({ [OLD]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
-    h.controller.init();
-    expect(h.controller.store.getState().preference).toMatchObject({
-      version: 2,
-      themeId: 'guild',
-      schemePreference: scheme,
-      backgroundOverride: { kind: 'none' },
-    });
-    expect(h.values.get(OLD)).toBe(stored);
-    expect(h.values.get(THEME)).toBe('light');
-    expect(h.values.get(ACCENT)).toBe('sky');
-    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
-  },
-);
+it.each(backgrounds.slice(2))('migrates retired v1 card %j with its original scheme', (background, themeId, scheme) => {
+  const legacy = {
+    ...defaultAppearance(),
+    version: 1,
+    themeId,
+    schemePreference: 'system',
+    backgroundOverride: background,
+  };
+  const stored = JSON.stringify(legacy);
+  const h = appearanceHarness({ [OLD]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
+  h.controller.init();
+  expect(h.controller.store.getState().preference).toMatchObject({
+    version: 2,
+    themeId: 'guild',
+    schemePreference: scheme,
+    backgroundOverride: { kind: 'none' },
+  });
+  expect(h.values.get(OLD)).toBe(stored);
+  expect(h.values.get(THEME)).toBe('light');
+  expect(h.values.get(ACCENT)).toBe('sky');
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+});
+
+it('retains independent v2 settings when the retired turtle theme has no background', () => {
+  const preference = {
+    ...defaultAppearance(),
+    themeId: 'turtle',
+    schemePreference: 'system' as const,
+    glass: { dark: 'liquid' as const, light: 'liquid' as const },
+    accentOverride: 'silver' as const,
+    motionPreference: 'off' as const,
+  };
+  const legacy = JSON.stringify({ ...preference, version: 1 });
+  const h = appearanceHarness({ [KEY]: JSON.stringify(preference), [OLD]: legacy, [THEME]: 'light', [ACCENT]: 'sky' });
+  h.controller.init();
+  expect(h.controller.store.getState().preference).toEqual({ ...preference, themeId: 'guild' });
+  expect(h.values.get(OLD)).toBe(legacy);
+  expect(h.values.get(THEME)).toBe('light');
+  expect(h.values.get(ACCENT)).toBe('sky');
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  h.controller.dispose();
+  h.storage.setItem.mockClear();
+  h.controller.init();
+  expect(h.storage.setItem).not.toHaveBeenCalled();
+});

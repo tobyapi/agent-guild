@@ -45,30 +45,25 @@ afterEach(() => {
 it('明るさ・背景・両方のガラスを独立保存し再起動後に保持する', () => {
   render(<AppearanceSection />);
   const group = screen.getByRole('radiogroup', { name: '背景' });
-  expect([...group.querySelectorAll('[role="radio"]')].map((button) => button.textContent)).toEqual([
-    'なし',
-    'ウミガメ',
-  ]);
-  fireEvent.click(screen.getByRole('radio', { name: 'ウミガメ' }));
+  expect([...group.querySelectorAll('[role="radio"]')].map((button) => button.textContent)).toEqual(['なし']);
   const darkGlass = screen.getByRole('radiogroup', { name: 'ガラスの種類（ダーク）' });
   fireEvent.click(darkGlass.querySelectorAll('button')[1]!);
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
   fireEvent.click(screen.getByRole('radio', { name: '停止' }));
   expect(document.documentElement.dataset).toMatchObject({
     theme: 'dark',
-    glass: 'liquid',
-    backgroundSource: 'generated',
+    glass: 'none',
   });
   cleanup();
   stopAppearance();
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
-  expect(screen.getByRole('radio', { name: 'ウミガメ' }).getAttribute('aria-checked')).toBe('true');
-  fireEvent.keyDown(screen.getByRole('radio', { name: 'ウミガメ' }), { key: 'ArrowDown' });
+  expect(screen.getByRole('radio', { name: 'なし' }).getAttribute('aria-checked')).toBe('true');
+  fireEvent.keyDown(screen.getByRole('radio', { name: 'なし' }), { key: 'ArrowDown' });
   expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'なし' }));
   expect(document.documentElement.dataset.theme).toBe('dark');
   fireEvent.keyDown(document.activeElement!, { key: 'End' });
-  expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'ウミガメ' }));
+  expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'なし' }));
   fireEvent.keyDown(document.activeElement!, { key: 'Home' });
   expect(document.documentElement.dataset.glass).toBe('none');
   expect(screen.getByText('背景がないときはガラス効果は適用されません。')).toBeTruthy();

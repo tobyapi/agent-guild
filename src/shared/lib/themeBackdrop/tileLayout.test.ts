@@ -1,58 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { behaviorFixture } from '../behaviorFixtures.test-support';
-import { buildTileTurtleBackdrop } from './tileTurtle';
 import type { BackdropLayer } from './skeleton';
 import { tileGrid, tileRepetitionSize, worstTileRepetitionSize } from './tileLayout';
 
 const recipe = behaviorFixture<{ name: string; input: { layers: BackdropLayer[] } }[]>(
   'theme-backdrop-recipe.json',
 ).find((item) => item.name === 'tile-turtle-none')!.input;
-const sizes = [
-  [1280, 720],
-  [1920, 1080],
-  [2520, 1080],
-  [2560, 1440],
-  [3440, 1440],
-  [3840, 2160],
-  [5120, 1440],
-  [1080, 1920],
-] as const;
 
-describe('viewport independent tile admission', () => {
-  it.each(sizes)('scales %s by %s without changing count or admission', (w, h) => {
-    const a = buildTileTurtleBackdrop(recipe, 'light', { viewport: [w, h] });
-    const b = buildTileTurtleBackdrop(recipe, 'light', { viewport: [w * 3, h * 3] });
-    expect(a.skeleton.cost).toEqual(b.skeleton.cost);
-    expect(a.budgetCost).toEqual({ primitives: 191, dom: 197, definitions: 1, movingGroups: 0 });
-    expect(a.artworks[0]!.rectangles).toHaveLength(b.artworks[0]!.rectangles.length);
-    a.artworks[0]!.rectangles.forEach((rect, index) => {
-      const other = b.artworks[0]!.rectangles[index]!;
-      for (const key of ['x', 'y', 'width', 'height'] as const) expect(rect[key]).toBeCloseTo(other[key], 12);
-      expect(rect.color).toBe(other.color);
-    });
-    expect(a.skeleton.cost.dom).toBeLessThanOrEqual(a.budgetCost.dom);
-  });
-
-  it.each([
-    [9, 21],
-    [32, 9],
-    [1, 10000],
-    [10000, 1],
-  ] as const)('admits or refuses before drawing at %s:%s', (w, h) => {
-    const a = buildTileTurtleBackdrop(recipe, 'light', { viewport: [w, h] });
-    expect(a.skeleton.cost.dom).toBeLessThanOrEqual(a.budgetCost.dom);
-    for (const rect of a.artworks[0]!.rectangles) {
-      expect(rect.x + rect.width).toBeLessThan(1);
-      expect(rect.y + rect.height).toBeLessThan(1);
-      expect((rect.width * w) / (rect.height * h)).toBeCloseTo(Math.round((rect.width * w) / (rect.height * h)), 7);
-    }
-    const dense = structuredClone(recipe);
-    dense.layers[0]!.density = 1;
-    expect(() => buildTileTurtleBackdrop(dense, 'light', { viewport: [w, h] })).toThrow(
-      expect.objectContaining({ field: 'layers', code: 'dom_budget_exceeded' }),
-    );
-  });
-
+describe('generic tile repetition bounds', () => {
   it('clamps counts at both supported aspect endpoints', () => {
     for (const [outside, end] of [
       [
