@@ -13,8 +13,8 @@ fn envelope_enumerates_eight_corners_and_contains_mixed_intermediate_colors() {
     value["palette"]["dark"] = json!(["#000000", "#ff0000", "#00ff00", "#0000ff"]);
     let corners = ColorEnvelope::from_recipe(&value, "dark").unwrap().corners();
     assert_eq!(corners.len(), 8);
-    for mask in 0..8 {
-        assert_eq!(corners[mask], std::array::from_fn(|c| f64::from(u8::from(mask & (1 << c) != 0))));
+    for (mask, corner) in corners.iter().enumerate() {
+        assert_eq!(*corner, std::array::from_fn(|c| f64::from(u8::from(mask & (1 << c) != 0))));
     }
     // Endpoints alone miss an intermediate background equal to gray text (contrast 1).
     let protection = resolve_text_protection(
@@ -25,6 +25,19 @@ fn envelope_enumerates_eight_corners_and_contains_mixed_intermediate_colors() {
     )
     .unwrap();
     assert!(protection.alpha > 0.0 && protection.verified);
+}
+
+#[test]
+fn opaque_fallback_accepts_455_but_rejects_449_and_translucent_text_is_composited() {
+    let envelope = ColorEnvelope::from_recipe(&recipe(), "dark").unwrap();
+    let gray = |ratio: f64| 1.055 * ((ratio - 1.0) * 0.05).powf(1.0 / 2.4) - 0.055;
+    let result = resolve_text_protection(envelope, Some([0.0; 3]), &[state([gray(4.55); 3], 1.0)], false).unwrap();
+    assert_eq!(result.alpha, 1.0);
+    assert!(result.verified);
+    assert!(resolve_text_protection(envelope, Some([0.0; 3]), &[state([gray(4.49); 3], 1.0)], false).is_err());
+    let opaque = resolve_text_protection(envelope, Some([0.0; 3]), &[state([1.0; 3], 1.0)], false).unwrap();
+    let translucent = resolve_text_protection(envelope, Some([0.0; 3]), &[state([1.0; 3], 0.6)], false).unwrap();
+    assert!(translucent.alpha > opaque.alpha);
 }
 
 #[test]

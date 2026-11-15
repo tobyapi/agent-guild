@@ -8,6 +8,24 @@ fn expansion(cost: DrawingCost) -> LayerExpansion {
 }
 
 #[test]
+fn layer_costs_and_patterns_are_added_to_base_without_resetting_the_budget() {
+    let mut value = recipe();
+    let second_layer = value["layers"][0].clone();
+    value["layers"].as_array_mut().unwrap().push(second_layer);
+    let cost = DrawingCost { primitives: 500, dom: 100, definitions: 8, moving_groups: 1 };
+    let mut layers = vec![expansion(cost), expansion(cost)];
+    layers[0].patterns.push(PatternRepeat { width: 100.0, height: 100.0, primitives: 2 });
+    layers[0].patterns.push(PatternRepeat { width: 100.0, height: 100.0, primitives: 3 });
+    let base = DrawingCost { primitives: 20, dom: 10, definitions: 1, moving_groups: 0 };
+    assert_eq!(
+        validate_recipe_cost(&value, [100.0; 2], base, &layers).unwrap(),
+        DrawingCost { primitives: 1040, dom: 210, definitions: 17, moving_groups: 2 }
+    );
+    layers[1].cost.moving_groups = 2;
+    assert_eq!(validate_recipe_cost(&value, [100.0; 2], base, &layers).unwrap_err().code, "motion_budget_exceeded");
+}
+
+#[test]
 fn cost_limits_are_inclusive_and_each_overrun_has_a_fixed_code() {
     let boundary = DrawingCost { primitives: 2000, dom: 400, definitions: 32, moving_groups: 2 };
     assert_eq!(
