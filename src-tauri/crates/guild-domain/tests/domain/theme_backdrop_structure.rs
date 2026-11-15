@@ -3,7 +3,8 @@ use serde_json::{json, Value};
 
 pub(super) fn recipe() -> Value {
     let cases: Value =
-        serde_json::from_str(include_str!("../../../../../contracts/behavior/theme-backdrop-recipe.json")).unwrap();
+        serde_json::from_str(include_str!("../../../../../contracts/behavior/theme-backdrop-recipe.json"))
+            .unwrap_or_else(|error| panic!("Recipe fixture must be valid JSON: {error}"));
     cases[0]["input"].clone()
 }
 
