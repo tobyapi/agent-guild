@@ -63,11 +63,13 @@ fn restricted_roles_never_gain_outside_access_to_enable_commands() {
         let mut raw = input(role, "ハル");
         raw.permissions = ALL;
         let permissions = normalize_agent_input(raw, Some(&claude)).unwrap().permissions;
-        assert!(!permissions.write_anywhere && !permissions.web_fetch, "{role}: 役割にない許可は増えない");
+        assert!(!permissions.write_anywhere, "{role}: 役割にない許可は増えない");
+        assert_eq!((permissions.web_search, permissions.web_fetch), (role == "ideator", role == "ideator"));
         assert!(permissions.write_files && permissions.read_files && permissions.skills);
         // コマンドを隔離できないバックエンドでは、外への書き込みを足して使えるようにはせず、コマンドを使わない
         let usable = effective_permissions(&agent("a", role, "ハル"), Some(&claude));
-        assert!(!usable.run_commands && !usable.write_anywhere && !usable.web_fetch, "{role}");
+        assert!(!usable.run_commands && !usable.write_anywhere, "{role}");
+        assert_eq!((usable.web_search, usable.web_fetch), (role == "ideator", role == "ideator"));
         assert!(usable.write_files && usable.read_files && usable.skills, "{role}");
     }
     assert_eq!(normalize_agent_input(input("worker", "ハル"), Some(&claude)).unwrap().permissions, ALL);
@@ -128,7 +130,10 @@ fn roles_start_with_their_fixed_permissions_and_response_policy() {
     );
     assert_eq!(templates().iter().filter(|t| t.defaults.can_delegate).count(), 1, "割り振れるのはマネージャーだけ");
     let ideator = defaults("ideator");
-    assert_eq!(ideator.permissions, workspace_only);
+    assert_eq!(
+        ideator.permissions,
+        guild_domain::agent::Permissions { web_search: true, web_fetch: true, ..workspace_only }
+    );
     assert_eq!((ideator.unmentioned, ideator.consultable), (UnmentionedPolicy::Ignore, true));
     assert!(!ideator.can_delegate && !ideator.autonomy_enabled);
     assert!(templates().iter().all(|t| !t.defaults.autonomy_enabled), "勝手に会話を増やさない");

@@ -192,5 +192,12 @@ it('役割は4つで、発想役は呼ばれたときだけ答える設定で作
       .getAttribute('aria-checked'),
   ).toBe('true');
   expect(screen.getByRole('button', { name: '発想役を作成' })).toBeTruthy();
-  expect(enabledPermissions()).toEqual(['ファイルを読む', 'ファイルを書く', 'コマンドを実行', 'スキルを使う']);
+  expect(enabledPermissions()).toEqual([
+    'Web 検索',
+    'Web ページを読む',
+    'ファイルを読む',
+    'ファイルを書く',
+    'コマンドを実行',
+    'スキルを使う',
+  ]);
 });

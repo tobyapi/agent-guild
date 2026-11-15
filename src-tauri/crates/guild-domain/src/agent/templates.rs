@@ -45,7 +45,7 @@ const FULL_ACCESS: Permissions = Permissions {
     skills: true,
 };
 
-/// 発想・評価・進行管理は作業フォルダ内の操作とスキル。Web と外部への書き込みは許さない。
+/// 評価・進行管理は作業フォルダ内の操作とスキル。Web と外部への書き込みは許さない。
 const WORKSPACE_TOOLS: Permissions =
     Permissions { web_search: false, web_fetch: false, write_anywhere: false, ..FULL_ACCESS };
 
@@ -81,7 +81,7 @@ const ROWS: [Row; 4] = [
         ],
         role: texts::IDEATOR_ROLE,
         expertise: texts::IDEATOR_EXPERTISE,
-        permissions: WORKSPACE_TOOLS,
+        permissions: Permissions { web_search: true, web_fetch: true, ..WORKSPACE_TOOLS },
         unmentioned: UnmentionedPolicy::Ignore,
         flags: Flags { consultable: true, ..QUIET },
     },

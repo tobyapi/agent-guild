@@ -39,7 +39,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
 |---|---|---|---|---|---|---|---|
 | `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills | answer | false | false | false | worker |
-| `ideator` 発想役 | 発想役 | readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
+| `ideator` 発想役 | 発想役 | webSearch, webFetch, readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
 | `expert` 専門家 | 専門家 | readFiles, readAnywhere, writeFiles, runCommands, skills | fallback | true | false | false | expert |
 | `manager` マネージャー | マネージャー | readFiles, readAnywhere, writeFiles, runCommands, skills | lead | false | true | false | manager |
 

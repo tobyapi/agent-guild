@@ -141,8 +141,8 @@
     ],
     "backend": "claude",
     "permissions": {
-      "webSearch": false,
-      "webFetch": false,
+      "webSearch": true,
+      "webFetch": true,
       "readFiles": true,
       "readAnywhere": false,
       "writeFiles": true,
@@ -151,8 +151,8 @@
       "skills": true
     },
     "usable": {
-      "webSearch": false,
-      "webFetch": false,
+      "webSearch": true,
+      "webFetch": true,
       "readFiles": true,
       "readAnywhere": false,
       "writeFiles": true,
@@ -195,8 +195,8 @@
     ],
     "backend": "codex",
     "permissions": {
-      "webSearch": false,
-      "webFetch": false,
+      "webSearch": true,
+      "webFetch": true,
       "readFiles": true,
       "readAnywhere": false,
       "writeFiles": true,
@@ -205,8 +205,8 @@
       "skills": true
     },
     "usable": {
-      "webSearch": false,
-      "webFetch": false,
+      "webSearch": true,
+      "webFetch": true,
       "readFiles": true,
       "readAnywhere": false,
       "writeFiles": true,
@@ -249,8 +249,8 @@
     ],
     "backend": "ollama",
     "permissions": {
-      "webSearch": false,
-      "webFetch": false,
+      "webSearch": true,
+      "webFetch": true,
       "readFiles": true,
       "readAnywhere": false,
       "writeFiles": true,

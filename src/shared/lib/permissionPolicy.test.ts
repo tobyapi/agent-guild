@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import snapshot from '../../../contracts/ipc/snapshot.json';
 import cases from '../../../contracts/behavior/role-permissions.json';
 import type { AgentTemplate, BackendInfo } from '@/shared/types/domain';
+import { leakRisk, permissionRuleProblem } from './permissions';
 import {
   rolePermissions,
   supportedPermissions,
@@ -24,6 +25,20 @@ describe('役割で決まる権限と、バックエンドで使える操作（R
       expect(new Set(same.map((other) => other.backend)).size).toBe(same.length);
       for (const other of same) expect(other.permissions).toEqual(example.permissions);
     }
+  });
+  it('発想役の Web は Claude と Codex で使えるが、コマンドと漏えい注意は既存の規則に従う', () => {
+    const permissions = rolePermissions(templates, ['発想役']);
+    const claude = snapshot.backends.find((item) => item.id === 'claude') as BackendInfo;
+    const codex = snapshot.backends.find((item) => item.id === 'codex') as BackendInfo;
+    const usableClaude = supportedPermissions(permissions, claude);
+    expect(usableClaude).toMatchObject({ webSearch: true, webFetch: true, runCommands: false });
+    expect(permissionRuleProblem(claude, permissions)?.field).toBe('permissions');
+    expect(permissionRuleProblem(claude, usableClaude)).toBeNull();
+    expect(leakRisk(claude, usableClaude)).toBeNull();
+    const usableCodex = supportedPermissions(permissions, codex);
+    expect(usableCodex).toEqual(permissions);
+    expect(permissionRuleProblem(codex, usableCodex)).toBeNull();
+    expect(leakRisk(codex, usableCodex)).toBeTruthy();
   });
   it('使わない操作には理由を付け、権限を増やす案内はしない', () => {
     const claude = snapshot.backends.find((item) => item.id === 'claude') as BackendInfo;

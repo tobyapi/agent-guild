@@ -34,6 +34,14 @@ describe('役割の権限と、バックエンドで使える操作（Rust・画
   it.each(cases)('$name', (example) => {
     expect(usablePermissions(example.permissions, info(example.backend))).toEqual(example.usable);
   });
+  it('発想役を Grok に渡すと、Web 取得は残り、未対応の Web 検索だけが除かれる', () => {
+    const granted = cases.find((example) => example.tags[0] === '発想役')!.permissions;
+    const backend = info('grok');
+    const usable = usablePermissions(granted, backend);
+    expect(usable).toEqual({ ...granted, webSearch: false });
+    expect(brokenRule(backend.permissionRules, usable)).toBeUndefined();
+    expect(backend.leakRisks.some((risk) => risk.length > 0 && risk.every((key) => usable[key]))).toBe(true);
+  });
 
   it('同じ役割の権限は、どのバックエンドの実例でも同じ', () => {
     for (const example of cases) {

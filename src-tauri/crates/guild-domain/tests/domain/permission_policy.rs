@@ -54,6 +54,10 @@ fn role_permissions_follow_the_shared_examples() {
         existing.permissions = ALL;
         assert_eq!(existing.behavior().permissions, case.permissions, "{}", case.name);
         assert_eq!(effective_permissions(&existing, Some(backend)), case.usable, "{}", case.name);
+        // 過去に保存した個別権限がオフでも、現在の先頭タグから権限を求める（移行不要）。
+        existing.permissions = Permissions::default();
+        assert_eq!(existing.behavior().permissions, case.permissions, "{}: 古い保存値", case.name);
+        assert_eq!(effective_permissions(&existing, Some(backend)), case.usable, "{}: 古い保存値", case.name);
         assert!(contains(case.permissions, case.usable), "{}: 使える操作は権限を超えない", case.name);
     }
 }
