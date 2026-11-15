@@ -49,7 +49,11 @@ describe('コマンドの渡し方（隔離の有無を引数で指定）', () =
   it('隔離があっても、役割にない操作（外への書き込み・Web）は増えない', () => {
     for (const name of ROLES) {
       const usable = usablePermissions(role(name), { ...claudeAdapter.info(), permissionRules: permissionRules(true) });
-      expect(usable).toMatchObject({ writeAnywhere: false, webFetch: false, webSearch: false });
+      expect(usable).toMatchObject({
+        writeAnywhere: false,
+        webFetch: role(name).webFetch,
+        webSearch: role(name).webSearch,
+      });
     }
   });
 });
