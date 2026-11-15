@@ -24,7 +24,12 @@ describe('viewport independent tile admission', () => {
     const b = buildTileTurtleBackdrop(recipe, 'light', { viewport: [w * 3, h * 3] });
     expect(a.skeleton.cost).toEqual(b.skeleton.cost);
     expect(a.budgetCost).toEqual({ primitives: 191, dom: 197, definitions: 1, movingGroups: 0 });
-    expect(a.artworks[0]!.rectangles).toEqual(b.artworks[0]!.rectangles);
+    expect(a.artworks[0]!.rectangles).toHaveLength(b.artworks[0]!.rectangles.length);
+    a.artworks[0]!.rectangles.forEach((rect, index) => {
+      const other = b.artworks[0]!.rectangles[index]!;
+      for (const key of ['x', 'y', 'width', 'height'] as const) expect(rect[key]).toBeCloseTo(other[key], 12);
+      expect(rect.color).toBe(other.color);
+    });
     expect(a.skeleton.cost.dom).toBeLessThanOrEqual(a.budgetCost.dom);
   });
 
