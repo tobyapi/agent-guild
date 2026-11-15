@@ -155,20 +155,36 @@ full-canvas underlay and is included in the returned `ColorExpansion` with
 `usesBlackShadow=false`. This metadata is ready for later text-token protection wiring;
 this static renderer does not resolve text tokens or scrim alpha.
 
-Density below 0.5 draws one turtle; density at least 0.5 draws a 2×2 repeat inside the
-unit square. Same-role horizontal cells merge into rectangles. A single sprite uses
-52 rectangles; the shared normal example uses 208. These small fixed repeats expand
-directly to rectangles rather than an SVG pattern: no tiling occurs outside the unit
-square, no extra definition is needed, and the budget counts exactly the emitted
-primitives and DOM. The existing area-conversion formula remains unchanged for future
-components that actually emit SVG patterns. Depth is fixed to 1 and tile motion to none
-by the existing Recipe catalog. Repeated sprites preserve the unit-square safety border.
+Tile repeats across the full anchor: left/right use an 18%-wide full-height band;
+bottom anchors use an 18% by 18% corner. This specializes the Stage 4a generic
+seeded square placement only for tile; generic skeleton placement is unchanged.
+Scale sets the desired sprite side in CSS pixels, `S = 180 * scale`, rather than
+shrinking the tile region. Density controls a quantized spacing:
+`pitch = S * (2 - density)`, `columns = ceil(frameCSSWidth / pitch)`,
+`rows = ceil(frameCSSHeight / pitch)` (each at least one). Divide the entire frame
+into equal cells; the sprite side is `min(S, 0.9*cellWidth, 0.9*cellHeight)`.
+This fits whole sprites without clipped heads or feet. Seeded Mulberry32 selects
+the same fractional offset within each cell's spare horizontal/vertical space.
+Thus larger density increases counts in steps; it never selects a fixed 1-or-4 mode.
 
-The normal example has content cost 208 primitives / 208 DOM / 0 definitions / 0 moving
-groups; add one opaque-underlay rectangle, the shared four-rectangle clip and three-node
-shell, and three layer groups. Final cost: 213 primitives / 219 DOM / 1 definition /
-0 moving groups. Clipped geometry is never deducted. Text protection rectangles can
-increase the clip cost and are included through the existing skeleton calculation.
+The 16 by 16 sprite is a top view with a separate head, four diagonal feet, tail,
+and contrasting shell divisions. Same-role horizontal cells merge to 62 rectangles.
+The normal example at 1920 by 1080 uses 2 by 2 sprites, 248 content primitives/DOM,
+plus one underlay, four clip rectangles, the shared shell and three layer groups.
+Final cost: **253 primitives / 259 DOM / 1 definition / 0 moving groups**.
+At 21:9 (2520 by 1080), 3 by 2 sprites use 377 primitives / 383 DOM / 1 definition.
+Dense or larger expansions remain subject to the unchanged 2000/400/32/2 limits;
+oversized direct expansions are refused before iteration. Clipped geometry is never
+deducted, and additional text protection rectangles still count through the skeleton.
+
+Direct node expansion was chosen instead of SVG pattern so actual emitted rectangles
+and DOM are counted exactly, without conservative full-viewport pattern repetition.
+There is no pattern definition and no change to the shared area-conversion formula.
+The repeated canvas fills a rectangular anchor; each individual sprite retains the
+Stage 4b unit-square contract. Its normalized rectangle coordinates compensate for
+the rectangular canvas transform using actual CSS dimensions, keeping every pixel
+square in 16:9, 21:9 and 9:16. All repeated geometry stays strictly inside the anchor.
+Tile motion remains none by the catalog. Other artwork still uses fitArtwork unchanged.
 
 Rendering preserves the stationary clipped outer `g` → translated motion `g` →
 aspect-corrected artwork `g` hierarchy. `shapeRendering=crispEdges` is set on the artwork.

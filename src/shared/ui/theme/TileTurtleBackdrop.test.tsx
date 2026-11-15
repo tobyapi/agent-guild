@@ -159,7 +159,7 @@ describe('tile turtle vertical slice', () => {
   });
 
   it('has a head, four protruding feet, tail and shell divisions', () => {
-    expect(TURTLE_GRID[2]!.slice(6, 10)).toBe('1221');
+    expect(TURTLE_GRID[2].slice(6, 10)).toBe('1221');
     for (const y of [5, 12]) {
       expect(TURTLE_GRID[y]!.slice(1, 4)).toBe('122');
       expect(TURTLE_GRID[y]!.slice(12, 15)).toBe('221');
