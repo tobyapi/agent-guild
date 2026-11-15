@@ -2,7 +2,7 @@ use guild_domain::theme_backdrop::{parse_recipe_json, RecipeValidationError};
 use serde_json::{json, Value};
 
 fn assert_rejected(input: &str, code: &'static str) {
-    assert_eq!(parse_recipe_json(input), Err(RecipeValidationError { field: "$", code }));
+    assert_eq!(parse_recipe_json(input), Err(RecipeValidationError { field: "$".into(), code }));
 }
 
 #[test]
@@ -75,7 +75,7 @@ fn diagnostics_contain_only_app_owned_field_and_code() {
     ];
     for (input, code) in inputs {
         let error = parse_recipe_json(&input).unwrap_err();
-        assert_eq!(serde_json::to_value(error).unwrap(), json!({"field":"$","code":code}));
+        assert_eq!(serde_json::to_value(&error).unwrap(), json!({"field":"$","code":code}));
         let diagnostic = format!("{error:?}");
         assert!(!diagnostic.contains("private-key"));
         assert!(!diagnostic.contains("private-value"));
