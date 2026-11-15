@@ -76,3 +76,47 @@ Rust の `guild-domain::theme_backdrop::parse_recipe_json` は、Value 化で重
 追加の確定コードは、型不一致・整数でない数値が `invalid_type`、数値範囲外が `out_of_range`、必須項目不足が `required`（欠けた既知パス）、title違反が `invalid_title`、palette個数違反が `invalid_palette_length`、dark/light長不一致が `palette_length_mismatch`（`palette`）、colorが実配列長以上なら `color_out_of_bounds`。空のlayersは `too_few_layers`、未対応のcomposition/anchorはそれぞれ `unsupported_composition` / `unsupported_anchor`。fieldは違反した既知項目を指す。整数はJSON Schemaと同じく数値の小数部が0なら受理する。
 
 palette 長一致・実配列に対する color 範囲・title・数値境界・必須/追加項目は工程2bの追加Rustテストで検証する。構文/重複キー・バイト数/深さは工程2aで検証済み。展開予算・文字保護は工程2c、TS検証は工程3に残す。
+
+## 展開予算と色包絡の計算契約（工程2c）
+
+Rust domain に `validate_recipe_cost`・`ColorEnvelope::from_recipe`・`resolve_text_protection` を置く。前二者は構造・カタログ検証を先に行う。構文検証は従来どおり Value 化の前に呼ぶ。Recipe のモデル入力にコスト・viewport・surface・文字色・scrim を追加しない。これらはアプリ所有の展開情報・解決済み表示情報である。
+
+固定部品の SVG は後続工程4〜8で作るため、この時点では部品ごとの寸法・要素数を捏造しない。呼び出し側が実際の固定部品の展開から `LayerExpansion`（レイヤーごとの非反復プリミティブ・DOM・defs・動くグループ、pattern の周期とセル内プリミティブ数）と共通の `DrawingCost` を渡す。モデルの自己申告や任意の外部メタデータを渡してはならない。レイヤー数の一致、動くレイヤーのグループが0でないことも検査する。透明・clip外の部品も上限計算から引かない。paper の depth の分だけ実際に展開した部品数を集計する。DOM は defs 内・wrapper・use・clip・mask も含み、共通要素は base で数える。pattern 内のプリミティブは非反復数へ二重計上しない。複数patternは全て加算し、入れ子patternはv1の固定部品で使用しない。
+
+### 固定する式1: pattern の面積換算
+
+```text
+N_i = (ceil(W / w_i) + 1) * (ceil(H / h_i) + 1)
+P_total = P_base + sum_i(P_direct_i + sum_j(N_ij * P_cell_ij)) <= 2000
+DOM_base + sum_i(DOM_i) <= 400
+defs_base + sum_i(defs_i) <= 32
+motion_base + sum_i(motion_i) <= 2
+```
+
+W/H は移動の包絡を含む viewport の CSS px、w/h は transform 後の実際の反復周期の CSS px。DPR は両方に掛かるため反復回数は変わらない。各軸の +1 は位相と端の部分セルを覆う保守的な1行/列。二次元の反復面積をセル面積で換算し、DOMが小さいだけで予算を回避できない。viewport・周期は有限かつ正、セル内プリミティブ数は正整数。集計は飽和加算/乗算でオーバーフローによる上限回避を防ぐ。上限ちょうどは受理する。
+
+拒否は field=`layers`、順に `primitive_budget_exceeded` / `dom_budget_exceeded` / `definition_budget_exceeded` / `motion_budget_exceeded`。アプリ所有の展開情報が不足・不正なら `$ / invalid_expansion`。後者はモデルの再生成では直せないため、生成再依頼へ送らず呼び出し側の失敗として扱う。既存共有18例は変更せず、専用Rustテストで各上限と面積換算を固定する。
+
+### 固定する式2: 有限個の色の組み合わせと区間による証明
+
+```text
+lo_c = 0; hi_c = max(palette[k]_c for every k)
+V(B) = { (x_R,x_G,x_B) | x_c in {lo_c, hi_c} }  (8 corners)
+over(C,a,B)_c = a*C_c + (1-a)*B_c
+L(B) = [min(v in V(B)) L(v), max(v in V(B)) L(v)]
+F = L(over(text.rgb, text.alpha, B)); G = L(B)
+R(F,G) = (F_lo+0.05)/(G_hi+0.05) if F_lo > G_hi
+         (G_lo+0.05)/(F_hi+0.05) if G_lo > F_hi
+         1 otherwise
+alpha = first a in {0,0.001,...,0.999} with min_state R(F(a),G(a)) >= 4.6
+```
+
+RGB は0..1のsRGB。各候補で最初に surface を合成し、次に状態面・入力面などの overlays を下から順に合成する。最後に指定opacityの文字を背景へ合成する。合成してから各チャンネルを `c/12.92`（c<=0.04045）または `((c+0.055)/1.055)^2.4` で線形化し、`L=0.2126R+0.7152G+0.0722B` とする。
+
+固定描画部品は palette 色と黒い固定影の sRGB source-over 合成に制限する。この制限内では alpha、境界アンチエイリアス、移動、重なり、palette 間の補間はすべて box 内にある。黒い影を全kindに含めることで過小評価を避ける。boxは凸包より広いため scrim が厚くなる場合がある。sRGB線形化と輝度は各成分で単調なので、8頂点が連続な全中間色の輝度区間を覆う。有限個のpalette端点だけのコントラスト検査では、中間色で文字色と一致するケースを取りこぼすため不可。
+
+foreground/background の相関を捨てた区間で最悪値を取るため、Rは真の最小コントラストの下界である。区間が交わる場合は1とし、端点が合格しても内部に低コントラストがある可能性を合格扱いしない。文字のcoverage自体は文字opacityに含めない。色空間・合成方式・palette外の色・filter等を変える場合はこの証明を流用せず、包絡未確定として100%へ戻す。
+
+候補なし、またはラスタ検査不合格を通知された場合は100%の既存surfaceを検査し、4.5以上ならalpha=1、未満なら `$ / text_protection_failed` で保存・適用を拒否する。トークン未解決（surfaceなし、状態空、非有限/範囲外の色を含む）ではalpha=1かつ `verified=false` を返す。これは品質合格ではなく、保存・適用の合格条件には使えない。100%で4.5以上4.6未満はフォールバックでのみ受理する。
+
+呼び出し側は3欄×dark/lightの6単位ごとに全ての実際の文字色・状態を渡す。省略した文字色の安全性は保証しない。任意色も列挙し、解決できない間は100%を使う。Recipe/viewport/配色/文字スタイル変更後の再計算と、実描画の4.5検査は後続UI/描画工程で接続する。この工程のテストは合成された入力で計算規則を検証するもので、未実装SVG部品の実コストや実画面6単位の合格を示さない。TS側への同じ計算規則の接続は工程3に残す。
