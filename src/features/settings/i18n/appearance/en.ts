@@ -30,4 +30,13 @@ export const en: Messages<typeof ja> = {
   motionLabel: 'Background motion',
   motionSystem: 'Follow OS',
   motionOff: 'Off',
+  backgroundAdd: 'Add image',
+  backgroundImage: 'Image',
+  backgroundDelete: 'Delete',
+  backgroundDeleteConfirm: 'Delete this background image?',
+  backgroundTooLarge: 'Choose an image no larger than 5 MiB.',
+  backgroundFormat: 'Choose a PNG, JPEG or WebP image.',
+  backgroundBroken: 'Cannot read this image. It may be damaged or exceed supported limits.',
+  backgroundUnavailable: 'Background images are unavailable in this environment.',
+  backgroundFailed: 'The background image operation failed.',
 };

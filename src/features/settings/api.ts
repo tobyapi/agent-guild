@@ -2,6 +2,10 @@ import { invoke } from '@/shared/api';
 import type { DataDirMode, Language } from '@/shared/types/domain';
 
 export const settingsApi = {
+  importBackground: (data: string) => invoke('import_background_image', { data }),
+  listBackgrounds: () => invoke('list_background_images'),
+  getBackground: (id: string) => invoke('get_background_image', { id }),
+  deleteBackground: (id: string) => invoke('delete_background_image', { id }),
   backendApiKey: (backendId: string, action: 'status' | 'set' | 'delete', key?: string) =>
     invoke('backend_api_key', { backendId, action, key }),
   backendAuthModes: () => invoke('get_backend_auth_modes'),

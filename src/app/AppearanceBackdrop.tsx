@@ -1,5 +1,5 @@
 import { useBackdropEnvironment } from './useBackdropEnvironment';
-import { useAppearanceStore } from '@/features/settings';
+import { useBackgroundImage, useAppearanceStore } from '@/features/settings';
 import { themeRegistry } from '@/shared/theme/registry';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import { ThemeBackdrop } from '@/shared/ui/theme/ThemeBackdrop';
@@ -9,5 +9,7 @@ export function AppearanceBackdrop() {
   const preference = useAppearanceStore((state) => state.preference);
   const { scheme } = useBackdropEnvironment();
   const appearance = resolveAppearance(preference, themeRegistry, scheme);
-  return <ThemeBackdrop background={appearance.backgroundOverride} motion={appearance.motion} />;
+  const background = appearance.backgroundOverride;
+  const imageUrl = useBackgroundImage(background.kind === 'image' ? background.assetId : null);
+  return <ThemeBackdrop background={background} motion={appearance.motion} imageUrl={imageUrl} />;
 }

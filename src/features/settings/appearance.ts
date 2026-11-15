@@ -20,6 +20,11 @@ export function setBackground(backgroundOverride: BackgroundSpec): void {
   controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
 }
 
+export function clearBackgroundIfSelected(id: string): void {
+  const background = controller.store.getState().preference.backgroundOverride;
+  if (background?.kind === 'image' && background.assetId === id) setBackground({ kind: 'none' });
+}
+
 export function setGlassStyle(scheme: Scheme, style: GlassStyle): void {
   const preference = controller.store.getState().preference;
   controller.setPreference({ ...preference, glass: { ...preference.glass, [scheme]: style } });

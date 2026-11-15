@@ -30,4 +30,13 @@ export const ko: Messages<typeof ja> = {
   motionLabel: '배경 움직임',
   motionSystem: 'OS 설정 따르기',
   motionOff: '끄기',
+  backgroundAdd: '이미지 추가',
+  backgroundImage: '이미지',
+  backgroundDelete: '삭제',
+  backgroundDeleteConfirm: '이 배경 이미지를 삭제할까요?',
+  backgroundTooLarge: '5 MiB 이하의 이미지를 선택하세요.',
+  backgroundFormat: 'PNG, JPEG 또는 WebP 이미지를 선택하세요.',
+  backgroundBroken: '이미지를 읽을 수 없습니다. 손상되었거나 지원 범위를 초과했습니다.',
+  backgroundUnavailable: '이 환경에서는 배경 이미지를 사용할 수 없습니다.',
+  backgroundFailed: '배경 이미지 작업에 실패했습니다.',
 };

@@ -30,4 +30,13 @@ export const zhHant: Messages<typeof ja> = {
   motionLabel: '背景動態',
   motionSystem: '跟隨系統',
   motionOff: '關閉',
+  backgroundAdd: '新增圖片',
+  backgroundImage: '圖片',
+  backgroundDelete: '刪除',
+  backgroundDeleteConfirm: '刪除此背景圖片？',
+  backgroundTooLarge: '請選擇不超過5 MiB的圖片。',
+  backgroundFormat: '請選擇PNG、JPEG或WebP圖片。',
+  backgroundBroken: '無法讀取圖片。圖片可能已損壞或超出支援範圍。',
+  backgroundUnavailable: '此環境不支援背景圖片。',
+  backgroundFailed: '背景圖片操作失敗。',
 };

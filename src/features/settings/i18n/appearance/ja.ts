@@ -28,4 +28,13 @@ export const ja = {
   motionLabel: '背景の動き',
   motionSystem: 'OS の動き設定に合わせる',
   motionOff: '停止',
+  backgroundAdd: '画像を追加',
+  backgroundImage: '画像',
+  backgroundDelete: '削除',
+  backgroundDeleteConfirm: 'この背景画像を削除しますか？',
+  backgroundTooLarge: '画像は5 MiB以下にしてください。',
+  backgroundFormat: 'PNG・JPEG・WebPの画像を選んでください。',
+  backgroundBroken: '画像を読み込めません。破損しているか、対応範囲を超えています。',
+  backgroundUnavailable: 'この環境では背景画像を利用できません。',
+  backgroundFailed: '背景画像の操作に失敗しました。',
 };

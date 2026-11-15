@@ -30,4 +30,13 @@ export const zhHans: Messages<typeof ja> = {
   motionLabel: '背景动态',
   motionSystem: '跟随系统',
   motionOff: '关闭',
+  backgroundAdd: '添加图片',
+  backgroundImage: '图片',
+  backgroundDelete: '删除',
+  backgroundDeleteConfirm: '删除此背景图片？',
+  backgroundTooLarge: '请选择不超过5 MiB的图片。',
+  backgroundFormat: '请选择PNG、JPEG或WebP图片。',
+  backgroundBroken: '无法读取图片。图片可能已损坏或超出支持范围。',
+  backgroundUnavailable: '此环境不支持背景图片。',
+  backgroundFailed: '背景图片操作失败。',
 };
