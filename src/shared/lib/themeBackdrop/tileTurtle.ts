@@ -7,9 +7,12 @@ import type { BackdropLayer, BackdropSkeleton } from './skeleton';
 import { validateRecipeStructure } from './structure';
 import { buildTurtleArtwork } from './turtle';
 import type { TurtleArtwork } from './turtle';
+import type { DrawingCost, LayerExpansion } from './cost';
+import { tileRepetitionSize, worstTileRepetitionSize } from './tileLayout';
 
 export interface TileTurtleBackdrop {
   skeleton: BackdropSkeleton;
+  budgetCost: DrawingCost;
   palette: string[];
   artworks: TurtleArtwork[];
   colorExpansion: ColorExpansion;
@@ -27,6 +30,11 @@ export function buildTileTurtleBackdrop(
     if (layer.kind !== 'tile' || layer.motif !== 'turtle') reject(`layers[${index}]`, 'unsupported_artwork');
   });
   const palette = [...input.palette[scheme]];
+  const worstContent = input.layers.map((layer) => {
+    const size = worstTileRepetitionSize(layer);
+    return buildTurtleArtwork(layer, palette.length, size, [0, 0]).expansion;
+  });
+  const budgetCost = buildBackdropSkeleton(recipe, withUnderlay(worstContent), geometry).cost;
   const random = placementRandom(input.seed);
   const artworks = input.layers.map((layer) =>
     buildTurtleArtwork(
@@ -37,18 +45,10 @@ export function buildTileTurtleBackdrop(
         (anchorBounds(layer.anchor).height * geometry.viewport[1]) / 1000,
       ],
       [random(), random()],
+      tileRepetitionSize(layer, geometry.viewport),
     ),
   );
-  const content = artworks.map(({ expansion }, index) => ({
-    cost: {
-      ...expansion.cost,
-      // The full-canvas opaque underlay is rendered once before the clipped layers.
-      primitives: expansion.cost.primitives + (index === 0 ? 1 : 0),
-      dom: expansion.cost.dom + (index === 0 ? 1 : 0),
-    },
-    patterns: expansion.patterns,
-  }));
-  const skeleton = buildBackdropSkeleton(recipe, content, geometry);
+  const skeleton = buildBackdropSkeleton(recipe, withUnderlay(artworks.map(({ expansion }) => expansion)), geometry);
   // Tile has no motion. Its repeated canvas occupies the full anchor, while each
   // sprite compensates for the rectangular canvas in physical viewport pixels.
   for (const child of skeleton.svg.children) {
@@ -66,6 +66,7 @@ export function buildTileTurtleBackdrop(
   const surface = palette[0]!;
   return {
     skeleton,
+    budgetCost,
     palette,
     artworks,
     colorExpansion: {
@@ -77,4 +78,15 @@ export function buildTileTurtleBackdrop(
       usesBlackShadow: false,
     },
   };
+}
+
+function withUnderlay(expansions: readonly LayerExpansion[]): LayerExpansion[] {
+  return expansions.map((expansion, index) => ({
+    cost: {
+      ...expansion.cost,
+      primitives: expansion.cost.primitives + (index === 0 ? 1 : 0),
+      dom: expansion.cost.dom + (index === 0 ? 1 : 0),
+    },
+    patterns: expansion.patterns,
+  }));
 }

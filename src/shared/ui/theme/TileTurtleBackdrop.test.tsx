@@ -114,10 +114,11 @@ describe('tile turtle vertical slice', () => {
     );
   });
 
-  it('rejects huge tile areas before expanding their nodes', () => {
-    expect(() => buildTileTurtleBackdrop(fixture, 'light', { viewport: [1e12, 1e12] })).toThrow(
-      expect.objectContaining({ field: 'layers', code: 'dom_budget_exceeded' }),
-    );
+  it('accepts huge CSS areas without adding sprites', () => {
+    const huge = buildTileTurtleBackdrop(fixture, 'light', { viewport: [1e12, 1e12] });
+    const small = buildTileTurtleBackdrop(fixture, 'light', { viewport: [100, 100] });
+    expect(huge.skeleton.cost).toEqual(small.skeleton.cost);
+    expect(huge.artworks[0]!.rectangles.length).toBe(small.artworks[0]!.rectangles.length);
   });
 
   it('rejects unsupported artwork instead of silently omitting it', () => {
@@ -130,6 +131,7 @@ describe('tile turtle vertical slice', () => {
 
   it('uses density as spacing across the entire anchor', () => {
     const recipe = structuredClone(fixture);
+    recipe.layers[0]!.scale = 1;
     recipe.layers[0]!.density = 0;
     const sparse = buildTileTurtleBackdrop(recipe, 'light', props().geometry);
     recipe.layers[0]!.density = 1;
@@ -178,7 +180,7 @@ describe('tile turtle vertical slice', () => {
       expect(frame.frame.height).toBe(anchor === 'left' || anchor === 'right' ? 1000 : 180);
       expect(frame.motionGroup.artwork.motionEnvelope).toEqual(frame.frame);
       const { layout, rectangles } = model.artworks[0]!;
-      expect(layout.rows).toBeGreaterThanOrEqual(anchor === 'left' || anchor === 'right' ? 3 : 1);
+      expect(layout.rows).toBeGreaterThanOrEqual(1);
       for (const rect of rectangles) {
         expect(rect.x).toBeGreaterThan(0);
         expect(rect.y).toBeGreaterThan(0);

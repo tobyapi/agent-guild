@@ -1,4 +1,5 @@
 import { reject } from './checks';
+import { tileGrid } from './tileLayout';
 import type { LayerExpansion } from './cost';
 import type { BackdropLayer } from './skeleton';
 
@@ -41,15 +42,14 @@ export function buildTurtleArtwork(
   paletteLength: number,
   size: readonly [number, number],
   phase: readonly [number, number],
+  repetitionSize: readonly [number, number] = size,
 ): TurtleArtwork {
   const roles = [0, layer.color, (layer.color % (paletteLength - 1)) + 1, 1];
   const [width, height] = size;
   if (![width, height].every((value) => Number.isFinite(value) && value > 0)) reject('$', 'invalid_expansion');
   // Scale controls the sprite; density controls its spacing across the entire anchor.
-  const desiredSize = 180 * layer.scale;
-  const pitch = desiredSize * (2 - layer.density);
-  const columns = Math.max(1, Math.ceil(width / pitch));
-  const rows = Math.max(1, Math.ceil(height / pitch));
+  const desiredSize = Math.min(width, height) * 1.2 * layer.scale;
+  const [columns, rows] = tileGrid(layer, repetitionSize);
   // Refuse oversized direct expansions before allocating or iterating them.
   // Every sprite emits at least one DOM node, so this is already over budget.
   if (columns * rows > 400) reject('layers', 'dom_budget_exceeded');

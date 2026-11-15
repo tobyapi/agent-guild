@@ -12,12 +12,12 @@
 
 ## catalogVersion 1 の許可集合（工程1b完了）
 
-| kind | motif | motion |
-| --- | --- | --- |
-| tile | star, cross, dot, wave, seaweed, tree, turtle | none のみ |
-| halftone | hill, cloud, wave | none のみ |
-| paper | hill, cloud, wave, seaweed, tree, turtle, aurora | 全 motif で none。cloud/wave/turtle/aurora のみ drift、tree/seaweed のみ sway |
-| symbol | star, cross, dot, wave, seaweed, tree, turtle | 全 motif で none。tree/seaweed のみ sway |
+| kind     | motif                                            | motion                                                                        |
+| -------- | ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| tile     | star, cross, dot, wave, seaweed, tree, turtle    | none のみ                                                                     |
+| halftone | hill, cloud, wave                                | none のみ                                                                     |
+| paper    | hill, cloud, wave, seaweed, tree, turtle, aurora | 全 motif で none。cloud/wave/turtle/aurora のみ drift、tree/seaweed のみ sway |
+| symbol   | star, cross, dot, wave, seaweed, tree, turtle    | 全 motif で none。tree/seaweed のみ sway                                      |
 
 Schema の kind ごとの分岐でこの集合を制限する。paper 以外は `depth: 1` のみ、paper は `depth: 1..3`。density は tile/halftone/symbol で使うため `0..1`、使わない paper は設計 §5 の正規値 `0.5` のみを受け付ける。不正値を正規値へ丸めない。
 
@@ -39,12 +39,12 @@ title の文字数は Unicode コードポイントで1〜40。Schema は制御�
 
 Rust の `guild-domain::theme_backdrop::parse_recipe_json` は、Value 化で重複キーが失われる前に次を検証する。返すエラーは `field` と `code` のみで、入力の値・キー名・パーサーの説明文を含めない。
 
-| field | code | 拒否する規則 |
-| --- | --- | --- |
-| $ | input_too_large | 入力全体が UTF-8 で32 KiB（32768 bytes）を超える |
-| $ | invalid_json | 壊れた JSON、後続の余分な文字、説明文・コードフェンス等 |
-| $ | nesting_too_deep | 配列・オブジェクトの入れ子が深さ8を超える |
-| $ | duplicate_key | 同一オブジェクト内に重複したキーがある（エスケープを復号して比較） |
+| field | code             | 拒否する規則                                                       |
+| ----- | ---------------- | ------------------------------------------------------------------ |
+| $     | input_too_large  | 入力全体が UTF-8 で32 KiB（32768 bytes）を超える                   |
+| $     | invalid_json     | 壊れた JSON、後続の余分な文字、説明文・コードフェンス等            |
+| $     | nesting_too_deep | 配列・オブジェクトの入れ子が深さ8を超える                          |
+| $     | duplicate_key    | 同一オブジェクト内に重複したキーがある（エスケープを復号して比較） |
 
 32 KiB ちょうど、深さ8ちょうどは構文段を通る。深さはルートの配列またはオブジェクトを1と数え、子の配列・オブジェクトごとに1増やす。空の配列・オブジェクトも数え、文字列・数値・真偽値・null は深さを増やさない。重複キーはルートと layers 内を含むすべてのオブジェクトで拒否する。サイズを最初に検査し、その後は読み取り中に最初に検出した拒否理由を返す。
 
@@ -56,20 +56,20 @@ Rust の `guild-domain::theme_backdrop::parse_recipe_json` は、Value 化で重
 
 以下の field/code は工程2bの Rust `validate_recipe_structure` と共有実例テストで確定した。TS側の接続は工程3に残す。field はアプリ所有の既知パス（配列は0始まり）、余分なキーは値やキー名を返さず親オブジェクトを指す。Ajv の oneOf 分岐エラー全文や入力由来の説明文は再依頼へ送らない。構造・型・範囲を全レイヤーで先に検査してから、レイヤー順にカタログを検査し、最初のエラー1件を返す。未知の kind は構造段で拒否し、既知 kind の表外 motif と許可外 motion をカタログ段で区別する。
 
-| 異常例 name | field | code | 拒否する規則 |
-| --- | --- | --- | --- |
-| invalid-kind-motif | layers[0].motif | unsupported_motif | halftone × turtle は表外 |
-| unknown-whale | layers[0].motif | unsupported_motif | whale は未対応、置換禁止 |
-| forbidden-motion | layers[0].motion | unsupported_motion | tile の drift は禁止 |
-| unknown-schema-version | schemaVersion | unsupported_version | v1 reader は2を拒否 |
-| unknown-catalog-version | catalogVersion | unsupported_catalog | catalogVersion は1のみ |
-| future-pixel-kind | layers[0].kind | unsupported_kind | pixel は v1 に含めない |
-| extra-root-field | $ | additional_property | ルートの余分なキーを拒否 |
-| extra-layer-field | layers[0] | additional_property | レイヤーの格子キーを拒否 |
-| non-paper-depth | layers[0].depth | invalid_depth | paper 以外の depth は1 |
-| paper-density | layers[0].density | invalid_density | paper の density は0.5 |
-| nine-layers | layers | too_many_layers | layers は最大8個 |
-| invalid-palette-color | palette.dark[1] | invalid_color | 色は #RRGGBB 形式 |
+| 異常例 name             | field             | code                | 拒否する規則             |
+| ----------------------- | ----------------- | ------------------- | ------------------------ |
+| invalid-kind-motif      | layers[0].motif   | unsupported_motif   | halftone × turtle は表外 |
+| unknown-whale           | layers[0].motif   | unsupported_motif   | whale は未対応、置換禁止 |
+| forbidden-motion        | layers[0].motion  | unsupported_motion  | tile の drift は禁止     |
+| unknown-schema-version  | schemaVersion     | unsupported_version | v1 reader は2を拒否      |
+| unknown-catalog-version | catalogVersion    | unsupported_catalog | catalogVersion は1のみ   |
+| future-pixel-kind       | layers[0].kind    | unsupported_kind    | pixel は v1 に含めない   |
+| extra-root-field        | $                 | additional_property | ルートの余分なキーを拒否 |
+| extra-layer-field       | layers[0]         | additional_property | レイヤーの格子キーを拒否 |
+| non-paper-depth         | layers[0].depth   | invalid_depth       | paper 以外の depth は1   |
+| paper-density           | layers[0].density | invalid_density     | paper の density は0.5   |
+| nine-layers             | layers            | too_many_layers     | layers は最大8個         |
+| invalid-palette-color   | palette.dark[1]   | invalid_color       | 色は #RRGGBB 形式        |
 
 各異常例は正常な tile/turtle を基に1規則だけ変えている。paper-density は kind も paper に合わせ、density 以外は合法にしている。Rust の専用テストで正常6件の受理・入力不変、異常12件の field/code を固定する。この関数は工程2bだけを検査し、安全な描画・保存の許可を意味しない。呼び出し側は工程2aの構文検査を先に通し、工程2cのコスト・文字保護検査を続ける必要がある。
 
@@ -158,24 +158,47 @@ this static renderer does not resolve text tokens or scrim alpha.
 Tile repeats across the full anchor: left/right use an 18%-wide full-height band;
 bottom anchors use an 18% by 18% corner. This specializes the Stage 4a generic
 seeded square placement only for tile; generic skeleton placement is unchanged.
-Scale sets the desired sprite side in CSS pixels, `S = 180 * scale`, rather than
-shrinking the tile region. Density controls a quantized spacing:
-`pitch = S * (2 - density)`, `columns = ceil(frameCSSWidth / pitch)`,
-`rows = ceil(frameCSSHeight / pitch)` (each at least one). Divide the entire frame
-into equal cells; the sprite side is `min(S, 0.9*cellWidth, 0.9*cellHeight)`.
-This fits whole sprites without clipped heads or feet. Seeded Mulberry32 selects
-the same fractional offset within each cell's spare horizontal/vertical space.
-Thus larger density increases counts in steps; it never selects a fixed 1-or-4 mode.
+Tile count uses a supported viewport aspect interval **9:21 through 32:9** (tall
+phone through super-wide desktop); CSS resolution is unrestricted. Outside that
+interval only the repetition aspect is clamped. Physical sizing still uses actual
+CSS dimensions so even extreme viewports keep square pixels and whole sprites.
+The 1.2 coefficient lets a sparse side band fit the unchanged DOM budget across
+this interval while keeping the normal corner example visible.
 
-The 16 by 16 sprite is a top view with a separate head, four diagonal feet, tail,
-and contrasting shell divisions. Same-role horizontal cells merge to 62 rectangles.
-The normal example at 1920 by 1080 uses 2 by 2 sprites, 248 content primitives/DOM,
-plus one underlay, four clip rectangles, the shared shell and three layer groups.
-Final cost: **253 primitives / 259 DOM / 1 definition / 0 moving groups**.
-At 21:9 (2520 by 1080), 3 by 2 sprites use 377 primitives / 383 DOM / 1 definition.
-Dense or larger expansions remain subject to the unchanged 2000/400/32/2 limits;
-oversized direct expansions are refused before iteration. Clipped geometry is never
-deducted, and additional text protection rectangles still count through the skeleton.
+```text
+r = clamp(viewportWidth / viewportHeight, 9/21, 32/9)
+(Aw, Ah) = (anchorViewBoxWidth * r, anchorViewBoxHeight)
+p = 1.2 * scale * (2 - density)
+columns = max(1, ceil((Aw / min(Aw,Ah)) / p))
+rows    = max(1, ceil((Ah / min(Aw,Ah)) / p))
+S = min(actualFrameCSSWidth, actualFrameCSSHeight) * 1.2 * scale
+cellWidth = actualFrameCSSWidth / columns
+cellHeight = actualFrameCSSHeight / rows
+spriteSide = min(S, 0.9*cellWidth, 0.9*cellHeight)
+```
+
+The whole anchor is divided into equal cells; Mulberry32 sets the same fractional
+offset within each cell's spare space. No heads or feet are clipped at the edge.
+The sprite is a 16×16 top view with head, four feet, tail and shell divisions,
+merged into 62 horizontal same-role rectangles.
+
+Admission happens before actual viewport artwork is allocated. For each layer,
+compute counts at both supported aspect endpoints and reserve the larger count.
+This is a proof over the full interval, not sampled viewport testing: the product
+is `ceil(1/p) * ceil(max(Aw/Ah,Ah/Aw)/p)`, whose maximum is at an endpoint.
+Sum these per-layer maxima, add the actual clip/shell/underlay counts, and call the
+existing cost validator. This sum is a conservative bound if different layers peak
+at different endpoints. `budgetCost` exposes that reservation; `skeleton.cost`
+continues to count actual emitted nodes. Additional text protection also counts.
+Accepted Recipes cannot first exceed budget on resize; rejected Recipes receive
+`layers/dom_budget_exceeded` (or the other existing applicable budget code) at every
+viewport. Limits remain 2000/400/32/2. This renderer-owned reservation does not change
+the shared Rust/TS cost arithmetic, fixtures, or Recipe structure validation.
+
+Normal example: 1920×1080 and 3440×1440 each emit 2 sprites, **129 primitives /
+135 DOM / 1 definition / 0 moving groups**. Worst supported case is 32:9 with 3
+sprites: **191 primitives / 197 DOM / 1 definition / 0 moving groups**. At 9:21 it
+uses 2 sprites. These replace the previous resolution-dependent 4/6/8/12 counts.
 
 Direct node expansion was chosen instead of SVG pattern so actual emitted rectangles
 and DOM are counted exactly, without conservative full-viewport pattern repetition.
