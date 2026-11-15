@@ -1,5 +1,7 @@
 # 契約の実例（ゴールデンフィクスチャ）
 
+- 背景レシピの版付き JSON Schema と版規則: [behavior/theme-backdrop-recipe.md](behavior/theme-backdrop-recipe.md)。`*.schema.json` は構造契約であり、入力と期待値を並べた実例ではない。
+
 - `ipc/*.json` … React ⇄ Rust の値の実例（型の正は `src/shared/types/domain/`）。
   - Rust: guild-domain のテストが各ファイルを対応する型に読み込み、書き戻した JSON が元と**値として一致**することを検査する。
     さらに `snapshot.json` の `templates` は guild-domain のテンプレート表と説明文まで含めて完全に一致すること。
