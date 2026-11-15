@@ -22,8 +22,13 @@ import { t } from './texts/index.ts';
 /** developer_instructions はコマンドライン引数で渡るので、Windows のコマンドラインの上限（32767 文字）に収める */
 export const MAX_SYSTEM_PROMPT_LENGTH = 24_000;
 
-export function codexConfig(request: RunRequest): NonNullable<CodexOptions['config']> {
+export function codexConfig(
+  request: RunRequest,
+  platform: NodeJS.Platform = process.platform,
+): NonNullable<CodexOptions['config']> {
   return {
+    // 専用 CODEX_HOME でも Windows の隔離を明示する。未選択だと workspace-write が read-only に縮退する。
+    ...(platform === 'win32' ? { windows: { sandbox: 'mxc' } } : {}),
     // 人格は developer メッセージとして渡す（Codex SDK にシステムプロンプトの引数はない）
     developer_instructions: request.systemPrompt,
     // 作業場所の AGENTS.md は読まない（エージェントが書き換えて次の実行に影響させないため）

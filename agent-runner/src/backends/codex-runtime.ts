@@ -1,4 +1,4 @@
-import { Codex, type CodexOptions } from '@openai/codex-sdk';
+import { Codex, type CodexOptions, type ThreadOptions } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
 import { codexNotFound, findCodex } from './codex-runtime/executable.ts';
@@ -14,6 +14,7 @@ import {
 } from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
 import { codexAuthEnvironment } from './auth-mode.ts';
+import { prepareCommandSandbox } from './command-sandbox.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
 
 export interface CodexProvider {
@@ -29,6 +30,13 @@ function defaultProvider(): CodexProvider {
     Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
   );
   return { label: 'Codex', config: {}, catalog: codexCatalog(), env, failure: codexError };
+}
+
+async function requireWindowsSandbox(mode: ThreadOptions['sandboxMode']): Promise<void> {
+  if (process.platform !== 'win32' || mode !== 'workspace-write') return;
+  if (!(await prepareCommandSandbox())) {
+    throw new BackendError('unsupported_permission', 'この PC では OS の隔離を使えません');
+  }
 }
 
 export async function runCodex(
@@ -48,6 +56,9 @@ export async function runCodex(
   signal.throwIfAborted();
   const executable = findCodex();
   if (executable === null) throw new BackendError('internal', codexNotFound());
+  const options = threadOptions(request, provider.catalog);
+  await requireWindowsSandbox(options.sandboxMode);
+  signal.throwIfAborted();
   try {
     await installCodexSkills(request.workspace, request.skills);
     const codex = new Codex({
@@ -55,7 +66,6 @@ export async function runCodex(
       codexPathOverride: executable.path,
       env: withPathDirs(executable.pathDirs, provider.env) ?? provider.env,
     });
-    const options = threadOptions(request, provider.catalog);
     if (options.model) onUsage({ model: options.model });
     const thread = codex.startThread(options);
     const { events } = await thread.runStreamed(threadInput(request), { signal });

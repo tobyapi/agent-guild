@@ -112,6 +112,13 @@ describe('threadInput', () => {
 });
 
 describe('codexConfig', () => {
+  it('Windows では専用 HOME でも MXC を明示し、それ以外の OS の隔離設定には介入しない', () => {
+    expect(codexConfig(request(WORKER), 'win32')).toHaveProperty('windows.sandbox', 'mxc');
+    for (const platform of ['linux', 'darwin'] as const) {
+      expect(codexConfig(request(WORKER), platform)).not.toHaveProperty('windows');
+    }
+  });
+
   it('人格は developer_instructions、作業場所の AGENTS.md は無視、一時フォルダへの書き込みは除外', () => {
     expect(codexConfig(request(WORKER))).toMatchObject({
       developer_instructions: 'あなたはソラだ',

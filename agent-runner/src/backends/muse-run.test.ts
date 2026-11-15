@@ -30,6 +30,7 @@ vi.mock('./codex-runtime/executable.ts', () => ({
   codexNotFound: () => 'missing',
 }));
 vi.mock('./skill-files.ts', () => ({ writeSkills: mock.skills }));
+vi.mock('./command-sandbox.ts', () => ({ prepareCommandSandbox: () => Promise.resolve(true) }));
 vi.mock('node:fs/promises', () => ({ mkdir: mock.mkdir }));
 import { museAdapter, museProvider } from './muse.ts';
 import { runCodex } from './codex-runtime.ts';

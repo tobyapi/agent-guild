@@ -56,6 +56,8 @@ MXC の「一覧だけ」の許可（`enumeratePaths`）は、指定したフォ
 
 ## 使う側
 
+Codex・Grok・Muse の共通ランナーも、Windows で workspace-write を使う前に同じ MXC の能力検出を行う。使えなければ起動を拒否し、隔離のないコマンドには切り替えない。実行自体は Codex CLI の隔離を使い、起動設定で `windows.sandbox="mxc"` を明示する。専用 CODEX_HOME に Windows sandbox の設定がない場合、CLI 0.163.0 と 0.167.0 は `--sandbox workspace-write` があっても read-only に縮退したため。Windows 以外ではこの能力検出や Windows の設定を加えず、CLI の既存の隔離を使う。
+
 どちらも範囲の決め方は同じ（`command-sandbox/role-command.ts`）: 書けるのは作業場所（書き込みの権限がある役割）、読めるのは作業場所・readableDirs・道具のフォルダ。役割が PC 全体の読み取り（readAnywhere）を許していても、コマンドには広げない（秘密のファイル名の除外をコマンドでは守れないため。広く読むのは、秘密の場所を除けるファイル道具の役目）。
 
 | | 道具 | 時間切れ・出力の上限 | 補足 |
