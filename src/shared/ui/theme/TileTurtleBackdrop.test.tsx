@@ -1,6 +1,6 @@
+// @vitest-environment jsdom
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { behaviorFixture } from '@/shared/lib/behaviorFixtures.test-support';
 import { buildTileTurtleBackdrop } from '@/shared/lib/themeBackdrop';
@@ -47,7 +47,7 @@ describe('tile turtle vertical slice', () => {
   it.each(['light', 'dark'] as const)('uses only %s palette colors and declares no black shadow', (scheme) => {
     const input = { ...props(), scheme };
     const model = buildTileTurtleBackdrop(input.recipe, scheme, input.geometry);
-    const doc = new JSDOM(render(input), { contentType: 'image/svg+xml' }).window.document;
+    const doc = new DOMParser().parseFromString(render(input), 'image/svg+xml');
     expect([...doc.querySelectorAll('[fill]')].every((el) => model.palette.includes(el.getAttribute('fill')!))).toBe(
       true,
     );
@@ -59,7 +59,7 @@ describe('tile turtle vertical slice', () => {
   it('counts actual DOM, definitions and rectangle primitives including the underlay and clip', () => {
     const input = props();
     const model = buildTileTurtleBackdrop(input.recipe, input.scheme, input.geometry);
-    const doc = new JSDOM(render(input), { contentType: 'image/svg+xml' }).window.document;
+    const doc = new DOMParser().parseFromString(render(input), 'image/svg+xml');
     expect(model.skeleton.cost).toEqual({
       primitives: doc.querySelectorAll('rect').length,
       dom: doc.querySelectorAll('*').length,
@@ -71,8 +71,9 @@ describe('tile turtle vertical slice', () => {
   it('applies fixed clipping outside translation and aspect correction on every layer', () => {
     const input = props();
     const recipe = input.recipe as typeof fixture;
+    recipe.layers[0]!.density = 0;
     recipe.layers.push({ ...recipe.layers[0]!, anchor: 'bottomLeft' });
-    const doc = new JSDOM(render(input), { contentType: 'image/svg+xml' }).window.document;
+    const doc = new DOMParser().parseFromString(render(input), 'image/svg+xml');
     const groups = doc.querySelectorAll('svg > g');
     expect(groups).toHaveLength(2);
     for (const group of groups) {
