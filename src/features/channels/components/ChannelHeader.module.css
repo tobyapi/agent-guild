@@ -97,3 +97,13 @@
 :global(:root[data-background='active']) .stop {
   transition: none;
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .header {
+      background: var(--surface-chat);
+      backdrop-filter: var(--glass-pane-filter);
+      box-shadow: inset 0 1px 0 var(--glass-edge);
+    }
+  }
+}

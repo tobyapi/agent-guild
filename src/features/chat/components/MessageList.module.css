@@ -133,3 +133,28 @@
     animation: none !important;
   }
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .frame {
+      background: linear-gradient(
+        to right,
+        transparent max(0px, calc((100% - var(--glass-reading-width)) / 2 - var(--glass-feather))),
+        var(--surface-chat) max(0px, calc((100% - var(--glass-reading-width)) / 2)),
+        var(--surface-chat) min(100%, calc((100% + var(--glass-reading-width)) / 2)),
+        transparent min(100%, calc((100% + var(--glass-reading-width)) / 2 + var(--glass-feather)))
+      );
+    }
+
+    :global(:root[data-background='active']) .content {
+      inline-size: min(100%, var(--glass-reading-width));
+      margin-inline: auto;
+    }
+
+    :global(:root[data-background='active']) .jump {
+      background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);
+      backdrop-filter: var(--glass-card-filter);
+      box-shadow: var(--glass-shadow);
+    }
+  }
+}

@@ -47,3 +47,11 @@
     animation-play-state: paused;
   }
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .backdrop {
+      filter: blur(var(--glass-background-blur));
+    }
+  }
+}

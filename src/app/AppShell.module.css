@@ -65,3 +65,15 @@
 :global(:root[data-background='active']) .shell {
   --surface: var(--bg-app);
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .main {
+      background: color-mix(in srgb, var(--bg-app) var(--glass-margin-weight), transparent);
+    }
+
+    :global(:root[data-background='active']) .empty {
+      background: var(--surface-chat);
+    }
+  }
+}

@@ -46,6 +46,7 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
     <article
       id={messageElementId(message.id)}
       className={styles.message}
+      data-human={author.human ? '' : undefined}
       data-head={head ? '' : undefined}
       data-live={live ? '' : undefined}
       data-self={mentionsMe ? '' : undefined}

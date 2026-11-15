@@ -704,3 +704,11 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
 背景定義はデータだけ。shared/theme の登録 ID で自作同梱 SVG（dawn/night）と CSS scene（aurora）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、null はテーマ既定（guild は none）、未登録 ID は背景だけ none。背景と motion は新 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
+
+### 背景ありのガラス素材
+
+- `tokens-glass.css` は背景が有効・`prefers-reduced-transparency: no-preference`・`backdrop-filter` 対応のときだけ使用する。背景なし、透明効果の抑制、非対応環境は元の素材を保つ。
+- 背景画像は1枚に12pxのblur。左右の欄と中央ヘッダーは18pxのbackdrop blurと彩度1.02。中央の余白は18%の地色、最大860pxの読み物の列は従来のscrimで保護し、両端48pxで余白へなじませる。
+- 入力欄・ダイアログ・候補ポップアップ・トーストは98%の保護面と12pxのbackdrop blur、明るい細縁と柔らかい影。人間の発言は同じ保護面と縁・影を使い、発言数に比例するfilterを作らない。
+- 状態色と作者指定色の隔離は維持する。darkの生成背景のメンバー欄のみ、彩度による変化を補うため保護濃度を214/255から215/255へ増す。コントラストの合格値は変更しない。
+- CSSの条件分岐と数値検査は実画面での性能・OS設定の伝達確認を代替しない。実装後に実画面で見た目と重さを確認する。

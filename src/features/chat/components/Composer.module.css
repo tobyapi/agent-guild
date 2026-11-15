@@ -100,3 +100,13 @@
 :global(:root[data-background='active']) .send {
   transition: none;
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .composer:not([data-dragging]) {
+      background: color-mix(in srgb, var(--bg-input) var(--glass-card-weight), transparent);
+      backdrop-filter: var(--glass-card-filter);
+      box-shadow: var(--glass-shadow);
+    }
+  }
+}

@@ -169,3 +169,13 @@
 :global(:root[data-background='active']) .message[data-highlight='fade'] {
   transition: none;
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .message[data-human]:not([data-self]):not([data-highlight]) {
+      background: color-mix(in srgb, var(--bg-app) var(--glass-card-weight), transparent);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--glass-shadow);
+    }
+  }
+}

@@ -60,3 +60,13 @@
     animation: none !important;
   }
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .toast {
+      background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);
+      backdrop-filter: var(--glass-card-filter);
+      box-shadow: var(--glass-shadow);
+    }
+  }
+}

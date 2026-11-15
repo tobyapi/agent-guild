@@ -29,3 +29,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+@media (prefers-reduced-transparency: no-preference) {
+  @supports (backdrop-filter: blur(1px)) {
+    :global(:root[data-background='active']) .bar {
+      background: var(--surface-chat);
+    }
+  }
+}

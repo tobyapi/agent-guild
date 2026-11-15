@@ -1,0 +1,23 @@
+/* Geometry and material only; the original text/state palette stays authoritative. */
+:root {
+  --glass-background-blur: 12px;
+  --glass-pane-filter: blur(18px) saturate(1.02);
+  --glass-card-filter: blur(12px) saturate(1.02);
+  --glass-reading-width: 860px;
+  --glass-feather: 48px;
+  --glass-card-weight: 98%;
+  --glass-margin-weight: 18%;
+  --glass-members-weight: var(--scrim-members);
+  --glass-edge: rgba(255, 255, 255, 0.18);
+  --glass-shadow: inset 0 1px 0 var(--glass-edge), 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* One 8-bit step compensates for the pane's saturation at the limiting dark ink. */
+:root[data-background-source='generated']:not([data-theme='light']) {
+  --glass-members-weight: calc(215 / 255 * 100%);
+}
+
+:root[data-theme='light'] {
+  --glass-edge: rgba(255, 255, 255, 0.65);
+  --glass-shadow: inset 0 1px 0 var(--glass-edge), 0 8px 28px rgba(40, 36, 20, 0.08);
+}
