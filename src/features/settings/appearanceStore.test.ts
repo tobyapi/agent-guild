@@ -49,6 +49,19 @@ describe('appearance lifecycle', () => {
     expect(h.query.addEventListener).toHaveBeenCalledTimes(2);
   });
 
+  it('tracks legacy background sources and clears stale source attributes for none', () => {
+    const h = appearanceHarness();
+    h.controller.init();
+    h.root.dataset.backgroundSource = 'generated';
+    h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'image', assetId: 'dawn' } });
+    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'image' });
+    h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'scene', sceneId: 'aurora' } });
+    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'scene' });
+    h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'none' } });
+    expect(h.root.hasAttribute('data-background')).toBe(false);
+    expect(h.root.hasAttribute('data-background-source')).toBe(false);
+  });
+
   it('works without document or matchMedia', () => {
     const h = appearanceHarness();
     const controller = createAppearanceStore({ ...h.environment, root: () => undefined, matchMedia: () => undefined });

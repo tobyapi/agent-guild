@@ -4174,17 +4174,17 @@
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 7,
-      "expression": "--scrim-chat: calc(220 / 255 * 100%);"
+      "expression": "--scrim-chat: 89%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 8,
-      "expression": "--scrim-sidebar: calc(211 / 255 * 100%);"
+      "expression": "--scrim-sidebar: 89%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 9,
-      "expression": "--scrim-members: calc(214 / 255 * 100%);"
+      "expression": "--scrim-members: 89%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
@@ -4214,17 +4214,17 @@
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 20,
-      "expression": "--scrim-chat: calc(217 / 255 * 100%);"
+      "expression": "--scrim-chat: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 21,
-      "expression": "--scrim-sidebar: calc(231 / 255 * 100%);"
+      "expression": "--scrim-sidebar: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 22,
-      "expression": "--scrim-members: calc(224 / 255 * 100%);"
+      "expression": "--scrim-members: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
@@ -4243,37 +4243,67 @@
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 28,
-      "expression": ":root[data-background='active'] {"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 29,
-      "expression": "--surface-chat: color-mix(in srgb, var(--bg-app) var(--scrim-chat), transparent);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 30,
-      "expression": "--surface-sidebar: color-mix(in srgb, var(--bg-sidebar) var(--scrim-sidebar), transparent);"
+      "expression": "--scrim-chat: calc(220 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 31,
-      "expression": "--surface-members: color-mix(in srgb, var(--bg-panel) var(--scrim-members), transparent);"
+      "expression": "--scrim-sidebar: calc(211 / 255 * 100%);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 32,
+      "expression": "--scrim-members: calc(214 / 255 * 100%);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 36,
+      "expression": "--scrim-chat: calc(217 / 255 * 100%);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 37,
+      "expression": "--scrim-sidebar: calc(231 / 255 * 100%);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 38,
+      "expression": "--scrim-members: calc(224 / 255 * 100%);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 41,
+      "expression": ":root[data-background='active'] {"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 42,
+      "expression": "--surface-chat: color-mix(in srgb, var(--bg-app) var(--scrim-chat), transparent);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 43,
+      "expression": "--surface-sidebar: color-mix(in srgb, var(--bg-sidebar) var(--scrim-sidebar), transparent);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 44,
+      "expression": "--surface-members: color-mix(in srgb, var(--bg-panel) var(--scrim-members), transparent);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-backdrop.css",
+      "line": 45,
       "expression": "--bg-hover: color-mix(in srgb, var(--backdrop-state-ink) 5%, var(--bg-app));"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 33,
+      "line": 46,
       "expression": "--bg-active: color-mix(in srgb, var(--backdrop-state-ink) var(--backdrop-active-weight), var(--bg-app));"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
-      "line": 34,
+      "line": 47,
       "expression": "--bg-overlay: var(--backdrop-overlay);"
     },
     {

@@ -7,6 +7,12 @@ const tokens = read('src/shared/ui/theme/tokens-backdrop.css');
 
 test('three surfaces preserve original colors without a background and use theme-specific scrim density', () => {
   const defaults = tokens.split(":root[data-background='active']")[0];
+  const generatedDark = tokens.split(":root[data-background-source='generated']")[1].split('}')[0];
+  const generatedLight = tokens.split(":root[data-theme='light'][data-background-source='generated']")[1].split('}')[0];
+  const legacyDark = tokens.split('}')[0];
+  const legacyLight = tokens.split(":root[data-theme='light']")[1].split('}')[0];
+  assert.doesNotMatch(legacyDark + legacyLight, /calc\(/);
+  assert.equal((tokens.match(/calc\(/g) ?? []).length, 6);
   const weights = { chat: [220, 217], sidebar: [211, 231], members: [214, 224] };
   for (const [pane, original] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
     assert.ok(defaults.includes(`--surface-${pane}: var(--bg-${original});`));
@@ -15,9 +21,10 @@ test('three surfaces preserve original colors without a background and use theme
         `--surface-${pane}: color-mix(in srgb, var(--bg-${original}) var(--scrim-${pane}), transparent);`,
       ),
     );
-    assert.ok(defaults.includes(`--scrim-${pane}: calc(${weights[pane][0]} / 255 * 100%);`));
-    const light = defaults.split(":root[data-theme='light']")[1];
-    assert.ok(light.includes(`--scrim-${pane}: calc(${weights[pane][1]} / 255 * 100%);`));
+    assert.ok(legacyDark.includes(`--scrim-${pane}: 89%;`));
+    assert.ok(legacyLight.includes(`--scrim-${pane}: 90%;`));
+    assert.ok(generatedDark.includes(`--scrim-${pane}: calc(${weights[pane][0]} / 255 * 100%);`));
+    assert.ok(generatedLight.includes(`--scrim-${pane}: calc(${weights[pane][1]} / 255 * 100%);`));
   }
   for (const [path, pane] of [
     ['src/app/AppShell.module.css', 'chat'],
