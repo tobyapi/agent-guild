@@ -34,7 +34,12 @@ describe('SVG skeleton cost connection', () => {
     }));
     const before = structuredClone(content);
     const result = buildBackdropSkeleton(value, content);
-    const fixtureTotal = validateRecipeCost(value, [1000, 1000], { ...input.base, dom: input.base.dom + 1 }, result.expansions);
+    const fixtureTotal = validateRecipeCost(
+      value,
+      [1000, 1000],
+      { ...input.base, dom: input.base.dom + 1 },
+      result.expansions,
+    );
     expect(fixtureTotal).toEqual({ ...expected.cost, dom: expected.cost!.dom + 1 + value.layers.length });
     expect(result.cost.primitives).toBe(expected.cost!.primitives - input.base.primitives);
     expect(result.cost).toEqual(validateRecipeCost(value, [1000, 1000], result.baseCost, result.expansions));
