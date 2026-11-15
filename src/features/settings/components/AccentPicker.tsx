@@ -1,5 +1,5 @@
 import type { CSSProperties, KeyboardEvent } from 'react';
-import { useAccentStore, setAccent } from '../accentStore';
+import { useAppearanceStore, setAccent } from '../appearance';
 import { tAppearance } from '../i18n/appearance';
 import { ACCENTS, accentName } from '../model/accent';
 import styles from './AccentPicker.module.css';
@@ -20,7 +20,7 @@ function handleArrows(event: KeyboardEvent<HTMLButtonElement>, index: number) {
 
 /** アクセントの色: 見本（それぞれの塗り）から選ぶ。選ぶとすぐ画面全体に反映する */
 export function AccentPicker() {
-  const current = useAccentStore((state) => state.accent);
+  const current = useAppearanceStore((state) => state.preference.accentOverride ?? 'default');
   const label = tAppearance('accentLabel');
   return (
     <div className={styles.field}>

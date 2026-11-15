@@ -1,10 +1,11 @@
 // 表示のテーマ（ダーク / ライト / OS に合わせる）。この端末の表示の好みなので DB ではなく localStorage に置く。
 // 既定はダーク（tokens.css）。ライトは <html data-theme="light"> で tokens-light.css が色だけ上書きする。
 
+import type { Scheme, SchemePreference } from '@/shared/theme/types';
 import { t } from '../i18n';
 
-export type ThemePreference = 'dark' | 'light' | 'system';
-export type Theme = 'dark' | 'light';
+export type ThemePreference = SchemePreference;
+export type Theme = Scheme;
 
 export const THEME_STORAGE_KEY = 'agent-guild.theme';
 export const DEFAULT_THEME_PREFERENCE: ThemePreference = 'dark';

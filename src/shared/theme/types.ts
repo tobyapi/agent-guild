@@ -1,6 +1,7 @@
 export type Scheme = 'dark' | 'light';
 export type SchemePreference = Scheme | 'system';
-export type AccentId = 'vermilion' | 'sakura' | 'green' | 'sky' | 'violet' | 'silver';
+export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'silver'] as const;
+export type AccentId = (typeof ACCENT_IDS)[number];
 export type MotionPreference = 'system' | 'off';
 
 // Stage 1 has no background assets. Extend this union with registered IDs in stage 2.

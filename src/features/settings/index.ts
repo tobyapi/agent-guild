@@ -2,5 +2,4 @@
 export { SettingsDialog } from './components/SettingsDialog';
 export { SetupDialog } from './components/SetupDialog';
 export { openSettings, openSetup } from './store';
-export { initAccent } from './accentStore';
-export { initTheme } from './themeStore';
+export { initAppearance } from './appearance';

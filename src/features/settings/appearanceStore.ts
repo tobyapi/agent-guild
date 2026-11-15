@@ -30,7 +30,7 @@ export function applyAppearance(root: HTMLElement | undefined, appearance: Resol
   else root.dataset.accent = appearance.accentOverride;
 }
 
-/** Inert until init is explicitly called. The app will connect this controller in stage 1's second half. */
+/** Inert until init is explicitly called before the app's first render. */
 export function createAppearanceStore(
   environment: AppearanceEnvironment = browserEnvironment(),
   registry: ThemeRegistry = themeRegistry,
