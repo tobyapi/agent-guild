@@ -72,3 +72,12 @@ describe('full-window frosted veil', () => {
     });
   }
 });
+
+it('keeps already sufficient light violet and silver accent ink unchanged', () => {
+  for (const accent of ['violet', 'silver']) {
+    const row = table.units
+      .find((u) => u.scheme === 'light')!
+      .rows.find((r) => r.name === '--accent-text' && r.accent === accent && r.overlays.length === 0)!;
+    expect(glassInk(row.name, 'light', accent, row.text!.rgb)).toEqual(row.text!.rgb);
+  }
+});

@@ -120,6 +120,14 @@
   --glass-accent-text: #1c5390;
 }
 
+:root[data-theme='light'][data-accent='violet'] {
+  --glass-accent-text: var(--solid-accent-text);
+}
+
+:root[data-theme='light'][data-accent='silver'] {
+  --glass-accent-text: var(--solid-accent-text);
+}
+
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
     :root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) * {

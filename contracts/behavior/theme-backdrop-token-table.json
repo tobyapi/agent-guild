@@ -5608,97 +5608,107 @@
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 125,
-      "expression": ":root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) * {"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 126,
-      "expression": "--accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 127,
-      "expression": "--autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));"
+      "line": 124,
+      "expression": "--glass-accent-text: var(--solid-accent-text);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 128,
-      "expression": "--danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));"
+      "expression": "--glass-accent-text: var(--solid-accent-text);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 129,
-      "expression": "--kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));"
+      "line": 133,
+      "expression": ":root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) * {"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 130,
-      "expression": "--kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));"
+      "line": 134,
+      "expression": "--accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 131,
-      "expression": "--kind-ideator: color-mix("
+      "line": 135,
+      "expression": "--autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 136,
+      "expression": "--danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 137,
+      "expression": "--kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 138,
+      "expression": "--kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 139,
+      "expression": "--kind-ideator: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 144,
       "expression": "--kind-manager: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 141,
+      "line": 149,
       "expression": "--kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 142,
+      "line": 150,
       "expression": "--success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 143,
+      "line": 151,
       "expression": "--syntax-comment: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 148,
+      "line": 156,
       "expression": "--syntax-keyword: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 153,
+      "line": 161,
       "expression": "--syntax-number: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 158,
+      "line": 166,
       "expression": "--syntax-string: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 163,
+      "line": 171,
       "expression": "--syntax-title: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 168,
+      "line": 176,
       "expression": "--syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 169,
+      "line": 177,
       "expression": "--text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 170,
+      "line": 178,
       "expression": "--text-secondary: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 175,
+      "line": 183,
       "expression": "--warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));"
     },
     {
