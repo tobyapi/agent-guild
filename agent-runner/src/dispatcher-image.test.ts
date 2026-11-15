@@ -24,7 +24,7 @@ const INFO: BackendDescriptor = {
   leakRisks: [],
   unrestricted: [],
   midRunPost: null,
-  folderScope: null,
+
   toolsOption: null,
   local: false,
   frameGeneration: true,

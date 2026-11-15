@@ -20,10 +20,10 @@
 
 export const PROTOCOL_VERSION = 4;
 
-import type { BackendSetup, FolderScope } from './protocol-backend.ts';
+import type { BackendSetup } from './protocol-backend.ts';
 import type { ImagePayload, SkillPayload } from './protocol-payloads.ts';
 
-export type { ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec } from './protocol-backend.ts';
+export type { ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec } from './protocol-backend.ts';
 export type { ImagePayload, SkillFilePayload, SkillPayload } from './protocol-payloads.ts';
 
 export type PermissionKey =
@@ -99,8 +99,7 @@ export interface BackendInfo {
   unrestricted: PermissionKey[];
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
   midRunPost: MidRunPost | null;
-  /** 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら null） */
-  folderScope: FolderScope | null;
+
   /**
    * 道具を使うかどうかを切り替える設定（options にある真偽値の項目の key）。null なら役割の権限どおりに使う。
    * key があるときは、その設定が true で、選んだモデルが道具に対応している（ModelSpec.tools）ときだけ使う
@@ -137,7 +136,6 @@ export type RunnerRequest =
       /** 追加で読み取りを許すフォルダ（相談元の作業場所など） */
       readableDirs: string[];
       /** Present only for a restricted folder channel. Additional writable roots. */
-      writableDirs?: string[];
       systemPrompt: string;
       prompt: string;
       /** 操作の確認に使う、信頼できる依頼の情報（人間の依頼・エージェントの役割とできること。資料や仲間の発言は入らない） */

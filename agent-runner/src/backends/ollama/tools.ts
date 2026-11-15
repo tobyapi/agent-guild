@@ -4,12 +4,10 @@ export { sandbox, seatbeltProfile, type Prepared } from './sandbox.ts';
 import { canIsolate, canRunCommands, type Prepared } from './sandbox.ts';
 import { windowsCommand } from './windows-command.ts';
 import { anywhere, fileTarget } from './file-target.ts';
-import { containerFile } from './container-file.ts';
 import { localFile, type LocalFileOperation } from './local-file.ts';
 // Codex の default-deny / 固定 sandbox-exec パス / 子プロセス継承を参考に独自実装。
 // 出典と制約: docs/ollama-tools.md（Codex のコード・ポリシーは転載していない）。
 import { SCOPED_FILE_SCRIPT } from './scoped-file.ts';
-import { assertFolderScope } from '../folder-scope.ts';
 import { realpath } from 'node:fs/promises';
 import { relative, resolve, join } from 'node:path';
 import { isJsonObject, type JsonObject } from '../../line-parser.ts';
@@ -66,7 +64,6 @@ export function toolDefinitions(request: RunRequest): JsonObject[] {
 }
 
 export function assertToolPermission(request: RunRequest, name: string, args: unknown): void {
-  assertFolderScope(request);
   if (request.options.enableTools !== true || !toolNames(request).includes(name as ToolName))
     throw new BackendError('unsupported_permission', `${name} は許可されていません`);
   if (!isJsonObject(args)) throw new BackendError('bad_request', '道具の引数が不正です');
@@ -147,11 +144,8 @@ async function executeFile(
     throw new BackendError('unsupported_permission', '管理領域への書き込みは許可されていません');
   // MEMORY is a file-tool exception only; commands keep the original role sandbox.
   if (memory) profile += `\n(allow file-read* file-write* (literal ${JSON.stringify(target)}))`;
-  // Seatbelt がなければ、指定フォルダは Windows の隔離の中で、それ以外はランナーの中でパスの判定で守って読み書きする
-  const direct = prepared.container
-    ? (operation: LocalFileOperation) => containerFile(request, operation, signal)
-    : localFile;
-  return scopedFile(request, name, target, args, prepared.isolated ? run : null, direct);
+  // Seatbelt がなければ、ランナーの中でパスと開いた実体を確かめて読み書きする
+  return scopedFile(request, name, target, args, prepared.isolated ? run : null, localFile);
 }
 
 function writeContent(content: unknown): string {
@@ -176,10 +170,9 @@ async function scopedFile(
   const roots = anywhere(request)
     ? ['/']
     : await Promise.all(
-        (name === 'write_file'
-          ? [request.workspace, ...(request.writableDirs ?? [])]
-          : [request.workspace, ...request.readableDirs]
-        ).map((root) => realpath(root)),
+        (name === 'write_file' ? [request.workspace] : [request.workspace, ...request.readableDirs]).map((root) =>
+          realpath(root),
+        ),
       );
   const mode = name as 'read_file' | 'list_files' | 'write_file';
   const content = mode === 'write_file' ? writeContent(args.content) : undefined;

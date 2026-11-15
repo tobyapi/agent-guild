@@ -38,7 +38,7 @@ describe('Grok provider', () => {
   it('publishes model selection and unsupported capabilities', async () => {
     expect(grokAdapter.info()).toMatchObject({
       id: 'grok',
-      folderScope: 'sandbox',
+
       toolsOption: null,
       local: false,
       frameGeneration: false,

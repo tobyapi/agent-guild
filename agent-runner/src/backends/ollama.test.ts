@@ -101,7 +101,7 @@ describe('Ollama', () => {
           { id: deepseek.model, description: '8.2B · 文章に対応 · JSON 操作（試作）', tools: true },
           { id: gemma.model, description: '画像と文章に対応 · JSON 操作（試作）', tools: true },
         ],
-        folderScope: 'files',
+
         toolsOption: 'enableTools',
         local: true,
         frameGeneration: false,

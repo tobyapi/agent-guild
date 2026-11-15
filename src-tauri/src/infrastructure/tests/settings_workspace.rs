@@ -125,32 +125,17 @@ fn memory_is_empty_until_written_and_removal_deletes_everything() {
 }
 
 #[test]
-fn scoped_workspaces_separate_agents_channels_revisions_and_memories() {
-    use guild_domain::channel::{ChannelWorkspace, WorkspaceMode};
-    use guild_domain::ids::ChannelId;
-    let data = TempDir::new("scoped-data");
-    let project = TempDir::new("scoped-project");
+fn preparing_shared_workspace_leaves_retired_channel_data_untouched() {
+    let data = TempDir::new("retired-channel-data");
+    let legacy = data.0.join("agents/a/channels/c/7");
+    fs::create_dir_all(legacy.join("work")).unwrap();
+    fs::create_dir_all(legacy.join("state/codex")).unwrap();
+    fs::write(legacy.join("work/MEMORY.md"), "legacy memory").unwrap();
+    fs::write(legacy.join("state/codex/session"), "legacy session").unwrap();
     let workspace = FsWorkspace::new(&data.0);
-    let a = AgentId::new("a");
-    let channel = ChannelId::new("c");
-    let folder = workspace.validate_folder(project.0.to_str().unwrap()).unwrap();
-    // 保存するのは普通の形のパス（Windows の `\\?\` つきではない）。確かめ直しても同じになる
-    assert!(!folder.starts_with(r"\\?\"), "{folder}");
-    assert_eq!(workspace.validate_folder(&folder).unwrap(), folder);
-    let mut scope = ChannelWorkspace { mode: WorkspaceMode::Folder, folder: Some(folder), revision: 1, after_seq: 0 };
-    let first = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
-    fs::write(first.work.join("MEMORY.md"), "channel memory").unwrap();
-    fs::write(first.state.join("session"), "old state").unwrap();
-    let again = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
-    assert!(!again.state.join("session").exists());
-    assert_eq!(workspace.read_scoped_memory(&a, &channel, 1).unwrap(), "channel memory");
-    scope.revision = 2;
-    let second = workspace.prepare_scoped(&a, "ollama", &channel, &scope).unwrap();
-    assert_ne!(first.work, second.work);
-    assert_eq!(workspace.read_scoped_memory(&a, &channel, 2).unwrap(), "");
-    assert_ne!(workspace.scoped_work_dir(&AgentId::new("b"), &channel, 2), second.work);
-    assert_ne!(workspace.scoped_work_dir(&a, &ChannelId::new("other"), 2), second.work);
-    assert!(workspace.validate_folder(data.0.to_str().unwrap()).is_err());
-    assert!(workspace.validate_folder(data.0.parent().unwrap().to_str().unwrap()).is_err());
-    assert!(workspace.validate_folder("relative").is_err());
+    let paths = workspace.prepare(&AgentId::new("a"), "codex").unwrap();
+    assert_eq!(paths.work, data.0.join("agents/a/work"));
+    assert_eq!(workspace.read_memory(&AgentId::new("a")).unwrap(), "");
+    assert_eq!(fs::read_to_string(legacy.join("work/MEMORY.md")).unwrap(), "legacy memory");
+    assert_eq!(fs::read_to_string(legacy.join("state/codex/session")).unwrap(), "legacy session");
 }

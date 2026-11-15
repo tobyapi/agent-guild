@@ -254,7 +254,6 @@
       ],
       "unrestricted": [],
       "midRunPost": "tool",
-      "folderScope": null,
       "toolsOption": null,
       "local": false,
       "frameGeneration": false,
@@ -349,7 +348,6 @@
         "runCommands"
       ],
       "midRunPost": "text",
-      "folderScope": "sandbox",
       "toolsOption": null,
       "local": false,
       "frameGeneration": true,
@@ -452,7 +450,6 @@
       "leakRisks": [],
       "unrestricted": [],
       "midRunPost": "tool",
-      "folderScope": "files",
       "toolsOption": "enableTools",
       "local": true,
       "frameGeneration": false,

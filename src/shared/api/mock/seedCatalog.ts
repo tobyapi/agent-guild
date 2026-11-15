@@ -68,7 +68,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
     ],
     unrestricted: [],
     midRunPost: 'tool',
-    folderScope: null,
+
     toolsOption: null,
     local: false,
     frameGeneration: false,
@@ -125,7 +125,7 @@ export const MOCK_BACKENDS: BackendInfo[] = [
     leakRisks: [['webFetch']],
     unrestricted: ['readAnywhere', 'writeFiles', 'runCommands'],
     midRunPost: 'text',
-    folderScope: 'sandbox',
+
     toolsOption: null,
     local: false,
     frameGeneration: true,

@@ -17,16 +17,6 @@ pub async fn get_channel_statistics(
     state.services()?.channels.statistics(&channel_id).map_err(reject)
 }
 
-#[tauri::command]
-pub async fn set_channel_workspace(
-    state: State<'_, AppState>,
-    id: ChannelId,
-    mode: guild_domain::channel::WorkspaceMode,
-    folder: Option<String>,
-) -> CommandResult<Channel> {
-    state.services()?.conversation.configure_workspace(&id, mode, folder).await.map_err(reject)
-}
-
 /// 人間は常にメンバーに入る。icon は絵文字1つ（空なら # を出す）
 #[tauri::command]
 pub async fn create_channel(

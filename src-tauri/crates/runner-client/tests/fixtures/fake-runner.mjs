@@ -25,7 +25,7 @@ export const BACKEND = {
   leakRisks: [['webFetch']],
   unrestricted: ['readAnywhere'],
   midRunPost: 'tool',
-  folderScope: 'sandbox',
+
   toolsOption: null,
   local: false,
   setup: { install: null, start: null, login: { label: 'ログイン', waiting: 'ログインを待っています' }, apiKey: null },

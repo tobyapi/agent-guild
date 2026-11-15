@@ -15,7 +15,6 @@ export const ja = {
   operationCheckLabel: '操作の確認',
   operationCheckDescription:
     'コマンドの実行・Web ページを開く・作業フォルダの外への書き込みの前に、小さいモデル（Haiku）で依頼に沿っているかを確かめ、怪しければ止めます（人間には聞きません）',
-  folderUnsupported: 'Claudeのファイル操作は点検後のリンク差し替えを制限できないため、指定フォルダでは実行できません',
   runFailed: 'Claude を実行できませんでした（{detail}）',
   hintAuth:
     'Claude の認証に失敗しました。ターミナルで `claude` を実行してログインするか、環境変数 ANTHROPIC_API_KEY を設定してください。',

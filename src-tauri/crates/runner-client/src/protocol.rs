@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 pub use image::ImageRequest;
-pub use setup::{ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec};
+pub use setup::{ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec};
 
 /// この実行で取得できた使用量の増分。省略された値は未取得。
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -137,8 +137,6 @@ pub struct BackendInfo {
     pub unrestricted: Vec<PermissionKey>,
     /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）
     pub mid_run_post: Option<MidRunPost>,
-    /// 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら None）
-    pub folder_scope: Option<FolderScope>,
     /// 道具を使うかどうかを切り替える設定（options の真偽値の項目の key）
     pub tools_option: Option<String>,
     /// この PC の中で動く（API の利用料がかからない）
@@ -193,8 +191,6 @@ pub struct RunRequest {
     pub state_dir: PathBuf,
     /// 追加で読み取りを許すフォルダ（相談元の作業場所など）
     pub readable_dirs: Vec<PathBuf>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub writable_dirs: Option<Vec<PathBuf>>,
     pub system_prompt: String,
     pub prompt: String,
     /// 操作の確認に使う、信頼できる依頼の情報（使わないアダプタは無視する）

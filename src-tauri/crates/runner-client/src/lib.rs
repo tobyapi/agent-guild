@@ -26,9 +26,9 @@ use std::time::Duration;
 pub use client::RunnerClient;
 pub use error::{ErrorCode, RunnerError};
 pub use protocol::{
-    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, ImagePayload, ImageRequest, InstallGuide,
-    LoginSpec, MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions, RunRequest,
-    RunUsage, SkillFilePayload, SkillPayload, StartSpec,
+    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, ImagePayload, ImageRequest, InstallGuide, LoginSpec,
+    MidRunPost, ModelSpec, OptionKind, OptionSpec, PermissionKey, PermissionRule, Permissions, RunRequest, RunUsage,
+    SkillFilePayload, SkillPayload, StartSpec,
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。

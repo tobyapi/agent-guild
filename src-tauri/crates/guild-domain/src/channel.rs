@@ -32,12 +32,12 @@ pub struct Channel {
     pub created_at: i64,
 }
 
-/// チャンネルの作業範囲（人間が決める。TS の ChannelWorkspace）。変えるたびに revision が増え、
-/// after_seq より前の発言は以後のプロンプトに入れない
+/// エージェント共通の作業範囲。revision と after_seq は旧版で設定した履歴境界を保つ互換情報。
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ChannelWorkspace {
     pub mode: WorkspaceMode,
+    #[serde(default, deserialize_with = "discard_legacy_folder")]
     pub folder: Option<String>,
     pub revision: u64,
     pub after_seq: i64,
@@ -48,11 +48,14 @@ pub struct ChannelWorkspace {
 pub enum WorkspaceMode {
     /// エージェント共通の作業場所とメモを使う（どのチャンネルでも同じ。権限は役割どおり）
     #[default]
+    #[serde(alias = "folder", alias = "global")]
     Shared,
-    /// 割り当てたフォルダとチャンネル専用の作業場所だけを読み書きする
-    Folder,
-    /// チャンネル専用の作業場所とメモを使う（権限は役割どおり）
-    Global,
+}
+
+// 旧版の workspace_json を書き換えずに読めるようにする。旧形式のサポート終了まで残す。
+fn discard_legacy_folder<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<String>, D::Error> {
+    let _ = Option::<String>::deserialize(deserializer)?;
+    Ok(None)
 }
 
 impl Channel {

@@ -3,7 +3,6 @@ import { runLocalCommand } from './command.ts';
 import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { canIsolate } from './sandbox.ts';
 import { executeTool as executeShared, sandbox, toolNames } from './tools.ts';
-import { assertFolderScope } from '../folder-scope.ts';
 import { fileTool } from './files.ts';
 import { t } from './texts/index.ts';
 
@@ -90,7 +89,6 @@ function field(action: JsonObject, key: string): string {
 export async function executeAction(action: JsonObject, request: RunRequest, context: RunContext): Promise<string> {
   const { signal, onActivity } = context;
   signal.throwIfAborted();
-  assertFolderScope(request);
   if (request.options.enableTools !== true) throw new BackendError('unsupported_permission', '道具は無効です');
   const tool = field(action, 'tool');
   onActivity(`Ollama: ${tool}`);

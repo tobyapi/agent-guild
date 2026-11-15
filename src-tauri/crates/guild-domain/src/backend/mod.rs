@@ -9,7 +9,7 @@ use serde_json::Value;
 use super::agent::{PermissionKey, Permissions};
 
 pub use options::sanitize_backend_options;
-pub use setup::{ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec};
+pub use setup::{ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec};
 
 /// backendOptions の推論の深さのキー（値は、選んだモデルの ModelSpec.efforts のどれか）
 pub const EFFORT_OPTION: &str = "effort";
@@ -117,8 +117,6 @@ pub struct BackendInfo {
     pub unrestricted: Vec<PermissionKey>,
     /// 作業の途中でチャットに投稿する方法（途中では投稿できないなら None）
     pub mid_run_post: Option<MidRunPost>,
-    /// 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら None）
-    pub folder_scope: Option<FolderScope>,
     /// 道具を使うかどうかを切り替える設定（options の真偽値の項目の key）。None なら役割の権限どおりに使う
     pub tools_option: Option<String>,
     /// この PC の中で動く（API の利用料がかからない）

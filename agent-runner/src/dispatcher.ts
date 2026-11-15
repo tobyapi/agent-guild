@@ -1,5 +1,4 @@
-﻿import { assertBackendFolderScope } from './backends/folder-scope.ts';
-import { toErrorEvent } from './dispatcher-errors.ts';
+﻿import { toErrorEvent } from './dispatcher-errors.ts';
 import { manageApiKey } from './credentials/store.ts';
 import { applyBackendAuthMode } from './backends/auth-mode-request.ts';
 import type { BackendRegistry } from './backends/registry.ts';
@@ -126,7 +125,6 @@ export class Dispatcher {
       const send = (event: RunnerEvent): void => {
         if (isCurrent()) this.#options.send(event);
       };
-      assertBackendFolderScope(adapter.info(), request);
       // 萓晞ｼ縺ｮ讓ｩ髯舌・蠖ｹ蜑ｲ縺ｧ豎ｺ縺ｾ繧具ｼ医ヰ繝・け繧ｨ繝ｳ繝峨〒縺ｯ螟峨ｏ繧峨↑縺・ｼ峨ゅい繝繝励ち縺ｫ縺ｯ縲√◎縺ｮ荳ｭ縺ｧ縺薙・繝舌ャ繧ｯ繧ｨ繝ｳ繝峨′螳医ｌ繧区桃菴懊□縺代ｒ貂｡縺・
       return adapter.run(usableRequest(request, adapter.info()), {
         signal,

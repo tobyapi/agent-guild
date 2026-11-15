@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
 import { parseAction } from './actions.ts';
-import { folderModeAvailable, pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
+import { pretendMacOS, REAL_MACOS, runContext, runRequest } from '../run.test-support.ts';
 import { localHttp } from './http.ts';
 import { fileTool } from './files.ts';
 import { runLocalCommand } from './command.ts';
@@ -61,38 +61,6 @@ it.skipIf(!REAL_MACOS)('JSON作業では think 設定を反映し、判定役は
   expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
   expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toHaveProperty('think', false);
 });
-
-it.skipIf(!(await folderModeAvailable()))('JSON経路も指定フォルダだけに保存し、相談メモを拒否する', async () => {
-  const project = join(root, 'project');
-  const peer = join(root, 'peer');
-  await mkdir(project);
-  await mkdir(peer);
-  await writeFile(join(peer, 'MEMORY.md'), 'private');
-  const req = {
-    ...request(),
-    writableDirs: [project],
-    readableDirs: [project, peer],
-    permissions: { ...request().permissions, runCommands: false, skills: false },
-  };
-  startJson();
-  action({ type: 'tool', tool: 'write_file', path: join(project, 'artifact.txt'), content: 'shared' });
-  action({ type: 'tool', tool: 'read_file', path: join(peer, 'MEMORY.md') });
-  await expect(ollamaAdapter.run(req, runContext())).rejects.toThrow('MEMORY');
-  expect(await readFile(join(project, 'artifact.txt'), 'utf8')).toBe('shared');
-  expect(await readFile(join(peer, 'MEMORY.md'), 'utf8')).toBe('private');
-});
-
-it.each(['runCommands', 'skills'] as const)(
-  'JSON経路でも指定フォルダと%sの併用を起動時に拒否する',
-  async (permission) => {
-    const req = request();
-    req.permissions.runCommands = false;
-    req.permissions.skills = false;
-    req.permissions[permission] = true;
-    await expect(ollamaAdapter.run({ ...req, writableDirs: [] }, runContext())).rejects.toThrow('両立');
-    expect(http).not.toHaveBeenCalled();
-  },
-);
 
 it('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {
   const req = request();

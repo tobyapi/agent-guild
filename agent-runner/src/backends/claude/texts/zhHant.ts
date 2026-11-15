@@ -16,7 +16,6 @@ export const zhHant: Messages<typeof ja> = {
   operationCheckLabel: '操作確認',
   operationCheckDescription:
     '在執行命令、開啟網頁或寫入工作資料夾之外之前，用小模型（Haiku）確認是否符合請求，可疑時停止（不詢問人類）',
-  folderUnsupported: 'Claude 的檔案操作無法限制檢查後替換連結，因此不能在指定資料夾中執行',
   runFailed: '無法執行 Claude（{detail}）',
   hintAuth: 'Claude 驗證失敗。請在終端機中執行 `claude` 登入，或設定環境變數 ANTHROPIC_API_KEY。',
   hintRateLimit: '由於 Claude 的使用上限、速率限制或壅塞，無法執行。請稍候再傳送訊息。',

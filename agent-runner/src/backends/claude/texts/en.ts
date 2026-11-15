@@ -17,8 +17,6 @@ export const en: Messages<typeof ja> = {
   operationCheckLabel: 'Operation check',
   operationCheckDescription:
     'Before running commands, opening web pages, or writing outside the workspace, a small model (Haiku) checks that the action matches the request and stops it if suspicious (without asking a human)',
-  folderUnsupported:
-    "Claude's file operations cannot prevent links from being swapped after they are checked, so Claude cannot run in a designated folder",
   runFailed: 'Could not run Claude ({detail})',
   hintAuth:
     'Claude authentication failed. Run `claude` in a terminal to sign in, or set the ANTHROPIC_API_KEY environment variable.',

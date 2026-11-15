@@ -15,8 +15,6 @@ export const ko: Messages<typeof ja> = {
     'Codex가 이미지를 만들지 않고 끝났습니다. 이미지 생성은 Codex에 ChatGPT 계정으로 로그인했을 때 사용할 수 있습니다(API 키 로그인이나 일부 요금제에서는 사용할 수 없습니다). 로그인을 확인하고 다시 시도하십시오.',
   imageReply: '(Codex의 답변: {text})',
   systemPromptTooLong: 'Codex에 전달하는 시스템 프롬프트는 {max}자까지입니다',
-  folderNeedsSandbox:
-    '폴더 제한에는 OS 격리가 필요합니다(이 백엔드는 격리를 쓸 수 있는 Windows 11에서 사용할 수 있습니다)',
   ruleWrite: '쓰기를 허용하면 작업 공간 안에서의 명령(프로그램) 실행을 막을 수 없습니다. runCommands도 허용하십시오',
   ruleWriteAnywhere:
     '작업 공간 밖에 쓰기는 sandbox를 해제하고 수행하므로 네트워크 접근도 막을 수 없습니다. writeFiles와 webFetch도 허용하십시오',

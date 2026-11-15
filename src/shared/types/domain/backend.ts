@@ -69,8 +69,6 @@ export interface BackendInfo {
   unrestricted: PermissionKey[];
   /** 作業の途中でチャットに投稿する方法（途中では投稿できないなら null） */
   midRunPost: MidRunPost | null;
-  /** 指定フォルダのチャンネルでの範囲の守り方（指定フォルダでは実行できないなら null） */
-  folderScope: FolderScope | null;
   /**
    * 道具を使うかどうかを切り替える設定（options にある真偽値の項目の key）。null なら役割の権限どおりに使う。
    * key があるときは、その設定が true で、選んだモデルが道具に対応している（ModelSpec.tools）ときだけ使う
@@ -83,12 +81,6 @@ export interface BackendInfo {
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }
-
-/**
- * 指定フォルダの範囲の守り方。files = ファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、
- * sandbox = シェルごと OS の隔離に入れる（コマンドも範囲の中で使える）
- */
-export type FolderScope = 'files' | 'sandbox';
 
 export interface BackendSetup {
   /** 使えない（unavailable）ときに出す、CLI のインストールの案内（install_backend_cli。なければ null） */

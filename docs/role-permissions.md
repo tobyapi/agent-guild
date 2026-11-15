@@ -16,6 +16,10 @@
 
 同じ規則を3か所で使い、共有の実例（`contracts/behavior/role-permissions.json`）で一致を検査する: Rust（`usable_permissions`）・ランナー（`usablePermissions`。Dispatcher がアダプタに渡す前に絞る）・TypeScript（`supportedPermissions`）。ランナーは Rust の計算を信用せず、自分でも絞る。256通りの権限すべてについて、絞った結果が渡された権限を超えないことと、各アダプタが守れる組み合わせになることをテストしている（`agent-runner/src/backends/usable-permissions.test.ts`）。
 
+## チャンネルの作業場所
+
+全チャンネルが shared（エージェントごとの作業場所）を使う。旧 folder・global の保存値も shared として読み、役割の権限を適用する。旧 folder だけの読み取り・書き込み先の制限、スキル禁止、Ollama のコマンド禁止、未対応バックエンドの実行拒否は廃止した。Codex・Grok・Muse の読み取りは下記の shared の制約に従い、相談相手の MEMORY.md を folder 専用に拒否する処理もない。エージェント共通のメモを使い、旧チャンネル専用データはディスクに残す。
+
 ## 役割の権限
 
 | 役割 | Web 検索・閲覧 | 読み取り | 書き込み | コマンド | スキル |
@@ -56,7 +60,7 @@
 
 ## Ollama の道具を Windows・Linux でも使う（実装済み）
 
-ファイルの読み書き・一覧とスキル・途中の投稿は、Seatbelt のない OS でも使う。Seatbelt 版と同じ確認（判定した実体そのものだけを開く・ハードリンクを断る）を、ランナーの中で行う（`ollama/local-file.ts`。詳しくは ollama-tools.md）。コマンドと PC 全体への書き込み、指定フォルダモードは、OS の隔離が前提なので、隔離のない PC では使わない。Windows 11 で共通の隔離（MXC）が使えるときは、コマンドと、指定フォルダモードのファイル操作を、その中で行う（command-sandbox.md）。
+ファイルの読み書き・一覧とスキル・途中の投稿は、Seatbelt のない OS でも使う。Seatbelt 版と同じ確認（判定した実体そのものだけを開く・ハードリンクを断る）を、ランナーの中で行う（`ollama/local-file.ts`。詳しくは ollama-tools.md）。コマンドと PC 全体への書き込みは OS の隔離が前提。Windows 11 で共通の隔離（MXC）が使えるときはコマンドをその中で行う（command-sandbox.md）。PC 全体への書き込みは macOS だけで使う。
 
 ## Claude の作業者以外の役割のコマンド（実装済み）
 
@@ -66,6 +70,6 @@
 
 どれも実際のモデルでの検証が要るので、まだ入れていない。Windows の隔離は、Codex CLI も使っている MXC（Microsoft eXecution Containers）を共通の部品として持った（command-sandbox.md）。Codex の従来方式（制限つきトークン）は、管理者設定なしでは読み取り先を絞れず、通信も実際には止まらないことをこの PC で確かめたので、参考にしない。
 
-1. **Codex 系の読み取りを絞る**（指定フォルダのチャンネルでは実装済み。codex-folder-scope.md）: Codex に MXC を使わせ（`windows.sandbox = "mxc"`）、権限プロファイル（`default_permissions` と `[permissions.<name>.filesystem]`）で、読み取りを作業場所と readableDirs（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）に限る。この PC では、Codex CLI の `sandbox` コマンドで読み取りの制限が効くことを確かめた。効く環境では `unrestricted` から readAnywhere を外せる。`sandbox_mode` とは併用できないので、sandbox の指定をプロファイルに置き換える必要がある。
-2. **Ollama の作業フォルダの外への書き込みを Windows でも使う**: 指定フォルダのチャンネルと同じく、ファイル操作を共通の隔離の中で行えば、macOS の Seatbelt と同じく OS が範囲を守る形にできる（指定フォルダは実装済み）。
+1. **Codex 系の読み取りを絞る**: Codex に MXC を使わせ（`windows.sandbox = "mxc"`）、権限プロファイル（`default_permissions` と `[permissions.<name>.filesystem]`）で、読み取りを作業場所と readableDirs（専門家・マネージャーは PC 全体から秘密の場所を除いたもの）に限る。この PC では、Codex CLI の `sandbox` コマンドで読み取りの制限が効くことを確かめた。効く環境では `unrestricted` から readAnywhere を外せる。`sandbox_mode` とは併用できないので、sandbox の指定をプロファイルに置き換える必要がある。
+2. **Ollama の作業フォルダの外への書き込みを Windows でも使う**: ファイル操作を共通の隔離の中で行えば、macOS の Seatbelt と同じく OS が範囲を守る形にできる。
 3. **macOS・Linux でも共通の隔離を使う**（Claude の作業者以外のコマンドも、macOS・Linux では使えないまま）: MXC は macOS（Seatbelt）と Linux（bubblewrap）にも対応しているが、試していない。macOS の Ollama は自前の Seatbelt の設定を使い続けている。

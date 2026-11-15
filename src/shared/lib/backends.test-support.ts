@@ -1,4 +1,4 @@
-// テストで使うバックエンドの申告: 追加の申告が何もない形（指定フォルダでは実行できない・道具は役割どおり・セットアップなし）。
+// テストで使うバックエンドの申告: 追加の申告が何もない形（道具は役割どおり・セットアップなし）。
 // 確かめたい項目だけを上書きして使う。
 import type { BackendInfo, BackendSetup } from '@/shared/types/domain';
 
@@ -27,7 +27,7 @@ export function backendInfo(overrides: Partial<BackendInfo> = {}): BackendInfo {
     leakRisks: [],
     unrestricted: [],
     midRunPost: null,
-    folderScope: null,
+
     toolsOption: null,
     local: false,
     frameGeneration: false,

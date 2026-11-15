@@ -1,19 +1,9 @@
-//! バックエンドごとの違いのうち、アダプタが申告するもの: 指定フォルダの範囲の守り方と、アプリからのセットアップ
+//! バックエンドごとの違いのうち、アダプタが申告するもの: アプリからのセットアップ
 //! （インストール・起動・ログイン・API キー）。Rust と React はバックエンドの ID で分岐せず、この申告だけを見る。
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
-
-/// 指定フォルダの範囲の守り方（TS の FolderScope）
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum FolderScope {
-    /// ファイルの道具ごとに範囲を確かめる。コマンドとスキルは確認をすり抜けるので使えない
-    Files,
-    /// シェルごと OS の隔離に入れる。コマンドも範囲の中で使える
-    Sandbox,
-}
 
 /// アプリからのセットアップのうち、このバックエンドでできること（TS の BackendSetup）
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,6 +1,6 @@
 // チャンネル（Snapshot.channels）・開いているチャンネル・メンバーパネルの開閉・作成と編集のダイアログ。
 import { create } from 'zustand';
-import type { Channel, WorkspaceMode } from '@/shared/types/domain';
+import type { Channel } from '@/shared/types/domain';
 import { channelsApi } from './api';
 import { resolveActiveChannel } from './model/channels';
 
@@ -71,12 +71,6 @@ export async function createChannel(name: string, topic: string, icon: string, m
 
 export async function updateChannel(id: string, name: string, topic: string, icon: string): Promise<Channel> {
   const channel = await channelsApi.update(id, name, topic, icon);
-  upsert(channel);
-  return channel;
-}
-
-export async function setChannelWorkspace(id: string, mode: WorkspaceMode, folder: string | null): Promise<Channel> {
-  const channel = await channelsApi.workspace(id, mode, folder);
   upsert(channel);
   return channel;
 }

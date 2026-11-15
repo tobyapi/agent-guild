@@ -1,7 +1,7 @@
 // Seatbelt のない OS（Windows・Linux）でのファイル道具。scoped-file.ts（Seatbelt の中で動かす固定のコード）と同じ確認を、
 // ランナーのプロセスの中で行う: 開いたファイルが、パスで判定した実体そのもの（同じファイルで、リンクは1本）であることを
 // 確かめてから読み書きする。OS の隔離がないぶん、確認から操作までの間の差し替えは止められない
-// （Claude のファイル道具と同じ強さ。そのため指定フォルダ・コマンド・作業フォルダの外への書き込みはこの方式では扱わない）。
+// （Claude のファイル道具と同じ強さ。そのためコマンド・作業フォルダの外への書き込みはこの方式では扱わない）。
 
 import { constants, type BigIntStats } from 'node:fs';
 import { lstat, open, readdir, realpath, type FileHandle } from 'node:fs/promises';

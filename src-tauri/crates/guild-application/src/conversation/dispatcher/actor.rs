@@ -46,10 +46,6 @@ impl Actor {
 
     fn handle(&mut self, command: Command) {
         match command {
-            Command::ConfigureWorkspace { channel, mode, folder, done } => {
-                let result = self.configure_workspace(&channel, mode, folder);
-                let _ = done.send(result);
-            }
             Command::Dispatch { routing, origin } => self.apply(routing, &origin),
             Command::Enqueue(jobs) => {
                 for job in jobs {

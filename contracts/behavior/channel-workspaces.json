@@ -1,0 +1,44 @@
+[
+  {
+    "saved": {
+      "mode": "shared",
+      "folder": null,
+      "revision": 7,
+      "afterSeq": 42
+    },
+    "loaded": {
+      "mode": "shared",
+      "folder": null,
+      "revision": 7,
+      "afterSeq": 42
+    }
+  },
+  {
+    "saved": {
+      "mode": "folder",
+      "folder": "/project/no-longer-needed",
+      "revision": 7,
+      "afterSeq": 42
+    },
+    "loaded": {
+      "mode": "shared",
+      "folder": null,
+      "revision": 7,
+      "afterSeq": 42
+    }
+  },
+  {
+    "saved": {
+      "mode": "global",
+      "folder": null,
+      "revision": 7,
+      "afterSeq": 42
+    },
+    "loaded": {
+      "mode": "shared",
+      "folder": null,
+      "revision": 7,
+      "afterSeq": 42
+    }
+  }
+]

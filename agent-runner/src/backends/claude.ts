@@ -64,8 +64,7 @@ const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   unrestricted: [],
   midRunPost: 'tool',
-  // 指定フォルダでは実行しない（点検のあとのリンクの差し替えを止められない）
-  folderScope: null,
+
   toolsOption: null,
   local: false,
   frameGeneration: false,
@@ -87,10 +86,6 @@ const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
 });
 
 async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }: RunContext): Promise<string> {
-  // Dispatcher が先に止める（folderScope: null）。直接呼ばれても、指定フォルダの依頼を範囲の外で動かさない
-  if (request.writableDirs !== undefined) {
-    throw new BackendError('unsupported_permission', t('folderUnsupported'));
-  }
   await prepareCommandSandbox();
   rejectUnenforceable('Claude', unenforceableReason(request.permissions));
   const executable = findClaude();

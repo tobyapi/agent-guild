@@ -17,7 +17,6 @@ export const ko: Messages<typeof ja> = {
   operationCheckLabel: '작업 확인',
   operationCheckDescription:
     '명령 실행, 웹 페이지 열기, 작업 폴더 밖에 쓰기 전에 작은 모델(Haiku)로 요청에 맞는지 확인하고, 의심스러우면 중지합니다(사람에게 묻지 않습니다)',
-  folderUnsupported: 'Claude의 파일 작업은 점검 후 링크 교체를 제한할 수 없으므로 지정 폴더에서 실행할 수 없습니다',
   runFailed: 'Claude를 실행할 수 없습니다({detail})',
   hintAuth:
     'Claude 인증에 실패했습니다. 터미널에서 `claude`를 실행해 로그인하거나 환경 변수 ANTHROPIC_API_KEY를 설정하십시오.',

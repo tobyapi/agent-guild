@@ -5,7 +5,6 @@ import { useChannel, useChannelDialog } from '../hooks/useChannels';
 import { useChannelForm } from '../hooks/useChannelForm';
 import { closeChannelDialog, deleteChannel } from '../store';
 import { ChannelIconPicker } from './ChannelIconPicker';
-import { ChannelWorkspaceFields } from './ChannelWorkspaceFields';
 import { MemberPicker } from './MemberPicker';
 import { t } from '../i18n';
 import styles from './ChannelDialog.module.css';
@@ -70,7 +69,6 @@ function ChannelForm({ channel }: { channel: Channel | null }) {
           onBlur={() => form.touch('icon')}
           error={form.errors.icon}
         />
-        <ChannelWorkspaceFields form={form} />
         {!channel && <MemberPicker selected={form.draft.memberIds} onChange={(ids) => form.update('memberIds', ids)} />}
       </form>
       {deleting && channel && <DeleteChannelDialog channel={channel} onClose={() => setDeleting(false)} />}

@@ -3,8 +3,8 @@
 use guild_application::ports::{ImagePayload, ImageRuntimeRequest, RunUpdate, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
-    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, FolderScope, InstallGuide, LoginSpec, MidRunPost, ModelSpec,
-    OptionSpec, OptionType, PermissionRule, RuntimeState, RuntimeStatus, StartSpec,
+    ApiKeySpec, BackendInfo, BackendSetup, BackendStatus, InstallGuide, LoginSpec, MidRunPost, ModelSpec, OptionSpec,
+    OptionType, PermissionRule, RuntimeState, RuntimeStatus, StartSpec,
 };
 use runner_client as runner;
 
@@ -35,10 +35,6 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         leak_risks: info.leak_risks.into_iter().map(|risk| risk.into_iter().map(key).collect()).collect(),
         unrestricted: info.unrestricted.into_iter().map(key).collect(),
         mid_run_post: info.mid_run_post.map(mid_run_post),
-        folder_scope: info.folder_scope.map(|scope| match scope {
-            runner::FolderScope::Files => FolderScope::Files,
-            runner::FolderScope::Sandbox => FolderScope::Sandbox,
-        }),
         tools_option: info.tools_option,
         local: info.local,
         frame_generation: info.frame_generation,
@@ -135,7 +131,7 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
         workspace: request.workspace,
         state_dir: request.state_dir,
         readable_dirs: request.readable_dirs,
-        writable_dirs: request.writable_dirs,
+
         system_prompt: request.system_prompt,
         prompt: request.prompt,
         intent: request.intent,

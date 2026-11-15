@@ -2,7 +2,6 @@ import { Codex, type CodexOptions } from '@openai/codex-sdk';
 import { errorMessage } from '../log.ts';
 import { codexError, EventReader } from './codex-runtime/events.ts';
 import { codexNotFound, findCodex } from './codex-runtime/executable.ts';
-import { folderOverrides } from './codex-runtime/folder-profile.ts';
 import { codexCatalog } from './codex-runtime/models.ts';
 import { installCodexSkills } from './codex-runtime/skills.ts';
 import { t } from './codex-runtime/texts/index.ts';
@@ -14,7 +13,6 @@ import {
   unenforceableReason,
 } from './codex-runtime/options.ts';
 import { withPathDirs } from './executables.ts';
-import { assertSandboxedFolderScope } from './folder-scope.ts';
 import { codexAuthEnvironment } from './auth-mode.ts';
 import { BackendError, rejectUnenforceable, type ModelCatalog, type RunContext, type RunRequest } from './types.ts';
 
@@ -38,13 +36,12 @@ export async function runCodex(
   { signal, onActivity, onPost, onUsage }: RunContext,
   provider = defaultProvider(),
 ): Promise<string> {
-  assertSandboxedFolderScope(request);
   try {
     provider = { ...provider, env: await codexAuthEnvironment(provider.env) };
   } catch {
     throw new BackendError('auth', t('needsLoginTerminal'));
   }
-  rejectUnenforceable(provider.label, unenforceableReason(request.permissions, request.writableDirs !== undefined));
+  rejectUnenforceable(provider.label, unenforceableReason(request.permissions));
   if (request.systemPrompt.length > MAX_SYSTEM_PROMPT_LENGTH) {
     throw new BackendError('bad_request', t('systemPromptTooLong', { max: MAX_SYSTEM_PROMPT_LENGTH }));
   }
@@ -55,8 +52,6 @@ export async function runCodex(
     await installCodexSkills(request.workspace, request.skills);
     const codex = new Codex({
       config: { ...provider.config, ...codexConfig(request) },
-      // 指定フォルダでは、読み書きの範囲を OS の隔離で守る権限プロファイルを渡す（使えない PC では実行しない）
-      configOverrides: await folderOverrides(request),
       codexPathOverride: executable.path,
       env: withPathDirs(executable.pathDirs, provider.env) ?? provider.env,
     });

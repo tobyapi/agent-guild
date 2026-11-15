@@ -1,15 +1,10 @@
-/**
- * チャンネルの作業範囲の種類。shared = エージェントごとの作業場所とメモ（全チャンネル共通）、
- * folder = 割り当てたフォルダとチャンネル専用の作業場所だけ、global = チャンネル専用の作業場所とメモ。
- * shared と global の権限は役割どおり
- */
-export type WorkspaceMode = 'shared' | 'folder' | 'global';
+/** 作業場所はエージェント共通。revision と afterSeq は旧版の履歴境界を保つ互換情報 */
+export type WorkspaceMode = 'shared';
 
-/** チャンネルの作業範囲。変えるたびに revision が増え、afterSeq より前の発言は以後のプロンプトに入らない */
 export interface ChannelWorkspace {
   mode: WorkspaceMode;
-  /** mode が folder のときの割り当て先（絶対パス）。ほかは null */
-  folder: string | null;
+  /** 旧保存形式との互換用。常に null */
+  folder: null;
   revision: number;
   afterSeq: number;
 }

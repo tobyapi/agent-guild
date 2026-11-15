@@ -15,7 +15,6 @@ export const zhHant: Messages<typeof ja> = {
     'Codex 未產生圖像就結束了。圖像產生需要 Codex 使用 ChatGPT 帳戶登入（使用 API 金鑰登入或某些方案可能無法使用）。請確認登入後再試一次。',
   imageReply: '（Codex 的回覆：{text}）',
   systemPromptTooLong: '傳給 Codex 的系統提示最多 {max} 個字元',
-  folderNeedsSandbox: '資料夾限制需要作業系統隔離（此後端可在支援隔離的 Windows 11 上使用）',
   ruleWrite: '允許寫入後，將無法阻止在工作區內執行命令（程式）。請同時允許 runCommands',
   ruleWriteAnywhere: '寫入工作區之外時會解除 sandbox，因此也無法阻止網路存取。請同時允許 writeFiles 與 webFetch',
   cannotStopReads: '無法阻止讀取檔案（Codex 透過 shell 讀取）',

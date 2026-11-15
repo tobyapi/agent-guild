@@ -46,7 +46,7 @@ describe('Muse Spark provider', () => {
   it('publishes model selection and unsupported capabilities', async () => {
     expect(museAdapter.info()).toMatchObject({
       id: 'muse',
-      folderScope: 'sandbox',
+
       setup: { apiKey: { envVar: 'MODEL_API_KEY' } },
       capabilities: { webSearch: false },
       midRunPost: 'text',

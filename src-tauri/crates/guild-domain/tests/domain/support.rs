@@ -110,7 +110,7 @@ pub fn backend(id: &str) -> BackendInfo {
         leak_risks: Vec::new(),
         unrestricted: Vec::new(),
         mid_run_post: None,
-        folder_scope: None,
+
         tools_option: None,
         local: false,
         frame_generation: false,

@@ -34,7 +34,7 @@ export const BACKENDS: BackendInfo[] = [
     status: 'needs_auth',
     statusMessage: '',
     midRunPost: 'tool',
-    folderScope: null,
+
     toolsOption: null,
     local: false,
     frameGeneration: false,
@@ -56,7 +56,7 @@ export const BACKENDS: BackendInfo[] = [
     status: 'ready',
     statusMessage: '',
     midRunPost: 'text',
-    folderScope: null,
+
     toolsOption: null,
     local: false,
     frameGeneration: false,

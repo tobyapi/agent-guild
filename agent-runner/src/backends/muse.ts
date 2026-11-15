@@ -124,7 +124,7 @@ export const museAdapter: BackendAdapter = {
     leakRisks: LEAK_RISKS.map((risk) => [...risk]),
     unrestricted: [...UNRESTRICTED],
     midRunPost: 'text',
-    folderScope: 'sandbox',
+
     toolsOption: null,
     local: false,
     frameGeneration: false,

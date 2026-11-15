@@ -1,18 +1,8 @@
-//! BackendInfo のうち、指定フォルダの範囲の守り方とアプリからのセットアップ（`agent-runner/src/protocol.ts` と同じ JSON）。
+//! BackendInfo のうち、アプリからのセットアップ（`agent-runner/src/protocol.ts` と同じ JSON）。
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
-
-/// 指定フォルダの範囲の守り方
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum FolderScope {
-    /// ファイルの道具ごとに範囲を確かめる。コマンドとスキルは確認をすり抜けるので使えない
-    Files,
-    /// シェルごと OS の隔離に入れる。コマンドも範囲の中で使える
-    Sandbox,
-}
 
 /// アプリからのセットアップのうち、このバックエンドでできること
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]

@@ -28,7 +28,7 @@ const info = (): BackendDescriptor => ({
   leakRisks: LEAK_RISKS.map((risk) => [...risk]),
   unrestricted: [...UNRESTRICTED],
   midRunPost: 'text',
-  folderScope: 'sandbox',
+
   toolsOption: null,
   local: false,
   // 枠の生成（image 要求。Codex の組み込みの画像の生成）は Codex だけが申告する（同じ実行系を使う Grok・Muse は申告しない）

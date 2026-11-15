@@ -48,7 +48,6 @@ export const RUNNER_BACKEND_COMMON_MODULES = new Set([
   'agent-env',
   'auth-mode',
   'codex-runtime',
-  'folder-scope',
   'tool-paths',
   'command-sandbox',
 ]);

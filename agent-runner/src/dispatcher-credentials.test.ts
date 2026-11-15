@@ -15,7 +15,7 @@ const adapter = (id: string, envVar?: string): BackendAdapter => ({
     id,
     label: id,
     midRunPost: 'text',
-    folderScope: null,
+
     toolsOption: null,
     local: false,
     frameGeneration: false,

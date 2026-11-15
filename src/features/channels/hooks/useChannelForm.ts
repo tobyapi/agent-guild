@@ -6,7 +6,7 @@ import { hasErrors, notifyInfo, reportError, useFieldErrors } from '@/shared/ui'
 import type { Channel } from '@/shared/types/domain';
 import { channelErrorField, cleanChannelName, validateChannelDraft } from '../model/channels';
 import type { ChannelDraft, ChannelField } from '../model/channels';
-import { closeChannelDialog, createChannel, updateChannel, setChannelWorkspace } from '../store';
+import { closeChannelDialog, createChannel, updateChannel } from '../store';
 import { t } from '../i18n';
 
 async function persist(
@@ -25,11 +25,6 @@ async function persist(
     saved = created;
     onCreated(created);
   }
-  const mode = draft.workspaceMode;
-  const folder = mode === 'folder' ? draft.workspaceFolder.trim() : null;
-  if (mode !== saved.workspace.mode || folder !== saved.workspace.folder) {
-    await setChannelWorkspace(saved.id, mode, folder);
-  }
   notifyInfo(channel ? t('saved') : t('created', { name: saved.name }));
   closeChannelDialog();
 }
@@ -41,8 +36,6 @@ export function useChannelForm(channel: Channel | null) {
     topic: channel?.topic ?? '',
     icon: channel?.icon ?? '',
     memberIds: [],
-    workspaceMode: channel?.workspace.mode ?? 'shared',
-    workspaceFolder: channel?.workspace.folder ?? '',
   }));
   const [persisted, setPersisted] = useState<Channel | null>(channel);
   const [serverError, setServerError] = useState<{ field: ChannelField | null; message: string } | null>(null);

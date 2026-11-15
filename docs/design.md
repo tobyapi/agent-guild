@@ -32,7 +32,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | `tags` | 先頭タグは役割とサイドバーの区分。残りは分類用で権限に影響しない。役割の名前はどの言語の表示名でもよい（テンプレートの `roleTags` のどれかに一致すればその役割。作成時はいまの言語の表示名が入る） |
 
 **役割の表**（Rust の guild-domain が唯一の定義。`Snapshot.templates` で React に届く）は、権限の固定設定と作成時の既定値を持つ。権限を個別に変更する UI は置かない。保存・Snapshot・実行時に必ず先頭タグから権限を求め直すため、既存エージェントも次の実行から固定設定に従う。履歴・人格・モデルは保持する。
-**権限は役割だけで決まり、どのバックエンドでも同じ**（保存する値・Snapshot の `permissions`・ランナーへ渡す値のどれも）。バックエンドごとに違ってよいのは「その AI で実際に使える操作（実効権限）」だけで、道具がない操作（`capabilities`）と、単独では守れない操作（`permissionRules`）を、依存関係が収束するまで取り除いて求める。許可を追加して解決しない。実効権限はプロンプトの「できること」と画面の表示に使い、ランナーは渡された権限から同じ規則で自分でも取り除く（§5。考え方と各バックエンドの守り方は role-permissions.md）。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。指定フォルダではコマンド・スキル・PC全体の権限を無効にする。
+**権限は役割だけで決まり、どのバックエンドでも同じ**（保存する値・Snapshot の `permissions`・ランナーへ渡す値のどれも）。バックエンドごとに違ってよいのは「その AI で実際に使える操作（実効権限）」だけで、道具がない操作（`capabilities`）と、単独では守れない操作（`permissionRules`）を、依存関係が収束するまで取り除いて求める。許可を追加して解決しない。実効権限はプロンプトの「できること」と画面の表示に使い、ランナーは渡された権限から同じ規則で自分でも取り除く（§5。考え方と各バックエンドの守り方は role-permissions.md）。Ollamaは既定で会話のみ。macOSで `enableTools: true` を保存した会話モデルは、役割のファイル・スキル・単一プロセスのコマンド権限を利用できる。ネイティブtools非対応モデルはJSON操作を使う。`toolProtocol: json` の明示指定でもJSON操作に切り替えられる。
 専門家・マネージャーの readAnywhere はClaude・Codexの読み取りをPC全体へ広げる。OllamaのreadAnywhereとWebは未対応で、通常は作業場所と追加の読取フォルダに限る。Ollamaのファイル・スキルの道具はどの OS でも使える。コマンドは OS の隔離の中でだけ使い（macOS の Seatbelt と、対応する Windows 11 の MXC。command-sandbox.md）、作業フォルダの外への書き込みは Seatbelt のある macOS だけで使う（ollama-tools.md）。作業者のwriteAnywhereは管理領域を除くPC全体への読み書きを許可する。
 作成時は固定設定をそのまま使えるバックエンドを優先する。編集時の役割変更は人格・モデル・追加タグを保ち、権限と基本の応答方法（unmentioned・consultable・canDelegate）を入れ替える。
 
@@ -111,7 +111,6 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `create_channel` | `{ name, topic, icon, memberIds }`（icon は絵文字1つ。空と `#` は「なし」で、画面は # を出す。規則は guild-domain の `normalize_channel_icon`、実例は contracts/behavior/channel-icons.json） | `Channel` | state-changed | validation, not_found（存在しないメンバー） |
 | `get_channel_statistics` | `{ channelId }` | `ChannelStatistics`（全期間の割り振り・サブタスクの件数、モデル別の実行記録の集計） | – | not_found, storage |
 | `update_channel` | `{ id, name, topic, icon }` | `Channel` | state-changed | not_found, validation |
-| `set_channel_workspace` | `{ id, mode, folder }`（mode は `shared` / `folder` / `global`。folder は mode が folder のときの絶対パス、ほかは null） | `Channel`（作業範囲を変える。「チャンネルの作業範囲」の節） | state-changed | not_found, validation（実行中の作業がある・フォルダが不正） |
 | `delete_channel` | `{ id }` | `null` | state-changed, activity-changed | not_found |
 | `add_channel_member` | `{ channelId, memberId }` | `null` | state-changed, message-created | not_found |
 | `remove_channel_member` | `{ channelId, memberId }` | `null` | state-changed, activity-changed | not_found, validation（人間は外せない） |
@@ -183,7 +182,6 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 - **ログイン**: `BackendInfo.setup.login` を申告したアダプタは `login` 要求を受け付ける。アダプタは利用者がログインを終えるまで待つ。成功時は result（text は空）、失敗時は error（auth）で終える。Dispatcher は終端イベントの前に状態を確かめ直して `backends` を送る。cancel でログインを中断する。
 - **言語**: ランナーが作る画面向けの文字列（`BackendInfo` の説明・設定項目・セットアップの文言・途中経過・エラーの文面）は「いまの言語」で作る（`agent-runner/src/i18n.ts`。docs/i18n.md）。起動時は環境変数 `GUILD_LANGUAGE`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`。ない・知らない値なら `ja`）、以後は `setLanguage`（`{ type: 'setLanguage', language }`。id も返事もない。知らない言語は bad_request の扱い）で変わる。ランナーは言語を変えたら状態を確かめ直して `backends` を送り直す（状態の説明は確かめた時点の言語で作るため）。モデルへの指示と道具の結果は訳さない。
 - **バックエンドごとの違いの申告**: Rust と React は、バックエンドの ID で分岐しない。違いはアダプタが `BackendInfo` で申告する。
-  - `folderScope`: 指定フォルダのチャンネルでの範囲の守り方。`files` はファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、`sandbox` はシェルごと OS の隔離に入れる（コマンドも範囲の中で使える）、`null` は指定フォルダでは実行できない。
   - `toolsOption`: 道具を使うかどうかを切り替える設定（`options` の真偽値の項目の key）。`null` なら役割の権限どおりに使う。key があるバックエンドは、その設定が true で、選んだモデルが道具に対応している（`ModelSpec.tools`）ときだけ道具を使い、それまでは会話専用。
   - `local`: この PC の中で動く（運用統計で、費用を 0 として出す）。
   - `frameGeneration`: このバックエンドでアイコンの枠を生成できる（`generate_avatar_frame`）。申告するアダプタは `image` 要求（下の「画像の依頼」）を受け付ける。申告しないバックエンドには描かせず、React は申告するバックエンドが1つもなければ生成の操作を出さない。いまは Codex のアダプタだけが true（同じ実行系を使う Grok・Muse も申告しない）。Rust は申告のない古い形を false として読む。
@@ -407,19 +405,13 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 
 ## チャンネルの作業範囲
 
-`Channel.workspace` は `{ mode: "shared" | "folder" | "global", folder: string | null, revision: number, afterSeq: number }`。SQLite の `channels.workspace_json` に保存する。新しいチャンネルは shared・revision 0。
+作業範囲は **shared（エージェントごとの作業場所）だけ**。全チャンネルで同じ `agents/<agent>/work` と `MEMORY.md` を使い、管理領域は `agents/<agent>/state/<backend>` に用意する。権限は役割で決まり、バックエンドが守れない操作は実効権限から取り除く。範囲の選択画面と変更 API はない。
 
-- **shared**（既定）: エージェントごとの作業場所（全チャンネル共通。`agents/<agent>/work`）とメモを使う。どのチャンネルでも同じ場所で、権限は役割どおり。
-- **folder**: 割り当てたフォルダとチャンネル専用の作業場所だけを読み書きする。
-- **global**: チャンネル専用の作業場所とメモを使う。権限は役割どおり。
+`Channel.workspace` は `{ mode: "shared", folder: null, revision: number, afterSeq: number }`。新しいチャンネルでは revision と afterSeq は 0。SQLite の `channels.workspace_json` の旧保存形式（mode が `folder` または `global`）は、読み込み時に shared・folder は null として扱う。割り当て先の存在確認は行わない。DB を書き換える移行はなく、名前・話題の更新でも旧保存値を変更しない。
 
-`set_channel_workspace({ id, mode, folder }) -> Channel` は実行管理のアクターで直列化する。実行中・待機中のジョブまたは未完了の割り振りがあれば拒否する。フォルダは実在する絶対パスを正規化し、アプリ保存領域とその祖先・子孫は拒否する。同じ設定の再保存は revision を増やさない。名前・話題の保存は作業範囲を更新しない。
+revision と afterSeq は、旧版で作業範囲を変えたときの会話の境界を保つ互換情報として残す。afterSeq 以前の会話をプロンプトへ戻さず、その会話を起点にする古いジョブも実行しない。旧チャンネル専用の作業場所・メモ・セッション（`agents/<agent>/channels/<channel>/<revision>/`）は削除・移動・自動コピーしない。これからの実行では使用しない。
 
-変更時には revision を増やし、最後の発言の seq を afterSeq として保存する。以後の会話入力はそれより新しい発言に限り、古い会話を起点とするジョブは実行しない。専用作業場所は `agents/<agent>/channels/<channel>/<revision>/work`、管理領域は同じ revision の `state/<backend>`。チャンネル専用の作業場所には、エージェントごとの MEMORY.md とセッションを自動では渡さない。shared に戻すと、エージェントごとの作業場所（全チャンネル共通）とメモに戻る（revision は増え、戻す前の会話は渡さない）。
-
-folder モードではランナープロトコルの `writableDirs` に割り当て先を渡す。自身の専用作業場所と指定先を書き込み可能とし、相談相手の成果物とチャンネルの添付には読み取りだけを許す。相談相手の MEMORY.md・外向きリンク・ハードリンク・特殊ファイルは拒否する。readAnywhere・writeAnywhere・スキルは無効。どう守るかは、バックエンドの申告（`BackendInfo.folderScope`）で決まる。コマンドは、ファイルの道具ごとに範囲を確かめるバックエンド（`files`。いまは Ollama）では無効、シェルごと OS の隔離に入れるバックエンド（`sandbox`。いまは Codex・Grok・Muse）では範囲の中でだけ使える。守り方を申告していないバックエンド（`null`。いまは Claude）は、指定フォルダのチャンネルでは実行しない。Ollama は、macOS では Seatbelt、Windows 11 では共通の隔離（MXC。使えない PC では実行を停止する）の中でファイルを操作し、開いたファイルの実体確認を併用する。割り当てフォルダは、Windows の `\\?\` が付かない普通の形のパスで保存する。Codex・Grok・Muse は、Windows 11 の MXC が使えるときに、Codex の権限プロファイルで読める場所・書ける場所・通信を決める（`docs/codex-folder-scope.md`。使えない PC では実行を停止する）。Claude の点検前後のリンク差し替えは制限できないため、このモードでは実行を停止する。未対応のバックエンドも理由を示して実行を停止する。
-
-今回の統合検証は `docs/ollama-channel-validation-20261111.md`。`docs/ollama-tools-validation.md` は過去試作の記録として区別する。
+folder 専用の読み書き制限・スキル制限・バックエンド対応判定と、global の作業場所・メモの分離は廃止。Codex 系の読み取り制限を含め、通常の shared の制約は [role-permissions.md](role-permissions.md) を参照。旧設定の読み替え例は `contracts/behavior/channel-workspaces.json` で検証する。
 
 ## アプリの更新（自動アップデート）
 

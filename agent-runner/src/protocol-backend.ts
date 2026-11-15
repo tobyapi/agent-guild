@@ -1,11 +1,5 @@
-// プロトコルの型のうち、バックエンドごとの違いの申告（BackendInfo の folderScope と setup）。protocol.ts から再公開する。
+// プロトコルの型のうち、バックエンドごとの違いの申告（BackendInfo の setup）。protocol.ts から再公開する。
 // Rust（runner-client の protocol/setup.rs）と同じ JSON。
-
-/**
- * 指定フォルダの範囲の守り方。files = ファイルの道具ごとに範囲を確かめる（コマンドとスキルは使えない）、
- * sandbox = シェルごと OS の隔離に入れる（コマンドも範囲の中で使える）
- */
-export type FolderScope = 'files' | 'sandbox';
 
 export interface BackendSetup {
   /** 使えない（unavailable）ときに出す、CLI のインストールの案内（なければ null） */

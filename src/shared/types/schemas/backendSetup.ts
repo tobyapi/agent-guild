@@ -1,9 +1,7 @@
-// BackendInfo のうち、アダプタが申告するバックエンドごとの違い（指定フォルダの守り方・アプリからのセットアップ）のスキーマ。
-import type { ApiKeySpec, BackendSetup, FolderScope, InstallGuide, LoginSpec, StartSpec } from '../domain';
-import { nullable, objectOf, oneOf, recordOf, string } from '../schema';
+// BackendInfo のうち、アダプタが申告するバックエンドごとの違い（アプリからのセットアップ）のスキーマ。
+import type { ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec } from '../domain';
+import { nullable, objectOf, recordOf, string } from '../schema';
 import type { Schema } from '../schema';
-
-export const folderScope = oneOf<FolderScope>({ files: true, sandbox: true });
 
 const installGuideSchema = {
   cli: string,

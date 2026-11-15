@@ -3,7 +3,6 @@
 // 拒否する。ただし既定では一時フォルダにも書けるので除外する）。書き込みを許していなくても workspace-write にする
 // （作業場所の MEMORY.md はいつでも書けるようにし、ほかのファイルを書かないことはエージェントがルールを守ることに任せる）。
 // 作業場所の外への書き込み（writeAnywhere）は sandbox を外して行う（danger-full-access）。外すとネットワークも止められない。
-// 指定フォルダのチャンネルでは、sandbox の指定のかわりに権限プロファイルを使う（./folder-profile.ts）。
 
 import type { CodexOptions, Input, ThreadOptions } from '@openai/codex-sdk';
 import { SECRET_ENV_GLOBS } from '../agent-env.ts';
@@ -45,16 +44,14 @@ export function threadOptions(request: RunRequest, catalog: ModelCatalog = EMPTY
   const { permissions } = request;
   const model = request.model || catalog.defaultModel;
   const fallbackEffort = { [EFFORT_OPTION]: defaultEffortOf(catalog, model) };
-  // 指定フォルダでは、読み書きの範囲と通信を権限プロファイルで決める（sandbox の指定とは併用できない）
-  const folder = request.writableDirs !== undefined;
   return {
     workingDirectory: request.workspace,
     skipGitRepoCheck: true,
-    sandboxMode: folder ? undefined : sandboxModeOf(permissions),
+    sandboxMode: sandboxModeOf(permissions),
     approvalPolicy: 'never',
     webSearchMode: permissions.webSearch ? 'live' : 'disabled',
     // Codex に Web 閲覧の専用ツールはなく、ページの取得はネットワーク越しのコマンドで行う（webFetch のときだけ開く）
-    networkAccessEnabled: folder ? undefined : permissions.webFetch,
+    networkAccessEnabled: permissions.webFetch,
     model: model || undefined,
     modelReasoningEffort:
       optionChoice(request.options, EFFORT_OPTION, CODEX_EFFORTS) ??
@@ -108,10 +105,9 @@ export const UNRESTRICTED: readonly PermissionKey[] = ['readAnywhere', 'writeFil
 /**
  * Codex で守れない権限の組み合わせなら、その理由。Codex は作業にシェルを使うので、コマンドの実行そのものは止められない。
  * 書き込みを許していないときも、MEMORY.md のために作業場所へは書ける（ほかのファイルを書かないのはエージェントに任せる）。
- * ネットワークは webFetch のときだけ開く。指定フォルダ（folder）では、利用者全体のスキルの場所を読めないので、スキルは問わない。
  */
-export function unenforceableReason(permissions: Permissions, folder = false): string | null {
+export function unenforceableReason(permissions: Permissions): string | null {
   if (!permissions.readFiles) return t('cannotStopReads');
-  if (!permissions.skills && !folder) return t('cannotStopSkills');
+  if (!permissions.skills) return t('cannotStopSkills');
   return brokenRule(rules(), permissions)?.reason ?? null;
 }

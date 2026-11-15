@@ -85,16 +85,6 @@ impl ChannelRepository for SqliteChannelRepository {
             .map_err(storage)
     }
 
-    fn set_workspace(&self, id: &ChannelId, scope: &guild_domain::channel::ChannelWorkspace) -> AppResult<()> {
-        self.db
-            .with(|conn| {
-                let json = serde_json::to_string(scope).map_err(encode_error)?;
-                conn.execute("UPDATE channels SET workspace_json = ?2 WHERE id = ?1", params![id.as_str(), json])
-            })
-            .map(|_| ())
-            .map_err(storage)
-    }
-
     /// メンバーと発言は外部キーの ON DELETE CASCADE で消える
     fn delete(&self, id: &ChannelId) -> AppResult<()> {
         self.db

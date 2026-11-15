@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use guild_domain::agent::Agent;
 use guild_domain::attachment::Attachment;
-use guild_domain::channel::{Channel, WorkspaceMode};
+use guild_domain::channel::Channel;
 use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
 use guild_domain::locale;
@@ -31,16 +31,13 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     if !super::request_scope::accepts_job(ports, job, &channel)? {
         return Ok(None);
     }
-    let super::request_scope::RunScope { permissions, usable, paths, memory, writable_dirs } =
-        super::request_scope::prepare(ports, &agent, &channel, backend)?;
+    let super::request_scope::RunScope { permissions, usable, paths, memory } =
+        super::request_scope::prepare(ports, &agent, backend)?;
     let skills = if usable.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;
     let me = ports.profile.get()?;
     let history: Vec<_> = history(ports, job)?.into_iter().filter(|m| m.seq > channel.workspace.after_seq).collect();
-    let (sources, mut readable_dirs) = consult_sources(ports, job, &agents, &channel);
-    if let Some(roots) = &writable_dirs {
-        readable_dirs.extend(roots.iter().cloned());
-    }
+    let (sources, mut readable_dirs) = consult_sources(ports, job, &agents);
     // 添えられたファイルはパスを伝えて読んでもらうので、そのチャンネルの添付のフォルダを読めるようにする
     if !file_attachments(job, &history).is_empty() {
         readable_dirs.push(ports.attachments.channel_dir(&channel.id));
@@ -72,8 +69,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         workspace: paths.work,
         state_dir: paths.state,
         readable_dirs,
-        writable_dirs,
-        system_prompt: super::request_scope::with_scope(build_system_prompt(&ctx), &channel, backend),
+        system_prompt: build_system_prompt(&ctx),
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
         intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),
@@ -108,21 +104,12 @@ pub(super) fn participants(ports: &Ports, job: &JobSpec) -> AppResult<Option<(Ag
 }
 
 /// 相談のジョブでは、呼び出し元の作業場所を読めるようにしてプロンプトでも伝える
-fn consult_sources(
-    ports: &Ports,
-    job: &JobSpec,
-    agents: &[Agent],
-    channel: &Channel,
-) -> (Vec<ConsultSource>, Vec<PathBuf>) {
+fn consult_sources(ports: &Ports, job: &JobSpec, agents: &[Agent]) -> (Vec<ConsultSource>, Vec<PathBuf>) {
     job.return_to
         .iter()
         .filter_map(|id| agents.iter().find(|agent| &agent.id == id && agent.is_active()))
         .map(|caller| {
-            let path = if channel.workspace.mode == WorkspaceMode::Shared {
-                ports.workspace.work_dir(&caller.id)
-            } else {
-                ports.workspace.scoped_work_dir(&caller.id, &channel.id, channel.workspace.revision)
-            };
+            let path = ports.workspace.work_dir(&caller.id);
             let source = ConsultSource { name: caller.name.clone(), path: path.display().to_string() };
             (source, path)
         })

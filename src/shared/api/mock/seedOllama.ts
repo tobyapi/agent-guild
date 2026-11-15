@@ -76,7 +76,7 @@ export const MOCK_OLLAMA: BackendInfo = {
   leakRisks: [],
   unrestricted: [],
   midRunPost: 'tool',
-  folderScope: 'files',
+
   toolsOption: 'enableTools',
   local: true,
   frameGeneration: false,

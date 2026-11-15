@@ -8,8 +8,7 @@ use guild_application::ports::{
     Spawner, TargetFolder, Workspace, WorkspacePaths,
 };
 use guild_application::{AppError, AppResult};
-use guild_domain::channel::ChannelWorkspace;
-use guild_domain::ids::{AgentId, ChannelId};
+use guild_domain::ids::AgentId;
 use parking_lot::Mutex;
 
 #[derive(Default)]
@@ -19,37 +18,6 @@ pub struct FakeWorkspace {
 }
 
 impl Workspace for FakeWorkspace {
-    fn validate_folder(&self, folder: &str) -> AppResult<String> {
-        if !Path::new(folder).is_absolute() {
-            return Err(AppError::validation("absolute path required"));
-        }
-        Ok(folder.to_owned())
-    }
-    fn scoped_work_dir(&self, agent: &AgentId, channel: &ChannelId, revision: u64) -> PathBuf {
-        PathBuf::from("/ws")
-            .join(agent.as_str())
-            .join("channels")
-            .join(channel.as_str())
-            .join(revision.to_string())
-            .join("work")
-    }
-    fn prepare_scoped(
-        &self,
-        agent: &AgentId,
-        backend: &str,
-        channel: &ChannelId,
-        scope: &ChannelWorkspace,
-    ) -> AppResult<WorkspacePaths> {
-        let work = self.scoped_work_dir(agent, channel, scope.revision);
-        Ok(WorkspacePaths {
-            state: work.parent().ok_or_else(|| AppError::validation("missing parent"))?.join("state").join(backend),
-            work,
-        })
-    }
-    fn read_scoped_memory(&self, _agent: &AgentId, _channel: &ChannelId, _revision: u64) -> AppResult<String> {
-        Ok(String::new())
-    }
-
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
         let root = PathBuf::from("/ws").join(agent.as_str());
         Ok(WorkspacePaths { work: root.join("work"), state: root.join("state").join(backend) })

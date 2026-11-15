@@ -14,8 +14,6 @@ export const ja = {
     'Codex は画像を作らずに終わりました。画像の生成は、Codex に ChatGPT アカウントでログインしているときに使えます（API キーでのログインやプランによっては使えません）。ログインを確かめて、もう一度お試しください。',
   imageReply: '（Codex の返事: {text}）',
   systemPromptTooLong: 'Codex に渡すシステムプロンプトは {max} 文字までです',
-  folderNeedsSandbox:
-    'フォルダ制限には OS の隔離が必要です（このバックエンドでは、隔離が使える Windows 11 で使えます）',
   ruleWrite:
     '書き込みを許すと、作業場所の中でのコマンド（プログラム）の実行を止められません。runCommands も許可してください',
   ruleWriteAnywhere:

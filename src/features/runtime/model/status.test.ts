@@ -24,7 +24,7 @@ const backend = (overrides: Partial<BackendInfo>): BackendInfo => ({
   leakRisks: [],
   unrestricted: [],
   midRunPost: 'text',
-  folderScope: null,
+
   toolsOption: null,
   local: false,
   frameGeneration: false,

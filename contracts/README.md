@@ -27,7 +27,7 @@
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
 | runner/requests.jsonl | RunnerRequest（run / image / login / cancel / probe / setLanguage / shutdown / apiKey） |
-| runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules・midRunPost と、バックエンドごとの違いの申告（folderScope・toolsOption・local・frameGeneration・setup）を含む |
+| runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules・midRunPost と、バックエンドごとの違いの申告（toolsOption・local・frameGeneration・setup）を含む |
 
 | behavior/mentions.json | メンション解析（design.md §8）: エージェントと本文 → 呼ばれた相手の ID。Rust `parse_mentions` / TS `parseMentions` |
 | behavior/tasks.json・behavior/tasks-agents.json | tasks ブロックの読み取り（design.md §7.1）: 本文 → サブタスク・割り振れなかった名前・上限を超えた名前（ブロックがなければ null）。Rust `parse_tasks` / TS `parseTasks`・`findTasksBlock` |
@@ -38,3 +38,5 @@
 `behavior/` の実例と、Rust・TS の両方の実装を同じ変更で直すこと。
 
 `behavior/role-permissions.json` は、役割で決まる権限（`permissions`。同じ役割ならどのバックエンドでも同じ）と、そのバックエンドで実際に使える操作（`usable`。権限の部分集合）の共有実例。Rust の保存・実行、ランナーの絞り込み、TypeScript の編集画面で同じ結果を検査する。
+
+`behavior/channel-workspaces.json` は旧 shared・folder・global の保存値と、読み込み後に返す shared の形の実例。Rust の契約・SQLite 読み込みテストと TypeScript の IPC 検証で照合する。

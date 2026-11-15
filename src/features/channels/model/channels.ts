@@ -4,7 +4,7 @@ import { CHANNEL_NAME_MAX, CHANNEL_TOPIC_MAX, cleanChannelName } from '@/shared/
 import { groupByPrimaryTag } from '@/features/agents';
 import type { TagGroup } from '@/features/agents';
 import { checkText } from '@/shared/lib/validation';
-import type { Agent, AgentTemplate, BackendInfo, Channel, FolderScope, WorkspaceMode } from '@/shared/types/domain';
+import type { Agent, AgentTemplate, Channel } from '@/shared/types/domain';
 import { t } from '../i18n';
 import { tIcon } from '../i18n/icon';
 
@@ -44,19 +44,16 @@ export interface ChannelDraft {
   /** 絵文字1つ（空なら # を出す） */
   icon: string;
   memberIds: string[];
-  workspaceMode: WorkspaceMode;
-  /** workspaceMode が folder のときだけ使う */
-  workspaceFolder: string;
 }
 
-export type ChannelField = 'name' | 'topic' | 'icon' | 'workspaceFolder';
+export type ChannelField = 'name' | 'topic' | 'icon';
 
 /** 名前の先頭の # は付けなくてよい（付けても外す。全角の ＃ も） */
 export { cleanChannelName };
 
 /** 保存で返った validation の field（CommandError.field）がどの入力のことか（分からなければ null） */
 export function channelErrorField(field: string | null): ChannelField | null {
-  return field === 'name' || field === 'topic' || field === 'icon' || field === 'workspaceFolder' ? field : null;
+  return field === 'name' || field === 'topic' || field === 'icon' ? field : null;
 }
 
 export function validateChannelDraft(draft: ChannelDraft): Partial<Record<ChannelField, string>> {
@@ -67,34 +64,6 @@ export function validateChannelDraft(draft: ChannelDraft): Partial<Record<Channe
     ],
     ['topic', checkText(draft.topic, { label: t('topicLabel'), max: CHANNEL_TOPIC_MAX })],
     ['icon', normalizeChannelIcon(draft.icon) === null ? tIcon('invalid') : null],
-    [
-      'workspaceFolder',
-      draft.workspaceMode === 'folder' && !/^(?:\/|[A-Za-z]:[\\/])/.test(draft.workspaceFolder.trim())
-        ? t('folderRequired')
-        : null,
-    ],
   ];
   return Object.fromEntries(entries.filter((entry): entry is [ChannelField, string] => entry[1] !== null));
-}
-
-/**
- * 指定フォルダのチャンネルで、どのバックエンドが何を使えるかの案内。バックエンドの申告（folderScope）から作る
- * （名前を決め打ちしないので、バックエンドが増えても直さなくてよい）
- */
-export function folderScopeHint(backends: readonly BackendInfo[]): string {
-  const labels = (scope: FolderScope | null): string =>
-    backends
-      .filter((backend) => backend.folderScope === scope)
-      .map((backend) => backend.label)
-      .join(t('backendSeparator'));
-  const lines: Array<[string, 'folderFiles' | 'folderSandbox' | 'folderNone']> = [
-    [labels('files'), 'folderFiles'],
-    [labels('sandbox'), 'folderSandbox'],
-    [labels(null), 'folderNone'],
-  ];
-  return [
-    t('folderIntro'),
-    ...lines.filter(([names]) => names !== '').map(([names, key]) => t(key, { names })),
-    t('folderIsolation'),
-  ].join(t('sentenceSeparator'));
 }

@@ -2,7 +2,6 @@
 import { lstat, realpath } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { isJsonObject } from '../../line-parser.ts';
-import { scopedTarget } from '../folder-scope.ts';
 import { unsafePathForm } from '../tool-paths.ts';
 import { BackendError, isInside, type RunRequest } from '../types.ts';
 import { canIsolate } from './sandbox.ts';
@@ -13,10 +12,9 @@ export const anywhere = (request: RunRequest): boolean => request.permissions.wr
 export async function fileTarget(request: RunRequest, path: string, write: boolean): Promise<string> {
   const absolute = resolve(request.workspace, path);
   // 開くだけで外へ接続するネットワークパスなどは、実体を調べる前に断る
-  const roots = [request.workspace, ...request.readableDirs, ...(request.writableDirs ?? [])];
+  const roots = [request.workspace, ...request.readableDirs];
   const form = unsafePathForm(absolute, roots);
   if (form !== null) throw new BackendError('unsupported_permission', form);
-  if (request.writableDirs !== undefined) return scopedTarget(request, path, write);
   let target: string;
   try {
     target = await realpath(absolute);

@@ -32,7 +32,7 @@ const backend: BackendInfo = {
   leakRisks: [],
   unrestricted: [],
   midRunPost: 'tool',
-  folderScope: null,
+
   toolsOption: null,
   local: false,
   frameGeneration: false,
