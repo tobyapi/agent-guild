@@ -5,7 +5,7 @@ import { test } from 'node:test';
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const tokens = read('src/shared/ui/theme/tokens-backdrop.css');
 
-test('three surfaces preserve original colors without a background and share initial scrim density', () => {
+test('three surfaces preserve original colors without a background and use theme-specific scrim density', () => {
   const defaults = tokens.split(":root[data-background='active']")[0];
   for (const [pane, original] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
     assert.ok(defaults.includes(`--surface-${pane}: var(--bg-${original});`));
@@ -14,7 +14,9 @@ test('three surfaces preserve original colors without a background and share ini
         `--surface-${pane}: color-mix(in srgb, var(--bg-${original}) var(--scrim-${pane}), transparent);`,
       ),
     );
-    assert.ok(defaults.includes(`--scrim-${pane}: 94%;`));
+    assert.ok(defaults.includes(`--scrim-${pane}: 89%;`));
+    const light = defaults.split(":root[data-theme='light']")[1];
+    assert.ok(light.includes(`--scrim-${pane}: 90%;`));
   }
   for (const [path, pane] of [
     ['src/app/AppShell.module.css', 'chat'],

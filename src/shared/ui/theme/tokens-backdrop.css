@@ -4,19 +4,22 @@
   --surface-chat: var(--bg-app);
   --surface-sidebar: var(--bg-sidebar);
   --surface-members: var(--bg-panel);
-  --scrim-chat: 94%;
-  --scrim-sidebar: 94%;
-  --scrim-members: 94%;
+  --scrim-chat: 89%;
+  --scrim-sidebar: 89%;
+  --scrim-members: 89%;
   --backdrop-duration: 24s;
   --backdrop-aurora:
-    radial-gradient(ellipse at 30% 30%, #408e7770, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, #66559c70, transparent 60%);
+    radial-gradient(ellipse at 30% 30%, #30dcb5c0, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, #a18affb0, transparent 60%);
   --backdrop-state-ink: #c8d2ff;
   --backdrop-active-weight: 9%;
   --backdrop-overlay: #06080c;
 }
 
 :root[data-theme='light'] {
+  --scrim-chat: 90%;
+  --scrim-sidebar: 90%;
+  --scrim-members: 90%;
   --backdrop-state-ink: #282414;
   --backdrop-active-weight: 8%;
   --backdrop-overlay: #1c180e;

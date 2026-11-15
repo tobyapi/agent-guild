@@ -190,7 +190,7 @@ src/
 
 AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き、その上に3欄の地色、通常 UI、ダイアログ・toast を重ねる。背景は aria-hidden、pointer-events:none、フォーカス要素なし。負の z-index や背景指定を使った key は使わない。
 
-`--surface-chat` / `--surface-sidebar` / `--surface-members` は欄の地色専用。背景なしではそれぞれ `--bg-app` / `--bg-sidebar` / `--bg-panel` と同値。背景ありだけ各地色を透明色と混ぜ、`--scrim-chat` / `--scrim-sidebar` / `--scrim-members` を初期94%とする。読字を優先した暫定値で、12組の実機確認で合成後のコントラストを検証する。要素全体の opacity は変更しない。
+`--surface-chat` / `--surface-sidebar` / `--surface-members` は欄の地色専用。背景なしではそれぞれ `--bg-app` / `--bg-sidebar` / `--bg-panel` と同値。背景ありだけ各地色を透明色と混ぜ、`--scrim-chat` / `--scrim-sidebar` / `--scrim-members` をダーク89%・ライト90%とする。同梱SVGの形の明暗比1.15以上と本文・補助文字のコントラスト4.5:1以上をNodeハーネスで検査する。計算方法と実機での確認事項は `docs/theme-stage2-verification.md` を参照。要素全体の opacity は変更しない。
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
