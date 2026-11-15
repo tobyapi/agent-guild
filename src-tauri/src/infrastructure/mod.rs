@@ -2,6 +2,7 @@
 
 pub mod app_control;
 pub mod attachments;
+pub mod backgrounds;
 pub mod clock;
 pub mod data_dir;
 pub mod events;

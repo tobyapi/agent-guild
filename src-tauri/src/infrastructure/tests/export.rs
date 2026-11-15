@@ -24,8 +24,12 @@ fn current_data(dir: &TempDir) -> Arc<Database> {
 fn copies_the_database_workspaces_and_marker() {
     let source = TempDir::new("source");
     let exporter = DataExport::new(current_data(&source), source.0.clone());
+    fs::create_dir_all(source.0.join("backgrounds")).unwrap();
+    fs::write(source.0.join("backgrounds/image.png"), b"background pixels").unwrap();
     let target = TempDir::new("target");
     exporter.export_to(&target.0).unwrap();
+    assert_eq!(fs::read(target.0.join("backgrounds/image.png")).unwrap(), b"background pixels");
+    assert!(!target.0.join("backgrounds.tmp").exists());
 
     assert!(target.0.join("guild.db").exists());
     assert!(!target.0.join("guild.db.tmp").exists() && !target.0.join("agents.tmp").exists());
@@ -48,7 +52,17 @@ fn a_failed_export_removes_what_it_made() {
     let result = exporter.export_to(&target.0);
 
     assert!(matches!(result, Err(AppError::Storage(_))));
-    for leftover in ["guild.db.tmp", "agents.tmp", "agents", "guild.db"] {
+    for leftover in ["guild.db.tmp", "agents.tmp", "agents", "guild.db", "backgrounds", "backgrounds.tmp"] {
         assert!(!target.0.join(leftover).exists(), "{leftover} が残っている");
     }
+}
+
+#[test]
+fn exports_legacy_data_without_backgrounds() {
+    let source = TempDir::new("legacy-backgrounds");
+    let exporter = DataExport::new(current_data(&source), source.0.clone());
+    let target = TempDir::new("legacy-target");
+    exporter.export_to(&target.0).unwrap();
+    assert!(!target.0.join("backgrounds").exists());
+    assert_eq!(read_marker(&target.0), MarkerState::Valid);
 }

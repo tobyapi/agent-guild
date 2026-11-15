@@ -16,6 +16,7 @@ pub const DB_FILE: &str = "guild.db";
 pub const LOCK_FILE: &str = ".lock";
 pub const AGENTS_DIR: &str = "agents";
 pub const ATTACHMENTS_DIR: &str = "attachments";
+pub const BACKGROUNDS_DIR: &str = "backgrounds";
 /// 生成したアイコンの枠の絵（PNG）
 pub const FRAMES_DIR: &str = "frames";
 const APP: &str = "agent-guild";

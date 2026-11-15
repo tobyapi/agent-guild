@@ -27,6 +27,7 @@ src-tauri/
       runtime/                 AgentRuntime を runner-client で実装（Launch の組み立てもここ）
       workspace.rs             作業場所（work/・state/ の用意、エージェントに属さない実行の tools/<用途>/、MEMORY.md、削除の再試行、ファイラで開く）
       attachments.rs           発言に添えた画像・ファイルの置き場所（attachments/<channelId>/<id>.<拡張子>。ID は data_dir.rs の safe_component を通す）
+      backgrounds/             背景画像ストア（PNG/JPEG/WebPを検査・縮小・PNG化し、UUIDだけで読み出す）。BackgroundServiceはLanguageServiceと同様に独立したStateとして組み立てる
       frame_images/            生成した枠の絵（PNG）の置き場所 frames/ と、取り込むときの検査と加工（raster = PNG の読み書き、matte = 透明でない背景のキーの色を透明に、fit = 描かれた穴を決まった穴に合わせる、shape = 帯の確かめ・穴の中ほどのくり抜き・縮小。png クレートは本体クレートだけが使う）
       skill_library.rs         スキルライブラリのフォルダの走査と SKILL.md の読み取り（読むだけで書き換えない）
       events.rs                EventPublisher を Tauri の emit で実装

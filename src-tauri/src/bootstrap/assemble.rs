@@ -84,6 +84,9 @@ pub fn ready(
     let services = AppServices::new(ports.clone(), storage, exporter);
     seed::run_once(&services, ports.meta.as_ref())?;
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
+    app.manage(guild_application::backgrounds::BackgroundService::new(Arc::new(
+        crate::infrastructure::backgrounds::FsBackgrounds::new(&paths.data_dir),
+    )));
     app.manage(runtime);
     app.manage(opened.lock);
     let boot = BootStatus::ok(display(&paths.data_dir), services.storage.needs_setup()).with_language(language);

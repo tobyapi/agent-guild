@@ -10,6 +10,7 @@ import { createConversation } from './conversation/conversation';
 import { agentHandlers } from './handlers/agents';
 import { channelHandlers } from './handlers/channels';
 import { frameHandlers } from './handlers/frames';
+import { backgroundHandlers } from './handlers/backgrounds';
 import { guildHandlers } from './handlers/guild';
 import { messageHandlers } from './handlers/messages';
 import { builtinSkillHandlers } from './handlers/builtinSkills';
@@ -26,6 +27,7 @@ const handlers: MockHandlers = {
   ...systemHandlers,
   ...guildHandlers,
   ...frameHandlers,
+  ...backgroundHandlers,
   ...storageHandlers,
   ...agentHandlers,
   ...skillHandlers,

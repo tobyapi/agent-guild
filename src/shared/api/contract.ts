@@ -80,6 +80,11 @@ export interface CommandMap {
   cancel_avatar_frame_generation: { args: NoArgs; result: null };
   /** 画像の枠（kind が png）の絵の data URL */
   get_frame_image: { args: { id: string }; result: string };
+  /** Raw base64 PNG/JPEG/WebP, up to 5 MiB. Returns an opaque UUID. */
+  import_background_image: { args: { data: string }; result: string };
+  list_background_images: { args: NoArgs; result: string[] };
+  get_background_image: { args: { id: string }; result: string };
+  delete_background_image: { args: { id: string }; result: null };
   /** 生成した枠を消す（選んでいたメンバーは枠なしに戻る） */
   delete_avatar_frame: { args: { id: string }; result: null };
   /** ギルドの名前と紋を保存する（名前は前後の空白を除いた値が返る） */

@@ -13,12 +13,12 @@ use guild_application::{AppError, AppResult};
 
 use guild_domain::locale;
 
-use super::data_dir::{write_marker, AGENTS_DIR, ATTACHMENTS_DIR, DB_FILE, FRAMES_DIR, MARKER_FILE};
+use super::data_dir::{write_marker, AGENTS_DIR, ATTACHMENTS_DIR, BACKGROUNDS_DIR, DB_FILE, FRAMES_DIR, MARKER_FILE};
 use super::sqlite::Database;
 
 const DB_TEMP: &str = "guild.db.tmp";
 /// フォルダごと写すもの（作業フォルダと、発言に貼った画像と、生成した枠の絵）
-const COPIED_DIRS: [&str; 3] = [AGENTS_DIR, ATTACHMENTS_DIR, FRAMES_DIR];
+const COPIED_DIRS: [&str; 4] = [AGENTS_DIR, ATTACHMENTS_DIR, FRAMES_DIR, BACKGROUNDS_DIR];
 
 pub struct DataExport {
     db: Arc<Database>,
