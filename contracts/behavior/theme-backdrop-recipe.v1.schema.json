@@ -45,18 +45,70 @@
       "required": ["kind", "motif", "anchor", "color", "scale", "density", "depth", "motion"],
       "properties": {
         "kind": { "type": "string", "enum": ["tile", "halftone", "paper", "symbol"] },
-        "motif": {
-          "type": "string",
-          "minLength": 1,
-          "$comment": "工程1bでcatalogVersion 1のkind別許可集合に制限する。現時点では構造のみ。"
-        },
+        "motif": { "type": "string" },
         "anchor": { "type": "string", "enum": ["left", "right", "bottomLeft", "bottomRight"] },
         "color": { "type": "integer", "minimum": 1, "maximum": 7 },
         "scale": { "type": "number", "minimum": 0.25, "maximum": 1 },
         "density": { "type": "number", "minimum": 0, "maximum": 1 },
         "depth": { "type": "integer", "minimum": 1, "maximum": 3 },
         "motion": { "type": "string", "enum": ["none", "drift", "sway"] }
-      }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": { "const": "tile" },
+            "motif": { "enum": ["star", "cross", "dot", "wave", "seaweed", "tree", "turtle"] },
+            "depth": { "const": 1 },
+            "motion": { "const": "none" }
+          }
+        },
+        {
+          "properties": {
+            "kind": { "const": "halftone" },
+            "motif": { "enum": ["hill", "cloud", "wave"] },
+            "depth": { "const": 1 },
+            "motion": { "const": "none" }
+          }
+        },
+        {
+          "properties": {
+            "kind": { "const": "paper" },
+            "motif": { "enum": ["hill", "cloud", "wave", "seaweed", "tree", "turtle", "aurora"] },
+            "density": { "const": 0.5 }
+          },
+          "oneOf": [
+            { "properties": { "motion": { "const": "none" } } },
+            {
+              "properties": {
+                "motif": { "enum": ["cloud", "wave", "turtle", "aurora"] },
+                "motion": { "const": "drift" }
+              }
+            },
+            {
+              "properties": {
+                "motif": { "enum": ["tree", "seaweed"] },
+                "motion": { "const": "sway" }
+              }
+            }
+          ]
+        },
+        {
+          "properties": {
+            "kind": { "const": "symbol" },
+            "motif": { "enum": ["star", "cross", "dot", "wave", "seaweed", "tree", "turtle"] },
+            "depth": { "const": 1 }
+          },
+          "oneOf": [
+            { "properties": { "motion": { "const": "none" } } },
+            {
+              "properties": {
+                "motif": { "enum": ["tree", "seaweed"] },
+                "motion": { "const": "sway" }
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 }
