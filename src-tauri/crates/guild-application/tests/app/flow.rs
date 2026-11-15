@@ -137,7 +137,7 @@ async fn an_ideator_waits_for_a_request_and_returns_ideas_to_the_worker() {
     assert_eq!(requests.len(), 1);
     assert!(requests[0].system_prompt.contains("基本の役割: 目的に合う複数のアイデア"));
     assert!(requests[0].system_prompt.contains("発想・企画の依頼には、異なる切り口の候補を複数"));
-    assert!(!requests[0].permissions.write_anywhere && !requests[0].permissions.web_fetch);
+    assert!(!requests[0].permissions.write_anywhere && requests[0].permissions.web_fetch);
     assert!(app.runtime.requests_for(haru.id.as_str()).last().unwrap().prompt.contains("# 相談の結果が届きました"));
     assert_eq!(app.transcript(&lobby).last().unwrap(), "ハル: 案を選んで制作を続けます。");
 }
