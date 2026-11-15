@@ -5,7 +5,7 @@ is exported from `src/shared/lib/themeBackdrop/index.ts`. The input must pass th
 reader when originating as text. The function rechecks structure, then builds an SVG descriptor
 with fixed `viewBox=[0,0,1000,1000]`, `preserveAspectRatio='none'`, `ariaHidden=true` and three
 `g` descriptors per Recipe layer in painter order. Consumers construct React SVG elements from
-these values; this API never returns markup or uses innerHTML. No title, URL or external asset
+these values; this API never returns markup or uses innerHTML. No title, external URL or external asset
 is inserted into attributes. Protection clip descriptors are emitted in Stage 4b. Artwork, animation playback and scrim are not emitted.
 
 ## Placement
@@ -88,8 +88,8 @@ svg > g(clipPath, NO transform) > g(placement + motion) > g(artwork.transform) >
 ```
 
 `SvgLayerFrame.tag/clipPath` describe the stationary outer group. `motionGroup.tag/transform` describe
-the nested middle group; no transform is present on the outer clipped group. The inner `motionGroup.artwork` group maps a unit square `[0,1]^2` to a centered physical
-square. Every component, including antialiasing allowance, stroke and fixed shadow, must fit that
+the nested middle group; no transform is present on the outer clipped group. The inner
+`motionGroup.artwork` group maps a unit square `[0,1]^2` to a centered physical square. Every component, including antialiasing allowance, stroke and fixed shadow, must fit that
 unit square. Independent artwork or clipping outside this hierarchy is unsupported. The outer
 clip stays fixed while descendants move, so even erroneous oversized art cannot paint into the
 center or supplied text rectangles. Percent protection survives anisotropic root scaling.
