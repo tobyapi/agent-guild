@@ -693,3 +693,14 @@
   border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
 .backend .statusWord { font-family: var(--font-sans); font-size: var(--text-sm); }
 ```
+
+
+### 外観の背景層（段階2）
+
+AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き、その上に3欄の地色、通常 UI、ダイアログ・toast を重ねる。背景は aria-hidden、pointer-events:none、フォーカス要素なし。負の z-index や背景指定を使った key は使わない。
+
+`--surface-chat` / `--surface-sidebar` / `--surface-members` は欄の地色専用。背景なしではそれぞれ `--bg-app` / `--bg-sidebar` / `--bg-panel` と同値。背景ありだけ各地色を透明色と混ぜ、`--scrim-chat` / `--scrim-sidebar` / `--scrim-members` を初期94%とする。読字を優先した暫定値で、12組の実機確認で合成後のコントラストを検証する。要素全体の opacity は変更しない。
+
+元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
+
+背景定義はデータだけ。shared/theme の登録 ID で自作同梱 SVG（dawn/night）と CSS scene（aurora）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、null はテーマ既定（guild は none）、未登録 ID は背景だけ none。背景と motion は新 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。

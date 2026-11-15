@@ -1,4 +1,5 @@
 import { hasThemeVariants, safeAppearance } from './registry';
+import { resolveBackground } from './backgrounds';
 import type { AppearancePreference, ResolvedAppearance, Scheme, ThemeRegistry } from './types';
 
 export function resolveAppearance(
@@ -13,7 +14,9 @@ export function resolveAppearance(
     themeId: selected.themeId,
     scheme,
     accentOverride: selected.accentOverride,
-    backgroundOverride: selected.backgroundOverride ?? theme?.variants[scheme]?.background ?? { kind: 'none' },
+    backgroundOverride: resolveBackground(
+      selected.backgroundOverride ?? theme?.variants[scheme]?.background ?? { kind: 'none' },
+    ),
     motion: selected.motionPreference,
   };
 }

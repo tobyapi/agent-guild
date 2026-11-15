@@ -3,6 +3,8 @@
  * ランナーの帯は出ないこともあるので、行の数に依存するグリッドにはしない（本体が帯の行に入って縮むのを防ぐ）
  */
 .shell {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   block-size: 100%;
@@ -10,6 +12,8 @@
 }
 
 .columns {
+  position: relative;
+  z-index: var(--z-content);
   display: grid;
   flex: 1;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -22,6 +26,7 @@
 
 .main {
   --surface: var(--bg-app);
+  background: var(--surface-chat);
   display: flex;
   flex-direction: column;
   min-inline-size: 0;

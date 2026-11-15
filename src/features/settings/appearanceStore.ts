@@ -26,6 +26,8 @@ export function applyAppearance(root: HTMLElement | undefined, appearance: Resol
   if (!root) return;
   root.dataset.theme = appearance.scheme;
   root.dataset.themeId = appearance.themeId;
+  if (appearance.backgroundOverride.kind === 'none') delete root.dataset.background;
+  else root.dataset.background = 'active';
   if (appearance.accentOverride === null) delete root.dataset.accent;
   else root.dataset.accent = appearance.accentOverride;
 }

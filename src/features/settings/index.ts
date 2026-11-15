@@ -2,4 +2,4 @@
 export { SettingsDialog } from './components/SettingsDialog';
 export { SetupDialog } from './components/SetupDialog';
 export { openSettings, openSetup } from './store';
-export { initAppearance } from './appearance';
+export { initAppearance, useAppearanceStore, setBackground } from './appearance';

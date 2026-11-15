@@ -11,4 +11,13 @@ export const zhHans: Messages<typeof ja> = {
   accentSky: '天蓝',
   accentViolet: '紫藤',
   accentSilver: '银色',
+  backgroundLabel: '背景',
+  backgroundDefault: '主题默认',
+  backgroundNone: '无',
+  backgroundDawn: '晨间山丘（明亮图片）',
+  backgroundNight: '夜间山丘（暗色图片）',
+  backgroundAurora: '极光（动态背景）',
+  motionLabel: '背景动态',
+  motionSystem: '跟随系统',
+  motionOff: '关闭',
 };

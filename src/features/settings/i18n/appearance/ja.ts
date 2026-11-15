@@ -9,4 +9,13 @@ export const ja = {
   accentSky: '空',
   accentViolet: '藤',
   accentSilver: '銀',
+  backgroundLabel: '背景',
+  backgroundDefault: 'テーマの既定',
+  backgroundNone: 'なし',
+  backgroundDawn: '朝の丘（明るい静止画）',
+  backgroundNight: '夜の丘（暗い静止画）',
+  backgroundAurora: 'オーロラ（動く背景）',
+  motionLabel: '背景の動き',
+  motionSystem: 'OS の動き設定に合わせる',
+  motionOff: '停止',
 };

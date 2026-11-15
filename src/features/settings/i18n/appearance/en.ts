@@ -11,4 +11,13 @@ export const en: Messages<typeof ja> = {
   accentSky: 'Sky',
   accentViolet: 'Wisteria',
   accentSilver: 'Silver',
+  backgroundLabel: 'Background',
+  backgroundDefault: 'Theme default',
+  backgroundNone: 'None',
+  backgroundDawn: 'Dawn hills (light image)',
+  backgroundNight: 'Night hills (dark image)',
+  backgroundAurora: 'Aurora (animated)',
+  motionLabel: 'Background motion',
+  motionSystem: 'Follow OS',
+  motionOff: 'Off',
 };

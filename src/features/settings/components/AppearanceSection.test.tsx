@@ -30,9 +30,35 @@ afterEach(() => {
   cleanup();
   stopAppearance();
   vi.unstubAllGlobals();
-  for (const attribute of ['data-theme', 'data-theme-id', 'data-accent']) {
+  for (const attribute of ['data-theme', 'data-theme-id', 'data-accent', 'data-background']) {
     document.documentElement.removeAttribute(attribute);
   }
+});
+
+it('背景と動きを新キーに保存し、none・テーマ既定・再起動を反映する', () => {
+  render(<AppearanceSection />);
+  const select = screen.getByRole('combobox', { name: '背景' });
+  fireEvent.change(select, { target: { value: 'dawn' } });
+  fireEvent.click(screen.getByRole('radio', { name: '停止' }));
+  expect(document.documentElement.dataset.background).toBe('active');
+  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
+    backgroundOverride: { kind: 'image', assetId: 'dawn' },
+    motionPreference: 'off',
+  });
+  expect(values.get(THEME_STORAGE_KEY)).toBe('dark');
+  expect(values.get(ACCENT_STORAGE_KEY)).toBe('default');
+  cleanup();
+  stopAppearance();
+  stopAppearance = initAppearance();
+  render(<AppearanceSection />);
+  expect(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }).value).toBe('dawn');
+  expect(screen.getByRole('radio', { name: '停止' }).getAttribute('aria-checked')).toBe('true');
+  fireEvent.change(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }), { target: { value: 'none' } });
+  expect(document.documentElement.dataset.background).toBeUndefined();
+  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ backgroundOverride: { kind: 'none' } });
+  fireEvent.change(screen.getByRole<HTMLSelectElement>('combobox', { name: '背景' }), { target: { value: 'default' } });
+  expect(document.documentElement.dataset.background).toBeUndefined();
+  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ backgroundOverride: null });
 });
 
 it('アクセントの色の見本を選ぶと <html data-accent> に反映し、既定に戻すと属性を外す', () => {

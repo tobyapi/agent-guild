@@ -4,6 +4,36 @@ import { resolveAppearance } from './resolve';
 import type { ThemeRegistry } from './types';
 
 describe('resolveAppearance', () => {
+  it('distinguishes theme default, explicit none and missing assets while preserving scheme/accent', () => {
+    const registry: ThemeRegistry = {
+      guild: {
+        ...themeRegistry.guild!,
+        variants: {
+          dark: { background: { kind: 'image', assetId: 'night' } },
+          light: { background: { kind: 'image', assetId: 'dawn' } },
+        },
+      },
+    };
+    const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
+    expect(resolveAppearance(preference, registry, 'dark').backgroundOverride).toEqual({
+      kind: 'image',
+      assetId: 'dawn',
+    });
+    expect(
+      resolveAppearance({ ...preference, backgroundOverride: { kind: 'none' } }, registry, 'dark').backgroundOverride,
+    ).toEqual({ kind: 'none' });
+    for (const backgroundOverride of [
+      { kind: 'image', assetId: 'missing' },
+      { kind: 'scene', sceneId: 'missing' },
+    ] as const) {
+      expect(resolveAppearance({ ...preference, backgroundOverride }, registry, 'dark')).toMatchObject({
+        scheme: 'light',
+        accentOverride: 'sky',
+        backgroundOverride: { kind: 'none' },
+      });
+    }
+    expect(resolveAppearance(defaultAppearance(), themeRegistry, 'dark').backgroundOverride).toEqual({ kind: 'none' });
+  });
   it.each(['dark', 'light'] as const)('follows the OS only for system (%s)', (scheme) => {
     const preference = defaultAppearance();
     expect(resolveAppearance({ ...preference, schemePreference: 'system' }, themeRegistry, scheme).scheme).toBe(scheme);

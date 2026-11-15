@@ -3,6 +3,7 @@ import { t } from '../i18n';
 import { themeChoices } from '../model/theme';
 import { setThemePreference, useAppearanceStore } from '../appearance';
 import { AccentPicker } from './AccentPicker';
+import { BackgroundPicker } from './BackgroundPicker';
 import styles from './AccentPicker.module.css';
 
 /** 外観: テーマ（ダーク / ライト / OS に合わせる）とアクセントの色（どちらもこの端末だけの表示の好み） */
@@ -17,6 +18,7 @@ export function AppearanceSection() {
         <Segment label={t('themeLabel')} value={preference} options={themeChoices()} onChange={setThemePreference} />
       </div>
       <AccentPicker />
+      <BackgroundPicker />
     </div>
   );
 }

@@ -4,8 +4,10 @@ export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'sil
 export type AccentId = (typeof ACCENT_IDS)[number];
 export type MotionPreference = 'system' | 'off';
 
-// Stage 1 has no background assets. Extend this union with registered IDs in stage 2.
-export type BackgroundSpec = { readonly kind: 'none' };
+export type BackgroundSpec =
+  | { readonly kind: 'none' }
+  | { readonly kind: 'image'; readonly assetId: string }
+  | { readonly kind: 'scene'; readonly sceneId: string };
 
 export interface AppearancePreference {
   readonly version: 1;

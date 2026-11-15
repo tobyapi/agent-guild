@@ -1,0 +1,32 @@
+:root {
+  --z-backdrop: 0;
+  --z-content: 1;
+  --surface-chat: var(--bg-app);
+  --surface-sidebar: var(--bg-sidebar);
+  --surface-members: var(--bg-panel);
+  --scrim-chat: 94%;
+  --scrim-sidebar: 94%;
+  --scrim-members: 94%;
+  --backdrop-duration: 24s;
+  --backdrop-aurora:
+    radial-gradient(ellipse at 30% 30%, #408e7770, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, #66559c70, transparent 60%);
+  --backdrop-state-ink: #c8d2ff;
+  --backdrop-active-weight: 9%;
+  --backdrop-overlay: #06080c;
+}
+
+:root[data-theme='light'] {
+  --backdrop-state-ink: #282414;
+  --backdrop-active-weight: 8%;
+  --backdrop-overlay: #1c180e;
+}
+
+:root[data-background='active'] {
+  --surface-chat: color-mix(in srgb, var(--bg-app) var(--scrim-chat), transparent);
+  --surface-sidebar: color-mix(in srgb, var(--bg-sidebar) var(--scrim-sidebar), transparent);
+  --surface-members: color-mix(in srgb, var(--bg-panel) var(--scrim-members), transparent);
+  --bg-hover: color-mix(in srgb, var(--backdrop-state-ink) 5%, var(--bg-app));
+  --bg-active: color-mix(in srgb, var(--backdrop-state-ink) var(--backdrop-active-weight), var(--bg-app));
+  --bg-overlay: var(--backdrop-overlay);
+}

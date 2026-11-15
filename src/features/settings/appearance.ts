@@ -1,9 +1,17 @@
 import { useStore } from 'zustand';
-import type { AppearancePreference, SchemePreference } from '@/shared/theme/types';
+import type { AppearancePreference, BackgroundSpec, MotionPreference, SchemePreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
 const controller = createAppearanceStore();
+
+export function setBackground(backgroundOverride: BackgroundSpec | null): void {
+  controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
+}
+
+export function setMotionPreference(motionPreference: MotionPreference): void {
+  controller.setPreference({ ...controller.store.getState().preference, motionPreference });
+}
 
 /** 初回描画前に保存値を反映する。返す関数は監視の解除用。 */
 export function initAppearance(): () => void {

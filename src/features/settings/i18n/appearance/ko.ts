@@ -11,4 +11,13 @@ export const ko: Messages<typeof ja> = {
   accentSky: '하늘',
   accentViolet: '등나무',
   accentSilver: '은색',
+  backgroundLabel: '배경',
+  backgroundDefault: '테마 기본값',
+  backgroundNone: '없음',
+  backgroundDawn: '새벽 언덕 (밝은 이미지)',
+  backgroundNight: '밤 언덕 (어두운 이미지)',
+  backgroundAurora: '오로라 (움직이는 배경)',
+  motionLabel: '배경 움직임',
+  motionSystem: 'OS 설정 따르기',
+  motionOff: '끄기',
 };

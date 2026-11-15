@@ -1,4 +1,5 @@
 import { defaultAppearance, hasThemeVariants } from '@/shared/theme/registry';
+import { resolveBackground } from '@/shared/theme/backgrounds';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import { ACCENTS } from './accent';
 
@@ -41,9 +42,10 @@ function parseBackground(value: unknown): AppearancePreference['backgroundOverri
   if (value === null) return null;
   if (!isRecord(value)) throw new AppearanceValidationError('invalid background override');
   if (value.kind === 'none') return { kind: 'none' };
-  // No assets are registered in stage 1; retain the other valid appearance fields.
-  if (value.kind === 'image' && typeof value.assetId === 'string') return { kind: 'none' };
-  if (value.kind === 'scene' && typeof value.sceneId === 'string') return { kind: 'none' };
+  if (value.kind === 'image' && typeof value.assetId === 'string')
+    return resolveBackground({ kind: 'image', assetId: value.assetId });
+  if (value.kind === 'scene' && typeof value.sceneId === 'string')
+    return resolveBackground({ kind: 'scene', sceneId: value.sceneId });
   throw new AppearanceValidationError('invalid background kind');
 }
 
