@@ -1,3 +1,4 @@
+import { anchorBounds } from './placement';
 import { reject } from './checks';
 import type { BackdropGeometry } from './clipping';
 import type { ColorExpansion } from './envelope';
@@ -26,7 +27,12 @@ export function buildTileTurtleBackdrop(
     if (layer.kind !== 'tile' || layer.motif !== 'turtle') reject(`layers[${index}]`, 'unsupported_artwork');
   });
   const palette = [...input.palette[scheme]];
-  const artworks = input.layers.map((layer) => buildTurtleArtwork(layer, palette.length));
+  const artworks = input.layers.map((layer) =>
+    buildTurtleArtwork(layer, palette.length, [
+      (anchorBounds(layer.anchor).width * geometry.viewport[0]) / 1000,
+      (anchorBounds(layer.anchor).height * geometry.viewport[1]) / 1000,
+    ]),
+  );
   const content = artworks.map(({ expansion }, index) => ({
     cost: {
       ...expansion.cost,
@@ -36,9 +42,24 @@ export function buildTileTurtleBackdrop(
     },
     patterns: expansion.patterns,
   }));
+  const skeleton = buildBackdropSkeleton(recipe, content, geometry);
+  // Tile has no motion. Its repeated canvas occupies the full anchor, while each
+  // sprite compensates for the rectangular canvas in physical viewport pixels.
+  for (const child of skeleton.svg.children) {
+    const frame = anchorBounds(child.layer.anchor);
+    child.frame = frame;
+    child.motionGroup.transform = `translate(${frame.x} ${frame.y})`;
+    child.motionGroup.artwork = {
+      ...child.motionGroup.artwork,
+      transform: `translate(0 0) scale(${frame.width} ${frame.height})`,
+      bounds: { x: 0, y: 0, width: frame.width, height: frame.height },
+      motionEnvelope: { ...frame },
+      motion: { ...child.motionGroup.artwork.motion, origin: [frame.width / 2, frame.height / 2] },
+    };
+  }
   const surface = palette[0]!;
   return {
-    skeleton: buildBackdropSkeleton(recipe, content, geometry),
+    skeleton,
     palette,
     artworks,
     colorExpansion: {
