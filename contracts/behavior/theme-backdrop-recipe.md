@@ -122,3 +122,11 @@ foreground/background の相関を捨てた区間で最悪値を取るため、R
 候補なし、またはラスタ検査不合格を通知された場合は100%の既存surfaceを検査し、4.5以上ならalpha=1、未満なら `$ / text_protection_failed` で保存・適用を拒否する。トークン未解決（surfaceなし、状態空、非有限/範囲外の色を含む）ではalpha=1かつ `verified=false` を返す。これは品質合格ではなく、保存・適用の合格条件には使えない。100%で4.5以上4.6未満はフォールバックでのみ受理する。
 
 呼び出し側は3欄×dark/lightの6単位ごとに全ての実際の文字色・状態を渡す。省略した文字色の安全性は保証しない。任意色も列挙し、解決できない間は100%を使う。Recipe/viewport/配色/文字スタイル変更後の再計算と、実描画の4.5検査は後続UI/描画工程で接続する。この工程のテストは合成された入力で計算規則を検証するもので、未実装SVG部品の実コストや実画面6単位の合格を示さない。TS側への同じ計算規則の接続は工程3に残す。
+
+## Stage 3a: TypeScript reader
+
+`src/shared/lib/themeBackdrop/index.ts` exposes pure validation gates matching Rust: `parseRecipeJson`, `validateRecipeStructure`, `validateRecipeCost`, `ColorEnvelope.fromRecipe`, and `resolveTextProtection`. Call the JSON gate before structure validation; drawing cost and protection remain separate app-owned gates. Structure success alone does not authorize rendering or saving. Expected failures throw `RecipeValidationError`; only its app-owned `field` and `code` may be forwarded. No parser message or input value is included.
+
+The raw reader preserves Rust's 32768-byte and depth-8 limits, decoded duplicate-key detection, malformed JSON rejection, and rejection of unpaired UTF-16 surrogates. Structure/catalog order and all 18 shared examples match Rust. TS numbers use saturating accumulation at `Number.MAX_SAFE_INTEGER`, safely above all drawing budgets; this preserves budget rejection without integer overflow. Expansion counts must be nonnegative integers, while periods and viewport dimensions must be positive finite numbers.
+
+Reader tests cover shared examples and input immutability, syntax boundaries, all 220 catalog combinations (32 accepted), pattern counts, shadow/underlay boxes, midpoint containment, state overlays, opaque fallback thresholds, and the same six-recipe alpha values used in Rust tests. These are synthetic calculation inputs, not proof about rendered components. Stage 3b may extend cross-language fixtures; no new shared fixture format, UI, persistence, or drawing-component connection is introduced here.
