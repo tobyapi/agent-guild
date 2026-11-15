@@ -41,9 +41,16 @@ describe('Backdrop SVG skeleton', () => {
       ...skeleton,
       svg: {
         ...skeleton.svg,
-        children: skeleton.svg.children.map(({ frame, transform, artwork, ...layer }) => {
-          expect(transform).toBe(`translate(${frame.x} ${frame.y})`);
-          return { ...layer, artwork: { ...artwork, motionEnvelope: undefined } };
+        children: skeleton.svg.children.map(({ frame, motionGroup, ...layer }) => {
+          expect(motionGroup.transform).toBe(`translate(${frame.x} ${frame.y})`);
+          return {
+            ...layer,
+            motionGroup: {
+              ...motionGroup,
+              transform: undefined,
+              artwork: { ...motionGroup.artwork, motionEnvelope: undefined },
+            },
+          };
         }),
       },
     });

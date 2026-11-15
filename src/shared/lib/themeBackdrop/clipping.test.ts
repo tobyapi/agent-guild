@@ -36,13 +36,13 @@ describe('fixed protection clip and physical artwork bounds', () => {
             ];
             const result = buildBackdropSkeleton(input, undefined, { viewport });
             const group = result.svg.children[0]!;
-            const box = group.artwork.motionEnvelope;
+            const box = group.motionGroup.artwork.motionEnvelope;
             expect(intersects(box, result.quietCenter)).toBe(false);
             expect(box.x).toBeGreaterThanOrEqual(group.frame.x - 1e-10);
             expect(box.y).toBeGreaterThanOrEqual(group.frame.y - 1e-10);
             expect(box.x + box.width).toBeLessThanOrEqual(group.frame.x + group.frame.width + 1e-10);
             expect(box.y + box.height).toBeLessThanOrEqual(group.frame.y + group.frame.height + 1e-10);
-            const art = group.artwork;
+            const art = group.motionGroup.artwork;
             expect(art.bounds.width * viewport[0]).toBeCloseTo(art.bounds.height * viewport[1], 8);
             expect((art.motion.drift[0] * viewport[0]) / 1000).toBe(motion === 'drift' ? 8 : 0);
             expect(art.motion.swayDegrees).toBe(motion === 'sway' ? 2 : 0);
@@ -61,7 +61,7 @@ describe('fixed protection clip and physical artwork bounds', () => {
     input.layers = [{ ...input.layers[0]!, kind: 'paper', motif: 'seaweed', motion: 'sway' }];
     for (const viewport of viewports) {
       const group = buildBackdropSkeleton(input, undefined, { viewport }).svg.children[0]!;
-      const art = group.artwork;
+      const art = group.motionGroup.artwork;
       const envelope = art.motionEnvelope;
       for (const degrees of [-2, -1, 0, 1, 2]) {
         const t = (degrees * Math.PI) / 180;
@@ -99,6 +99,8 @@ describe('fixed protection clip and physical artwork bounds', () => {
     });
     const clip = result.svg.defs.clip;
     expect(clip.tag).toBe('clipPath');
+    expect(result.svg.children.every((group) => !('transform' in group))).toBe(true);
+    expect(result.svg.children.every((group) => group.motionGroup.tag === 'g')).toBe(true);
     expect(clip.clipPathUnits).toBe('userSpaceOnUse');
     expect(result.svg.children.every((layer) => layer.clipPath === 'url(#preview-1)')).toBe(true);
     for (const rect of clip.rectangles) {

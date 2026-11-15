@@ -25,10 +25,8 @@ export interface SvgLayerFrame {
   index: number;
   layer: BackdropLayer;
   frame: PlacementRect;
-  transform: string;
   clipPath: string;
-  motionTag: 'g';
-  artwork: ArtworkFrame;
+  motionGroup: { tag: 'g'; transform: string; artwork: ArtworkFrame };
 }
 
 export interface BackdropSkeleton {
@@ -66,10 +64,12 @@ export function buildBackdropSkeleton(
       index,
       layer: { ...layer },
       frame,
-      transform: `translate(${frame.x} ${frame.y})`,
       clipPath: `url(#${clip.id})`,
-      motionTag: 'g',
-      artwork: fitArtwork(frame, geometry.viewport, layer.motion),
+      motionGroup: {
+        tag: 'g',
+        transform: `translate(${frame.x} ${frame.y})`,
+        artwork: fitArtwork(frame, geometry.viewport, layer.motion),
+      },
     };
   });
   const rectangles = clip.rectangles.length;

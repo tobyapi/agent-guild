@@ -87,8 +87,8 @@ svg > defs > clipPath(id) > rect[]
 svg > g(clipPath, NO transform) > g(placement + motion) > g(artwork.transform) > component
 ```
 
-`SvgLayerFrame.tag/clipPath` describe the stationary outer group. `motionTag/transform` describe
-the middle group. The inner `artwork` group maps a unit square `[0,1]^2` to a centered physical
+`SvgLayerFrame.tag/clipPath` describe the stationary outer group. `motionGroup.tag/transform` describe
+the nested middle group; no transform is present on the outer clipped group. The inner `motionGroup.artwork` group maps a unit square `[0,1]^2` to a centered physical
 square. Every component, including antialiasing allowance, stroke and fixed shadow, must fit that
 unit square. Independent artwork or clipping outside this hierarchy is unsupported. The outer
 clip stays fixed while descendants move, so even erroneous oversized art cannot paint into the
@@ -113,7 +113,7 @@ If the frame cannot fit drift, reject `$ / invalid_expansion`; the app must choo
 or retry with usable geometry, never silently exceed the envelope. No animation is running yet.
 
 Root `preserveAspectRatio='none'` remains to preserve percentage placement and clip geometry.
-`artwork.motion.drift` gives root-local units per axis. `origin` is the local frame center.
+`motionGroup.artwork.motion.drift` gives root-local units per axis. `origin` is the local frame center.
 A plain SVG rotate in anisotropic root units is incorrect: for sway angle t, use the conjugated
 matrix `matrix(cos(t), (W/H)*sin(t), -(H/W)*sin(t), cos(t), 0, 0)` around `origin`, followed by
 placement translation. `swayMatrixScale=[W/H,H/W]` supplies these two factors. This produces a
