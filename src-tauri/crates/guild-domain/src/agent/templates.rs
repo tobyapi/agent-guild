@@ -70,7 +70,7 @@ const ROWS: [Row; 4] = [
     },
     Row {
         id: "ideator",
-        builtin_skills: &["concept-shift", "introspection"],
+        builtin_skills: &["concept-shift", "introspection", "easily-amazed"],
         label: ["発想役", "Ideator", "创意者", "發想者", "아이디어 담당"],
         description: [
             "複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。",

@@ -22,6 +22,22 @@ async fn every_role_starts_with_linked_builtin_skills() {
 }
 
 #[tokio::test]
+async fn missing_easily_amazed_is_added_only_when_changing_role() {
+    let app = TestApp::new();
+    let agent = app.services.agents.create(input("ideator", "ヒラメ")).unwrap();
+    let skills = app.services.skills.list(&agent.id).unwrap();
+    let scout = skills.iter().find(|skill| skill.name == "easily-amazed").unwrap();
+    app.services.skills.delete(&scout.id).unwrap();
+    app.services.agents.update(&agent.id, input("ideator", "名前変更")).unwrap();
+    assert!(!app.services.skills.list(&agent.id).unwrap().iter().any(|skill| skill.name == "easily-amazed"));
+    app.services.agents.update(&agent.id, input("worker", "ヒラメ")).unwrap();
+    app.services.agents.update(&agent.id, input("ideator", "ヒラメ")).unwrap();
+    let skills = app.services.skills.list(&agent.id).unwrap();
+    let scout = skills.iter().find(|skill| skill.name == "easily-amazed").unwrap();
+    assert_eq!(scout.source, Some(SkillSource::Builtin { name: "easily-amazed".into() }));
+}
+
+#[tokio::test]
 async fn role_changes_add_missing_skills_without_overwriting_or_readding_on_normal_save() {
     let app = TestApp::new();
     let agent = app.services.agents.create(input("ideator", "ヒラメ")).unwrap();
@@ -38,12 +54,12 @@ async fn role_changes_add_missing_skills_without_overwriting_or_readding_on_norm
         .unwrap();
     app.services.agents.update(&agent.id, input("expert", "ヒラメ")).unwrap();
     let skills = app.services.skills.list(&agent.id).unwrap();
-    assert_eq!(skills.len(), 3);
+    assert_eq!(skills.len(), 4);
     assert_eq!(skills.iter().find(|skill| skill.name == "universal-critique"), Some(&custom));
     let critique = skills.iter().find(|skill| skill.name == "universal-critique").unwrap();
     app.services.skills.delete(&critique.id).unwrap();
     app.services.agents.update(&agent.id, input("expert", "名前変更")).unwrap();
     let skills = app.services.skills.list(&agent.id).unwrap();
-    assert_eq!(skills.len(), 2, "通常の保存では外したスキルを復活させない");
+    assert_eq!(skills.len(), 3, "通常の保存では外したスキルを復活させない");
     assert!(skills.iter().any(|skill| skill.name == "concept-shift"), "以前のスキルは保持する");
 }

@@ -9,10 +9,17 @@ fn manager_template_includes_reflection() {
     assert_eq!(manager.builtin_skills, ["universal-manager", "reflection"]);
 }
 
-const IMPORTED_BUILTIN_NAMES: [&str; 7] = [
+#[test]
+fn ideator_template_includes_easily_amazed_with_concept_shift() {
+    let ideator = find_template("ideator").expect("ideator template");
+    assert_eq!(ideator.builtin_skills, ["concept-shift", "introspection", "easily-amazed"]);
+}
+
+const IMPORTED_BUILTIN_NAMES: [&str; 8] = [
     "ambiguous-word-rewrite",
     "character-voice",
     "concept-shift",
+    "easily-amazed",
     "introspection",
     "reflection",
     "universal-critique",
@@ -51,6 +58,7 @@ fn builtins_are_sorted_unique_and_found_by_name() {
             "ambiguous-word-rewrite",
             "character-voice",
             "concept-shift",
+            "easily-amazed",
             "introspection",
             "ornate-avatar-frame",
             "reflection",
@@ -121,6 +129,10 @@ fn referenced_files_are_bundled_with_their_skill() {
     assert_eq!(
         find_builtin_skill("universal-manager").expect("universal-manager").files,
         ["references/ROUTING.md", "references/SCENARIOS.md"]
+    );
+    assert_eq!(
+        find_builtin_skill("easily-amazed").expect("easily-amazed").files,
+        ["references/EXAMPLES.md", "references/INTEGRATION.md"]
     );
     assert!(builtin_skill_files("nothing").is_empty());
 }
