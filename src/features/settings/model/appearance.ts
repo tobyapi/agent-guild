@@ -21,9 +21,9 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
   const value = migrateRetiredBackground(parsed);
   validateFields(value, registry);
   const background = parseBackground(value.backgroundOverride);
+  // Ignore the retired glass field while v1/v2 data remains supported; derive it from the background.
   const preference: AppearancePreference = {
     version: 2,
-    glass: value.version === 1 ? defaultAppearance().glass : parseGlass(value.glass),
     themeId: value.themeId,
     schemePreference: value.schemePreference,
     accentOverride: value.accentOverride,
@@ -74,17 +74,6 @@ function validateFields(
   if (value.motionPreference !== 'system' && value.motionPreference !== 'off') {
     throw new AppearanceValidationError('invalid motion preference');
   }
-}
-
-function parseGlass(value: unknown): AppearancePreference['glass'] {
-  if (
-    !isRecord(value) ||
-    !['frosted', 'liquid'].includes(String(value.dark)) ||
-    !['frosted', 'liquid'].includes(String(value.light))
-  ) {
-    throw new AppearanceValidationError('invalid glass preference');
-  }
-  return { dark: value.dark as 'frosted' | 'liquid', light: value.light as 'frosted' | 'liquid' };
 }
 
 function parseBackground(value: unknown): AppearancePreference['backgroundOverride'] {

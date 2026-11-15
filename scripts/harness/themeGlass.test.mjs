@@ -24,12 +24,7 @@ test('glass requires an active backdrop, transparency preference and filter supp
     assert.ok(guard >= 0, file);
     const material = css.slice(guard).replace(/\s+/g, ' ');
     assert.ok(material.includes('@supports (backdrop-filter: blur(1px))'), file);
-    assert.ok(
-      material.includes(
-        `:global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) ${selector}`,
-      ),
-      file,
-    );
+    assert.ok(material.includes(`:global(:root[data-background='active'][data-glass='frosted']) ${selector}`), file);
     assert.doesNotMatch(css.slice(0, guard), /backdrop-filter:|filter:\s*blur/);
   }
 });
@@ -54,7 +49,7 @@ test('every backdrop-filter declaration is opt-in and reduced/forced-color safe'
     const guard = css.indexOf('@media (prefers-reduced-transparency: no-preference) and (forced-colors: none)');
     assert.ok(guard >= 0, file);
     assert.doesNotMatch(css.slice(0, guard), /\n\s*backdrop-filter:/);
-    assert.ok(css.slice(guard).includes(":is([data-glass='frosted'], [data-glass='liquid'])"), file);
+    assert.ok(css.slice(guard).includes("[data-glass='frosted']"), file);
   }
   assert.ok(
     read('src/features/chat/components/Composer.module.css').includes('outline: 2px solid var(--focus-color);'),
@@ -65,7 +60,7 @@ test('glass ink preserves opaque paint and enables only the guarded transparent 
   const ink = read('src/shared/ui/theme/tokens-glass-ink.css');
   assert.ok(ink.includes('@media (prefers-reduced-transparency: no-preference) and (forced-colors: none)'));
   assert.ok(ink.includes('@supports (backdrop-filter: blur(1px))'));
-  assert.ok(ink.includes("[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) *"));
+  assert.ok(ink.includes("[data-background='active'][data-glass='frosted'] *"));
   assert.ok(ink.includes('var(--glass-ink-weight, 0%)'));
   for (const [file, selector] of materials.filter(([, selector]) => selector !== '.backdrop')) {
     const css = read(file);

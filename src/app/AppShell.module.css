@@ -70,12 +70,12 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .shell,
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .main {
+    :global(:root[data-background='active'][data-glass='frosted']) .shell,
+    :global(:root[data-background='active'][data-glass='frosted']) .main {
       --glass-ink-weight: 100%;
     }
 
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .shell::after {
+    :global(:root[data-background='active'][data-glass='frosted']) .shell::after {
       position: absolute;
       inset: 0;
       z-index: var(--z-backdrop);

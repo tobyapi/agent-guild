@@ -3,11 +3,6 @@ import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
   schemeLabel: '明暗',
-  glassDark: '玻璃样式（深色）',
-  glassLight: '玻璃样式（浅色）',
-  glassFrosted: '磨砂玻璃',
-  glassLiquid: 'Liquid Glass',
-  glassInactive: '没有背景时不应用玻璃效果。',
   themeLabel: '主题',
   themeGuildDark: '公会深色',
   themeGuildLight: '公会浅色',

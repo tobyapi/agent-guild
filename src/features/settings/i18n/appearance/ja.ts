@@ -1,11 +1,6 @@
 // 外観（テーマ・アクセントの色）の文言（日本語。キーの正）
 export const ja = {
   schemeLabel: '明るさ',
-  glassDark: 'ガラスの種類（ダーク）',
-  glassLight: 'ガラスの種類（ライト）',
-  glassFrosted: 'すりガラス',
-  glassLiquid: 'Liquid Glass',
-  glassInactive: '背景がないときはガラス効果は適用されません。',
   themeLabel: 'テーマ',
   themeGuildDark: 'ギルド ダーク',
   themeGuildLight: 'ギルド ライト',

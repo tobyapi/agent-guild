@@ -42,12 +42,11 @@ afterEach(() => {
   }
 });
 
-it('明るさ・背景・両方のガラスを独立保存し再起動後に保持する', () => {
+it('明るさ・背景を保存し、ガラス設定を表示せず再起動後に保持する', () => {
   render(<AppearanceSection />);
   const group = screen.getByRole('radiogroup', { name: '背景' });
   expect([...group.querySelectorAll('[role="radio"]')].map((button) => button.textContent)).toEqual(['なし']);
-  const darkGlass = screen.getByRole('radiogroup', { name: 'ガラスの種類（ダーク）' });
-  fireEvent.click(darkGlass.querySelectorAll('button')[1]!);
+  expect(screen.queryByRole('radiogroup', { name: /ガラス/ })).toBeNull();
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
   fireEvent.click(screen.getByRole('radio', { name: '停止' }));
   expect(document.documentElement.dataset).toMatchObject({
@@ -66,11 +65,10 @@ it('明るさ・背景・両方のガラスを独立保存し再起動後に保�
   expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'なし' }));
   fireEvent.keyDown(document.activeElement!, { key: 'Home' });
   expect(document.documentElement.dataset.glass).toBe('none');
-  expect(screen.getByText('背景がないときはガラス効果は適用されません。')).toBeTruthy();
+  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).not.toHaveProperty('glass');
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
     schemePreference: 'dark',
     backgroundOverride: { kind: 'none' },
-    glass: { dark: 'liquid', light: 'frosted' },
     accentOverride: 'sky',
     motionPreference: 'off',
   });

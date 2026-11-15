@@ -13,7 +13,7 @@ test('surfaces default to opaque and only become transparent inside the glass gu
   const glass = read('src/shared/ui/theme/tokens-glass.css');
   assert.ok(glass.includes('@media (prefers-reduced-transparency: no-preference)'));
   assert.ok(glass.includes('@supports (backdrop-filter: blur(1px))'));
-  assert.ok(glass.includes(":is([data-glass='frosted'], [data-glass='liquid'])"));
+  assert.ok(glass.includes("[data-glass='frosted']"));
   assert.ok(glass.includes('(forced-colors: active)'));
 });
 

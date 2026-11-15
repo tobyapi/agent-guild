@@ -105,7 +105,6 @@ it.each(themeCards)('migrates the saved v1 card $id without modifying any old ke
     version: 2,
     schemePreference: card.scheme,
     backgroundOverride: card.background,
-    glass: { dark: 'frosted', light: 'frosted' },
   });
   expect(h.values.get(OLD)).toBe(stored);
   expect(h.values.get(THEME)).toBe('light');
@@ -140,7 +139,6 @@ it.each(
   const preference = {
     ...defaultAppearance(),
     ...selection,
-    glass: { dark: 'liquid' as const, light: 'frosted' as const },
     accentOverride: 'sky' as const,
     motionPreference: 'off' as const,
   };
@@ -184,7 +182,6 @@ it('retains independent v2 settings when the retired turtle theme has no backgro
     ...defaultAppearance(),
     themeId: 'turtle',
     schemePreference: 'system' as const,
-    glass: { dark: 'liquid' as const, light: 'liquid' as const },
     accentOverride: 'silver' as const,
     motionPreference: 'off' as const,
   };

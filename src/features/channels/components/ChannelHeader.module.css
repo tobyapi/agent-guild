@@ -102,7 +102,7 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .header {
+    :global(:root[data-background='active'][data-glass='frosted']) .header {
       --glass-ink-weight: 100%;
       background: var(--surface-chat);
       border-color: transparent;

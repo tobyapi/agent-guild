@@ -1,12 +1,5 @@
 import { useStore } from 'zustand';
-import type {
-  AppearancePreference,
-  BackgroundSpec,
-  GlassStyle,
-  Scheme,
-  SchemePreference,
-  MotionPreference,
-} from '@/shared/theme/types';
+import type { AppearancePreference, BackgroundSpec, SchemePreference, MotionPreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
@@ -23,11 +16,6 @@ export function setBackground(backgroundOverride: BackgroundSpec): void {
 export function clearBackgroundIfSelected(id: string): void {
   const background = controller.store.getState().preference.backgroundOverride;
   if (background?.kind === 'image' && background.assetId === id) setBackground({ kind: 'none' });
-}
-
-export function setGlassStyle(scheme: Scheme, style: GlassStyle): void {
-  const preference = controller.store.getState().preference;
-  controller.setPreference({ ...preference, glass: { ...preference.glass, [scheme]: style } });
 }
 
 export function setMotionPreference(motionPreference: MotionPreference): void {

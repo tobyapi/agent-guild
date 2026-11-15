@@ -144,21 +144,20 @@ describe('storage exceptions', () => {
   });
 });
 
-it('retains both material choices through OS changes while retired backgrounds disable glass', () => {
+it('automatically enables frosted glass only for images across OS changes', () => {
   const preference = {
     ...defaultAppearance(),
     schemePreference: 'system' as const,
-    backgroundOverride: { kind: 'generated' as const, presetId: 'tile-turtle' },
-    glass: { dark: 'liquid' as const, light: 'frosted' as const },
+    backgroundOverride: { kind: 'image' as const, assetId: '12345678-1234-1234-1234-123456789abc' },
   };
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
   h.controller.init();
-  expect(h.root.dataset.glass).toBe('none');
+  expect(h.root.dataset.glass).toBe('frosted');
   h.changeScheme(true);
-  expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'none' });
+  expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'frosted' });
   h.changeScheme(false);
-  expect(h.root.dataset.glass).toBe('none');
+  expect(h.root.dataset.glass).toBe('frosted');
   h.controller.setPreference({ ...preference, backgroundOverride: { kind: 'none' } });
   expect(h.root.dataset.glass).toBe('none');
-  expect(h.controller.store.getState().preference.glass).toEqual(preference.glass);
+  expect(JSON.parse(h.values.get(KEY)!)).not.toHaveProperty('glass');
 });

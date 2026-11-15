@@ -1,6 +1,6 @@
-import { useId, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Segment } from '@/shared/ui';
-import { setSchemePreference, setGlassStyle, useAppearanceStore } from '../appearance';
+import { setSchemePreference, useAppearanceStore } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { BackgroundPicker } from './BackgroundPicker';
 import fields from './AccentPicker.module.css';
@@ -17,7 +17,6 @@ function getSystemLight() {
 
 export function ThemePicker() {
   const preference = useAppearanceStore((state) => state.preference);
-  const hintId = useId();
   const systemLight = useSyncExternalStore(subscribeScheme, getSystemLight, () => false);
   const scheme =
     preference.schemePreference === 'system' ? (systemLight ? 'light' : 'dark') : preference.schemePreference;
@@ -39,24 +38,6 @@ export function ThemePicker() {
         />
       </div>
       <BackgroundPicker scheme={scheme} />
-      {(['dark', 'light'] as const).map((scheme) => (
-        <div className={fields.field} key={scheme}>
-          <span className={fields.label} aria-hidden="true">
-            {t(scheme === 'dark' ? 'glassDark' : 'glassLight')}
-          </span>
-          <Segment
-            label={t(scheme === 'dark' ? 'glassDark' : 'glassLight')}
-            value={preference.glass[scheme]}
-            describedBy={preference.backgroundOverride?.kind === 'none' ? hintId : undefined}
-            options={[
-              { value: 'frosted', label: t('glassFrosted') },
-              { value: 'liquid', label: t('glassLiquid') },
-            ]}
-            onChange={(style) => setGlassStyle(scheme, style)}
-          />
-        </div>
-      ))}
-      {preference.backgroundOverride?.kind === 'none' && <p id={hintId}>{t('glassInactive')}</p>}
     </div>
   );
 }

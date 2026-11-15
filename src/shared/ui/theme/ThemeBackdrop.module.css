@@ -10,7 +10,7 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .backdrop {
+    :global(:root[data-background='active'][data-glass='frosted']) .backdrop {
       filter: blur(var(--glass-background-blur));
     }
   }

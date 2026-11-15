@@ -91,8 +91,6 @@ describe('invalid appearance recovery', () => {
     JSON.stringify({ ...defaultAppearance(), accentOverride: 'nope' }),
     JSON.stringify({ ...defaultAppearance(), backgroundOverride: {} }),
     JSON.stringify({ ...defaultAppearance(), motionPreference: 'on' }),
-    JSON.stringify({ ...defaultAppearance(), glass: null }),
-    JSON.stringify({ ...defaultAppearance(), glass: { dark: 'liquid', light: 'invalid' } }),
   ])('repairs invalid new data without adopting legacy values: %s', (stored) => {
     const h = appearanceHarness({ [KEY]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
     h.controller.init();
@@ -142,3 +140,29 @@ describe('invalid appearance recovery', () => {
     });
   });
 });
+
+it.each([undefined, null, 'invalid', { dark: 'liquid', light: 'liquid' }, { dark: 'invalid' }])(
+  'ignores obsolete glass %j while preserving all independent v2 settings',
+  (glass) => {
+    const preference = {
+      ...defaultAppearance(),
+      schemePreference: 'system' as const,
+      accentOverride: 'sky' as const,
+      motionPreference: 'off' as const,
+      backgroundOverride: { kind: 'image' as const, assetId: '12345678-1234-1234-1234-123456789abc' },
+    };
+    const h = appearanceHarness({ [KEY]: JSON.stringify({ ...preference, glass }) });
+    h.controller.init();
+    expect(h.controller.store.getState().preference).toEqual(preference);
+    expect(JSON.parse(h.values.get(KEY)!)).toEqual(preference);
+    expect(JSON.parse(h.values.get(KEY)!)).not.toHaveProperty('glass');
+    expect(h.root.dataset).toMatchObject({ theme: 'dark', glass: 'frosted', accent: 'sky' });
+    h.changeScheme(true);
+    expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'frosted', accent: 'sky' });
+    expect(h.environment.warn).not.toHaveBeenCalled();
+    h.controller.dispose();
+    h.storage.setItem.mockClear();
+    h.controller.init();
+    expect(h.storage.setItem).not.toHaveBeenCalled();
+  },
+);

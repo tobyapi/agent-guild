@@ -130,7 +130,7 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) * {
+    :root[data-background='active'][data-glass='frosted'] * {
       --accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));
       --autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));
       --danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));

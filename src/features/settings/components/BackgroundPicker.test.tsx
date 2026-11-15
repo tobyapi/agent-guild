@@ -21,7 +21,6 @@ const preference = {
   schemePreference: 'light',
   accentOverride: 'sky',
   motionPreference: 'off',
-  glass: { dark: 'liquid', light: 'liquid' },
   backgroundOverride: { kind: 'image', assetId: id },
 };
 beforeEach(() => {
@@ -51,9 +50,12 @@ it('lists, selects, confirms deletion and preserves all other settings', async (
   render(<BackgroundPicker scheme="light" />);
   const image = await screen.findByRole('radio', { name: `${ja.backgroundImage} 1` });
   expect(image.getAttribute('aria-checked')).toBe('true');
+  expect(document.documentElement.dataset.glass).toBe('frosted');
   fireEvent.click(screen.getByRole('radio', { name: ja.backgroundNone }));
+  expect(document.documentElement.dataset.glass).toBe('none');
   fireEvent.keyDown(screen.getByRole('radio', { name: ja.backgroundNone }), { key: 'ArrowRight' });
   expect(image.getAttribute('aria-checked')).toBe('true');
+  expect(document.documentElement.dataset.glass).toBe('frosted');
   fireEvent.click(screen.getByRole('button', { name: `${ja.backgroundDelete} 1` }));
   expect(settingsApi.deleteBackground).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
@@ -62,6 +64,7 @@ it('lists, selects, confirms deletion and preserves all other settings', async (
     ...preference,
     backgroundOverride: { kind: 'none' },
   });
+  expect(document.documentElement.dataset.glass).toBe('none');
 });
 
 it('imports raw base64, selects the image and persists only its ID', async () => {

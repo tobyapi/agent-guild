@@ -3,4 +3,4 @@ export { useBackgroundImage } from './useBackgroundImage';
 export { SettingsDialog } from './components/SettingsDialog';
 export { SetupDialog } from './components/SetupDialog';
 export { openSettings, openSetup } from './store';
-export { initAppearance, useAppearanceStore, setSchemePreference, setBackground, setGlassStyle } from './appearance';
+export { initAppearance, useAppearanceStore, setSchemePreference, setBackground } from './appearance';

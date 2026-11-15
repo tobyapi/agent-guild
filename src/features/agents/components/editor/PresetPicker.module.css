@@ -92,7 +92,7 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .popover {
+    :global(:root[data-background='active'][data-glass='frosted']) .popover {
       --glass-ink-weight: 100%;
       background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);

@@ -108,15 +108,14 @@
 
 @media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']))
-      .composer:not([data-dragging]) {
+    :global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {
       --glass-ink-weight: 100%;
       background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
       border-color: transparent;
       box-shadow: var(--glass-shadow);
     }
-    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .composer:focus-within {
+    :global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {
       outline: 2px solid var(--focus-color);
       outline-offset: 2px;
     }
