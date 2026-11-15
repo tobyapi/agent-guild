@@ -69,3 +69,33 @@ worktreeのGit登録は `git worktree prune` で解除済み。
 同じ表示サイズとモックの同じ画面内容で比較し、DOM属性・設定UI・操作結果も照合する。
 WebView2で未確認の項目は、Chromeで確認できた項目と分けて記録する。
 背景の実装には進まない。
+
+## 依存復旧と全体チェック（2026-11-15 13:01〜13:10）
+
+- feat/theme-appearance の e7a8e82 から継続。開始時に前回の npm ci・check・cargo・rustc プロセスが残っていないことを確認。既存アプリや他のプロセスは停止していない。
+- D:/agent-guild で `npm ci --offline --no-audit --no-fund` が終了0。459パッケージを約5分で復元。オンラインへの切替は不要だった。
+- `node_modules/.package-lock.json` は存在し、`npm ls --depth=0` は終了0、依存エラー0。
+- 復元後の git status は、以前からある未追跡 `start-guild.cmd - ショートカット.lnk` のみ。ソース・package-lock.json の変更なし。
+- 画面操作・devサーバー起動・インストール済みアプリの停止・push は行っていない。
+- `git worktree list` に stage1a-baseline はない。登録一覧は本体と別作業の character-voice の2件。残存フォルダーは依頼どおり削除していない。
+
+| 検証 | 結果 |
+| --- | --- |
+| npm run format:check | 終了0。Prettier・cargo fmt とも成功 |
+| npm run typecheck | 終了0。アプリ・agent-runner とも成功 |
+| npm run lint | 終了0 |
+| npm run harness | 36件成功、失敗0。TS境界チェックも成功 |
+| npm run test | 172ファイル成功・1スキップ。1255件成功・20スキップ・失敗0 |
+| npm run rust:clippy | 終了0（-D warnings） |
+| npm run rust:test | 終了0。431件成功、失敗0。doc-testは0件 |
+| npm run check | 上記を通しで1回実行、終了0。タイムアウト0回、部分再実行なし |
+
+Rustテストは復元中に単独でも実行し、431件成功・失敗0。その後の全体チェック内でも成功した。
+Node の `--localstorage-file` 警告と、Rust test のMSVCリンカーのライブラリ作成出力に由来する警告1件が出たが、各コマンドは終了0。clippyは警告をエラー扱いにする設定で成功した。
+テスト設定・タイムアウト値・ソース・lockfileは変更していない。
+
+ログは作業フォルダー `D:/agent-guild-data/agents/717d11c3-6573-4b32-b960-58ed06e589d6/work/` の
+`stage1c-restore.log`、`stage1c-npm-ls.log`、`stage1c-rust-test.log`、`stage1c-check.log`。
+
+依存の復旧と今回のチェックは完了。段階1全体は、14組の画面比較・OS追従・実機再起動での保持が未確認のため、まだ完了扱いにしない。
+次の一手は画面確認の実施方法と時間帯を決め、未確認項目を確認すること。背景の実装には進まない。
