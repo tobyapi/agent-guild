@@ -49,6 +49,7 @@ src-tauri/
 - `agent/`（Agent・AgentInput・UnmentionedPolicy・**templates.rs**（作成のテンプレート表。design.md §2）・権限・タグと名前の正規化と検証）
 - `channel`, `message`（Message・MessageKind・NewMessage）, `attachment`（発言に添えた画像・ファイル）, `skill/`（名前と説明の検証・SKILL.md の読み取り・内蔵スキル・ライブラリ）, `profile`, `guild`（ギルドの名前と紋。保存値は項目ごとに読み、読めない項目だけ既定にする）, `frame/`（アイコンの枠: ID の形・絵の種類 FrameArt（svg / png）・画像の生成を頼むプロンプト `prompt`（内蔵スキル `ornate-avatar-frame` を名指ししてテーマと保存先を渡すだけ）・穴の位置と受け取る画像の決まりと使えない理由 `image`・以前の版が生成した SVG の検査と書き直し `svg/`（字句 tokens・許可リスト policy・書き直し writer））, `snapshot`, `backend`（BackendInfo・OptionSpec・PermissionRule・backendOptions の検証）, `activity`, `boot`, `storage`, `link`（外で開くリンクの検証: http・https だけ）, `error`（ドメインの検証エラー。どの入力かを `field` に持ち、CommandError.field になる）
 - 権限の組み合わせ規則（design.md §5）の検証は `agent/validation.rs`（保存時に実効権限で判定）
+- `voice/`（内蔵 `character-voice` から27文体を読む catalog、自動／通常のみを受け付ける settings）。`prompt/voice.rs` が保存した選択・強度と判断基準・表示ガイド、各カードの発話操作と表示判断を人格に添える。React とモックは同じ `catalog.json` を読み、`contracts/behavior/voice.json` で保存値の解決規則を照合する。旧保存値は読み込み時に自動へ移す。
 - `conversation/`（`mentions` 解析、`routing` = design.md §7 を純粋関数で、`job` = JobSpec（agent・channel・mode・きっかけ集合・returnTo 集合・depth・rootId・注記）とレーンでの合流規則・ジョブが関わる会話の判定、`reply` = 返答の整形、`notices` = システム発言と注記の文面、`attachments` = プロンプトに渡す添付の選び方）
 - `delegation/`（割り振り。design.md §7.1: `tasks` = tasks ブロックの読み取り、`state` = Delegation とサブタスクの状態、`verdict` = サブタスクの決着の判定）
 - `autonomy`（判定と投稿先の選択）、`prompt/`（システムプロンプトと会話プロンプトの組み立て。現在日時の文字列・MEMORY.md・スキル一覧などは引数で受け取る）
