@@ -1,11 +1,15 @@
+/// <reference types="node" />
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { behaviorFixture } from '../behaviorFixtures.test-support';
 import { describe, expect, it } from 'vitest';
 import { buildTokenTable, readTokenUnit } from './tokenTable';
 import type { SourceFile, TokenTable } from './tokenTable';
+import { estimateTokenUnit } from './tokenEstimate';
 import { compositeColor, resolveTokenColor } from './tokenColors';
 
-const root = resolve(import.meta.dirname, '../../../../..');
+const root = resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../..');
 function filesIn(directory: string): string[] {
   return readdirSync(resolve(root, directory), { withFileTypes: true }).flatMap((entry) => {
     const file = `${directory}/${entry.name}`;
@@ -18,9 +22,7 @@ const files: SourceFile[] = filesIn('src')
   )
   .sort()
   .map((file) => ({ file, text: readFileSync(resolve(root, file), 'utf8') }));
-const table = JSON.parse(
-  readFileSync(resolve(root, 'contracts/behavior/theme-backdrop-token-table.json'), 'utf8'),
-) as TokenTable;
+const table = behaviorFixture<TokenTable>('theme-backdrop-token-table.json');
 
 describe('static text/surface token inventory', () => {
   it('matches all source declarations and resolved values in the checked-in table', () => {
@@ -77,4 +79,21 @@ describe('static text/surface token inventory', () => {
       compositeColor({ rgb: [0, 1, 0], alpha: 0.5 }, compositeColor({ rgb: [1, 0, 0], alpha: 0.5 }, black)),
     ).toEqual({ rgb: [0.25, 0.5, 0], alpha: 1 });
   });
+});
+
+it('fixes six reference alpha estimates without claiming unresolved units pass', () => {
+  const recipe = behaviorFixture<{ name: string; input: unknown }[]>('theme-backdrop-recipe.json').find(
+    (c) => c.name === 'tile-turtle-none',
+  )!.input;
+  const estimates = table.units.map((unit) => estimateTokenUnit(unit, recipe));
+  expect(estimates.map((unit) => unit.alpha)).toEqual([0.957, 1, 0.973, 1, 0.942, 0.972]);
+  expect(estimates.every((unit) => !unit.verified)).toBe(true);
+  expect(estimates.map((unit) => [unit.limiter?.name, unit.limiter?.state])).toEqual([
+    ['--text-muted', 'accent-soft'],
+    ['--text-muted', 'accent-soft'],
+    ['--text-muted', 'accent-soft'],
+    ['--text-muted', 'selected'],
+    ['--text-muted', 'selected'],
+    ['--text-muted', 'selected'],
+  ]);
 });
