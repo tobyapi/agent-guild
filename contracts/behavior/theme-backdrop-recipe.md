@@ -33,7 +33,7 @@ Schema の kind ごとの分岐でこの集合を制限する。paper 以外は 
 
 title の文字数は Unicode コードポイントで1〜40。Schema は制御文字と改行文字を拒否する。余分なプロパティは全オブジェクトで拒否し、不正な値を丸めたり別の絵へ置き換えたりしない。
 
-## 共有フィクスチャと仮のエラー対応（工程1c）
+## 共有フィクスチャと確定したエラー対応（工程2a・2b）
 
 ### 構文段の確定したエラー対応（工程2a）
 
@@ -50,13 +50,13 @@ Rust の `guild-domain::theme_backdrop::parse_recipe_json` は、Value 化で重
 
 正常6件がこの段を通り、Value 化後も内容が変わらないことを Rust テストで確認する。この段だけでは Recipe の型・Schema・カタログ・数値範囲・コスト・文字保護を検証しない。後続の工程2b・2cおよびTS側の工程3に残す。
 
-### Schema・カタログ段の仮の対応
+### Schema・カタログ段の確定した対応（工程2b）
 
 `theme-backdrop-recipe.json` は既存の behavior 実例と同じ配列形式で、各要素に `name`・`input`・`expected` を持つ。`input` は省略のない Recipe、`expected` は `valid` と `validationErrors:[{field,code}]`。正常例はエラー空配列、異常例は原因となる規則のエラー1件を期待する。値の補正や置換はしない。正常は Schema に通る例であり、描画コスト・文字保護の合格を示さない。
 
-以下の field/code は設計 §5.2 に沿った**仮の対応**で、工程2・3で Rust を正として確定し、両言語と本フィクスチャを揃える。field はアプリ所有の既知パス（配列は0始まり）、余分なキーは値やキー名を返さず親オブジェクトを指す。Ajv の oneOf 分岐エラー全文や入力由来の説明文は再依頼へ送らない。kind が未知なら kind を先に報告し、既知 kind の表外 motif と許可外 motion を区別する。
+以下の field/code は工程2bの Rust `validate_recipe_structure` と共有実例テストで確定した。TS側の接続は工程3に残す。field はアプリ所有の既知パス（配列は0始まり）、余分なキーは値やキー名を返さず親オブジェクトを指す。Ajv の oneOf 分岐エラー全文や入力由来の説明文は再依頼へ送らない。構造・型・範囲を全レイヤーで先に検査してから、レイヤー順にカタログを検査し、最初のエラー1件を返す。未知の kind は構造段で拒否し、既知 kind の表外 motif と許可外 motion をカタログ段で区別する。
 
-| 異常例 name | field | code（仮） | 拒否する規則 |
+| 異常例 name | field | code | 拒否する規則 |
 | --- | --- | --- | --- |
 | invalid-kind-motif | layers[0].motif | unsupported_motif | halftone × turtle は表外 |
 | unknown-whale | layers[0].motif | unsupported_motif | whale は未対応、置換禁止 |
@@ -71,6 +71,8 @@ Rust の `guild-domain::theme_backdrop::parse_recipe_json` は、Value 化で重
 | nine-layers | layers | too_many_layers | layers は最大8個 |
 | invalid-palette-color | palette.dark[1] | invalid_color | 色は #RRGGBB 形式 |
 
-各異常例は正常な tile/turtle を基に1規則だけ変えている。paper-density は kind も paper に合わせ、density 以外は合法にしている。Schema 照合では受理/拒否を確かめ、field/code の返却は未実装なので検証した扱いにしない。既存テストは変更せず、工程2・3で専用の共有実例テストを追加する。
+各異常例は正常な tile/turtle を基に1規則だけ変えている。paper-density は kind も paper に合わせ、density 以外は合法にしている。Rust の専用テストで正常6件の受理・入力不変、異常12件の field/code を固定する。この関数は工程2bだけを検査し、安全な描画・保存の許可を意味しない。呼び出し側は工程2aの構文検査を先に通し、工程2cのコスト・文字保護検査を続ける必要がある。
 
-Schema だけでは判定できない palette 長の一致・実配列に対する color 範囲・構文/重複キー・バイト数/深さ・展開予算・文字保護の実例は今回追加せず、工程2・3以降に残す。
+追加の確定コードは、型不一致・整数でない数値が `invalid_type`、数値範囲外が `out_of_range`、必須項目不足が `required`（欠けた既知パス）、title違反が `invalid_title`、palette個数違反が `invalid_palette_length`、dark/light長不一致が `palette_length_mismatch`（`palette`）、colorが実配列長以上なら `color_out_of_bounds`。空のlayersは `too_few_layers`、未対応のcomposition/anchorはそれぞれ `unsupported_composition` / `unsupported_anchor`。fieldは違反した既知項目を指す。整数はJSON Schemaと同じく数値の小数部が0なら受理する。
+
+palette 長一致・実配列に対する color 範囲・title・数値境界・必須/追加項目は工程2bの追加Rustテストで検証する。構文/重複キー・バイト数/深さは工程2aで検証済み。展開予算・文字保護は工程2c、TS検証は工程3に残す。

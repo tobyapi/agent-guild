@@ -82,7 +82,12 @@ fn layer_structure(value: &Value, index: usize, palette_len: usize) -> Result<()
     let layer = object(value, &field, LAYER_KEYS)?;
     choice(&layer["kind"], &format!("{field}.kind"), &["tile", "halftone", "paper", "symbol"], "unsupported_kind")?;
     text(&layer["motif"], &format!("{field}.motif"))?;
-    choice(&layer["anchor"], &format!("{field}.anchor"), &["left", "right", "bottomLeft", "bottomRight"], "unsupported_anchor")?;
+    choice(
+        &layer["anchor"],
+        &format!("{field}.anchor"),
+        &["left", "right", "bottomLeft", "bottomRight"],
+        "unsupported_anchor",
+    )?;
     let color_field = format!("{field}.color");
     let color = number(&layer["color"], &color_field, 1.0, 7.0, true)?;
     if color >= palette_len as f64 {
