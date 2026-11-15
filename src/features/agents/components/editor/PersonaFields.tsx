@@ -4,6 +4,7 @@ import { tEditor } from '../../i18n/editor';
 import { personalities } from '../../model/personas/personalities';
 import { tones } from '../../model/personas/tones';
 import { EditorSection } from './EditorSection';
+import { VoiceFields } from './VoiceFields';
 import { PersonaPresetField } from './PersonaPresetField';
 
 export interface PersonaFieldsProps {
@@ -46,6 +47,7 @@ export function PersonaFields({ draft, update }: PersonaFieldsProps) {
         presets={tones()}
         placeholder={tEditor('tonePlaceholder')}
       />
+      <VoiceFields value={draft.voice} onChange={(voice) => update('voice', voice)} />
     </EditorSection>
   );
 }

@@ -75,6 +75,7 @@ export function editorErrorsByTab(
 ): EditorTab[] {
   const tabs: EditorTab[] = [];
   if (errors.name || errors.avatar || errors.color || errors.tags) tabs.push('basics');
+  if (errors.voice) tabs.push('persona');
   if (errors.autonomyIntervalMin) tabs.push('behavior');
   if (errors.backend || errors.effort || errors.permissions || Object.keys(optionErrors).length > 0) tabs.push('brain');
   return tabs;

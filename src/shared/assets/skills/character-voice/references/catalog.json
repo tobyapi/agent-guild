@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "modes": [
+    {
+      "id": "em6k",
+      "title": "否定列挙",
+      "aliases": [
+        "否定で輪郭"
+      ],
+      "family": "構文",
+      "usage": "会話・否定からの特定",
+      "card": "modes/em6k.md"
+    },
+    {
+      "id": "eoo8",
+      "title": "聞き手との関係発覚",
+      "aliases": [
+        "最後の関係発覚",
+        "聞き手が当事者"
+      ],
+      "family": "語りの仕掛け",
+      "usage": "会話・共有設定の関係発覚",
+      "card": "modes/eoo8.md"
+    },
+    {
+      "id": "f368",
+      "title": "断片的な会話",
+      "aliases": [
+        "切り返しの会話",
+        "断片場面"
+      ],
+      "family": "形式",
+      "usage": "会話・動作と短い台詞",
+      "card": "modes/f368.md"
+    },
+    {
+      "id": "g34x",
+      "title": "一語の執着",
+      "aliases": [
+        "呼び名へのこだわり",
+        "同じ呼び名"
+      ],
+      "family": "反復",
+      "usage": "会話・同じ呼び名への執着",
+      "card": "modes/g34x.md"
+    },
+    {
+      "id": "hmw0",
+      "title": "毒づく語り",
+      "aliases": [
+        "毒づく",
+        "怒りの悪口"
+      ],
+      "family": "態度",
+      "usage": "会話・出来事への毒づき",
+      "card": "modes/hmw0.md"
+    },
+    {
+      "id": "hs0y",
+      "title": "隠喩の語り",
+      "aliases": [
+        "隠喩",
+        "比喩語り"
+      ],
+      "family": "比喩",
+      "usage": "会話・比喩",
+      "card": "modes/hs0y.md"
+    },
+    {
+      "id": "iwkf",
+      "title": "中立の報告",
+      "aliases": [
+        "目撃報告",
+        "中立の語り"
+      ],
+      "family": "記録",
+      "usage": "会話・落ち着いた報告",
+      "card": "modes/iwkf.md"
+    },
+    {
+      "id": "jopp",
+      "title": "指定語の順序",
+      "aliases": [
+        "指定語順",
+        "指定単語"
+      ],
+      "family": "制約",
+      "usage": "会話・指定語を使う即興",
+      "card": "modes/jopp.md"
+    },
+    {
+      "id": "mivg",
+      "title": "走り書き",
+      "aliases": [
+        "書き散らし"
+      ],
+      "family": "記録",
+      "usage": "会話・短い報告",
+      "card": "modes/mivg.md"
+    },
+    {
+      "id": "mkev",
+      "title": "混合方言",
+      "aliases": [
+        "まねる方言",
+        "混合方言の演技"
+      ],
+      "family": "語彙",
+      "usage": "会話・架空の混合方言",
+      "card": "modes/mkev.md"
+    },
+    {
+      "id": "mmdw",
+      "title": "つなぎ言葉",
+      "aliases": [
+        "フィラー"
+      ],
+      "family": "反復",
+      "usage": "会話・フィラー",
+      "card": "modes/mmdw.md"
+    },
+    {
+      "id": "mr5d",
+      "title": "感情音の応答",
+      "aliases": [
+        "感情音だけ",
+        "反応の声"
+      ],
+      "family": "音",
+      "usage": "会話・短いリアクション",
+      "card": "modes/mr5d.md"
+    },
+    {
+      "id": "njmn",
+      "title": "都会的な語り",
+      "aliases": [
+        "洒落た都会語り",
+        "当世風の観察"
+      ],
+      "family": "語彙",
+      "usage": "会話・洒落た評言",
+      "card": "modes/njmn.md"
+    },
+    {
+      "id": "o24l",
+      "title": "割り込む本音",
+      "aliases": [
+        "心の声",
+        "本音が漏れる"
+      ],
+      "family": "視点",
+      "usage": "会話・心の声",
+      "card": "modes/o24l.md"
+    },
+    {
+      "id": "oftg",
+      "title": "用語ほどき",
+      "aliases": [
+        "役割から説明",
+        "遠回りな説明"
+      ],
+      "family": "語彙",
+      "usage": "会話・定義風の言い換え",
+      "card": "modes/oftg.md"
+    },
+    {
+      "id": "onxy",
+      "title": "問答記録",
+      "aliases": [
+        "問答",
+        "取り調べ口調"
+      ],
+      "family": "形式",
+      "usage": "会話・一問ずつ確認",
+      "card": "modes/onxy.md"
+    },
+    {
+      "id": "rwrm",
+      "title": "舞台台詞",
+      "aliases": [
+        "戯曲化"
+      ],
+      "family": "形式",
+      "usage": "会話・自分の動作を添える台詞",
+      "card": "modes/rwrm.md"
+    },
+    {
+      "id": "s861",
+      "title": "言いあぐねる声",
+      "aliases": [
+        "言葉にできない",
+        "言いあぐねる"
+      ],
+      "family": "態度",
+      "usage": "会話・感覚を言いあぐねる",
+      "card": "modes/s861.md"
+    },
+    {
+      "id": "suuh",
+      "title": "母音の引き伸ばし",
+      "aliases": [
+        "語尾を伸ばす"
+      ],
+      "family": "音",
+      "usage": "会話・ゆったりした語尾",
+      "card": "modes/suuh.md"
+    },
+    {
+      "id": "sx7n",
+      "title": "架空の田舎語り",
+      "aliases": [
+        "素朴な役割語"
+      ],
+      "family": "語彙",
+      "usage": "会話・架空の田舎語り",
+      "card": "modes/sx7n.md"
+    },
+    {
+      "id": "t9ju",
+      "title": "草木にたとえる",
+      "aliases": [
+        "草木づくし",
+        "芽吹きに重ねる"
+      ],
+      "family": "比喩",
+      "usage": "会話・草木を使った比喩",
+      "card": "modes/t9ju.md"
+    },
+    {
+      "id": "tazi",
+      "title": "累積反復",
+      "aliases": [
+        "くどい確認"
+      ],
+      "family": "反復",
+      "usage": "会話・念入りな確認",
+      "card": "modes/tazi.md"
+    },
+    {
+      "id": "wc6x",
+      "title": "外来語まじり",
+      "aliases": [
+        "カタカナ英語"
+      ],
+      "family": "語彙",
+      "usage": "会話・外来語",
+      "card": "modes/wc6x.md"
+    },
+    {
+      "id": "xrsz",
+      "title": "先回り案内",
+      "aliases": [
+        "次の一歩",
+        "次の段取り"
+      ],
+      "family": "時間",
+      "usage": "会話・次の行動の案内",
+      "card": "modes/xrsz.md"
+    },
+    {
+      "id": "y1xx",
+      "title": "感嘆の連打",
+      "aliases": [
+        "感嘆実況",
+        "反応の連打"
+      ],
+      "family": "態度",
+      "usage": "会話・短い感嘆",
+      "card": "modes/y1xx.md"
+    },
+    {
+      "id": "y7hn",
+      "title": "素朴な一人称",
+      "aliases": [
+        "淡々と経験を話す"
+      ],
+      "family": "視点",
+      "usage": "会話・素朴な経験談",
+      "card": "modes/y7hn.md"
+    },
+    {
+      "id": "zuaf",
+      "title": "同義反復",
+      "aliases": [
+        "重ね言い"
+      ],
+      "family": "反復",
+      "usage": "会話・念押し",
+      "card": "modes/zuaf.md"
+    }
+  ]
+}

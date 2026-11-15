@@ -25,3 +25,4 @@ pub mod snapshot;
 pub mod statistics;
 pub mod storage;
 pub mod update;
+pub mod voice;

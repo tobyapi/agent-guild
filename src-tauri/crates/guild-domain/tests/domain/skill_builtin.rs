@@ -9,8 +9,9 @@ fn manager_template_includes_reflection() {
     assert_eq!(manager.builtin_skills, ["universal-manager", "reflection"]);
 }
 
-const IMPORTED_BUILTIN_NAMES: [&str; 6] = [
+const IMPORTED_BUILTIN_NAMES: [&str; 7] = [
     "ambiguous-word-rewrite",
+    "character-voice",
     "concept-shift",
     "introspection",
     "reflection",
@@ -48,6 +49,7 @@ fn builtins_are_sorted_unique_and_found_by_name() {
         names,
         [
             "ambiguous-word-rewrite",
+            "character-voice",
             "concept-shift",
             "introspection",
             "ornate-avatar-frame",

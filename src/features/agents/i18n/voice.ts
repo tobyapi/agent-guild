@@ -1,0 +1,61 @@
+import { createTranslator } from '@/shared/i18n';
+
+const ja = {
+  label: '会話の文体',
+  hint: '性格・口調を保ちながら、返答の表現を変えます。',
+  auto: '自動 — 会話に合わせる',
+  off: 'いつもの口調',
+  intensity: '表現の強さ',
+  weak: '弱',
+  medium: '中',
+  strong: '強',
+  invalid: '自動かいつもの口調を選んでください。',
+};
+
+export const tVoice = createTranslator({
+  ja,
+  en: {
+    label: 'Conversation style',
+    hint: 'Vary expression while keeping the personality and tone.',
+    auto: 'Automatic — fit the conversation',
+    off: 'Usual voice',
+    intensity: 'Expression strength',
+    weak: 'Subtle',
+    medium: 'Medium',
+    strong: 'Strong',
+    invalid: 'Choose automatic or usual voice.',
+  },
+  'zh-Hans': {
+    label: '对话文体',
+    hint: '保留性格和语气，调整回复的表达方式。',
+    auto: '自动 — 根据对话选择',
+    off: '平时的语气',
+    intensity: '表达强度',
+    weak: '弱',
+    medium: '中',
+    strong: '强',
+    invalid: '请选择自动或平时的语气。',
+  },
+  'zh-Hant': {
+    label: '對話文體',
+    hint: '保留性格和語氣，調整回覆的表達方式。',
+    auto: '自動 — 根據對話選擇',
+    off: '平時的語氣',
+    intensity: '表達強度',
+    weak: '弱',
+    medium: '中',
+    strong: '強',
+    invalid: '請選擇自動或平時的語氣。',
+  },
+  ko: {
+    label: '대화 문체',
+    hint: '성격과 말투를 유지하면서 답변 표현을 조절합니다.',
+    auto: '자동 — 대화에 맞추기',
+    off: '평소 말투',
+    intensity: '표현 강도',
+    weak: '약하게',
+    medium: '보통',
+    strong: '강하게',
+    invalid: '자동 또는 평소 말투를 선택하십시오.',
+  },
+});

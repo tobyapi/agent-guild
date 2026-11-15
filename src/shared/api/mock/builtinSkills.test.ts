@@ -16,6 +16,7 @@ describe('モックの内蔵スキル', () => {
     expect(names).toEqual([...names].sort());
     expect(names).toEqual([
       'ambiguous-word-rewrite',
+      'character-voice',
       'concept-shift',
       'introspection',
       'ornate-avatar-frame',

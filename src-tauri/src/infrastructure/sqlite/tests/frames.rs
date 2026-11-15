@@ -47,6 +47,7 @@ fn an_old_database_opens_with_no_frames() {
     let agents = SqliteAgentRepository::new(db.clone());
     let old = agents.get(&AgentId::new("a1")).unwrap().unwrap();
     assert_eq!((old.name.as_str(), old.frame.as_str()), ("ハル", ""));
+    assert_eq!(old.voice, guild_domain::voice::VoiceSettings::default());
     let profile = SqliteProfileRepository::new(db.clone());
     assert_eq!(profile.get().unwrap(), Profile { frame: String::new(), ..profile.get().unwrap() });
     assert_eq!(profile.get().unwrap().name, "ミナ");

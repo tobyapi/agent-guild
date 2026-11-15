@@ -29,3 +29,5 @@ mod skill_library;
 mod support;
 mod tasks;
 mod values;
+
+mod voice;

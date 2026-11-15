@@ -1,4 +1,6 @@
 // エージェント編集画面の入力中の値（AgentDraft）と、その作り方・変え方。
+import { DEFAULT_VOICE, migrateStoredVoiceMode } from '@/shared/lib/voice';
+import type { VoiceSettings } from '@/shared/types/domain';
 import { presetColor } from '@/shared/lib/colors';
 import { checkEffort, effortFrom } from '@/shared/lib/models';
 import { PERMISSION_ORDER, permissionRuleProblem } from '@/shared/lib/permissions';
@@ -27,6 +29,7 @@ export interface AgentDraft {
   role: string;
   personality: string;
   tone: string;
+  voice: VoiceSettings;
   expertise: string;
   backend: string;
   model: string;
@@ -133,6 +136,7 @@ export function newDraft(
     frame: '',
     personality: '',
     tone: '',
+    voice: { ...DEFAULT_VOICE },
     backend: '',
     model: '',
     effort: '',
@@ -156,6 +160,7 @@ export function draftFromAgent(agent: Agent, backends: readonly BackendInfo[]): 
     role: agent.role,
     personality: agent.personality,
     tone: agent.tone,
+    voice: { ...(agent.voice ?? DEFAULT_VOICE), mode: migrateStoredVoiceMode(agent.voice?.mode ?? 'auto') },
     expertise: agent.expertise,
     backend: agent.backend,
     model: agent.model,

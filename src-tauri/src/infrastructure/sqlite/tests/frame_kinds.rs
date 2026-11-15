@@ -49,8 +49,7 @@ fn svg_frames_of_an_old_database_stay_svg_frames() {
     let png = CustomFrame { id: "custom:new".to_owned(), name: "灯火".to_owned(), art: FrameArt::Png, created_at: 6 };
     frames.insert(&png).unwrap();
     drop((frames, db));
-    assert_eq!(migrations::applied_version(&Connection::open(&path).unwrap()).unwrap(), 4);
-    assert_eq!(migrations::latest_version(), 4);
+    assert_eq!(migrations::applied_version(&Connection::open(&path).unwrap()).unwrap(), migrations::latest_version());
     let reopened = SqliteFrameRepository::new(Arc::new(Database::open(&path).unwrap()));
     assert_eq!(reopened.list().unwrap(), vec![old, png.clone()]);
     assert_eq!(reopened.get("custom:new").unwrap(), Some(png));
