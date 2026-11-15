@@ -30,58 +30,49 @@ afterEach(() => {
   cleanup();
   stopAppearance();
   vi.unstubAllGlobals();
-  for (const attribute of ['data-theme', 'data-theme-id', 'data-accent', 'data-background', 'data-background-source']) {
+  for (const attribute of [
+    'data-theme',
+    'data-theme-id',
+    'data-accent',
+    'data-background',
+    'data-background-source',
+    'data-glass',
+  ]) {
     document.documentElement.removeAttribute(attribute);
   }
 });
 
-it('7枚のテーマカードで背景と明暗を保存し、アクセントと動きも再起動後に保持する', () => {
+it('明るさ・背景・両方のガラスを独立保存し再起動後に保持する', () => {
   render(<AppearanceSection />);
-  expect(screen.queryByRole('combobox', { name: '背景' })).toBeNull();
-  const group = screen.getByRole('radiogroup', { name: 'テーマ' });
-  expect(group.querySelectorAll('[role="radio"]')).toHaveLength(7);
-  expect(group.querySelectorAll('[data-art]')).toHaveLength(7);
+  const group = screen.getByRole('radiogroup', { name: '背景' });
+  expect(group.querySelectorAll('[role="radio"]')).toHaveLength(5);
   fireEvent.click(screen.getByRole('radio', { name: 'ウミガメ' }));
+  const darkGlass = screen.getByRole('radiogroup', { name: 'ガラスの種類（ダーク）' });
+  fireEvent.click(darkGlass.querySelectorAll('button')[1]!);
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
   fireEvent.click(screen.getByRole('radio', { name: '停止' }));
   expect(document.documentElement.dataset).toMatchObject({
-    theme: 'light',
-    themeId: 'turtle',
+    theme: 'dark',
+    glass: 'liquid',
     backgroundSource: 'generated',
-  });
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
-    themeId: 'turtle',
-    schemePreference: 'light',
-    backgroundOverride: null,
-    accentOverride: 'sky',
-    motionPreference: 'off',
   });
   cleanup();
   stopAppearance();
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
   expect(screen.getByRole('radio', { name: 'ウミガメ' }).getAttribute('aria-checked')).toBe('true');
-  expect(screen.getByRole('radio', { name: '停止' }).getAttribute('aria-checked')).toBe('true');
   fireEvent.keyDown(screen.getByRole('radio', { name: 'ウミガメ' }), { key: 'ArrowDown' });
   expect(document.activeElement).toBe(screen.getByRole('radio', { name: '朝の丘' }));
-  expect(document.documentElement.dataset).toMatchObject({
-    theme: 'light',
-    themeId: 'dawn',
-    backgroundSource: 'image',
-  });
+  expect(document.documentElement.dataset.theme).toBe('dark');
   fireEvent.keyDown(document.activeElement!, { key: 'End' });
-  expect(document.documentElement.dataset).toMatchObject({
-    theme: 'dark',
-    themeId: 'aurora',
-    backgroundSource: 'scene',
-  });
+  expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'オーロラ' }));
   fireEvent.keyDown(document.activeElement!, { key: 'Home' });
-  expect(document.documentElement.dataset.background).toBeUndefined();
-  expect(document.documentElement.dataset.backgroundSource).toBeUndefined();
+  expect(document.documentElement.dataset.glass).toBe('none');
+  expect(screen.getByText('背景がないときはガラス効果は適用されません。')).toBeTruthy();
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
-    themeId: 'guild',
     schemePreference: 'dark',
-    backgroundOverride: null,
+    backgroundOverride: { kind: 'none' },
+    glass: { dark: 'liquid', light: 'frosted' },
     accentOverride: 'sky',
     motionPreference: 'off',
   });
@@ -120,9 +111,9 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
   });
 });
 
-it('明暗とアクセントを相互に保持して新旧に保存し、再起動後もUIを復元する', () => {
+it('明暗とアクセントを相互に保持してv2に保存し、再起動後もUIを復元する', () => {
   stopAppearance();
-  const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: null };
+  const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: { kind: 'none' } };
   values.set(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
@@ -135,8 +126,8 @@ it('明暗とアクセントを相互に保持して新旧に保存し、再起�
     schemePreference: 'light',
     accentOverride: 'sky',
   });
-  expect(values.get(THEME_STORAGE_KEY)).toBe('light');
-  expect(values.get(ACCENT_STORAGE_KEY)).toBe('sky');
+  expect(values.get(THEME_STORAGE_KEY)).toBeUndefined();
+  expect(values.get(ACCENT_STORAGE_KEY)).toBeUndefined();
   cleanup();
   stopAppearance();
   stopAppearance = initAppearance();
@@ -146,7 +137,7 @@ it('明暗とアクセントを相互に保持して新旧に保存し、再起�
   fireEvent.click(screen.getByRole('radio', { name: '灯の金（既定）' }));
   expect(document.documentElement.dataset.theme).toBe('light');
   expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ accentOverride: null });
-  expect(values.get(ACCENT_STORAGE_KEY)).toBe('default');
+  expect(values.get(ACCENT_STORAGE_KEY)).toBeUndefined();
 });
 
 it('OSに合わせる選択でOSの変更に追従し、明示選択は保持する', () => {
@@ -156,7 +147,7 @@ it('OSに合わせる選択でOSの変更に追従し、明示選択は保持す
   query.matches = true;
   query.dispatchEvent(new Event('change'));
   expect(document.documentElement.dataset.theme).toBe('light');
-  expect(values.get(THEME_STORAGE_KEY)).toBe('system');
+  expect(values.get(THEME_STORAGE_KEY)).toBeUndefined();
   expect(screen.getByRole('radio', { name: 'システムに合わせる' }).getAttribute('aria-checked')).toBe('true');
   fireEvent.click(screen.getByRole('radio', { name: 'ギルド ダーク' }));
   query.dispatchEvent(new Event('change'));

@@ -9,14 +9,13 @@ export function resolveAppearance(
 ): ResolvedAppearance {
   const selected = hasThemeVariants(registry, preference.themeId) ? preference : safeAppearance();
   const scheme = selected.schemePreference === 'system' ? systemScheme : selected.schemePreference;
-  const theme = Object.hasOwn(registry, selected.themeId) ? registry[selected.themeId] : undefined;
+  const background = resolveBackground(selected.backgroundOverride ?? { kind: 'none' });
   return {
     themeId: selected.themeId,
     scheme,
     accentOverride: selected.accentOverride,
-    backgroundOverride: resolveBackground(
-      selected.backgroundOverride ?? theme?.variants[scheme]?.background ?? { kind: 'none' },
-    ),
+    backgroundOverride: background,
+    glass: background.kind === 'none' ? 'none' : selected.glass[scheme],
     motion: selected.motionPreference,
   };
 }

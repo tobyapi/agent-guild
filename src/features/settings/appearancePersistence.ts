@@ -2,6 +2,7 @@ import { hasThemeVariants, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import {
   APPEARANCE_STORAGE_KEY,
+  LEGACY_APPEARANCE_STORAGE_KEY,
   AppearanceValidationError,
   migrateAppearance,
   parseAppearance,
@@ -23,6 +24,13 @@ export function loadAppearance(io: AppearancePersistence, registry: ThemeRegistr
       const preference = parseAppearance(stored, registry);
       if (JSON.stringify(preference) !== stored) saveAppearance(io, preference);
       return preference;
+    }
+    key = LEGACY_APPEARANCE_STORAGE_KEY;
+    const legacy = storage.getItem(key);
+    if (legacy !== null) {
+      const migrated = parseAppearance(legacy, registry);
+      saveAppearance(io, migrated);
+      return migrated;
     }
     key = THEME_STORAGE_KEY;
     const theme = storage.getItem(key);
@@ -48,18 +56,10 @@ function recoveryReason(error: unknown): string {
 }
 
 export function saveAppearance(io: AppearancePersistence, preference: AppearancePreference): void {
-  // Keep dual writes until legacy-version rollback support is retired. Only guild scheme/accent
-  // are representable there. Valid new data wins after re-upgrade; legacy edits are not imported.
-  const entries = [
-    [APPEARANCE_STORAGE_KEY, JSON.stringify(preference)],
-    [THEME_STORAGE_KEY, preference.schemePreference],
-    [ACCENT_STORAGE_KEY, preference.accentOverride ?? 'default'],
-  ] as const;
-  for (const [key, value] of entries) {
-    try {
-      io.storage().setItem(key, value);
-    } catch {
-      io.warn(`${key}: save failed; keeping appearance in memory (rollback synchronization not guaranteed)`);
-    }
+  // Old keys remain untouched so rollback keeps the old appearance.
+  try {
+    io.storage().setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
+  } catch {
+    io.warn(`${APPEARANCE_STORAGE_KEY}: save failed; keeping appearance in memory`);
   }
 }

@@ -16,7 +16,7 @@ describe('appearance lifecycle', () => {
     expect(h.root.attributes).toHaveLength(0);
   });
 
-  it('updates memory, attributes and all storage keys, removing the default accent attribute', () => {
+  it('updates memory, attributes and v2 storage only, removing the default accent attribute', () => {
     const h = appearanceHarness();
     h.controller.init();
     const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
@@ -24,8 +24,8 @@ describe('appearance lifecycle', () => {
     expect(h.controller.store.getState().preference).toEqual(preference);
     expect(h.root.dataset).toMatchObject({ theme: 'light', themeId: 'guild', accent: 'sky' });
     expect(JSON.parse(h.values.get(KEY)!)).toEqual(preference);
-    expect(h.values.get(THEME)).toBe('light');
-    expect(h.values.get(ACCENT)).toBe('sky');
+    expect(h.values.get(THEME)).toBeUndefined();
+    expect(h.values.get(ACCENT)).toBeUndefined();
     h.controller.setPreference(defaultAppearance());
     expect(h.root.hasAttribute('data-accent')).toBe(false);
     expect(h.root.hasAttribute('style')).toBe(false);
@@ -78,7 +78,7 @@ describe('appearance lifecycle', () => {
 });
 
 describe('storage exceptions', () => {
-  it('reloads the actual saved new value after a partial write failure', () => {
+  it('reloads the actual saved new value after a write failure', () => {
     const h = appearanceHarness({ [KEY]: JSON.stringify(defaultAppearance()) });
     h.controller.init();
     h.storage.setItem.mockImplementation((key, value) => {
@@ -86,8 +86,8 @@ describe('storage exceptions', () => {
       h.values.set(key, value);
     });
     h.controller.setPreference({ ...defaultAppearance(), schemePreference: 'light', accentOverride: 'sky' });
-    expect(h.values.get(THEME)).toBe('light');
-    expect(h.values.get(ACCENT)).toBe('sky');
+    expect(h.values.get(THEME)).toBeUndefined();
+    expect(h.values.get(ACCENT)).toBeUndefined();
     expect(h.root.dataset.theme).toBe('light');
     h.controller.dispose();
     h.controller.init();
@@ -104,11 +104,11 @@ describe('storage exceptions', () => {
     });
     expect(() => h.controller.init()).not.toThrow();
     expect(h.controller.store.getState().preference).toEqual(safeAppearance());
-    expect(h.storage.setItem).toHaveBeenCalledTimes(3);
+    expect(h.storage.setItem).toHaveBeenCalledTimes(1);
     expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(failedKey));
   });
 
-  it.each([KEY, THEME, ACCENT])('continues other writes and DOM updates when %s cannot be saved', (failedKey) => {
+  it.each([KEY])('continues memory and DOM updates when %s cannot be saved', (failedKey) => {
     const h = appearanceHarness();
     h.storage.setItem.mockImplementation((key, value) => {
       if (key === failedKey) throw new DOMException('full', 'QuotaExceededError');
@@ -118,7 +118,7 @@ describe('storage exceptions', () => {
     h.storage.setItem.mockClear();
     const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
     expect(() => h.controller.setPreference(preference)).not.toThrow();
-    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY, THEME, ACCENT]);
+    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
     expect(h.controller.store.getState().preference).toEqual(preference);
     expect(h.root.dataset).toMatchObject({ theme: 'light', accent: 'sky' });
     expect(h.values.has(failedKey)).toBe(false);
@@ -135,8 +135,27 @@ describe('storage exceptions', () => {
     });
     expect(() => controller.init()).not.toThrow();
     expect(h.root.dataset.theme).toBe('dark');
-    expect(h.environment.warn).toHaveBeenCalledTimes(4);
+    expect(h.environment.warn).toHaveBeenCalledTimes(2);
     expect(() => controller.setPreference({ ...defaultAppearance(), schemePreference: 'light' })).not.toThrow();
     expect(h.root.dataset.theme).toBe('light');
   });
+});
+
+it('switches the effective material with the OS, retains both choices and disables it for none', () => {
+  const preference = {
+    ...defaultAppearance(),
+    schemePreference: 'system' as const,
+    backgroundOverride: { kind: 'image' as const, assetId: 'night' },
+    glass: { dark: 'liquid' as const, light: 'frosted' as const },
+  };
+  const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
+  h.controller.init();
+  expect(h.root.dataset.glass).toBe('liquid');
+  h.changeScheme(true);
+  expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'frosted' });
+  h.changeScheme(false);
+  expect(h.root.dataset.glass).toBe('liquid');
+  h.controller.setPreference({ ...preference, backgroundOverride: { kind: 'none' } });
+  expect(h.root.dataset.glass).toBe('none');
+  expect(h.controller.store.getState().preference.glass).toEqual(preference.glass);
 });

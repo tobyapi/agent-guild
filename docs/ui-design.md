@@ -703,7 +703,7 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
-背景定義はデータだけ。shared/theme の登録 ID で自作同梱 SVG（dawn/night）と CSS scene（aurora）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、null はテーマ既定（guild は none）、未登録 ID は背景だけ none。背景と motion は新 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
+背景定義はデータだけ。shared/theme の登録 ID で自作同梱 SVG（dawn/night）と CSS scene（aurora）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、旧nullもv2ではnoneに正規化し、未登録 ID は背景だけ none。背景と motion はv2 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
 
 ### 背景ありのガラス素材
 
@@ -713,20 +713,10 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 - 状態色と作者指定色の隔離は維持する。darkの生成背景のメンバー欄のみ、彩度による変化を補うため保護濃度を214/255から215/255へ増す。コントラストの合格値は変更しない。
 - CSSの条件分岐と数値検査は実画面での性能・OS設定の伝達確認を代替しない。実装後に実画面で見た目と重さを確認する。
 
-### テーマのカード一覧
+### 独立した外観設定（v2）
 
-外観の背景選択と明暗切替は、静止プレビュー付きの単一列のテーマ一覧にまとめる。アクセントと背景の動きは独立して保持する。
+明るさ（dark/light/system）、背景（なし・ウミガメ・朝の丘・夜・オーロラ）、明るさ別のガラスの種類（frosted/liquid）を独立して設定する。アクセントと背景の動きは保持する。背景変更で明るさを書き換えない。背景カードは静止プレビューで、矢印・Home・Endキーでも選べる。明るさとガラスのセグメントは矢印キーで選べる。
 
-| テーマ | 明暗 | 背景 | 選定理由 |
-| --- | --- | --- | --- |
-| ギルド ダーク | dark | なし | 従来の暗色を保持 |
-| ギルド ライト | light | なし | 従来の明色を保持 |
-| システムに合わせる | system | なし | OSの明暗に追従 |
-| ウミガメ | light | generated / tile-turtle | 明るい海色のパレットとライト面を組み合わせる |
-| 朝の丘 | light | image / dawn | 明るい丘の絵とライト面を組み合わせる |
-| 夜 | dark | image / night | 夜の絵に暗色の面を合わせる |
-| オーロラ | dark | scene / aurora | 夜の絵と発光表現に暗色の面を合わせる |
+`agent-guild.appearance.v2` に version 2 と dark/light 各ガラス（初期値frosted）を保存する。v2がなければ旧v1、次に旧明暗・アクセントキーから移行する。旧キーは書き換え・削除しない。v1の登録済み絵テーマを優先する規則は移行時に一度だけ適用し、その後は明るさと背景を結び直さない。旧guildの明暗は背景なしなら維持し、ウミガメと朝の丘はlight、夜とオーロラはdarkへ移行する。未知の背景IDはnone、不正な設定はguild/systemへ復旧する。
 
-保存型はappearance v1のまま。背景なし3カードはguildとschemePreferenceで区別し、絵付き4カードは個別themeIdと固定schemePreferenceで保存する。backgroundOverrideはnull。旧設定は背景IDを優先して移し、背景なしなら旧明暗を保つ。アクセントと動きを保持し、正規化後を新旧キーへ保存する。不明な背景IDは背景なし、不正な設定はguild/systemへ復旧する。safeAppearanceの背景もnullにそろえるが、guildの既定はnoneなので表示の復旧動作は同じ。
-
-11eのblur・保護濃度は解決後の背景sourceを使うため、新しいテーマIDでも同じ条件で適用される。カードの見本はすべて静止し、オーロラも設定画面では動かさない。実画面の見た目・速度は別途確認が必要。
+解決したガラスの種類はrootの `data-glass`（frosted/liquid/none）へ反映する。systemのOS明暗変化でdark/lightのガラスも切り替わる。背景なしではnoneとし、選んだガラス自体は保持する。①aでは描画CSS・11eのblurと保護濃度を変更しない。手元画像、全面ガラス、Codex生成は後続の作業。

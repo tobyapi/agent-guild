@@ -4,7 +4,8 @@ import { resolveBackground } from '@/shared/theme/backgrounds';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import { ACCENTS } from './accent';
 
-export const APPEARANCE_STORAGE_KEY = 'agent-guild.appearance.v1';
+export const APPEARANCE_STORAGE_KEY = 'agent-guild.appearance.v2';
+export const LEGACY_APPEARANCE_STORAGE_KEY = 'agent-guild.appearance.v1';
 const SCHEMES = ['dark', 'light', 'system'];
 
 export class AppearanceValidationError extends Error {}
@@ -15,7 +16,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function parseAppearance(stored: string, registry: ThemeRegistry): AppearancePreference {
   const value: unknown = JSON.parse(stored);
-  if (!isRecord(value) || value.version !== 1) throw new AppearanceValidationError('unsupported appearance version');
+  if (!isRecord(value) || (value.version !== 1 && value.version !== 2))
+    throw new AppearanceValidationError('unsupported appearance version');
+  validateFields(value, registry);
+  const background = parseBackground(value.backgroundOverride);
+  const preference: AppearancePreference = {
+    version: 2,
+    glass: value.version === 1 ? defaultAppearance().glass : parseGlass(value.glass),
+    themeId: value.themeId,
+    schemePreference: value.schemePreference,
+    accentOverride: value.accentOverride,
+    backgroundOverride: background ?? { kind: 'none' },
+    motionPreference: value.motionPreference,
+  };
+  return value.version === 1 ? unifyAppearance(preference) : preference;
+}
+
+function validateFields(
+  value: Record<string, unknown>,
+  registry: ThemeRegistry,
+): asserts value is Record<string, unknown> &
+  Pick<AppearancePreference, 'themeId' | 'schemePreference' | 'accentOverride' | 'motionPreference'> {
   if (typeof value.themeId !== 'string' || !hasThemeVariants(registry, value.themeId)) {
     throw new AppearanceValidationError('unknown theme or missing variants');
   }
@@ -28,15 +49,17 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
   if (value.motionPreference !== 'system' && value.motionPreference !== 'off') {
     throw new AppearanceValidationError('invalid motion preference');
   }
-  const background = parseBackground(value.backgroundOverride);
-  return unifyAppearance({
-    version: 1,
-    themeId: value.themeId,
-    schemePreference: value.schemePreference as AppearancePreference['schemePreference'],
-    accentOverride: value.accentOverride as AppearancePreference['accentOverride'],
-    backgroundOverride: background,
-    motionPreference: value.motionPreference,
-  });
+}
+
+function parseGlass(value: unknown): AppearancePreference['glass'] {
+  if (
+    !isRecord(value) ||
+    !['frosted', 'liquid'].includes(String(value.dark)) ||
+    !['frosted', 'liquid'].includes(String(value.light))
+  ) {
+    throw new AppearanceValidationError('invalid glass preference');
+  }
+  return { dark: value.dark as 'frosted' | 'liquid', light: value.light as 'frosted' | 'liquid' };
 }
 
 function parseBackground(value: unknown): AppearancePreference['backgroundOverride'] {

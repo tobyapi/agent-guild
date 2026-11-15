@@ -25,6 +25,7 @@ function browserEnvironment(): AppearanceEnvironment {
 export function applyAppearance(root: HTMLElement | undefined, appearance: ResolvedAppearance): void {
   if (!root) return;
   root.dataset.theme = appearance.scheme;
+  root.dataset.glass = appearance.glass;
   root.dataset.themeId = appearance.themeId;
   if (appearance.backgroundOverride.kind === 'none') {
     delete root.dataset.background;

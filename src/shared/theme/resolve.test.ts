@@ -16,8 +16,7 @@ describe('resolveAppearance', () => {
     };
     const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
     expect(resolveAppearance(preference, registry, 'dark').backgroundOverride).toEqual({
-      kind: 'image',
-      assetId: 'dawn',
+      kind: 'none',
     });
     expect(
       resolveAppearance({ ...preference, backgroundOverride: { kind: 'none' } }, registry, 'dark').backgroundOverride,
@@ -53,6 +52,7 @@ describe('resolveAppearance', () => {
       accentOverride: 'sky',
       backgroundOverride: { kind: 'none' },
       motion: 'off',
+      glass: 'none',
     });
   });
 

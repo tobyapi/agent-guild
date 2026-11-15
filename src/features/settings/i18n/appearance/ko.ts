@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  schemeLabel: '밝기',
+  glassDark: '유리 스타일 (다크)',
+  glassLight: '유리 스타일 (라이트)',
+  glassFrosted: '반투명 유리',
+  glassLiquid: 'Liquid Glass',
+  glassInactive: '배경이 없으면 유리 효과가 적용되지 않습니다.',
   themeLabel: '테마',
   themeGuildDark: '길드 다크',
   themeGuildLight: '길드 라이트',

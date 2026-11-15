@@ -63,9 +63,9 @@ describe('invalid appearance recovery', () => {
     });
     h.controller.init();
     expect(h.controller.store.getState().preference).toMatchObject({
-      themeId: 'turtle',
-      schemePreference: 'light',
-      backgroundOverride: null,
+      themeId: 'guild',
+      schemePreference: 'dark',
+      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
     expect(h.root.dataset.backgroundSource).toBe('generated');
   });
@@ -91,13 +91,15 @@ describe('invalid appearance recovery', () => {
     JSON.stringify({ ...defaultAppearance(), accentOverride: 'nope' }),
     JSON.stringify({ ...defaultAppearance(), backgroundOverride: {} }),
     JSON.stringify({ ...defaultAppearance(), motionPreference: 'on' }),
+    JSON.stringify({ ...defaultAppearance(), glass: null }),
+    JSON.stringify({ ...defaultAppearance(), glass: { dark: 'liquid', light: 'invalid' } }),
   ])('repairs invalid new data without adopting legacy values: %s', (stored) => {
     const h = appearanceHarness({ [KEY]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(safeAppearance());
     expect(JSON.parse(h.values.get(KEY)!)).toEqual(safeAppearance());
-    expect(h.values.get(THEME)).toBe('system');
-    expect(h.values.get(ACCENT)).toBe('default');
+    expect(h.values.get(THEME)).toBe('light');
+    expect(h.values.get(ACCENT)).toBe('sky');
     expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(KEY));
     expect(h.environment.warn.mock.calls.flat().join(' ')).not.toContain(stored);
   });
@@ -136,7 +138,7 @@ describe('invalid appearance recovery', () => {
     expect(h.controller.store.getState().preference).toEqual({
       ...defaultAppearance(),
       accentOverride: 'sky',
-      backgroundOverride: null,
+      backgroundOverride: { kind: 'none' },
     });
   });
 });

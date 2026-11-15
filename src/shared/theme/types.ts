@@ -2,6 +2,8 @@ export type Scheme = 'dark' | 'light';
 export type SchemePreference = Scheme | 'system';
 export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'silver'] as const;
 export type AccentId = (typeof ACCENT_IDS)[number];
+export type GlassStyle = 'frosted' | 'liquid';
+export type GlassPreference = Readonly<Record<Scheme, GlassStyle>>;
 export type MotionPreference = 'system' | 'off';
 
 export type BackgroundSpec =
@@ -11,7 +13,8 @@ export type BackgroundSpec =
   | { readonly kind: 'generated'; readonly presetId: string };
 
 export interface AppearancePreference {
-  readonly version: 1;
+  readonly version: 2;
+  readonly glass: GlassPreference;
   readonly themeId: string;
   readonly schemePreference: SchemePreference;
   readonly accentOverride: AccentId | null;
@@ -33,4 +36,5 @@ export interface ResolvedAppearance {
   readonly accentOverride: AccentId | null;
   readonly backgroundOverride: BackgroundSpec;
   readonly motion: MotionPreference;
+  readonly glass: GlassStyle | 'none';
 }

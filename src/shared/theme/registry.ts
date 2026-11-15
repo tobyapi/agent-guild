@@ -28,11 +28,12 @@ export function hasThemeVariants(registry: ThemeRegistry, id: string): boolean {
 
 export function defaultAppearance(): AppearancePreference {
   return {
-    version: 1,
+    version: 2,
+    glass: { dark: 'frosted', light: 'frosted' },
     themeId: 'guild',
     schemePreference: 'dark',
     accentOverride: null,
-    backgroundOverride: null,
+    backgroundOverride: { kind: 'none' },
     motionPreference: 'system',
   };
 }

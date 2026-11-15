@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  schemeLabel: 'Brightness',
+  glassDark: 'Glass style (dark)',
+  glassLight: 'Glass style (light)',
+  glassFrosted: 'Frosted glass',
+  glassLiquid: 'Liquid Glass',
+  glassInactive: 'Glass effects are inactive without a background.',
   themeLabel: 'Theme',
   themeGuildDark: 'Guild Dark',
   themeGuildLight: 'Guild Light',

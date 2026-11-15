@@ -1,14 +1,28 @@
-import { selectThemeCard } from '@/shared/theme/catalog';
-import type { ThemeCard } from '@/shared/theme/catalog';
 import { useStore } from 'zustand';
-import type { AppearancePreference, MotionPreference } from '@/shared/theme/types';
+import type {
+  AppearancePreference,
+  BackgroundSpec,
+  GlassStyle,
+  Scheme,
+  SchemePreference,
+  MotionPreference,
+} from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
 const controller = createAppearanceStore();
 
-export function setThemeCard(card: ThemeCard): void {
-  controller.setPreference(selectThemeCard(controller.store.getState().preference, card));
+export function setSchemePreference(schemePreference: SchemePreference): void {
+  controller.setPreference({ ...controller.store.getState().preference, schemePreference });
+}
+
+export function setBackground(backgroundOverride: BackgroundSpec): void {
+  controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
+}
+
+export function setGlassStyle(scheme: Scheme, style: GlassStyle): void {
+  const preference = controller.store.getState().preference;
+  controller.setPreference({ ...preference, glass: { ...preference.glass, [scheme]: style } });
 }
 
 export function setMotionPreference(motionPreference: MotionPreference): void {

@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  schemeLabel: '明暗',
+  glassDark: '玻璃樣式（深色）',
+  glassLight: '玻璃樣式（淺色）',
+  glassFrosted: '磨砂玻璃',
+  glassLiquid: 'Liquid Glass',
+  glassInactive: '沒有背景時不套用玻璃效果。',
   themeLabel: '主題',
   themeGuildDark: '公會深色',
   themeGuildLight: '公會淺色',
