@@ -70,3 +70,13 @@
   color: var(--text-secondary);
   font-size: var(--text-xs);
 }
+
+:global(:root[data-background='active']) .thumb {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .file {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .remove {
+  --surface: var(--bg-elevated);
+}

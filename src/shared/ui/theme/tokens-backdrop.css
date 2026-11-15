@@ -4,9 +4,9 @@
   --surface-chat: var(--bg-app);
   --surface-sidebar: var(--bg-sidebar);
   --surface-members: var(--bg-panel);
-  --scrim-chat: 89%;
-  --scrim-sidebar: 89%;
-  --scrim-members: 89%;
+  --scrim-chat: calc(220 / 255 * 100%);
+  --scrim-sidebar: calc(211 / 255 * 100%);
+  --scrim-members: calc(214 / 255 * 100%);
   --backdrop-duration: 24s;
   --backdrop-aurora:
     radial-gradient(ellipse at 30% 30%, #30dcb5c0, transparent 60%),
@@ -17,9 +17,9 @@
 }
 
 :root[data-theme='light'] {
-  --scrim-chat: 90%;
-  --scrim-sidebar: 90%;
-  --scrim-members: 90%;
+  --scrim-chat: calc(217 / 255 * 100%);
+  --scrim-sidebar: calc(231 / 255 * 100%);
+  --scrim-members: calc(224 / 255 * 100%);
   --backdrop-state-ink: #282414;
   --backdrop-active-weight: 8%;
   --backdrop-overlay: #1c180e;

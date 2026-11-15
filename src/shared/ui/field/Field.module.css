@@ -119,3 +119,7 @@
 .errorIcon {
   font-size: var(--text-md);
 }
+
+:global(:root[data-background='active']) .control {
+  --surface: var(--bg-input);
+}

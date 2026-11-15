@@ -35,3 +35,10 @@
     var(--shadow-sm),
     inset 0 0 0 1px var(--border-subtle);
 }
+
+:global(:root[data-background='active']) .segment {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .item[aria-checked='true'] {
+  --surface: var(--bg-elevated);
+}

@@ -88,3 +88,7 @@
   outline: none;
   box-shadow: none;
 }
+
+:global(:root[data-background='active']) .box {
+  --surface: var(--bg-input);
+}

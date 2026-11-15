@@ -61,3 +61,7 @@
     display: none;
   }
 }
+
+:global(:root[data-background='active']) .shell {
+  --surface: var(--bg-app);
+}

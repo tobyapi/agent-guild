@@ -29,3 +29,7 @@
 .emoji::placeholder {
   font-size: var(--text-sm);
 }
+
+:global(:root[data-background='active']) .emoji {
+  --surface: var(--bg-input);
+}

@@ -14,3 +14,7 @@
   margin-block-start: var(--space-0-5);
   color: var(--danger);
 }
+
+:global(:root[data-background='active']) .alert {
+  background: var(--b-danger-soft);
+}

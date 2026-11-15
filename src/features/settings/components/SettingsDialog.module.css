@@ -164,3 +164,14 @@
     font-size: var(--text-sm);
   }
 }
+
+:global(:root[data-background='active']) .tab[aria-selected='true'] {
+  background: var(--b-accent-soft);
+}
+
+:global(:root[data-background='active']) .path {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .tab:hover {
+  --surface: var(--bg-sunken);
+}

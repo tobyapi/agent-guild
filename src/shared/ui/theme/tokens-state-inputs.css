@@ -1,0 +1,79 @@
+/* Original translucent colors; B always mixes opaque ink with an opaque local surface. */
+
+:root {
+  --raw-accent-soft: rgba(240, 186, 95, 0.14);
+  --raw-accent-soft-ink: rgb(240 186 95);
+  --raw-accent-soft-weight: 14%;
+  --raw-danger-soft: rgba(255, 134, 141, 0.12);
+  --raw-danger-soft-ink: rgb(255 134 141);
+  --raw-danger-soft-weight: 12%;
+  --raw-warning-soft: rgba(252, 168, 100, 0.14);
+  --raw-warning-soft-ink: rgb(252 168 100);
+  --raw-warning-soft-weight: 14%;
+  --raw-success-soft: rgba(114, 212, 138, 0.14);
+  --raw-success-soft-ink: rgb(114 212 138);
+  --raw-success-soft-weight: 14%;
+  --raw-selection-bg: rgba(240, 186, 95, 0.3);
+  --raw-selection-bg-ink: rgb(240 186 95);
+  --raw-selection-bg-weight: 30%;
+  --raw-kind-ideator-soft: rgba(191, 220, 115, 0.14);
+  --raw-kind-ideator-soft-ink: rgb(191 220 115);
+  --raw-kind-ideator-soft-weight: 14%;
+  --raw-kind-worker-soft: rgba(103, 218, 178, 0.14);
+  --raw-kind-worker-soft-ink: rgb(103 218 178);
+  --raw-kind-worker-soft-weight: 14%;
+  --raw-kind-manager-soft: rgba(152, 175, 255, 0.14);
+  --raw-kind-manager-soft-ink: rgb(152 175 255);
+  --raw-kind-manager-soft-weight: 14%;
+  --raw-kind-expert-soft: rgba(198, 170, 250, 0.14);
+  --raw-kind-expert-soft-ink: rgb(198 170 250);
+  --raw-kind-expert-soft-weight: 14%;
+  --raw-kind-human-soft: rgba(240, 186, 95, 0.14);
+  --raw-kind-human-soft-ink: rgb(240 186 95);
+  --raw-kind-human-soft-weight: 14%;
+  --raw-mention-self-bg: rgba(240, 186, 95, 0.07);
+  --raw-mention-self-bg-ink: rgb(240 186 95);
+  --raw-mention-self-bg-weight: 7%;
+  --raw-autonomous-soft: rgba(243, 210, 104, 0.14);
+  --raw-autonomous-soft-ink: rgb(243 210 104);
+  --raw-autonomous-soft-weight: 14%;
+}
+
+:root[data-theme='light'] {
+  --raw-accent-soft: rgba(241, 176, 71, 0.18);
+  --raw-accent-soft-ink: rgb(241 176 71);
+  --raw-accent-soft-weight: 18%;
+  --raw-danger-soft: rgba(179, 33, 48, 0.1);
+  --raw-danger-soft-ink: rgb(179 33 48);
+  --raw-danger-soft-weight: 10%;
+  --raw-warning-soft: rgba(150, 70, 9, 0.1);
+  --raw-warning-soft-ink: rgb(150 70 9);
+  --raw-warning-soft-weight: 10%;
+  --raw-success-soft: rgba(29, 104, 53, 0.1);
+  --raw-success-soft-ink: rgb(29 104 53);
+  --raw-success-soft-weight: 10%;
+  --raw-selection-bg: rgba(241, 176, 71, 0.35);
+  --raw-selection-bg-ink: rgb(241 176 71);
+  --raw-selection-bg-weight: 35%;
+  --raw-kind-ideator-soft: rgba(73, 96, 9, 0.1);
+  --raw-kind-ideator-soft-ink: rgb(73 96 9);
+  --raw-kind-ideator-soft-weight: 10%;
+  --raw-kind-worker-soft: rgba(19, 106, 85, 0.1);
+  --raw-kind-worker-soft-ink: rgb(19 106 85);
+  --raw-kind-worker-soft-weight: 10%;
+  --raw-kind-manager-soft: rgba(70, 80, 168, 0.1);
+  --raw-kind-manager-soft-ink: rgb(70 80 168);
+  --raw-kind-manager-soft-weight: 10%;
+  --raw-kind-expert-soft: rgba(108, 68, 164, 0.1);
+  --raw-kind-expert-soft-ink: rgb(108 68 164);
+  --raw-kind-expert-soft-weight: 10%;
+  --raw-kind-human-soft: rgba(241, 176, 71, 0.2);
+  --raw-kind-human-soft-ink: rgb(241 176 71);
+  --raw-kind-human-soft-weight: 20%;
+  --raw-mention-self-bg: rgba(241, 176, 71, 0.12);
+  --raw-mention-self-bg-ink: rgb(241 176 71);
+  --raw-mention-self-bg-weight: 12%;
+  --raw-autonomous-soft: rgba(232, 190, 60, 0.22);
+  --raw-autonomous-soft-ink: rgb(232 190 60);
+  --raw-autonomous-soft-weight: 22%;
+}

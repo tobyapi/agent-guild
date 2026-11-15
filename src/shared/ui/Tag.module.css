@@ -27,3 +27,10 @@
   background: var(--danger-soft);
   color: var(--danger);
 }
+
+:global(:root[data-background='active']) .tag[data-tone='warning'] {
+  background: var(--b-warning-soft);
+}
+:global(:root[data-background='active']) .tag[data-tone='danger'] {
+  background: var(--b-danger-soft);
+}

@@ -116,3 +116,14 @@
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+
+:global(:root[data-background='active']) .markdown :global(.mention) {
+  background: var(--tag-bg, var(--b-mention-bg));
+}
+
+:global(:root[data-background='active']) .markdown :global(code) {
+  --author-color-surface: var(--bg-active);
+}
+:global(:root[data-background='active']) .markdown :global(th) {
+  --author-color-surface: var(--bg-hover);
+}

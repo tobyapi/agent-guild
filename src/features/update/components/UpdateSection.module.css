@@ -38,3 +38,7 @@
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
 }
+
+:global(:root[data-background='active']) .available {
+  --surface: var(--bg-sunken);
+}

@@ -44,3 +44,7 @@
   color: var(--text-secondary);
   font-size: var(--text-sm);
 }
+
+:global(:root[data-background='active']) .grid .tile {
+  --surface: var(--bg-app);
+}

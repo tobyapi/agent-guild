@@ -72,3 +72,7 @@
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
 }
+
+:global(:root[data-background='active']) .switch[data-tone='warning'][aria-checked='true']::after {
+  --surface: var(--bg-elevated);
+}

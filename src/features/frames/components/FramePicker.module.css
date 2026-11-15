@@ -79,3 +79,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+:global(:root[data-background='active']) .tile {
+  --surface: var(--bg-input);
+}
+:global(:root[data-background='active']) .remove {
+  --surface: var(--bg-elevated);
+}

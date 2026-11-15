@@ -126,3 +126,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+:global(:root[data-background='active']) .template[aria-checked='true'] {
+  background: var(--b-accent-soft);
+}

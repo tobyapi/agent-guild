@@ -60,3 +60,11 @@
   color: var(--text-muted);
   font-weight: var(--weight-semibold);
 }
+
+:global(:root[data-background='active']) .choice[aria-pressed='true'] {
+  background: var(--b-accent-soft);
+}
+
+:global(:root[data-background='active']) .input {
+  --surface: var(--bg-input);
+}

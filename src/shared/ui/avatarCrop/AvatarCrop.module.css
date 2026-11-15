@@ -113,3 +113,10 @@
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
 }
+
+:global(:root[data-background='active']) .frame {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .preview {
+  --surface: var(--bg-sunken);
+}

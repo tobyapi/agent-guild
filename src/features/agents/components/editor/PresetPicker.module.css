@@ -70,3 +70,7 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
+
+:global(:root[data-background='active']) .search {
+  --surface: var(--bg-input);
+}

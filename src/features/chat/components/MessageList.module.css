@@ -116,3 +116,7 @@
   translate: -50% 0;
   animation: var(--animation-rise);
 }
+
+:global(:root[data-background='active']) .jump {
+  --surface: var(--bg-elevated);
+}

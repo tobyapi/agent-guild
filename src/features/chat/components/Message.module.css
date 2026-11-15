@@ -134,3 +134,23 @@
   overflow-wrap: anywhere;
   cursor: auto;
 }
+
+:global(:root[data-background='active']) .message[data-self] {
+  background: var(--b-mention-self-bg);
+}
+:global(:root[data-background='active']) .message[data-highlight='on'] {
+  background: var(--b-accent-soft);
+}
+:global(:root[data-background='active']) .error {
+  background: var(--b-danger-soft);
+}
+
+:global(:root[data-background='active']) .message[data-self] {
+  --surface: color-mix(in srgb, var(--raw-mention-self-bg-ink) var(--raw-mention-self-bg-weight), var(--bg-app));
+  background: var(--surface);
+}
+
+:global(:root[data-background='active']) .message[data-highlight='on'] {
+  --surface: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--bg-app));
+  background: var(--surface);
+}

@@ -87,3 +87,11 @@
 .send[data-ready]:hover {
   background: var(--accent-hover);
 }
+
+:global(:root[data-background='active']) .composer[data-dragging] {
+  background: var(--b-accent-soft);
+}
+
+:global(:root[data-background='active']) .composer {
+  --surface: var(--bg-input);
+}

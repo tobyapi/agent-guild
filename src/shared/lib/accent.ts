@@ -15,7 +15,7 @@ export function accentVars(accent: string | null | undefined): AccentVars | unde
   if (!accent || !TOKEN_NAME.test(accent)) return undefined;
   return {
     '--tag-fg': `var(--kind-${accent}, var(--kind-neutral))`,
-    '--tag-bg': `var(--kind-${accent}-soft, var(--kind-neutral-soft))`,
+    '--tag-bg': `var(--b-kind-${accent}-soft, var(--kind-${accent}-soft, var(--kind-neutral-soft)))`,
   };
 }
 

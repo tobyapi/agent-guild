@@ -56,3 +56,7 @@
   border-color: var(--accent);
   background: var(--accent-soft);
 }
+
+:global(:root[data-background='active']) .card.checked {
+  background: var(--b-accent-soft);
+}

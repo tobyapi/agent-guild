@@ -37,3 +37,20 @@
   color: var(--text-secondary);
   font-weight: var(--weight-regular);
 }
+
+:global(:root[data-background='active']) .banner[data-state='unavailable'] {
+  background: var(--b-danger-soft);
+}
+
+:global(:root[data-background='active']) .banner {
+  position: relative;
+  z-index: var(--z-content);
+}
+:global(:root[data-background='active']) .banner[data-state='unavailable'] {
+  --surface: var(--bg-app);
+  background: var(--b-danger-soft);
+}
+
+:global(:root[data-background='active']) .banner {
+  --surface: var(--bg-panel);
+}

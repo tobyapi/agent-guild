@@ -1,0 +1,108 @@
+/* Accent variants of the original state colors. */
+:root[data-accent='vermilion'] {
+  --raw-accent-soft: rgba(255, 143, 107, 0.14);
+  --raw-accent-soft-ink: rgb(255 143 107);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(255, 143, 107, 0.3);
+  --raw-selection-bg-ink: rgb(255 143 107);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-accent='sakura'] {
+  --raw-accent-soft: rgba(245, 158, 196, 0.14);
+  --raw-accent-soft-ink: rgb(245 158 196);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(245, 158, 196, 0.3);
+  --raw-selection-bg-ink: rgb(245 158 196);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-accent='green'] {
+  --raw-accent-soft: rgba(143, 214, 138, 0.14);
+  --raw-accent-soft-ink: rgb(143 214 138);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(143, 214, 138, 0.3);
+  --raw-selection-bg-ink: rgb(143 214 138);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-accent='sky'] {
+  --raw-accent-soft: rgba(130, 185, 255, 0.14);
+  --raw-accent-soft-ink: rgb(130 185 255);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(130, 185, 255, 0.3);
+  --raw-selection-bg-ink: rgb(130 185 255);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-accent='violet'] {
+  --raw-accent-soft: rgba(185, 163, 255, 0.14);
+  --raw-accent-soft-ink: rgb(185 163 255);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(185, 163, 255, 0.3);
+  --raw-selection-bg-ink: rgb(185 163 255);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-accent='silver'] {
+  --raw-accent-soft: rgba(200, 205, 214, 0.14);
+  --raw-accent-soft-ink: rgb(200 205 214);
+  --raw-accent-soft-weight: 14%;
+  --raw-selection-bg: rgba(200, 205, 214, 0.3);
+  --raw-selection-bg-ink: rgb(200 205 214);
+  --raw-selection-bg-weight: 30%;
+}
+
+:root[data-theme='light'][data-accent='vermilion'] {
+  --raw-accent-soft: rgba(247, 142, 102, 0.18);
+  --raw-accent-soft-ink: rgb(247 142 102);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(247, 142, 102, 0.35);
+  --raw-selection-bg-ink: rgb(247 142 102);
+  --raw-selection-bg-weight: 35%;
+}
+
+:root[data-theme='light'][data-accent='sakura'] {
+  --raw-accent-soft: rgba(244, 160, 196, 0.18);
+  --raw-accent-soft-ink: rgb(244 160 196);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(244, 160, 196, 0.35);
+  --raw-selection-bg-ink: rgb(244 160 196);
+  --raw-selection-bg-weight: 35%;
+}
+
+:root[data-theme='light'][data-accent='green'] {
+  --raw-accent-soft: rgba(134, 207, 123, 0.18);
+  --raw-accent-soft-ink: rgb(134 207 123);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(134, 207, 123, 0.35);
+  --raw-selection-bg-ink: rgb(134 207 123);
+  --raw-selection-bg-weight: 35%;
+}
+
+:root[data-theme='light'][data-accent='sky'] {
+  --raw-accent-soft: rgba(134, 185, 245, 0.18);
+  --raw-accent-soft-ink: rgb(134 185 245);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(134, 185, 245, 0.35);
+  --raw-selection-bg-ink: rgb(134 185 245);
+  --raw-selection-bg-weight: 35%;
+}
+
+:root[data-theme='light'][data-accent='violet'] {
+  --raw-accent-soft: rgba(184, 161, 246, 0.18);
+  --raw-accent-soft-ink: rgb(184 161 246);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(184, 161, 246, 0.35);
+  --raw-selection-bg-ink: rgb(184 161 246);
+  --raw-selection-bg-weight: 35%;
+}
+
+:root[data-theme='light'][data-accent='silver'] {
+  --raw-accent-soft: rgba(197, 202, 211, 0.18);
+  --raw-accent-soft-ink: rgb(197 202 211);
+  --raw-accent-soft-weight: 18%;
+  --raw-selection-bg: rgba(197, 202, 211, 0.35);
+  --raw-selection-bg-ink: rgb(197 202 211);
+  --raw-selection-bg-weight: 35%;
+}

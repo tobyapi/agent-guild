@@ -75,3 +75,10 @@
   display: flex;
   justify-content: flex-end;
 }
+
+:global(:root[data-background='active']) .emblem {
+  --surface: var(--bg-input);
+}
+:global(:root[data-background='active']) .option {
+  --surface: var(--bg-input);
+}

@@ -71,3 +71,7 @@
   line-height: var(--leading-snug);
   white-space: pre-wrap;
 }
+
+:global(:root[data-background='active']) .viewerBody {
+  --surface: var(--bg-sunken);
+}

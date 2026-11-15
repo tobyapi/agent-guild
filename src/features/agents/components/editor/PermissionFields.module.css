@@ -66,3 +66,7 @@
   margin: var(--space-1) 0 0;
   padding-inline-start: var(--space-4);
 }
+
+:global(:root[data-background='active']) .notice {
+  background: var(--b-warning-soft);
+}

@@ -68,3 +68,10 @@
   font-size: var(--text-sm);
   line-height: var(--leading-snug);
 }
+
+:global(:root[data-background='active']) .problem[data-tone='warning'] {
+  background: var(--b-warning-soft);
+}
+:global(:root[data-background='active']) .problem[data-tone='danger'] {
+  background: var(--b-danger-soft);
+}

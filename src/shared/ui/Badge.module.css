@@ -47,3 +47,19 @@
   background: var(--tag-bg, var(--kind-neutral-soft));
   color: var(--tag-fg, var(--kind-neutral));
 }
+
+:global(:root[data-background='active']) .accent {
+  background: var(--b-accent-soft);
+}
+:global(:root[data-background='active']) .danger {
+  background: var(--b-danger-soft);
+}
+:global(:root[data-background='active']) .warning {
+  background: var(--b-warning-soft);
+}
+:global(:root[data-background='active']) .autonomous {
+  background: var(--b-autonomous-soft);
+}
+:global(:root[data-background='active']) .tinted {
+  background: var(--tag-bg, var(--b-kind-neutral-soft));
+}

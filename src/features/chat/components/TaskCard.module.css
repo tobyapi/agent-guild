@@ -137,3 +137,7 @@
   color: var(--text-primary);
   text-decoration-color: currentColor;
 }
+
+:global(:root[data-background='active']) .card[data-state='done'] .state {
+  background: var(--b-success-soft);
+}

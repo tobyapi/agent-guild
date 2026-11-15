@@ -123,3 +123,17 @@
   margin-inline: auto;
   object-fit: contain;
 }
+
+:global(:root[data-background='active']) .diagram {
+  background: var(--bg-sunken);
+}
+
+:global(:root[data-background='active']) .mediaGate {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .mediaThumb {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .video {
+  --surface: var(--bg-sunken);
+}

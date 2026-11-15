@@ -23,3 +23,7 @@
   line-height: var(--leading-normal);
   word-break: auto-phrase;
 }
+
+:global(:root[data-background='active']) .screen {
+  --surface: var(--bg-sidebar);
+}

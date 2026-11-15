@@ -1,0 +1,46 @@
+/* Recompute B at its consumer so inherited --surface tracks cards, inputs and code. */
+:root[data-background='active'],
+:root[data-background='active'] * {
+  --b-accent-soft: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--surface));
+  --b-autonomous-soft: color-mix(
+    in srgb,
+    var(--raw-autonomous-soft-ink) var(--raw-autonomous-soft-weight),
+    var(--surface)
+  );
+  --b-danger-soft: color-mix(in srgb, var(--raw-danger-soft-ink) var(--raw-danger-soft-weight), var(--surface));
+  --b-kind-expert-soft: color-mix(
+    in srgb,
+    var(--raw-kind-expert-soft-ink) var(--raw-kind-expert-soft-weight),
+    var(--surface)
+  );
+  --b-kind-human-soft: color-mix(
+    in srgb,
+    var(--raw-kind-human-soft-ink) var(--raw-kind-human-soft-weight),
+    var(--surface)
+  );
+  --b-kind-ideator-soft: color-mix(
+    in srgb,
+    var(--raw-kind-ideator-soft-ink) var(--raw-kind-ideator-soft-weight),
+    var(--surface)
+  );
+  --b-kind-manager-soft: color-mix(
+    in srgb,
+    var(--raw-kind-manager-soft-ink) var(--raw-kind-manager-soft-weight),
+    var(--surface)
+  );
+  --b-kind-worker-soft: color-mix(
+    in srgb,
+    var(--raw-kind-worker-soft-ink) var(--raw-kind-worker-soft-weight),
+    var(--surface)
+  );
+  --b-mention-self-bg: color-mix(
+    in srgb,
+    var(--raw-mention-self-bg-ink) var(--raw-mention-self-bg-weight),
+    var(--surface)
+  );
+  --b-selection-bg: color-mix(in srgb, var(--raw-selection-bg-ink) var(--raw-selection-bg-weight), var(--surface));
+  --b-success-soft: color-mix(in srgb, var(--raw-success-soft-ink) var(--raw-success-soft-weight), var(--surface));
+  --b-warning-soft: color-mix(in srgb, var(--raw-warning-soft-ink) var(--raw-warning-soft-weight), var(--surface));
+  --b-kind-neutral-soft: var(--bg-active);
+  --b-mention-bg: var(--b-kind-neutral-soft);
+}

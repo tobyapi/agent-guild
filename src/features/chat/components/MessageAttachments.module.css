@@ -96,3 +96,10 @@
   margin-inline: auto;
   object-fit: contain;
 }
+
+:global(:root[data-background='active']) .thumb {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .file {
+  --surface: var(--bg-sunken);
+}

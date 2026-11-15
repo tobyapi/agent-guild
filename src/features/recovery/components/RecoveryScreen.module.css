@@ -94,3 +94,13 @@
   font-size: var(--text-xs);
   white-space: pre-wrap;
 }
+
+:global(:root[data-background='active']) .screen {
+  --surface: var(--bg-sidebar);
+}
+:global(:root[data-background='active']) .path {
+  --surface: var(--bg-sunken);
+}
+:global(:root[data-background='active']) .message {
+  --surface: var(--bg-sunken);
+}

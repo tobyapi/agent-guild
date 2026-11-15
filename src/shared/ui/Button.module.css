@@ -121,3 +121,7 @@
   background: var(--bg-active);
   color: var(--text-primary);
 }
+
+:global(:root[data-background='active']) .danger {
+  background: var(--b-danger-soft);
+}
