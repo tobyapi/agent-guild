@@ -5,7 +5,10 @@ use super::theme_backdrop_structure::recipe;
 
 fn alpha(envelope: ColorEnvelope, surface: [f64; 3], text: [f64; 3]) -> f64 {
     let states = [TextState { text: Rgba { rgb: text, alpha: 1.0 }, overlays: vec![] }];
-    let result = resolve_text_protection(envelope, Some(surface), &states, false).unwrap();
+    let result = match resolve_text_protection(envelope, Some(surface), &states, false) {
+        Ok(result) => result,
+        Err(error) => panic!("expected a valid protection: {error:?}"),
+    };
     assert!(result.verified);
     result.alpha
 }
@@ -67,7 +70,9 @@ fn red_green_midpoint_is_inside_box_and_darker_than_either_endpoint() {
     }
     let luminance = (0.2126 + 0.7152) * ((0.5_f64 + 0.055) / 1.055).powf(2.4);
     assert!((luminance - 0.198587).abs() < 0.000001);
-    assert!(luminance < 0.2126 && luminance < 0.7152);
+    for endpoint in [0.2126, 0.7152] {
+        assert!(luminance < endpoint);
+    }
     // A background equal to the text must not pass at alpha zero.
     assert!(alpha(envelope, [0.0; 3], midpoint) > 0.0);
 }
