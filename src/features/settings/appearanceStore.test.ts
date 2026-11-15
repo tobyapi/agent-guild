@@ -52,7 +52,14 @@ describe('appearance lifecycle', () => {
   it('tracks legacy background sources and clears stale source attributes for none', () => {
     const h = appearanceHarness();
     h.controller.init();
-    h.root.dataset.backgroundSource = 'generated';
+    h.controller.setPreference({
+      ...defaultAppearance(),
+      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
+    });
+    expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'generated' });
+    expect(JSON.parse(h.values.get(KEY)!)).toMatchObject({
+      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
+    });
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'image', assetId: 'dawn' } });
     expect(h.root.dataset).toMatchObject({ background: 'active', backgroundSource: 'image' });
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'scene', sceneId: 'aurora' } });

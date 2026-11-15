@@ -6,10 +6,17 @@ import styles from './AccentPicker.module.css';
 
 const choices: ReadonlyArray<{
   value: string;
-  label: 'backgroundDefault' | 'backgroundNone' | 'backgroundDawn' | 'backgroundNight' | 'backgroundAurora';
+  label:
+    | 'backgroundDefault'
+    | 'backgroundNone'
+    | 'backgroundDawn'
+    | 'backgroundNight'
+    | 'backgroundAurora'
+    | 'backgroundTurtle';
   background: BackgroundSpec | null;
 }> = [
   { value: 'default', label: 'backgroundDefault', background: null },
+  { value: 'tile-turtle', label: 'backgroundTurtle', background: { kind: 'generated', presetId: 'tile-turtle' } },
   { value: 'none', label: 'backgroundNone', background: { kind: 'none' } },
   { value: 'dawn', label: 'backgroundDawn', background: { kind: 'image', assetId: 'dawn' } },
   { value: 'night', label: 'backgroundNight', background: { kind: 'image', assetId: 'night' } },
@@ -26,7 +33,9 @@ export function BackgroundPicker() {
         ? background.assetId
         : background.kind === 'scene'
           ? background.sceneId
-          : 'none';
+          : background.kind === 'generated'
+            ? background.presetId
+            : 'none';
   return (
     <>
       <SelectField

@@ -46,6 +46,8 @@ function parseBackground(value: unknown): AppearancePreference['backgroundOverri
     return resolveBackground({ kind: 'image', assetId: value.assetId });
   if (value.kind === 'scene' && typeof value.sceneId === 'string')
     return resolveBackground({ kind: 'scene', sceneId: value.sceneId });
+  if (value.kind === 'generated' && typeof value.presetId === 'string')
+    return resolveBackground({ kind: 'generated', presetId: value.presetId });
   throw new AppearanceValidationError('invalid background kind');
 }
 

@@ -11,6 +11,7 @@ export const ja = {
   accentSilver: '銀',
   backgroundLabel: '背景',
   backgroundDefault: 'テーマの既定',
+  backgroundTurtle: '生成背景・ウミガメ',
   backgroundNone: 'なし',
   backgroundDawn: '朝の丘（明るい静止画）',
   backgroundNight: '夜の丘（暗い静止画）',

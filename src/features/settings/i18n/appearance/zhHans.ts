@@ -13,6 +13,7 @@ export const zhHans: Messages<typeof ja> = {
   accentSilver: '银色',
   backgroundLabel: '背景',
   backgroundDefault: '主题默认',
+  backgroundTurtle: '生成背景 · 海龟',
   backgroundNone: '无',
   backgroundDawn: '晨间山丘（明亮图片）',
   backgroundNight: '夜间山丘（暗色图片）',

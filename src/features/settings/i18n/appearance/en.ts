@@ -13,6 +13,7 @@ export const en: Messages<typeof ja> = {
   accentSilver: 'Silver',
   backgroundLabel: 'Background',
   backgroundDefault: 'Theme default',
+  backgroundTurtle: 'Generated · Sea turtle',
   backgroundNone: 'None',
   backgroundDawn: 'Dawn hills (light image)',
   backgroundNight: 'Night hills (dark image)',

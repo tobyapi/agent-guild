@@ -21,6 +21,7 @@ it('keeps the active chat, draft, scroll node and focus while switching a single
   input.focus();
   log.scrollTop = 123;
   for (const background of [
+    { kind: 'generated', presetId: 'tile-turtle' },
     { kind: 'image', assetId: 'dawn' },
     { kind: 'image', assetId: 'night' },
     { kind: 'scene', sceneId: 'aurora' },
@@ -34,7 +35,7 @@ it('keeps the active chat, draft, scroll node and focus while switching a single
     expect((input as HTMLTextAreaElement).value).toBe('background draft');
     expect(document.activeElement).toBe(input);
     expect(log.scrollTop).toBe(123);
-    expect(document.querySelectorAll('[data-asset], [data-scene]').length).toBe(
+    expect(document.querySelectorAll('[data-asset], [data-scene], [data-generated]').length).toBe(
       background && background.kind !== 'none' ? 1 : 0,
     );
   }

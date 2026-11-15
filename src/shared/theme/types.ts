@@ -7,7 +7,8 @@ export type MotionPreference = 'system' | 'off';
 export type BackgroundSpec =
   | { readonly kind: 'none' }
   | { readonly kind: 'image'; readonly assetId: string }
-  | { readonly kind: 'scene'; readonly sceneId: string };
+  | { readonly kind: 'scene'; readonly sceneId: string }
+  | { readonly kind: 'generated'; readonly presetId: string };
 
 export interface AppearancePreference {
   readonly version: 1;

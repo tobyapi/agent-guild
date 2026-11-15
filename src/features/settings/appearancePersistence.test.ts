@@ -54,6 +54,20 @@ describe('legacy appearance migration', () => {
 });
 
 describe('invalid appearance recovery', () => {
+  it('loads a bundled generated ID while discarding embedded recipe fields', () => {
+    const h = appearanceHarness({
+      [KEY]: JSON.stringify({
+        ...defaultAppearance(),
+        backgroundOverride: { kind: 'generated', presetId: 'tile-turtle', recipe: { untrusted: true } },
+      }),
+    });
+    h.controller.init();
+    expect(h.controller.store.getState().preference.backgroundOverride).toEqual({
+      kind: 'generated',
+      presetId: 'tile-turtle',
+    });
+    expect(h.root.dataset.backgroundSource).toBe('generated');
+  });
   it.each([
     ['{bad', 'malformed JSON'],
     ['{"version":99}', 'unsupported appearance version'],
@@ -112,6 +126,7 @@ describe('invalid appearance recovery', () => {
   it.each([
     { kind: 'image', assetId: 'missing' },
     { kind: 'scene', sceneId: 'missing' },
+    { kind: 'generated', presetId: 'missing' },
   ])('disables missing background references without losing other settings', (backgroundOverride) => {
     const h = appearanceHarness({
       [KEY]: JSON.stringify({ ...defaultAppearance(), accentOverride: 'sky', backgroundOverride }),

@@ -13,6 +13,7 @@ export const zhHant: Messages<typeof ja> = {
   accentSilver: '銀色',
   backgroundLabel: '背景',
   backgroundDefault: '主題預設',
+  backgroundTurtle: '生成背景 · 海龜',
   backgroundNone: '無',
   backgroundDawn: '晨間山丘（明亮圖片）',
   backgroundNight: '夜間山丘（暗色圖片）',

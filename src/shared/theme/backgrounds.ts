@@ -1,3 +1,4 @@
+import { GENERATED_BACKGROUND_IDS } from './generatedBackgrounds';
 import type { BackgroundSpec } from './types';
 
 export const BACKGROUND_ASSET_IDS = ['dawn', 'night'] as const;
@@ -7,5 +8,7 @@ export const BACKGROUND_SCENE_IDS = ['aurora'] as const;
 export function resolveBackground(background: BackgroundSpec): BackgroundSpec {
   if (background.kind === 'image' && BACKGROUND_ASSET_IDS.some((id) => id === background.assetId)) return background;
   if (background.kind === 'scene' && BACKGROUND_SCENE_IDS.some((id) => id === background.sceneId)) return background;
+  if (background.kind === 'generated' && GENERATED_BACKGROUND_IDS.some((id) => id === background.presetId))
+    return background;
   return { kind: 'none' };
 }
