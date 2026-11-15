@@ -95,10 +95,12 @@ describe('tile turtle vertical slice', () => {
   ] as const)('preserves square pixels in a %s × %s viewport', (width, height) => {
     const model = buildTileTurtleBackdrop(fixture, 'light', { viewport: [width, height] });
     const { bounds } = model.skeleton.svg.children[0]!.motionGroup.artwork;
-    expect(bounds.width * width).toBeCloseTo(bounds.height * height, 8);
+    const layout = model.artworks[0]!.layout;
+    expect(layout.columns * layout.cellWidth).toBeCloseTo((bounds.width * width) / 1000);
+    expect(layout.rows * layout.cellHeight).toBeCloseTo((bounds.height * height) / 1000);
     for (const pixel of model.artworks[0]!.rectangles) {
       expect((pixel.width * bounds.width * width) / (pixel.height * bounds.height * height)).toBeCloseTo(
-        pixel.width / pixel.height,
+        Math.round((pixel.width * bounds.width * width) / (pixel.height * bounds.height * height)),
         8,
       );
     }
@@ -112,6 +114,12 @@ describe('tile turtle vertical slice', () => {
     );
   });
 
+  it('rejects huge tile areas before expanding their nodes', () => {
+    expect(() => buildTileTurtleBackdrop(fixture, 'light', { viewport: [1e12, 1e12] })).toThrow(
+      expect.objectContaining({ field: 'layers', code: 'dom_budget_exceeded' }),
+    );
+  });
+
   it('rejects unsupported artwork instead of silently omitting it', () => {
     const recipe = structuredClone(fixture);
     recipe.layers[0]!.motif = 'tree';
@@ -120,12 +128,63 @@ describe('tile turtle vertical slice', () => {
     );
   });
 
-  it('maps density to one or four turtles while respecting the same unit square', () => {
+  it('uses density as spacing across the entire anchor', () => {
     const recipe = structuredClone(fixture);
     recipe.layers[0]!.density = 0;
     const sparse = buildTileTurtleBackdrop(recipe, 'light', props().geometry);
     recipe.layers[0]!.density = 1;
     const dense = buildTileTurtleBackdrop(recipe, 'light', props().geometry);
-    expect(dense.artworks[0]!.rectangles.length).toBe(4 * sparse.artworks[0]!.rectangles.length);
+    expect(dense.artworks[0]!.layout.columns).toBeGreaterThanOrEqual(sparse.artworks[0]!.layout.columns);
+    expect(dense.artworks[0]!.layout.rows).toBeGreaterThanOrEqual(sparse.artworks[0]!.layout.rows);
+    expect(dense.artworks[0]!.rectangles.length).toBeGreaterThan(sparse.artworks[0]!.rectangles.length);
   });
+
+  it('varies sprite placement with seed, retaining deterministic cell counts', () => {
+    const first = buildTileTurtleBackdrop({ ...fixture, seed: 0 }, 'light', props().geometry);
+    const last = buildTileTurtleBackdrop({ ...fixture, seed: 4294967295 }, 'light', props().geometry);
+    expect(first.artworks[0]!.rectangles).not.toEqual(last.artworks[0]!.rectangles);
+    expect(first.artworks[0]!.layout).toEqual(last.artworks[0]!.layout);
+  });
+
+  it('keeps additional text protection outside all layer content', () => {
+    const input = props();
+    input.geometry.textProtection = [{ x: 820, y: 820, width: 90, height: 90 }];
+    const model = buildTileTurtleBackdrop(input.recipe, input.scheme, input.geometry);
+    for (const rect of model.skeleton.svg.defs.clip.rectangles) {
+      expect(rect.x < 910 && rect.x + rect.width > 820 && rect.y < 910 && rect.y + rect.height > 820).toBe(false);
+    }
+    const doc = new DOMParser().parseFromString(render(input), 'image/svg+xml');
+    expect(doc.querySelector('svg > g')!.getAttribute('clip-path')).toBe('url(#turtle-test)');
+    expect(model.skeleton.cost.dom).toBe(doc.querySelectorAll('*').length);
+  });
+
+  it('has a head, four protruding feet, tail and shell divisions', () => {
+    expect(TURTLE_GRID[2]!.slice(6, 10)).toBe('1221');
+    for (const y of [5, 12]) {
+      expect(TURTLE_GRID[y]!.slice(1, 4)).toBe('122');
+      expect(TURTLE_GRID[y]!.slice(12, 15)).toBe('221');
+    }
+    expect(TURTLE_GRID[8]).toBe('...1221331221...');
+    expect(TURTLE_GRID[14]).toBe('.......11.......');
+  });
+
+  it.each(['left', 'right', 'bottomLeft', 'bottomRight'] as const)(
+    'fills the %s anchor without escaping its frame',
+    (anchor) => {
+      const recipe = structuredClone(fixture);
+      Object.assign(recipe.layers[0]!, { anchor, scale: 1, density: 0 });
+      const model = buildTileTurtleBackdrop(recipe, 'light', props().geometry);
+      const frame = model.skeleton.svg.children[0]!;
+      expect(frame.frame.height).toBe(anchor === 'left' || anchor === 'right' ? 1000 : 180);
+      expect(frame.motionGroup.artwork.motionEnvelope).toEqual(frame.frame);
+      const { layout, rectangles } = model.artworks[0]!;
+      expect(layout.rows).toBeGreaterThanOrEqual(anchor === 'left' || anchor === 'right' ? 3 : 1);
+      for (const rect of rectangles) {
+        expect(rect.x).toBeGreaterThan(0);
+        expect(rect.y).toBeGreaterThan(0);
+        expect(rect.x + rect.width).toBeLessThan(1);
+        expect(rect.y + rect.height).toBeLessThan(1);
+      }
+    },
+  );
 });

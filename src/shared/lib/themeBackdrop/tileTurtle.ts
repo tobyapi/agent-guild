@@ -1,4 +1,4 @@
-import { anchorBounds } from './placement';
+import { anchorBounds, placementRandom } from './placement';
 import { reject } from './checks';
 import type { BackdropGeometry } from './clipping';
 import type { ColorExpansion } from './envelope';
@@ -22,16 +22,22 @@ export function buildTileTurtleBackdrop(
 ): TileTurtleBackdrop {
   validateRecipeStructure(recipe);
   if (scheme !== 'light' && scheme !== 'dark') reject('palette', 'invalid_scheme');
-  const input = recipe as { layers: BackdropLayer[]; palette: Record<'light' | 'dark', string[]> };
+  const input = recipe as { seed: number; layers: BackdropLayer[]; palette: Record<'light' | 'dark', string[]> };
   input.layers.forEach((layer, index) => {
     if (layer.kind !== 'tile' || layer.motif !== 'turtle') reject(`layers[${index}]`, 'unsupported_artwork');
   });
   const palette = [...input.palette[scheme]];
+  const random = placementRandom(input.seed);
   const artworks = input.layers.map((layer) =>
-    buildTurtleArtwork(layer, palette.length, [
-      (anchorBounds(layer.anchor).width * geometry.viewport[0]) / 1000,
-      (anchorBounds(layer.anchor).height * geometry.viewport[1]) / 1000,
-    ]),
+    buildTurtleArtwork(
+      layer,
+      palette.length,
+      [
+        (anchorBounds(layer.anchor).width * geometry.viewport[0]) / 1000,
+        (anchorBounds(layer.anchor).height * geometry.viewport[1]) / 1000,
+      ],
+      [random(), random()],
+    ),
   );
   const content = artworks.map(({ expansion }, index) => ({
     cost: {
