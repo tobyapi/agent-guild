@@ -138,3 +138,41 @@ See [theme-backdrop-calculations.md](theme-backdrop-calculations.md) for the raw
 ## Stage 4a: SVG skeleton and seed
 
 See [theme-backdrop-skeleton.md](theme-backdrop-skeleton.md) for the pure SVG descriptor API, normalized anchor frames, deterministic seed algorithm and shell/component cost connection. Artwork, protection clips and UI integration remain outside this stage.
+
+### Stage 5a: fixed tile turtle rendering
+
+`buildTileTurtleBackdrop(recipe, scheme, geometry)` validates the Recipe, accepts only
+`tile × turtle`, builds the app-owned artwork expansion, and passes the exact counts to
+`buildBackdropSkeleton`. Other currently valid kind/motif pairs fail explicitly with
+`unsupported_artwork` in this renderer; their Recipe validation rules are unchanged.
+`TileTurtleBackdrop` in `shared/ui/theme` renders that model as React SVG elements.
+The UI adapter depends on the pure library, and the library has no React dependency.
+
+The sprite is a fixed 16×16 grid. Dots are transparent, and the three digit roles map to
+`layer.color`, `layer.color % (palette.length - 1) + 1`, and palette index 1. No external
+colors, strokes, filters, black shadows, or fonts are emitted. Palette 0 is the opaque
+full-canvas underlay and is included in the returned `ColorExpansion` with
+`usesBlackShadow=false`. This metadata is ready for later text-token protection wiring;
+this static renderer does not resolve text tokens or scrim alpha.
+
+Density below 0.5 draws one turtle; density at least 0.5 draws a 2×2 repeat inside the
+unit square. Same-role horizontal cells merge into rectangles. A single sprite uses
+52 rectangles; the shared normal example uses 208. These small fixed repeats expand
+directly to rectangles rather than an SVG pattern: no tiling occurs outside the unit
+square, no extra definition is needed, and the budget counts exactly the emitted
+primitives and DOM. The existing area-conversion formula remains unchanged for future
+components that actually emit SVG patterns. Depth is fixed to 1 and tile motion to none
+by the existing Recipe catalog. Repeated sprites preserve the unit-square safety border.
+
+The normal example has content cost 208 primitives / 208 DOM / 0 definitions / 0 moving
+groups; add one opaque-underlay rectangle, the shared four-rectangle clip and three-node
+shell, and three layer groups. Final cost: 213 primitives / 219 DOM / 1 definition /
+0 moving groups. Clipped geometry is never deducted. Text protection rectangles can
+increase the clip cost and are included through the existing skeleton calculation.
+
+Rendering preserves the stationary clipped outer `g` → translated motion `g` →
+aspect-corrected artwork `g` hierarchy. `shapeRendering=crispEdges` is set on the artwork.
+An actual CSS viewport and a document-unique `geometry.clipId` must be supplied by the
+integration; resize observation and motion playback are outside this step. Arbitrary
+CSS-size overrides without rebuilding geometry invalidate the aspect-ratio guarantee.
+The raw-JSON gate (`parseRecipeJson`) remains mandatory before admitting external JSON.
