@@ -100,7 +100,9 @@ W/H は移動の包絡を含む viewport の CSS px、w/h は transform 後の�
 ### 固定する式2: 有限個の色の組み合わせと区間による証明
 
 ```text
-lo_c = 0; hi_c = max(palette[k]_c for every k)
+C = {palette[k] for every k} union {underlay if present}
+C = C union {(0,0,0)} only if expansion.uses_black_shadow
+lo_c = min(color_c for color in C); hi_c = max(color_c for color in C)
 V(B) = { (x_R,x_G,x_B) | x_c in {lo_c, hi_c} }  (8 corners)
 over(C,a,B)_c = a*C_c + (1-a)*B_c
 L(B) = [min(v in V(B)) L(v), max(v in V(B)) L(v)]
@@ -113,9 +115,9 @@ alpha = first a in {0,0.001,...,0.999} with min_state R(F(a),G(a)) >= 4.6
 
 RGB は0..1のsRGB。各候補で最初に surface を合成し、次に状態面・入力面などの overlays を下から順に合成する。最後に指定opacityの文字を背景へ合成する。合成してから各チャンネルを `c/12.92`（c<=0.04045）または `((c+0.055)/1.055)^2.4` で線形化し、`L=0.2126R+0.7152G+0.0722B` とする。
 
-固定描画部品は palette 色と黒い固定影の sRGB source-over 合成に制限する。この制限内では alpha、境界アンチエイリアス、移動、重なり、palette 間の補間はすべて box 内にある。黒い影を全kindに含めることで過小評価を避ける。boxは凸包より広いため scrim が厚くなる場合がある。sRGB線形化と輝度は各成分で単調なので、8頂点が連続な全中間色の輝度区間を覆う。有限個のpalette端点だけのコントラスト検査では、中間色で文字色と一致するケースを取りこぼすため不可。
+Fixed drawing components use sRGB source-over mixtures of palette colors, the optional opaque underlay, and black only when the app-owned `ColorExpansion.uses_black_shadow` declares it. `underlay` is the color beneath translucent drawing, distinct from the protection surface; include it whenever present. With no underlay, the caller must ensure the drawing covers the background. Metadata must reflect all expanded components and be recomputed when components change. Non-finite/out-of-range underlay channels return `$ / invalid_expansion`. No shadow or underlay fields are added to the model Recipe. Alpha, antialiasing, motion, overlap and palette interpolation remain inside this box. The box can exceed the convex hull, so protection can still be conservative. Monotone sRGB linearization and luminance make its eight corners bound every intermediate color. Palette endpoints alone are insufficient: the sRGB red/green midpoint has L=0.198587, below both endpoint luminances (0.2126 and 0.7152); therefore a per-palette max_k search is not used.
 
-foreground/background の相関を捨てた区間で最悪値を取るため、Rは真の最小コントラストの下界である。区間が交わる場合は1とし、端点が合格しても内部に低コントラストがある可能性を合格扱いしない。文字のcoverage自体は文字opacityに含めない。色空間・合成方式・palette外の色・filter等を変える場合はこの証明を流用せず、包絡未確定として100%へ戻す。
+foreground/background の相関を捨てた区間で最悪値を取るため、Rは真の最小コントラストの下界である。区間が交わる場合は1とし、端点が合格しても内部に低コントラストがある可能性を合格扱いしない。文字のcoverage自体は文字opacityに含めない。色空間・合成方式・palette外の色・filter等を変える場合はこの証明を流用せず、包絡未確定として100%へ戻す。 Changing shadow colors also invalidates this proof; do not reuse it for colors outside the declared palette/underlay/black candidates.
 
 候補なし、またはラスタ検査不合格を通知された場合は100%の既存surfaceを検査し、4.5以上ならalpha=1、未満なら `$ / text_protection_failed` で保存・適用を拒否する。トークン未解決（surfaceなし、状態空、非有限/範囲外の色を含む）ではalpha=1かつ `verified=false` を返す。これは品質合格ではなく、保存・適用の合格条件には使えない。100%で4.5以上4.6未満はフォールバックでのみ受理する。
 

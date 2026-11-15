@@ -2,7 +2,15 @@ use serde_json::Value;
 
 use super::{validate_recipe_structure, RecipeValidationError as Error};
 
-/// Conservative sRGB box containing all palette mixtures, including black fixed shadows.
+/// Trusted application colors used beneath or alongside palette-based drawing.
+/// These are expansion metadata, never model-supplied Recipe fields.
+#[derive(Debug, Clone, Copy)]
+pub struct ColorExpansion {
+    pub underlay: Option<[f64; 3]>,
+    pub uses_black_shadow: bool,
+}
+
+/// Conservative sRGB box containing palette, underlay and declared shadow mixtures.
 #[derive(Debug, Clone, Copy)]
 pub struct ColorEnvelope {
     pub(crate) low: [f64; 3],
@@ -10,12 +18,16 @@ pub struct ColorEnvelope {
 }
 
 impl ColorEnvelope {
-    pub fn from_recipe(recipe: &Value, scheme: &str) -> Result<Self, Error> {
+    pub fn from_recipe(recipe: &Value, scheme: &str, expansion: ColorExpansion) -> Result<Self, Error> {
         validate_recipe_structure(recipe)?;
         if !["dark", "light"].contains(&scheme) {
             return Err(Error::at("palette", "invalid_scheme"));
         }
         let colors = recipe["palette"][scheme].as_array().ok_or_else(|| Error::at("palette", "invalid_type"))?;
+        if expansion.underlay.is_some_and(|rgb| !rgb.iter().all(|v| v.is_finite() && (0.0..=1.0).contains(v))) {
+            return Err(Error::root("invalid_expansion"));
+        }
+        let mut low = [1.0_f64; 3];
         let mut high = [0.0_f64; 3];
         for color in colors {
             let text = color.as_str().ok_or_else(|| Error::at("palette", "invalid_color"))?;
@@ -23,10 +35,21 @@ impl ColorEnvelope {
                 let start = 1 + channel * 2;
                 let byte = u8::from_str_radix(&text[start..start + 2], 16)
                     .map_err(|_| Error::at("palette", "invalid_color"))?;
-                *maximum = maximum.max(f64::from(byte) / 255.0);
+                let value = f64::from(byte) / 255.0;
+                low[channel] = low[channel].min(value);
+                *maximum = maximum.max(value);
             }
         }
-        Ok(Self { low: [0.0; 3], high })
+        if let Some(underlay) = expansion.underlay {
+            for (channel, value) in underlay.into_iter().enumerate() {
+                low[channel] = low[channel].min(value);
+                high[channel] = high[channel].max(value);
+            }
+        }
+        if expansion.uses_black_shadow {
+            low = [0.0; 3];
+        }
+        Ok(Self { low, high })
     }
 
     /// Eight corners bound every convex sRGB mixture, not just sampled palette endpoints.
