@@ -7,3 +7,6 @@ export { ColorEnvelope } from './envelope';
 export type { Rgb, ColorExpansion } from './envelope';
 export { resolveTextProtection } from './protection';
 export type { Rgba, TextState, Protection } from './protection';
+export { buildBackdropSkeleton } from './skeleton';
+export type { BackdropLayer, SvgLayerFrame, BackdropSkeleton } from './skeleton';
+export type { BackdropAnchor, PlacementRect } from './placement';
