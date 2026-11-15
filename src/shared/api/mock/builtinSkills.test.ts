@@ -29,10 +29,9 @@ describe('モックの内蔵スキル', () => {
     expect(builtins.every((skill) => !skill.description.startsWith('"') && !skill.description.startsWith("'"))).toBe(
       true,
     );
-    expect(builtins.find((skill) => skill.name === 'easily-amazed')).toMatchObject({
-      description: expect.stringContaining('An easily amazed idea scout'),
-      files: ['references/EXAMPLES.md', 'references/INTEGRATION.md'],
-    });
+    const scout = builtins.find((skill) => skill.name === 'easily-amazed');
+    expect(scout?.description).toContain('An easily amazed idea scout');
+    expect(scout?.files).toEqual(['references/EXAMPLES.md', 'references/INTEGRATION.md']);
     const critique = builtins.find((skill) => skill.name === 'universal-critique');
     expect(critique?.files).toContain('references/classical-methods.md');
     expect(builtins.find((skill) => skill.name === 'introspection')?.files).toEqual([]);
