@@ -63,6 +63,6 @@ function checkBudget(cost: DrawingCost): void {
   ] as const;
   COST_KEYS.forEach((key, index) => {
     if (!Number.isInteger(cost[key]) || cost[key] < 0) reject('$', 'invalid_expansion');
-    if (cost[key] > limits[index]) reject('layers', codes[index]);
+    if (cost[key] > limits[index]!) reject('layers', codes[index]!);
   });
 }
