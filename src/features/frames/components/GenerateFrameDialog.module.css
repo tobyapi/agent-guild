@@ -15,3 +15,16 @@
   color: var(--text-secondary);
   font-size: var(--text-sm);
 }
+
+:global(:root[data-background='active']) .pending {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pending {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}

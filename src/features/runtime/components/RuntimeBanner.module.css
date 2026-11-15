@@ -38,10 +38,6 @@
   font-weight: var(--weight-regular);
 }
 
-:global(:root[data-background='active']) .banner[data-state='unavailable'] {
-  background: var(--b-danger-soft);
-}
-
 :global(:root[data-background='active']) .banner {
   position: relative;
   z-index: var(--z-content);

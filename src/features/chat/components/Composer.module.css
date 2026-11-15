@@ -95,3 +95,8 @@
 :global(:root[data-background='active']) .composer {
   --surface: var(--bg-input);
 }
+
+:global(:root[data-background='active']) .composer,
+:global(:root[data-background='active']) .send {
+  transition: none;
+}

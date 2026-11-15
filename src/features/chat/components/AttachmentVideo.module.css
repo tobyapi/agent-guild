@@ -78,3 +78,7 @@
 :global(:root[data-background='active']) .video {
   --surface: var(--bg-sunken);
 }
+
+:global(:root[data-background='active']) .poster {
+  transition: none;
+}

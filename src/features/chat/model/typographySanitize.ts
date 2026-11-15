@@ -21,6 +21,7 @@ function textStyle(node: Element): string | null {
   );
   const safe = textValues(options);
   if (!safe) return null;
+  if (safe.color) node.classList.add('typeAuthorColor');
   const styles = [
     safe.color && `color:${safe.color}`,
     safe.size && `font-size:${safe.size}em`,
@@ -69,13 +70,17 @@ function mentionStyle(node: Element): string | null {
   if (node.tagName.toLowerCase() !== 'span' || !node.classList.contains('mention')) return null;
   const style = node.getAttribute('style') ?? '';
   const accent = /^--tag-fg: var\(--kind-([a-z0-9-]+), var\(--kind-neutral\)\);/.exec(style)?.[1];
-  return accent && accentStyleText(accent) === style ? style : null;
+  if (!accent) return null;
+  const canonical = accentStyleText(accent);
+  const legacy = `--tag-fg: var(--kind-${accent}, var(--kind-neutral)); --tag-bg: var(--kind-${accent}-soft, var(--kind-neutral-soft))`;
+  return style === canonical || style === legacy ? canonical : null;
 }
 
 /** DOMPurify が属性を除去した後に、検証済みの数値からだけ style を組み立てる。 */
 export function installTypographySanitizer(): void {
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
     if (node.nodeType !== 1) return;
+    node.classList.remove('typeAuthorColor');
     const tag = node.tagName.toLowerCase();
     const chipStyle = mentionStyle(node);
     node.removeAttribute('style');

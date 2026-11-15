@@ -76,3 +76,8 @@
 :global(:root[data-background='active']) .switch[data-tone='warning'][aria-checked='true']::after {
   --surface: var(--bg-elevated);
 }
+
+:global(:root[data-background='active']) .switch,
+:global(:root[data-background='active']) .switch::after {
+  transition: none;
+}

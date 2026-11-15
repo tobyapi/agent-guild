@@ -135,12 +135,6 @@
   cursor: auto;
 }
 
-:global(:root[data-background='active']) .message[data-self] {
-  background: var(--b-mention-self-bg);
-}
-:global(:root[data-background='active']) .message[data-highlight='on'] {
-  background: var(--b-accent-soft);
-}
 :global(:root[data-background='active']) .error {
   background: var(--b-danger-soft);
 }
@@ -153,4 +147,25 @@
 :global(:root[data-background='active']) .message[data-highlight='on'] {
   --surface: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--bg-app));
   background: var(--surface);
+}
+
+:global(:root[data-background='active']) .error {
+  --author-color-surface: var(--b-danger-soft);
+}
+
+:global(:root[data-background='active']) .message[data-live] {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .message[data-live] {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
+
+:global(:root[data-background='active']) .message[data-highlight='fade'] {
+  transition: none;
 }

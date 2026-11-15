@@ -114,3 +114,8 @@
     justify-self: start;
   }
 }
+
+:global(:root[data-background='active']) .mark,
+:global(:root[data-background='active']) .word {
+  transition: none;
+}

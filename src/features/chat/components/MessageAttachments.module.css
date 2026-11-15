@@ -103,3 +103,7 @@
 :global(:root[data-background='active']) .file {
   --surface: var(--bg-sunken);
 }
+
+:global(:root[data-background='active']) .file {
+  transition: none;
+}

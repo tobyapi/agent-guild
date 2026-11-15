@@ -21,7 +21,7 @@ describe('createMarkdownRenderer: Markdown', () => {
 describe('createMarkdownRenderer: メンション', () => {
   it('知っている名前を、accent の CSS 変数を組み立てた色つきのチップにする（値で分岐しない）', () => {
     expect(render('@ハル お願い')).toContain(
-      '<span class="mention" data-kind="agent" data-mention-id="hal" style="--tag-fg: var(--kind-manager, var(--kind-neutral)); --tag-bg: var(--kind-manager-soft, var(--kind-neutral-soft))">@ハル</span>',
+      '<span class="mention" data-kind="agent" data-mention-id="hal" style="--tag-fg: var(--kind-manager, var(--kind-neutral)); --tag-bg: var(--b-kind-manager-soft, var(--kind-manager-soft, var(--kind-neutral-soft)))">@ハル</span>',
     );
     expect(render('@ユーザー')).toContain(
       'data-kind="human" data-mention-id="me" style="--tag-fg: var(--kind-human, var(--kind-neutral));',

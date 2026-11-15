@@ -9,6 +9,8 @@ const darkScrims = backdrop.slice(0, backdrop.indexOf(":root[data-theme='light']
 const lightScrims = backdrop.split(":root[data-theme='light']")[1].split('}')[0];
 const rgb = (hex) => hex.match(/[\da-f]{2}/gi).map((part) => parseInt(part, 16));
 const token = (css, name) => {
+  const rational = css.match(new RegExp(`--${name}:\\s*calc\\((\\d+) / 255 \\* 100%\\);`));
+  if (rational) return `${(Number(rational[1]) / 255) * 100}%`;
   const match = css.match(new RegExp(`--${name}:\\s*(#[\\da-f]{6}|[\\d.]+%);`, 'i'));
   assert.ok(match, `missing token ${name}`);
   return match[1];

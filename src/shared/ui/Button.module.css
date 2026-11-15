@@ -125,3 +125,8 @@
 :global(:root[data-background='active']) .danger {
   background: var(--b-danger-soft);
 }
+
+:global(:root[data-background='active']) .button,
+:global(:root[data-background='active']) .iconButton {
+  transition: none;
+}

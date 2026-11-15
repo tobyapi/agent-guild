@@ -92,3 +92,7 @@
 :global(:root[data-background='active']) .box {
   --surface: var(--bg-input);
 }
+
+:global(:root[data-background='active']) .box {
+  transition: none;
+}

@@ -123,3 +123,7 @@
 :global(:root[data-background='active']) .control {
   --surface: var(--bg-input);
 }
+
+:global(:root[data-background='active']) .control {
+  transition: none;
+}

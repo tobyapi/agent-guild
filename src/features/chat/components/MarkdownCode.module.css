@@ -1,11 +1,10 @@
-/* 本文のコードブロックと差し込み口（model/markdownEmbeds.ts が書く HTML）。docs/ui-design.md §5.4。
+﻿/* 本文のコードブロックと差し込み口（model/markdownEmbeds.ts が書く HTML）。docs/ui-design.md §5.4。
    中身は sanitize 済みの HTML なので、要素とクラスは :global で指す */
 .code :global(.codeBlock) {
   overflow: hidden;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--bg-sunken);
-  --surface: var(--bg-sunken);
 }
 
 /* 見出し: 言語の名前（左）とコピーのボタン（右。React が差し込む） */
@@ -79,4 +78,8 @@
   display: inline-block;
   max-inline-size: 100%;
   vertical-align: top;
+}
+
+:global(:root[data-background='active']) .code :global(.codeBlock) {
+  --surface: var(--bg-sunken);
 }

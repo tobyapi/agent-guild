@@ -49,7 +49,7 @@ describe('sanitizeHtml（DOM のある環境）', () => {
     expect(layout?.classList.contains('typeVertical')).toBe(true);
     expect(layout?.getAttribute('style')).toBe('transform:rotate(-8deg)');
     expect(layout?.innerHTML).toContain(
-      'あの  <strong>声</strong>\n　<span class="typeText" style="color:red">あのー</span>',
+      'あの  <strong>声</strong>\n　<span class="typeText typeAuthorColor" style="color:red">あのー</span>',
     );
   });
 

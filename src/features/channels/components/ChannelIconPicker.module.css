@@ -68,3 +68,7 @@
 :global(:root[data-background='active']) .input {
   --surface: var(--bg-input);
 }
+
+:global(:root[data-background='active']) .choice {
+  transition: none;
+}

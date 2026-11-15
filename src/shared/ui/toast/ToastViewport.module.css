@@ -47,3 +47,16 @@
   line-height: var(--leading-snug);
   white-space: pre-wrap;
 }
+
+:global(:root[data-background='active']) .toast {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}

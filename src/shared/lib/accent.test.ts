@@ -5,10 +5,10 @@ describe('accentVars / accentStyleText', () => {
   it('どの値でも同じ形で CSS 変数を組み立て、トークンがなければ中立（--kind-neutral）に落ちる', () => {
     expect(accentVars('manager')).toEqual({
       '--tag-fg': 'var(--kind-manager, var(--kind-neutral))',
-      '--tag-bg': 'var(--kind-manager-soft, var(--kind-neutral-soft))',
+      '--tag-bg': 'var(--b-kind-manager-soft, var(--kind-manager-soft, var(--kind-neutral-soft)))',
     });
     expect(accentStyleText('ideator')).toBe(
-      '--tag-fg: var(--kind-ideator, var(--kind-neutral)); --tag-bg: var(--kind-ideator-soft, var(--kind-neutral-soft))',
+      '--tag-fg: var(--kind-ideator, var(--kind-neutral)); --tag-bg: var(--b-kind-ideator-soft, var(--kind-ideator-soft, var(--kind-neutral-soft)))',
     );
   });
 

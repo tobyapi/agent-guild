@@ -137,3 +137,8 @@
 :global(:root[data-background='active']) .video {
   --surface: var(--bg-sunken);
 }
+
+:global(:root[data-background='active']) .copy,
+:global(:root[data-background='active']) .mediaGate {
+  transition: none;
+}

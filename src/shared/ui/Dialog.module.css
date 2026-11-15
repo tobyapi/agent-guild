@@ -78,3 +78,18 @@
   gap: var(--space-2);
   padding: var(--space-5) var(--space-6) var(--space-6);
 }
+
+:global(:root[data-background='active']) .dialog[open],
+:global(:root[data-background='active']) .dialog::backdrop {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .dialog::backdrop {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}

@@ -42,3 +42,7 @@
 .card:hover .icon {
   color: var(--text-primary);
 }
+
+:global(:root[data-background='active']) .card {
+  transition: none;
+}

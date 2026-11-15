@@ -42,3 +42,7 @@
 :global(:root[data-background='active']) .item[aria-checked='true'] {
   --surface: var(--bg-elevated);
 }
+
+:global(:root[data-background='active']) .item {
+  transition: none;
+}

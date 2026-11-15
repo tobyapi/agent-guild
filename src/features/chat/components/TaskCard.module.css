@@ -141,3 +141,21 @@
 :global(:root[data-background='active']) .card[data-state='done'] .state {
   background: var(--b-success-soft);
 }
+
+:global(:root[data-background='active']) .card {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
+
+:global(:root[data-background='active']) .state,
+:global(:root[data-background='active']) .segment {
+  transition: none;
+}

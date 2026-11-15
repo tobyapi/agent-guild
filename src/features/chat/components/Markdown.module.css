@@ -127,3 +127,12 @@
 :global(:root[data-background='active']) .markdown :global(th) {
   --author-color-surface: var(--bg-hover);
 }
+
+:global(:root[data-background='active']) .markdown :global(.typeText.typeAuthorColor) {
+  background-color: var(--author-color-surface, var(--surface));
+  background-clip: border-box;
+  border-radius: 0;
+  padding: 0.15em 0.25em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}

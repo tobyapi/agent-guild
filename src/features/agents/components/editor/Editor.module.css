@@ -130,3 +130,7 @@
 :global(:root[data-background='active']) .template[aria-checked='true'] {
   background: var(--b-accent-soft);
 }
+
+:global(:root[data-background='active']) .template {
+  transition: none;
+}

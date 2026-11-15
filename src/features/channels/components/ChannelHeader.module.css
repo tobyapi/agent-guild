@@ -93,3 +93,7 @@
 :global(:root[data-background='active']) .stop:hover {
   background: var(--b-danger-soft);
 }
+
+:global(:root[data-background='active']) .stop {
+  transition: none;
+}

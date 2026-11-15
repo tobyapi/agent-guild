@@ -120,3 +120,16 @@
 :global(:root[data-background='active']) .jump {
   --surface: var(--bg-elevated);
 }
+
+:global(:root[data-background='active']) .jump {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jump {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}

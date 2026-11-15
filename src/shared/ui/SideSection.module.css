@@ -98,3 +98,7 @@
 .row[data-dimmed] .label {
   color: var(--text-muted);
 }
+
+:global(:root[data-background='active']) .row {
+  transition: none;
+}

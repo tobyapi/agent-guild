@@ -74,3 +74,16 @@
 :global(:root[data-background='active']) .search {
   --surface: var(--bg-input);
 }
+
+:global(:root[data-background='active']) .popover {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}

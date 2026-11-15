@@ -190,7 +190,7 @@ src/
 
 AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き、その上に3欄の地色、通常 UI、ダイアログ・toast を重ねる。背景は aria-hidden、pointer-events:none、フォーカス要素なし。負の z-index や背景指定を使った key は使わない。
 
-`--surface-chat` / `--surface-sidebar` / `--surface-members` は欄の地色専用。背景なしではそれぞれ `--bg-app` / `--bg-sidebar` / `--bg-panel` と同値。背景ありだけ各地色を透明色と混ぜ、`--scrim-chat` / `--scrim-sidebar` / `--scrim-members` をダーク89%・ライト90%とする。同梱SVGの形の明暗比1.15以上と本文・補助文字のコントラスト4.5:1以上をNodeハーネスで検査する。計算方法と実機での確認事項は `docs/theme-stage2-verification.md` を参照。要素全体の opacity は変更しない。
+`--surface-chat` / `--surface-sidebar` / `--surface-members` は欄の地色専用。背景なしではそれぞれ `--bg-app` / `--bg-sidebar` / `--bg-panel` と同値。背景ありだけ各地色を透明色と混ぜ、`--scrim-chat` / `--scrim-sidebar` / `--scrim-members` を欄別に `calc(n / 255 * 100%)` とする（chat/sidebar/members の順に dark=220/211/214、light=217/231/224）。状態の半透明色は背景active時に元色と局所面の不透明なsRGB混色Bへ切り替える。作者色spanのみ不透明な地で隔離し、文字を含むfade/riseと色transitionを止める。同梱SVGの形の明暗比1.15以上と本文・補助文字のコントラスト4.5:1以上をNodeハーネスで検査する。計算方法と実機での確認事項は `docs/theme-stage2-verification.md` を参照。要素全体の opacity は変更しない。
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
