@@ -101,12 +101,18 @@
   transition: none;
 }
 
-@media (prefers-reduced-transparency: no-preference) {
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']) .composer:not([data-dragging]) {
-      background: color-mix(in srgb, var(--bg-input) var(--glass-card-weight), transparent);
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']))
+      .composer:not([data-dragging]) {
+      background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
+      border-color: transparent;
       box-shadow: var(--glass-shadow);
+    }
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .composer:focus-within {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 2px;
     }
   }
 }

@@ -39,9 +39,9 @@
 }
 
 :root[data-background='active'] {
-  --surface-chat: color-mix(in srgb, var(--bg-app) var(--scrim-chat), transparent);
-  --surface-sidebar: color-mix(in srgb, var(--bg-sidebar) var(--scrim-sidebar), transparent);
-  --surface-members: color-mix(in srgb, var(--bg-panel) var(--scrim-members), transparent);
+  --surface-chat: var(--bg-app);
+  --surface-sidebar: var(--bg-sidebar);
+  --surface-members: var(--bg-panel);
   --bg-hover: color-mix(in srgb, var(--backdrop-state-ink) 5%, var(--bg-app));
   --bg-active: color-mix(in srgb, var(--backdrop-state-ink) var(--backdrop-active-weight), var(--bg-app));
   --bg-overlay: var(--backdrop-overlay);

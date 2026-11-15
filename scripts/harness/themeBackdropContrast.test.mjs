@@ -4,9 +4,6 @@ import { test } from 'node:test';
 import { JSDOM } from 'jsdom';
 
 const read = (name) => readFileSync(new URL(`../../src/shared/ui/theme/${name}`, import.meta.url), 'utf8');
-const backdrop = read('tokens-backdrop.css');
-const darkScrims = backdrop.slice(0, backdrop.indexOf(":root[data-theme='light']"));
-const lightScrims = backdrop.split(":root[data-theme='light']")[1].split('}')[0];
 const rgb = (hex) => hex.match(/[\da-f]{2}/gi).map((part) => parseInt(part, 16));
 const token = (css, name) => {
   const rational = css.match(new RegExp(`--${name}:\\s*calc\\((\\d+) / 255 \\* 100%\\);`));
@@ -73,15 +70,17 @@ function assetBounds(asset) {
 
 for (const theme of ['dark', 'light']) {
   const colors = read(theme === 'dark' ? 'tokens.css' : 'tokens-light.css');
-  const scrims = theme === 'dark' ? darkScrims : lightScrims;
+  const material = read('tokens-glass.css');
+  const scrims =
+    theme === 'dark' ? material.split('}')[0] : material.split(":root[data-theme='light']")[1].split('}')[0];
   for (const asset of ['dawn', 'night']) {
     test(`${theme} ${asset}: visible shapes and readable text on every pane`, (context) => {
       const bounds = assetBounds(asset);
       const results = [];
-      for (const [pane, surface] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
-        const alpha = parseFloat(token(scrims, `scrim-${pane}`)) / 100;
+      for (const [pane] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
+        const alpha = parseFloat(token(scrims, 'glass-veil-weight')) / 100;
         assert.ok(alpha > 0 && alpha < 1);
-        const background = rgb(token(colors, `bg-${surface}`));
+        const background = rgb(token(scrims, 'glass-veil-color'));
         const levels = bounds.map((color) => luminance(composite(background, color, alpha)));
         const shapeRatio = contrast(...levels);
         assert.ok(shapeRatio >= 1.15, `${pane}: shape ratio ${shapeRatio}`);

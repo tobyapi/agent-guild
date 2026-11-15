@@ -30,9 +30,9 @@
   text-overflow: ellipsis;
 }
 
-@media (prefers-reduced-transparency: no-preference) {
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']) .bar {
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .bar {
       background: var(--surface-chat);
     }
   }

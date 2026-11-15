@@ -5,33 +5,16 @@ import { test } from 'node:test';
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const tokens = read('src/shared/ui/theme/tokens-backdrop.css');
 
-test('three surfaces preserve original colors without a background and use theme-specific scrim density', () => {
-  const defaults = tokens.split(":root[data-background='active']")[0];
-  const generatedDark = tokens.split(":root[data-background-source='generated']")[1].split('}')[0];
-  const generatedLight = tokens.split(":root[data-theme='light'][data-background-source='generated']")[1].split('}')[0];
-  const legacyDark = tokens.split('}')[0];
-  const legacyLight = tokens.split(":root[data-theme='light']")[1].split('}')[0];
-  assert.doesNotMatch(legacyDark + legacyLight, /calc\(/);
-  assert.equal((tokens.match(/calc\(/g) ?? []).length, 6);
-  const weights = { chat: [220, 217], sidebar: [211, 231], members: [214, 224] };
-  for (const [pane, original] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
-    assert.ok(defaults.includes(`--surface-${pane}: var(--bg-${original});`));
-    assert.ok(
-      tokens.includes(
-        `--surface-${pane}: color-mix(in srgb, var(--bg-${original}) var(--scrim-${pane}), transparent);`,
-      ),
-    );
-    assert.ok(legacyDark.includes(`--scrim-${pane}: 89%;`));
-    assert.ok(legacyLight.includes(`--scrim-${pane}: 90%;`));
-    assert.ok(generatedDark.includes(`--scrim-${pane}: calc(${weights[pane][0]} / 255 * 100%);`));
-    assert.ok(generatedLight.includes(`--scrim-${pane}: calc(${weights[pane][1]} / 255 * 100%);`));
+test('surfaces default to opaque and only become transparent inside the glass guard', () => {
+  for (const [pane, surface] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
+    assert.ok(tokens.includes(`--surface-${pane}: var(--bg-${surface});`));
+    assert.ok(!tokens.includes(`--surface-${pane}: color-mix`));
   }
-  for (const [path, pane] of [
-    ['src/app/AppShell.module.css', 'chat'],
-    ['src/app/Sidebar.module.css', 'sidebar'],
-    ['src/features/channels/components/MemberPanel.module.css', 'members'],
-  ])
-    assert.ok(read(path).includes(`background: var(--surface-${pane});`));
+  const glass = read('src/shared/ui/theme/tokens-glass.css');
+  assert.ok(glass.includes('@media (prefers-reduced-transparency: no-preference)'));
+  assert.ok(glass.includes('@supports (backdrop-filter: blur(1px))'));
+  assert.ok(glass.includes(":is([data-glass='frosted'], [data-glass='liquid'])"));
+  assert.ok(glass.includes('(forced-colors: active)'));
 });
 
 test('state faces stay opaque and the actual animation is paused unless explicitly running', () => {

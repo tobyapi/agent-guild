@@ -48,10 +48,16 @@
   }
 }
 
-@media (prefers-reduced-transparency: no-preference) {
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']) .backdrop {
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .backdrop {
       filter: blur(var(--glass-background-blur));
     }
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .backdrop {
+    display: none;
   }
 }

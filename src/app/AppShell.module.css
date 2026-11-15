@@ -66,14 +66,16 @@
   --surface: var(--bg-app);
 }
 
-@media (prefers-reduced-transparency: no-preference) {
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']) .main {
-      background: color-mix(in srgb, var(--bg-app) var(--glass-margin-weight), transparent);
-    }
-
-    :global(:root[data-background='active']) .empty {
-      background: var(--surface-chat);
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .shell::after {
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-backdrop);
+      pointer-events: none;
+      content: '';
+      background: var(--glass-veil);
+      backdrop-filter: var(--glass-pane-filter);
     }
   }
 }

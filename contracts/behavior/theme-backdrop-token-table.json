@@ -29,22 +29,12 @@
     {
       "file": "src/app/AppShell.module.css",
       "line": 71,
-      "expression": ":global(:root[data-background='active']) .main {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .shell::after {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 72,
-      "expression": "background: color-mix(in srgb, var(--bg-app) var(--glass-margin-weight), transparent);"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 75,
-      "expression": ":global(:root[data-background='active']) .empty {"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 76,
-      "expression": "background: var(--surface-chat);"
+      "line": 77,
+      "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/app/Sidebar.module.css",
@@ -64,7 +54,12 @@
     {
       "file": "src/app/Sidebar.module.css",
       "line": 43,
-      "expression": ":global(:root[data-background='active']) .sidebar {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .sidebar {"
+    },
+    {
+      "file": "src/app/Sidebar.module.css",
+      "line": 47,
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .brand {"
     },
     {
       "file": "src/app/Sidebar.tsx",
@@ -444,12 +439,12 @@
     {
       "file": "src/features/agents/components/editor/PresetPicker.module.css",
       "line": 93,
-      "expression": ":global(:root[data-background='active']) .popover {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .popover {"
     },
     {
       "file": "src/features/agents/components/editor/PresetPicker.module.css",
       "line": 94,
-      "expression": "background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);"
+      "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/features/agents/components/editor/TagField.module.css",
@@ -699,7 +694,7 @@
     {
       "file": "src/features/channels/components/ChannelHeader.module.css",
       "line": 103,
-      "expression": ":global(:root[data-background='active']) .header {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .header {"
     },
     {
       "file": "src/features/channels/components/ChannelHeader.module.css",
@@ -824,12 +819,17 @@
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
       "line": 139,
-      "expression": ":global(:root[data-background='active']) .panel {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .panel {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
       "line": 140,
-      "expression": "background: color-mix(in srgb, var(--bg-panel) var(--glass-members-weight), transparent);"
+      "expression": "background: var(--surface-members);"
+    },
+    {
+      "file": "src/features/channels/components/MemberPanel.module.css",
+      "line": 144,
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .foot {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.tsx",
@@ -859,7 +859,7 @@
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
       "line": 35,
-      "expression": ":global(:root[data-background='active']) .bar {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .bar {"
     },
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
@@ -1124,12 +1124,17 @@
     {
       "file": "src/features/chat/components/Composer.module.css",
       "line": 106,
-      "expression": ":global(:root[data-background='active']) .composer:not([data-dragging]) {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']))"
     },
     {
       "file": "src/features/chat/components/Composer.module.css",
-      "line": 107,
-      "expression": "background: color-mix(in srgb, var(--bg-input) var(--glass-card-weight), transparent);"
+      "line": 108,
+      "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/features/chat/components/Composer.module.css",
+      "line": 113,
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .composer:focus-within {"
     },
     {
       "file": "src/features/chat/components/Markdown.module.css",
@@ -1329,12 +1334,12 @@
     {
       "file": "src/features/chat/components/MentionSuggestions.module.css",
       "line": 107,
-      "expression": ":global(:root[data-background='active']) .popover {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .popover {"
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.module.css",
       "line": 108,
-      "expression": "background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);"
+      "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.tsx",
@@ -1480,16 +1485,6 @@
       "file": "src/features/chat/components/Message.module.css",
       "line": 169,
       "expression": ":global(:root[data-background='active']) .message[data-highlight='fade'] {"
-    },
-    {
-      "file": "src/features/chat/components/Message.module.css",
-      "line": 175,
-      "expression": ":global(:root[data-background='active']) .message[data-human]:not([data-self]):not([data-highlight]) {"
-    },
-    {
-      "file": "src/features/chat/components/Message.module.css",
-      "line": 176,
-      "expression": "background: color-mix(in srgb, var(--bg-app) var(--glass-card-weight), transparent);"
     },
     {
       "file": "src/features/chat/components/MessageAttachments.module.css",
@@ -1639,27 +1634,12 @@
     {
       "file": "src/features/chat/components/MessageList.module.css",
       "line": 139,
-      "expression": ":global(:root[data-background='active']) .frame {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .jump {"
     },
     {
       "file": "src/features/chat/components/MessageList.module.css",
       "line": 140,
-      "expression": "background: linear-gradient("
-    },
-    {
-      "file": "src/features/chat/components/MessageList.module.css",
-      "line": 149,
-      "expression": ":global(:root[data-background='active']) .content {"
-    },
-    {
-      "file": "src/features/chat/components/MessageList.module.css",
-      "line": 154,
-      "expression": ":global(:root[data-background='active']) .jump {"
-    },
-    {
-      "file": "src/features/chat/components/MessageList.module.css",
-      "line": 155,
-      "expression": "background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);"
+      "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/features/chat/components/PendingAttachments.module.css",
@@ -3164,21 +3144,21 @@
     {
       "file": "src/shared/ui/Dialog.module.css",
       "line": 99,
-      "expression": ":global(:root[data-background='active']) .dialog {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .dialog {"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
       "line": 100,
-      "expression": "background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);"
-    },
-    {
-      "file": "src/shared/ui/Dialog.module.css",
-      "line": 105,
-      "expression": ":global(:root[data-background='active']) .dialog::backdrop {"
+      "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
       "line": 106,
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .dialog::backdrop {"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 107,
       "expression": "background: color-mix(in srgb, var(--backdrop-overlay) 40%, transparent);"
     },
     {
@@ -3609,7 +3589,7 @@
     {
       "file": "src/shared/ui/theme/ThemeBackdrop.module.css",
       "line": 53,
-      "expression": ":global(:root[data-background='active']) .backdrop {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .backdrop {"
     },
     {
       "file": "src/shared/ui/theme/global.css",
@@ -4464,17 +4444,17 @@
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 42,
-      "expression": "--surface-chat: color-mix(in srgb, var(--bg-app) var(--scrim-chat), transparent);"
+      "expression": "--surface-chat: var(--bg-app);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 43,
-      "expression": "--surface-sidebar: color-mix(in srgb, var(--bg-sidebar) var(--scrim-sidebar), transparent);"
+      "expression": "--surface-sidebar: var(--bg-sidebar);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
       "line": 44,
-      "expression": "--surface-members: color-mix(in srgb, var(--bg-panel) var(--scrim-members), transparent);"
+      "expression": "--surface-members: var(--bg-panel);"
     },
     {
       "file": "src/shared/ui/theme/tokens-backdrop.css",
@@ -4548,68 +4528,103 @@
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 3,
+      "line": 4,
       "expression": "--glass-background-blur: 12px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 4,
+      "line": 5,
       "expression": "--glass-pane-filter: blur(18px) saturate(1.02);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 5,
+      "line": 6,
       "expression": "--glass-card-filter: blur(12px) saturate(1.02);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 6,
-      "expression": "--glass-reading-width: 860px;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 7,
-      "expression": "--glass-feather: 48px;"
+      "expression": "--glass-veil-color: #080a0e;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 8,
-      "expression": "--glass-card-weight: 98%;"
+      "expression": "--glass-veil-weight: 84%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 9,
-      "expression": "--glass-margin-weight: 18%;"
+      "expression": "--glass-veil: color-mix(in srgb, var(--glass-veil-color) var(--glass-veil-weight), transparent);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 10,
-      "expression": "--glass-members-weight: var(--scrim-members);"
+      "expression": "--glass-edge: rgba(255, 255, 255, 0.12);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 11,
-      "expression": "--glass-edge: rgba(255, 255, 255, 0.18);"
+      "expression": "--glass-shadow: inset 0 0 0 1px var(--glass-edge), 0 8px 24px rgba(0, 0, 0, 0.25);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 12,
-      "expression": "--glass-shadow: inset 0 1px 0 var(--glass-edge), 0 8px 28px rgba(0, 0, 0, 0.12);"
+      "line": 15,
+      "expression": "--glass-veil-color: #ffffff;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 16,
+      "expression": "--glass-veil-weight: 90%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
       "line": 17,
-      "expression": "--glass-members-weight: calc(215 / 255 * 100%);"
+      "expression": "--glass-edge: rgba(15, 20, 30, 0.1);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 21,
-      "expression": "--glass-edge: rgba(255, 255, 255, 0.65);"
+      "line": 18,
+      "expression": "--glass-shadow: inset 0 0 0 1px var(--glass-edge), 0 8px 24px rgba(20, 30, 50, 0.12);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 22,
-      "expression": "--glass-shadow: inset 0 1px 0 var(--glass-edge), 0 8px 28px rgba(40, 36, 20, 0.08);"
+      "line": 24,
+      "expression": ":root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) {"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 25,
+      "expression": "--surface-chat: transparent;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 26,
+      "expression": "--surface-sidebar: transparent;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 27,
+      "expression": "--surface-members: transparent;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 33,
+      "expression": ":root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid']) {"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 34,
+      "expression": "--surface-chat: var(--bg-app);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 35,
+      "expression": "--surface-sidebar: var(--bg-sidebar);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass.css",
+      "line": 36,
+      "expression": "--surface-members: var(--bg-panel);"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
@@ -6489,12 +6504,12 @@
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
       "line": 66,
-      "expression": ":global(:root[data-background='active']) .toast {"
+      "expression": ":global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .toast {"
     },
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
       "line": 67,
-      "expression": "background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);"
+      "expression": "background: var(--glass-veil);"
     }
   ],
   "units": [

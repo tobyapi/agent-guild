@@ -94,15 +94,16 @@
   }
 }
 
-@media (prefers-reduced-transparency: no-preference) {
+@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
   @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active']) .dialog {
-      background: color-mix(in srgb, var(--bg-elevated) var(--glass-card-weight), transparent);
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .dialog {
+      background: var(--glass-veil);
       backdrop-filter: var(--glass-card-filter);
+      border-color: transparent;
       box-shadow: var(--glass-shadow);
     }
 
-    :global(:root[data-background='active']) .dialog::backdrop {
+    :global(:root[data-background='active']:is([data-glass='frosted'], [data-glass='liquid'])) .dialog::backdrop {
       background: color-mix(in srgb, var(--backdrop-overlay) 40%, transparent);
     }
   }
