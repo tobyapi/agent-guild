@@ -1,0 +1,36 @@
+import { expect, it, vi } from 'vitest';
+import { runLoop } from './loop.ts';
+import type { Response } from './response.ts';
+
+const context = () => ({ signal: new AbortController().signal, onPost: vi.fn(), onUsage: vi.fn(), onActivity: vi.fn() });
+const result = (id: string, output: Response['output']): Response => ({ id, status: 'completed', output,
+  usage: { cost_in_usd_ticks: 12, input_tokens: 2, output_tokens: 3 } });
+const reasoning = { type: 'reasoning', encrypted_content: 'synthetic-encrypted-state' };
+const call = { type: 'function_call', call_id: 'call-1', name: 'read_file', arguments: '{"path":"fixture.txt"}' };
+const message = { type: 'message', content: [{ type: 'output_text', text: 'done' }] };
+
+it('replays encrypted state and matching tool output without previous_response_id', async () => {
+  const send = vi.fn().mockResolvedValueOnce(result('one', [reasoning, call])).mockResolvedValueOnce(result('two', [message]));
+  const execute = vi.fn().mockResolvedValue('fixture');
+  const final = await runLoop({ model: 'grok-4.7', input: [{ role: 'user', content: 'test' }], tools: () => [], execute, send, context: context() });
+  expect(final.text).toBe('done');
+  expect(final.usage.ticks).toBe(24);
+  expect(send.mock.calls[1]?.[0]).toMatchObject({ include: ['reasoning.encrypted_content'] });
+  // Transport serialization happens before finally clears the job history.
+  expect(execute).toHaveBeenCalledExactlyOnceWith('read_file', '{"path":"fixture.txt"}');
+});
+
+it('stops before execution or continuation when encrypted reasoning is absent', async () => {
+  const send = vi.fn().mockResolvedValue(result('one', [{ type: 'reasoning' }, call]));
+  const execute = vi.fn();
+  await expect(runLoop({ model: 'test', input: [], tools: () => [], execute, send, context: context() })).rejects.toThrow('encrypted');
+  expect(execute).not.toHaveBeenCalled();
+  expect(send).toHaveBeenCalledTimes(1);
+});
+
+it('stops next request at the job budget and does not reset after a local call', async () => {
+  const send = vi.fn().mockResolvedValue(result('one', [reasoning, call]));
+  await expect(runLoop({ model: 'test', input: [], tools: () => [], execute: () => Promise.resolve('ok'), send,
+    context: context(), budgetTicks: 12 })).rejects.toMatchObject({ code: 'rate_limit' });
+  expect(send).toHaveBeenCalledTimes(1);
+});

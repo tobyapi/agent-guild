@@ -34,11 +34,11 @@ describe('役割の権限と、バックエンドで使える操作（Rust・画
   it.each(cases)('$name', (example) => {
     expect(usablePermissions(example.permissions, info(example.backend))).toEqual(example.usable);
   });
-  it('発想役を Grok に渡すと、Web 取得は残り、未対応の Web 検索だけが除かれる', () => {
+  it('発想役を Grok に渡すと、検索と読み取りが残り、書き込みとコマンドは使わない', () => {
     const granted = cases.find((example) => example.tags[0] === '発想役')!.permissions;
     const backend = info('grok');
     const usable = usablePermissions(granted, backend);
-    expect(usable).toEqual({ ...granted, webSearch: false });
+    expect(usable).toEqual({ ...granted, writeFiles: false, writeAnywhere: false, runCommands: false });
     expect(brokenRule(backend.permissionRules, usable)).toBeUndefined();
     expect(backend.leakRisks.some((risk) => risk.length > 0 && risk.every((key) => usable[key]))).toBe(true);
   });
@@ -111,7 +111,7 @@ describe('絞ったあとの権限は、各アダプタが守れる', () => {
     }
   });
 
-  it.each(['codex', 'grok', 'muse'])('%s: 止められない読み取りとスキルを除けば、拒否は残らない', (id) => {
+  it.each(['codex', 'muse'])('%s: 止められない読み取りとスキルを除けば、拒否は残らない', (id) => {
     for (const granted of EVERY_GRANT) {
       const usable = usablePermissions(granted, info(id));
       // 読み取りとスキルは Codex が止められない（許可がなければ、絞らずに実行そのものを拒否する）

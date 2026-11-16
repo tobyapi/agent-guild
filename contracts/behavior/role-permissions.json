@@ -402,5 +402,166 @@
       "runCommands": false,
       "skills": true
     }
+  },
+  {
+    "name": "作業者 / grok",
+    "tags": [
+      "作業者"
+    ],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": true,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "専門家 / grok",
+    "tags": [
+      "専門家"
+    ],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "発想役 / grok",
+    "tags": [
+      "発想役"
+    ],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": true,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "マネージャー / grok",
+    "tags": [
+      "マネージャー"
+    ],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": true,
+      "writeAnywhere": false,
+      "runCommands": true,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "役割未設定 []",
+    "tags": [],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
+  },
+  {
+    "name": "役割未設定 ['独自タグ', '作業者']",
+    "tags": [
+      "独自タグ",
+      "作業者"
+    ],
+    "backend": "grok",
+    "permissions": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    },
+    "usable": {
+      "webSearch": false,
+      "webFetch": false,
+      "readFiles": true,
+      "readAnywhere": false,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    }
   }
 ]

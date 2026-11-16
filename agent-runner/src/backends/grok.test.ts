@@ -1,70 +1,58 @@
-vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: (_backend: string, _envVar: string, env = process.env) => Promise.resolve(env),
-}));
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { grokAdapter, grokProvider } from './grok.ts';
-import { EventReader } from './codex-runtime/events.ts';
+import { describe, expect, it } from 'vitest';
+import { grokAdapter } from './grok.ts';
+import { usablePermissions } from './types.ts';
+import type { PermissionKey, Permissions } from '../protocol.ts';
+import { runContext, runRequest } from './run.test-support.ts';
+import { execute, tools } from './grok/tools.ts';
+import { setLanguage, LANGUAGES } from '../i18n.ts';
 
-afterEach(() => vi.unstubAllEnvs());
-
-describe('Grok provider', () => {
-  it('isolates state and keeps credentials out of config without changing the environment', () => {
-    const env = { XAI_API_KEY: 'test-secret', OPENAI_API_KEY: 'other-secret', PATH: 'bin', CODEX_HOME: 'global' };
-    const a = grokProvider('/state/a', env);
-    const b = grokProvider('/state/b', env);
-    expect(a.env.XAI_API_KEY).toBe('test-secret');
-    expect(a.env).not.toHaveProperty('OPENAI_API_KEY');
-    expect(a.env.CODEX_HOME).not.toBe(b.env.CODEX_HOME);
-    expect(env.CODEX_HOME).toBe('global');
-    expect(JSON.stringify(a.config)).not.toContain('test-secret');
-    expect(a.config).toMatchObject({
-      model_provider: 'guild_xai',
-      model_providers: {
-        guild_xai: {
-          base_url: 'https://api.x.ai/v1',
-          env_key: 'XAI_API_KEY',
-          wire_api: 'responses',
-          requires_openai_auth: false,
-        },
-      },
-    });
-    expect(a.config).toMatchObject({ model_reasoning_summary: 'none', features: { multi_agent: false } });
+describe('Grok direct read-only contract', () => {
+  it.each(['win32', 'darwin', 'linux'])('%s disables writes and commands for all 256 grants', platform => {
+    const previous = process.platform;
+    Object.defineProperty(process, 'platform', { value: platform });
+    try {
+      const info = grokAdapter.info();
+      const keys = Object.keys(info.capabilities) as PermissionKey[];
+      for (let mask = 0; mask < 256; mask++) {
+        const granted = Object.fromEntries(keys.map((key, bit) => [key, Boolean(mask & 1 << bit)])) as Permissions;
+        const usable = usablePermissions(granted, info);
+        for (const key of keys) expect(usable[key] && !granted[key]).toBe(false);
+        expect(usable).toMatchObject({ writeFiles: false, writeAnywhere: false, runCommands: false });
+        const definitions = tools({ ...runRequest('grok'), permissions: usable });
+        expect(definitions.some(tool => /write|command|memory/i.test(String(tool.name)))).toBe(false);
+        expect(definitions.some(tool => tool.type === 'web_search')).toBe(usable.webSearch && usable.webFetch);
+      }
+      expect(info.unrestricted).toEqual([]);
+      expect(info.leakRisks).toHaveLength(4);
+    } finally { Object.defineProperty(process, 'platform', { value: previous }); }
   });
-
-  it.each([undefined, '', '   '])('requires a nonblank API key (%s)', (key) => {
-    expect(() => grokProvider('/state', { XAI_API_KEY: key })).toThrow(expect.objectContaining({ code: 'auth' }));
+  it.each(['write_file', 'run_command', 'update_memory', 'web_search', 'x_search', '__proto__'])('rejects forged %s immediately', async name => {
+    await expect(execute(runRequest('grok'), runContext(), name, '{}')).rejects.toMatchObject({ code: 'unsupported_permission' });
   });
-
-  it('publishes model selection and unsupported capabilities', async () => {
-    expect(grokAdapter.info()).toMatchObject({
-      id: 'grok',
-
-      toolsOption: null,
-      local: false,
-      frameGeneration: false,
-      setup: { install: null, start: null, login: null, apiKey: { envVar: 'XAI_API_KEY' } },
-      capabilities: { webSearch: false },
-      midRunPost: 'text',
-    });
-    expect(grokAdapter.info().label).toContain('実験対応・実API未検証');
-    const catalog = await grokAdapter.catalog!();
-    expect(catalog.defaultModel).toBe('grok-4.7');
-    expect(catalog.models[0]?.label).toContain('実験対応・実API未検証');
-    expect(catalog.models[0]?.efforts).toEqual(['low', 'medium', 'high', 'xhigh']);
-    catalog.models.length = 0;
-    expect((await grokAdapter.catalog!()).models).toHaveLength(1);
+  it.each(['read_file', 'read_skill', 'fetch_url'])('rechecks the permission immediately before %s', async name => {
+    const request = runRequest('grok');
+    request.permissions = Object.fromEntries(Object.keys(request.permissions).map(key => [key, false])) as Permissions;
+    await expect(execute(request, runContext(), name, '{}')).rejects.toMatchObject({ code: 'unsupported_permission' });
   });
-
-  it.each([
-    ['401 unauthorized', 'auth'],
-    ['429 rate limit', 'rate_limit'],
-    ['unknown model', 'model_not_found'],
-  ])('classifies %s without exposing provider error text', (detail, code) => {
-    const provider = grokProvider('/state', { XAI_API_KEY: 'secret' });
-    const reader = new EventReader(vi.fn(), vi.fn(), provider.failure);
-    expect(() => reader.read({ type: 'error', message: detail + ' secret' })).toThrow(
-      expect.objectContaining({ code }),
-    );
-    expect(provider.failure(detail + ' secret').message).not.toContain('secret');
+  it('rejects malformed arguments, unknown skills and cancellation before post', async () => {
+    const request = runRequest('grok');
+    for (const args of ['{', '[]', '{"text":"ok","extra":true}', '{"text":1}']) {
+      await expect(execute(request, runContext(), 'post', args)).rejects.toMatchObject({ code: 'bad_request' });
+    }
+    await expect(execute(request, runContext(), 'read_skill', '{"name":"unknown"}')).rejects.toMatchObject({ code: 'bad_request' });
+    const abort = new AbortController(); abort.abort();
+    const context = runContext(abort.signal);
+    await expect(execute(request, context, 'post', '{"text":"no"}')).rejects.toThrow();
+    expect(context.onPost).not.toHaveBeenCalled();
+  });
+  it('explains disabled MEMORY and the non-strict per-turn budget in five languages', async () => {
+    try {
+      for (const language of LANGUAGES) {
+        setLanguage(language);
+        const description = (await grokAdapter.catalog!()).models[0]!.description;
+        expect(description).toContain('MEMORY.md');
+        expect(description).toContain('$0.20');
+      }
+    } finally { setLanguage('ja'); }
   });
 });

@@ -1,164 +1,58 @@
-import { apiKeyEnvironment } from '../credentials/store.ts';
-vi.mock('../credentials/store.ts', () => ({
-  apiKeyEnvironment: vi.fn((_backend: string, _envVar: string, env = process.env) => Promise.resolve(env)),
-}));
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { runContext, runRequest } from './run.test-support.ts';
-import { join } from 'node:path';
-import { SECRET_ENV_GLOBS } from './agent-env.ts';
-
-const mock = vi.hoisted(() => ({
-  construct: vi.fn(),
-  start: vi.fn(),
-  stream: vi.fn(),
-  skills: vi.fn(),
-  mkdir: vi.fn(),
-}));
-vi.mock('@openai/codex-sdk', () => ({
-  Codex: class {
-    constructor(options: unknown) {
-      mock.construct(options);
-    }
-    startThread(options: unknown) {
-      mock.start(options);
-      return { runStreamed: mock.stream };
-    }
-  },
-}));
-vi.mock('./codex-runtime/executable.ts', () => ({
-  findCodex: () => ({ path: '/bin/codex', pathDirs: [] }),
-  codexNotFound: () => 'missing',
-}));
-vi.mock('./skill-files.ts', () => ({ writeSkills: mock.skills }));
-vi.mock('./command-sandbox.ts', () => ({ prepareCommandSandbox: () => Promise.resolve(true) }));
-vi.mock('node:fs/promises', () => ({ mkdir: mock.mkdir }));
+import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { grokAdapter } from './grok.ts';
+import { runRequest, runContext } from './run.test-support.ts';
+import { apiKeyEnvironment } from '../credentials/store.ts';
 
-const request = () => runRequest('grok');
-const context = runContext;
-
+vi.mock('../credentials/store.ts', () => ({ apiKeyEnvironment: vi.fn() }));
+const response = () => ({ id: 'response', status: 'completed', output: [{ type: 'message',
+  content: [{ type: 'output_text', text: 'hello back' }] }], usage: { cost_in_usd_ticks: 123, input_tokens: 2, output_tokens: 3 } });
+type Options = { body: string; headers: { Authorization: string } };
+let fetcher: ReturnType<typeof vi.fn<(url: string, options: Options) => Promise<Response>>>;
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubEnv('XAI_API_KEY', 'test-secret');
-  mock.stream.mockImplementation(() =>
-    Promise.resolve({
-      events: (async function* () {
-        await Promise.resolve();
-        yield { type: 'item.completed', item: { type: 'agent_message', id: '1', text: 'hello back' } };
-      })(),
-    }),
-  );
+  vi.mocked(apiKeyEnvironment).mockResolvedValue({ XAI_API_KEY: 'synthetic-canary-key' });
+  fetcher = vi.fn<(url: string, options: Options) => Promise<Response>>().mockImplementation(() => Promise.resolve(Response.json(response())));
+  vi.stubGlobal('fetch', fetcher);
 });
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => vi.unstubAllGlobals());
 
-describe('Grok execution via Codex', () => {
-  it('returns conversation text and preserves sandbox, network and secret filtering', async () => {
-    const ctx = context();
-    await expect(grokAdapter.run(request(), ctx)).resolves.toBe('hello back');
-    expect(mock.construct.mock.calls[0]?.[0]).toMatchObject({
-      config: {
-        model_provider: 'guild_xai',
-        project_doc_max_bytes: 0,
-        sandbox_workspace_write: { exclude_tmpdir_env_var: true, exclude_slash_tmp: true },
-      },
-    });
-    expect(mock.construct.mock.calls[0]?.[0]).toHaveProperty('config.shell_environment_policy.exclude', [
-      ...SECRET_ENV_GLOBS,
-    ]);
-    expect(mock.construct.mock.calls[0]?.[0]).toHaveProperty('env.XAI_API_KEY', 'test-secret');
-    expect(mock.construct.mock.calls[0]?.[0]).toHaveProperty('env.CODEX_HOME', join('/state', 'codex'));
-    expect(mock.start).toHaveBeenCalledWith(
-      expect.objectContaining({
-        model: 'grok-4.7',
-        modelReasoningEffort: 'high',
-        sandboxMode: 'workspace-write',
-        approvalPolicy: 'never',
-        networkAccessEnabled: false,
-        webSearchMode: 'disabled',
-      }),
-    );
-    expect(mock.stream).toHaveBeenCalledWith('hello', { signal: ctx.signal });
-  });
-
-  it('passes the selected model and effort per run', async () => {
-    await grokAdapter.run({ ...request(), model: 'grok-custom', options: { effort: 'low' } }, context());
-    expect(mock.start).toHaveBeenCalledWith(
-      expect.objectContaining({ model: 'grok-custom', modelReasoningEffort: 'low' }),
-    );
-  });
-
-  it('rejects permissions that cannot be enforced before starting the SDK', async () => {
-    const req = request();
-    req.permissions.readFiles = false;
-    await expect(grokAdapter.run(req, context())).rejects.toMatchObject({ code: 'unsupported_permission' });
-    expect(mock.construct).not.toHaveBeenCalled();
-  });
-
-  it('rejects unsupported Web search and effort', async () => {
-    const req = request();
-    req.permissions.webSearch = true;
-    await expect(grokAdapter.run(req, context())).rejects.toMatchObject({ code: 'unsupported_permission' });
-    await expect(grokAdapter.run({ ...request(), options: { effort: 'max' } }, context())).rejects.toMatchObject({
-      code: 'bad_request',
-    });
-  });
-
-  it('reports missing credentials without starting the SDK', async () => {
-    vi.stubEnv('XAI_API_KEY', '');
-    expect(await grokAdapter.probe()).toMatchObject({ status: 'needs_auth' });
-    await expect(grokAdapter.run(request(), context())).rejects.toMatchObject({ code: 'auth' });
-    expect(mock.construct).not.toHaveBeenCalled();
-  });
-
-  it('explains that ready only checks local prerequisites', async () => {
-    expect(await grokAdapter.probe()).toEqual({
-      status: 'ready',
-      statusMessage: '実験対応・実API未検証。readyはAPIキーとCLIの存在確認のみで、接続成功を意味しない。',
-    });
-  });
-
-  it('does not start a cancelled run', async () => {
-    const controller = new AbortController();
-    controller.abort();
-    await expect(grokAdapter.run(request(), context(controller.signal))).rejects.toThrow();
-    expect(mock.construct).not.toHaveBeenCalled();
-  });
-
-  it('propagates cancellation from an active SDK stream', async () => {
-    const controller = new AbortController();
-    mock.stream.mockImplementation((_input: unknown, { signal }: { signal: AbortSignal }) => {
-      controller.abort();
-      signal.throwIfAborted();
-    });
-    await expect(grokAdapter.run(request(), context(controller.signal))).rejects.toHaveProperty('name', 'AbortError');
-  });
-
-  it('classifies SDK failures and redacts their details', async () => {
-    mock.stream.mockRejectedValue(new Error('401 unauthorized test-secret'));
-    await expect(grokAdapter.run(request(), context())).rejects.toMatchObject({ code: 'auth' });
-    try {
-      await grokAdapter.run(request(), context());
-    } catch (error) {
-      expect(String(error)).not.toContain('test-secret');
-    }
-  });
+it('uses direct HTTPS with store=false, no Codex or prior response ID, and reports usage', async () => {
+  const context = runContext();
+  expect(await grokAdapter.run(runRequest('grok'), context)).toBe('hello back');
+  const [url, options] = fetcher.mock.calls[0]!;
+  expect(url).toBe('https://api.x.ai/v1/responses');
+  const body: unknown = JSON.parse(options.body);
+  expect(body).toMatchObject({ model: 'grok-4.7', store: false, stream: false, include: ['reasoning.encrypted_content'] });
+  expect(body).not.toHaveProperty('previous_response_id');
+  expect(JSON.stringify(body)).not.toContain('synthetic-canary-key');
+  expect(options.headers.Authorization).toBe('Bearer synthetic-canary-key');
+  expect(context.onUsage).toHaveBeenCalledWith({ model: 'grok-4.7', inputTokens: 2, outputTokens: 3, estimatedCostNanoUsd: 12 });
 });
-
-it('reloads the saved key for every SDK instance and filters the other backend key', async () => {
-  vi.mocked(apiKeyEnvironment).mockResolvedValueOnce({
-    ...process.env,
-    XAI_API_KEY: 'saved-first',
-    MODEL_API_KEY: 'other-private',
-  });
-  await grokAdapter.run(request(), context());
-  vi.mocked(apiKeyEnvironment).mockResolvedValueOnce({
-    ...process.env,
-    XAI_API_KEY: 'saved-replacement',
-    MODEL_API_KEY: 'other-private',
-  });
-  await grokAdapter.run(request(), context());
-  await grokAdapter.run(request(), context());
-  const environments = mock.construct.mock.calls.map((call) => (call[0] as { env: Record<string, string> }).env);
-  expect(environments.map((env) => env.XAI_API_KEY)).toEqual(['saved-first', 'saved-replacement', 'test-secret']);
-  for (const env of environments) expect(env).not.toHaveProperty('MODEL_API_KEY');
+it('uses selected model and reloads credentials for every run', async () => {
+  await grokAdapter.run({ ...runRequest('grok'), model: 'selected-model' }, runContext());
+  vi.mocked(apiKeyEnvironment).mockResolvedValue({ XAI_API_KEY: 'replacement' });
+  await grokAdapter.run(runRequest('grok'), runContext());
+  expect(JSON.parse(fetcher.mock.calls[0]![1].body) as unknown).toMatchObject({ model: 'selected-model' });
+  expect(fetcher.mock.calls[1]![1].headers.Authorization).toBe('Bearer replacement');
+});
+it.each([[401, 'auth'], [403, 'auth'], [429, 'rate_limit'], [404, 'model_not_found'], [500, 'internal']])('sanitizes HTTP %i including reflected keys', async (status, code) => {
+  fetcher.mockImplementation(() => Promise.resolve(new Response('synthetic-canary-key', { status: Number(status), headers: { 'x-reflect': 'synthetic-canary-key' } })));
+  const result = grokAdapter.run(runRequest('grok'), runContext());
+  await expect(result).rejects.toMatchObject({ code });
+  await expect(result).rejects.not.toThrow('synthetic-canary-key');
+});
+it('refuses missing key or a failed credential store without environment fallback', async () => {
+  vi.mocked(apiKeyEnvironment).mockResolvedValue({});
+  await expect(grokAdapter.run(runRequest('grok'), runContext())).rejects.toMatchObject({ code: 'auth' });
+  vi.mocked(apiKeyEnvironment).mockRejectedValue(new Error('credential unavailable'));
+  await expect(grokAdapter.run(runRequest('grok'), runContext())).rejects.toThrow('credential unavailable');
+  expect(fetcher).not.toHaveBeenCalled();
+});
+it('cancels before HTTP and propagates active HTTP cancellation', async () => {
+  const abort = new AbortController(); abort.abort();
+  await expect(grokAdapter.run(runRequest('grok'), runContext(abort.signal))).rejects.toThrow();
+  expect(fetcher).not.toHaveBeenCalled();
+  const active = new AbortController();
+  fetcher.mockImplementation(() => { active.abort(); return Promise.reject(new Error('synthetic-canary-key')); });
+  await expect(grokAdapter.run(runRequest('grok'), runContext(active.signal))).rejects.not.toThrow('synthetic-canary-key');
 });

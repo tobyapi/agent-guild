@@ -30,8 +30,9 @@ it('publishes credential-read failures as an unavailable backend', async () => {
   expect(backend?.statusMessage).toContain('資格情報ストア');
 });
 
-it('reports a missing CLI independently from credentials', async () => {
+it('does not require Codex CLI for the direct runner', async () => {
   vi.mocked(findCodex).mockReturnValue(null);
-  expect(await grokAdapter.probe()).toMatchObject({ status: 'unavailable' });
-  expect(apiKeyEnvironment).not.toHaveBeenCalled();
+  vi.mocked(apiKeyEnvironment).mockResolvedValue({ XAI_API_KEY: 'dummy-key' });
+  expect(await grokAdapter.probe()).toMatchObject({ status: 'ready' });
+  expect(apiKeyEnvironment).toHaveBeenCalled();
 });

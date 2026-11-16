@@ -1,133 +1,47 @@
-// Grok uses the existing Codex tool executor with a per-run xAI provider.
 import { apiKeyEnvironment } from '../credentials/store.ts';
-import { mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
-import { withoutSecrets } from './agent-env.ts';
-import { findCodex, codexNotFound } from './codex-runtime/executable.ts';
-import { LEAK_RISKS, PERMISSION_RULES, UNRESTRICTED } from './codex-runtime/options.ts';
-import { runCodex, type CodexProvider } from './codex-runtime.ts';
-import { t } from './codex-runtime/texts/index.ts';
-import {
-  BackendError,
-  NO_SETUP,
-  classifyErrorText,
-  type BackendAdapter,
-  type BackendProbe,
-  type ModelCatalog,
-  type RunRequest,
-} from './types.ts';
+import { BackendError, NO_SETUP, usableRequest, type BackendAdapter, type BackendProbe, type ModelCatalog } from './types.ts';
+import { client } from './grok/client.ts';
+import { runLoop } from './grok/loop.ts';
+import { tools, execute } from './grok/tools.ts';
+import { t } from './grok/texts.ts';
+import { input } from './grok/input.ts';
 
-const MODEL = 'grok-4.7';
-const EFFORTS = ['low', 'medium', 'high', 'xhigh'];
-
-/** 画面に出る文字列は、呼んだ時点の言語で作る */
-const catalog = (): ModelCatalog => ({
-  defaultModel: MODEL,
-  models: [
-    {
-      id: MODEL,
-      label: t('experimental', { name: 'Grok 4.7' }),
-      description: t('providerModel', { search: t('webAndXSearch') }),
-      efforts: [...EFFORTS],
-      defaultEffort: 'high',
-    },
-  ],
-});
-
-/** アプリに保存した API キーがなければ、この環境変数のキーを使う */
 const API_KEY = { envVar: 'XAI_API_KEY' };
+const MODEL = 'grok-4.7';
+
+const catalog = (): ModelCatalog => ({ defaultModel: MODEL, models: [{ id: MODEL, label: 'Grok 4.7',
+  description: t('limits'), efforts: [], defaultEffort: null }] });
 
 async function probe(): Promise<BackendProbe> {
-  if (findCodex() === null) return Promise.resolve({ status: 'unavailable', statusMessage: codexNotFound() });
   const env = await apiKeyEnvironment('grok', API_KEY.envVar);
-  return Promise.resolve(
-    env.XAI_API_KEY?.trim()
-      ? {
-          status: 'ready',
-          statusMessage: t('providerReady'),
-        }
-      : {
-          status: 'needs_auth',
-          statusMessage: t('providerNeedsKey', { envVar: API_KEY.envVar, name: 'Grok' }),
-        },
-  );
-}
-
-// Provider failures may contain headers or credentials. Never publish their raw text.
-function failure(detail: string): BackendError {
-  return new BackendError(classifyErrorText(detail), t('providerFailed', { name: 'Grok' }));
-}
-
-export function grokProvider(stateDir: string, env: NodeJS.ProcessEnv = process.env): CodexProvider {
-  if (!env.XAI_API_KEY?.trim()) throw new BackendError('auth', t('providerKeyRequired', { envVar: API_KEY.envVar }));
-  return {
-    label: 'Grok',
-    catalog: catalog(),
-    failure,
-    env: { ...withoutSecrets(env, (name) => name === 'XAI_API_KEY'), CODEX_HOME: join(stateDir, 'codex') },
-    config: {
-      model_provider: 'guild_xai',
-      model_providers: {
-        guild_xai: {
-          name: 'Grok',
-          base_url: 'https://api.x.ai/v1',
-          env_key: 'XAI_API_KEY',
-          wire_api: 'responses',
-          requires_openai_auth: false,
-          supports_websockets: false,
-        },
-      },
-      model_reasoning_summary: 'none',
-      features: { multi_agent: false },
-    },
-  };
-}
-
-function validate(request: RunRequest): void {
-  if (request.permissions.webSearch) {
-    throw new BackendError(
-      'unsupported_permission',
-      t('providerNoWebSearch', { name: 'Grok', search: t('webAndXSearch') }),
-    );
-  }
-  const effort = request.options.effort;
-  if (effort !== undefined && (typeof effort !== 'string' || !EFFORTS.includes(effort))) {
-    throw new BackendError('bad_request', t('providerEffort', { name: 'Grok', choices: EFFORTS.join(' / ') }));
-  }
+  return env.XAI_API_KEY?.trim() ? { status: 'ready', statusMessage: t('ready') } :
+    { status: 'needs_auth', statusMessage: t('key') };
 }
 
 export const grokAdapter: BackendAdapter = {
   info: () => ({
-    id: 'grok',
-    label: t('experimental', { name: 'Grok' }),
-    capabilities: {
-      webSearch: false,
-      webFetch: true,
-      readFiles: true,
-      readAnywhere: false,
-      writeFiles: true,
-      writeAnywhere: true,
-      runCommands: true,
-      skills: true,
-    },
+    id: 'grok', label: 'Grok',
+    capabilities: { webSearch: true, webFetch: true, readFiles: true, readAnywhere: true,
+      writeFiles: false, writeAnywhere: false, runCommands: false, skills: true },
     options: [],
-    permissionRules: [...PERMISSION_RULES],
-    leakRisks: LEAK_RISKS.map((risk) => [...risk]),
-    unrestricted: [...UNRESTRICTED],
-    midRunPost: 'text',
-
-    toolsOption: null,
-    local: false,
-    frameGeneration: false,
+    permissionRules: [{ when: 'webSearch', requires: ['webFetch'] }, { when: 'writeAnywhere', requires: ['writeFiles'] }],
+    leakRisks: [['readFiles', 'webSearch'], ['readAnywhere', 'webSearch'], ['readFiles', 'webFetch'], ['readAnywhere', 'webFetch']],
+    unrestricted: [], midRunPost: 'text', toolsOption: null, local: false, frameGeneration: false,
     setup: { ...NO_SETUP, apiKey: API_KEY },
   }),
   probe,
   catalog: () => Promise.resolve(catalog()),
-  async run(request, context) {
+  async run(original, context) {
     context.signal.throwIfAborted();
-    validate(request);
-    const provider = grokProvider(request.stateDir, await apiKeyEnvironment('grok', API_KEY.envVar));
-    await mkdir(provider.env.CODEX_HOME!, { recursive: true });
-    return runCodex(request, context, provider);
+    const request = usableRequest(structuredClone(original), grokAdapter.info());
+    const env = await apiKeyEnvironment('grok', API_KEY.envVar);
+    if (!env.XAI_API_KEY?.trim()) throw new BackendError('auth', t('key'));
+    const signal = AbortSignal.any([context.signal, AbortSignal.timeout(300000)]);
+    let lastPost = '';
+    const bounded = { ...context, signal, onPost: (text: string) => { signal.throwIfAborted(); lastPost = text; context.onPost(text); } };
+    const result = await runLoop({ model: request.model || MODEL, input: await input(request, signal),
+      tools: () => tools(request), execute: (name, args) => execute(request, bounded, name, args),
+      send: client(env.XAI_API_KEY), context: bounded });
+    return result.text.trim() === lastPost.trim() ? '' : result.text;
   },
 };

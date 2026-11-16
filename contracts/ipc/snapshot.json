@@ -461,6 +461,78 @@
         "login": null,
         "apiKey": null
       }
+    },
+    {
+      "id": "grok",
+      "label": "Grok",
+      "capabilities": {
+        "webSearch": true,
+        "webFetch": true,
+        "readFiles": true,
+        "readAnywhere": true,
+        "writeFiles": false,
+        "writeAnywhere": false,
+        "runCommands": false,
+        "skills": true
+      },
+      "options": [],
+      "permissionRules": [
+        {
+          "when": "webSearch",
+          "requires": [
+            "webFetch"
+          ]
+        },
+        {
+          "when": "writeAnywhere",
+          "requires": [
+            "writeFiles"
+          ]
+        }
+      ],
+      "leakRisks": [
+        [
+          "readFiles",
+          "webSearch"
+        ],
+        [
+          "readAnywhere",
+          "webSearch"
+        ],
+        [
+          "readFiles",
+          "webFetch"
+        ],
+        [
+          "readAnywhere",
+          "webFetch"
+        ]
+      ],
+      "unrestricted": [],
+      "midRunPost": "text",
+      "toolsOption": null,
+      "local": false,
+      "frameGeneration": false,
+      "setup": {
+        "install": null,
+        "start": null,
+        "login": null,
+        "apiKey": {
+          "envVar": "XAI_API_KEY"
+        }
+      },
+      "defaultModel": "grok-4.7",
+      "models": [
+        {
+          "id": "grok-4.7",
+          "label": "Grok 4.7",
+          "description": "Grok は検索・読み取り専用です。全OSでコマンド実行・ファイル書き込み・MEMORY.md更新はできません。費用はターンごとに集計し、$0.20に達したら次の要求を止めます。実行中の1回分は超過することがあり、厳密な課金上限ではありません。xAIの月次後払い上限は前払い残高の消費を制限しません。",
+          "efforts": [],
+          "defaultEffort": null
+        }
+      ],
+      "status": "ready",
+      "statusMessage": "API??????????????????"
     }
   ],
   "templates": [
