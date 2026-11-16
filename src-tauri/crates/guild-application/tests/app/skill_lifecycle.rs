@@ -42,7 +42,32 @@ async fn structured_reads_after_failed_save_do_not_leak_or_lose_reused_call_ids(
 
 #[tokio::test]
 async fn cancellation_persists_job_cutoff_without_changing_saved_progress() {
+    check_cancellation(false).await;
+}
+
+#[tokio::test]
+async fn cutoff_save_failure_still_cancels_and_discards_late_results_without_changing_saved_posts() {
+    check_cancellation(true).await;
+}
+
+async fn wait_until(mut ready: impl FnMut() -> bool) {
+    let result = tokio::time::timeout(Duration::from_secs(2), async {
+        while !ready() {
+            tokio::time::sleep(Duration::from_millis(1)).await;
+        }
+    })
+    .await;
+    assert!(result.is_ok(), "expected state was not reached");
+}
+
+fn assert_cutoff(app: &TestApp, message: &guild_domain::ids::MessageId, expected: bool) {
+    let actual = app.services.conversation.skill_record_truncated(message).unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(actual, expected);
+}
+
+async fn check_cancellation(reject_cutoff: bool) {
     let app = TestApp::new();
+    *app.store.reject_next_cutoff.lock() = reject_cutoff;
     let agent = app.agent("worker", "Worker");
     let channel = app.channel("skills", &[&agent]);
     let gate = Arc::new(Notify::new());
@@ -54,32 +79,28 @@ async fn cancellation_persists_job_cutoff_without_changing_saved_progress() {
             vec![read("late", 3), post("late")],
         ),
     );
-    app.services.conversation.send_human_message(&channel.id, "@Worker work", &[]).unwrap();
-    for _ in 0..100 {
-        if app.messages(&channel).len() == 2 {
-            break;
-        }
-        tokio::time::sleep(Duration::from_millis(1)).await;
-    }
-    let saved = app.messages(&channel)[1].clone();
+    assert!(app.services.conversation.send_human_message(&channel.id, "@Worker work", &[]).is_ok());
+    wait_until(|| app.messages(&channel).len() == 2).await;
+    let before = app.messages(&channel);
+    assert_eq!(before.len(), 2, "progress must be saved before cancellation");
+    let saved = &before[1];
     let conversation = app.services.conversation.clone();
     let channel_id = channel.id.clone();
     let stop = tokio::spawn(async move { conversation.stop(&channel_id).await });
-    for _ in 0..100 {
-        if !app.runtime.cancelled.lock().is_empty() {
-            break;
-        }
-        tokio::time::sleep(Duration::from_millis(1)).await;
-    }
-    assert!(app.services.conversation.skill_record_truncated(&saved.id).unwrap());
+    wait_until(|| !app.runtime.cancelled.lock().is_empty()).await;
+    let job_id = app.runtime.requests.lock()[0].0.clone();
+    assert_eq!(*app.runtime.cancelled.lock(), [job_id]);
+    assert!(!*app.store.reject_next_cutoff.lock(), "truncate failure injection must be consumed");
+    assert_cutoff(&app, &saved.id, !reject_cutoff);
+    assert_eq!(app.store.skill_cutoffs.lock().len(), usize::from(!reject_cutoff));
     gate.notify_one();
-    stop.await.unwrap().unwrap();
+    assert!(matches!(tokio::time::timeout(Duration::from_secs(2), stop).await, Ok(Ok(Ok(())))));
     app.settle().await;
     let messages = app.messages(&channel);
-    assert_eq!(messages[1], saved);
-    assert!(!messages.iter().any(|message| message.content == "late" || message.content == "late final"));
+    assert_eq!(&messages[..before.len()], before.as_slice());
+    assert_eq!(app.transcript(&channel), ["人間: @Worker work", "Worker: saved", "システム: 停止しました"]);
     let restarted = app.restart();
-    assert!(restarted.services.conversation.skill_record_truncated(&saved.id).unwrap());
+    assert_cutoff(&restarted, &saved.id, !reject_cutoff);
 }
 
 #[tokio::test]

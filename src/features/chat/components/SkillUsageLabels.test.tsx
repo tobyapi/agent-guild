@@ -21,13 +21,42 @@ it('loads job cutoff on opening details without altering saved labels', async ()
   expect(usage.loaded).toEqual(['reflection']);
 });
 it('persisted declarations and reads stay distinct after remount', () => {
-  const usage = { declared: ['clean-code'], loaded: ['reflection'], supported: true, runId: 'r1' };
-  const view = render(<SkillUsageLabels usage={JSON.parse(JSON.stringify(usage)) as SkillUsage} />);
-  expect(view.container.querySelector('summary')?.textContent).toContain('申告');
-  expect(view.container.querySelector('summary')?.textContent).toContain('読込確認');
-  fireEvent.click(view.container.querySelector('summary')!);
-  expect(view.container.textContent).toContain('前の投稿');
+  const usage = { declared: ['a'], loaded: ['b'], supported: true, runId: 'r1' };
+  const assertSeparateLabels = (container: HTMLElement) => {
+    const labels = container.querySelectorAll('summary > span > span');
+    expect(Array.from(labels, (label) => label.parentElement?.textContent)).toEqual([
+      '使用スキル（申告）：a',
+      '投稿前操作（読込確認）：b',
+    ]);
+    expect(container.textContent).toContain('このコメントでの使用・実行成功の証明ではありません');
+  };
+  const first = render(<SkillUsageLabels usage={usage} />);
+  assertSeparateLabels(first.container);
+  first.unmount();
+  const reloaded = render(<SkillUsageLabels usage={JSON.parse(JSON.stringify(usage)) as SkillUsage} />);
+  assertSeparateLabels(reloaded.container);
 });
+
+it.each([false, 'error'] as const)(
+  'does not imply completeness or an ending reason when cutoff lookup is %s',
+  async (result) => {
+    const api = vi.spyOn(chatApi, 'skillRecordTruncated');
+    if (result === false) api.mockResolvedValue(false);
+    else api.mockRejectedValue(new Error('lookup failed'));
+    const view = render(
+      <SkillUsageLabels usage={{ declared: ['a'], loaded: ['b'], supported: true, runId: 'r' }} messageId="message" />,
+    );
+    const details = view.container.querySelector('details')!;
+    details.open = true;
+    fireEvent(details, new Event('toggle'));
+    await waitFor(() => expect(api).toHaveBeenCalledWith('message'));
+    expect(view.container.textContent).toContain('明示取消が対象');
+    expect(view.container.textContent).toContain('内部中断・時間切れ・異常終了は対象外');
+    expect(view.container.textContent).toContain('記録なしは完全性を保証せず');
+    expect(view.container.textContent).toContain('最終投稿がないだけでは終了理由を判断できません');
+    expect(view.container.textContent).not.toContain('以降の観測は打切り');
+  },
+);
 it('legacy and unsupported have no skill labels and distinct detail', () => {
   const view = render(<SkillUsageLabels />);
   expect(view.container.querySelectorAll('summary span').length).toBe(1);

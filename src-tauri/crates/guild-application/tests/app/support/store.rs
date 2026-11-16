@@ -23,6 +23,7 @@ pub struct MemoryStore {
     pub messages: Mutex<Vec<Message>>,
     pub reject_next_progress: Mutex<bool>,
     pub skill_cutoffs: Mutex<Vec<String>>,
+    pub reject_next_cutoff: Mutex<bool>,
     pub delegations: Mutex<Vec<Delegation>>,
     pub measurements: Mutex<Vec<RunMeasurement>>,
     pub skills: Mutex<Vec<Skill>>,
@@ -33,6 +34,9 @@ pub struct MemoryStore {
 
 impl SkillRecordRepository for MemoryStore {
     fn truncate(&self, job_id: &str, _channel: &ChannelId) -> AppResult<()> {
+        if std::mem::take(&mut *self.reject_next_cutoff.lock()) {
+            return Err(AppError::Storage("injected cutoff failure".into()));
+        }
         self.skill_cutoffs.lock().push(job_id.into());
         Ok(())
     }

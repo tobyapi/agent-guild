@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  skillUsageCutoffScope:
+    '중단 기록은 중지·전체 중지·에이전트 제외 등의 명시적 취소만 대상입니다. 내부 취소·시간 초과·비정상 종료는 대상이 아니며 저장 실패 시에도 기록이 남지 않습니다. 기록 없음은 완전성을 보장하지 않으며, 최종 게시가 없다는 사실만으로 종료 원인을 판단할 수 없습니다.',
   skillUsageTruncated: '취소로 이 실행의 이후 관측이 중단되었습니다. 저장된 게시 구간은 유지됩니다.',
   skillUsageOrderUnconfirmed: '번호는 러너 알림 순서입니다. 제공자 순서와 완전성은 미확인입니다.',
   skillUsageDetails: '스킬 기록',

@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  skillUsageCutoffScope:
+    '截斷記錄僅涵蓋停止、全部停止或移除代理等明確取消。內部取消、逾時和異常退出不在範圍內；儲存失敗也不會留下記錄。無記錄不保證完整性，僅憑缺少最終發布無法判斷結束原因。',
   skillUsageTruncated: '取消已截斷此執行之後的觀測。已儲存的發布區間維持不變。',
   skillUsageOrderUnconfirmed: '序號為執行器通知順序，提供方順序和完整性未確認。',
   skillUsageDetails: '技能記錄',

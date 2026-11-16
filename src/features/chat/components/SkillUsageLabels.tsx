@@ -38,6 +38,7 @@ export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | nu
           ))}
       </summary>
       <p>{t('skillUsageEvidence')}</p>
+      <p>{t('skillUsageCutoffScope')}</p>
       {truncated === true && <p>{t('skillUsageTruncated')}</p>}
       {usage?.interval && <p>{t('skillUsageOrderUnconfirmed')}</p>}
       <p>{recordStatus(usage)}</p>

@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  skillUsageCutoffScope:
+    'Cutoff records cover explicit cancellation, such as Stop, Stop all, or removing an agent. Internal cancellation, timeouts, and abnormal exits are not covered. Failed saves also leave no record. No record does not guarantee completeness; a missing final post alone does not identify why a run ended.',
   skillUsageTruncated: 'Cancellation cut off later observations for this run. Saved message intervals are unchanged.',
   skillUsageOrderUnconfirmed:
     'Sequence follows runner notifications. Provider ordering and completeness are unconfirmed.',
