@@ -75,12 +75,14 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
 });
 
 /** 見出しの下: 本文（エラー発言は理由）と、割り振りのカード（tasks ブロックの代わり） */
-function MessageContent({ message, renderBody, delegation }: MessageItemProps) {
+function MessageContent({ message, author, renderBody, delegation }: MessageItemProps) {
   const content = message.delegationId === null ? message.content : removeTasksBlock(message.content);
   return (
     <>
       {message.kind === 'error' && <ErrorBody content={message.content} />}
-      {message.kind !== 'error' && content !== '' && <MessageBody content={content} render={renderBody} />}
+      {message.kind !== 'error' && content !== '' && (
+        <MessageBody content={content} render={renderBody} agentId={author.human ? null : message.authorId} />
+      )}
       <MessageAttachments message={message} />
       {message.delegationId !== null &&
         (delegation ? <TaskCard delegation={delegation} /> : <p className={styles.taskLoading}>{t('taskLoading')}</p>)}

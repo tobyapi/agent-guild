@@ -6,7 +6,14 @@ import { fail, postMessage, requireChannel } from '../runtime';
 import type { HandlerGroup } from './types';
 
 type MessageCommands =
-  'list_messages' | 'send_message' | 'get_attachment' | 'reveal_attachment' | 'stop_channel' | 'list_delegations';
+  | 'list_messages'
+  | 'send_message'
+  | 'get_attachment'
+  | 'reveal_attachment'
+  | 'reveal_local_file'
+  | 'read_local_image'
+  | 'stop_channel'
+  | 'list_delegations';
 
 export const messageHandlers: HandlerGroup<MessageCommands> = {
   /** beforeSeq より前の発言を新しいほうから limit 件、seq の昇順で返す */
@@ -38,6 +45,10 @@ export const messageHandlers: HandlerGroup<MessageCommands> = {
     attachmentData(runtime, messageId, attachmentId);
     return null;
   },
+
+  /** ブラウザのモックにはローカルファイルへのアクセスがない */
+  reveal_local_file: () => null,
+  read_local_image: () => ({ status: 'unsupported' }),
 
   stop_channel({ channelId }, runtime) {
     requireChannel(runtime, channelId);

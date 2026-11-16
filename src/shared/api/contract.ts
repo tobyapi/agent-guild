@@ -28,6 +28,9 @@ import type {
 /** 引数を取らないコマンド */
 type NoArgs = Record<never, never>;
 
+export type LocalImage =
+  { status: 'ok'; mime: string; base64: string } | { status: 'notFound' } | { status: 'unsupported' };
+
 /** コマンド名 → 引数（JS 側は camelCase）と戻り値。失敗はすべて CommandError で reject される */
 export interface CommandMap {
   get_boot_status: { args: NoArgs; result: BootStatus };
@@ -66,6 +69,10 @@ export interface CommandMap {
   get_attachment: { args: { messageId: string; attachmentId: string }; result: string };
   /** 発言に添えたファイルを OS のファイラで表示する（ファイルを選んだ状態で開く） */
   reveal_attachment: { args: { messageId: string; attachmentId: string }; result: null };
+  /** 本文に書かれたローカルファイルを OS のファイラで表示する */
+  reveal_local_file: { args: { path: string; agentId: string | null }; result: null };
+  /** 本文に書かれたローカル画像を、検査してから base64 で返す */
+  read_local_image: { args: { path: string; agentId: string | null }; result: LocalImage };
   /** 実行中の割り振りも打ち切る */
   stop_channel: { args: { channelId: string }; result: null };
   /** そのチャンネルの割り振り（createdAt の昇順、新しい方から最大200件） */

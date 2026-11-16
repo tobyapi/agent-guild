@@ -9,6 +9,7 @@ pub mod frames;
 pub mod guild;
 pub mod language;
 pub mod links;
+pub mod local_files;
 pub mod messages;
 pub mod profile;
 pub mod skills;

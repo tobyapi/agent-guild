@@ -1,6 +1,6 @@
 // コマンドの戻り値とイベントのペイロードの検証表（開発時に、受け取った値が契約に合うかを確かめる）。
 // 型は { [C in CommandName]: Validator } なので、コマンドを足して検証を書き忘れるとコンパイルエラーになる。
-import { arrayOf, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
+import { anyOf, arrayOf, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
 import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { customFrameSchema, guildProfileSchema } from '@/shared/types/schemas/guild';
@@ -27,6 +27,11 @@ const message = objectOf(messageSchema);
 const skill = objectOf(skillSchema);
 const skillLibrary = objectOf(skillLibrarySchema);
 const delegation = objectOf(delegationSchema);
+const localImage = anyOf(
+  objectOf({ status: oneOf({ ok: true }), mime: string, base64: string }),
+  objectOf({ status: oneOf({ notFound: true }) }),
+  objectOf({ status: oneOf({ unsupported: true }) }),
+);
 
 export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   get_boot_status: objectOf(bootStatusSchema),
@@ -55,6 +60,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   send_message: message,
   get_attachment: string,
   reveal_attachment: nullValue,
+  reveal_local_file: nullValue,
+  read_local_image: localImage,
   stop_channel: nullValue,
   list_delegations: arrayOf(delegation),
   update_profile: objectOf(profileSchema),

@@ -5,8 +5,10 @@ import { Dialog } from '@/shared/ui';
 import { handleLinkClick } from '../hooks/linkClicks';
 import { findEmbeds } from '../model/embeds';
 import type { Embed } from '../model/embeds';
+import { findLocalImagePaths } from '../model/localImagePaths';
 import { BodyMediaView } from './BodyMediaView';
 import { CodeCopyButton } from './CodeCopyButton';
+import { LocalImageView } from './LocalImageView';
 import { MermaidDiagram } from './MermaidDiagram';
 import markdownStyles from './Markdown.module.css';
 import codeStyles from './MarkdownCode.module.css';
@@ -22,14 +24,17 @@ interface Viewing {
 export interface MessageBodyProps {
   content: string;
   render: (content: string) => string;
+  /** 人間なら null。相対パスの起点を Rust 側で決めるための発言者 ID */
+  agentId?: string | null;
 }
 
 /**
  * 本文（Markdown をサニタイズした HTML）。リンクは OS の既定のブラウザで開く。
  * HTML の中の差し込み口（コードブロック・mermaid・画像・動画）には、React の部品をポータルで差し込む。
  */
-export function MessageBody({ content, render }: MessageBodyProps) {
+export function MessageBody({ content, render, agentId = null }: MessageBodyProps) {
   const html = useMemo(() => render(content), [render, content]);
+  const localImages = useMemo(() => findLocalImagePaths(content, agentId), [content, agentId]);
   const [embeds, setEmbeds] = useState(NO_EMBEDS);
   const [viewing, setViewing] = useState<Viewing | null>(null);
   // HTML が変わると key で要素ごと作り直すので、そのたびに差し込み口を読み直す
@@ -49,6 +54,13 @@ export function MessageBody({ content, render }: MessageBodyProps) {
         onAuxClick={handleLinkClick}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      {localImages.length > 0 && (
+        <div className={styles.localImages}>
+          {localImages.map((image) => (
+            <LocalImageView key={image.path} image={image} agentId={agentId} />
+          ))}
+        </div>
+      )}
       {embeds.map((embed, index) => createPortal(<EmbedView embed={embed} onView={view} />, embed.target, index))}
       {viewing && (
         <Dialog title={viewing.alt} onClose={() => setViewing(null)} size="lg">

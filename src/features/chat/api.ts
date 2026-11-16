@@ -12,6 +12,10 @@ export const chatApi = {
   attachment: (messageId: string, attachmentId: string) => invoke('get_attachment', { messageId, attachmentId }),
   /** 発言に添えたファイルを OS のファイラで表示する */
   reveal: (messageId: string, attachmentId: string) => invoke('reveal_attachment', { messageId, attachmentId }),
+  /** 本文に書かれたローカルファイルを OS のファイラで表示する */
+  revealLocalFile: (path: string, agentId: string | null) => invoke('reveal_local_file', { path, agentId }),
+  /** 本文に書かれたローカル画像を検査して読み込む */
+  localImage: (path: string, agentId: string | null) => invoke('read_local_image', { path, agentId }),
   /** チャンネルの割り振り（createdAt の昇順） */
   delegations: (channelId: string) => invoke('list_delegations', { channelId }),
   /** 本文のリンクを OS の既定のブラウザで開く（http・https だけ） */

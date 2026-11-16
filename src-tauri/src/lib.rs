@@ -6,8 +6,8 @@ pub mod infrastructure;
 pub mod interface;
 
 use interface::commands::{
-    agents, backgrounds, boot, channels, frames, guild, language, links, messages, profile, skills, snapshot, storage,
-    update,
+    agents, backgrounds, boot, channels, frames, guild, language, links, local_files, messages, profile, skills,
+    snapshot, storage, update,
 };
 use interface::state::BeforeUpdate;
 use tauri::Manager;
@@ -69,6 +69,8 @@ fn command_handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send +
         messages::send_message,
         messages::get_attachment,
         messages::reveal_attachment,
+        local_files::reveal_local_file,
+        local_files::read_local_image,
         messages::stop_channel,
         messages::list_delegations,
         guild::update_guild,

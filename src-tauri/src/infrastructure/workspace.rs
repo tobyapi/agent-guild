@@ -42,6 +42,11 @@ impl FsWorkspace {
     }
 }
 
+/// エージェントの作業場所。コマンドから本文中の相対パスをたどるときも、ランナーと同じ場所を使う。
+pub fn agent_work_dir(data_dir: &Path, agent: &AgentId) -> PathBuf {
+    data_dir.join(AGENTS_DIR).join(safe_component(agent.as_str())).join("work")
+}
+
 impl Workspace for FsWorkspace {
     fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
         let state = self.root(agent).join("state").join(safe_component(backend));

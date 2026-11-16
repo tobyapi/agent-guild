@@ -1,12 +1,19 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { chatApi } from '../api';
 import { createMarkdownRenderer } from '../model/markdown';
 import { renderDiagram } from '../model/mermaid';
 import { sanitizeHtml } from '../model/sanitize';
 import { MessageBody } from './MessageBody';
 
-vi.mock('../api', () => ({ chatApi: { openUrl: vi.fn() } }));
+vi.mock('../api', () => ({
+  chatApi: {
+    openUrl: vi.fn(),
+    localImage: vi.fn(),
+    revealLocalFile: vi.fn(),
+  },
+}));
 vi.mock('../model/mermaid', () => ({ renderDiagram: vi.fn() }));
 
 const markdown = createMarkdownRenderer([]);
@@ -15,6 +22,8 @@ const writeText = vi.fn((text: string) => Promise.resolve(text));
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(chatApi.localImage).mockResolvedValue({ status: 'unsupported' });
+  vi.mocked(chatApi.revealLocalFile).mockResolvedValue(null);
   writeText.mockImplementation((text) => Promise.resolve(text));
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
 });
@@ -70,6 +79,29 @@ describe('MessageBody', () => {
     expect(view.container.querySelector('img')?.getAttribute('alt')).toBe('紋');
     fireEvent.click(screen.getByRole('button', { name: /v\.example\.com から読み込む/ }));
     expect(view.container.querySelector('video')?.getAttribute('src')).toBe('https://v.example.com/a.mp4');
+  });
+
+  it('ローカル画像を読み込み、パスからファイラを開き、画像を大きく表示する', async () => {
+    Object.assign(HTMLDialogElement.prototype, { showModal: vi.fn() });
+    vi.mocked(chatApi.localImage).mockResolvedValue({ status: 'ok', mime: 'image/png', base64: 'aW1hZ2U=' });
+    const view = render(<MessageBody content="![完成図](work/output.png)" render={renderBody} agentId="agent-1" />);
+
+    const image = await screen.findByAltText('完成図');
+    expect(image.getAttribute('src')).toBe('data:image/png;base64,aW1hZ2U=');
+    expect(chatApi.localImage).toHaveBeenCalledWith('work/output.png', 'agent-1');
+    fireEvent.click(screen.getByRole('button', { name: /work\/output\.png/ }));
+    expect(chatApi.revealLocalFile).toHaveBeenCalledWith('work/output.png', 'agent-1');
+    fireEvent.click(screen.getByRole('button', { name: '完成図 を大きく表示' }));
+    expect(view.container.querySelector('dialog img')?.getAttribute('src')).toBe('data:image/png;base64,aW1hZ2U=');
+  });
+
+  it('ローカル画像が無い・表示非対応の状態を示す', async () => {
+    vi.mocked(chatApi.localImage).mockImplementation((path) =>
+      Promise.resolve(path.includes('missing') ? { status: 'notFound' } : { status: 'unsupported' }),
+    );
+    render(<MessageBody content={'/tmp/missing.png\n/tmp/not-image.webp'} render={renderBody} agentId="agent-1" />);
+    expect(await screen.findByText('見つかりません')).toBeTruthy();
+    expect(await screen.findByText('表示できません')).toBeTruthy();
   });
 
   it('生の HTML は要素にせず、差し込み口の属性を本文から作らせない', () => {
