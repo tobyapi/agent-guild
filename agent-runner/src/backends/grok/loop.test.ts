@@ -49,8 +49,10 @@ it('stops before execution or continuation when encrypted reasoning is absent', 
   expect(send).toHaveBeenCalledTimes(1);
 });
 
-it('stops next request at the job budget and does not reset after a local call', async () => {
-  const send = vi.fn().mockResolvedValue(result('one', [reasoning, call]));
+it.each([12, 13])('stops next request at or above the job budget (%i ticks)', async (ticks) => {
+  const response = result('one', [reasoning, call]);
+  response.usage.cost_in_usd_ticks = ticks;
+  const send = vi.fn().mockResolvedValue(response);
   await expect(
     runLoop({
       model: 'test',

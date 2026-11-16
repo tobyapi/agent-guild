@@ -23,6 +23,15 @@ it('counts the provider total once including cached and server tool usage', () =
   expect(usage.add(value(), 'test')).toBeNull();
   expect(usage).toMatchObject({ ticks: 1234, cached: 2, web: 1, posts: 4, users: 2 });
 });
+it.each([1, 3])('accounts for %i Web searches with zero results without adding tool fees again', (web) => {
+  const response = value();
+  response.output = Array.from({ length: web }, () => ({ type: 'web_search_call', action: { sources: [] } }));
+  response.usage.server_side_tool_usage_details = { web_search_calls: web, x_posts_fetched: 0, x_users_fetched: 0 };
+  const usage = new Usage();
+  expect(usage.add(response, 'test')).toMatchObject({ estimatedCostNanoUsd: 123 });
+  expect(usage).toMatchObject({ ticks: 1234, web, posts: 0, users: 0 });
+  expect(citations(response.output)).toEqual([]);
+});
 it.each([undefined, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])('fails closed on missing or invalid cost %s', (cost) => {
   const response = value();
   response.usage.cost_in_usd_ticks = cost;
