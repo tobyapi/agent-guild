@@ -63,7 +63,13 @@ fn route(shared: &Shared, line: &str, ready: &mut Option<oneshot::Sender<wire::R
         }
         Ok(Event::Activity { id, detail }) => shared.jobs.update(&id, RunUpdate::Activity(detail)),
         Ok(Event::Post { id, text }) => shared.jobs.update(&id, RunUpdate::Post(text)),
-        Ok(Event::SkillObservation { id, name }) => shared.jobs.update(&id, RunUpdate::SkillObservation(name)),
+        Ok(Event::SkillObservation { id, name, sequence, tool_call_id }) => {
+            let update = match (name, tool_call_id, sequence) {
+                (Some(name), Some(call), Some(seq)) => RunUpdate::SkillRead(name, call, seq),
+                (name, _, _) => RunUpdate::SkillObservation(name),
+            };
+            shared.jobs.update(&id, update);
+        }
         Ok(Event::Usage { id, usage }) => shared.jobs.update(&id, RunUpdate::Usage(usage)),
         Ok(Event::Result { id, text }) => {
             shared.jobs.finish(&id, Ok(text));

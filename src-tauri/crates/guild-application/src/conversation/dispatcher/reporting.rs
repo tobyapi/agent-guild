@@ -17,7 +17,7 @@ impl Actor {
                     RunUpdate::Activity(detail) => Command::Activity { job_id, detail },
                     RunUpdate::Post(text) => Command::Post { job_id, text, skills: None },
                     RunUpdate::RecordedPost(text, skills) => Command::Post { job_id, text, skills: Some(skills) },
-                    RunUpdate::SkillObservation(_) => return,
+                    RunUpdate::SkillObservation(_) | RunUpdate::SkillRead(..) => return,
                     RunUpdate::Usage(_) => return,
                 };
                 let _ = updates.send(command);

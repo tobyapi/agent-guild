@@ -79,6 +79,10 @@ pub(crate) enum Event {
     SkillObservation {
         id: String,
         name: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        sequence: Option<u64>,
+        #[serde(default, rename = "toolCallId", skip_serializing_if = "Option::is_none")]
+        tool_call_id: Option<String>,
     },
     Usage {
         id: String,

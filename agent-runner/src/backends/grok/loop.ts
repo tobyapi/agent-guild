@@ -8,7 +8,7 @@ export interface Loop {
   model: string;
   input: Item[];
   tools: () => Item[];
-  execute: (name: string, args: string) => Promise<string>;
+  execute: (name: string, args: string, toolCallId: string) => Promise<string>;
   send: Send;
   context: RunContext;
   budgetTicks?: number;
@@ -58,7 +58,7 @@ async function calls(
     const previous = ledger.get(id);
     if (previous && previous.signature !== signature) throw invalid();
     if (!previous && ledger.size >= 20) throw invalid();
-    const result = previous?.result ?? (await loop.execute(name, args));
+    const result = previous?.result ?? (await loop.execute(name, args, id));
     ledger.set(id, { signature, result });
     results.push({ type: 'function_call_output', call_id: id, output: result });
   }

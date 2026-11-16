@@ -38,7 +38,7 @@ export interface RunContext {
   /** 作業の途中の投稿（チャットに出す文章）を Rust へ送る。終わったジョブの投稿は捨てられる */
   onPost: (text: string) => void;
   onUsage: (usage: RunUsage) => void;
-  onSkillRead?: (name: string | null) => void;
+  onSkillRead?: (name: string | null, toolCallId?: string) => void;
 }
 
 export interface ImageContext {

@@ -9,6 +9,7 @@ import { logError } from './log.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
 import { t } from './texts/index.ts';
+import { skillEvents } from './dispatcher-skill-events.ts';
 
 type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
 export interface DispatcherOptions {
@@ -131,7 +132,7 @@ export class Dispatcher {
         onActivity: (detail) => send({ type: 'activity', id, detail }),
         onPost: (text) => send({ type: 'post', id, text }),
         onUsage: (usage) => send({ type: 'usage', id, usage }),
-        onSkillRead: (name) => send({ type: 'skillObservation', id, name }),
+        onSkillRead: skillEvents(id, send),
       });
     });
   }

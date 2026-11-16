@@ -49,7 +49,14 @@ export interface SkillUsage {
   loaded: string[];
   supported: boolean;
   runId: string | null;
-  interval?: { version: number; agentId: string; start: number; end: number; incomplete: boolean } | null;
+  interval?: {
+    version: number;
+    agentId: string;
+    start: number;
+    end: number;
+    incomplete: boolean;
+    observations?: { name: string; toolCallId: string; sequence: number }[];
+  } | null;
 }
 
 export interface Message {

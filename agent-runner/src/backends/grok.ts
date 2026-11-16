@@ -91,7 +91,13 @@ export const grokAdapter: BackendAdapter = {
       model: request.model || MODEL,
       input: await input(request, signal),
       tools: () => tools(request),
-      execute: (name, args) => execute(request, bounded, name, args),
+      execute: (name, args, id) =>
+        execute(
+          request,
+          { ...bounded, onSkillRead: (skill) => context.onSkillRead?.(skill, `backend:${id}`) },
+          name,
+          args,
+        ),
       send: client(key),
       context: bounded,
     });

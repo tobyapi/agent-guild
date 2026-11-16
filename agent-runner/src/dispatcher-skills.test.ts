@@ -46,7 +46,7 @@ it('keeps concurrent read observations on their own job and drops cancelled or c
   await new Promise((resolve) => setImmediate(resolve));
   contexts.get('child')!.onSkillRead?.('completed-late');
   expect(events.filter((e) => e.type === 'skillObservation')).toEqual([
-    { type: 'skillObservation', id: 'parent', name: 'parent-skill' },
-    { type: 'skillObservation', id: 'child', name: 'child-skill' },
+    { type: 'skillObservation', id: 'parent', name: 'parent-skill', sequence: 1, toolCallId: 'host:1' },
+    { type: 'skillObservation', id: 'child', name: 'child-skill', sequence: 1, toolCallId: 'host:1' },
   ]);
 });

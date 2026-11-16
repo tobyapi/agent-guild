@@ -32,6 +32,11 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
                 start: 0,
                 end: 2,
                 incomplete: false,
+                observations: vec![guild_domain::skill_usage::SkillRead {
+                    name: "reflection".into(),
+                    tool_call_id: "backend:call-a".into(),
+                    sequence: 1,
+                }],
             }),
         }),
         ..new_message("progress", "途中\n```skill-usage\n[\"clean-code\",\"reflection\"]\n```")

@@ -21,6 +21,17 @@ pub struct SkillInterval {
     pub start: u64,
     pub end: u64,
     pub incomplete: bool,
+    #[serde(default)]
+    pub observations: Vec<SkillRead>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillRead {
+    pub name: String,
+    pub tool_call_id: String,
+    /// Runner-issued order, not a model-provider sequence.
+    pub sequence: u64,
 }
 
 pub fn valid_name(name: &str) -> bool {

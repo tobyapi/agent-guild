@@ -79,6 +79,7 @@ pub enum RunUpdate {
     /// 作業の途中の投稿（チャットに出す文章）
     Post(String),
     SkillObservation(Option<String>),
+    SkillRead(String, String, u64),
     Usage(RunUsage),
 }
 

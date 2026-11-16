@@ -7,4 +7,4 @@
 {"type":"error","id":"job-0002","code":"cancelled","message":"実行を中断しました"}
 {"type":"error","id":null,"code":"bad_request","message":"JSON として読めない行を受け取りました"}
 {"type":"skillObservation","id":"job-skill","name":null}
-{"type":"skillObservation","id":"job-skill","name":"clean-code"}
+{"type":"skillObservation","id":"job-skill","name":"clean-code","sequence":1,"toolCallId":"backend:call-1"}

@@ -157,6 +157,10 @@ export const messageSchema = {
                       start: number,
                       end: number,
                       incomplete: boolean,
+                      observations: (value, path) =>
+                        value === undefined
+                          ? []
+                          : arrayOf(objectOf({ name: string, toolCallId: string, sequence: number }))(value, path),
                     }),
                   )(value, path),
           }),

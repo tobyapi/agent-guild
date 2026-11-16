@@ -36,7 +36,7 @@ it('replays encrypted state and matching tool output without previous_response_i
   expect(final.usage.ticks).toBe(24);
   expect(send.mock.calls[1]?.[0]).toMatchObject({ include: ['reasoning.encrypted_content'] });
   // Transport serialization happens before finally clears the job history.
-  expect(execute).toHaveBeenCalledExactlyOnceWith('read_file', '{"path":"fixture.txt"}');
+  expect(execute).toHaveBeenCalledExactlyOnceWith('read_file', '{"path":"fixture.txt"}', 'call-1');
 });
 
 it('stops before execution or continuation when encrypted reasoning is absent', async () => {
