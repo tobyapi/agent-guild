@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { block, support, fallback } from './lib/glassCss.mjs';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const tokens = read('src/shared/ui/theme/tokens-backdrop.css');
@@ -11,10 +12,15 @@ test('surfaces default to opaque and only become transparent inside the glass gu
     assert.ok(!tokens.includes(`--surface-${pane}: color-mix`));
   }
   const glass = read('src/shared/ui/theme/tokens-glass.css');
-  assert.ok(glass.includes('@media (prefers-reduced-transparency: no-preference)'));
-  assert.ok(glass.includes('@supports (backdrop-filter: blur(1px))'));
-  assert.ok(glass.includes("[data-glass='frosted']"));
-  assert.ok(glass.includes('(forced-colors: active)'));
+  assert.doesNotMatch(glass, /prefers-reduced-transparency:\s*no-preference/);
+  const selector = ":root[data-background='active'][data-glass='frosted']";
+  const enabled = block(block(glass, support), selector);
+  const reset = block(block(glass, fallback), selector);
+  assert.ok(glass.indexOf(fallback) > glass.indexOf(support));
+  for (const [pane, surface] of Object.entries({ chat: 'app', sidebar: 'sidebar', members: 'panel' })) {
+    assert.ok(enabled.includes(`--surface-${pane}: transparent;`));
+    assert.ok(reset.includes(`--surface-${pane}: var(--bg-${surface});`));
+  }
 });
 
 test('state faces stay opaque and retired decoration stays absent', () => {

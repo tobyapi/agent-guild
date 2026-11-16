@@ -11,6 +11,7 @@ pub mod file_manager;
 pub mod folders;
 pub mod frame_images;
 pub mod ids;
+pub mod local_file_access;
 pub mod local_files;
 pub mod logging;
 pub mod plain_path;

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
+import { block, support, fallback } from './lib/glassCss.mjs';
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8');
 const materials = [
@@ -17,15 +18,19 @@ const materials = [
   ['src/features/agents/components/editor/PresetPicker.module.css', '.popover'],
 ];
 
-test('glass requires an active backdrop, transparency preference and filter support', () => {
+test('glass requires an active backdrop and filter support, with reduced/forced-color overrides', () => {
   for (const [file, selector] of materials) {
     const css = read(file);
-    const guard = css.indexOf('@media (prefers-reduced-transparency: no-preference)');
-    assert.ok(guard >= 0, file);
-    const material = css.slice(guard).replace(/\s+/g, ' ');
-    assert.ok(material.includes('@supports (backdrop-filter: blur(1px))'), file);
-    assert.ok(material.includes(`:global(:root[data-background='active'][data-glass='frosted']) ${selector}`), file);
-    assert.doesNotMatch(css.slice(0, guard), /backdrop-filter:|filter:\s*blur/);
+    assert.doesNotMatch(css, /prefers-reduced-transparency:\s*no-preference/, file);
+    const material = block(css, support);
+    const reset = block(css, fallback);
+    const scoped = `:global(:root[data-background='active'][data-glass='frosted']) ${selector}`;
+    assert.ok(material.includes(scoped), file);
+    assert.ok(css.indexOf(fallback) > css.indexOf(support), file);
+    if (selector === '.backdrop') assert.ok(block(reset, selector).includes('display: none;'), file);
+    else if (selector === '.shell::after') assert.ok(block(reset, scoped).includes('content: none;'), file);
+    else assert.ok(block(reset, scoped).includes('--glass-ink-weight: 0%;'), file);
+    assert.doesNotMatch(css.slice(0, css.indexOf(support)), /backdrop-filter:|filter:\s*blur/);
   }
 });
 
@@ -46,10 +51,17 @@ test('every backdrop-filter declaration is opt-in and reduced/forced-color safe'
   for (const file of files) {
     const css = read(`src/${file}`);
     if (!/\n\s*backdrop-filter:/.test(css)) continue;
-    const guard = css.indexOf('@media (prefers-reduced-transparency: no-preference) and (forced-colors: none)');
-    assert.ok(guard >= 0, file);
-    assert.doesNotMatch(css.slice(0, guard), /\n\s*backdrop-filter:/);
-    assert.ok(css.slice(guard).includes("[data-glass='frosted']"), file);
+    const enabled = block(css, support);
+    const reset = block(css, fallback);
+    assert.ok(css.indexOf(fallback) > css.indexOf(support), file);
+    const rules = [...enabled.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+    for (const [, selector, declarations] of rules) {
+      if (!/backdrop-filter:/.test(declarations)) continue;
+      assert.ok(selector.includes("[data-background='active'][data-glass='frosted']"), file);
+      assert.ok(block(reset, selector.trim()).includes('backdrop-filter: none;'), file);
+    }
+    const outside = css.replace(enabled, '').replace(reset, '');
+    assert.doesNotMatch(outside, /\n\s*backdrop-filter:/, file);
   }
   assert.ok(
     read('src/features/chat/components/Composer.module.css').includes('outline: 2px solid var(--focus-color);'),
@@ -58,13 +70,18 @@ test('every backdrop-filter declaration is opt-in and reduced/forced-color safe'
 
 test('glass ink preserves opaque paint and enables only the guarded transparent panes', () => {
   const ink = read('src/shared/ui/theme/tokens-glass-ink.css');
-  assert.ok(ink.includes('@media (prefers-reduced-transparency: no-preference) and (forced-colors: none)'));
-  assert.ok(ink.includes('@supports (backdrop-filter: blur(1px))'));
-  assert.ok(ink.includes("[data-background='active'][data-glass='frosted'] *"));
-  assert.ok(ink.includes('var(--glass-ink-weight, 0%)'));
+  const enabled = block(ink, support);
+  assert.ok(enabled.includes("[data-background='active'][data-glass='frosted'] *"));
+  assert.ok(enabled.includes('var(--glass-ink-weight, 0%)'));
+  assert.ok(
+    block(block(ink, fallback), ":root[data-background='active'][data-glass='frosted'] *").includes(
+      '--glass-ink-weight: 0%;',
+    ),
+  );
+  assert.ok(ink.indexOf(fallback) > ink.indexOf(support));
   for (const [file, selector] of materials.filter(([, selector]) => selector !== '.backdrop')) {
     const css = read(file);
-    const guarded = css.slice(css.indexOf('@media (prefers-reduced-transparency: no-preference)'));
+    const guarded = block(css, support);
     assert.ok(guarded.includes('--glass-ink-weight: 100%;'), `${file}/${selector}`);
   }
   for (const file of [

@@ -10,6 +10,7 @@ pub mod error;
 pub mod frames;
 pub mod guild;
 pub mod language;
+pub mod local_files;
 pub mod maintenance;
 pub mod ports;
 pub mod profile;

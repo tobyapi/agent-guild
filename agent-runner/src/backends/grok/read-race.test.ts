@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { mkdtemp, mkdir, writeFile, rename, rm, open } from 'node:fs/promises';
+import { mkdtemp, realpath, mkdir, writeFile, rename, rm, open } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runRequest } from '../run.test-support.ts';
@@ -9,18 +9,20 @@ import { runContext } from '../run.test-support.ts';
 
 vi.mock('node:fs/promises', async (original) => {
   const fs = await original<typeof import('node:fs/promises')>();
-  return { ...fs, open: vi.fn(fs.open) };
+  return { ...fs, open: vi.fn(fs.open), realpath: vi.fn(fs.realpath) };
 });
 const roots: string[] = [];
 afterEach(async () => {
   vi.mocked(open).mockReset();
   const fs = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
   vi.mocked(open).mockImplementation(fs.open);
+  vi.mocked(realpath).mockReset();
+  vi.mocked(realpath).mockImplementation(fs.realpath);
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'grok-read-race-'));
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'grok-read-race-')));
   roots.push(root);
   const workspace = join(root, 'work');
   const stateDir = join(root, 'state');
@@ -55,6 +57,7 @@ it('rejects a real file identity swap between approval and open before reading b
     code: 'unsupported_permission',
   });
   expect(observed).not.toHaveBeenCalled();
+  expect(open).toHaveBeenCalledOnce();
 });
 
 it('rejects a real identity swap after open and before post-open path checks', async () => {
@@ -70,6 +73,18 @@ it('rejects a real identity swap after open and before post-open path checks', a
     code: 'unsupported_permission',
   });
   expect(observed).not.toHaveBeenCalled();
+  expect(open).toHaveBeenCalledOnce();
+});
+
+it('rejects a noncanonical path before opening even with readAnywhere permission', async () => {
+  const f = await fixture();
+  vi.mocked(realpath).mockImplementation(async (path) =>
+    path === f.target ? join(f.request.workspace, 'canonical-name.txt') : f.fs.realpath(path),
+  );
+  await expect(readLocal(f.request, 'public.txt', new AbortController().signal)).rejects.toMatchObject({
+    code: 'unsupported_permission',
+  });
+  expect(open).not.toHaveBeenCalled();
 });
 
 it('reads only the retained approved handle when the path is swapped during read', async () => {
@@ -104,5 +119,7 @@ it.each(['read_file', 'read_skill'])(
     f.request.skills = [{ name: 'fixture', description: '', body: '', dir: f.request.workspace, files: [] }];
     const args = name === 'read_file' ? { path: 'public.txt' } : { name: 'fixture', path: 'public.txt' };
     await expect(execute(f.request, runContext(abort.signal), name, JSON.stringify(args))).rejects.toThrow();
+    expect(open).toHaveBeenCalledOnce();
+    expect(abort.signal.aborted).toBe(true);
   },
 );

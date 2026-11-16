@@ -6,20 +6,12 @@ use std::path::{Path, PathBuf};
 
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
+pub use guild_application::local_files::LocalImage;
 use guild_domain::ids::AgentId;
-use serde::Serialize;
 
 use super::workspace::agent_work_dir;
 
 const MAX_IMAGE_BYTES: u64 = 20 * 1024 * 1024;
-
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(tag = "status", rename_all = "camelCase")]
-pub enum LocalImage {
-    Ok { mime: &'static str, base64: String },
-    NotFound,
-    Unsupported,
-}
 
 /// 画面から来たパスを OS のパスにする。相対パスには発言者の作業場所が必要。
 pub fn resolve(path: &str, agent_id: Option<&AgentId>, data_dir: &Path) -> Option<PathBuf> {
@@ -175,6 +167,24 @@ mod tests {
             read_image(&path),
             LocalImage::Ok { mime: "image/png", base64: STANDARD.encode(b"\x89PNG\r\n\x1a\nrest") }
         );
+    }
+
+    #[test]
+    fn service_resolves_agent_images_and_preserves_rejections() {
+        use guild_application::local_files::LocalFileService;
+        use std::sync::Arc;
+
+        let temp = TempDir::new();
+        let agent = AgentId::new("agent-1");
+        let path = resolve("image.png", Some(&agent), &temp.0).unwrap();
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(&path, b"\x89PNG\r\n\x1a\nrest").unwrap();
+        let files = LocalFileService::new(Arc::new(super::super::local_file_access::FsLocalFiles(temp.0.clone())));
+        assert_eq!(files.read_image("image.png", Some(&agent)), read_image(&path));
+        assert_eq!(files.read_image("image.png", None), LocalImage::Unsupported);
+        assert_eq!(files.read_image("missing.png", Some(&agent)), LocalImage::NotFound);
+        assert!(files.reveal("image.png", None).is_err());
+        assert!(files.reveal("missing.png", Some(&agent)).is_err());
     }
 
     #[test]

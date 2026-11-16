@@ -16,6 +16,7 @@ pub mod frame;
 pub mod guild;
 pub mod ids;
 pub mod link;
+pub mod local_image;
 pub mod locale;
 pub mod message;
 pub mod profile;

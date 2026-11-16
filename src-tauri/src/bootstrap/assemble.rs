@@ -82,6 +82,7 @@ pub fn ready(
     let runner: Arc<dyn AgentRuntime> = runtime.clone();
     app.manage(LanguageService::new(storage.settings.clone(), Some(runner)));
     let services = AppServices::new(ports.clone(), storage, exporter);
+    manage_local_files(app, paths);
     seed::run_once(&services, ports.meta.as_ref())?;
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
     app.manage(guild_application::backgrounds::BackgroundService::new(Arc::new(
@@ -95,6 +96,7 @@ pub fn ready(
 
 /// 復旧モード: サービスは起動せず、起動の結果と保存先の操作（と言語の変更）だけを持つ
 pub fn recovery(app: &AppHandle, paths: &AppPaths, boot: BootStatus) -> AppState {
+    manage_local_files(app, paths);
     let storage = storage_ports(app, paths);
     app.manage(LanguageService::new(storage.settings.clone(), None));
     AppState::Recovery { boot, storage: Box::new(StorageService::new(storage, None)) }
@@ -111,4 +113,10 @@ fn storage_ports(app: &AppHandle, paths: &AppPaths) -> StoragePorts {
 
 fn display(path: &Path) -> String {
     path.display().to_string()
+}
+
+fn manage_local_files(app: &AppHandle, paths: &AppPaths) {
+    app.manage(guild_application::local_files::LocalFileService::new(Arc::new(
+        crate::infrastructure::local_file_access::FsLocalFiles(paths.data_dir.clone()),
+    )));
 }

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog, Icon, reportError } from '@/shared/ui';
-import type { LocalImage } from '@/shared/api/contract';
-import { chatApi } from '../api';
+import { chatApi, type LocalImage } from '../api';
 import type { LocalImagePath } from '../model/localImagePaths';
 import { t } from '../i18n';
 import styles from './LocalImageView.module.css';

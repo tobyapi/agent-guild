@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, realpath, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runContext, runRequest } from '../run.test-support.ts';
@@ -32,7 +32,7 @@ it('handles skill assets as untrusted content and refuses escape or unknown name
   await expect(execute(request, ctx, 'write_file', '{"path":"MEMORY.md","text":"injected"}')).rejects.toThrow();
 });
 it('encodes explicit host attachments even when model-selected reading is disabled', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'grok-image-'));
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'grok-image-')));
   roots.push(root);
   const workspace = join(root, 'work');
   const stateDir = join(root, 'state');

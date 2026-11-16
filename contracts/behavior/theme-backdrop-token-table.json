@@ -108,37 +108,37 @@
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 43,
+      "line": 50,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .sidebar {"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 44,
+      "line": 51,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 48,
+      "line": 55,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .brand {"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 54,
+      "line": 61,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .sidebar {"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 55,
+      "line": 62,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 59,
+      "line": 66,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .brand {"
     },
     {
       "file": "src/app/Sidebar.tsx",
-      "line": 19,
+      "line": 20,
       "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
     },
     {
@@ -1258,77 +1258,77 @@
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 100,
+      "line": 110,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 101,
+      "line": 111,
       "expression": "background: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 119,
+      "line": 129,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 120,
+      "line": 130,
       "expression": "background: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 132,
+      "line": 142,
       "expression": ":global(:root[data-background='active']) .diagram {"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 133,
+      "line": 143,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 134,
+      "line": 144,
       "expression": "background: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 137,
+      "line": 147,
       "expression": ":global(:root[data-background='active']) .mediaGate {"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 138,
+      "line": 148,
       "expression": "--surface: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 140,
+      "line": 150,
       "expression": ":global(:root[data-background='active']) .mediaThumb {"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 141,
+      "line": 151,
       "expression": "--surface: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 143,
+      "line": 153,
       "expression": ":global(:root[data-background='active']) .video {"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 144,
+      "line": 154,
       "expression": "--surface: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 147,
+      "line": 157,
       "expression": ":global(:root[data-background='active']) .copy,"
     },
     {
       "file": "src/features/chat/components/BodyEmbeds.module.css",
-      "line": 148,
+      "line": 158,
       "expression": ":global(:root[data-background='active']) .mediaGate {"
     },
     {
@@ -1485,6 +1485,51 @@
       "file": "src/features/chat/components/Composer.module.css",
       "line": 130,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 16,
+      "expression": "color: var(--text-link);"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 25,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 26,
+      "expression": "background: var(--bg-hover);"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 37,
+      "expression": "color: var(--text-muted);"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 41,
+      "expression": "color: var(--text-muted);"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 54,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 55,
+      "expression": "background: var(--bg-sunken);"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 74,
+      "expression": ":global(:root[data-background='active']) .thumb {"
+    },
+    {
+      "file": "src/features/chat/components/LocalImageView.module.css",
+      "line": 75,
+      "expression": "--surface: var(--bg-sunken);"
     },
     {
       "file": "src/features/chat/components/Markdown.module.css",
@@ -3220,6 +3265,46 @@
       "file": "src/features/sounds/components/SoundSection.module.css",
       "line": 21,
       "expression": "color: var(--text-secondary);"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 11,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 12,
+      "expression": "background: var(--accent-soft);"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 13,
+      "expression": "color: var(--accent-text);"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 19,
+      "expression": "background: var(--accent);"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 20,
+      "expression": "color: var(--text-on-accent);"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 25,
+      "expression": "opacity: 0.6;"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 54,
+      "expression": "opacity: 0.45;"
+    },
+    {
+      "file": "src/features/update/components/UpdateButton.module.css",
+      "line": 71,
+      "expression": ":global(:root[data-background='active']) .button {"
     },
     {
       "file": "src/features/update/components/UpdateSection.module.css",
@@ -15696,7 +15781,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -15706,7 +15791,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -17629,6 +17714,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -20230,6 +20366,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -31175,7 +31379,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -31185,7 +31389,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -33108,6 +33312,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -35709,6 +35964,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -45254,7 +45577,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -45264,7 +45587,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -47187,6 +47510,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -49788,6 +50162,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -59333,7 +59775,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -59343,7 +59785,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -61266,6 +61708,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -63867,6 +64360,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -74812,7 +75373,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -74822,7 +75383,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -76745,6 +77306,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -79346,6 +79958,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -88891,7 +89571,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/app/Sidebar.tsx:19",
+          "name": "src/app/Sidebar.tsx:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -88901,7 +89581,7 @@
           "sources": [
             {
               "file": "src/app/Sidebar.tsx",
-              "line": 19,
+              "line": 20,
               "expression": "<Crest lit={working} shape={crest.shape} color={crest.color} />"
             }
           ],
@@ -90824,6 +91504,57 @@
               "file": "src/features/chat/components/Composer.module.css",
               "line": 87,
               "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:16",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 16,
+              "expression": "color: var(--text-link);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:37",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 37,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/LocalImageView.module.css:41",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/LocalImageView.module.css",
+              "line": 41,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -93425,6 +94156,74 @@
               "file": "src/features/sounds/components/SoundSection.module.css",
               "line": 21,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 13,
+              "expression": "color: var(--accent-text);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:20",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 20,
+              "expression": "color: var(--text-on-accent);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:25",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 25,
+              "expression": "opacity: 0.6;"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/update/components/UpdateButton.module.css:54",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/update/components/UpdateButton.module.css",
+              "line": 54,
+              "expression": "opacity: 0.45;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
