@@ -51,7 +51,8 @@ export class ColorEnvelope {
   }
 
   luminanceRange(): readonly [number, number] {
-    const values = this.corners().map(luminance);
+    // sRGB luminance increases in every channel, so the two bounds contain both extrema.
+    const values = [luminance(this.low), luminance(this.high)];
     return [Math.min(...values), Math.max(...values)];
   }
 }
