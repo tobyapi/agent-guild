@@ -48,3 +48,5 @@ Initial WIP scan: 28 files, exact credential matches 0, unreadable 0, suspicious
 ## Outstanding review and non-PASS items
 
 Security acceptance is **not yet complete**. Muse review is required. The specific missing fixture variants above, Rust full-check outcome if still pending, other-OS real filesystem behavior, GUI checks and unperformed live cases are not counted as PASS. The B stop conditions have not been observed: encrypted replay succeeds, tested read exclusions hold, spend is below cap, and no shared sandbox change was required. Keep all changes on this branch for review; do not integrate main.
+
+Final source inspection found a concrete remaining 6.4 defect: `hop()` awaits `dns.lookup()` before checking the bounded signal, so a stalled DNS lookup may delay rejection beyond 15 seconds. The current deadline fixture covers a stalled response body, not stalled DNS. Next continuation must bound DNS waiting with cancellation and add the stalled-DNS fixture before claiming the whole-fetch deadline gate passes. This is not a secret-read boundary failure and did not trigger a new live request.
