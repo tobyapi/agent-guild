@@ -1,43 +1,40 @@
 # Grok backend
 
-**実験対応・実API未検証。** 選択画面にも同じ表示を出す。readyはキーとCLIの存在確認のみで、接続成功ではない。
+Grok は xAI Responses API に直接接続する、検索と読み取りの担当です。Codex CLI は不要です。
+既存の Grok エージェントにもこの制限を適用します。保存された役割の権限は変更せず、実行時に能力で絞ります。
 
-ローカル実CLIの通信採取と仕様照合は[grok-wire.md](grok-wire.md)を参照。Codexのマルチエージェント機能はxAIへ未確認のnamespace形式を送るため無効にしている。
+全 OS でコマンド実行・ファイル書き込み・MEMORY.md 更新は無効です。MEMORY の例外もありません。
+Web/X 検索には webSearch と webFetch の両方、URL 取得には webFetch、ローカル読取には readFiles が必要です。
+readAnywhere がない場合は作業場所と readableDirs に限定します。秘密の既知の場所・管理用 state・秘密ファイル名を除外し、
+複数のハードリンクを持つファイルと symlink/junction を拒否します。読取ハンドルの同一性も検査します。
+既知の除外一覧は、あらゆる秘密ファイルを発見する仕組みではありません。
 
-GrokはCodex SDKの実行器から、xAIのResponses APIへ接続する。
-アプリを起動する環境に`XAI_API_KEY`を設定する。キーをエージェントの
-backendOptionsやsettings.jsonへ保存しない。Codex CLIのインストールも必要だ。
-GrokのWeb版ログインやサブスクリプションは、この認証の代わりにはならない。
+API キーは設定画面で保存できます。OS 資格情報ストアの保存キーを優先し、環境変数 XAI_API_KEY も利用できます。
+資格情報ストアが失敗した場合は別キーに切り替えません。[キーの設定](backend-api-keys.md)を参照してください。
+probe はキーの有無だけを確認し、通信成功を保証しません。既定モデルは grok-4.7 です。
+既存のモデル ID 自由入力は利用できますが、画像入力は既定モデルだけに制限します。
 
-既定のモデルは`grok-4.7`。推論の深さはlow、medium、high、xhighから選べる。
-カタログにないモデルIDは既存の自由入力を使える。モデルへのアクセス権と
-APIキーの有効性は実行時に判明する。probeは通信せず、キーの有無だけを確認する。
+費用はターンごとに累積し、$0.20 に達したら次の要求を停止します。進行中の1要求は超過する場合があり、
+厳密な課金上限ではありません。xAI の月次後払い上限は前払い残高の消費を制限しません。
+利用者のチーム・キーの制限設定は変更しません。要求は10回、ローカル呼出しは20個、実行全体は5分までです。
+失敗後の自動再試行はありません。usage が不明な応答から継続しません。
 
-会話、画像入力、途中投稿、中断、ファイル操作、コマンド、スキルの実行経路は
-既存Codex実行器を共用する。Grok専用のCODEX_HOMEをstateDir/codexに置き、
-モデルプロバイダ、接続先、環境変数を実行ごとに渡す。グローバル設定は変更しない。
-キーはプロバイダ設定やコマンドライン引数に含めず、子シェルの環境変数からも除く。
+継続は store=false、stream=false とし、暗号化推論状態と対応する関数結果をジョブ内メモリーで再送します。
+previous_response_id は使用せず、状態をディスクへ保存しません。暗号化状態が欠ければ停止します。
+登録するローカル道具は read_file、fetch_url、read_skill、post のみです。権限がない道具は登録せず、実行直前にも拒否します。
+同じ call_id の同じ呼出しは結果を再利用し、異なる内容への使い回しは拒否します。
 
-Web検索とX検索は未対応で、要求されたら実行前に拒否する。
-Web閲覧はCodex同様、ネットワークを許可したコマンドによる取得となる。
-Codexの権限制御の限界も同じだ。readFilesとskillsを無効にした実行は拒否し、
-writeFilesにはrunCommands、writeAnywhereにはwriteFilesとwebFetchを必要とする。
-操作確認とsandboxの設定は既存Codexの経路から引き継ぐ。
+fetch_url は HTTP(S) の公開 IP だけに接続します。DNS 応答を検査して接続先を固定し、転送先も再検査します。
+本文は2 MiB、取得全体は15秒、転送は5回まで。圧縮本文は受け付けません。
+これはローカル取得の制約であり、xAI サーバー側検索の宛先制御を保証しません。
+出典リンクは最終回答に保持し、欠落した位置情報は末尾の Sources に回します。リンクを自動取得しません。
 
-この変更はSDKをモックしたテストで検証した。実際のxAI APIでの会話、画像、
-ツール実行、ストリーム中断の互換性は未検証で、導入前の実機確認が必要だ。
-エラー本文に認証情報が混ざる可能性があるため、Grokからの生エラーは投稿せず、
-エラーコードと一般的な案内を返す。
+スキルは依頼に添付された確定一覧から読み、本文と取得資料は非信頼資料として扱います。
+モデル入力自体は外部 API へ送信します。検索語・URL に含むローカル資料も外部へ送られます。
+HTTP エラーの生本文・ヘッダーは投稿せず、固定のエラーへ変換します。
 
-仕様の根拠:
+2026-11-16 に Windows / Node 25.2.1 で Web検索→ローカル読取→暗号化状態再送→回答（2要求、$0.02145）と、
+出典付き X 検索（1要求、$0.016294）を確認しました。画像・スキル・途中投稿はオフライン fixture で検証しています。
+macOS/Linux 実機・長時間実行・画像のライブ入力は未検証です。採用前にセキュリティレビューを受けます。
 
-- [Grok 4.7](https://docs.x.ai/developers/grok-4-7)
-- [xAI Responses API](https://docs.x.ai/developers/rest-api-reference/inference/responses)
-- [Codex provider configuration](https://learn.chatgpt.com/docs/config-file/config-reference)
-
-Muse Sparkの接続は[muse.md](muse.md)を参照。DeepSeekには変更を加えていない。
-
-## API key settings
-
-Keys can be saved, updated and deleted in Settings > Backends on Windows.
-Saved keys take precedence over environment variables. See [backend-api-keys.md](backend-api-keys.md).
+旧 Codex 経由の記録は [grok-wire.md](grok-wire.md)、今回の受入条件は [grok-search-design.md](grok-search-design.md) を参照してください。
