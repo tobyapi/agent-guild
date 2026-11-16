@@ -1,6 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import { runLoop } from './loop.ts';
 import type { Response } from './response.ts';
+import { execute as executeTool } from './tools.ts';
+import { runRequest, runContext } from '../run.test-support.ts';
 
 const response = (output: Response['output']): Response => ({
   id: 'cancel-fixture',
@@ -10,6 +12,14 @@ const response = (output: Response['output']): Response => ({
 });
 const stages = ['before', 'during', 'after'] as const;
 const local = ['read_file', 'fetch_url', 'read_skill', 'post'];
+
+it.each(local)('rejects cancelled actual %s dispatch before side effects', async (name) => {
+  const abort = new AbortController();
+  abort.abort();
+  const context = runContext(abort.signal);
+  await expect(executeTool(runRequest('grok'), context, name, '{}')).rejects.toThrow();
+  expect(context.onPost).not.toHaveBeenCalled();
+});
 
 it.each(local.flatMap((name) => stages.map((stage) => ({ name, stage }))))(
   'stops $name cancellation $stage dispatch without retries or continuation',

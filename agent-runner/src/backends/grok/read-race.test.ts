@@ -4,6 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runRequest } from '../run.test-support.ts';
 import { readLocal } from './read.ts';
+import { execute } from './tools.ts';
+import { runContext } from '../run.test-support.ts';
 
 vi.mock('node:fs/promises', async (original) => {
   const fs = await original<typeof import('node:fs/promises')>();
@@ -84,18 +86,23 @@ it('reads only the retained approved handle when the path is swapped during read
   expect(await readLocal(f.request, 'public.txt', new AbortController().signal)).toBe('approved-public');
 });
 
-it('discards completed file bytes when cancellation occurs during the handle read', async () => {
-  const f = await fixture();
-  const abort = new AbortController();
-  vi.mocked(open).mockImplementationOnce(async (path, flags) => {
-    const handle = await f.fs.open(path, flags);
-    const read = handle.read.bind(handle);
-    vi.spyOn(handle, 'read').mockImplementationOnce(async (...args) => {
-      const result = await read(...args);
-      abort.abort();
-      return result;
+it.each(['read_file', 'read_skill'])(
+  'discards completed %s bytes when cancelled during the handle read',
+  async (name) => {
+    const f = await fixture();
+    const abort = new AbortController();
+    vi.mocked(open).mockImplementationOnce(async (path, flags) => {
+      const handle = await f.fs.open(path, flags);
+      const read = handle.read.bind(handle);
+      vi.spyOn(handle, 'read').mockImplementationOnce(async (...args) => {
+        const result = await read(...args);
+        abort.abort();
+        return result;
+      });
+      return handle;
     });
-    return handle;
-  });
-  await expect(readLocal(f.request, 'public.txt', abort.signal)).rejects.toThrow();
-});
+    f.request.skills = [{ name: 'fixture', description: '', body: '', dir: f.request.workspace, files: [] }];
+    const args = name === 'read_file' ? { path: 'public.txt' } : { name: 'fixture', path: 'public.txt' };
+    await expect(execute(f.request, runContext(abort.signal), name, JSON.stringify(args))).rejects.toThrow();
+  },
+);
