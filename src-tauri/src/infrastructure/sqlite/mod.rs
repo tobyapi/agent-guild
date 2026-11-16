@@ -11,6 +11,7 @@ mod messages;
 mod migrations;
 mod reset;
 mod settings_tables;
+mod skill_records;
 mod skills;
 mod statistics;
 
@@ -21,6 +22,7 @@ pub use delegations::SqliteDelegationRepository;
 pub use frames::SqliteFrameRepository;
 pub use messages::SqliteMessageRepository;
 pub use settings_tables::{SqliteMetaRepository, SqliteProfileRepository};
+pub use skill_records::SqliteSkillRecordRepository;
 pub use skills::SqliteSkillRepository;
 pub use statistics::SqliteStatisticsRepository;
 

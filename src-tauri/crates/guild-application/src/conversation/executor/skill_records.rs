@@ -43,7 +43,7 @@ impl SkillRecords {
                 RunUpdate::SkillRead(name, call, seq) => observe_read(&mut record, name, call, seq),
                 RunUpdate::Post(text) => {
                     if format_reply(&declaration(&text).0, &record.agent_name).is_some() {
-                        next(RunUpdate::RecordedPost(text, take(&mut record.usage)));
+                        next(RunUpdate::RecordedPost(text, take(&mut record)));
                     }
                 }
                 other => next(other),
@@ -53,7 +53,7 @@ impl SkillRecords {
     pub(super) fn finish(&self) -> SkillUsage {
         let mut record = self.0.lock();
         record.closed = true;
-        take(&mut record.usage)
+        take(&mut record)
     }
 }
 fn observe_read(record: &mut Record, name: String, call: String, seq: u64) {
@@ -97,9 +97,10 @@ fn observe(usage: &mut SkillUsage, name: Option<String>) {
         usage.loaded.push(name);
     }
 }
-fn take(record: &mut SkillUsage) -> SkillUsage {
-    let result = SkillUsage { loaded: std::mem::take(&mut record.loaded), ..record.clone() };
-    if let Some(interval) = &mut record.interval {
+fn take(record: &mut Record) -> SkillUsage {
+    let result = SkillUsage { loaded: std::mem::take(&mut record.usage.loaded), ..record.usage.clone() };
+    record.calls.clear();
+    if let Some(interval) = &mut record.usage.interval {
         interval.start = interval.end;
         interval.incomplete = false;
         interval.observations.clear();

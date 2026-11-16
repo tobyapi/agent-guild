@@ -2,6 +2,9 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  skillUsageTruncated: 'Cancellation cut off later observations for this run. Saved message intervals are unchanged.',
+  skillUsageOrderUnconfirmed:
+    'Sequence follows runner notifications. Provider ordering and completeness are unconfirmed.',
   skillUsageDetails: 'Skill records',
   skillUsageLoaded: 'Before posting (read confirmed): ',
   skillUsageIncomplete: 'Unknown: records in this interval are incomplete.',

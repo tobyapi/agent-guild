@@ -15,8 +15,8 @@ use crate::maintenance::Maintenance;
 use crate::ports::{
     AgentRepository, AgentRuntime, AppControl, AttachmentStore, ChannelRepository, Clock, DataExporter,
     DelegationRepository, EventPublisher, Folders, FrameImageStore, FrameRepository, IdGenerator, MessageRepository,
-    MetaRepository, ProfileRepository, SettingsStore, SkillLibraryScanner, SkillRepository, Spawner,
-    StatisticsRepository, Workspace,
+    MetaRepository, ProfileRepository, SettingsStore, SkillLibraryScanner, SkillRecordRepository, SkillRepository,
+    Spawner, StatisticsRepository, Workspace,
 };
 use crate::profile::ProfileService;
 use crate::skills::library::SkillLibraryService;
@@ -34,6 +34,7 @@ pub struct Ports {
     pub attachments: Arc<dyn AttachmentStore>,
     pub delegations: Arc<dyn DelegationRepository>,
     pub statistics: Arc<dyn StatisticsRepository>,
+    pub skill_records: Arc<dyn SkillRecordRepository>,
     pub skills: Arc<dyn SkillRepository>,
     /// スキルライブラリのフォルダ（読むだけ）
     pub library: Arc<dyn SkillLibraryScanner>,

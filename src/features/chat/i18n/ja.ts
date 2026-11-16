@@ -1,5 +1,7 @@
 // chat の文言（発言の一覧・割り振りのカード・本文の埋め込み。日本語。キーの正）
 export const ja = {
+  skillUsageTruncated: '取消により、この実行の以降の観測は打切りです。保存済みの投稿区間は変更していません。',
+  skillUsageOrderUnconfirmed: '連番はランナーの通知順です。提供元の順序・完全性は未確認です。',
   skillUsageDetails: 'スキルの記録',
   skillUsageLoaded: '投稿前操作（読込確認）：',
   skillUsageIncomplete: '不明：この区間の記録には欠落があります。',

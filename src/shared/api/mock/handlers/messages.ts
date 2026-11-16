@@ -6,6 +6,7 @@ import { fail, postMessage, requireChannel } from '../runtime';
 import type { HandlerGroup } from './types';
 
 type MessageCommands =
+  | 'get_skill_record_truncated'
   | 'list_messages'
   | 'send_message'
   | 'get_attachment'
@@ -16,6 +17,7 @@ type MessageCommands =
   | 'list_delegations';
 
 export const messageHandlers: HandlerGroup<MessageCommands> = {
+  get_skill_record_truncated: () => false,
   /** beforeSeq より前の発言を新しいほうから limit 件、seq の昇順で返す */
   list_messages({ channelId, beforeSeq, limit }, runtime) {
     requireChannel(runtime, channelId);

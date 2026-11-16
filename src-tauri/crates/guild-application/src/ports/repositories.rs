@@ -111,6 +111,12 @@ pub trait StatisticsRepository: Send + Sync {
     fn for_channel(&self, channel: &ChannelId) -> AppResult<ChannelStatistics>;
 }
 
+/// Job-level cutoff is independent of immutable message snapshots.
+pub trait SkillRecordRepository: Send + Sync {
+    fn truncate(&self, job_id: &str, channel: &ChannelId) -> AppResult<()>;
+    fn is_truncated(&self, job_id: &str) -> AppResult<bool>;
+}
+
 pub trait ProfileRepository: Send + Sync {
     /// 未設定なら既定のプロフィール
     fn get(&self) -> AppResult<Profile>;

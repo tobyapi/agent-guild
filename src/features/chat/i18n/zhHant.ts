@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  skillUsageTruncated: '取消已截斷此執行之後的觀測。已儲存的發布區間維持不變。',
+  skillUsageOrderUnconfirmed: '序號為執行器通知順序，提供方順序和完整性未確認。',
   skillUsageDetails: '技能記錄',
   skillUsageLoaded: '發布前操作（讀取確認）：',
   skillUsageIncomplete: '未知：本區間記錄不完整。',

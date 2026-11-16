@@ -16,6 +16,7 @@ mod language;
 mod progress;
 mod scheduling;
 mod skill_library;
+mod skill_lifecycle;
 mod skill_records;
 mod statistics;
 mod stopping;

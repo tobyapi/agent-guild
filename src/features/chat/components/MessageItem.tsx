@@ -86,7 +86,7 @@ function MessageContent({ message, author, renderBody, delegation }: MessageItem
         <MessageBody content={content} render={renderBody} agentId={author.human ? null : message.authorId} />
       )}
       <MessageAttachments message={message} />
-      {eligible && <SkillUsageLabels usage={message.skillUsage} />}
+      {eligible && <SkillUsageLabels usage={message.skillUsage} messageId={message.id} />}
       {message.delegationId !== null &&
         (delegation ? <TaskCard delegation={delegation} /> : <p className={styles.taskLoading}>{t('taskLoading')}</p>)}
     </>

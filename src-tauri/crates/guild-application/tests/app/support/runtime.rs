@@ -32,6 +32,7 @@ pub enum Script {
     /// 作業の途中の投稿を順に送ってから返す
     Posts(Vec<String>, String),
     Updates(Vec<RunUpdate>, String),
+    PhasedUpdates(Vec<RunUpdate>, Arc<Notify>, Vec<RunUpdate>),
     /// 中断を無視して、gate が開いたら途中の投稿を送り、[PASS] を返す
     LatePost(Arc<Notify>, String),
 }
@@ -137,6 +138,16 @@ impl AgentRuntime for FakeRuntime {
                     on_update(event);
                 }
                 Ok(text)
+            }
+            Script::PhasedUpdates(before, gate, after) => {
+                for event in before {
+                    on_update(event);
+                }
+                gate.notified().await;
+                for event in after {
+                    on_update(event);
+                }
+                Ok("late final".into())
             }
             Script::LatePost(gate, post) => {
                 gate.notified().await;

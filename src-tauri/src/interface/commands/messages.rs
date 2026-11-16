@@ -14,6 +14,11 @@ use tauri::State;
 use super::{reject, CommandResult};
 use crate::interface::state::AppState;
 
+#[tauri::command]
+pub async fn get_skill_record_truncated(state: State<'_, AppState>, message_id: MessageId) -> CommandResult<bool> {
+    state.services()?.conversation.skill_record_truncated(&message_id).map_err(reject)
+}
+
 /// seq の昇順。before_seq より前の最新 limit 件（既定50・上限200）
 #[tauri::command]
 pub async fn list_messages(

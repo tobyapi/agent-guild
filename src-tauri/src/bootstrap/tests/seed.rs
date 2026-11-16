@@ -20,8 +20,8 @@ use crate::infrastructure::settings::SettingsFile;
 use crate::infrastructure::skill_library::FsSkillLibrary;
 use crate::infrastructure::sqlite::{
     Database, SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteFrameRepository,
-    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRepository,
-    SqliteStatisticsRepository,
+    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
+    SqliteSkillRepository, SqliteStatisticsRepository,
 };
 use crate::infrastructure::workspace::FsWorkspace;
 
@@ -43,6 +43,7 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
         attachments: Arc::new(FsAttachments::new(&dir.0)),
         delegations: Arc::new(SqliteDelegationRepository::new(db.clone())),
         statistics: Arc::new(SqliteStatisticsRepository::new(db.clone())),
+        skill_records: Arc::new(SqliteSkillRecordRepository::new(db.clone())),
         skills: Arc::new(SqliteSkillRepository::new(db.clone())),
         library: Arc::new(FsSkillLibrary),
         profile: Arc::new(SqliteProfileRepository::new(db.clone())),

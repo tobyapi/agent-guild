@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use guild_application::ports::{AgentRepository, ChannelRepository, StatisticsRepository};
+use guild_application::ports::{AgentRepository, ChannelRepository, SkillRecordRepository, StatisticsRepository};
 use guild_application::{AppError, AppResult};
 use guild_domain::agent::{name_key, Agent};
 use guild_domain::author::MemberId;
@@ -22,12 +22,23 @@ pub struct MemoryStore {
     pub channels: Mutex<Vec<Channel>>,
     pub messages: Mutex<Vec<Message>>,
     pub reject_next_progress: Mutex<bool>,
+    pub skill_cutoffs: Mutex<Vec<String>>,
     pub delegations: Mutex<Vec<Delegation>>,
     pub measurements: Mutex<Vec<RunMeasurement>>,
     pub skills: Mutex<Vec<Skill>>,
     pub profile: Mutex<Option<Profile>>,
     pub frames: Mutex<Vec<CustomFrame>>,
     pub meta: Mutex<HashMap<String, String>>,
+}
+
+impl SkillRecordRepository for MemoryStore {
+    fn truncate(&self, job_id: &str, _channel: &ChannelId) -> AppResult<()> {
+        self.skill_cutoffs.lock().push(job_id.into());
+        Ok(())
+    }
+    fn is_truncated(&self, job_id: &str) -> AppResult<bool> {
+        Ok(self.skill_cutoffs.lock().iter().any(|id| id == job_id))
+    }
 }
 
 impl StatisticsRepository for MemoryStore {

@@ -84,6 +84,11 @@ impl Actor {
 
     /// ランナーへの cancel は別タスクで送る（アクターを待たせない）
     fn cancel_job(&self, job_id: String) {
+        if let Some(running) = self.state.running.get(&job_id) {
+            if let Err(error) = self.ports.skill_records.truncate(&job_id, &running.job.channel_id) {
+                log::error!("Cannot save skill observation cutoff: {error}");
+            }
+        }
         let runtime = self.ports.runtime.clone();
         self.ports.spawner.spawn(Box::pin(async move { runtime.cancel(&job_id).await }));
     }

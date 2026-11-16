@@ -74,6 +74,7 @@ impl TestApp {
             attachments: attachments.clone(),
             delegations: store.clone(),
             statistics: store.clone(),
+            skill_records: store.clone(),
             skills: store.clone(),
             library: library.clone(),
             profile: store.clone(),

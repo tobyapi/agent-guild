@@ -1,6 +1,6 @@
 // コマンドの戻り値とイベントのペイロードの検証表（開発時に、受け取った値が契約に合うかを確かめる）。
 // 型は { [C in CommandName]: Validator } なので、コマンドを足して検証を書き忘れるとコンパイルエラーになる。
-import { anyOf, arrayOf, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
+import { anyOf, arrayOf, boolean, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
 import type { Validator } from '@/shared/types/schema';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { customFrameSchema, guildProfileSchema } from '@/shared/types/schemas/guild';
@@ -56,6 +56,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   delete_channel: nullValue,
   add_channel_member: nullValue,
   remove_channel_member: nullValue,
+  get_skill_record_truncated: boolean,
   list_messages: arrayOf(message),
   send_message: message,
   get_attachment: string,

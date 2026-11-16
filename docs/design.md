@@ -114,6 +114,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `delete_channel` | `{ id }` | `null` | state-changed, activity-changed | not_found |
 | `add_channel_member` | `{ channelId, memberId }` | `null` | state-changed, message-created | not_found |
 | `remove_channel_member` | `{ channelId, memberId }` | `null` | state-changed, activity-changed | not_found, validation（人間は外せない） |
+| `get_skill_record_truncated` | `{ messageId }` | `boolean`（ジョブの取消打切り。投稿の記録は不変） |
 | `list_messages` | `{ channelId, beforeSeq: number \| null, limit: number \| null }` | `Message[]`（seq の昇順。limit 既定 50・上限 200） | – | not_found |
 | `send_message` | `{ channelId, content, attachments: AttachmentInput[] }`（data は画像・ファイルの base64） | `Message` | message-created, activity-changed | not_found, validation（本文も添付もない・添付の種類・数・大きさ）, unavailable（保存先変更中） |
 | `import_background_image` | `{ data }`（raw base64。PNG/JPEG/WebP、5 MiBまで） | `string`（不透明なUUID。ファイル名・パスは返さない） | – | validation, storage |

@@ -30,8 +30,8 @@ use crate::infrastructure::skill_library::FsSkillLibrary;
 use crate::infrastructure::spawner::TauriSpawner;
 use crate::infrastructure::sqlite::{
     SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteFrameRepository,
-    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRepository,
-    SqliteStatisticsRepository,
+    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
+    SqliteSkillRepository, SqliteStatisticsRepository,
 };
 use crate::infrastructure::workspace::FsWorkspace;
 use crate::interface::state::AppState;
@@ -64,6 +64,7 @@ pub fn ready(
         attachments: Arc::new(FsAttachments::new(&paths.data_dir)),
         delegations: Arc::new(SqliteDelegationRepository::new(db.clone())),
         statistics: Arc::new(SqliteStatisticsRepository::new(db.clone())),
+        skill_records: Arc::new(SqliteSkillRecordRepository::new(db.clone())),
         skills: Arc::new(SqliteSkillRepository::new(db.clone())),
         library: Arc::new(FsSkillLibrary),
         profile: Arc::new(SqliteProfileRepository::new(db.clone())),

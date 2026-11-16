@@ -66,6 +66,7 @@ fn command_handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send +
         channels::add_channel_member,
         channels::remove_channel_member,
         messages::list_messages,
+        messages::get_skill_record_truncated,
         messages::send_message,
         messages::get_attachment,
         messages::reveal_attachment,

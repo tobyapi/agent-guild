@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
+  skillUsageTruncated: '取消已截断此运行之后的观测。已保存的发布区间保持不变。',
+  skillUsageOrderUnconfirmed: '序号为运行器通知顺序，提供方顺序和完整性未确认。',
   skillUsageDetails: '技能记录',
   skillUsageLoaded: '发布前操作（读取确认）：',
   skillUsageIncomplete: '未知：本区间记录不完整。',

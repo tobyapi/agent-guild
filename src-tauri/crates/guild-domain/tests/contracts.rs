@@ -152,3 +152,8 @@ fn workspace_without_optional_legacy_folder_still_loads() {
     assert_eq!(scope.folder, None);
     assert_eq!(scope.mode, guild_domain::channel::WorkspaceMode::Shared);
 }
+
+#[test]
+fn skill_record_truncated() {
+    assert_round_trip::<bool>("skill-record-truncated.json");
+}

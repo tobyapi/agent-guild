@@ -1,9 +1,25 @@
 // @vitest-environment jsdom
-import { cleanup, render, fireEvent } from '@testing-library/react';
-import { afterEach, expect, it } from 'vitest';
+import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
 import type { SkillUsage } from '@/shared/types/domain';
+import { chatApi } from '../api';
 import { SkillUsageLabels } from './SkillUsageLabels';
 afterEach(cleanup);
+afterEach(() => vi.restoreAllMocks());
+it('loads job cutoff on opening details without altering saved labels', async () => {
+  const api = vi.spyOn(chatApi, 'skillRecordTruncated').mockResolvedValue(true);
+  const usage = { declared: [], loaded: ['reflection'], supported: true, runId: 'private-run' };
+  const view = render(<SkillUsageLabels usage={usage} messageId="message" />);
+  expect(api).not.toHaveBeenCalled();
+  const details = view.container.querySelector('details')!;
+  details.open = true;
+  fireEvent(details, new Event('toggle'));
+  await waitFor(() => expect(view.container.textContent).toContain('以降の観測は打切り'));
+  expect(api).toHaveBeenCalledWith('message');
+  expect(view.container.querySelector('summary')?.textContent).toContain('reflection');
+  expect(view.container.textContent).not.toContain('private-run');
+  expect(usage.loaded).toEqual(['reflection']);
+});
 it('persisted declarations and reads stay distinct after remount', () => {
   const usage = { declared: ['clean-code'], loaded: ['reflection'], supported: true, runId: 'r1' };
   const view = render(<SkillUsageLabels usage={JSON.parse(JSON.stringify(usage)) as SkillUsage} />);

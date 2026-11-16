@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn duplicate_calls_across_posts_and_reordered_or_missing_events_are_not_trusted() {
+fn duplicate_calls_within_posts_and_reordered_or_missing_events_are_not_trusted() {
     let records = SkillRecords::new("run", "agent", "Worker");
     let posts = Arc::new(Mutex::new(Vec::new()));
     let output = posts.clone();
@@ -13,13 +13,33 @@ fn duplicate_calls_across_posts_and_reordered_or_missing_events_are_not_trusted(
     sink(RunUpdate::SkillRead("second".into(), "backend:b".into(), 4));
     sink(RunUpdate::SkillRead("third".into(), "backend:c".into(), 3));
     let final_usage = records.finish();
-    assert_eq!(final_usage.loaded, ["second", "third"]);
+    assert_eq!(final_usage.loaded, ["first", "second", "third"]);
     assert!(final_usage.interval.unwrap().incomplete);
     let saved = posts.lock();
     let RunUpdate::RecordedPost(_, usage) = &saved[0] else { panic!("post") };
     assert_eq!(usage.loaded, ["first"]);
     assert_eq!(usage.interval.as_ref().unwrap().observations.len(), 1);
     assert_eq!(usage.interval.as_ref().unwrap().observations[0].tool_call_id, "backend:a");
+}
+
+#[test]
+fn call_ids_are_scoped_to_the_source_interval_and_run() {
+    for run in ["parent", "child"] {
+        let records = SkillRecords::new(run, "agent", "Worker");
+        let sink = records.sink(Box::new(|_| {}));
+        sink(RunUpdate::SkillRead("first".into(), "backend:shared".into(), 1));
+        sink(RunUpdate::Post("progress".into()));
+        sink(RunUpdate::SkillRead("first".into(), "backend:shared".into(), 2));
+        sink(RunUpdate::SkillRead("first".into(), "backend:shared".into(), 2));
+        sink(RunUpdate::SkillRead("second".into(), "host:shared".into(), 3));
+        let usage = records.finish();
+        assert_eq!(usage.loaded, ["first", "second"]);
+        let interval = usage.interval.unwrap();
+        assert_eq!((interval.start, interval.end), (1, 3));
+        assert!(!interval.incomplete);
+        assert_eq!(interval.observations.len(), 2);
+        assert_eq!(usage.run_id.as_deref(), Some(run));
+    }
 }
 
 #[test]

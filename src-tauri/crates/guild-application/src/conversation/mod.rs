@@ -99,6 +99,15 @@ impl ConversationService {
         self.ports.messages.list(channel_id, MessageFilter::All, before_seq, limit as usize)
     }
 
+    /// ジョブの打切り状態だけを取得する。保存済み投稿は書き換えない。
+    pub fn skill_record_truncated(&self, message_id: &MessageId) -> AppResult<bool> {
+        let Some(message) = self.ports.messages.get(message_id)? else { return Ok(false) };
+        let Some(run_id) = message.skill_usage.as_ref().and_then(|usage| usage.run_id.as_deref()) else {
+            return Ok(false);
+        };
+        self.ports.skill_records.is_truncated(run_id)
+    }
+
     /// そのチャンネルの割り振り（createdAt の昇順。新しい方から最大200件）
     pub fn list_delegations(&self, channel_id: &ChannelId) -> AppResult<Vec<Delegation>> {
         posting::require_channel(&self.ports, channel_id)?;

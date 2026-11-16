@@ -13,7 +13,7 @@ pub use frame_images::{FrameImageStore, FrameImportError};
 pub use library::{DirProblem, DirScan, FoundSkill, SkillFileError, SkillLibraryScanner};
 pub use repositories::{
     AgentRepository, ChannelRepository, DelegationRepository, FrameRepository, MessageFilter, MessageRepository,
-    MetaRepository, ProfileRepository, SkillRepository, StatisticsRepository,
+    MetaRepository, ProfileRepository, SkillRecordRepository, SkillRepository, StatisticsRepository,
 };
 pub use runtime::{
     AgentRuntime, ImagePayload, ImageRuntimeRequest, RunUpdate, RuntimeError, RuntimeRequest, SkillFilePayload,

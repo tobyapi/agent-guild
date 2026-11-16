@@ -62,6 +62,7 @@ export interface CommandMap {
   add_channel_member: { args: { channelId: string; memberId: string }; result: null };
   remove_channel_member: { args: { channelId: string; memberId: string }; result: null };
   /** seq の昇順。limit の既定は 50、上限は 200 */
+  get_skill_record_truncated: { args: { messageId: string }; result: boolean };
   list_messages: { args: { channelId: string; beforeSeq: number | null; limit: number | null }; result: Message[] };
   /** 画像・ファイルだけの発言は content が空でよい */
   send_message: { args: { channelId: string; content: string; attachments: AttachmentInput[] }; result: Message };

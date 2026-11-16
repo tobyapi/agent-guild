@@ -3,14 +3,16 @@
 use std::fs;
 use std::sync::Arc;
 
-use guild_application::ports::{ChannelRepository, MessageFilter, MessageRepository};
+use guild_application::ports::{ChannelRepository, MessageFilter, MessageRepository, SkillRecordRepository};
 use guild_domain::author::Author;
 use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::message::{MessageKind, NewMessage};
 
 use super::channels_messages::{lobby, new_message};
 use super::temp_dir;
-use crate::infrastructure::sqlite::{Database, SqliteChannelRepository, SqliteMessageRepository};
+use crate::infrastructure::sqlite::{
+    Database, SqliteChannelRepository, SqliteMessageRepository, SqliteSkillRecordRepository,
+};
 
 #[test]
 fn skill_declarations_survive_database_reopen_without_crossing_messages() {
@@ -47,12 +49,22 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
     };
     let messages = [progress, new_message("final", "同じエージェントの最終返答"), other];
     let expected: Vec<_> = messages.into_iter().map(|message| repository.insert(message).unwrap()).collect();
+    let cutoffs = SqliteSkillRecordRepository::new(db.clone());
+    cutoffs.truncate("run-a", &ChannelId::new("c1")).unwrap();
+    cutoffs.truncate("run-a", &ChannelId::new("c1")).unwrap();
+    assert!(cutoffs.is_truncated("run-a").unwrap());
+    assert!(!cutoffs.is_truncated("run-b").unwrap());
+    drop(cutoffs);
     drop((repository, db));
 
     let reopened = Arc::new(Database::open(&path).unwrap());
     let repository = SqliteMessageRepository::new(reopened.clone());
     let restored = repository.list(&ChannelId::new("c1"), MessageFilter::All, None, 10).unwrap();
     assert_eq!(restored, expected);
+    let cutoffs = SqliteSkillRecordRepository::new(reopened.clone());
+    assert!(cutoffs.is_truncated("run-a").unwrap());
+    assert!(!cutoffs.is_truncated("run-b").unwrap());
+    drop(cutoffs);
     for message in &expected {
         assert_eq!(repository.get(&message.id).unwrap(), Some(message.clone()));
     }
