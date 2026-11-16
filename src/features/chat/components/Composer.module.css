@@ -106,18 +106,29 @@
   transition: none;
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {
-      --glass-ink-weight: 100%;
-      background: var(--glass-veil);
-      backdrop-filter: var(--glass-card-filter);
-      border-color: transparent;
-      box-shadow: var(--glass-shadow);
-    }
-    :global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {
-      outline: 2px solid var(--focus-color);
-      outline-offset: 2px;
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {
+    --glass-ink-weight: 100%;
+    background: var(--glass-veil);
+    backdrop-filter: var(--glass-card-filter);
+    border-color: transparent;
+    box-shadow: var(--glass-shadow);
+  }
+  :global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {
+    --glass-ink-weight: 0%;
+    background: var(--bg-input);
+    backdrop-filter: none;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  :global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {
+    outline: none;
+    outline-offset: 0;
   }
 }

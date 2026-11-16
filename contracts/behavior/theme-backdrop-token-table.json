@@ -38,33 +38,53 @@
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 73,
+      "line": 72,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 74,
+      "line": 73,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 75,
+      "line": 74,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 78,
+      "line": 77,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 84,
+      "line": 83,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 85,
+      "line": 84,
       "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 90,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 91,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 92,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 95,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
     },
     {
       "file": "src/app/Sidebar.module.css",
@@ -88,17 +108,32 @@
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 44,
+      "line": 43,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .sidebar {"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 45,
+      "line": 44,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/Sidebar.module.css",
-      "line": 49,
+      "line": 48,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .brand {"
+    },
+    {
+      "file": "src/app/Sidebar.module.css",
+      "line": 54,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .sidebar {"
+    },
+    {
+      "file": "src/app/Sidebar.module.css",
+      "line": 55,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/app/Sidebar.module.css",
+      "line": 59,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .brand {"
     },
     {
@@ -533,18 +568,33 @@
     },
     {
       "file": "src/features/agents/components/editor/PresetPicker.module.css",
-      "line": 95,
+      "line": 94,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .popover {"
     },
     {
       "file": "src/features/agents/components/editor/PresetPicker.module.css",
-      "line": 96,
+      "line": 95,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/agents/components/editor/PresetPicker.module.css",
-      "line": 97,
+      "line": 96,
       "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/features/agents/components/editor/PresetPicker.module.css",
+      "line": 103,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .popover {"
+    },
+    {
+      "file": "src/features/agents/components/editor/PresetPicker.module.css",
+      "line": 104,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/agents/components/editor/PresetPicker.module.css",
+      "line": 105,
+      "expression": "background: var(--bg-elevated);"
     },
     {
       "file": "src/features/agents/components/editor/TagField.module.css",
@@ -813,18 +863,33 @@
     },
     {
       "file": "src/features/channels/components/ChannelHeader.module.css",
-      "line": 105,
+      "line": 104,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .header {"
     },
     {
       "file": "src/features/channels/components/ChannelHeader.module.css",
-      "line": 106,
+      "line": 105,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/channels/components/ChannelHeader.module.css",
-      "line": 107,
+      "line": 106,
       "expression": "background: var(--surface-chat);"
+    },
+    {
+      "file": "src/features/channels/components/ChannelHeader.module.css",
+      "line": 112,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .header {"
+    },
+    {
+      "file": "src/features/channels/components/ChannelHeader.module.css",
+      "line": 113,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/channels/components/ChannelHeader.module.css",
+      "line": 114,
+      "expression": "background: transparent;"
     },
     {
       "file": "src/features/channels/components/ChannelIconPicker.module.css",
@@ -968,22 +1033,42 @@
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 141,
+      "line": 140,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .panel {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 142,
+      "line": 141,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 143,
+      "line": 142,
       "expression": "background: var(--surface-members);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 147,
+      "line": 146,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .foot {"
+    },
+    {
+      "file": "src/features/channels/components/MemberPanel.module.css",
+      "line": 152,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .panel {"
+    },
+    {
+      "file": "src/features/channels/components/MemberPanel.module.css",
+      "line": 153,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/channels/components/MemberPanel.module.css",
+      "line": 154,
+      "expression": "background: var(--bg-panel);"
+    },
+    {
+      "file": "src/features/channels/components/MemberPanel.module.css",
+      "line": 158,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .foot {"
     },
     {
@@ -1013,18 +1098,33 @@
     },
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
-      "line": 35,
+      "line": 34,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .bar {"
     },
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
-      "line": 36,
+      "line": 35,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
-      "line": 37,
+      "line": 36,
       "expression": "background: var(--surface-chat);"
+    },
+    {
+      "file": "src/features/chat/components/ActivityBar.module.css",
+      "line": 40,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .bar {"
+    },
+    {
+      "file": "src/features/chat/components/ActivityBar.module.css",
+      "line": 41,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/ActivityBar.module.css",
+      "line": 42,
+      "expression": "background: transparent;"
     },
     {
       "file": "src/features/chat/components/AttachmentVideo.module.css",
@@ -1348,22 +1448,42 @@
     },
     {
       "file": "src/features/chat/components/Composer.module.css",
-      "line": 111,
+      "line": 110,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {"
     },
     {
       "file": "src/features/chat/components/Composer.module.css",
-      "line": 112,
+      "line": 111,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/chat/components/Composer.module.css",
-      "line": 113,
+      "line": 112,
       "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/features/chat/components/Composer.module.css",
-      "line": 118,
+      "line": 117,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {"
+    },
+    {
+      "file": "src/features/chat/components/Composer.module.css",
+      "line": 123,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .composer:not([data-dragging]) {"
+    },
+    {
+      "file": "src/features/chat/components/Composer.module.css",
+      "line": 124,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/Composer.module.css",
+      "line": 125,
+      "expression": "background: var(--bg-input);"
+    },
+    {
+      "file": "src/features/chat/components/Composer.module.css",
+      "line": 130,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .composer:focus-within {"
     },
     {
@@ -1588,18 +1708,33 @@
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.module.css",
-      "line": 109,
+      "line": 108,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .popover {"
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.module.css",
-      "line": 110,
+      "line": 109,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.module.css",
-      "line": 111,
+      "line": 110,
       "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/features/chat/components/MentionSuggestions.module.css",
+      "line": 117,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .popover {"
+    },
+    {
+      "file": "src/features/chat/components/MentionSuggestions.module.css",
+      "line": 118,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/MentionSuggestions.module.css",
+      "line": 119,
+      "expression": "background: var(--bg-elevated);"
     },
     {
       "file": "src/features/chat/components/MentionSuggestions.tsx",
@@ -1938,18 +2073,33 @@
     },
     {
       "file": "src/features/chat/components/MessageList.module.css",
-      "line": 140,
+      "line": 139,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .jump {"
     },
     {
       "file": "src/features/chat/components/MessageList.module.css",
-      "line": 141,
+      "line": 140,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/chat/components/MessageList.module.css",
-      "line": 142,
+      "line": 141,
       "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/features/chat/components/MessageList.module.css",
+      "line": 148,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .jump {"
+    },
+    {
+      "file": "src/features/chat/components/MessageList.module.css",
+      "line": 149,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/MessageList.module.css",
+      "line": 150,
+      "expression": "background: var(--bg-elevated);"
     },
     {
       "file": "src/features/chat/components/PendingAttachments.module.css",
@@ -3703,28 +3853,53 @@
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
-      "line": 101,
+      "line": 100,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .dialog {"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
-      "line": 102,
+      "line": 101,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
-      "line": 103,
+      "line": 102,
       "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
-      "line": 109,
+      "line": 108,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .dialog::backdrop {"
     },
     {
       "file": "src/shared/ui/Dialog.module.css",
-      "line": 110,
+      "line": 109,
       "expression": "background: color-mix(in srgb, var(--backdrop-overlay) 40%, transparent);"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 113,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .dialog {"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 114,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 115,
+      "expression": "background: var(--bg-elevated);"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 120,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .dialog::backdrop {"
+    },
+    {
+      "file": "src/shared/ui/Dialog.module.css",
+      "line": 121,
+      "expression": "background: var(--bg-overlay);"
     },
     {
       "file": "src/shared/ui/EmptyState.module.css",
@@ -4223,7 +4398,7 @@
     },
     {
       "file": "src/shared/ui/theme/ThemeBackdrop.module.css",
-      "line": 13,
+      "line": 12,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .backdrop {"
     },
     {
@@ -5618,98 +5793,108 @@
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 133,
+      "line": 132,
       "expression": ":root[data-background='active'][data-glass='frosted'] * {"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 134,
+      "line": 133,
       "expression": "--accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 135,
+      "line": 134,
       "expression": "--autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 136,
+      "line": 135,
       "expression": "--danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 137,
+      "line": 136,
       "expression": "--kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 138,
+      "line": 137,
       "expression": "--kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 139,
+      "line": 138,
       "expression": "--kind-ideator: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 144,
+      "line": 143,
       "expression": "--kind-manager: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 149,
+      "line": 148,
       "expression": "--kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 150,
+      "line": 149,
       "expression": "--success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 151,
+      "line": 150,
       "expression": "--syntax-comment: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 156,
+      "line": 155,
       "expression": "--syntax-keyword: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 161,
+      "line": 160,
       "expression": "--syntax-number: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 166,
+      "line": 165,
       "expression": "--syntax-string: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 171,
+      "line": 170,
       "expression": "--syntax-title: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 176,
+      "line": 175,
       "expression": "--syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 177,
+      "line": 176,
       "expression": "--text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 178,
+      "line": 177,
       "expression": "--text-secondary: color-mix("
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 183,
+      "line": 182,
       "expression": "--warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 186,
+      "expression": ":root[data-background='active'][data-glass='frosted'] * {"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 187,
+      "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
@@ -5773,42 +5958,42 @@
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 24,
+      "line": 23,
       "expression": ":root[data-background='active'][data-glass='frosted'] {"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 25,
+      "line": 24,
       "expression": "--surface-chat: transparent;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 26,
+      "line": 25,
       "expression": "--surface-sidebar: transparent;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 27,
+      "line": 26,
       "expression": "--surface-members: transparent;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 33,
+      "line": 31,
       "expression": ":root[data-background='active'][data-glass='frosted'] {"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 34,
+      "line": 32,
       "expression": "--surface-chat: var(--bg-app);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 35,
+      "line": 33,
       "expression": "--surface-sidebar: var(--bg-sidebar);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass.css",
-      "line": 36,
+      "line": 34,
       "expression": "--surface-members: var(--bg-panel);"
     },
     {
@@ -7693,18 +7878,33 @@
     },
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
-      "line": 67,
+      "line": 66,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .toast {"
     },
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
-      "line": 68,
+      "line": 67,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
-      "line": 69,
+      "line": 68,
       "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/shared/ui/toast/ToastViewport.module.css",
+      "line": 75,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .toast {"
+    },
+    {
+      "file": "src/shared/ui/toast/ToastViewport.module.css",
+      "line": 76,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/shared/ui/toast/ToastViewport.module.css",
+      "line": 77,
+      "expression": "background: var(--bg-elevated);"
     }
   ],
   "units": [

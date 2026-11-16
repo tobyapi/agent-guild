@@ -30,11 +30,15 @@
   text-overflow: ellipsis;
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active'][data-glass='frosted']) .bar {
-      --glass-ink-weight: 0%;
-      background: var(--surface-chat);
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .bar {
+    --glass-ink-weight: 0%;
+    background: var(--surface-chat);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :global(:root[data-background='active'][data-glass='frosted']) .bar {
+    --glass-ink-weight: 0%;
+    background: transparent;
   }
 }

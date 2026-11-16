@@ -39,16 +39,25 @@
   background-color: transparent;
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active'][data-glass='frosted']) .sidebar {
-      --glass-ink-weight: 100%;
-      border-color: transparent;
-      box-shadow: inset 0 0 0 1px var(--glass-edge);
-    }
-    :global(:root[data-background='active'][data-glass='frosted']) .brand {
-      border-color: transparent;
-      box-shadow: inset 0 -1px 0 var(--glass-edge);
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .sidebar {
+    --glass-ink-weight: 100%;
+    border-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--glass-edge);
+  }
+  :global(:root[data-background='active'][data-glass='frosted']) .brand {
+    border-color: transparent;
+    box-shadow: inset 0 -1px 0 var(--glass-edge);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :global(:root[data-background='active'][data-glass='frosted']) .sidebar {
+    --glass-ink-weight: 0%;
+    border-color: var(--border-subtle);
+    box-shadow: none;
+  }
+  :global(:root[data-background='active'][data-glass='frosted']) .brand {
+    border-color: var(--border-subtle);
+    box-shadow: none;
   }
 }

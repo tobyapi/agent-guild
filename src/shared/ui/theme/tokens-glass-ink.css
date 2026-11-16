@@ -128,59 +128,62 @@
   --glass-accent-text: var(--solid-accent-text);
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :root[data-background='active'][data-glass='frosted'] * {
-      --accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));
-      --autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));
-      --danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));
-      --kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));
-      --kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));
-      --kind-ideator: color-mix(
-        in srgb,
-        var(--glass-kind-ideator) var(--glass-ink-weight, 0%),
-        var(--solid-kind-ideator)
-      );
-      --kind-manager: color-mix(
-        in srgb,
-        var(--glass-kind-manager) var(--glass-ink-weight, 0%),
-        var(--solid-kind-manager)
-      );
-      --kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));
-      --success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));
-      --syntax-comment: color-mix(
-        in srgb,
-        var(--glass-syntax-comment) var(--glass-ink-weight, 0%),
-        var(--solid-syntax-comment)
-      );
-      --syntax-keyword: color-mix(
-        in srgb,
-        var(--glass-syntax-keyword) var(--glass-ink-weight, 0%),
-        var(--solid-syntax-keyword)
-      );
-      --syntax-number: color-mix(
-        in srgb,
-        var(--glass-syntax-number) var(--glass-ink-weight, 0%),
-        var(--solid-syntax-number)
-      );
-      --syntax-string: color-mix(
-        in srgb,
-        var(--glass-syntax-string) var(--glass-ink-weight, 0%),
-        var(--solid-syntax-string)
-      );
-      --syntax-title: color-mix(
-        in srgb,
-        var(--glass-syntax-title) var(--glass-ink-weight, 0%),
-        var(--solid-syntax-title)
-      );
-      --syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));
-      --text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));
-      --text-secondary: color-mix(
-        in srgb,
-        var(--glass-text-secondary) var(--glass-ink-weight, 0%),
-        var(--solid-text-secondary)
-      );
-      --warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :root[data-background='active'][data-glass='frosted'] * {
+    --accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));
+    --autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));
+    --danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));
+    --kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));
+    --kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));
+    --kind-ideator: color-mix(
+      in srgb,
+      var(--glass-kind-ideator) var(--glass-ink-weight, 0%),
+      var(--solid-kind-ideator)
+    );
+    --kind-manager: color-mix(
+      in srgb,
+      var(--glass-kind-manager) var(--glass-ink-weight, 0%),
+      var(--solid-kind-manager)
+    );
+    --kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));
+    --success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));
+    --syntax-comment: color-mix(
+      in srgb,
+      var(--glass-syntax-comment) var(--glass-ink-weight, 0%),
+      var(--solid-syntax-comment)
+    );
+    --syntax-keyword: color-mix(
+      in srgb,
+      var(--glass-syntax-keyword) var(--glass-ink-weight, 0%),
+      var(--solid-syntax-keyword)
+    );
+    --syntax-number: color-mix(
+      in srgb,
+      var(--glass-syntax-number) var(--glass-ink-weight, 0%),
+      var(--solid-syntax-number)
+    );
+    --syntax-string: color-mix(
+      in srgb,
+      var(--glass-syntax-string) var(--glass-ink-weight, 0%),
+      var(--solid-syntax-string)
+    );
+    --syntax-title: color-mix(
+      in srgb,
+      var(--glass-syntax-title) var(--glass-ink-weight, 0%),
+      var(--solid-syntax-title)
+    );
+    --syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));
+    --text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));
+    --text-secondary: color-mix(
+      in srgb,
+      var(--glass-text-secondary) var(--glass-ink-weight, 0%),
+      var(--solid-text-secondary)
+    );
+    --warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :root[data-background='active'][data-glass='frosted'] * {
+    --glass-ink-weight: 0%;
   }
 }

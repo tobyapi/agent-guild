@@ -68,22 +68,32 @@
   --surface: var(--bg-app);
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active'][data-glass='frosted']) .shell,
-    :global(:root[data-background='active'][data-glass='frosted']) .main {
-      --glass-ink-weight: 100%;
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .shell,
+  :global(:root[data-background='active'][data-glass='frosted']) .main {
+    --glass-ink-weight: 100%;
+  }
 
-    :global(:root[data-background='active'][data-glass='frosted']) .shell::after {
-      position: absolute;
-      inset: 0;
-      z-index: var(--z-backdrop);
-      pointer-events: none;
-      content: '';
-      --glass-ink-weight: 100%;
-      background: var(--glass-veil);
-      backdrop-filter: var(--glass-pane-filter);
-    }
+  :global(:root[data-background='active'][data-glass='frosted']) .shell::after {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-backdrop);
+    pointer-events: none;
+    content: '';
+    --glass-ink-weight: 100%;
+    background: var(--glass-veil);
+    backdrop-filter: var(--glass-pane-filter);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :global(:root[data-background='active'][data-glass='frosted']) .shell,
+  :global(:root[data-background='active'][data-glass='frosted']) .main {
+    --glass-ink-weight: 0%;
+  }
+
+  :global(:root[data-background='active'][data-glass='frosted']) .shell::after {
+    content: none;
+    backdrop-filter: none;
   }
 }

@@ -8,11 +8,9 @@
   background-size: cover;
 }
 
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :global(:root[data-background='active'][data-glass='frosted']) .backdrop {
-      filter: blur(var(--glass-background-blur));
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .backdrop {
+    filter: blur(var(--glass-background-blur));
   }
 }
 

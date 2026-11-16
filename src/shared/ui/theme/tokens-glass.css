@@ -19,13 +19,11 @@
 }
 
 /* Opaque defaults in tokens-backdrop remain the unsupported/reduced fallback. */
-@media (prefers-reduced-transparency: no-preference) and (forced-colors: none) {
-  @supports (backdrop-filter: blur(1px)) {
-    :root[data-background='active'][data-glass='frosted'] {
-      --surface-chat: transparent;
-      --surface-sidebar: transparent;
-      --surface-members: transparent;
-    }
+@supports (backdrop-filter: blur(1px)) {
+  :root[data-background='active'][data-glass='frosted'] {
+    --surface-chat: transparent;
+    --surface-sidebar: transparent;
+    --surface-members: transparent;
   }
 }
 
