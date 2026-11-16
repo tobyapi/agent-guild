@@ -447,9 +447,9 @@ Grok uses a direct read-only Responses runner: unrestricted=[], writes/commands/
 
 ### コメントごとのスキル記録
 
-新規エージェント投稿の `Message.skillUsage` は `{ declared: string[], loaded: string[], supported: boolean, runId: string | null, interval?: { version: number, agentId: string, start: number, end: number, incomplete: boolean } | null }`。保存時に本文末尾の `skill-usage` を申告として抽出する。既存投稿の本文は再解析しない。省略/nullは記録なし。人間・システム・エラーにはラベルを付けない。
+新規エージェント投稿の `Message.skillUsage` は `{ declared: string[], loaded: string[], supported: boolean, runId: string | null, interval?: { version: number, agentId: string, start: number, end: number, incomplete: boolean, observations?: { name: string, toolCallId: string, sequence: number }[] } | null }`。保存時に本文末尾の `skill-usage` を申告として抽出する。既存投稿の本文は再解析しない。省略/nullは記録なし。人間・システム・エラーにはラベルを付けない。
 
-専用 `read_skill` が正常に返った後だけ runner が `skillObservation { id, name }` を送る。`name: null` はその実行の専用読込取得対応を表す。アプリは同じジョブの前回投稿以降の名前を次の投稿で一度だけ消費し、最終投稿には残りだけを保存する。Grok/Ollamaの専用ツールのみ対応。他の経路は取得非対応。名前だけを表示し、パス・内部ログは表示しない。
+専用 `read_skill` が正常に返った後だけ runner が `skillObservation { id, name, sequence?, toolCallId? }` を送る。`name: null` はその実行の専用読込取得対応を表す。アプリは同じジョブの前回投稿以降の名前を次の投稿で一度だけ消費し、最終投稿には残りだけを保存する。Grok/Ollamaの専用ツールのみ対応。他の経路は取得非対応。名前だけを表示し、パス・内部ログは表示しない。
 
 `interval` はアプリがそのジョブで受信した名前付き観測の通し番号 `(start, end]`。空本文・名前接頭辞・申告を除いて `[PASS]` となる投稿は区間を閉じない。投稿対象の区間は保存失敗でも次投稿に持ち越さない。同じ投稿の再試行を追加する場合は元の本文とメタデータを再利用する。現状は自動再試行なし。本文と区間は同じSQLite INSERTで確定する。実行の終了後は追加観測を受け付けない。32名超・不正名の欠落は `incomplete` として詳細に不明と表示する。連番は受信順であり、バックエンドのtoolCallIdによる重複判定・配送欠番の検出・取消による打切り状態の永続化は未対応。Grokの付属ファイル取得はスキル本文読込に含めない。
 
