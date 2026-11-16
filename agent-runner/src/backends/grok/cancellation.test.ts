@@ -29,7 +29,7 @@ it.each(local.flatMap((name) => stages.map((stage) => ({ name, stage }))))(
     const execute = vi.fn(async () => {
       if (stage === 'during') {
         await new Promise<void>((_resolve, reject) => {
-          abort.signal.addEventListener('abort', () => reject(abort.signal.reason), { once: true });
+          abort.signal.addEventListener('abort', () => reject(new Error('cancelled')), { once: true });
           queueMicrotask(() => abort.abort());
         });
       }
@@ -63,7 +63,7 @@ it.each(['web_search', 'x_search'].flatMap((name) => stages.map((stage) => ({ na
     const send = vi.fn(async () => {
       if (stage === 'during') {
         await new Promise<void>((_resolve, reject) => {
-          abort.signal.addEventListener('abort', () => reject(abort.signal.reason), { once: true });
+          abort.signal.addEventListener('abort', () => reject(new Error('cancelled')), { once: true });
           queueMicrotask(() => abort.abort());
         });
       }

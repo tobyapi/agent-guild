@@ -58,7 +58,7 @@ async function resolveHost(hostname: string, signal: AbortSignal): Promise<{ add
   if (isIP(hostname)) return [{ address: hostname, family: isIP(hostname) }];
   // lookup cannot be cancelled; stop waiting and consume its eventual settlement.
   return new Promise((resolve, reject) => {
-    const abort = () => reject(signal.reason);
+    const abort = () => reject(signal.reason instanceof Error ? signal.reason : invalid());
     signal.addEventListener('abort', abort, { once: true });
     lookup(hostname, { all: true }).then(
       (addresses) => {
@@ -67,7 +67,7 @@ async function resolveHost(hostname: string, signal: AbortSignal): Promise<{ add
       },
       (error: unknown) => {
         signal.removeEventListener('abort', abort);
-        reject(error);
+        reject(error instanceof Error ? error : invalid());
       },
     );
   });
