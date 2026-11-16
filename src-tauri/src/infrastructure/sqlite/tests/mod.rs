@@ -7,6 +7,7 @@ mod frame_kinds;
 mod frames;
 mod opening;
 mod records;
+mod skill_declarations;
 mod statistics;
 
 use std::fs;

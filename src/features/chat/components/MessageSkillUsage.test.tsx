@@ -76,3 +76,22 @@ it('別エージェントの記録なしの投稿へ申告を持ち越さない'
   const next = show({ id: 'two', authorId: 'b', content: '古い投稿' });
   expect(next.container.querySelector('details')).toBeNull();
 });
+
+it.each(['system', 'error'] as const)('%sは本文にフッタがあっても申告表示しない', (kind) => {
+  const view = show({ kind });
+  expect(view.container.querySelector('details')).toBeNull();
+  expect(view.container.textContent).toContain('skill-usage');
+});
+
+it.each([
+  content
+    .split('\n')
+    .map((line) => `> ${line}`)
+    .join('\n'),
+  `\`\`\`\`text\n${content}\n\`\`\`\``,
+  content.replace('skill-usage\n', 'skill-usage \n'),
+])('エージェントによる引用・コード例・空白付き指定を申告表示しない', (quoted) => {
+  const view = show({ content: quoted });
+  expect(view.container.querySelector('details')).toBeNull();
+  expect(view.container.textContent).toContain('skill-usage');
+});

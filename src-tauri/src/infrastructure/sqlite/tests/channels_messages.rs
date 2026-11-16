@@ -23,7 +23,7 @@ pub(super) fn lobby() -> Channel {
     }
 }
 
-fn new_message(id: &str, content: &str) -> NewMessage {
+pub(super) fn new_message(id: &str, content: &str) -> NewMessage {
     NewMessage {
         id: MessageId::new(id),
         channel_id: ChannelId::new("c1"),

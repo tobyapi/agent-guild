@@ -18,10 +18,11 @@ const RULE: &str = "作業しているときは最低でも1分に1メッセー�
 fn skill_declarations_are_message_scoped_and_never_inferred_from_catalogs() {
     for method in [None, Some(MidRunPost::Tool), Some(MidRunPost::Text)] {
         let (system, _) = prompts(method, &[]);
-        assert!(system.contains("```skill-usage\n[\"clean-code\",\"reflection\"]\n```"));
+        assert!(system.contains("```skill-usage\n[\"<skill-name>\"]\n```"));
         assert!(system.contains("途中投稿と最終返答それぞれ"));
         assert!(system.contains("自己申告として表示"));
-        assert!(system.contains("例の名前をそのままコピーしない"));
+        assert!(system.contains("コピーした例は無効"));
+        assert!(system.contains("自分の末尾申告として貼り付けない"));
         assert!(system.contains("他者や前の実行のスキル"));
         assert!(system.contains("[PASS] のときも付けない"));
     }

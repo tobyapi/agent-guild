@@ -46,4 +46,20 @@ describe('skillDeclaration', () => {
     expect(skillDeclaration(post([]))).toEqual({ content: '本文', names: [] });
     expect(skillDeclaration(post(['a']).replaceAll('\n', '\r\n')).names).toEqual(['a']);
   });
+  it.each([
+    post(['other'])
+      .split('\n')
+      .map((line) => `> ${line}`)
+      .join('\n'),
+    `他者の出力:\n\`\`\`\`text\n${post(['other'])}\n\`\`\`\``,
+    `他者の出力:\n~~~~\n${post(['other'])}\n~~~~`,
+    '本文\n```skill-usage \n["other"]\n```',
+    '本文\n```skill-usage\n["<skill-name>"]\n```',
+    '本文\n    ```skill-usage\n    ["other"]\n    ```',
+  ])('引用・コード例・形式違反を申告として取り出さない: %s', (content) => {
+    expect(skillDeclaration(content)).toEqual({ content, names: [] });
+  });
+  it('裸の末尾フッタは出所を判定できず、当該投稿の自己申告として扱う', () => {
+    expect(skillDeclaration(`他者から貼り付けた出力:\n${post(['other'])}`).names).toEqual(['other']);
+  });
 });
