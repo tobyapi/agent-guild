@@ -53,11 +53,29 @@ export function publicURL(raw: string): URL {
   return url;
 }
 
+async function resolveHost(hostname: string, signal: AbortSignal): Promise<{ address: string; family: number }[]> {
+  signal.throwIfAborted();
+  if (isIP(hostname)) return [{ address: hostname, family: isIP(hostname) }];
+  // lookup cannot be cancelled; stop waiting and consume its eventual settlement.
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason);
+    signal.addEventListener('abort', abort, { once: true });
+    lookup(hostname, { all: true }).then(
+      (addresses) => {
+        signal.removeEventListener('abort', abort);
+        resolve(addresses);
+      },
+      (error: unknown) => {
+        signal.removeEventListener('abort', abort);
+        reject(error);
+      },
+    );
+  });
+}
+
 async function hop(url: URL, signal: AbortSignal): Promise<{ location?: string; text: string }> {
   const hostname = url.hostname.replace(/^\[|\]$/g, '');
-  const addresses = isIP(hostname)
-    ? [{ address: hostname, family: isIP(hostname) }]
-    : await lookup(hostname, { all: true });
+  const addresses = await resolveHost(hostname, signal);
   if (!addresses.length || addresses.some((item) => !publicIP(item.address))) throw denied();
   const selected = addresses[0]!;
   signal.throwIfAborted();

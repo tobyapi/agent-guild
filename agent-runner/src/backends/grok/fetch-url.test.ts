@@ -128,3 +128,37 @@ it('stops delayed bodies at the whole-fetch deadline', async () => {
   await vi.advanceTimersByTimeAsync(15000);
   await rejected;
 });
+
+it('stops stalled DNS at the whole-fetch deadline without opening a socket', async () => {
+  vi.useFakeTimers();
+  vi.spyOn(AbortSignal, 'timeout').mockImplementation((ms) => {
+    const abort = new AbortController();
+    setTimeout(() => abort.abort(), ms);
+    return abort.signal;
+  });
+  resolveAddresses.mockImplementation(() => new Promise(() => {}));
+  const rejected = expect(fetchURL('https://example.com/', signal())).rejects.toThrow();
+  await vi.advanceTimersByTimeAsync(15000);
+  await rejected;
+  expect(request).not.toHaveBeenCalled();
+});
+
+it.each(['resolve', 'reject'])('cancels DNS and safely ignores its late %s', async (settlement) => {
+  let finish!: () => void;
+  resolveAddresses.mockImplementation(
+    () =>
+      new Promise((resolve, reject) => {
+        finish = () =>
+          settlement === 'resolve'
+            ? resolve([{ address: '93.184.216.34', family: 4 }])
+            : reject(new Error('late DNS failure'));
+      }),
+  );
+  const abort = new AbortController();
+  const pending = fetchURL('https://example.com/', abort.signal);
+  abort.abort();
+  await expect(pending).rejects.toThrow();
+  finish();
+  await new Promise((resolve) => setImmediate(resolve));
+  expect(request).not.toHaveBeenCalled();
+});
