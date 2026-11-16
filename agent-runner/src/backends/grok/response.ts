@@ -8,14 +8,22 @@ export interface Response {
   usage: Item;
 }
 
-export const invalid = (): BackendError => new BackendError('internal', 'Grok returned an invalid or incomplete response.');
+export const invalid = (): BackendError =>
+  new BackendError('internal', 'Grok returned an invalid or incomplete response.');
 export function object(value: unknown): value is Item {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 export function response(value: unknown): Response {
-  if (!object(value) || typeof value.id !== 'string' || value.status !== 'completed' ||
-    !Array.isArray(value.output) || !value.output.every(object) || !object(value.usage)) throw invalid();
+  if (
+    !object(value) ||
+    typeof value.id !== 'string' ||
+    value.status !== 'completed' ||
+    !Array.isArray(value.output) ||
+    !value.output.every(object) ||
+    !object(value.usage)
+  )
+    throw invalid();
   return { id: value.id, status: value.status, output: value.output, usage: value.usage };
 }
 

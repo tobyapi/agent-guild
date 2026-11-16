@@ -9,14 +9,22 @@ export function client(key: string): Send {
   return async (body, signal) => {
     try {
       const result = await fetch('https://api.x.ai/v1/responses', {
-        method: 'POST', redirect: 'error', signal,
+        method: 'POST',
+        redirect: 'error',
+        signal,
         headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...body, store: false, stream: false }),
       });
       if (!result.ok) {
         await result.body?.cancel();
-        const code = result.status === 429 ? 'rate_limit' : [401, 403].includes(result.status) ? 'auth' :
-          result.status === 404 ? 'model_not_found' : 'internal';
+        const code =
+          result.status === 429
+            ? 'rate_limit'
+            : [401, 403].includes(result.status)
+              ? 'auth'
+              : result.status === 404
+                ? 'model_not_found'
+                : 'internal';
         throw new BackendError(code, 'Grok API request failed.');
       }
       if (!result.body) throw invalid();

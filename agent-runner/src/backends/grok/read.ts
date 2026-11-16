@@ -7,18 +7,32 @@ import { controls } from './characters.ts';
 
 const denied = () => new BackendError('unsupported_permission', 'Grok read denied by file policy.');
 function normalized(path: string): string {
-  const value = resolve(path).normalize('NFC').replace(/^\/System\/Volumes\/Data(?=\/)/i, '');
+  const value = resolve(path)
+    .normalize('NFC')
+    .replace(/^\/System\/Volumes\/Data(?=\/)/i, '');
   return process.platform === 'linux' ? value : value.toLowerCase();
 }
 const inside = (path: string, root: string) => isInside(normalized(path), normalized(root));
 
 function safeForm(path: string): void {
-  if (!path || path.trim() !== path || controls(path) || /^[\\/]{2}/.test(path) ||
-    path.replace(/^[A-Za-z]:/, '').includes(':')) throw denied();
+  if (
+    !path ||
+    path.trim() !== path ||
+    controls(path) ||
+    /^[\\/]{2}/.test(path) ||
+    path.replace(/^[A-Za-z]:/, '').includes(':')
+  )
+    throw denied();
 }
 
 function secretName(path: string): boolean {
-  return path.split(/[\\/]/).some(part => /^(?:\.env(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519).*|guild\.db(?:[-.].*)?)$|\.(?:pem|key|p12|pfx)$/i.test(part.replace(/[. ]+$/, '')));
+  return path
+    .split(/[\\/]/)
+    .some((part) =>
+      /^(?:\.env(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519).*|guild\.db(?:[-.].*)?)$|\.(?:pem|key|p12|pfx)$/i.test(
+        part.replace(/[. ]+$/, ''),
+      ),
+    );
 }
 
 async function noLinks(path: string): Promise<void> {
@@ -38,7 +52,9 @@ async function excluded(path: string, request: RunRequest): Promise<boolean> {
   }
   // All sibling agent state directories belong to the management area.
   const agentRoot = dirname(request.workspace);
-  const relative = normalized(path).slice(normalized(dirname(agentRoot)).length).split(sep);
+  const relative = normalized(path)
+    .slice(normalized(dirname(agentRoot)).length)
+    .split(sep);
   return inside(path, dirname(agentRoot)) && relative.includes('state');
 }
 
@@ -48,12 +64,12 @@ async function approved(request: RunRequest, raw: string): Promise<{ path: strin
   const path = resolve(request.workspace, raw);
   await noLinks(path);
   const before = await lstat(path, { bigint: true });
-  if (!before.isFile() || before.nlink !== 1n || await excluded(path, request)) throw denied();
+  if (!before.isFile() || before.nlink !== 1n || (await excluded(path, request))) throw denied();
   const actual = await realpath(path);
-  if (normalized(actual) !== normalized(path) || await excluded(actual, request)) throw denied();
+  if (normalized(actual) !== normalized(path) || (await excluded(actual, request))) throw denied();
   if (!request.permissions.readAnywhere) {
-    const roots = await Promise.all([request.workspace, ...request.readableDirs].map(root => realpath(root)));
-    if (!roots.some(root => inside(actual, root))) throw denied();
+    const roots = await Promise.all([request.workspace, ...request.readableDirs].map((root) => realpath(root)));
+    if (!roots.some((root) => inside(actual, root))) throw denied();
   }
   return { path: actual, before };
 }
@@ -74,8 +90,14 @@ export async function readBytes(request: RunRequest, raw: string, signal: AbortS
     const opened = await handle.stat({ bigint: true });
     await noLinks(path);
     const after = await lstat(path, { bigint: true });
-    if (!singleFile(opened) || !singleFile(after) || !sameFile(opened, before) || !sameFile(opened, after) ||
-      normalized(await realpath(path)) !== normalized(path)) throw denied();
+    if (
+      !singleFile(opened) ||
+      !singleFile(after) ||
+      !sameFile(opened, before) ||
+      !sameFile(opened, after) ||
+      normalized(await realpath(path)) !== normalized(path)
+    )
+      throw denied();
     signal.throwIfAborted();
     const buffer = Buffer.alloc(limit + 1);
     const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);

@@ -49,6 +49,7 @@ export const RUNNER_BACKEND_COMMON_MODULES = new Set([
   'auth-mode',
   'codex-runtime',
   'tool-paths',
+  'secret-roots',
   'command-sandbox',
 ]);
 /** アダプタを束ねる登録表（アダプタではないが、アダプタから import してもいけない） */

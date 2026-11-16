@@ -24,10 +24,11 @@ it('reads the Grok credential environment on every recheck', async () => {
 });
 
 it('publishes credential-read failures as an unavailable backend', async () => {
-  vi.mocked(apiKeyEnvironment).mockRejectedValue(new BackendError('auth', 'OSの資格情報ストアを利用できない'));
+  vi.mocked(apiKeyEnvironment).mockRejectedValue(new BackendError('auth', 'synthetic-reflected-canary'));
   const [backend] = await new BackendRegistry([grokAdapter]).describe();
   expect(backend?.status).toBe('unavailable');
-  expect(backend?.statusMessage).toContain('資格情報ストア');
+  expect(backend?.statusMessage).toContain('Grok credential store is unavailable.');
+  expect(backend?.statusMessage).not.toContain('synthetic-reflected-canary');
 });
 
 it('does not require Codex CLI for the direct runner', async () => {

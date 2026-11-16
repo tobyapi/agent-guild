@@ -6,7 +6,9 @@ function url(value: unknown): string | null {
   try {
     const parsed = new URL(value);
     return ['http:', 'https:'].includes(parsed.protocol) && !parsed.username && !parsed.password ? parsed.href : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 /** Sources with missing/zero positions are appended; never splice untrusted indices into text. */
@@ -19,9 +21,10 @@ export function citations(output: Item[]): string[] {
   };
   for (const item of output) {
     if (object(item.action) && Array.isArray(item.action.sources)) item.action.sources.forEach(inspect);
-    if (Array.isArray(item.content)) for (const content of item.content) {
-      if (object(content) && Array.isArray(content.annotations)) content.annotations.forEach(inspect);
-    }
+    if (Array.isArray(item.content))
+      for (const content of item.content) {
+        if (object(content) && Array.isArray(content.annotations)) content.annotations.forEach(inspect);
+      }
     if (Array.isArray(item.citations)) item.citations.forEach(inspect);
   }
   return [...found];
