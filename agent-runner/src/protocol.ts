@@ -200,4 +200,5 @@ export type RunnerEvent =
   | { type: 'post'; id: string; text: string }
   | { type: 'usage'; id: string; usage: RunUsage }
   | { type: 'result'; id: string; text: string }
+  | { type: 'skillObservation'; id: string; name: string | null }
   | { type: 'error'; id: string | null; code: ErrorCode; message: string };

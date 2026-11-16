@@ -10,6 +10,7 @@ mod interim;
 mod measurement;
 mod request;
 mod request_scope;
+mod skill_records;
 
 pub(crate) use commit::commit;
 pub(crate) use ending::{Committed, Ending};
@@ -27,7 +28,7 @@ use crate::services::Ports;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum RunOutcome {
     /// ランナーが返した文章（整形前）
-    Reply(String),
+    Reply(String, guild_domain::skill_usage::SkillUsage),
     /// 失敗（日本語のメッセージ）
     Failed(String),
     TimedOut(u64),
@@ -91,7 +92,8 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
         Err(error) => return RunOutcome::Failed(error.to_string()),
     };
     let measurement = measurement::Measurement::new(ports, job_id, &job.channel_id, &request);
-    let sink = measurement.sink(update);
+    let records = skill_records::SkillRecords::new(job_id);
+    let sink = records.sink(measurement.sink(update));
     // Keep the historical 15 minute job limit for other backends. Ollama's per-response
     // limit must not be cut short by the outer job timeout.
     let timeout = job_timeout(&request.backend, &request.options);
@@ -99,7 +101,7 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
     let result = tokio::time::timeout(timeout, ports.runtime.run(job_id, request, sink)).await;
     measurement.save(ports);
     match result {
-        Ok(Ok(text)) => RunOutcome::Reply(text),
+        Ok(Ok(text)) => RunOutcome::Reply(text, records.take()),
         Ok(Err(RuntimeError::Cancelled)) => RunOutcome::Cancelled,
         Ok(Err(RuntimeError::Failed(message))) => RunOutcome::Failed(message),
         Err(_) => {

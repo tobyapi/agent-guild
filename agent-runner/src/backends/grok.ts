@@ -72,6 +72,7 @@ export const grokAdapter: BackendAdapter = {
   catalog: () => Promise.resolve(catalog()),
   async run(original, context) {
     context.signal.throwIfAborted();
+    context.onSkillRead?.(null);
     const request = usableRequest(structuredClone(original), grokAdapter.info());
     const key = await credential();
     if (!key?.trim()) throw new BackendError('auth', t('key'));

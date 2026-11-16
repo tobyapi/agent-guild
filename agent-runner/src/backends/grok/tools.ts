@@ -45,7 +45,13 @@ export async function execute(request: RunRequest, context: RunContext, name: st
   context.signal.throwIfAborted();
   const registered = tools(request).find((tool) => tool.type === 'function' && tool.name === name);
   if (!registered) throw new BackendError('unsupported_permission', 'Grok tool is not permitted.');
-  if (name === 'read_skill') return readSkill(request, raw, context.signal);
+  if (name === 'read_skill') {
+    const body = await readSkill(request, raw, context.signal);
+    context.signal.throwIfAborted();
+    const args: unknown = JSON.parse(raw);
+    if (object(args) && typeof args.name === 'string') context.onSkillRead?.(args.name);
+    return body;
+  }
   const value = argument(name, raw);
   if (name === 'read_file') {
     return `<untrusted_file>\n${await readLocal(request, value, context.signal)}\n</untrusted_file>`;

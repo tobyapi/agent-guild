@@ -76,6 +76,10 @@ pub(crate) enum Event {
         id: String,
         text: String,
     },
+    SkillObservation {
+        id: String,
+        name: Option<String>,
+    },
     Usage {
         id: String,
         usage: RunUsage,

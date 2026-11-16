@@ -48,6 +48,7 @@ pub(super) enum Command {
     Post {
         job_id: String,
         text: String,
+        skills: Option<guild_domain::skill_usage::SkillUsage>,
     },
     Finished {
         job_id: String,

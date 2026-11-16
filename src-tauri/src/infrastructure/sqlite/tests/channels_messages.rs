@@ -29,6 +29,7 @@ pub(super) fn new_message(id: &str, content: &str) -> NewMessage {
         channel_id: ChannelId::new("c1"),
         author_id: Author::Agent(AgentId::new("a")),
         content: content.to_owned(),
+        skill_usage: None,
         attachments: vec![Attachment {
             id: AttachmentId::new(format!("{id}-a1")),
             name: "screen.png".to_owned(),

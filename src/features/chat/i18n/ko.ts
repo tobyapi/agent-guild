@@ -2,6 +2,13 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  skillUsageDetails: '스킬 기록',
+  skillUsageLoaded: '읽기 확인: ',
+  skillUsageMissing: '기록 없음(이전 메시지 포함). 미사용을 뜻하지 않습니다.',
+  skillUsageSupported: '전용 스킬 읽기 수집 지원. 기록 없음은 미사용을 뜻하지 않습니다.',
+  skillUsageUnsupported: '수집 미지원: 이 실행의 읽기 여부는 알 수 없습니다. 신고는 별도 기록입니다.',
+  skillUsageInterval:
+    '같은 실행에서 이전 게시 이후 이 게시까지 전용 도구가 반환한 읽기입니다. 이 댓글에서의 사용이나 실행 성공을 증명하지 않습니다.',
   skillUsageDeclared: '사용 스킬 (자체 신고):',
   skillUsageEvidence:
     '이 메시지에서 에이전트가 신고한 스킬입니다. 읽기나 실행 성공은 확인되지 않았습니다. 표시가 없어도 미사용을 뜻하지 않습니다.',

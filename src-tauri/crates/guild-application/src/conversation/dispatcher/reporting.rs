@@ -15,7 +15,9 @@ impl Actor {
                 let job_id = update_id.clone();
                 let command = match update {
                     RunUpdate::Activity(detail) => Command::Activity { job_id, detail },
-                    RunUpdate::Post(text) => Command::Post { job_id, text },
+                    RunUpdate::Post(text) => Command::Post { job_id, text, skills: None },
+                    RunUpdate::RecordedPost(text, skills) => Command::Post { job_id, text, skills: Some(skills) },
+                    RunUpdate::SkillObservation(_) => return,
                     RunUpdate::Usage(_) => return,
                 };
                 let _ = updates.send(command);
@@ -27,14 +29,19 @@ impl Actor {
     }
 
     /// 作業の途中の投稿: まだ実行中で、取り消されても世代が変わってもいなければ保存する（振り分けはしない）
-    pub(super) fn post_progress(&self, job_id: &str, text: &str) {
+    pub(super) fn post_progress(
+        &self,
+        job_id: &str,
+        text: &str,
+        skills: Option<guild_domain::skill_usage::SkillUsage>,
+    ) {
         let Some(running) = self.state.running.get(job_id) else {
             return;
         };
         if !self.state.is_current(running) {
             return;
         }
-        if let Err(error) = executor::post_progress(&self.ports, &running.job, text) {
+        if let Err(error) = executor::post_progress(&self.ports, &running.job, text, skills) {
             log::error!("途中の投稿を保存できませんでした: {error}");
         }
     }

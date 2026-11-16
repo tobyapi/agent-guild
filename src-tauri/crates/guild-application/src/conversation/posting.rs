@@ -47,6 +47,7 @@ pub(crate) fn new_root(
         channel_id: channel_id.clone(),
         author_id: author,
         content,
+        skill_usage: None,
         attachments: Vec::new(),
         kind,
         mentions,

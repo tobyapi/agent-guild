@@ -64,7 +64,7 @@ impl Actor {
                     running.detail = detail;
                 }
             }
-            Command::Post { job_id, text } => self.post_progress(&job_id, &text),
+            Command::Post { job_id, text, skills } => self.post_progress(&job_id, &text, skills),
             Command::Finished { job_id, outcome } => self.finish(&job_id, outcome),
             Command::Stop { channel, announce, done } => self.stop(channel, announce, done),
             Command::StopAll { done } => self.stop_all(done),

@@ -87,6 +87,8 @@ pub enum RunUpdate {
     Activity(String),
     /// 作業の途中の投稿（チャットに出す文章）
     Post(String),
+    SkillObservation(Option<String>),
+    RecordedPost(String, guild_domain::skill_usage::SkillUsage),
     /// 実際のモデル名や、この実行で取得できた使用量の増分。
     Usage(RunUsage),
 }

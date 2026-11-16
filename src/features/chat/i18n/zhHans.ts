@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
+  skillUsageDetails: '技能记录',
+  skillUsageLoaded: '读取确认：',
+  skillUsageMissing: '无记录（包括旧消息），不表示未使用。',
+  skillUsageSupported: '支持专用技能读取记录；无记录不表示未使用。',
+  skillUsageUnsupported: '不支持采集：本次运行的读取情况未知。声明独立记录。',
+  skillUsageInterval: '同一运行中，上次发布至本次发布期间专用工具返回的读取。不证明本条评论使用或执行成功。',
   skillUsageDeclared: '使用技能（自行声明）：',
   skillUsageEvidence: '由智能体在本条消息中声明的技能，尚未验证读取或执行成功。没有标签不代表未使用技能。',
   logLabel: '#{channel} 的消息',

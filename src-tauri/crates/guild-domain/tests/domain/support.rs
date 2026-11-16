@@ -65,6 +65,7 @@ pub fn message(seq: i64, author: Author, content: &str) -> Message {
         channel_id: ChannelId::new("c1"),
         author_id: author,
         content: content.to_owned(),
+        skill_usage: None,
         attachments: Vec::new(),
         kind: MessageKind::Chat,
         mentions: Vec::new(),

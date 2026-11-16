@@ -2,6 +2,13 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  skillUsageDetails: 'Skill records',
+  skillUsageLoaded: 'Read confirmed: ',
+  skillUsageMissing: 'No record (including older messages). This does not mean no skills were used.',
+  skillUsageSupported: 'Dedicated skill reads are observable. No read record does not mean no skills were used.',
+  skillUsageUnsupported: 'Collection unsupported: skill reads in this run are unknown. Declarations are separate.',
+  skillUsageInterval:
+    'Dedicated reads returned since the previous post in this run. They do not prove use in this comment or successful execution.',
   skillUsageDeclared: 'Skills (declared):',
   skillUsageEvidence:
     'Skills declared by the agent in this message. Reading or successful execution has not been verified. No label does not imply no skills were used.',

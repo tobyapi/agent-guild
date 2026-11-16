@@ -44,6 +44,13 @@ export interface AttachmentInput {
   data: string;
 }
 
+export interface SkillUsage {
+  declared: string[];
+  loaded: string[];
+  supported: boolean;
+  runId: string | null;
+}
+
 export interface Message {
   id: string;
   /** 全体で単調増加する通し番号。並び順とページングのカーソルはこれを使う（createdAt は表示専用） */
@@ -52,6 +59,8 @@ export interface Message {
   /** HUMAN_ID / エージェントID / SYSTEM_ID */
   authorId: string;
   content: string;
+  /** Absent/null on messages saved before collection was added. */
+  skillUsage?: SkillUsage | null;
   /** 人間が貼った画像（貼った順）。人間の発言以外は空 */
   attachments: Attachment[];
   kind: MessageKind;

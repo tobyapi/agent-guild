@@ -14,7 +14,7 @@ use super::database::Database;
 
 /// read_message が読む列（この順）
 const COLUMNS: &str = "seq, id, channel_id, author_id, content, attachments, kind, mentions, reply_to_id, root_id, \
-                       depth, delegation_id, created_at";
+                       depth, delegation_id, created_at, skill_usage";
 
 pub struct SqliteMessageRepository {
     db: Arc<Database>,
@@ -33,7 +33,7 @@ impl MessageRepository for SqliteMessageRepository {
             .with(|conn| {
                 conn.execute(
                     "INSERT INTO messages (id, channel_id, author_id, content, attachments, kind, mentions, reply_to_id, \
-                     root_id, depth, delegation_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                     root_id, depth, delegation_id, created_at, skill_usage) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
                     params![
                         message.id.as_str(),
                         message.channel_id.as_str(),
@@ -47,6 +47,7 @@ impl MessageRepository for SqliteMessageRepository {
                         message.depth,
                         message.delegation_id.as_ref().map(DelegationId::as_str),
                         message.created_at,
+                        to_json(&message.skill_usage)?,
                     ],
                 )?;
                 Ok(conn.last_insert_rowid())
@@ -136,6 +137,14 @@ fn read_message(row: &Row<'_>) -> rusqlite::Result<Message> {
         channel_id: ChannelId::new(row.get::<_, String>(2)?),
         author_id: Author::from(row.get::<_, String>(3)?),
         content: row.get(4)?,
+        skill_usage: row
+            .get::<_, Option<String>>(13)?
+            .map(|json| serde_json::from_str(&json))
+            .transpose()
+            .map_err(|error| {
+                rusqlite::Error::FromSqlConversionFailure(13, rusqlite::types::Type::Text, Box::new(error))
+            })?
+            .flatten(),
         attachments: json_column(row, 5)?,
         kind: parsed_column(row, 6, MessageKind::parse)?,
         mentions: json_column(row, 7)?,

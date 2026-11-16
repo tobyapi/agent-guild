@@ -83,6 +83,7 @@ pub(super) fn update(update: runner::RunUpdate) -> RunUpdate {
     match update {
         runner::RunUpdate::Activity(detail) => RunUpdate::Activity(detail),
         runner::RunUpdate::Post(text) => RunUpdate::Post(text),
+        runner::RunUpdate::SkillObservation(name) => RunUpdate::SkillObservation(name),
         runner::RunUpdate::Usage(usage) => RunUpdate::Usage(guild_domain::statistics::RunUsage {
             model: usage.model,
             input_tokens: usage.input_tokens.and_then(|value| i64::try_from(value).ok()),

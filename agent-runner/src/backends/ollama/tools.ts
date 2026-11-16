@@ -87,7 +87,11 @@ export async function executeTool(
   assertToolPermission(request, name, args);
   if (!isJsonObject(args)) throw new BackendError('bad_request', '道具の引数が不正です');
   if (name === 'post') return postResult(args, context);
-  if (name === 'read_skill') return skillResult(request, args.name);
+  if (name === 'read_skill') {
+    const body = skillResult(request, args.name);
+    context?.onSkillRead?.(String(args.name));
+    return body;
+  }
   const value = toolValue(name, args);
   if (name === 'run_command') {
     // Seatbelt がなければ、Windows の隔離の中で動かす（使えない PC では実行しない）

@@ -15,7 +15,6 @@ import { MessageAttachments } from './MessageAttachments';
 import { MessageBody } from './MessageBody';
 import { TaskCard } from './TaskCard';
 import { t } from '../i18n';
-import { skillDeclaration } from '../model/skillUsage';
 import { SkillUsageLabels } from './SkillUsageLabels';
 import styles from './Message.module.css';
 
@@ -78,11 +77,8 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
 
 /** 見出しの下: 本文（エラー発言は理由）と、割り振りのカード（tasks ブロックの代わり） */
 function MessageContent({ message, author, renderBody, delegation }: MessageItemProps) {
-  const declared =
-    !author.human && ['chat', 'autonomous', 'progress'].includes(message.kind)
-      ? skillDeclaration(message.content)
-      : { content: message.content, names: [] };
-  const content = message.delegationId === null ? declared.content : removeTasksBlock(declared.content);
+  const eligible = !author.human && ['chat', 'autonomous', 'progress'].includes(message.kind);
+  const content = message.delegationId === null ? message.content : removeTasksBlock(message.content);
   return (
     <>
       {message.kind === 'error' && <ErrorBody content={message.content} />}
@@ -90,7 +86,7 @@ function MessageContent({ message, author, renderBody, delegation }: MessageItem
         <MessageBody content={content} render={renderBody} agentId={author.human ? null : message.authorId} />
       )}
       <MessageAttachments message={message} />
-      <SkillUsageLabels names={declared.names} />
+      {eligible && <SkillUsageLabels usage={message.skillUsage} />}
       {message.delegationId !== null &&
         (delegation ? <TaskCard delegation={delegation} /> : <p className={styles.taskLoading}>{t('taskLoading')}</p>)}
     </>

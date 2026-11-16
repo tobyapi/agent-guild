@@ -19,6 +19,7 @@ fn new_message(channel: &Channel, id: &str, root: &str, content: &str) -> NewMes
         channel_id: channel.id.clone(),
         author_id: Author::Human,
         content: content.to_owned(),
+        skill_usage: None,
         attachments: Vec::new(),
         kind: MessageKind::Chat,
         mentions: Vec::new(),

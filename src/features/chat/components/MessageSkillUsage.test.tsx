@@ -29,7 +29,8 @@ const message: Message = {
   seq: 1,
   channelId: 'c',
   authorId: 'a',
-  content,
+  content: '検証しました。',
+  skillUsage: { declared: ['clean-code', 'reflection'], loaded: [], supported: false, runId: 'run-a' },
   attachments: [],
   kind: 'chat',
   mentions: [],
@@ -64,7 +65,7 @@ it.each(['chat', 'progress', 'autonomous'] as const)('再読込した%sの投稿
 });
 
 it('人間のコード例をエージェントの使用申告として表示しない', () => {
-  const view = show({}, true);
+  const view = show({ content }, true);
   expect(view.container.querySelector('details')).toBeNull();
   expect(view.container.textContent).toContain('skill-usage');
 });
@@ -73,12 +74,12 @@ it('別エージェントの記録なしの投稿へ申告を持ち越さない'
   const first = show();
   expect(screen.getByText('clean-code')).toBeTruthy();
   first.unmount();
-  const next = show({ id: 'two', authorId: 'b', content: '古い投稿' });
-  expect(next.container.querySelector('details')).toBeNull();
+  const next = show({ id: 'two', authorId: 'b', content: '古い投稿', skillUsage: null });
+  expect(next.container.querySelector('summary')?.textContent).not.toContain('clean-code');
 });
 
 it.each(['system', 'error'] as const)('%sは本文にフッタがあっても申告表示しない', (kind) => {
-  const view = show({ kind });
+  const view = show({ kind, content });
   expect(view.container.querySelector('details')).toBeNull();
   expect(view.container.textContent).toContain('skill-usage');
 });
@@ -91,7 +92,7 @@ it.each([
   `\`\`\`\`text\n${content}\n\`\`\`\``,
   content.replace('skill-usage\n', 'skill-usage \n'),
 ])('エージェントによる引用・コード例・空白付き指定を申告表示しない', (quoted) => {
-  const view = show({ content: quoted });
-  expect(view.container.querySelector('details')).toBeNull();
+  const view = show({ content: quoted, skillUsage: null });
+  expect(view.container.querySelector('summary')?.textContent).not.toContain('clean-code');
   expect(view.container.textContent).toContain('skill-usage');
 });

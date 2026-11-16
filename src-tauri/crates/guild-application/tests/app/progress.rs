@@ -68,3 +68,31 @@ async fn posts_arriving_after_the_channel_was_stopped_are_dropped() {
 
     assert_eq!(app.transcript(&lobby), vec!["人間: お願い", "システム: 停止しました"]);
 }
+
+#[tokio::test]
+async fn skill_declarations_are_saved_at_post_time_and_pass_is_not_published() {
+    let app = TestApp::new();
+    let agent = app.agent("worker", "??");
+    let channel = app.channel("skills", &[&agent]);
+    let footer = "```skill-usage\n[\"clean-code\",\"clean-code\",\"reflection\"]\n```";
+    app.runtime.script(
+        agent.id.as_str(),
+        Script::Posts(
+            vec![format!("??\n{footer}"), format!("[PASS]\n{footer}"), footer.into()],
+            format!("??\n{footer}"),
+        ),
+    );
+    app.services.conversation.send_human_message(&channel.id, "@?? ???", &[]).unwrap();
+    app.settle().await;
+    let messages = app.messages(&channel);
+    assert_eq!(messages.len(), 3);
+    assert!(messages[0].skill_usage.is_none());
+    for message in &messages[1..] {
+        let usage = message.skill_usage.as_ref().unwrap();
+        assert_eq!(usage.declared, ["clean-code", "reflection"]);
+        assert!(!usage.supported);
+        assert!(usage.loaded.is_empty());
+        assert!(!message.content.contains("skill-usage"));
+    }
+    assert_eq!(messages[1].skill_usage.as_ref().unwrap().run_id, messages[2].skill_usage.as_ref().unwrap().run_id);
+}

@@ -21,6 +21,12 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
     let repository = SqliteMessageRepository::new(db.clone());
     let progress = NewMessage {
         kind: MessageKind::Progress,
+        skill_usage: Some(guild_domain::skill_usage::SkillUsage {
+            declared: vec!["clean-code".into()],
+            loaded: vec!["reflection".into()],
+            supported: true,
+            run_id: Some("run-a".into()),
+        }),
         ..new_message("progress", "途中\n```skill-usage\n[\"clean-code\",\"reflection\"]\n```")
     };
     let other = NewMessage {

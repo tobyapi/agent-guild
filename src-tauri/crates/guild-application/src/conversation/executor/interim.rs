@@ -11,13 +11,22 @@ use crate::error::AppResult;
 use crate::services::Ports;
 
 /// 保存した発言を返す。空・[PASS]、またはエージェントかチャンネルがもうなければ何もしない
-pub(crate) fn post_progress(ports: &Ports, job: &JobSpec, raw: &str) -> AppResult<Option<Message>> {
+pub(crate) fn post_progress(
+    ports: &Ports,
+    job: &JobSpec,
+    raw: &str,
+    usage: Option<guild_domain::skill_usage::SkillUsage>,
+) -> AppResult<Option<Message>> {
     let Some((agent, _channel)) = participants(ports, job)? else {
         return Ok(None);
     };
-    let Some(content) = format_reply(raw, &agent.name) else {
+    let (body, names) = guild_domain::skill_usage::declaration(raw);
+    let mut usage = usage.unwrap_or_default();
+    usage.declared = names;
+    let Some(content) = format_reply(&body, &agent.name) else {
         return Ok(None);
     };
-    let message = from_job(ports, job, &agent, content, MessageKind::Progress, Vec::new());
+    let mut message = from_job(ports, job, &agent, content, MessageKind::Progress, Vec::new());
+    message.skill_usage = Some(usage);
     posting::publish(ports, message).map(Some)
 }

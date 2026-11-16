@@ -1,5 +1,12 @@
 // chat の文言（発言の一覧・割り振りのカード・本文の埋め込み。日本語。キーの正）
 export const ja = {
+  skillUsageDetails: 'スキルの記録',
+  skillUsageLoaded: '読込確認：',
+  skillUsageMissing: '記録なし（過去の投稿を含む）。未使用という意味ではありません。',
+  skillUsageSupported: '専用スキル読込の取得に対応。この区間で読込記録がない場合も未使用とは限りません。',
+  skillUsageUnsupported: '取得非対応：この実行のスキル読込は不明です。申告は独立した記録です。',
+  skillUsageInterval:
+    '同じ実行で、前の投稿からこの投稿までに専用ツールが返した読込です。このコメントでの使用・実行成功の証明ではありません。',
   skillUsageDeclared: '使用スキル（申告）：',
   skillUsageEvidence:
     'この投稿の末尾にエージェントが申告したスキルです。読み取りや実行の成功を確認した記録ではありません。表示がない場合も未使用とは限りません。',

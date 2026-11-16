@@ -138,6 +138,12 @@ export const messageSchema = {
   channelId: string,
   authorId: string,
   content: string,
+  skillUsage: (value, path) =>
+    value === undefined
+      ? []
+      : nullable(
+          objectOf({ declared: arrayOf(string), loaded: arrayOf(string), supported: boolean, runId: nullable(string) }),
+        )(value, path),
   attachments: arrayOf(objectOf(attachmentSchema)),
   kind: oneOf<MessageKind>({ chat: true, autonomous: true, progress: true, system: true, error: true }),
   mentions: arrayOf(string),

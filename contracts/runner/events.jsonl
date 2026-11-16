@@ -6,3 +6,5 @@
 {"type":"result","id":"job-0001","text":"⚠️ 要修正\n1. 3案目は対象者が曖昧です。"}
 {"type":"error","id":"job-0002","code":"cancelled","message":"実行を中断しました"}
 {"type":"error","id":null,"code":"bad_request","message":"JSON として読めない行を受け取りました"}
+{"type":"skillObservation","id":"job-skill","name":null}
+{"type":"skillObservation","id":"job-skill","name":"clean-code"}

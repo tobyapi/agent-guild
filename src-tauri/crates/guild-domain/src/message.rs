@@ -66,6 +66,8 @@ pub struct Message {
     pub channel_id: ChannelId,
     pub author_id: Author,
     pub content: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub skill_usage: Option<crate::skill_usage::SkillUsage>,
     /// 人間が貼った画像（貼った順）。人間の発言以外は空
     pub attachments: Vec<Attachment>,
     pub kind: MessageKind,
@@ -89,6 +91,7 @@ pub struct NewMessage {
     pub channel_id: ChannelId,
     pub author_id: Author,
     pub content: String,
+    pub skill_usage: Option<crate::skill_usage::SkillUsage>,
     pub attachments: Vec<Attachment>,
     pub kind: MessageKind,
     pub mentions: Vec<AgentId>,
@@ -107,6 +110,7 @@ impl NewMessage {
             channel_id: self.channel_id,
             author_id: self.author_id,
             content: self.content,
+            skill_usage: self.skill_usage,
             attachments: self.attachments,
             kind: self.kind,
             mentions: self.mentions,

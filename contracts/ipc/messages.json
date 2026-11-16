@@ -27,7 +27,17 @@
     "rootId": "d0000000-0000-4000-8000-000000000001",
     "depth": 0,
     "delegationId": null,
-    "createdAt": 1793328000000
+    "createdAt": 1793328000000,
+    "skillUsage": {
+      "declared": [
+        "clean-code"
+      ],
+      "loaded": [
+        "reflection"
+      ],
+      "supported": true,
+      "runId": "run-example"
+    }
   },
   {
     "id": "d0000000-0000-4000-8000-000000000002",

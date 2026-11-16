@@ -27,10 +27,7 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
     let ready = posting::ready_backends(ports);
     let ctx = RoutingContext { channel: &channel, agents: &agents, ready_backends: &ready };
     match outcome {
-        RunOutcome::Reply(raw) => match format_reply(&raw, &agent.name) {
-            Some(content) => replied(ports, job, &agent, content, &ctx),
-            None => Ok(no_answer(job, &agent, NoAnswer::Passed, &ctx, Ending::Passed)),
-        },
+        RunOutcome::Reply(raw, usage) => commit_reply(ports, job, &agent, &raw, usage, &ctx),
         RunOutcome::Failed(message) => {
             let error = post_error(ports, job, &agent, message)?;
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::Failed(error)))
@@ -43,18 +40,35 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
     }
 }
 
+fn commit_reply(
+    ports: &Ports,
+    job: &JobSpec,
+    agent: &Agent,
+    raw: &str,
+    mut usage: guild_domain::skill_usage::SkillUsage,
+    ctx: &RoutingContext<'_>,
+) -> AppResult<Committed> {
+    let (body, names) = guild_domain::skill_usage::declaration(raw);
+    usage.declared = names;
+    match format_reply(&body, &agent.name) {
+        Some(content) => replied(ports, job, agent, content, usage, ctx),
+        None => Ok(no_answer(job, agent, NoAnswer::Passed, ctx, Ending::Passed)),
+    }
+}
+
 /// 返答を投稿して振り分ける。canDelegate のエージェントの tasks ブロックは割り振りにする
 fn replied(
     ports: &Ports,
     job: &JobSpec,
     agent: &Agent,
     content: String,
+    usage: guild_domain::skill_usage::SkillUsage,
     ctx: &RoutingContext<'_>,
 ) -> AppResult<Committed> {
     let plan = if agent.behavior().can_delegate { parse_tasks(&content, &agent.id, ctx.agents) } else { None };
     let delegation_id =
         plan.as_ref().filter(|plan| !plan.tasks.is_empty()).map(|_| DelegationId::new(ports.ids.new_id()));
-    let reply = post_reply(ports, job, agent, content, ctx.agents, delegation_id.clone())?;
+    let reply = post_reply(ports, job, agent, content, usage, ctx.agents, delegation_id.clone())?;
     let mut routing = route_reply(&reply, job, ctx);
     carry_subtask(job, &mut routing);
     let consulted = starts_consultation(&routing);
@@ -86,12 +100,14 @@ fn post_reply(
     job: &JobSpec,
     agent: &Agent,
     content: String,
+    usage: guild_domain::skill_usage::SkillUsage,
     agents: &[Agent],
     delegation_id: Option<DelegationId>,
 ) -> AppResult<Message> {
     let mentions: Vec<AgentId> = parse_mentions(&content, agents).into_iter().filter(|id| id != &agent.id).collect();
     let kind = if job.mode == JobMode::Autonomous { MessageKind::Autonomous } else { MessageKind::Chat };
-    let message = NewMessage { delegation_id, ..from_job(ports, job, agent, content, kind, mentions) };
+    let message =
+        NewMessage { delegation_id, skill_usage: Some(usage), ..from_job(ports, job, agent, content, kind, mentions) };
     posting::publish(ports, message)
 }
 
@@ -116,6 +132,7 @@ pub(super) fn from_job(
         channel_id: job.channel_id.clone(),
         author_id: Author::Agent(agent.id.clone()),
         content,
+        skill_usage: None,
         attachments: Vec::new(),
         kind,
         mentions,

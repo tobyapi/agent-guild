@@ -131,6 +131,7 @@ export class Dispatcher {
         onActivity: (detail) => send({ type: 'activity', id, detail }),
         onPost: (text) => send({ type: 'post', id, text }),
         onUsage: (usage) => send({ type: 'usage', id, usage }),
+        onSkillRead: (name) => send({ type: 'skillObservation', id, name }),
       });
     });
   }

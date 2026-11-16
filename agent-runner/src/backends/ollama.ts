@@ -82,6 +82,7 @@ async function run(request: RunRequest, context: RunContext): Promise<string> {
   signal.throwIfAborted();
   context = { ...context, signal };
   const enabled = request.options.enableTools === true;
+  context.onSkillRead?.(null);
   // 道具を有効にしていなければ会話だけ（役割の権限があっても、どの操作も使わない）
   if (!enabled) request = { ...request, permissions: NO_TOOLS };
   if (enabled) {
