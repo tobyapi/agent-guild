@@ -1,5 +1,8 @@
 // chat の文言（発言の一覧・割り振りのカード・本文の埋め込み。日本語。キーの正）
 export const ja = {
+  skillUsageDeclared: '使用スキル（申告）：',
+  skillUsageEvidence:
+    'この投稿の末尾にエージェントが申告したスキルです。読み取りや実行の成功を確認した記録ではありません。表示がない場合も未使用とは限りません。',
   logLabel: '#{channel} のメッセージ',
   newMessages: '新しいメッセージ',
   loading: '読み込み中…',

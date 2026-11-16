@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
+  skillUsageDeclared: '使用技能（自行声明）：',
+  skillUsageEvidence: '由智能体在本条消息中声明的技能，尚未验证读取或执行成功。没有标签不代表未使用技能。',
   logLabel: '#{channel} 的消息',
   newMessages: '新消息',
   loading: '加载中…',

@@ -2,6 +2,9 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  skillUsageDeclared: 'Skills (declared):',
+  skillUsageEvidence:
+    'Skills declared by the agent in this message. Reading or successful execution has not been verified. No label does not imply no skills were used.',
   logLabel: 'Messages in #{channel}',
   newMessages: 'New messages',
   loading: 'Loading…',

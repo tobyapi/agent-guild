@@ -1,0 +1,24 @@
+.usage {
+  grid-column: 2;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-block: var(--space-1);
+}
+
+.usage summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+}
+
+.usage p {
+  margin-block: var(--space-1);
+}
+
+.label {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--space-1);
+}

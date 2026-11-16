@@ -2,6 +2,9 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  skillUsageDeclared: '사용 스킬 (자체 신고):',
+  skillUsageEvidence:
+    '이 메시지에서 에이전트가 신고한 스킬입니다. 읽기나 실행 성공은 확인되지 않았습니다. 표시가 없어도 미사용을 뜻하지 않습니다.',
   logLabel: '#{channel}의 메시지',
   newMessages: '새 메시지',
   loading: '불러오는 중…',
