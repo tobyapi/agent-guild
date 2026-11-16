@@ -39,6 +39,13 @@
   background-color: transparent;
 }
 
+.footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
 @supports (backdrop-filter: blur(1px)) {
   :global(:root[data-background='active'][data-glass='frosted']) .sidebar {
     --glass-ink-weight: 100%;

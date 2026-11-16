@@ -4,6 +4,7 @@ import { useGuildCrest, useGuildName } from '@/features/guild';
 import { ProfileCard } from '@/features/profile';
 import { useAnyoneWorking } from '@/features/runtime';
 import { openSettings } from '@/features/settings';
+import { UpdateButton } from '@/features/update';
 import { Crest } from '@/shared/ui';
 import { t } from './i18n';
 import styles from './Sidebar.module.css';
@@ -25,7 +26,10 @@ export function Sidebar() {
         <ChannelList />
         <AgentSections />
       </nav>
-      <ProfileCard onOpenSettings={() => openSettings()} />
+      <div className={styles.footer}>
+        <ProfileCard onOpenSettings={() => openSettings()} />
+        <UpdateButton />
+      </div>
     </aside>
   );
 }
