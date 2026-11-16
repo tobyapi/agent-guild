@@ -1,6 +1,8 @@
 import { invoke } from '@/shared/api';
 import type { AttachmentInput } from '@/shared/types/domain';
 
+export type { LocalImage } from '@/shared/api/contract';
+
 export const chatApi = {
   /** beforeSeq より前の発言を新しいほうから limit 件（seq の昇順で返る） */
   list: (channelId: string, beforeSeq: number | null, limit: number) =>

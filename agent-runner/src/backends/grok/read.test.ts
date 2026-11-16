@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest';
-import { mkdtemp, writeFile, link, symlink, mkdir, rm } from 'node:fs/promises';
+import { mkdtemp, realpath, writeFile, link, symlink, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { runRequest } from '../run.test-support.ts';
@@ -10,7 +10,8 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'grok-read-'));
+  // Windows TEMP may contain a DOS alias; the reader deliberately requires canonical paths.
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'grok-read-')));
   roots.push(root);
   const workspace = join(root, 'work');
   const stateDir = join(root, 'state');
