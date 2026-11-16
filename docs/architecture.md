@@ -126,9 +126,10 @@ agent-runner/src/
                        画像は1件だけ流すユーザーメッセージ、ログインは同梱の claude.exe の auth login を別ウィンドウで。操作の確認は claude/check.ts と judge.ts。コマンドの渡し方は claude/rules.ts、隔離の中で動くコマンドの道具は claude/command.ts）
     codex.ts, codex/   Codex SDK（権限 → sandbox・ネットワーク・Web検索、人格とスキルの渡し方は SDK の都合に合わせて stateDir か毎回作り直し、
                        画像は local_image の入力）
-    codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション・スキルの置き場所 skills.ts・画像の依頼 image.ts）。codex・grok・muse が使う。
+    codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション・スキルの置き場所 skills.ts・画像の依頼 image.ts）。codex・muse が使う。
                        画像の依頼（image.ts・image-options.ts・generated-images.ts）は codex だけが使う
-    grok.ts, muse.ts   Grok（xAI）と Muse Spark。codex-runtime に、実行ごとの provider の設定を渡す（実験対応。docs/grok.md・docs/muse.md）
+    grok.ts, grok/    xAI Responses 直接接続。検索・読取専用（docs/grok.md）
+    muse.ts          Muse Spark。codex-runtime に provider 設定を渡す（docs/muse.md）
     describe.ts        ツール呼び出し → 「Web検索: …」などの表示文
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
     agent-env.ts       エージェントに渡す環境変数（秘密らしい名前の変数はコマンドから除く）
@@ -181,7 +182,7 @@ src/
 
 ## 拡張のしかた（足すだけで済むこと）
 
-- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Grok・Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目に加えて、バックエンドごとの違い（道具の利用を切り替える設定 `toolsOption`・ローカル実行か `local`・アイコンの枠を生成できるか `frameGeneration`・アプリからのセットアップ `setup`）もアダプタが `info()` で申告するので、Rust・React の変更は不要。Rust と React は、バックエンドの ID で分岐しない。
+- **新しいバックエンド**（例: Gemini CLI）: `agent-runner/src/backends/<id>.ts` に BackendAdapter を実装して `registry.ts` に1行。Codex 互換の CLI なら、Muse のように共通の `codex-runtime.ts` に provider の設定を渡すだけで済む。アダプタ同士は import できないので、共通部品を足したらハーネスの設定（`scripts/harness/lib/config.mjs` の `RUNNER_BACKEND_COMMON_MODULES`）にも足す。能力・状態・設定項目に加えて、バックエンドごとの違い（道具の利用を切り替える設定 `toolsOption`・ローカル実行か `local`・アイコンの枠を生成できるか `frameGeneration`・アプリからのセットアップ `setup`）もアダプタが `info()` で申告するので、Rust・React の変更は不要。Rust と React は、バックエンドの ID で分岐しない。
 - **新しいテンプレート**（例: マネージャー）: guild-domain の `agent/templates.rs` に1行。React は `Snapshot.templates` から自動で選択肢を出す。ランナーは変更不要。新しい振る舞いそのもの（今ある設定で表せないもの）が要るときだけ、Agent に設定項目を1つ足し、それを見るのは routing / prompt の該当箇所だけにする。
 - **新しいコマンド**: guild-application にユースケース → interface/commands にハンドラ → lib.rs に登録 → contract.ts と design.md の表 → フィクスチャ → feature の api.ts。
 - **新しいイベント**: EventPublisher → infrastructure/events.rs → contract.ts と design.md → フィクスチャ。

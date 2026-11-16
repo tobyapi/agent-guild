@@ -36,7 +36,7 @@
 | | 読み取りの範囲 | 書き込みの範囲 | ネットワーク | コマンド |
 |---|---|---|---|---|
 | Claude | パスの判定で守る（canUseTool と PreToolUse。秘密の場所は除く） | パスの判定で守る | 道具の有無で守る | 内蔵の Bash は隔離に入れられないので、全部を許す役割（作業者）にだけ渡す。ほかの役割には、共通の隔離（MXC。command-sandbox.md）が使える Windows 11 でだけ、隔離の中で動くコマンドの道具を渡す。使えない PC では使わない |
-| Codex・Grok・Muse | **Windows の標準の隔離では絞れない**（下記）。秘密の場所も読める | sandbox で守る（作業場所だけ。%TEMP% も除く） | sandbox で守る | 止められない（シェルが作業の手段）。sandbox の中でだけ動く |
+| Codex・Muse | **Windows の標準の隔離では絞れない**（下記）。秘密の場所も読める | sandbox で守る（作業場所だけ。%TEMP% も除く） | sandbox で守る | 止められない（シェルが作業の手段）。sandbox の中でだけ動く |
 | Ollama | 道具の実装で守る（macOS は Seatbelt の中、ほかの OS はパスの判定。作業場所と readableDirs だけ） | 同左（作業場所だけ。PC 全体への書き込みは macOS だけ） | Web の道具がない。コマンドのネットワークも禁止 | OS の隔離の中でだけ使う: macOS は Seatbelt の中の単一プロセス、Windows 11 は MXC の中の PowerShell（command-sandbox.md）。隔離が使えない PC では使わない |
 
 この PC（Windows）で確かめたこと:
