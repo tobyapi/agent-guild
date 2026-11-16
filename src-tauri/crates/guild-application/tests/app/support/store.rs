@@ -21,6 +21,7 @@ pub struct MemoryStore {
     pub agents: Mutex<Vec<Agent>>,
     pub channels: Mutex<Vec<Channel>>,
     pub messages: Mutex<Vec<Message>>,
+    pub reject_next_progress: Mutex<bool>,
     pub delegations: Mutex<Vec<Delegation>>,
     pub measurements: Mutex<Vec<RunMeasurement>>,
     pub skills: Mutex<Vec<Skill>>,

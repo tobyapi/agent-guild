@@ -1,70 +1,69 @@
-//! 1実行だけの観測を次の投稿区間へ消費する。全投稿への累積転記はしない。
+﻿//! 実行内の投稿前観測。投稿対象になった区間は失敗しても次投稿へ流さない。
 use crate::ports::{RunUpdate, UpdateSink};
-use guild_domain::skill_usage::{valid_name, SkillUsage};
+use guild_domain::conversation::format_reply;
+use guild_domain::skill_usage::{declaration, valid_name, SkillInterval, SkillUsage};
 use parking_lot::Mutex;
 use std::sync::Arc;
 
-pub(super) struct SkillRecords(Arc<Mutex<SkillUsage>>);
+struct Record {
+    usage: SkillUsage,
+    agent_name: String,
+    closed: bool,
+}
+pub(super) struct SkillRecords(Arc<Mutex<Record>>);
 impl SkillRecords {
-    pub(super) fn new(run_id: &str) -> Self {
-        Self(Arc::new(Mutex::new(SkillUsage { run_id: Some(run_id.to_owned()), ..Default::default() })))
+    pub(super) fn new(run_id: &str, agent_id: &str, agent_name: &str) -> Self {
+        let interval = SkillInterval { version: 1, agent_id: agent_id.into(), start: 0, end: 0, incomplete: false };
+        Self(Arc::new(Mutex::new(Record {
+            usage: SkillUsage { run_id: Some(run_id.into()), interval: Some(interval), ..Default::default() },
+            agent_name: agent_name.into(),
+            closed: false,
+        })))
     }
     pub(super) fn sink(&self, next: UpdateSink) -> UpdateSink {
         let record = self.0.clone();
-        Box::new(move |event| match event {
-            RunUpdate::SkillObservation(name) => {
-                let mut usage = record.lock();
-                usage.supported = true;
-                if let Some(name) = name.filter(|n| valid_name(n)) {
-                    if usage.loaded.len() < 32 && !usage.loaded.contains(&name) {
-                        usage.loaded.push(name);
+        Box::new(move |event| {
+            let mut record = record.lock();
+            if record.closed {
+                return;
+            }
+            match event {
+                RunUpdate::SkillObservation(name) => observe(&mut record.usage, name),
+                RunUpdate::Post(text) => {
+                    if format_reply(&declaration(&text).0, &record.agent_name).is_some() {
+                        next(RunUpdate::RecordedPost(text, take(&mut record.usage)));
                     }
                 }
+                other => next(other),
             }
-            RunUpdate::Post(text) => {
-                let usage = take(&mut record.lock());
-                next(RunUpdate::RecordedPost(text, usage));
-            }
-            other => next(other),
         })
     }
-    pub(super) fn take(&self) -> SkillUsage {
-        take(&mut self.0.lock())
+    pub(super) fn finish(&self) -> SkillUsage {
+        let mut record = self.0.lock();
+        record.closed = true;
+        take(&mut record.usage)
+    }
+}
+fn observe(usage: &mut SkillUsage, name: Option<String>) {
+    usage.supported = true;
+    let Some(name) = name else { return };
+    if let Some(interval) = &mut usage.interval {
+        interval.end += 1;
+        interval.incomplete |= !valid_name(&name) || (usage.loaded.len() >= 32 && !usage.loaded.contains(&name));
+    }
+    if valid_name(&name) && usage.loaded.len() < 32 && !usage.loaded.contains(&name) {
+        usage.loaded.push(name);
     }
 }
 fn take(record: &mut SkillUsage) -> SkillUsage {
-    SkillUsage {
-        declared: Vec::new(),
-        loaded: std::mem::take(&mut record.loaded),
-        supported: record.supported,
-        run_id: record.run_id.clone(),
+    let result = SkillUsage { loaded: std::mem::take(&mut record.loaded), ..record.clone() };
+    if let Some(interval) = &mut record.interval {
+        interval.start = interval.end;
+        interval.incomplete = false;
     }
+    result
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn reads_are_consumed_once_and_isolated_by_run() {
-        let a = SkillRecords::new("a");
-        let b = SkillRecords::new("b");
-        let posts = Arc::new(Mutex::new(Vec::new()));
-        let output = posts.clone();
-        let sink = a.sink(Box::new(move |update| output.lock().push(update)));
-        sink(RunUpdate::SkillObservation(None));
-        for name in ["clean-code", "reflection", "clean-code", "<invalid>"] {
-            sink(RunUpdate::SkillObservation(Some(name.into())));
-        }
-        sink(RunUpdate::Post("progress".into()));
-        let saved = posts.lock();
-        let RunUpdate::RecordedPost(_, usage) = &saved[0] else { panic!("expected recorded post") };
-        assert_eq!(usage.loaded, ["clean-code", "reflection"]);
-        assert_eq!(usage.run_id.as_deref(), Some("a"));
-        assert!(usage.supported);
-        assert!(a.take().loaded.is_empty());
-        assert!(b.take().loaded.is_empty());
-        assert!(!b.take().supported);
-        sink(RunUpdate::SkillObservation(Some("final".into())));
-        assert_eq!(a.take().loaded, ["final"]);
-    }
-}
+#[path = "skill_records_tests.rs"]
+mod tests;

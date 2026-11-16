@@ -19,3 +19,25 @@ it('legacy and unsupported have no skill labels and distinct detail', () => {
   view.rerender(<SkillUsageLabels usage={{ declared: [], loaded: [], supported: false, runId: 'r' }} />);
   expect(view.container.textContent).toContain('取得非対応');
 });
+it('incomplete collection is unknown and does not reveal internal identifiers', () => {
+  const view = render(
+    <SkillUsageLabels
+      usage={{
+        declared: [],
+        loaded: ['unreliable-read'],
+        supported: true,
+        runId: 'private-run',
+        interval: {
+          version: 1,
+          agentId: 'private-agent',
+          start: 0,
+          end: 35,
+          incomplete: true,
+        },
+      }}
+    />,
+  );
+  expect(view.container.textContent).toContain('不明');
+  expect(view.container.textContent).not.toContain('private-');
+  expect(view.container.querySelector('summary')?.textContent).not.toContain('unreliable-read');
+});

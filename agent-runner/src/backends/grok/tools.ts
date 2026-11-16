@@ -49,7 +49,7 @@ export async function execute(request: RunRequest, context: RunContext, name: st
     const body = await readSkill(request, raw, context.signal);
     context.signal.throwIfAborted();
     const args: unknown = JSON.parse(raw);
-    if (object(args) && typeof args.name === 'string') context.onSkillRead?.(args.name);
+    if (object(args) && typeof args.name === 'string' && args.path === undefined) context.onSkillRead?.(args.name);
     return body;
   }
   const value = argument(name, raw);

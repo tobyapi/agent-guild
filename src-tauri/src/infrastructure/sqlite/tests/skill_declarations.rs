@@ -26,6 +26,13 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
             loaded: vec!["reflection".into()],
             supported: true,
             run_id: Some("run-a".into()),
+            interval: Some(guild_domain::skill_usage::SkillInterval {
+                version: 1,
+                agent_id: "a".into(),
+                start: 0,
+                end: 2,
+                incomplete: false,
+            }),
         }),
         ..new_message("progress", "途中\n```skill-usage\n[\"clean-code\",\"reflection\"]\n```")
     };

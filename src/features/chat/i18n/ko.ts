@@ -3,7 +3,8 @@ import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
   skillUsageDetails: '스킬 기록',
-  skillUsageLoaded: '읽기 확인: ',
+  skillUsageLoaded: '게시 전 작업 (읽기 확인): ',
+  skillUsageIncomplete: '알 수 없음: 이 구간의 기록은 불완전합니다.',
   skillUsageMissing: '기록 없음(이전 메시지 포함). 미사용을 뜻하지 않습니다.',
   skillUsageSupported: '전용 스킬 읽기 수집 지원. 기록 없음은 미사용을 뜻하지 않습니다.',
   skillUsageUnsupported: '수집 미지원: 이 실행의 읽기 여부는 알 수 없습니다. 신고는 별도 기록입니다.',

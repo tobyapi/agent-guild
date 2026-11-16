@@ -67,6 +67,11 @@ async fn posts_arriving_after_the_channel_was_stopped_are_dropped() {
     app.settle().await;
 
     assert_eq!(app.transcript(&lobby), vec!["人間: お願い", "システム: 停止しました"]);
+    app.runtime.script(haru.id.as_str(), Script::Reply("次の実行".into()));
+    app.services.conversation.send_human_message(&lobby.id, "@ハル 続き", &[]).unwrap();
+    app.settle().await;
+    let messages = app.messages(&lobby);
+    assert!(messages.last().unwrap().skill_usage.as_ref().unwrap().loaded.is_empty());
 }
 
 #[tokio::test]

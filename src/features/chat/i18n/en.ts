@@ -3,7 +3,8 @@ import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
   skillUsageDetails: 'Skill records',
-  skillUsageLoaded: 'Read confirmed: ',
+  skillUsageLoaded: 'Before posting (read confirmed): ',
+  skillUsageIncomplete: 'Unknown: records in this interval are incomplete.',
   skillUsageMissing: 'No record (including older messages). This does not mean no skills were used.',
   skillUsageSupported: 'Dedicated skill reads are observable. No read record does not mean no skills were used.',
   skillUsageUnsupported: 'Collection unsupported: skill reads in this run are unknown. Declarations are separate.',

@@ -92,16 +92,22 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
         Err(error) => return RunOutcome::Failed(error.to_string()),
     };
     let measurement = measurement::Measurement::new(ports, job_id, &job.channel_id, &request);
-    let records = skill_records::SkillRecords::new(job_id);
+    let agent_name = match ports.agents.get(&job.agent_id) {
+        Ok(Some(agent)) => agent.name,
+        Ok(None) => return RunOutcome::Skipped,
+        Err(error) => return RunOutcome::Failed(error.to_string()),
+    };
+    let records = skill_records::SkillRecords::new(job_id, job.agent_id.as_str(), &agent_name);
     let sink = records.sink(measurement.sink(update));
     // Keep the historical 15 minute job limit for other backends. Ollama's per-response
     // limit must not be cut short by the outer job timeout.
     let timeout = job_timeout(&request.backend, &request.options);
     let timeout_minutes = timeout.as_secs().div_ceil(60);
     let result = tokio::time::timeout(timeout, ports.runtime.run(job_id, request, sink)).await;
+    let usage = records.finish();
     measurement.save(ports);
     match result {
-        Ok(Ok(text)) => RunOutcome::Reply(text, records.take()),
+        Ok(Ok(text)) => RunOutcome::Reply(text, usage),
         Ok(Err(RuntimeError::Cancelled)) => RunOutcome::Cancelled,
         Ok(Err(RuntimeError::Failed(message))) => RunOutcome::Failed(message),
         Err(_) => {

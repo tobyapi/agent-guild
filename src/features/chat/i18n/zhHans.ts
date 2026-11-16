@@ -3,7 +3,8 @@ import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
   skillUsageDetails: '技能记录',
-  skillUsageLoaded: '读取确认：',
+  skillUsageLoaded: '发布前操作（读取确认）：',
+  skillUsageIncomplete: '未知：本区间记录不完整。',
   skillUsageMissing: '无记录（包括旧消息），不表示未使用。',
   skillUsageSupported: '支持专用技能读取记录；无记录不表示未使用。',
   skillUsageUnsupported: '不支持采集：本次运行的读取情况未知。声明独立记录。',

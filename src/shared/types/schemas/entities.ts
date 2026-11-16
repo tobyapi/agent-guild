@@ -142,7 +142,24 @@ export const messageSchema = {
     value === undefined
       ? []
       : nullable(
-          objectOf({ declared: arrayOf(string), loaded: arrayOf(string), supported: boolean, runId: nullable(string) }),
+          objectOf({
+            declared: arrayOf(string),
+            loaded: arrayOf(string),
+            supported: boolean,
+            runId: nullable(string),
+            interval: (value, path) =>
+              value === undefined
+                ? []
+                : nullable(
+                    objectOf({
+                      version: number,
+                      agentId: string,
+                      start: number,
+                      end: number,
+                      incomplete: boolean,
+                    }),
+                  )(value, path),
+          }),
         )(value, path),
   attachments: arrayOf(objectOf(attachmentSchema)),
   kind: oneOf<MessageKind>({ chat: true, autonomous: true, progress: true, system: true, error: true }),

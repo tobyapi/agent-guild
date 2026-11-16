@@ -8,6 +8,19 @@ pub struct SkillUsage {
     pub loaded: Vec<String>,
     pub supported: bool,
     pub run_id: Option<String>,
+    /// Older metadata has no interval. Do not invent provenance when reading it.
+    #[serde(default)]
+    pub interval: Option<SkillInterval>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillInterval {
+    pub version: u8,
+    pub agent_id: String,
+    pub start: u64,
+    pub end: u64,
+    pub incomplete: bool,
 }
 
 pub fn valid_name(name: &str) -> bool {
@@ -70,6 +83,13 @@ pub fn declaration(raw: &str) -> (String, Vec<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn older_metadata_without_interval_remains_readable() {
+        let usage: SkillUsage =
+            serde_json::from_str(r#"{"declared":[],"loaded":[],"supported":false,"runId":"old"}"#).unwrap();
+        assert!(usage.interval.is_none());
+        assert_eq!(usage.run_id.as_deref(), Some("old"));
+    }
     #[test]
     fn declaration_boundaries_and_no_body_pass() {
         let footer = "```skill-usage\n[\"clean-code\",\"reflection\",\"clean-code\"]\n```";

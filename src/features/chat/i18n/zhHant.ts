@@ -3,7 +3,8 @@ import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
   skillUsageDetails: '技能記錄',
-  skillUsageLoaded: '讀取確認：',
+  skillUsageLoaded: '發布前操作（讀取確認）：',
+  skillUsageIncomplete: '未知：本區間記錄不完整。',
   skillUsageMissing: '無記錄（包括舊訊息），不表示未使用。',
   skillUsageSupported: '支援專用技能讀取記錄；無記錄不表示未使用。',
   skillUsageUnsupported: '不支援擷取：本次執行的讀取情況未知。聲明獨立記錄。',

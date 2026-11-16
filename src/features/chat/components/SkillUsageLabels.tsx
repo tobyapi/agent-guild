@@ -16,15 +16,24 @@ export function SkillUsageLabels({ usage }: { usage?: SkillUsage | null }) {
             <span>{name}</span>
           </span>
         ))}
-        {usage?.loaded.map((name) => (
-          <span className={styles.label} key={`loaded:${name}`}>
-            {t('skillUsageLoaded')}
-            <span>{name}</span>
-          </span>
-        ))}
+        {!usage?.interval?.incomplete &&
+          usage?.loaded.map((name) => (
+            <span className={styles.label} key={`loaded:${name}`}>
+              {t('skillUsageLoaded')}
+              <span>{name}</span>
+            </span>
+          ))}
       </summary>
       <p>{t('skillUsageEvidence')}</p>
-      <p>{!usage ? t('skillUsageMissing') : usage.supported ? t('skillUsageSupported') : t('skillUsageUnsupported')}</p>
+      <p>
+        {!usage
+          ? t('skillUsageMissing')
+          : usage.interval?.incomplete
+            ? t('skillUsageIncomplete')
+            : usage.supported
+              ? t('skillUsageSupported')
+              : t('skillUsageUnsupported')}
+      </p>
       {usage?.loaded.length ? <p>{t('skillUsageInterval')}</p> : null}
     </details>
   );

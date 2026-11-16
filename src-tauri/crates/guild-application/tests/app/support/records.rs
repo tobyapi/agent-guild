@@ -16,6 +16,11 @@ use super::store::MemoryStore;
 
 impl MessageRepository for MemoryStore {
     fn insert(&self, message: NewMessage) -> AppResult<Message> {
+        if message.kind == guild_domain::message::MessageKind::Progress
+            && std::mem::take(&mut *self.reject_next_progress.lock())
+        {
+            return Err(guild_application::AppError::Storage("injected failure".into()));
+        }
         let mut messages = self.messages.lock();
         let seq = messages.iter().map(|m| m.seq).max().unwrap_or(0) + 1;
         let message = message.into_message(seq);

@@ -31,6 +31,7 @@ pub enum Script {
     Stubborn(Arc<Notify>, String),
     /// 作業の途中の投稿を順に送ってから返す
     Posts(Vec<String>, String),
+    Updates(Vec<RunUpdate>, String),
     /// 中断を無視して、gate が開いたら途中の投稿を送り、[PASS] を返す
     LatePost(Arc<Notify>, String),
 }
@@ -131,8 +132,15 @@ impl AgentRuntime for FakeRuntime {
                 }
                 Ok(text)
             }
+            Script::Updates(events, text) => {
+                for event in events {
+                    on_update(event);
+                }
+                Ok(text)
+            }
             Script::LatePost(gate, post) => {
                 gate.notified().await;
+                on_update(RunUpdate::SkillObservation(Some("late-read".into())));
                 on_update(RunUpdate::Post(post));
                 Ok("[PASS]".to_owned())
             }

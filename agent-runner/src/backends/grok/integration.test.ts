@@ -25,9 +25,10 @@ it('handles skill assets as untrusted content and refuses escape or unknown name
       files: [{ path: 'asset.txt', content: 'asset fixture' }],
     },
   ];
-  const ctx = runContext();
+  const ctx = { ...runContext(), onSkillRead: vi.fn() };
   expect(await execute(request, ctx, 'read_skill', '{"name":"fixture"}')).toContain('<untrusted_skill>');
   expect(await execute(request, ctx, 'read_skill', '{"name":"fixture","path":"asset.txt"}')).toContain('asset fixture');
+  expect(ctx.onSkillRead).toHaveBeenCalledExactlyOnceWith('fixture');
   await expect(execute(request, ctx, 'read_skill', '{"name":"fixture","path":"../escape"}')).rejects.toThrow();
   await expect(execute(request, ctx, 'write_file', '{"path":"MEMORY.md","text":"injected"}')).rejects.toThrow();
 });
