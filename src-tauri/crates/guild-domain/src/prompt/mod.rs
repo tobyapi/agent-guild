@@ -46,7 +46,7 @@ pub struct PromptContext<'a> {
     pub channel: &'a Channel,
     /// 全エージェント（削除済みを含んでよい。メンバー・相談相手・発言者の表示に使う）
     pub agents: &'a [Agent],
-    /// バックエンドの情報（メンバーの実効権限の要約に使う。分からなければ空）
+    /// バックエンドの情報（メンバーの実効権限・表示名・モデルと深さの既定値に使う。分からなければ空）
     pub backends: &'a [BackendInfo],
     /// 人間のプロフィール
     pub me: &'a Profile,

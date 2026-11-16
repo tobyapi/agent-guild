@@ -3,6 +3,7 @@
 use super::{capabilities, PromptContext};
 use crate::agent::{effective_permissions, Agent};
 use crate::author::{Author, MemberId};
+use crate::backend::{BackendInfo, EFFORT_OPTION};
 use crate::ids::AgentId;
 
 /// チャンネルのメンバー一覧（自分と削除済みを除く。参加順）
@@ -25,7 +26,7 @@ pub(super) fn member_list(ctx: &PromptContext<'_>) -> String {
     }
 }
 
-/// メンバー一覧の1行: タグ・担当・得意分野と、実効権限の要約（割り振りの担当者を選ぶ手がかり）
+/// メンバー一覧の1行: プロフィール・実効権限と、バックエンド・モデル・推論の深さの設定
 pub(super) fn profile_line(agent: &Agent, ctx: &PromptContext<'_>) -> String {
     let backend = ctx.backends.iter().find(|backend| backend.id == agent.backend);
     let permissions = effective_permissions(agent, backend);
@@ -40,7 +41,40 @@ pub(super) fn profile_line(agent: &Agent, ctx: &PromptContext<'_>) -> String {
     push("担当", &agent.role);
     push("得意分野", &agent.expertise);
     push("できること", &capabilities::summary(&permissions));
+    push("バックエンド", backend.and_then(|info| non_empty(&info.label)).unwrap_or(&agent.backend));
+    push("モデル", &model_setting(agent, backend));
+    push("エフォート", &effort_setting(agent, backend));
     format!("- @{}（{}）", agent.name, parts.join("／"))
+}
+
+fn non_empty(value: &str) -> Option<&str> {
+    let value = value.trim();
+    (!value.is_empty()).then_some(value)
+}
+
+fn model_setting(agent: &Agent, backend: Option<&BackendInfo>) -> String {
+    if let Some(model) = non_empty(&agent.model) {
+        return model.to_owned();
+    }
+    match backend.and_then(|info| non_empty(&info.default_model)) {
+        Some(model) => format!("既定（{model}）"),
+        None => "既定（バックエンドに任せる）".to_owned(),
+    }
+}
+
+fn effort_setting(agent: &Agent, backend: Option<&BackendInfo>) -> String {
+    if let Some(effort) = agent.backend_options.get(EFFORT_OPTION).and_then(|value| value.as_str()).and_then(non_empty)
+    {
+        return effort.to_owned();
+    }
+    let spec = backend.and_then(|info| info.model_spec(agent.model.trim()));
+    if let Some(effort) = spec.and_then(|model| model.default_effort.as_deref()).and_then(non_empty) {
+        return format!("既定（{effort}）");
+    }
+    if spec.is_some_and(|model| model.efforts.is_empty()) {
+        return "指定不可".to_owned();
+    }
+    "既定（モデルに任せる）".to_owned()
 }
 
 /// 会話履歴での発言者の表示名
