@@ -37,7 +37,7 @@
     "content": "3つ考えてみました！ @ロジカ 筋が通っているか見てもらえますか？",
     "skillUsage": {
       "declared": ["clean-code"], "loaded": ["reflection"], "supported": true, "runId": "run-example",
-      "interval": {"version": 1, "agentId": "a0000000-0000-4000-8000-000000000001", "start": 0, "end": 1, "incomplete": false}
+      "interval": {"version": 1, "agentId": "a0000000-0000-4000-8000-000000000001", "start": 0, "end": 1, "incomplete": false, "observations": []}
     },
     "attachments": [],
     "kind": "chat",
