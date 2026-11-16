@@ -39,11 +39,11 @@ The X post URL was returned by the API; independent browsing of the post was not
 
 Command: `VITEST_MAX_WORKERS=4 CARGO_BUILD_JOBS=4 npm run check` (PowerShell environment variables). Log: work-directory `grok-direct-check-workers4.log` (PowerShell UTF-16). Exit sidecar: `grok-direct-check-workers4-exit.txt`.
 
-At the time this report checkpoint was written: formatting/typecheck/lint pass; harness 44/44, TS violations 0; Vitest 1542 pass, 20 skipped, files 195 pass and 1 skipped. Rust clippy/test is still compiling. EXIT is pending, not PASS. Update this section after completion, or explicitly leave it incomplete at the time limit.
+At the time this report checkpoint was written: formatting/typecheck/lint pass; harness 44/44, TS violations 0; Vitest 1542 pass, 20 skipped, files 195 pass and 1 skipped. Rust clippy has completed successfully (1m57s); Rust tests are still compiling. EXIT is pending, not PASS. Update this section after completion, or explicitly leave it incomplete at the time limit.
 
 ## Key scan
 
-Initial WIP scan: 28 files, exact credential matches 0, unreadable 0, suspicious long encrypted/key patterns 0 (`grok-direct-current-scan.json` at that checkpoint). A final scan must include all changed implementation/docs, current scripts/results, check log and this report. The final count/result is recorded in the work-directory JSON; a pre-update scan is not evidence for later edits.
+Initial WIP scan: 28 files, exact credential matches 0, unreadable 0, suspicious long encrypted/key patterns 0 (`grok-direct-current-scan.json` at that checkpoint). The continuation scan covers 42 files: all implementation/docs changed since 8c71110, current scripts/results/design/report and the check log. Exact credential matches 0, unreadable 0, suspicious long encrypted/key patterns 0. The work-directory JSON is refreshed after report updates. A scan of a still-running check log covers its bytes at scan time only.
 
 ## Outstanding review and non-PASS items
 
