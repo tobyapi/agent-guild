@@ -30,6 +30,25 @@ impl SkillService {
     /// 内蔵スキルをエージェントに付ける。同じ name があれば Conflict、内蔵スキルがなければ NotFound
     pub fn add_builtin(&self, agent_id: &AgentId, name: &str, mode: LibraryAddMode) -> AppResult<Skill> {
         require_agent(&self.ports, agent_id)?;
+        ensure_name_free(&self.ports, agent_id, name, None)?;
+        let skill = self.prepare_builtin(agent_id, name, mode)?;
+        self.ports.skills.upsert(&skill)?;
+        self.ports.events.skills_changed(agent_id);
+        Ok(skill)
+    }
+
+    pub(crate) fn prepare_role_defaults(&self, agent: &guild_domain::agent::Agent) -> AppResult<Vec<Skill>> {
+        let Some(template) = guild_domain::agent::role_template(&agent.tags) else {
+            return Ok(Vec::new());
+        };
+        template
+            .builtin_skills
+            .into_iter()
+            .map(|name| self.prepare_builtin(&agent.id, &name, LibraryAddMode::Link))
+            .collect()
+    }
+
+    fn prepare_builtin(&self, agent_id: &AgentId, name: &str, mode: LibraryAddMode) -> AppResult<Skill> {
         let found = find_builtin_skill(name).ok_or(AppError::NotFound(locale::pick([
             "内蔵スキル",
             "Built-in skill",
@@ -37,7 +56,6 @@ impl SkillService {
             "內建技能",
             "내장 스킬",
         ])))?;
-        ensure_name_free(&self.ports, agent_id, &found.name, None)?;
         let source = match mode {
             LibraryAddMode::Link => Some(SkillSource::Builtin { name: found.name.clone() }),
             LibraryAddMode::Copy => None,
@@ -52,8 +70,6 @@ impl SkillService {
             problem: None,
             updated_at: self.ports.clock.now_ms(),
         };
-        self.ports.skills.upsert(&skill)?;
-        self.ports.events.skills_changed(agent_id);
         Ok(skill)
     }
 }

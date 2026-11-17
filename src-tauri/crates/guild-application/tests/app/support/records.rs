@@ -21,6 +21,12 @@ impl MessageRepository for MemoryStore {
         {
             return Err(guild_application::AppError::Storage("injected failure".into()));
         }
+        if message.kind == guild_domain::message::MessageKind::Chat
+            && message.author_id.agent_id().is_some()
+            && std::mem::take(&mut *self.reject_next_final.lock())
+        {
+            return Err(guild_application::AppError::Storage("injected final save failure".into()));
+        }
         let mut messages = self.messages.lock();
         let seq = messages.iter().map(|m| m.seq).max().unwrap_or(0) + 1;
         let message = message.into_message(seq);

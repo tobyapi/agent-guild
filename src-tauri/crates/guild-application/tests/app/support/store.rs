@@ -19,8 +19,11 @@ use parking_lot::Mutex;
 #[derive(Default)]
 pub struct MemoryStore {
     pub agents: Mutex<Vec<Agent>>,
+    pub creation_audit: Mutex<Vec<(AgentId, String, String)>>,
+    pub creations: Mutex<Vec<(AgentId, String, String, AgentId)>>,
     pub channels: Mutex<Vec<Channel>>,
     pub messages: Mutex<Vec<Message>>,
+    pub reject_next_final: Mutex<bool>,
     pub reject_next_progress: Mutex<bool>,
     pub skill_cutoffs: Mutex<Vec<String>>,
     pub reject_next_cutoff: Mutex<bool>,
@@ -70,6 +73,63 @@ impl AgentRepository for MemoryStore {
             return Err(AppError::validation("その名前はすでに使われています"));
         }
         agents.push(agent.clone());
+        Ok(())
+    }
+    fn insert_from_agent(
+        &self,
+        actor: &AgentId,
+        run_id: &str,
+        message_id: &guild_domain::ids::MessageId,
+        request_id: &str,
+        registration: &guild_application::ports::AgentRegistration<'_>,
+    ) -> AppResult<Agent> {
+        let agent = registration.agent;
+        let mut agents = self.agents.lock();
+        if !agents
+            .iter()
+            .any(|a| &a.id == actor && a.is_active() && guild_domain::agent::role_can_create_agents(&a.tags))
+        {
+            return Err(AppError::validation("manager_required"));
+        }
+        let mut receipts = self.creations.lock();
+        if let Some((_, _, _, id)) =
+            receipts.iter().find(|(a, key, run, _)| a == actor && (key == request_id || run == run_id))
+        {
+            return agents
+                .iter()
+                .find(|a| &a.id == id)
+                .cloned()
+                .ok_or_else(|| AppError::validation("missing_receipt_target"));
+        }
+        if !self.messages.lock().iter().any(|m| &m.id == message_id && m.author_id.agent_id() == Some(actor)) {
+            return Err(AppError::validation("invalid_source"));
+        }
+        let human = self.profile.lock().clone().unwrap_or_default();
+        if name_key(&human.name) == name_key(&agent.name)
+            || agents.iter().any(|a| a.is_active() && name_key(&a.name) == name_key(&agent.name))
+        {
+            return Err(AppError::validation("name_taken"));
+        }
+        agents.push(agent.clone());
+        self.skills.lock().extend_from_slice(registration.skills);
+        for channel in self.channels.lock().iter_mut().filter(|c| registration.channels.contains(&c.id)) {
+            let member = MemberId::Agent(agent.id.clone());
+            if !channel.has_member(&member) {
+                channel.member_ids.push(member);
+            }
+        }
+        receipts.push((actor.clone(), request_id.into(), run_id.into(), agent.id.clone()));
+        Ok(agent.clone())
+    }
+    fn record_creation_attempt(
+        &self,
+        actor: &AgentId,
+        _message: &guild_domain::ids::MessageId,
+        reason: &str,
+        claims: &str,
+        _at: i64,
+    ) -> AppResult<()> {
+        self.creation_audit.lock().push((actor.clone(), reason.into(), claims.into()));
         Ok(())
     }
     fn update(&self, agent: &Agent) -> AppResult<()> {

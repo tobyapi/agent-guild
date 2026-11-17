@@ -29,10 +29,12 @@ struct Flags {
     consultable: bool,
     can_delegate: bool,
     can_notify: bool,
+    can_create_agents: bool,
     autonomy: bool,
 }
 
-const QUIET: Flags = Flags { consultable: false, can_delegate: false, can_notify: false, autonomy: false };
+const QUIET: Flags =
+    Flags { consultable: false, can_delegate: false, can_notify: false, can_create_agents: false, autonomy: false };
 
 /// 作業者は対応する全機能を使う。
 const FULL_ACCESS: Permissions = Permissions {
@@ -118,7 +120,7 @@ const ROWS: [Row; 4] = [
         expertise: texts::MANAGER_EXPERTISE,
         permissions: Permissions { read_anywhere: true, ..WORKSPACE_TOOLS },
         unmentioned: UnmentionedPolicy::Lead,
-        flags: Flags { can_delegate: true, can_notify: true, ..QUIET },
+        flags: Flags { can_delegate: true, can_notify: true, can_create_agents: true, ..QUIET },
     },
 ];
 
@@ -162,4 +164,16 @@ pub fn role_template(tags: &[String]) -> Option<AgentTemplate> {
 pub(super) fn notification_allowed(tags: &[String]) -> bool {
     let Some(head) = tags.first().map(|tag| name_key(tag.trim())) else { return false };
     ROWS.iter().find(|row| row.label.iter().any(|tag| name_key(tag) == head)).is_some_and(|row| row.flags.can_notify)
+}
+
+pub fn role_can_create_agents(tags: &[String]) -> bool {
+    let Some(head) = tags.first().map(|tag| name_key(tag.trim())) else { return false };
+    ROWS.iter()
+        .find(|row| row.label.iter().any(|tag| name_key(tag) == head))
+        .is_some_and(|row| row.flags.can_create_agents)
+}
+
+pub fn creatable_template(id: &str) -> Option<AgentTemplate> {
+    ROWS.iter().find(|row| row.id == id && !row.flags.can_create_agents)?;
+    find_template(id)
 }

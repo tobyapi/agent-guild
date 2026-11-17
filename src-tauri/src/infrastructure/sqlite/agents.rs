@@ -12,7 +12,7 @@ use rusqlite::{params, OptionalExtension, Row};
 use super::codec::{is_unique_violation, json_column, parsed_column, storage, to_json};
 use super::database::{Database, DbError};
 
-const COLUMNS: &str = "id, name, avatar, color, tags, role, personality, tone, expertise, backend, model, \
+pub(super) const COLUMNS: &str = "id, name, avatar, color, tags, role, personality, tone, expertise, backend, model, \
      backend_options, permissions, unmentioned, consultable, can_delegate, autonomy_enabled, \
      autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, deleted_at, frame, voice";
 
@@ -38,47 +38,32 @@ impl AgentRepository for SqliteAgentRepository {
     }
 
     fn insert(&self, agent: &Agent) -> AppResult<()> {
-        self.db
-            .with(|conn| {
-                conn.execute(
-                    "INSERT INTO agents (id, name, name_key, avatar, color, tags, role, personality, tone, expertise, \
-                     backend, model, backend_options, permissions, unmentioned, consultable, can_delegate, \
-                     autonomy_enabled, autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, \
-                     deleted_at, frame, voice) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, \
-                     ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)",
-                    params![
-                        agent.id.as_str(),
-                        agent.name,
-                        name_key(&agent.name),
-                        agent.avatar,
-                        agent.color,
-                        to_json(&agent.tags)?,
-                        agent.role,
-                        agent.personality,
-                        agent.tone,
-                        agent.expertise,
-                        agent.backend,
-                        agent.model,
-                        to_json(&agent.backend_options)?,
-                        to_json(&agent.permissions)?,
-                        agent.unmentioned.as_str(),
-                        agent.consultable,
-                        agent.can_delegate,
-                        agent.autonomy_enabled,
-                        agent.autonomy_interval_min,
-                        agent.autonomy_channel_id.as_ref().map(ChannelId::as_str),
-                        agent.last_autonomous_at,
-                        agent.created_at,
-                        agent.deleted_at,
-                        agent.frame,
-                        to_json(&agent.voice)?,
-                    ],
-                )
-            })
-            .map(|_| ())
-            .map_err(name_conflict)
+        self.db.with(|conn| insert_agent(conn, agent)).map(|_| ()).map_err(name_conflict)
     }
 
+    fn insert_from_agent(
+        &self,
+        actor: &AgentId,
+        run_id: &str,
+        message_id: &guild_domain::ids::MessageId,
+        request_id: &str,
+        registration: &guild_application::ports::AgentRegistration<'_>,
+    ) -> AppResult<Agent> {
+        super::agent_creation::insert(&self.db, actor, run_id, message_id, request_id, registration)
+    }
+
+    fn record_creation_attempt(
+        &self,
+        actor: &AgentId,
+        message: &guild_domain::ids::MessageId,
+        reason: &str,
+        claims: &str,
+        at: i64,
+    ) -> AppResult<()> {
+        self.db.with(|conn| conn.execute(
+            "INSERT INTO agent_creation_audit (principal_id, message_id, reason, claims, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![actor.as_str(), message.as_str(), reason, claims, at])).map(|_| ()).map_err(storage)
+    }
     fn update(&self, agent: &Agent) -> AppResult<()> {
         self.db
             .with(|conn| {
@@ -138,7 +123,7 @@ fn name_conflict(error: DbError) -> AppError {
     }
 }
 
-fn read_agent(row: &Row<'_>) -> rusqlite::Result<Agent> {
+pub(super) fn read_agent(row: &Row<'_>) -> rusqlite::Result<Agent> {
     Ok(Agent {
         id: AgentId::new(row.get::<_, String>(0)?),
         name: row.get(1)?,
@@ -165,4 +150,41 @@ fn read_agent(row: &Row<'_>) -> rusqlite::Result<Agent> {
         created_at: row.get(20)?,
         deleted_at: row.get(21)?,
     })
+}
+
+pub(super) fn insert_agent(conn: &rusqlite::Connection, agent: &Agent) -> rusqlite::Result<usize> {
+    conn.execute(
+                    "INSERT INTO agents (id, name, name_key, avatar, color, tags, role, personality, tone, expertise, \
+                     backend, model, backend_options, permissions, unmentioned, consultable, can_delegate, \
+                     autonomy_enabled, autonomy_interval_min, autonomy_channel_id, last_autonomous_at, created_at, \
+                     deleted_at, frame, voice) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, \
+                     ?17, ?18, ?19, ?20, ?21, ?22, ?23, ?24, ?25)",
+                    params![
+                        agent.id.as_str(),
+                        agent.name,
+                        name_key(&agent.name),
+                        agent.avatar,
+                        agent.color,
+                        to_json(&agent.tags)?,
+                        agent.role,
+                        agent.personality,
+                        agent.tone,
+                        agent.expertise,
+                        agent.backend,
+                        agent.model,
+                        to_json(&agent.backend_options)?,
+                        to_json(&agent.permissions)?,
+                        agent.unmentioned.as_str(),
+                        agent.consultable,
+                        agent.can_delegate,
+                        agent.autonomy_enabled,
+                        agent.autonomy_interval_min,
+                        agent.autonomy_channel_id.as_ref().map(ChannelId::as_str),
+                        agent.last_autonomous_at,
+                        agent.created_at,
+                        agent.deleted_at,
+                        agent.frame,
+                        to_json(&agent.voice)?,
+                    ],
+                )
 }

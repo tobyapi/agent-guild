@@ -54,11 +54,31 @@ fn commit_reply(
         .then(|| guild_domain::desktop_notification::extract(&body))
         .flatten();
     let text = request.as_ref().map_or(body.as_str(), |(text, _)| *text);
+    let creation = guild_domain::agent::creation::extract(text);
+    let text = creation.map_or(text, |(text, _)| text);
     match format_reply(text, &agent.name) {
         Some(content) => {
             let committed = replied(ports, job, agent, content, usage, ctx)?;
             if let (Some((_, request)), Ending::Replied { message, .. }) = (request, &committed.ending) {
                 super::notification::submit(ports, agent, message, &request.body);
+            }
+            if let (Some((_, json)), Ending::Replied { message, .. }) = (creation, &committed.ending) {
+                let result = crate::agents::creation::submit(ports, &job.agent_id, message, json);
+                let notice = match result {
+                    Ok(created) => format!("Agent registered: {} ({})", created.name, created.id),
+                    Err(error) => {
+                        log::warn!(
+                            "agent_creation actor={} message={} reason={:?}",
+                            job.agent_id,
+                            message.id,
+                            error.code()
+                        );
+                        format!("Agent creation rejected: {}.", crate::agents::creation::rejection_reason(&error))
+                    }
+                };
+                if let Err(error) = posting::post_notice(ports, &Origin::of(message), &notice) {
+                    log::warn!("agent_creation status could not be saved: {:?}", error.code());
+                }
             }
             Ok(committed)
         }

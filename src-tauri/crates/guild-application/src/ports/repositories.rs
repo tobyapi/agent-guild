@@ -13,12 +13,35 @@ use guild_domain::statistics::{ChannelStatistics, RunMeasurement};
 
 use crate::error::AppResult;
 
+/// Everything that must become durable together when an agent registers another agent.
+pub struct AgentRegistration<'a> {
+    pub agent: &'a Agent,
+    pub skills: &'a [Skill],
+    pub channels: &'a [ChannelId],
+}
+
 pub trait AgentRepository: Send + Sync {
     /// 削除済みを含む全エージェント（作成順）
     fn list(&self) -> AppResult<Vec<Agent>>;
     fn get(&self, id: &AgentId) -> AppResult<Option<Agent>>;
     /// 正規化した名前が削除されていない他のエージェントと重なれば Validation
     fn insert(&self, agent: &Agent) -> AppResult<()>;
+    fn insert_from_agent(
+        &self,
+        actor: &AgentId,
+        run_id: &str,
+        message_id: &MessageId,
+        request_id: &str,
+        registration: &AgentRegistration<'_>,
+    ) -> AppResult<Agent>;
+    fn record_creation_attempt(
+        &self,
+        actor: &AgentId,
+        message: &MessageId,
+        reason: &str,
+        claims: &str,
+        at: i64,
+    ) -> AppResult<()>;
     fn update(&self, agent: &Agent) -> AppResult<()>;
     /// 論理削除（deletedAt を入れる）
     fn mark_deleted(&self, id: &AgentId, deleted_at: i64) -> AppResult<()>;

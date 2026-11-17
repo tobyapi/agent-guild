@@ -118,7 +118,7 @@ impl ChannelRepository for SqliteChannelRepository {
 }
 
 /// 参加済みなら何もしない
-fn add(conn: &Connection, id: &ChannelId, member: &MemberId) -> rusqlite::Result<()> {
+pub(super) fn add(conn: &Connection, id: &ChannelId, member: &MemberId) -> rusqlite::Result<()> {
     conn.execute(
         "INSERT OR IGNORE INTO channel_members (channel_id, member_id) VALUES (?1, ?2)",
         params![id.as_str(), member.as_str()],

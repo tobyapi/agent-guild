@@ -1,5 +1,7 @@
 //! エージェントのユースケース: 作成・更新・論理削除・作業場所を開く。
 
+pub(crate) mod creation;
+
 use guild_domain::agent::{ensure_unique_name, normalize_agent_input, Agent, AgentInput};
 use guild_domain::author::MemberId;
 use guild_domain::ids::AgentId;

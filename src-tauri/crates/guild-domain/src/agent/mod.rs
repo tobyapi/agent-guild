@@ -2,6 +2,7 @@
 //! テンプレート ID やタグの文字列をハードコードせず、役割表を共通のポリシーで引く（design.md §2）。
 
 mod behavior;
+pub mod creation;
 mod model;
 mod name;
 mod permission_policy;
@@ -19,7 +20,7 @@ pub use permission_policy::{role_can_notify, role_permissions, usable_permission
 pub use permissions::{effective_permissions, PermissionKey, Permissions};
 pub use tags::{normalize_tags, TAG_MAX_CHARS, TAG_MAX_COUNT};
 pub use template_model::{AgentTemplate, AgentTemplateDefaults};
-pub use templates::{find_template, role_template, templates};
+pub use templates::{creatable_template, find_template, role_can_create_agents, role_template, templates};
 pub use validation::{normalize_agent_input, AUTONOMY_INTERVAL_MIN, AVATAR_MAX_BYTES};
 
 use serde::{Deserialize, Serialize};

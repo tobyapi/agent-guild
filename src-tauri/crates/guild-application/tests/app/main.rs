@@ -31,3 +31,6 @@ mod role_permissions;
 mod role_skills;
 
 mod channel_workspace;
+
+mod agent_creation;
+mod agent_creation_audit;

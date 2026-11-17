@@ -2,6 +2,7 @@
 //! I/O はしない: 現在日時の文字列・MEMORY.md の内容・スキル・実効権限・時刻の表示方法は引数で受け取る。
 //! 節はエージェントの振る舞いの設定（Agent::behavior）と実効権限から組み立てる（種別やタグで分岐しない）。
 
+mod agent_creation;
 mod answering;
 mod attachments;
 mod capabilities;
@@ -78,6 +79,7 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
         answering::consultee_section(ctx),
         delegating::section(ctx),
         notifications::section(ctx),
+        agent_creation::section(ctx),
         consult::section(ctx),
         skills::section(ctx.skills, &ctx.permissions),
         memory::section(ctx),

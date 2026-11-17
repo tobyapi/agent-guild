@@ -1,5 +1,6 @@
 //! SQLite のアダプタ: 接続・マイグレーション・各リポジトリ・meta。rusqlite はこのフォルダの中だけで使う。
 
+mod agent_creation;
 mod agents;
 mod channels;
 mod codec;

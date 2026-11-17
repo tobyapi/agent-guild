@@ -36,24 +36,7 @@ impl SkillRepository for SqliteSkillRepository {
     }
 
     fn upsert(&self, skill: &Skill) -> AppResult<()> {
-        let result = self.db.with(|conn| {
-            let source = skill.source.as_ref().map(to_json).transpose()?;
-            conn.execute(
-                "INSERT INTO skills (id, agent_id, name, description, body, source, updated_at) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) \
-                 ON CONFLICT (id) DO UPDATE SET name = excluded.name, description = excluded.description, \
-                 body = excluded.body, source = excluded.source, updated_at = excluded.updated_at",
-                params![
-                    skill.id.as_str(),
-                    skill.agent_id.as_str(),
-                    skill.name,
-                    skill.description,
-                    skill.body,
-                    source,
-                    skill.updated_at,
-                ],
-            )
-        });
+        let result = self.db.with(|conn| upsert_skill(conn, skill));
         match result {
             Ok(_) => Ok(()),
             Err(error) if is_unique_violation(&error) => Err(AppError::Conflict(skill_name_taken(&skill.name))),
@@ -97,4 +80,23 @@ fn read_source(row: &Row<'_>, index: usize) -> rusqlite::Result<Option<SkillSour
     serde_json::from_str(&text)
         .map(Some)
         .map_err(|error| rusqlite::Error::FromSqlConversionFailure(index, Type::Text, Box::new(error)))
+}
+
+pub(super) fn upsert_skill(conn: &rusqlite::Connection, skill: &Skill) -> rusqlite::Result<usize> {
+    let source = skill.source.as_ref().map(to_json).transpose()?;
+    conn.execute(
+        "INSERT INTO skills (id, agent_id, name, description, body, source, updated_at) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) \
+                 ON CONFLICT (id) DO UPDATE SET name = excluded.name, description = excluded.description, \
+                 body = excluded.body, source = excluded.source, updated_at = excluded.updated_at",
+        params![
+            skill.id.as_str(),
+            skill.agent_id.as_str(),
+            skill.name,
+            skill.description,
+            skill.body,
+            source,
+            skill.updated_at,
+        ],
+    )
 }
