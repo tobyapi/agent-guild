@@ -78,6 +78,7 @@ useChannelsStore.subscribe((state, previous) => {
   if (state.channels !== previous.channels) composerDrafts.retainChannels(state.channels.map((channel) => channel.id));
 });
 if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', composerDrafts.flush);
   window.addEventListener('pagehide', composerDrafts.flush);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') composerDrafts.flush();

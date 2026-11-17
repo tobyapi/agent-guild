@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { createDraftStore } from './draftStore';
+import { composerDrafts, createDraftStore } from './draftStore';
 import { DRAFT_STORAGE_KEY } from './draftPersistence';
 
 beforeEach(() => {
@@ -39,6 +39,14 @@ it('keeps channels separate and batches writes within 500ms', () => {
   expect(write).toHaveBeenCalledTimes(1);
   expect(createDraftStore().text('a')).toBe('日本語の下書き');
   write.mockRestore();
+});
+
+it('flushes pending text before 500ms when beforeunload fires', () => {
+  composerDrafts.setText('a', 'last input before closing');
+  expect(localStorage.getItem(DRAFT_STORAGE_KEY)).toBeNull();
+  window.dispatchEvent(new Event('beforeunload'));
+  expect(JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY)!)).toEqual({ a: 'last input before closing' });
+  composerDrafts.setText('a', '');
 });
 
 it('removes empty drafts immediately, including the last storage entry', () => {
