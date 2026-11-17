@@ -9,11 +9,11 @@ pub(super) fn submit(ports: &Ports, agent: &Agent, message: &Message, body: &str
     let notice = match ports.notifications.submit_once(message.id.as_str(), &title, body) {
         Ok(NotificationOutcome::Duplicate) => return,
         Ok(NotificationOutcome::Submitted) => locale::pick([
-            "デスクトップ通知をOSへ送信しました。表示されたかは確認できません。",
-            "Desktop notification submitted to the OS. Display could not be confirmed.",
-            "桌面通知已提交给系统。无法确认是否显示。",
-            "桌面通知已提交給系統。無法確認是否顯示。",
-            "데스크톱 알림을 OS에 전달했습니다. 표시 여부는 확인할 수 없습니다.",
+            "デスクトップ通知を送信しました。",
+            "Desktop notification sent.",
+            "桌面通知已发送。",
+            "桌面通知已傳送。",
+            "데스크톱 알림을 보냈습니다.",
         ]),
         Ok(NotificationOutcome::Disabled) => locale::pick([
             "デスクトップ通知は設定で無効になっています。",

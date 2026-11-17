@@ -19,7 +19,7 @@ async fn notifications_receipt_write_failure_suppresses_delivery_and_preserves_c
     let transcript = app.transcript(&channel).join("\n");
     assert!(transcript.contains("完了しました。"));
     assert!(transcript.contains("デスクトップ通知を送信できませんでした"));
-    assert!(!transcript.contains("OSへ送信しました"));
+    assert!(!transcript.contains("デスクトップ通知を送信しました。"));
     app.services.conversation.send_human_message(&channel.id, "続けて", &[]).unwrap();
     app.settle().await;
     assert!(app.transcript(&channel).last().unwrap().contains("続行しました"));
