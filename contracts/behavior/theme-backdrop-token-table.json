@@ -2033,7 +2033,7 @@
     },
     {
       "file": "src/features/chat/components/MessageItem.tsx",
-      "line": 60,
+      "line": 61,
       "expression": "color={author.color}"
     },
     {
@@ -2225,6 +2225,11 @@
       "file": "src/features/chat/components/PendingAttachments.module.css",
       "line": 84,
       "expression": "--surface: var(--bg-elevated);"
+    },
+    {
+      "file": "src/features/chat/components/SkillUsageLabels.module.css",
+      "line": 3,
+      "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/SubtaskRow.module.css",
@@ -18399,7 +18404,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -18409,7 +18414,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -18649,6 +18654,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -33997,7 +34019,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -34007,7 +34029,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -34247,6 +34269,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -48195,7 +48234,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -48205,7 +48244,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -48445,6 +48484,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -62393,7 +62449,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -62403,7 +62459,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -62643,6 +62699,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -77991,7 +78064,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -78001,7 +78074,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -78241,6 +78314,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -92189,7 +92279,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:60",
+          "name": "src/features/chat/components/MessageItem.tsx:61",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -92199,7 +92289,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 60,
+              "line": 61,
               "expression": "color={author.color}"
             }
           ],
@@ -92439,6 +92529,23 @@
               "file": "src/features/chat/components/PendingAttachments.module.css",
               "line": 73,
               "expression": "color: var(--text-secondary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/SkillUsageLabels.module.css:3",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/SkillUsageLabels.module.css",
+              "line": 3,
+              "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
