@@ -52,8 +52,8 @@ impl FrameService {
             backend: backend.id.clone(),
             workspace: paths.work,
             state_dir: paths.state,
-            // 個別の人格は足さない。共通指示が空なら従来どおり空。
-            system_prompt: self.ports.global_instructions.apply(String::new())?,
+            // 画像生成には人格・共通指示・アプリの会話ルールを足さない。
+            system_prompt: String::new(),
             prompt: frame_prompt(&description, &output.display().to_string()),
             skills: vec![frame_skill_payload()?],
             output: output.clone(),

@@ -2,6 +2,10 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  globalInstructionsInactive:
+    '共同指令無法讀取或超出上限，目前不會套用。代理程式將不使用共同指令繼續執行。請修正設定後重新開啟。',
+  globalInstructionsTrust:
+    '所有代理程式都會將這裡的內容作為常設指令信任。請勿未經確認貼上他人或網頁的文字。圖片產生不在適用範圍內。',
   globalInstructionsTitle: '所有代理程式的共同指令',
   globalInstructionsHint:
     '儲存後從下一次執行開始套用至所有 AI。留空可停用。優先順序：應用程式規則、個別設定、共同指令。支援 Markdown。',

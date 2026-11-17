@@ -10,7 +10,7 @@ mod conversation;
 mod delegating;
 mod global;
 mod intent;
-pub use global::{validate_global_instructions, with_global_instructions, GLOBAL_INSTRUCTIONS_LIMIT};
+pub use global::{global_instructions_section, validate_global_instructions, GLOBAL_INSTRUCTIONS_LIMIT};
 mod language;
 mod members;
 mod memory;
@@ -72,10 +72,16 @@ pub struct PromptContext<'a> {
 /// システムプロンプト: 会話の言語（日本語以外のとき）→ 人格 → 仕事 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
 /// 作業場所とメモ → 外の資料の扱いと操作の前の確認 → 場所と共通ルール
 pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
+    build_system_prompt_with_global(ctx, "")
+}
+
+/// 個別設定の後、アプリの仕事・権限・必須書式の前に共通指示を置く。
+pub fn build_system_prompt_with_global(ctx: &PromptContext<'_>, instructions: &str) -> String {
     let sections = [
         language::section(ctx.language),
         persona::section(ctx.agent),
         voice::section(ctx.agent),
+        global_instructions_section(instructions),
         answering::work_section(ctx),
         answering::consultee_section(ctx),
         delegating::section(ctx),

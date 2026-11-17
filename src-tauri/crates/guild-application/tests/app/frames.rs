@@ -26,11 +26,14 @@ fn painting_app() -> TestApp {
 }
 
 #[tokio::test]
-async fn frame_generation_uses_global_instructions_when_configured() {
+async fn frame_generation_ignores_global_instructions_and_preserves_original_prompts() {
     let app = painting_app();
     app.services.global_instructions.set("FRAME_SHARED_RULE".to_owned()).unwrap();
     app.services.frames.generate(PAINTER, "roses", "").await.unwrap();
-    assert!(app.runtime.image_requests.lock()[0].system_prompt.contains("FRAME_SHARED_RULE"));
+    let requests = app.runtime.image_requests.lock();
+    let request = &requests[0];
+    assert_eq!(request.system_prompt, "");
+    assert_eq!(request.prompt, guild_domain::frame::frame_prompt("roses", &request.output.display().to_string()));
 }
 
 fn script(app: &TestApp, script: ImageScript) {

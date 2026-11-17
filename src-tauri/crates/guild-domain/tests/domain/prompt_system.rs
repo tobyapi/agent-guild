@@ -73,7 +73,9 @@ fn system_prompt_with_agents(
         delegation: None,
         language: Language::Ja,
     };
-    build_system_prompt(&ctx)
+    let original = build_system_prompt(&ctx);
+    assert_eq!(original.as_bytes(), guild_domain::prompt::build_system_prompt_with_global(&ctx, "").as_bytes());
+    original
 }
 
 #[test]

@@ -2,6 +2,10 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  globalInstructionsInactive:
+    'Shared instructions cannot be read or exceed the limit and are currently skipped. Agents continue without them. Correct the settings and reopen this screen.',
+  globalInstructionsTrust:
+    'All agents trust this text as standing instructions. Review text from other people or the web before pasting it. Image generation is excluded.',
   globalInstructionsTitle: 'Instructions for all agents',
   globalInstructionsHint:
     'Applies to every AI from the next run after saving. Leave empty to disable. Priority: app rules, individual settings, shared instructions. Markdown supported.',

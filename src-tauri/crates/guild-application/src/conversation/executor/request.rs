@@ -10,9 +10,7 @@ use guild_domain::conversation::{file_attachments, image_messages, JobSpec};
 use guild_domain::delegation::Delegation;
 use guild_domain::locale;
 use guild_domain::message::Message;
-use guild_domain::prompt::{
-    build_conversation_prompt, build_intent, build_system_prompt, ConsultSource, PromptContext,
-};
+use guild_domain::prompt::{build_conversation_prompt, build_intent, ConsultSource, PromptContext};
 use guild_domain::skill::{builtin_skill_files, Skill};
 
 use super::history::history;
@@ -69,7 +67,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         workspace: paths.work,
         state_dir: paths.state,
         readable_dirs,
-        system_prompt: ports.global_instructions.apply(build_system_prompt(&ctx))?,
+        system_prompt: ports.global_instructions.apply(&ctx),
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
         intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),

@@ -20,9 +20,9 @@ pub fn validate_global_instructions(text: &str) -> Result<(), ValidationError> {
     Ok(())
 }
 
-pub fn with_global_instructions(prompt: String, instructions: &str) -> String {
+pub fn global_instructions_section(instructions: &str) -> String {
     if instructions.is_empty() {
-        return prompt;
+        return String::new();
     }
     format!(
         "## 全エージェント共通の指示\n\
@@ -32,6 +32,6 @@ pub fn with_global_instructions(prompt: String, instructions: &str) -> String {
 2. 各エージェントの個別設定（人格・役割・担当）\n\
 3. この共通の指示\n\n\
 {instructions}\n\n\
-## 共通の指示の終わり\n\n{prompt}"
+## 共通の指示の終わり\n"
     )
 }

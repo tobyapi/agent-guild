@@ -1,7 +1,7 @@
 //! 共通指示の保存と実行時の読み直し。保存に成功した内容を次の実行から使用する。
 use std::sync::Arc;
 
-use guild_domain::prompt::{validate_global_instructions, with_global_instructions};
+use guild_domain::prompt::{build_system_prompt_with_global, validate_global_instructions, PromptContext};
 
 use crate::ports::SettingsStore;
 use crate::AppResult;
@@ -27,9 +27,17 @@ impl GlobalInstructionsService {
         self.settings.save(&settings)
     }
 
-    pub fn apply(&self, prompt: String) -> AppResult<String> {
-        let instructions = self.get()?;
-        validate_global_instructions(&instructions)?;
-        Ok(with_global_instructions(prompt, &instructions))
+    pub fn apply(&self, ctx: &PromptContext<'_>) -> String {
+        let instructions = match self.get().and_then(|instructions| {
+            validate_global_instructions(&instructions)?;
+            Ok(instructions)
+        }) {
+            Ok(instructions) => instructions,
+            Err(error) => {
+                log::warn!("共通の指示を適用せずに実行を続けます: {error}");
+                String::new()
+            }
+        };
+        build_system_prompt_with_global(ctx, &instructions)
     }
 }

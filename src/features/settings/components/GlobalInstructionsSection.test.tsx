@@ -61,7 +61,8 @@ it('keeps edits when saving fails and permits retry', async () => {
 it('does not allow overwriting settings when loading fails', async () => {
   vi.mocked(settingsApi.getGlobalInstructions).mockRejectedValue(new Error('read'));
   render(<GlobalInstructionsSection />);
-  expect(await screen.findByRole('alert')).toBeTruthy();
+  expect((await screen.findAllByRole('alert')).length).toBe(2);
+  expect(screen.getByText(/現在は適用されていません/)).toBeTruthy();
   expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(true);
 });
 
@@ -71,6 +72,7 @@ it('allows correcting an oversized setting edited outside the app', async () => 
   render(<GlobalInstructionsSection />);
   const input = screen.getByRole('textbox');
   await waitFor(() => expect((input as HTMLTextAreaElement).value.length).toBe(4_001));
+  expect(screen.getByText(/現在は適用されていません/)).toBeTruthy();
   expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(true);
   fireEvent.change(input, { target: { value: 'corrected' } });
   fireEvent.click(screen.getByRole('button'));

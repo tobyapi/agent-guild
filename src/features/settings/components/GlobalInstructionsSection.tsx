@@ -55,6 +55,10 @@ export function GlobalInstructionsSection() {
         {text.length} / {GLOBAL_INSTRUCTIONS_LIMIT}
       </p>
       {failed && <FormAlert>{t('globalInstructionsFailed')}</FormAlert>}
+      {((saved === null && failed) || (saved !== null && saved.length > GLOBAL_INSTRUCTIONS_LIMIT)) && (
+        <FormAlert>{t('globalInstructionsInactive')}</FormAlert>
+      )}
+      <p>{t('globalInstructionsTrust')}</p>
       <Button disabled={saved === null || busy || tooLong || text === saved} onClick={() => void save()}>
         {t('globalInstructionsSave')}
       </Button>

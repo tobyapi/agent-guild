@@ -117,11 +117,15 @@ impl DataExporter for FakeExporter {
 
 #[derive(Default)]
 pub struct FakeSettings {
+    pub fail_load: AtomicBool,
     pub saved: Mutex<Vec<LaunchSettings>>,
 }
 
 impl SettingsStore for FakeSettings {
     fn load(&self) -> AppResult<LaunchSettings> {
+        if self.fail_load.load(Ordering::SeqCst) {
+            return Err(AppError::Storage("injected settings load failure".to_owned()));
+        }
         Ok(self.saved.lock().last().cloned().unwrap_or_default())
     }
     fn save(&self, settings: &LaunchSettings) -> AppResult<()> {

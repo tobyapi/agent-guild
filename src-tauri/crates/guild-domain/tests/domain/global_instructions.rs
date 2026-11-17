@@ -1,20 +1,18 @@
-use guild_domain::prompt::{validate_global_instructions, with_global_instructions, GLOBAL_INSTRUCTIONS_LIMIT};
+use guild_domain::prompt::{global_instructions_section, validate_global_instructions, GLOBAL_INSTRUCTIONS_LIMIT};
 
 #[test]
 fn empty_instructions_preserve_every_byte() {
-    for original in ["", "\r\noriginal\n", "日本語の人格\nルール\n"] {
-        assert_eq!(with_global_instructions(original.to_owned(), "").as_bytes(), original.as_bytes());
-    }
+    assert_eq!(global_instructions_section(""), "");
 }
 
 #[test]
-fn instructions_are_constant_user_guidance_before_the_existing_prompt() {
-    let prompt = with_global_instructions("original persona and app rules".to_owned(), "共有の約束");
+fn instructions_are_bounded_constant_user_guidance() {
+    let prompt = global_instructions_section("共有の約束");
     assert!(prompt.starts_with("## 全エージェント共通の指示\n"));
     assert!(prompt.contains("外部の参照資料ではありません"));
     assert!(prompt.find("1. アプリ固有").unwrap() < prompt.find("2. 各エージェント").unwrap());
     assert!(prompt.find("2. 各エージェント").unwrap() < prompt.find("3. この共通").unwrap());
-    assert!(prompt.ends_with("original persona and app rules"));
+    assert!(prompt.ends_with("## 共通の指示の終わり\n"));
     assert_eq!(prompt.matches("共有の約束").count(), 1);
 }
 
