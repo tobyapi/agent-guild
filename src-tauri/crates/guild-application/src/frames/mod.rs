@@ -52,7 +52,7 @@ impl FrameService {
             backend: backend.id.clone(),
             workspace: paths.work,
             state_dir: paths.state,
-            // 人格や決まりは足さない（スキルの手順を狭めない）
+            // 画像生成には人格・共通指示・アプリの会話ルールを足さない。
             system_prompt: String::new(),
             prompt: frame_prompt(&description, &output.display().to_string()),
             skills: vec![frame_skill_payload()?],

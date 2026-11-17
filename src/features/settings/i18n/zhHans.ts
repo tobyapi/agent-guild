@@ -2,6 +2,16 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
+  globalInstructionsInactive:
+    '共同指令无法读取或超出上限，当前不会应用。智能体将不使用共同指令继续执行。请修正设置后重新打开。',
+  globalInstructionsTrust:
+    '所有智能体都会将这里的内容作为常设指令信任。请勿未经确认粘贴他人或网页的文字。图片生成不在适用范围内。',
+  globalInstructionsTitle: '所有智能体的共同指令',
+  globalInstructionsHint:
+    '保存后从下一次运行开始应用于所有 AI。留空可禁用。优先顺序：应用规则、个别设置、共同指令。支持 Markdown。',
+  globalInstructionsTooLong: '请勿超过 4,000 个字符（部分表情符号计为两个字符）。',
+  globalInstructionsFailed: '无法读取或保存指令。请重新打开设置或再次尝试保存。',
+  globalInstructionsSave: '保存共同指令',
   languageSection: '语言',
   languageLabel: '显示与对话语言',
   languageHint: '用于应用界面以及智能体的对话。智能体从下一次回复起生效。',

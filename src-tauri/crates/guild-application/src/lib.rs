@@ -8,6 +8,7 @@ pub mod channels;
 pub mod conversation;
 pub mod error;
 pub mod frames;
+pub mod global_instructions;
 pub mod guild;
 pub mod language;
 pub mod local_files;

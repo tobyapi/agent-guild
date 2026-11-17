@@ -27,6 +27,7 @@ use crate::storage::{Copier, StorageService};
 /// 通常時に使うポート
 #[derive(Clone)]
 pub struct Ports {
+    pub global_instructions: crate::global_instructions::GlobalInstructionsService,
     pub agents: Arc<dyn AgentRepository>,
     pub channels: Arc<dyn ChannelRepository>,
     pub messages: Arc<dyn MessageRepository>,
@@ -66,6 +67,7 @@ pub struct StoragePorts {
 /// 通常時のサービス一式
 #[derive(Clone)]
 pub struct AppServices {
+    pub global_instructions: crate::global_instructions::GlobalInstructionsService,
     pub agents: AgentService,
     pub channels: ChannelService,
     pub skills: SkillService,
@@ -88,6 +90,7 @@ impl AppServices {
         let conversation = ConversationService::new(ports.clone(), maintenance.clone());
         let copier = Copier { exporter, conversation: conversation.clone(), maintenance: maintenance.clone() };
         Self {
+            global_instructions: ports.global_instructions.clone(),
             agents: AgentService::new(ports.clone(), conversation.clone()),
             channels: ChannelService::new(ports.clone(), conversation.clone()),
             skills: SkillService::new(ports.clone()),

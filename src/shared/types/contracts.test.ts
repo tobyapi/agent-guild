@@ -1,7 +1,7 @@
 // 契約の実例（contracts/ipc/*.json）が domain.ts の型に合うことを検査する。
 // JSON を import すると文字列の型が広がって satisfies が効かないので、Schema<T> で値を検証する。
 import { describe, expect, it } from 'vitest';
-import { arrayOf, boolean, objectOf } from './schema';
+import { arrayOf, boolean, objectOf, string } from './schema';
 import type { Validator } from './schema';
 import { delegationSchema } from './schemas/delegation';
 import { agentInputSchema, messageSchema } from './schemas/entities';
@@ -25,6 +25,7 @@ import {
 const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: true, import: 'default' });
 
 const CASES: Record<string, Validator> = {
+  'global-instructions.json': string,
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
   'snapshot.json': objectOf(snapshotSchema),

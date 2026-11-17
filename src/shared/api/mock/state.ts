@@ -17,6 +17,7 @@ import type {
 
 /** 偽バックエンドが持つ全データ（Rust の DB とランナーの代わり）。配列は古い順に並べる */
 export interface MockState {
+  globalInstructions?: string;
   boot: BootStatus;
   /** ギルドの名前と紋（Rust では DB の meta 表） */
   guild: GuildProfile;

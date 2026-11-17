@@ -25,6 +25,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
 
     fs::write(&path, r#"{ "version": 1, "dataDir": null, "theme": "dark" }"#).unwrap();
     let chosen = LaunchSettings {
+        global_instructions: String::new(),
         data_dir: Some(PathBuf::from("D:\\GuildData")),
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
         setup_done: true,
@@ -34,6 +35,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     };
     settings.save(&chosen).unwrap();
     let expected = json!({
+        "globalInstructions": "",
         "version": 1,
         "dataDir": "D:\\GuildData",
         "skillLibraryDirs": ["D:\\skills", "E:\\shared-skills"],

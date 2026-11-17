@@ -6,6 +6,7 @@ pub mod backgrounds;
 pub mod boot;
 pub mod channels;
 pub mod frames;
+pub mod global_instructions;
 pub mod guild;
 pub mod language;
 pub mod links;

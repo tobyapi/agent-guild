@@ -50,6 +50,7 @@ pub trait DataExporter: Send + Sync {
 /// マシンごとの設定（settings.json）のうちアプリが読み書きする項目。未知のフィールドは実装が保持する
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct LaunchSettings {
+    pub global_instructions: String,
     /// None なら既定のデータフォルダ
     pub data_dir: Option<PathBuf>,
     /// スキルライブラリのフォルダ（使用者が並べた順）

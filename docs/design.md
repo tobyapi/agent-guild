@@ -92,6 +92,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 |---|---|---|---|---|
 | `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す。`language` は settings.json に保存した言語で、まだ選んでいなければ null） | – | – |
 | `get_desktop_notifications` | なし | `boolean`（旧設定は有効） | – | storage |
+| `get_global_instructions` | なし | `string`（未設定は空文字。上限超過したファイルも編集のため読み出せるが、実行時は拒否） | – | storage |
+| `set_global_instructions` | `{ instructions: string }` | `null`（settings.json の `globalInstructions` に保存。次の実行から反映） | instructions（UTF-16で4,000単位を超過） | storage |
 | `set_desktop_notifications` | `{ enabled: boolean }` | `null`（OS通知の有効／無効を保存） | – | storage |
 | `set_language` | `{ language: Language }`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`） | `null`（settings.json の `language` に保存し、Rust のいまの言語にして、ランナーに `setLanguage` を送る。以後のお知らせ・エラー・プロンプトの言語になる。docs/i18n.md） | – | storage（settings.json が新しい版のもの・書けない） |
 | `complete_setup` | – | `null`（settings.json に `setupDone: true` を書く。名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） | – | storage |
@@ -482,3 +484,11 @@ tasksブロックは通知より前に置く。skill-usageフッタが必要な�
 通知タイトルは `AI Guild · エージェント名`。名前からUnicode制御文字を除去してOSへ渡す。通常の文字・絵文字は保持し、保存済みのエージェント名自体は変更しない。
 
 settings.json version 1 に任意の `desktopNotifications: boolean` を追加。未指定は有効、未知フィールドと既存データは保持。設定「通知」のスイッチで即時変更可能。通知結果はシステム発言でOSへ提出／無効／失敗を区別し、画面表示を保証しない。Windowsはインストール版で確認する（開発版ではPowerShell名になることがある）。OS側の通知設定・集中モードによる抑制はありうる。Tauri公式: https://v2.tauri.app/plugin/notification/ 。
+
+### 全エージェント共通の指示の適用
+
+共通指示は各エージェントの人格・口調の後、アプリの仕事・権限・必須書式の前に挿入する。
+優先順位はアプリ固有のルール、個別設定、共通指示の順。通常の会話、タスク、相談、まとめ、自由時間に適用し、アイコン枠の画像生成には適用しない。
+読み込み失敗や上限超過の場合は共通指示を省略して実行を続け、warnログに原因を残す。設定画面を開くと読み込み失敗・保存済み上限超過を警告する。ファイルを修正した後は設定画面を開き直す。
+4,000 UTF-16単位は共通指示だけの上限で、プロンプト全体の上限ではない。個別設定などとの合計がバックエンドの上限を超える場合は別途短くする必要がある。
+利用者が承認した常設指示として渡すため、他人やWebの文章は確認してから貼り付ける。settings.jsonへの書き込み権限も適切に管理する。
