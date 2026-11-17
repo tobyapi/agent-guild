@@ -63,11 +63,28 @@ it.each([false, 'error'] as const)(
     expect(view.container.textContent).not.toContain('以降の観測は打切り');
   },
 );
-it('legacy and unsupported have no skill labels and distinct detail', () => {
-  const view = render(<SkillUsageLabels />);
-  expect(view.container.querySelectorAll('summary span').length).toBe(1);
-  expect(view.container.textContent).toContain('記録なし');
-  view.rerender(<SkillUsageLabels usage={{ declared: [], loaded: [], supported: false, runId: 'r' }} />);
+it.each([
+  undefined,
+  null,
+  { declared: [], loaded: [], supported: false, runId: 'r' },
+  { declared: [], loaded: [], supported: true, runId: 'r' },
+  {
+    declared: [],
+    loaded: [],
+    supported: true,
+    runId: 'r',
+    interval: { version: 1, agentId: 'a', start: 0, end: 1, incomplete: true },
+  },
+] satisfies (SkillUsage | null | undefined)[])('hides absent or empty records: %j', (usage) => {
+  const api = vi.spyOn(chatApi, 'skillRecordTruncated');
+  const view = render(<SkillUsageLabels usage={usage} messageId="message" />);
+  expect(view.container.innerHTML).toBe('');
+  expect(api).not.toHaveBeenCalled();
+});
+it('keeps declarations visible when observation is unsupported', () => {
+  const view = render(<SkillUsageLabels usage={{ declared: ['a'], loaded: [], supported: false, runId: 'r' }} />);
+  expect(view.container.querySelector('details')).not.toBeNull();
+  expect(view.container.textContent).toContain('使用スキル：a');
   expect(view.container.textContent).toContain('取得非対応');
 });
 it('incomplete collection is unknown and does not reveal internal identifiers', () => {

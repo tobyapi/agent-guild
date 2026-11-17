@@ -8,11 +8,12 @@ import styles from './SkillUsageLabels.module.css';
 /** Only persisted metadata produces labels. Message text can never produce observed evidence. */
 export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | null; messageId?: string }) {
   const [truncated, setTruncated] = useState<boolean | null>(null);
+  if (!usage || (usage.declared.length === 0 && usage.loaded.length === 0)) return null;
   return (
     <details
       className={styles.usage}
       onToggle={(event) => {
-        if (event.currentTarget.open && messageId && usage?.runId) {
+        if (event.currentTarget.open && messageId && usage.runId) {
           void chatApi
             .skillRecordTruncated(messageId)
             .then(setTruncated)
@@ -23,15 +24,15 @@ export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | nu
       <summary>
         <Icon name="chevron" />
         <span>{t('skillUsageDetails')}</span>
-        {!usage?.interval?.incomplete &&
-          usage?.loaded.map((name) => (
+        {!usage.interval?.incomplete &&
+          usage.loaded.map((name) => (
             <span className={styles.label} key={`loaded:${name}`}>
               {t('skillUsageLoaded')}
               <span>{name}</span>
             </span>
           ))}
       </summary>
-      {usage?.declared.map((name) => (
+      {usage.declared.map((name) => (
         <span className={styles.label} key={`declared:${name}`}>
           {t('skillUsageDeclared')}
           <span>{name}</span>
@@ -40,9 +41,9 @@ export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | nu
       <p>{t('skillUsageEvidence')}</p>
       <p>{t('skillUsageCutoffScope')}</p>
       {truncated === true && <p>{t('skillUsageTruncated')}</p>}
-      {usage?.interval && <p>{t('skillUsageOrderUnconfirmed')}</p>}
+      {usage.interval && <p>{t('skillUsageOrderUnconfirmed')}</p>}
       <p>{recordStatus(usage)}</p>
-      {usage?.loaded.length ? <p>{t('skillUsageInterval')}</p> : null}
+      {usage.loaded.length ? <p>{t('skillUsageInterval')}</p> : null}
     </details>
   );
 }

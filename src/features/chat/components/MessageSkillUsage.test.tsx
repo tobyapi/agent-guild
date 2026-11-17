@@ -83,7 +83,7 @@ it('別エージェントの記録なしの投稿へ申告を持ち越さない'
   expect(screen.getByText('clean-code')).toBeTruthy();
   first.unmount();
   const next = show({ id: 'two', authorId: 'b', content: '古い投稿', skillUsage: null });
-  expect(next.container.querySelector('summary')?.textContent).not.toContain('clean-code');
+  expect(next.container.querySelector('details')).toBeNull();
 });
 
 it.each(['system', 'error'] as const)('%sは本文にフッタがあっても申告表示しない', (kind) => {
@@ -101,6 +101,16 @@ it.each([
   content.replace('skill-usage\n', 'skill-usage \n'),
 ])('エージェントによる引用・コード例・空白付き指定を申告表示しない', (quoted) => {
   const view = show({ content: quoted, skillUsage: null });
-  expect(view.container.querySelector('summary')?.textContent).not.toContain('clean-code');
+  expect(view.container.querySelector('details')).toBeNull();
   expect(view.container.textContent).toContain('skill-usage');
+});
+
+it.each(['chat', 'progress', 'autonomous'] as const)('%sの空の記録は欄ごと隠す', (kind) => {
+  const view = show({ kind, skillUsage: { declared: [], loaded: [], supported: false, runId: 'r' } });
+  expect(view.container.querySelector('details')).toBeNull();
+  expect(view.container.textContent).toContain('検証しました。');
+});
+it('読込記録だけの投稿も表示する', () => {
+  const view = show({ skillUsage: { declared: [], loaded: ['reflection'], supported: true, runId: 'r' } });
+  expect(view.container.querySelector('summary')?.textContent).toBe('スキルの記録投稿前操作（読込確認）：reflection');
 });
