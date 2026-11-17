@@ -68,7 +68,8 @@ it.each(providers)(
       dispatcher.receive(parseLine(JSON.stringify(runRequest(id))));
       await vi.waitFor(() => expect(events.some((event) => event.type === 'error' && event.id === 'j')).toBe(true));
       const error = events.find((event) => event.type === 'error' && event.id === 'j');
-      expect(error).toMatchObject({ type: 'error', code, message: expect.any(String) });
+      expect(error).toMatchObject({ type: 'error', code });
+      expect(error?.type === 'error' && typeof error.message === 'string' && error.message.length > 0).toBe(true);
       expect(events.some((event) => event.type === 'result' || event.type === 'post')).toBe(false);
       expect(JSON.stringify(events)).not.toMatch(/synthetic|private-thought|opaque-signature/);
     }

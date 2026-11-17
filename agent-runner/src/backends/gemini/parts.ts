@@ -45,6 +45,7 @@ export class State {
       throw invalid();
     for (const part of partsOf(candidate)) this.part(part);
     if (candidate.finishReason !== undefined) {
+      if (typeof candidate.finishReason !== 'string') throw invalid();
       if (candidate.finishReason === 'MAX_TOKENS') throw truncated();
       if (
         [
@@ -56,7 +57,7 @@ export class State {
           'SPII',
           'IMAGE_SAFETY',
           'IMAGE_PROHIBITED_CONTENT',
-        ].includes(String(candidate.finishReason))
+        ].includes(candidate.finishReason)
       )
         throw blocked();
       if (candidate.finishReason !== 'STOP') throw invalid();

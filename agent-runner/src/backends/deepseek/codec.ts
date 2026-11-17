@@ -21,8 +21,8 @@ class State {
     this.reasoning += append(choice.delta.reasoning_content);
     addCalls(choice.delta.tool_calls, this.calls);
     if (choice.finish_reason != null) {
-      if (['length', 'insufficient_system_resource', 'aborted'].includes(String(choice.finish_reason)))
-        throw truncated();
+      if (typeof choice.finish_reason !== 'string') throw invalid();
+      if (['length', 'insufficient_system_resource', 'aborted'].includes(choice.finish_reason)) throw truncated();
       if (choice.finish_reason === 'content_filter') throw blocked();
       if (choice.finish_reason !== 'stop' && choice.finish_reason !== 'tool_calls') throw invalid();
       this.finish = choice.finish_reason;
