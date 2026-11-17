@@ -15,8 +15,6 @@ pub(crate) enum Ending {
     Passed,
     /// 失敗（エラー発言）
     Failed(Message),
-    /// 時間切れ（エラー発言）
-    TimedOut(Message),
     /// 中断・取り消しなどで何も起きなかった
     Nothing,
 }
@@ -28,7 +26,6 @@ impl Ending {
             Self::Replied { message, continues } => Turn::Replied { message: &message.id, continues: *continues },
             Self::Passed => Turn::Passed,
             Self::Failed(error) => Turn::Failed { error: &error.id },
-            Self::TimedOut(error) => Turn::TimedOut { error: &error.id },
             Self::Nothing => return None,
         })
     }
@@ -36,7 +33,7 @@ impl Ending {
     /// 投稿した返答かエラー発言
     pub fn message(&self) -> Option<&Message> {
         match self {
-            Self::Replied { message, .. } | Self::Failed(message) | Self::TimedOut(message) => Some(message),
+            Self::Replied { message, .. } | Self::Failed(message) => Some(message),
             Self::Passed | Self::Nothing => None,
         }
     }

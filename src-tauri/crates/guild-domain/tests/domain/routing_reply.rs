@@ -92,6 +92,9 @@ fn returns_skip_the_author_deleted_agents_and_non_members() {
 
 #[test]
 fn stops_at_the_depth_limit_with_a_notice() {
+    assert_eq!(MAX_DEPTH, 30);
+    let (message, job) = reply("logica", 10, &[], &["haru"]);
+    assert_eq!(route(&message, &job).jobs[0].depth, 11);
     let (message, job) = reply("logica", MAX_DEPTH, &[], &["haru"]);
     let routing = route(&message, &job);
     assert!(routing.jobs.is_empty());

@@ -11,8 +11,6 @@ pub enum SubtaskNote {
     NoAnswer,
     /// 実行が失敗した
     RunFailed,
-    /// 時間切れで中断した
-    TimedOut,
     /// 担当者が削除された・チャンネルから外された
     AssigneeRemoved,
     /// task ジョブが実行されないまま消えた
@@ -26,13 +24,6 @@ impl SubtaskNote {
                 ["回答がありませんでした", "No answer.", "没有回答。", "沒有回答。", "답변이 없었습니다."]
             }
             Self::RunFailed => ["失敗しました", "Failed.", "执行失败。", "執行失敗。", "실패했습니다."],
-            Self::TimedOut => [
-                "時間切れで中断しました",
-                "Timed out.",
-                "已超时中断。",
-                "已逾時中斷。",
-                "시간이 초과되어 중단했습니다.",
-            ],
             Self::AssigneeRemoved => [
                 "担当者が外れました",
                 "The assignee was removed.",
@@ -68,8 +59,6 @@ pub enum Turn<'a> {
     Passed,
     /// 失敗（error はエラー発言）
     Failed { error: &'a MessageId },
-    /// 時間切れ（error はエラー発言）
-    TimedOut { error: &'a MessageId },
 }
 
 /// 判定の結果
@@ -87,7 +76,6 @@ pub fn judge(turn: Turn<'_>, language: Language) -> Verdict {
         Turn::Replied { message, continues: false } => Settlement::Done(message.clone()),
         Turn::Passed => SubtaskNote::NoAnswer.settle(language, None),
         Turn::Failed { error } => SubtaskNote::RunFailed.settle(language, Some(error.clone())),
-        Turn::TimedOut { error } => SubtaskNote::TimedOut.settle(language, Some(error.clone())),
     };
     Verdict::Settle(settlement)
 }

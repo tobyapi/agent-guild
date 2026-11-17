@@ -4,7 +4,7 @@
 use guild_domain::agent::Agent;
 use guild_domain::author::Author;
 use guild_domain::conversation::{
-    format_reply, notices, parse_mentions, route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, RoutingContext,
+    format_reply, parse_mentions, route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, RoutingContext,
 };
 use guild_domain::delegation::{carry_subtask, parse_tasks, starts_consultation};
 use guild_domain::ids::{AgentId, DelegationId, MessageId};
@@ -31,10 +31,6 @@ pub(crate) fn commit(ports: &Ports, job: &JobSpec, outcome: RunOutcome) -> AppRe
         RunOutcome::Failed(message) => {
             let error = post_error(ports, job, &agent, message)?;
             Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::Failed(error)))
-        }
-        RunOutcome::TimedOut(minutes) => {
-            let error = post_error(ports, job, &agent, notices::timed_out(locale::current(), minutes))?;
-            Ok(no_answer(job, &agent, NoAnswer::Failed, &ctx, Ending::TimedOut(error)))
         }
         RunOutcome::Cancelled | RunOutcome::Skipped => Ok(Committed::nothing()),
     }
@@ -95,7 +91,7 @@ fn replied(
     })
 }
 
-/// 返答がなかった（[PASS]・空・失敗・時間切れ）ので、呼び出し元に注記つきで戻す
+/// 返答がなかった（[PASS]・空・失敗）ので、呼び出し元に注記つきで戻す
 fn no_answer(job: &JobSpec, agent: &Agent, reason: NoAnswer, ctx: &RoutingContext<'_>, ending: Ending) -> Committed {
     let routing = job.root_id.clone().map(|root_id| {
         let mut routing = route_no_answer(job, agent, reason, locale::current(), ctx);
