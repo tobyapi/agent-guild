@@ -55,6 +55,7 @@ impl BackgroundGenerationService {
         let mut cancel = self.register(id)?;
         let result = self.render(id, backend, description, &mut cancel).await;
         // This short synchronous section orders cancellation against persistence.
+        // Cancellation during import waits for import to finish before responding.
         let mut jobs = self.jobs.lock();
         let result = if *cancel.borrow() {
             Err(AppError::Runtime(texts::cancelled().into()))
