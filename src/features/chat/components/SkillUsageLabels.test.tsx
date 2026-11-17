@@ -57,12 +57,26 @@ it.each([false, 'error'] as const)(
     expect(view.container.textContent).not.toContain('以降の観測は打切り');
   },
 );
-it('legacy and unsupported have no skill labels and distinct detail', () => {
-  const view = render(<SkillUsageLabels />);
-  expect(view.container.querySelectorAll('summary span').length).toBe(1);
-  expect(view.container.textContent).toContain('記録なし');
-  view.rerender(<SkillUsageLabels usage={{ declared: [], loaded: [], supported: false, runId: 'r' }} />);
-  expect(view.container.textContent).toContain('取得非対応');
+it.each([undefined, null, false, true])('omits the whole record area when no names exist (%s)', (supported) => {
+  const usage = supported == null ? supported : { declared: [], loaded: [], supported, runId: 'r' };
+  const view = render(<SkillUsageLabels usage={usage} />);
+  expect(view.container.innerHTML).toBe('');
+});
+it('omits invalid entries and hides records with no valid names', () => {
+  const invalid = ['', ' ', '<skill-name>', 'bad name'];
+  const view = render(<SkillUsageLabels usage={{ declared: invalid, loaded: invalid, supported: true, runId: 'r' }} />);
+  expect(view.container.innerHTML).toBe('');
+  view.rerender(
+    <SkillUsageLabels
+      usage={{ declared: [...invalid, 'clean-code'], loaded: ['reflection', ...invalid], supported: true, runId: 'r' }}
+    />,
+  );
+  expect(view.container.querySelector('summary')?.textContent).toContain('clean-code');
+  expect(view.container.querySelector('summary')?.textContent).toContain('reflection');
+  expect(view.container.textContent).not.toContain('<skill-name>');
+  expect(view.container.textContent).not.toContain('bad name');
+  view.rerender(<SkillUsageLabels usage={null} />);
+  expect(view.container.innerHTML).toBe('');
 });
 it('incomplete collection is unknown and does not reveal internal identifiers', () => {
   const view = render(

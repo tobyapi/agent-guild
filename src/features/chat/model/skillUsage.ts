@@ -7,6 +7,10 @@ export interface SkillDeclaration {
 const FOOTER = /(?:^|\n)```skill-usage\r?\n([^\n]+)\r?\n```\s*$/;
 const NAME = /^[\p{L}\p{N}][\p{L}\p{N}._:/-]{0,119}$/u;
 
+export function validSkillName(name: unknown): name is string {
+  return typeof name === 'string' && NAME.test(name);
+}
+
 function insideCodeFence(content: string): boolean {
   let fence = '';
   for (const line of content.split(/\r?\n/)) {
@@ -28,13 +32,8 @@ export function skillDeclaration(content: string): SkillDeclaration {
   if (insideCodeFence(prefix)) return unchanged;
   try {
     const names: unknown = JSON.parse(match[1]!);
-    if (
-      !Array.isArray(names) ||
-      names.length > 32 ||
-      !names.every((name) => typeof name === 'string' && NAME.test(name))
-    )
-      return unchanged;
-    return { content: prefix.trimEnd(), names: [...new Set(names as string[])] };
+    if (!Array.isArray(names) || names.length > 32 || !names.every(validSkillName)) return unchanged;
+    return { content: prefix.trimEnd(), names: [...new Set(names)] };
   } catch {
     return unchanged;
   }

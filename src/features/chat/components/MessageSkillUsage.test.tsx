@@ -75,7 +75,7 @@ it('別エージェントの記録なしの投稿へ申告を持ち越さない'
   expect(screen.getByText('clean-code')).toBeTruthy();
   first.unmount();
   const next = show({ id: 'two', authorId: 'b', content: '古い投稿', skillUsage: null });
-  expect(next.container.querySelector('summary')?.textContent).not.toContain('clean-code');
+  expect(next.container.querySelector('details')).toBeNull();
 });
 
 it.each(['system', 'error'] as const)('%sは本文にフッタがあっても申告表示しない', (kind) => {
@@ -93,6 +93,6 @@ it.each([
   content.replace('skill-usage\n', 'skill-usage \n'),
 ])('エージェントによる引用・コード例・空白付き指定を申告表示しない', (quoted) => {
   const view = show({ content: quoted, skillUsage: null });
-  expect(view.container.querySelector('summary')?.textContent).not.toContain('clean-code');
+  expect(view.container.querySelector('details')).toBeNull();
   expect(view.container.textContent).toContain('skill-usage');
 });
