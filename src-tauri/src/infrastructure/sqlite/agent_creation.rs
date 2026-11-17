@@ -38,8 +38,8 @@ pub(super) fn insert(
         });
         if !valid_source { return Ok(Err(AppError::validation("invalid_source"))); }
         let previous: Option<String> = tx.query_row(
-            "SELECT agent_id FROM agent_creation_receipts WHERE (created_by = ?1 AND (request_id = ?2 OR run_id = ?3)) OR message_id = ?4",
-            params![actor.as_str(), request_id, run_id, message_id.as_str()], |row| row.get(0)).optional()?;
+            "SELECT agent_id FROM agent_creation_receipts WHERE (created_by = ?1 AND request_id = ?2) OR message_id = ?3",
+            params![actor.as_str(), request_id, message_id.as_str()], |row| row.get(0)).optional()?;
         if let Some(id) = previous {
             return tx.query_row(&sql, [id], read_agent).map(Ok);
         }

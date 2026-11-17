@@ -103,6 +103,7 @@ fn frozen_migrations_keep_their_fingerprints() {
         "38d0abd74e58bd41",
         "14512365f8e91d16",
         "dd4a342546bba5ca",
+        "4c814031d224ae80",
     ];
     assert_eq!(frozen.len(), migrations::latest_version(), "足した移行の指紋を、この一覧にも足す");
     for (index, expected) in frozen.iter().enumerate() {

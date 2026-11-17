@@ -11,7 +11,7 @@ use guild_domain::{
 };
 use std::sync::Arc;
 
-fn fixture(db: &Arc<Database>) -> (SqliteAgentRepository, Agent, Agent, MessageId) {
+pub(super) fn fixture(db: &Arc<Database>) -> (SqliteAgentRepository, Agent, Agent, MessageId) {
     let repo = SqliteAgentRepository::new(db.clone());
     let actor = Agent::new(AgentId::new("actor"), input("manager", "Manager"), 1);
     let target = Agent::new(AgentId::new("new"), input("worker", "New"), 2);
@@ -48,6 +48,22 @@ fn creation_sqlite_is_atomic_and_persists_trusted_provenance() {
     other.name = "Other".into();
     assert_eq!(register(&repo, &actor.id, "run-1", &message, "different-key", &other).unwrap(), target);
     assert_eq!(repo.list().unwrap().len(), 2);
+}
+
+#[test]
+fn creation_sqlite_same_run_distinct_requests_create_distinct_agents() {
+    let db = memory();
+    let (repo, actor, target, message) = fixture(&db);
+    register(&repo, &actor.id, "run-1", &message, "task-1", &target).unwrap();
+    let mut next = super::channels_messages::new_message("source-2", "Another request.");
+    next.author_id = Author::Agent(actor.id.clone());
+    next.skill_usage = Some(SkillUsage { run_id: Some("run-1".into()), ..Default::default() });
+    let next = SqliteMessageRepository::new(db.clone()).insert(next).unwrap();
+    let other = Agent::new(AgentId::new("other"), input("worker", "Other"), 3);
+    assert_eq!(register(&repo, &actor.id, "run-1", &next.id, "task-2", &other).unwrap(), other);
+    assert_eq!(register(&repo, &actor.id, "run-1", &next.id, "task-2", &other).unwrap(), other);
+    assert_eq!(register(&repo, &actor.id, "run-1", &message, "task-1", &target).unwrap(), target);
+    assert_eq!(repo.list().unwrap().len(), 3);
 }
 
 #[test]
@@ -137,25 +153,7 @@ fn creation_sqlite_receipt_survives_reopen_and_new_run_retry() {
     std::fs::remove_dir_all(dir).unwrap();
 }
 
-#[test]
-fn creation_migration_from_version_seven_preserves_agents_and_conversation() {
-    let dir = super::temp_dir("creation-migration");
-    let path = dir.join("guild.db");
-    let db = Arc::new(Database::open(&path).unwrap());
-    let (repo, _, _, message) = fixture(&db);
-    db.with(|conn| conn.execute_batch("DROP TABLE agent_creation_receipts; DROP TABLE agent_creation_audit; PRAGMA user_version = 7; UPDATE meta SET value = '14512365f8e91d16' WHERE key = 'schema_fingerprint';")).unwrap();
-    drop(repo);
-    drop(db);
-    let db = Arc::new(Database::open(&path).unwrap());
-    assert_eq!(SqliteAgentRepository::new(db.clone()).list().unwrap().len(), 1);
-    let stored = SqliteMessageRepository::new(db.clone()).get(&message).unwrap().unwrap();
-    assert_eq!(stored.content, "Requested.");
-    assert!(db.with(|conn| conn.execute("INSERT INTO agent_creation_audit (principal_id,message_id,reason,claims,created_at) VALUES ('actor','source','invalid_request','actorId=forged',1)", [])).is_ok());
-    drop(db);
-    std::fs::remove_dir_all(dir).unwrap();
-}
-
-fn register(
+pub(super) fn register(
     repo: &SqliteAgentRepository,
     actor: &AgentId,
     run: &str,

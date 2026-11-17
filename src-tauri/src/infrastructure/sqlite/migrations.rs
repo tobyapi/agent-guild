@@ -19,6 +19,7 @@ const MIGRATIONS: &[&str] = &[
     include_str!("migrations/0006_message_skill_usage.sql"),
     include_str!("migrations/0007_skill_record_cutoffs.sql"),
     include_str!("migrations/0008_agent_creation.sql"),
+    include_str!("migrations/0009_agent_creation_request_identity.sql"),
 ];
 
 /// 移行の仕組みが使う表（指紋・初期データの記録）。移行の外で作る
