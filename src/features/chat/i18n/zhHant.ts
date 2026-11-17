@@ -13,7 +13,7 @@ export const zhHant: Messages<typeof ja> = {
   skillUsageSupported: '支援專用技能讀取記錄；無記錄不表示未使用。',
   skillUsageUnsupported: '不支援擷取：本次執行的讀取情況未知。聲明獨立記錄。',
   skillUsageInterval: '同一執行中，上次發布至本次發布期間專用工具返回的讀取。不證明本則留言使用或執行成功。',
-  skillUsageDeclared: '使用技能（自行聲明）：',
+  skillUsageDeclared: '使用技能：',
   skillUsageEvidence: '由代理在本則訊息中聲明的技能，尚未驗證讀取或執行成功。沒有標籤不代表未使用技能。',
   logLabel: '#{channel} 的訊息',
   newMessages: '新訊息',

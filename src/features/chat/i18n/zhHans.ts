@@ -13,7 +13,7 @@ export const zhHans: Messages<typeof ja> = {
   skillUsageSupported: '支持专用技能读取记录；无记录不表示未使用。',
   skillUsageUnsupported: '不支持采集：本次运行的读取情况未知。声明独立记录。',
   skillUsageInterval: '同一运行中，上次发布至本次发布期间专用工具返回的读取。不证明本条评论使用或执行成功。',
-  skillUsageDeclared: '使用技能（自行声明）：',
+  skillUsageDeclared: '使用技能：',
   skillUsageEvidence: '由智能体在本条消息中声明的技能，尚未验证读取或执行成功。没有标签不代表未使用技能。',
   logLabel: '#{channel} 的消息',
   newMessages: '新消息',

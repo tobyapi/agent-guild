@@ -12,7 +12,7 @@ export const ja = {
   skillUsageUnsupported: '取得非対応：この実行のスキル読込は不明です。申告は独立した記録です。',
   skillUsageInterval:
     '同じ実行で、前の投稿からこの投稿までに専用ツールが返した読込です。このコメントでの使用・実行成功の証明ではありません。',
-  skillUsageDeclared: '使用スキル（申告）：',
+  skillUsageDeclared: '使用スキル：',
   skillUsageEvidence:
     'この投稿の末尾にエージェントが申告したスキルです。読み取りや実行の成功を確認した記録ではありません。表示がない場合も未使用とは限りません。',
   logLabel: '#{channel} のメッセージ',

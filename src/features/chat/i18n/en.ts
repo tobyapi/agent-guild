@@ -15,7 +15,7 @@ export const en: Messages<typeof ja> = {
   skillUsageUnsupported: 'Collection unsupported: skill reads in this run are unknown. Declarations are separate.',
   skillUsageInterval:
     'Dedicated reads returned since the previous post in this run. They do not prove use in this comment or successful execution.',
-  skillUsageDeclared: 'Skills (declared):',
+  skillUsageDeclared: 'Skills:',
   skillUsageEvidence:
     'Skills declared by the agent in this message. Reading or successful execution has not been verified. No label does not imply no skills were used.',
   logLabel: 'Messages in #{channel}',

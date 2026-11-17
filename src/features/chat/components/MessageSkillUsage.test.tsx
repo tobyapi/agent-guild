@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { Message } from '@/shared/types/domain';
 import { MessageItem } from './MessageItem';
@@ -59,8 +59,16 @@ function show(overrides: Partial<Message> = {}, human = false) {
 it.each(['chat', 'progress', 'autonomous'] as const)('再読込した%sの投稿に申告を表示する', (kind) => {
   const stored = JSON.parse(JSON.stringify({ ...message, kind })) as Message;
   const view = show(stored);
-  expect(screen.getByText('clean-code')).toBeTruthy();
-  expect(screen.getByText('reflection')).toBeTruthy();
+  const details = view.container.querySelector('details')!;
+  const summary = details.querySelector('summary')!;
+  expect(details.open).toBe(false);
+  expect(summary.textContent).toBe('スキルの記録');
+  expect(summary.textContent).not.toContain('clean-code');
+  expect(summary.textContent).not.toContain('reflection');
+  fireEvent.click(summary);
+  expect(details.open).toBe(true);
+  expect(screen.getByText('clean-code').parentElement?.textContent).toBe('使用スキル：clean-code');
+  expect(screen.getByText('reflection').parentElement?.textContent).toBe('使用スキル：reflection');
   expect(view.container.textContent).not.toContain('skill-usage');
 });
 

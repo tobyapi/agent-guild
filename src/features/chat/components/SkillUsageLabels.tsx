@@ -23,12 +23,6 @@ export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | nu
       <summary>
         <Icon name="chevron" />
         <span>{t('skillUsageDetails')}</span>
-        {usage?.declared.map((name) => (
-          <span className={styles.label} key={`declared:${name}`}>
-            {t('skillUsageDeclared')}
-            <span>{name}</span>
-          </span>
-        ))}
         {!usage?.interval?.incomplete &&
           usage?.loaded.map((name) => (
             <span className={styles.label} key={`loaded:${name}`}>
@@ -37,6 +31,12 @@ export function SkillUsageLabels({ usage, messageId }: { usage?: SkillUsage | nu
             </span>
           ))}
       </summary>
+      {usage?.declared.map((name) => (
+        <span className={styles.label} key={`declared:${name}`}>
+          {t('skillUsageDeclared')}
+          <span>{name}</span>
+        </span>
+      ))}
       <p>{t('skillUsageEvidence')}</p>
       <p>{t('skillUsageCutoffScope')}</p>
       {truncated === true && <p>{t('skillUsageTruncated')}</p>}

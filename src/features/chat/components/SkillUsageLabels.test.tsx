@@ -23,11 +23,17 @@ it('loads job cutoff on opening details without altering saved labels', async ()
 it('persisted declarations and reads stay distinct after remount', () => {
   const usage = { declared: ['a'], loaded: ['b'], supported: true, runId: 'r1' };
   const assertSeparateLabels = (container: HTMLElement) => {
-    const labels = container.querySelectorAll('summary > span > span');
-    expect(Array.from(labels, (label) => label.parentElement?.textContent)).toEqual([
-      '使用スキル（申告）：a',
-      '投稿前操作（読込確認）：b',
-    ]);
+    const details = container.querySelector('details')!;
+    const summary = container.querySelector('summary')!;
+    expect(details.open).toBe(false);
+    expect(summary.textContent).toBe('スキルの記録投稿前操作（読込確認）：b');
+    expect(summary.textContent).not.toContain('使用スキル：a');
+    const labels = summary.querySelectorAll('span > span');
+    expect(Array.from(labels, (label) => label.parentElement?.textContent)).toEqual(['投稿前操作（読込確認）：b']);
+    fireEvent.click(summary);
+    expect(details.open).toBe(true);
+    expect(details.querySelector('summary + span')?.textContent).toBe('使用スキル：a');
+    expect(details.querySelector('summary + span + p')?.textContent).toContain('エージェントが申告したスキル');
     expect(container.textContent).toContain('このコメントでの使用・実行成功の証明ではありません');
   };
   const first = render(<SkillUsageLabels usage={usage} />);
