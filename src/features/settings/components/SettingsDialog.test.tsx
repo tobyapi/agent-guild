@@ -17,6 +17,9 @@ vi.mock('@/features/sounds', () => ({ SoundSection: () => <div>sound form</div>,
 vi.mock('@/features/update', () => ({ UpdateSection: () => <div>update form</div> }));
 vi.mock('./AppearanceSection', () => ({ AppearanceSection: () => <div>appearance form</div> }));
 vi.mock('./BackendsSection', () => ({ BackendsSection: () => <div>backends form</div> }));
+vi.mock('./GlobalInstructionsSection', () => ({
+  GlobalInstructionsSection: () => <div>shared instructions form</div>,
+}));
 vi.mock('./LanguageSection', () => ({ LanguageSection: () => <div>language form</div> }));
 vi.mock('./StorageSection', () => ({ StorageSection: () => <div>storage form</div> }));
 
@@ -41,7 +44,7 @@ it('4グループを切り替え、表示する区画を絞り、入力途中の
   fireEvent.change(screen.getByLabelText('guild draft'), { target: { value: 'draft' } });
   for (const [name, headings] of [
     ['表示と通知', ['言語', '外観', '通知']],
-    ['AI', ['バックエンド', 'スキルのフォルダ']],
+    ['AI', ['全エージェント共通の指示', 'バックエンド', 'スキルのフォルダ']],
     ['アプリ', ['データの保存先', 'アプリの更新']],
   ] as const) {
     fireEvent.click(screen.getByRole('tab', { name }));

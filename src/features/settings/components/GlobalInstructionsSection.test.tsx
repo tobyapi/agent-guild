@@ -40,9 +40,9 @@ it('shows oversize input and disables saving at the same UTF-16 limit as Rust', 
   fireEvent.change(input, { target: { value: '😀'.repeat(2_001) } });
   expect(screen.getByText(/4,000文字以内/)).toBeTruthy();
   expect(screen.getByText('4002 / 4000')).toBeTruthy();
-  expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(true);
   fireEvent.change(input, { target: { value: 'a'.repeat(4_000) } });
-  expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(false);
   expect(settingsApi.setGlobalInstructions).not.toHaveBeenCalled();
 });
 
@@ -55,12 +55,24 @@ it('keeps edits when saving fails and permits retry', async () => {
   fireEvent.click(screen.getByRole('button'));
   expect(await screen.findByRole('alert')).toBeTruthy();
   expect((input as HTMLTextAreaElement).value).toBe('new');
-  expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(false);
 });
 
 it('does not allow overwriting settings when loading fails', async () => {
   vi.mocked(settingsApi.getGlobalInstructions).mockRejectedValue(new Error('read'));
   render(<GlobalInstructionsSection />);
   expect(await screen.findByRole('alert')).toBeTruthy();
-  expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(true);
+});
+
+it('allows correcting an oversized setting edited outside the app', async () => {
+  vi.mocked(settingsApi.getGlobalInstructions).mockResolvedValue('a'.repeat(4_001));
+  vi.mocked(settingsApi.setGlobalInstructions).mockResolvedValue(null);
+  render(<GlobalInstructionsSection />);
+  const input = screen.getByRole('textbox');
+  await waitFor(() => expect((input as HTMLTextAreaElement).value.length).toBe(4_001));
+  expect(screen.getByRole<HTMLButtonElement>('button').disabled).toBe(true);
+  fireEvent.change(input, { target: { value: 'corrected' } });
+  fireEvent.click(screen.getByRole('button'));
+  await waitFor(() => expect(settingsApi.setGlobalInstructions).toHaveBeenCalledWith('corrected'));
 });

@@ -17,9 +17,7 @@ impl GlobalInstructionsService {
     }
 
     pub fn get(&self) -> AppResult<String> {
-        let text = self.settings.load()?.global_instructions;
-        validate_global_instructions(&text)?;
-        Ok(text)
+        Ok(self.settings.load()?.global_instructions)
     }
 
     pub fn set(&self, instructions: String) -> AppResult<()> {
@@ -30,6 +28,8 @@ impl GlobalInstructionsService {
     }
 
     pub fn apply(&self, prompt: String) -> AppResult<String> {
-        Ok(with_global_instructions(prompt, &self.get()?))
+        let instructions = self.get()?;
+        validate_global_instructions(&instructions)?;
+        Ok(with_global_instructions(prompt, &instructions))
     }
 }

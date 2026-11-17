@@ -8,7 +8,13 @@ pub fn validate_global_instructions(text: &str) -> Result<(), ValidationError> {
     if text.encode_utf16().count() > GLOBAL_INSTRUCTIONS_LIMIT {
         return Err(ValidationError::on(
             "instructions",
-            "共通の指示は4,000文字以内にしてください（絵文字などは2文字分です）",
+            crate::locale::pick([
+                "共通の指示は4,000文字以内にしてください（絵文字などは2文字分です）",
+                "Shared instructions must be at most 4,000 UTF-16 units (some emoji count as two)",
+                "共同指令请勿超过4,000个字符（部分表情符号计为两个字符）",
+                "共同指令請勿超過4,000個字元（部分表情符號計為兩個字元）",
+                "공통 지침은 4,000자 이내로 입력하세요(일부 이모지는 2자로 계산됩니다)",
+            ]),
         ));
     }
     Ok(())

@@ -4,7 +4,7 @@ use guild_application::ports::SettingsStore;
 
 #[tokio::test]
 async fn global_instructions_reach_every_backend_and_refresh_without_restart() {
-    for backend in ["claude", "codex", "grok", "muse", "deepseek", "gemini", "future-backend"] {
+    for backend in ["claude", "codex", "grok", "muse", "ollama", "deepseek", "gemini", "future-backend"] {
         let app = TestApp::new();
         app.runtime.backends.lock().push(ready_backend(backend));
         let agent = app.services.agents.create(input("worker", "Worker")).unwrap();
@@ -41,7 +41,8 @@ async fn global_instructions_preserve_other_settings_and_reject_oversize() {
     assert_eq!(app.settings.load().unwrap(), saved);
     settings.global_instructions = "a".repeat(4_001);
     app.settings.save(&settings).unwrap();
-    assert!(app.services.global_instructions.get().is_err());
+    assert_eq!(app.services.global_instructions.get().unwrap().len(), 4_001);
+    assert!(app.services.global_instructions.apply(String::new()).is_err());
 }
 
 #[tokio::test]
