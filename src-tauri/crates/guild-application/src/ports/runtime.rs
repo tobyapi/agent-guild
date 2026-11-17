@@ -109,6 +109,11 @@ pub enum RuntimeError {
 
 #[async_trait]
 pub trait AgentRuntime: Send + Sync {
+    /// Dedicated background request; returned bytes must still pass the background store.
+    async fn generate_background(&self, _id: &str, _backend: &str, _prompt: &str) -> Result<Vec<u8>, RuntimeError> {
+        Err(RuntimeError::Failed("Background generation is unavailable".into()))
+    }
+    async fn cancel_background(&self, _id: &str) {}
     fn status(&self) -> RuntimeStatus;
     /// ランナーが ready でなければ空
     fn backends(&self) -> Vec<BackendInfo>;

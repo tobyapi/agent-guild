@@ -33,6 +33,8 @@ describe('contracts/runner', () => {
       'setLanguage',
       'shutdown',
       'apiKey',
+      'background',
+      'backgroundCancel',
     ]);
     for (const expected of requests) {
       const decoded = decodeRequest(expected);
@@ -61,7 +63,13 @@ describe('contracts/runner', () => {
       const descriptor = registry.find(id)?.info();
       expect(descriptor).toBeDefined();
       if (!descriptor) continue;
-      const info = { ...descriptor, status: 'ready', statusMessage: '', ...EMPTY_CATALOG };
+      const info = {
+        ...descriptor,
+        backgroundGeneration: Boolean(registry.find(id)?.background),
+        status: 'ready',
+        statusMessage: '',
+        ...EMPTY_CATALOG,
+      };
       expect(sortedKeys(info)).toEqual(sortedKeys(example));
       expect(sortedKeys(info.capabilities)).toEqual(sortedKeys(example.capabilities));
       for (const option of info.options) expect(sortedKeys(option)).toEqual(sortedKeys(example.options[0] ?? {}));

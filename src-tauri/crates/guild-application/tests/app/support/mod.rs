@@ -2,6 +2,7 @@
 
 pub mod attachments;
 pub mod backends;
+pub mod backgrounds;
 pub mod events;
 pub mod frames;
 pub mod library;

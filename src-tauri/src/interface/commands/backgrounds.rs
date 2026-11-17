@@ -8,6 +8,24 @@ use guild_application::AppError;
 use tauri::State;
 
 #[tauri::command]
+pub async fn generate_background_image(
+    state: State<'_, AppState>,
+    store: State<'_, BackgroundService>,
+    request_id: String,
+    backend_id: String,
+    description: String,
+) -> CommandResult<String> {
+    let generator = state.services()?.background_generation.clone();
+    generator.generate(&store, &request_id, &backend_id, &description).await.map_err(reject)
+}
+
+#[tauri::command]
+pub async fn cancel_background_generation(state: State<'_, AppState>, request_id: String) -> CommandResult<()> {
+    state.services()?.background_generation.cancel_generation(&request_id).await;
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn import_background_image(
     state: State<'_, AppState>,
     store: State<'_, BackgroundService>,

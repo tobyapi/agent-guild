@@ -43,6 +43,7 @@ pub fn reply(text: &str) -> Script {
 
 #[derive(Default)]
 pub struct FakeRuntime {
+    pub backgrounds: super::backgrounds::BackgroundRenderer,
     scripts: Mutex<HashMap<String, VecDeque<Script>>>,
     /// (ジョブ ID, エージェント ID, 依頼)
     pub requests: Mutex<Vec<(String, String, RuntimeRequest)>>,
@@ -96,6 +97,13 @@ fn agent_of(workspace: &Path) -> String {
 
 #[async_trait]
 impl AgentRuntime for FakeRuntime {
+    async fn generate_background(&self, id: &str, backend: &str, prompt: &str) -> Result<Vec<u8>, RuntimeError> {
+        self.backgrounds.draw(id, backend, prompt).await
+    }
+    async fn cancel_background(&self, id: &str) {
+        self.backgrounds.cancelled.lock().push(id.into());
+    }
+
     fn status(&self) -> RuntimeStatus {
         RuntimeStatus { state: RuntimeState::Ready, message: String::new() }
     }

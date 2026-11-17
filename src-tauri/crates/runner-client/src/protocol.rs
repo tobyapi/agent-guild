@@ -1,5 +1,6 @@
 //! プロトコルでやりとりする値の型（`agent-runner/src/protocol.ts` と同じ JSON。camelCase）。
 
+mod background;
 mod image;
 mod setup;
 
@@ -7,6 +8,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
+pub use background::BackgroundRequest;
 pub use image::ImageRequest;
 pub use setup::{ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec};
 
@@ -144,6 +146,8 @@ pub struct BackendInfo {
     /// このバックエンドでアイコンの枠を生成できる（申告がなければ false）
     #[serde(default)]
     pub frame_generation: bool,
+    #[serde(default)]
+    pub background_generation: bool,
     /// アプリからのセットアップでできること
     pub setup: BackendSetup,
 }

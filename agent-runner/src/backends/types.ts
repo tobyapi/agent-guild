@@ -55,6 +55,8 @@ export interface LoginContext {
 
 /** バックエンドの実装。新しいバックエンドはこれを実装して registry.ts に1行登録する */
 export interface BackendAdapter {
+  background?: (prompt: string, signal: AbortSignal) => Promise<Uint8Array>;
+  backgroundReady?: () => Promise<boolean>;
   info(): BackendDescriptor;
   /** 状態を確かめる。同じ問い合わせで分かるときはモデルの一覧も返す */
   probe(): Promise<BackendProbe>;

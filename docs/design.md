@@ -121,6 +121,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `get_skill_record_truncated` | `{ messageId }` | `boolean`（ジョブの取消打切り。投稿の記録は不変） |
 | `list_messages` | `{ channelId, beforeSeq: number \| null, limit: number \| null }` | `Message[]`（seq の昇順。limit 既定 50・上限 200） | – | not_found |
 | `send_message` | `{ channelId, content, attachments: AttachmentInput[] }`（data は画像・ファイルの base64） | `Message` | message-created, activity-changed | not_found, validation（本文も添付もない・添付の種類・数・大きさ）, unavailable（保存先変更中） |
+| `generate_background_image` | `{ requestId, backendId, description }` | `string`（保存した背景のUUID） | – | validation, runtime, storage |
+| `cancel_background_generation` | `{ requestId }` | `null` | – | unavailable |
 | `import_background_image` | `{ data }`（raw base64。PNG/JPEG/WebP、5 MiBまで） | `string`（不透明なUUID。ファイル名・パスは返さない） | – | validation, storage |
 | `list_background_images` | `{}` | `string[]`（UUID、昇順） | – | storage |
 | `get_background_image` | `{ id }` | `string`（PNG data URL） | – | validation, not_found, storage |
@@ -492,3 +494,21 @@ settings.json version 1 に任意の `desktopNotifications: boolean` を追加�
 読み込み失敗や上限超過の場合は共通指示を省略して実行を続け、warnログに原因を残す。設定画面を開くと読み込み失敗・保存済み上限超過を警告する。ファイルを修正した後は設定画面を開き直す。
 4,000 UTF-16単位は共通指示だけの上限で、プロンプト全体の上限ではない。個別設定などとの合計がバックエンドの上限を超える場合は別途短くする必要がある。
 利用者が承認した常設指示として渡すため、他人やWebの文章は確認してから貼り付ける。settings.jsonへの書き込み権限も適切に管理する。
+
+### 背景画像の生成
+
+外観設定から生成・保存・選択する。題材はtrim後1〜200 Unicodeコードポイント。UIが発行したrequestIdで取消対象を特定する。独立したBackendInfo.backgroundGenerationがtrue、statusがreadyの場合だけ入口を表示する。Rustとランナーでも検証し、バックエンドIDやframeGenerationでは判定しない。
+
+背景ユースケース → AgentRuntime.generate_background → runner-clientのbackground要求 → BackgroundJobs → 背景専用レンダラーの経路。既存のimage要求、ImageRuntimeRequest、generate_image、枠の生成・取消・スキル・作業領域は使わない。AgentRuntime、stdio配送、SDK実行ファイルの探索・認証環境・OS隔離はアプリの共通基盤として使う。ランナー要求backgroundは{id, backend, prompt}、backgroundCancelは{id}。返事はresult.textの画像base64、または既存のerrorイベント。
+
+初期レンダラーはCodexのデスクトップ認証に対応する。codex features list（5秒・128 KiB上限）でimage_generationの機能名を確認する。API認証モード・CLI非対応ならbackgroundGenerationをfalseにする。CLI機能と認証状態の確認であり、アカウントの生成枠や画像生成の成功を保証しない。他のバックエンドにはbackground関数を登録しない。
+
+OS一時領域のguild-background-<ランダム>/を毎回新規作成し、新規SDKスレッドで描く。横長約16:9・中央を静かに・文字やロゴなしの専用指示を使う。会話履歴、人格、共通指示、枠スキルは渡さない。workspace-write、確認なし、Web検索とコマンドの通信なしで実行する。Windowsでは既存のOS隔離が必要。SDKは利用者のCodex設定・認証を読むため、外部ファイルの読み取り等をプロンプトだけで完全に禁止する仕組みではない。
+
+出力は一時領域直下のbackground.png固定。リンクでない通常ファイル、open前後のdev/ino、読取合計5 MiB+1 byteを確認し、1 byte〜5 MiBだけをbase64で返す。ランナーとRustの両側で容量を制限する。BackgroundJobsは実行と後片付けが終わるまで排他を保つ。finallyで一時領域を再試行付きで削除する。Codex自身のセッション・画像キャッシュは削除しない。プロセス強制終了時には一時領域が残る可能性がある。
+
+Rustで上限付きbase64解読後、既存のBackgroundService.import(bytes)へ渡す。import_background_imageと同じストアの形式・5 MiB・画素数・縮小・メタデータ除去・PNG化を必ず通す。ストアの仕様は変更しない。フロントへ返すのは保存済みUUIDだけで、URLや絶対パスは背景として受け取らない。
+
+同時実行は1件、上限10分。背景専用watch通知で取消を伝え、開始前の取消は直近32件まで記憶する。保存開始と取消を同期区間で直列化し、取消が先なら保存しない。保存が先ならライブラリに残りうるが、UIは取消後の遅延応答を選択しない。ランナーのjobIdはbackground-接頭辞を付け、枠や会話の取消対象と分離する。取消・時間切れでbackgroundCancelを送り、汎用配送のfuture破棄時も背景ジョブを中断する。取消はプロバイダー側の課金取消を保証しない。
+
+成功後はライブラリに追加して即座に選択する。失敗時は既存背景を維持する。実行エラーの生データはUIへ渡さず翻訳済みの案内へ置き換える。入力・二重実行・取消・時間切れ・ストアの検査拒否・I/O失敗は既存CommandErrorへ変換する。テーマ生成は行わない。

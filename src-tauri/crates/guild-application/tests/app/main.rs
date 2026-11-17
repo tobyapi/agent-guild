@@ -2,6 +2,7 @@
 
 mod attachments;
 mod autonomy;
+mod background_generation;
 mod builtin_skills;
 mod channel_icons;
 mod delegation;

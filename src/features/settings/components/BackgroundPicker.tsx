@@ -1,13 +1,17 @@
 import { useBackgroundLibrary } from '../useBackgroundLibrary';
 import { BackgroundChoices } from './BackgroundChoices';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useBackends } from '@/features/runtime';
+import { GenerateBackgroundDialog } from './GenerateBackgroundDialog';
 import { Button, ConfirmDialog } from '@/shared/ui';
 import type { Scheme } from '@/shared/theme/types';
 import { tAppearance as t } from '../i18n/appearance';
 import fields from './AccentPicker.module.css';
 
 export function BackgroundPicker({ scheme }: { scheme: Scheme }) {
-  const { ids, error, busy, removing, setRemoving, add, remove } = useBackgroundLibrary();
+  const { ids, error, busy, removing, setRemoving, add, remove, generated } = useBackgroundLibrary();
+  const [generating, setGenerating] = useState(false);
+  const canGenerate = useBackends().some((backend) => backend.backgroundGeneration && backend.status === 'ready');
   const input = useRef<HTMLInputElement>(null);
   return (
     <div className={fields.field}>
@@ -30,6 +34,20 @@ export function BackgroundPicker({ scheme }: { scheme: Scheme }) {
       <Button disabled={busy} onClick={() => input.current?.click()}>
         {t('backgroundAdd')}
       </Button>
+      {canGenerate && (
+        <Button disabled={busy} onClick={() => setGenerating(true)}>
+          {t('backgroundGenerate')}
+        </Button>
+      )}
+      {generating && (
+        <GenerateBackgroundDialog
+          onClose={() => setGenerating(false)}
+          onGenerated={(id) => {
+            generated(id);
+            setGenerating(false);
+          }}
+        />
+      )}
       {error && <p role="alert">{error}</p>}
       {removing && (
         <ConfirmDialog

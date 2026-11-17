@@ -3,6 +3,7 @@
 pub mod agents;
 pub mod autonomy;
 pub mod backends;
+pub mod background_generation;
 pub mod backgrounds;
 pub mod channels;
 pub mod conversation;

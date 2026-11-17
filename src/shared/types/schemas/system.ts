@@ -76,6 +76,7 @@ export const backendInfoSchema = {
   toolsOption: nullable(string),
   local: boolean,
   frameGeneration: boolean,
+  backgroundGeneration: (value, path) => (value === undefined ? [] : boolean(value, path)),
   setup: objectOf(backendSetupSchema),
 } satisfies Schema<BackendInfo>;
 

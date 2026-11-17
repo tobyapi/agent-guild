@@ -36,6 +36,7 @@
     "toolsOption": null,
     "local": false,
     "frameGeneration": false,
+    "backgroundGeneration": false,
     "setup": {
       "install": null,
       "start": null,
@@ -111,6 +112,7 @@
     "toolsOption": null,
     "local": false,
     "frameGeneration": false,
+    "backgroundGeneration": false,
     "setup": {
       "install": null,
       "start": null,

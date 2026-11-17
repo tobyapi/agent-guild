@@ -2,6 +2,7 @@
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
 import type { RunRequest } from './backends/types.ts';
+import { decodeBackground } from './backgrounds/decoder.ts';
 import { decodeImage } from './image-request-decoder.ts';
 import { LANGUAGES, parseLanguage } from './i18n.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
@@ -41,7 +42,8 @@ const idOf = (value: JsonObject): string | null => (isString(value.id) && value.
 
 export function decodeRequest(value: JsonObject): DecodeResult {
   const id = idOf(value);
-  if (value.type === 'backendAuthMode') return decodeBackendAuthMode(value, id);
+  const special = decodeSpecial(value, id);
+  if (special) return special;
   switch (value.type) {
     case 'run':
       return decodeRun(value, id);
@@ -184,4 +186,10 @@ function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
       ...(value.action === 'set' ? { key: value.key as string } : {}),
     },
   };
+}
+
+function decodeSpecial(value: JsonObject, id: string | null): DecodeResult | undefined {
+  if (value.type === 'backendAuthMode') return decodeBackendAuthMode(value, id);
+  if (value.type === 'background' || value.type === 'backgroundCancel') return decodeBackground(value, id);
+  return undefined;
 }

@@ -124,6 +124,8 @@ pub struct BackendInfo {
     /// このバックエンドでアイコンの枠を生成できる（申告のない古い形は false として読む）
     #[serde(default)]
     pub frame_generation: bool,
+    #[serde(default)]
+    pub background_generation: bool,
     /// アプリからのセットアップでできること
     pub setup: BackendSetup,
 }

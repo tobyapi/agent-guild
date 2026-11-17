@@ -78,6 +78,8 @@ export interface BackendInfo {
   local: boolean;
   /** このバックエンドでアイコンの枠を生成できる（generate_avatar_frame。ID では選り分けない） */
   frameGeneration: boolean;
+  /** Dedicated background renderer; omitted means unsupported. */
+  backgroundGeneration?: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }

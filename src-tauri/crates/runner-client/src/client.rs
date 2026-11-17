@@ -16,6 +16,20 @@ pub struct RunnerClient {
 }
 
 impl RunnerClient {
+    pub async fn generate_background(
+        &self,
+        id: &str,
+        request: crate::BackgroundRequest,
+    ) -> Result<String, RunnerError> {
+        run::run(&self.shared, id, run::Work::Background(&request), Box::new(|_| {})).await
+    }
+
+    pub async fn cancel_background(&self, id: &str) {
+        self.shared.jobs.request_cancel(id);
+        if let Some(connection) = self.shared.current() {
+            let _ = connection.send(&Request::BackgroundCancel { id }).await;
+        }
+    }
     /// 失敗しない。tokio ランタイムの文脈で呼ぶこと（監視タスクを spawn し、起動・再起動はそのタスクが行う）。
     pub fn new(config: RunnerConfig) -> Self {
         Self::new_with_auth_modes(config, std::collections::BTreeMap::new())

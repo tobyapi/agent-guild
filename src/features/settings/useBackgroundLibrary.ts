@@ -24,13 +24,16 @@ export function useBackgroundLibrary() {
       active = false;
     };
   }, []);
+  function generated(id: string) {
+    setIds((items) => [...new Set([...items, id])].sort());
+    setBackground({ kind: 'image', assetId: id });
+  }
   async function add(file: File) {
     setBusy(true);
     setError('');
     try {
       const id = await settingsApi.importBackground(await readBackground(file));
-      setIds((items) => [...items, id].sort());
-      setBackground({ kind: 'image', assetId: id });
+      generated(id);
     } catch (cause) {
       setError(
         t(
@@ -59,5 +62,5 @@ export function useBackgroundLibrary() {
       setBusy(false);
     }
   }
-  return { ids, error, busy, removing, setRemoving, add, remove };
+  return { ids, error, busy, removing, setRemoving, add, remove, generated };
 }

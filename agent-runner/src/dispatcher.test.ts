@@ -47,6 +47,7 @@ const fakeAdapter: BackendAdapter = {
 };
 const FAKE_INFO = {
   ...INFO,
+  backgroundGeneration: false,
   status: 'needs_auth',
   statusMessage: 'ログインしてください',
   models: [],

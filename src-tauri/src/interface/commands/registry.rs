@@ -57,6 +57,8 @@ macro_rules! commands {
             frames::generate_avatar_frame,
             frames::cancel_avatar_frame_generation,
             frames::get_frame_image,
+            backgrounds::generate_background_image,
+            backgrounds::cancel_background_generation,
             backgrounds::import_background_image,
             backgrounds::list_background_images,
             backgrounds::get_background_image,

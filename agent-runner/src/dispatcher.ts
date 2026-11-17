@@ -1,5 +1,5 @@
 ﻿import { toErrorEvent } from './dispatcher-errors.ts';
-import { manageApiKey } from './credentials/store.ts';
+import { apiKeyWork } from './dispatcher-api-key.ts';
 import { applyBackendAuthMode } from './backends/auth-mode-request.ts';
 import type { BackendRegistry } from './backends/registry.ts';
 import { usableRequest, type BackendAdapter, type ImageRequest, type RunRequest } from './backends/types.ts';
@@ -10,6 +10,7 @@ import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest 
 import { decodeRequest } from './request-decoder.ts';
 import { t } from './texts/index.ts';
 import { skillEvents } from './dispatcher-skill-events.ts';
+import { BackgroundJobs } from './backgrounds/jobs.ts';
 
 type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
 export interface DispatcherOptions {
@@ -25,8 +26,10 @@ export class Dispatcher {
   /** 螳溯｡御ｸｭ縺ｮ繧ｸ繝ｧ繝悶らｵらｫｯ繧､繝吶Φ繝医ｒ騾√▲縺溘ｉ豸医☆ */
   readonly #jobs = new Map<string, AbortController>();
   #closed = false;
+  readonly #backgrounds: BackgroundJobs;
   constructor(options: DispatcherOptions) {
     this.#options = options;
+    this.#backgrounds = new BackgroundJobs(options.registry, options.send);
   }
 
   /** 襍ｷ蜍慕峩蠕後↓1蝗槭□縺鷹√ｋ謠｡謇具ｼ亥推繝舌ャ繧ｯ繧ｨ繝ｳ繝峨・迥ｶ諷九ｒ遒ｺ縺九ａ縺ｦ縺九ｉ騾√ｋ・・*/
@@ -50,6 +53,7 @@ export class Dispatcher {
 
   /** 螳溯｡御ｸｭ縺ｮ繧ｸ繝ｧ繝悶ｒ荳ｭ譁ｭ縺励※ cancelled 繧定ｿ斐☆縲ょｭ伜惠縺励↑縺代ｌ縺ｰ菴輔ｂ縺励↑縺・ｼ域里縺ｫ邨ゅｏ縺｣縺溘ず繝ｧ繝悶↑縺ｩ・・*/
   cancel(id: string): void {
+    this.#backgrounds.cancel(id);
     const controller = this.#jobs.get(id);
     if (!controller) return;
     this.#jobs.delete(id);
@@ -60,13 +64,16 @@ export class Dispatcher {
   /** 螳溯｡御ｸｭ縺ｮ繧ｸ繝ｧ繝悶ｒ縺吶∋縺ｦ荳ｭ譁ｭ縺励※邨ゅｏ繧九ゆｻ･蠕後・蜈･蜉帙・辟｡隕悶☆繧・*/
   shutdown(): void {
     if (this.#closed) return;
+    this.#backgrounds.shutdown();
     for (const id of [...this.#jobs.keys()]) this.cancel(id);
     this.#closed = true;
     this.#options.exit();
   }
 
   #handle(request: RunnerRequest): void {
-    if (request.type === 'run') this.#run(request);
+    if (request.type === 'background') this.#backgrounds.start(request);
+    else if (request.type === 'backgroundCancel') this.#backgrounds.cancel(request.id);
+    else if (request.type === 'run') this.#run(request);
     else if (request.type === 'image') this.#image(request);
     else if (request.type === 'apiKey') this.#apiKey(request);
     else if (request.type === 'backendAuthMode') {
@@ -92,16 +99,8 @@ export class Dispatcher {
   #apiKey(request: Extract<RunnerRequest, { type: 'apiKey' }>): void {
     const info = this.#claim(request.id, request.backend)?.info();
     if (!info) return;
-    const spec = info.setup.apiKey;
-    if (spec === null) {
-      this.#fail(request.id, 'bad_request', t('noApiKey', { backend: info.label }));
-      return;
-    }
-    this.#track(request.id, async () => {
-      const status = await manageApiKey(request.backend, spec.envVar, request.action, request.key);
-      await this.#probe();
-      return status;
-    });
+    const work = apiKeyWork(request, info, () => this.#probe(), this.#options.send);
+    if (work) this.#track(request.id, work);
   }
 
   async #probe(): Promise<void> {

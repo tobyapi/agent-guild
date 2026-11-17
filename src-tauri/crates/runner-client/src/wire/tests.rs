@@ -24,6 +24,11 @@ fn requests_fixture_round_trips() {
     for expected in lines {
         let id = expected["id"].as_str().unwrap_or_default();
         let actual = match expected["type"].as_str() {
+            Some("background") => {
+                let request: crate::BackgroundRequest = serde_json::from_value(expected.clone()).unwrap();
+                serde_json::to_value(Request::Background { id, request: &request })
+            }
+            Some("backgroundCancel") => serde_json::to_value(Request::BackgroundCancel { id }),
             Some("run") => {
                 let request: RunRequest =
                     serde_json::from_value(expected.clone()).expect("run を RunRequest として読めない");

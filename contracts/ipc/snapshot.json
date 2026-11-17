@@ -257,6 +257,7 @@
       "toolsOption": null,
       "local": false,
       "frameGeneration": false,
+      "backgroundGeneration": false,
       "setup": {
         "install": {
           "cli": "Claude Code",
@@ -351,6 +352,7 @@
       "toolsOption": null,
       "local": false,
       "frameGeneration": true,
+      "backgroundGeneration": false,
       "setup": {
         "install": {
           "cli": "Codex CLI",
@@ -453,6 +455,7 @@
       "toolsOption": "enableTools",
       "local": true,
       "frameGeneration": false,
+      "backgroundGeneration": false,
       "setup": {
         "install": null,
         "start": {
@@ -513,6 +516,7 @@
       "toolsOption": null,
       "local": false,
       "frameGeneration": false,
+      "backgroundGeneration": false,
       "setup": {
         "install": null,
         "start": null,

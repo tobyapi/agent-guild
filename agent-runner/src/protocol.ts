@@ -109,6 +109,8 @@ export interface BackendInfo {
   local: boolean;
   /** このバックエンドでアイコンの枠を生成できる（Rust と React はこの申告だけを見る） */
   frameGeneration: boolean;
+  /** Dedicated background renderer is available; omitted means unsupported. */
+  backgroundGeneration?: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }
@@ -128,6 +130,8 @@ export type ErrorCode =
 
 /** Rust → runner */
 export type RunnerRequest =
+  | { type: 'background'; id: string; backend: string; prompt: string }
+  | { type: 'backgroundCancel'; id: string }
   | {
       type: 'run';
       id: string;

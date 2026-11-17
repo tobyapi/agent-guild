@@ -8,6 +8,7 @@ it('keeps the shared UI test fixture identical to production backend descriptors
   const actual = await Promise.all(
     providers.map(async ({ adapter }) => ({
       ...adapter.info(),
+      backgroundGeneration: Boolean(adapter.background),
       ...(await adapter.catalog!()),
       status: 'needs_auth',
       statusMessage: '',

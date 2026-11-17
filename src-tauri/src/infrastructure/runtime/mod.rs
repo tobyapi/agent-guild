@@ -4,6 +4,7 @@
 
 #[cfg(target_os = "macos")]
 mod app_launcher;
+mod backgrounds;
 #[cfg(target_os = "macos")]
 mod cli_installer;
 mod convert;
@@ -78,6 +79,13 @@ async fn notify_changes(
 
 #[async_trait]
 impl AgentRuntime for RunnerRuntime {
+    async fn generate_background(&self, id: &str, backend: &str, prompt: &str) -> Result<Vec<u8>, RuntimeError> {
+        self.draw_background(id, backend, prompt).await
+    }
+    async fn cancel_background(&self, id: &str) {
+        self.client.cancel_background(id).await;
+    }
+
     fn status(&self) -> RuntimeStatus {
         convert::status(self.client.status())
     }
