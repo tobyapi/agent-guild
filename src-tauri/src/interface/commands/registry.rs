@@ -1,0 +1,76 @@
+//! IPC のコマンド登録表。宣言の一覧とハンドラの構築を分ける。
+use super::{
+    agents, backgrounds, boot, channels, frames, guild, language, links, local_files, messages, notifications, profile,
+    skills, snapshot, storage, update,
+};
+
+macro_rules! commands {
+    () => {
+        tauri::generate_handler![
+            boot::get_boot_status,
+            boot::restart_app,
+            boot::complete_setup,
+            language::set_language,
+            notifications::get_desktop_notifications,
+            notifications::set_desktop_notifications,
+            snapshot::get_snapshot,
+            snapshot::refresh_backends,
+            snapshot::install_backend_cli,
+            snapshot::start_backend,
+            snapshot::backend_api_key,
+            snapshot::get_backend_auth_modes,
+            snapshot::set_backend_auth_mode,
+            snapshot::login_backend,
+            agents::create_agent,
+            agents::update_agent,
+            agents::delete_agent,
+            agents::run_autonomous,
+            agents::open_agent_workspace,
+            skills::list_skills,
+            skills::save_skill,
+            skills::delete_skill,
+            skills::list_builtin_skills,
+            skills::add_builtin_skill,
+            skills::get_skill_library,
+            skills::set_skill_library_dirs,
+            skills::add_library_skill,
+            skills::reveal_skill_folder,
+            channels::create_channel,
+            channels::get_channel_statistics,
+            channels::update_channel,
+            channels::delete_channel,
+            channels::add_channel_member,
+            channels::remove_channel_member,
+            messages::list_messages,
+            messages::get_skill_record_truncated,
+            messages::send_message,
+            messages::get_attachment,
+            messages::reveal_attachment,
+            local_files::reveal_local_file,
+            local_files::read_local_image,
+            messages::stop_channel,
+            messages::list_delegations,
+            guild::update_guild,
+            profile::update_profile,
+            frames::generate_avatar_frame,
+            frames::cancel_avatar_frame_generation,
+            frames::get_frame_image,
+            backgrounds::import_background_image,
+            backgrounds::list_background_images,
+            backgrounds::get_background_image,
+            backgrounds::delete_background_image,
+            frames::delete_avatar_frame,
+            storage::get_storage_info,
+            storage::choose_folder,
+            storage::change_data_dir,
+            storage::reveal_data_dir,
+            links::open_url,
+            update::check_update,
+            update::install_update,
+        ]
+    };
+}
+
+pub(crate) fn handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send + Sync + 'static {
+    commands!()
+}

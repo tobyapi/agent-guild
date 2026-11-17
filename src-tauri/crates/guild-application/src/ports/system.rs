@@ -45,6 +45,11 @@ pub trait Workspace: Send + Sync {
     fn reveal(&self, agent: &AgentId) -> AppResult<()>;
 }
 
+/// OSへの提出が成功しても、画面に表示されたかは確認できない。
+pub trait DesktopNotifier: Send + Sync {
+    fn submit(&self, title: &str, body: &str) -> AppResult<()>;
+}
+
 pub trait AppControl: Send + Sync {
     /// アプリを再起動する（呼び出しから戻ったあとで終了処理が進む）
     fn restart(&self);

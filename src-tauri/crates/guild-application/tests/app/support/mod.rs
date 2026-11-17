@@ -5,6 +5,7 @@ pub mod backends;
 pub mod events;
 pub mod frames;
 pub mod library;
+pub mod notifications;
 pub mod records;
 pub mod runtime;
 pub mod store;
@@ -38,6 +39,8 @@ pub struct TestApp {
     pub frame_images: Arc<FakeFrameImages>,
     pub runtime: Arc<FakeRuntime>,
     pub events: Arc<FakeEvents>,
+    pub notifier: Arc<notifications::FakeNotifier>,
+    pub notifications: Arc<guild_application::notifications::NotificationService>,
     pub workspace: Arc<FakeWorkspace>,
     pub library: Arc<FakeLibrary>,
     pub folders: Arc<FakeFolders>,
@@ -67,6 +70,13 @@ impl TestApp {
         let (clock, library) = (Arc::new(FakeClock::starting_at(STARTED_AT)), Arc::new(FakeLibrary::default()));
         let attachments = Arc::new(FakeAttachments::default());
         let frame_images = Arc::new(FakeFrameImages::default());
+        let settings = Arc::new(FakeSettings::default());
+        let notifier = Arc::new(notifications::FakeNotifier::default());
+        let notifications = Arc::new(guild_application::notifications::NotificationService::new(
+            settings.clone(),
+            store.clone(),
+            notifier.clone(),
+        ));
         let ports = Ports {
             agents: store.clone(),
             channels: store.clone(),
@@ -83,13 +93,13 @@ impl TestApp {
             meta: store.clone(),
             runtime: runtime.clone(),
             events: events.clone(),
+            notifications: notifications.clone(),
             workspace: workspace.clone(),
             clock,
             ids: ids.clone(),
             spawner: Arc::new(TokioSpawner),
         };
-        let (folders, settings, control) =
-            (Arc::new(FakeFolders::default()), Arc::new(FakeSettings::default()), Arc::new(FakeControl::default()));
+        let (folders, control) = (Arc::new(FakeFolders::default()), Arc::new(FakeControl::default()));
         let info = StorageInfo { data_dir: "C:\\guild".to_owned(), default_data_dir: "C:\\guild".to_owned(), source };
         let storage =
             StoragePorts { info, folders: folders.clone(), settings: settings.clone(), control: control.clone() };
@@ -97,6 +107,8 @@ impl TestApp {
         let services = AppServices::new(ports, storage, exporter.clone());
         Self {
             services,
+            notifier,
+            notifications,
             store,
             ids,
             attachments,

@@ -154,6 +154,11 @@ fn workspace_without_optional_legacy_folder_still_loads() {
 }
 
 #[test]
+fn desktop_notifications() {
+    assert_round_trip::<bool>("desktop-notifications.json");
+}
+
+#[test]
 fn skill_record_truncated() {
     assert_round_trip::<bool>("skill-record-truncated.json");
 }

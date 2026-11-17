@@ -28,6 +28,7 @@
 | ipc/update-status.json | UpdateStatus（check_update） |
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
+| ipc/desktop-notifications.json | boolean（通知の有効／無効。Rust と TS の IPC 契約テスト） |
 | runner/requests.jsonl | RunnerRequest（run / image / login / cancel / probe / setLanguage / shutdown / apiKey） |
 | runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules・midRunPost と、バックエンドごとの違いの申告（toolsOption・local・frameGeneration・setup）を含む |
 
@@ -35,6 +36,7 @@
 | behavior/mentions.json | メンション解析（design.md §8）: エージェントと本文 → 呼ばれた相手の ID。Rust `parse_mentions` / TS `parseMentions` |
 | behavior/tasks.json・behavior/tasks-agents.json | tasks ブロックの読み取り（design.md §7.1）: 本文 → サブタスク・割り振れなかった名前・上限を超えた名前（ブロックがなければ null）。Rust `parse_tasks` / TS `parseTasks`・`findTasksBlock` |
 | behavior/notices.json | システム発言と注記の文面（言語のコードごと: `{ "ja": {...}, "en": {...}, ... }`）。Rust `conversation::notices`・`delegation::SubtaskNote` / TS `mock/notices.ts` |
+| behavior/notifies.json | 最終返答の notify ブロックの入力と期待値。解析・実行は Rust のみ。ブラウザモックはOS通知を実装しないため、TSにパーサは複製しない。 |
 | behavior/channel-icons.json | チャンネルのアイコンの規則: 入力 → 正規化したアイコン（空は「なし」）、不正なら null。Rust `normalize_channel_icon`（`tests/domain/channel_icon.rs`）/ TS `normalizeChannelIcon`（`shared/lib/channelIcon.ts`。画面とモック） |
 
 契約を変えたら、この表とフィクスチャを同じ変更で直すこと。規則（メンション・tasks ブロック・お知らせの文面）を変えたら、

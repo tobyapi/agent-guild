@@ -30,6 +30,7 @@ pub struct MemoryStore {
     pub profile: Mutex<Option<Profile>>,
     pub frames: Mutex<Vec<CustomFrame>>,
     pub meta: Mutex<HashMap<String, String>>,
+    pub reject_notification_receipts: Mutex<bool>,
 }
 
 impl SkillRecordRepository for MemoryStore {

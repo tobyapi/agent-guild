@@ -58,6 +58,8 @@ pub struct LaunchSettings {
     pub setup_done: bool,
     /// 表示とエージェントの会話の言語（None = まだ選んでいない。日本語として扱う）
     pub language: Option<Language>,
+    /// 未保存の旧設定は有効。利用者が切り替えた後は Some を保存する。
+    pub desktop_notifications: Option<bool>,
     /// Claude / Codex の認証モード。未指定の backend は desktop。
     pub backend_auth_modes: BTreeMap<String, String>,
 }

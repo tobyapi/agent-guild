@@ -38,6 +38,8 @@ export interface CommandMap {
   complete_setup: { args: NoArgs; result: null };
   /** 表示とエージェントの会話の言語を settings.json に保存する（次のエージェントの実行から反映） */
   set_language: { args: { language: Language }; result: null };
+  get_desktop_notifications: { args: NoArgs; result: boolean };
+  set_desktop_notifications: { args: { enabled: boolean }; result: null };
   get_snapshot: { args: NoArgs; result: Snapshot };
   create_agent: { args: { input: AgentInput }; result: Agent };
   update_agent: { args: { id: string; input: AgentInput }; result: Agent };

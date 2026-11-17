@@ -1,0 +1,168 @@
+[
+  {
+    "name": "explicit",
+    "content": "結果です。\n\n```notify\n確認してください\n```",
+    "request": {
+      "body": "確認してください",
+      "text": "結果です。"
+    }
+  },
+  {
+    "name": "CRLF",
+    "content": "結果です。\r\n\r\n```notify\r\n確認してください\r\n```",
+    "request": {
+      "body": "確認してください",
+      "text": "結果です。"
+    }
+  },
+  {
+    "name": "tasks coexist",
+    "content": "結果です。\n\n```tasks\n@作業者: 調査\n```\n\n```notify\n確認してください\n```",
+    "request": {
+      "body": "確認してください",
+      "text": "結果です。\n\n```tasks\n@作業者: 調査\n```"
+    }
+  },
+  {
+    "name": "literal mention stays display only",
+    "content": "結果です。\n\n```notify\n@作業者 確認してください\n```",
+    "request": {
+      "body": "@作業者 確認してください",
+      "text": "結果です。"
+    }
+  },
+  {
+    "name": "160 scalars",
+    "content": "結果です。\n\n```notify\nああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\n```",
+    "request": {
+      "body": "ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+      "text": "結果です。"
+    }
+  },
+  {
+    "name": "unicode scalars",
+    "content": "結果です。\n\n```notify\n🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉\n```",
+    "request": {
+      "body": "🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉🐉",
+      "text": "結果です。"
+    }
+  },
+  {
+    "name": "ordinary",
+    "content": "notifyという語や通知してくださいという通常文",
+    "request": null
+  },
+  {
+    "name": "case sensitive",
+    "content": "結果です。\n\n```Notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "info extra",
+    "content": "結果です。\n\n```notify example\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "indented",
+    "content": "結果です。\n\n    ```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "quoted",
+    "content": "結果です。\n\n> ```notify\n> 確認してください\n> ```",
+    "request": null
+  },
+  {
+    "name": "quote continuation",
+    "content": "結果です。\n> 引用\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "html",
+    "content": "<blockquote>\n結果です。\n\n```notify\n確認してください\n```\n</blockquote>",
+    "request": null
+  },
+  {
+    "name": "html unclosed",
+    "content": "<blockquote>\n結果です。\n\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "outer fence",
+    "content": "結果です。\n\n````text\n\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "closed outer fence",
+    "content": "結果です。\n\n````text\n\n```notify\n確認してください\n```\n````",
+    "request": null
+  },
+  {
+    "name": "tilde outer",
+    "content": "結果です。\n\n~~~text\n\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "multiple",
+    "content": "結果です。\n\n```notify\n確認してください\n```\n\n```notify\n二度目\n```",
+    "request": null
+  },
+  {
+    "name": "empty",
+    "content": "結果です。\n\n```notify\n\n```",
+    "request": null
+  },
+  {
+    "name": "space only",
+    "content": "結果です。\n\n```notify\n   \n```",
+    "request": null
+  },
+  {
+    "name": "too long",
+    "content": "結果です。\n\n```notify\nあああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ\n```",
+    "request": null
+  },
+  {
+    "name": "multiline",
+    "content": "結果です。\n\n```notify\n確認\nしてください\n```",
+    "request": null
+  },
+  {
+    "name": "control",
+    "content": "結果です。\n\n```notify\n確認\tしてください\n```",
+    "request": null
+  },
+  {
+    "name": "unclosed",
+    "content": "結果です。\n\n```notify\n確認してください",
+    "request": null
+  },
+  {
+    "name": "not terminal",
+    "content": "結果です。\n\n```notify\n確認してください\n```\n続き",
+    "request": null
+  },
+  {
+    "name": "pass",
+    "content": "[PASS]\n\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "no human body",
+    "content": "```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "no blank separator",
+    "content": "結果です。\n```notify\n確認してください\n```",
+    "request": null
+  },
+  {
+    "name": "non-notify code then request",
+    "content": "結果です。\n\n```rust\nfn main() {}\n```\n\n```notify\n確認してください\n```",
+    "request": {
+      "body": "確認してください",
+      "text": "結果です。\n\n```rust\nfn main() {}\n```"
+    }
+  }
+]

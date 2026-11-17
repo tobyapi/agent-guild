@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  desktopNotifications: '經理桌面通知',
+  desktopNotificationsHint: '經理可在需要時要求系統通知。系統設定可能阻止顯示。',
   sectionTitle: '通知',
   messageSound: '回覆提示音',
   messageSoundHint: '收到代理人的訊息時播放。',

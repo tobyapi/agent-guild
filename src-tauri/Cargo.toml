@@ -40,6 +40,8 @@ guild-application = { path = "crates/guild-application" }
 runner-client = { path = "crates/runner-client" }
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
+# Call show() synchronously so OS submission errors are not discarded by the Tauri plugin.
+notify-rust = "4.19"
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

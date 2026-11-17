@@ -4,6 +4,7 @@ import { SOUNDS } from '../model/preferences';
 import type { SoundChoice } from '../model/preferences';
 import { previewSound, setSoundPreferences, useSoundStore } from '../store';
 import styles from './SoundSection.module.css';
+import { DesktopNotifications } from './DesktopNotifications';
 
 const CHOICES: readonly SoundChoice[] = ['off', ...SOUNDS];
 
@@ -61,6 +62,7 @@ export function SoundSection() {
   const percent = Math.round(preferences.volume * 100);
   return (
     <div className={styles.sounds}>
+      <DesktopNotifications />
       <SoundChoiceField
         label={t('mentionSound')}
         hint={t('mentionSoundHint')}

@@ -150,6 +150,9 @@ impl MetaRepository for MemoryStore {
         Ok(self.meta.lock().get(key).cloned())
     }
     fn set(&self, key: &str, value: &str) -> AppResult<()> {
+        if key.starts_with("desktop-notification:") && *self.reject_notification_receipts.lock() {
+            return Err(guild_application::AppError::Storage("injected notification receipt failure".to_owned()));
+        }
         self.meta.lock().insert(key.to_owned(), value.to_owned());
         Ok(())
     }

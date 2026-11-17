@@ -11,6 +11,7 @@ pub mod boot;
 pub mod channel;
 pub mod conversation;
 pub mod delegation;
+pub mod desktop_notification;
 pub mod error;
 pub mod frame;
 pub mod guild;

@@ -8,6 +8,8 @@ import { checkFrameId } from './frames';
 import type { HandlerGroup } from './types';
 
 type SystemCommands =
+  | 'get_desktop_notifications'
+  | 'set_desktop_notifications'
   | 'get_boot_status'
   | 'complete_setup'
   | 'set_language'
@@ -29,6 +31,10 @@ const PROBE_MS = 800;
 const LOGIN_MS = 1500;
 
 export const systemHandlers: HandlerGroup<SystemCommands> = {
+  get_desktop_notifications: () => false,
+  set_desktop_notifications() {
+    fail('unavailable', 'デスクトップ通知はデスクトップアプリで利用してください');
+  },
   get_backend_auth_modes: () => ({}),
   set_backend_auth_mode: () => null,
   backend_api_key() {

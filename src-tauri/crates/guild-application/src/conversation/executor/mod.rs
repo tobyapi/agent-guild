@@ -8,6 +8,7 @@ mod ending;
 mod history;
 mod interim;
 mod measurement;
+mod notification;
 mod request;
 mod request_scope;
 mod skill_records;

@@ -26,6 +26,7 @@ const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: tru
 
 const CASES: Record<string, Validator> = {
   'skill-record-truncated.json': boolean,
+  'desktop-notifications.json': boolean,
   'snapshot.json': objectOf(snapshotSchema),
   'channel-statistics.json': objectOf(channelStatisticsSchema),
   'agent-input.json': objectOf(agentInputSchema),

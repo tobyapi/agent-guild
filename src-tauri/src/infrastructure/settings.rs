@@ -64,6 +64,7 @@ impl SettingsStore for SettingsFile {
             setup_done: object.get("setupDone").and_then(Value::as_bool).unwrap_or(false),
             language: object.get("language").and_then(Value::as_str).and_then(Language::parse),
             backend_auth_modes: auth_modes_of(&object),
+            desktop_notifications: object.get("desktopNotifications").and_then(Value::as_bool),
         })
     }
 
@@ -88,6 +89,9 @@ impl SettingsStore for SettingsFile {
         let library_dirs = settings.skill_library_dirs.iter().map(|dir| Value::String(dir.display().to_string()));
         object.insert("skillLibraryDirs".to_owned(), Value::Array(library_dirs.collect()));
         object.insert("setupDone".to_owned(), Value::Bool(settings.setup_done));
+        if let Some(enabled) = settings.desktop_notifications {
+            object.insert("desktopNotifications".to_owned(), Value::Bool(enabled));
+        }
         if let Some(language) = settings.language {
             object.insert("language".to_owned(), Value::String(language.code().to_owned()));
         }

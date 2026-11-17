@@ -1,5 +1,8 @@
 // 通知の音（設定の「通知」の区画）の文言（日本語。キーの正）
 export const ja = {
+  desktopNotifications: 'マネージャーのデスクトップ通知',
+  desktopNotificationsHint:
+    'マネージャーが必要と判断したとき、OS通知を要求できます。OSの設定によって表示されない場合があります。',
   sectionTitle: '通知',
   messageSound: '返信の音',
   messageSoundHint: 'エージェントの発言が届いたときに鳴らします。',

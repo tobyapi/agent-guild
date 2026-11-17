@@ -2,6 +2,8 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const en: Messages<typeof ja> = {
+  desktopNotifications: 'Manager desktop notifications',
+  desktopNotificationsHint: 'Managers can request OS notifications when needed. OS settings may prevent their display.',
   sectionTitle: 'Notifications',
   messageSound: 'Reply sound',
   messageSoundHint: 'Plays when a message from an agent arrives.',

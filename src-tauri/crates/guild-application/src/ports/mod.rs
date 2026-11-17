@@ -20,4 +20,6 @@ pub use runtime::{
     SkillPayload, UpdateSink,
 };
 pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsStore, TargetFolder};
-pub use system::{AppControl, BoxTask, Clock, EventPublisher, IdGenerator, Spawner, Workspace, WorkspacePaths};
+pub use system::{
+    AppControl, BoxTask, Clock, DesktopNotifier, EventPublisher, IdGenerator, Spawner, Workspace, WorkspacePaths,
+};

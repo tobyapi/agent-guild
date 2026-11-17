@@ -52,6 +52,11 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
         meta: meta.clone(),
         runtime: Arc::new(NoRuntime),
         events: Arc::new(Silent),
+        notifications: Arc::new(guild_application::notifications::NotificationService::new(
+            Arc::new(SettingsFile::in_dir(&dir.0)),
+            meta.clone(),
+            Arc::new(Silent),
+        )),
         workspace: Arc::new(FsWorkspace::new(&dir.0)),
         clock: Arc::new(SystemClock::new()),
         ids: Arc::new(UuidGenerator),

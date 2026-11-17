@@ -50,8 +50,18 @@ fn commit_reply(
 ) -> AppResult<Committed> {
     let (body, names) = guild_domain::skill_usage::declaration(raw);
     usage.declared = names;
-    match format_reply(&body, &agent.name) {
-        Some(content) => replied(ports, job, agent, content, usage, ctx),
+    let request = guild_domain::agent::role_can_notify(&agent.tags)
+        .then(|| guild_domain::desktop_notification::extract(&body))
+        .flatten();
+    let text = request.as_ref().map_or(body.as_str(), |(text, _)| *text);
+    match format_reply(text, &agent.name) {
+        Some(content) => {
+            let committed = replied(ports, job, agent, content, usage, ctx)?;
+            if let (Some((_, request)), Ending::Replied { message, .. }) = (request, &committed.ending) {
+                super::notification::submit(ports, agent, message, &request.body);
+            }
+            Ok(committed)
+        }
         None => Ok(no_answer(job, agent, NoAnswer::Passed, ctx, Ending::Passed)),
     }
 }

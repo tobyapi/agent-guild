@@ -29,6 +29,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
         setup_done: true,
         language: Some(Language::ZhHant),
+        desktop_notifications: None,
         backend_auth_modes: [("claude".to_owned(), "api".to_owned())].into_iter().collect(),
     };
     settings.save(&chosen).unwrap();

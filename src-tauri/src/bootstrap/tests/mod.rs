@@ -90,6 +90,12 @@ impl EventPublisher for Silent {
     fn delegation_changed(&self, _delegation: &Delegation) {}
 }
 
+impl guild_application::ports::DesktopNotifier for Silent {
+    fn submit(&self, _title: &str, _body: &str) -> guild_application::AppResult<()> {
+        Ok(())
+    }
+}
+
 impl AppControl for Silent {
     fn restart(&self) {}
 }

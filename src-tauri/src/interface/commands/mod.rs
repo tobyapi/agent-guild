@@ -11,6 +11,7 @@ pub mod language;
 pub mod links;
 pub mod local_files;
 pub mod messages;
+pub mod notifications;
 pub mod profile;
 pub mod skills;
 pub mod snapshot;
@@ -28,3 +29,5 @@ pub(crate) fn reject(error: AppError) -> CommandError {
     log::warn!("コマンドが失敗しました: {error}");
     error.to_command_error()
 }
+
+pub(crate) mod registry;

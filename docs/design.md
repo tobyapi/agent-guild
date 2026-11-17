@@ -91,6 +91,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | コマンド | 引数 | 戻り値 | emit | 主なエラー |
 |---|---|---|---|---|
 | `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す。`language` は settings.json に保存した言語で、まだ選んでいなければ null） | – | – |
+| `get_desktop_notifications` | なし | `boolean`（旧設定は有効） | – | storage |
+| `set_desktop_notifications` | `{ enabled: boolean }` | `null`（OS通知の有効／無効を保存） | – | storage |
 | `set_language` | `{ language: Language }`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`） | `null`（settings.json の `language` に保存し、Rust のいまの言語にして、ランナーに `setLanguage` を送る。以後のお知らせ・エラー・プロンプトの言語になる。docs/i18n.md） | – | storage（settings.json が新しい版のもの・書けない） |
 | `complete_setup` | – | `null`（settings.json に `setupDone: true` を書く。名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） | – | storage |
 | `get_snapshot` | – | `Snapshot` | – | unavailable |
@@ -464,3 +466,19 @@ Grok uses a direct read-only Responses runner: unrestricted=[], writes/commands/
 `error`イベントの`code`に`response_truncated`（出力上限・提供元中断）、`response_blocked`（提供元ポリシー）、`invalid_response`（不正・未完了）を定義する。
 TS/Rustのrunner型と`contracts/runner/events.jsonl`が同じコードを扱う。画面にはアダプタの秘匿済み・翻訳済み`message`を失敗発言として表示する。
 認証状態の変更は従来の`auth`だけで、上記は`needs_auth`へ変更しない。`backend_api_key`や`requests.jsonl`の形式は変更しない。
+
+## マネージャーのデスクトップ通知
+
+役割表の通知権限は先頭タグで引き、`canDelegate` やランナーの道具の許可からは決めない。現在はマネージャーの役割のみ許可。プロンプトには許可された役割だけ使い方を追加する。すべての本番バックエンドで共通の最終返答処理を使用し、ツール機能・バックエンドID・モデルによる分岐はしない。ブラウザのモックはOS通知を送らず、設定の有効化は unavailable。
+
+人間向けの最終返答の後、空行を挟み、末尾に専用の notify ブロックを置く。開始行はバッククォート3本と小文字の notify、終了行はバッククォート3本。どちらも左端に書く。本文はプレーンテキスト1行、1〜160 Unicode文字・制御文字なし・1返答1件だけ受理。大文字や追加のフェンス情報は認めず、複数ブロックは全件を通常文として残す。引用、字下げ、他のコードフェンス内、HTMLを含む返答、通常文、途中投稿、人間の投稿、履歴の読み込みからは実行しない。不正な形式は通常の本文として残す。使い方の説明は引用か、4本以上のバッククォートのコードブロックに入れる。
+
+実行管理が現行世代・未取消を確認し、現在の役割を再取得した後に要求を読む。最終返答を正常に保存・確定できた場合だけOS通知を要求する。要求ブロックは発言本文から取り除き、通知内容からメンションやタスクの割り振りを起こさない。現在実行中のジョブを一度取り除いて結果を確定するため、同一のFinishedの再処理では実行しない。通知はRustからのみ送信し、送信するIPCやWebviewの通知権限は公開しない。
+
+tasksブロックは通知より前に置く。skill-usageフッタが必要な場合は通知より後に置く。確定処理は先にスキル自己申告を取り除いてから通知を読むので、両方の宣言を保てる。
+
+通知前にmetaの `desktop-notification:<messageId>` に試行を記録。同一発言IDを再処理した場合は再起動後も再送しない。OS側の成否不明や通知失敗でも自動再送しない。記録・設定読み込みが失敗した場合も送信せず、会話を続行する。無効時の要求も処理済みとして残し、有効化後にまとめて送らない。新しい別の返答からの明示要求は別件。同一DBを別プロセスから直接開く構成は重複防止の保証対象外とし、通常のデータフォルダ排他ロックを通す単一起動で使う。
+
+通知タイトルは `AI Guild · エージェント名`。名前からUnicode制御文字を除去してOSへ渡す。通常の文字・絵文字は保持し、保存済みのエージェント名自体は変更しない。
+
+settings.json version 1 に任意の `desktopNotifications: boolean` を追加。未指定は有効、未知フィールドと既存データは保持。設定「通知」のスイッチで即時変更可能。通知結果はシステム発言でOSへ提出／無効／失敗を区別し、画面表示を保証しない。Windowsはインストール版で確認する（開発版ではPowerShell名になることがある）。OS側の通知設定・集中モードによる抑制はありうる。Tauri公式: https://v2.tauri.app/plugin/notification/ 。

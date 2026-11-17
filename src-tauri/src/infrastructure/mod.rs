@@ -14,6 +14,7 @@ pub mod ids;
 pub mod local_file_access;
 pub mod local_files;
 pub mod logging;
+pub mod notifications;
 pub mod plain_path;
 pub mod runtime;
 pub mod settings;

@@ -13,6 +13,7 @@ mod language;
 mod members;
 mod memory;
 mod modes;
+mod notifications;
 mod persona;
 mod report;
 mod rules;
@@ -76,6 +77,7 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
         answering::work_section(ctx),
         answering::consultee_section(ctx),
         delegating::section(ctx),
+        notifications::section(ctx),
         consult::section(ctx),
         skills::section(ctx.skills, &ctx.permissions),
         memory::section(ctx),

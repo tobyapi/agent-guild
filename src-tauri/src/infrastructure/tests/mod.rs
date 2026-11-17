@@ -4,6 +4,8 @@ mod clock;
 mod data_folder;
 mod export;
 mod frame_images;
+mod notification_receipts;
+mod notification_settings;
 mod path_components;
 mod settings_workspace;
 mod skill_library;

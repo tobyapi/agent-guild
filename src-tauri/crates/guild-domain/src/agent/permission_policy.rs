@@ -15,6 +15,11 @@ pub fn role_permissions(tags: &[String]) -> Permissions {
     })
 }
 
+/// OS通知の要求は、先頭タグに対応する役割表だけで許可する。
+pub fn role_can_notify(tags: &[String]) -> bool {
+    super::templates::notification_allowed(tags)
+}
+
 /// 役割の権限のうち、そのバックエンドが実際に使える操作。道具がない操作と、隔離できないなどの理由で
 /// ほかの許可を前提にする操作（permissionRules）を除く。連鎖する依存も収束するまで解決する。結果は必ず permissions の部分集合
 pub fn usable_permissions(permissions: Permissions, backend: Option<&BackendInfo>) -> Permissions {

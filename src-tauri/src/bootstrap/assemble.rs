@@ -73,11 +73,17 @@ pub fn ready(
         meta: Arc::new(SqliteMetaRepository::new(db.clone())),
         runtime: runtime.clone(),
         events,
+        notifications: Arc::new(guild_application::notifications::NotificationService::new(
+            Arc::new(SettingsFile::in_dir(&paths.config_dir)),
+            Arc::new(SqliteMetaRepository::new(db.clone())),
+            Arc::new(crate::infrastructure::notifications::TauriNotifier(app.config().identifier.clone())),
+        )),
         workspace: Arc::new(FsWorkspace::new(&paths.data_dir)),
         clock: clock.clone(),
         ids: Arc::new(UuidGenerator),
         spawner: spawner.clone(),
     };
+    app.manage(ports.notifications.clone());
     let exporter = Arc::new(DataExport::new(db, paths.data_dir.clone()));
     let storage = storage_ports(app, paths);
     let runner: Arc<dyn AgentRuntime> = runtime.clone();

@@ -2,6 +2,9 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  desktopNotifications: '매니저 데스크톱 알림',
+  desktopNotificationsHint:
+    '매니저가 필요할 때 OS 알림을 요청할 수 있습니다. OS 설정에 따라 표시되지 않을 수 있습니다.',
   sectionTitle: '알림',
   messageSound: '답장 알림음',
   messageSoundHint: '에이전트의 메시지가 도착하면 재생합니다.',

@@ -46,6 +46,7 @@ pub struct Ports {
     pub meta: Arc<dyn MetaRepository>,
     pub runtime: Arc<dyn AgentRuntime>,
     pub events: Arc<dyn EventPublisher>,
+    pub notifications: Arc<crate::notifications::NotificationService>,
     pub workspace: Arc<dyn Workspace>,
     pub clock: Arc<dyn Clock>,
     pub ids: Arc<dyn IdGenerator>,
