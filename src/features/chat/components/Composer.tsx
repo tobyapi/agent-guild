@@ -18,7 +18,7 @@ export function Composer({ channel }: { channel: Channel }) {
   const runtime = useRuntimeStatus();
   const candidates = useMemo(() => buildMentionOptions(agents, channel.memberIds), [agents, channel.memberIds]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const files = useComposerAttachments();
+  const files = useComposerAttachments(channel.id);
   const composer = useComposer(channel.id, candidates, textareaRef, files);
   const { completion, listId } = composer;
   const hasOptions = completion.open && completion.matches.length > 0;

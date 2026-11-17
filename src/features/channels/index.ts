@@ -4,4 +4,4 @@ export { ChannelHeader } from './components/ChannelHeader';
 export { ChannelList } from './components/ChannelList';
 export { MemberPanel } from './components/MemberPanel';
 export { useActiveChannel, useChannels, useMemberPanelOpen } from './hooks/useChannels';
-export { applyChannelsSnapshot, openChannelCreator } from './store';
+export { applyChannelsSnapshot, deleteChannel, openChannelCreator, useChannelsStore } from './store';

@@ -1,5 +1,7 @@
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef } from 'react';
+import { useStore } from 'zustand';
 import type { ChangeEvent, KeyboardEvent, RefObject, SyntheticEvent } from 'react';
+import { composerDrafts } from '../draftStore';
 import { completionAction, isImeComposing, shouldSubmit } from '../model/keys';
 import { insertMention } from '../model/mentionQuery';
 import type { MentionOption } from '../model/mentionQuery';
@@ -17,7 +19,9 @@ export function useComposer(
   textareaRef: RefObject<HTMLTextAreaElement | null>,
   pending: Pick<ComposerAttachments, 'attachments' | 'clear'>,
 ) {
-  const [text, setText] = useState('');
+  const text = useStore(composerDrafts.store, (state) => state.texts[channelId] ?? '');
+  const setText = (value: string) => composerDrafts.setText(channelId, value);
+  useEffect(() => () => composerDrafts.flush(), []);
   const pendingCaret = useRef<number | null>(null);
   const completion = useMentionCompletion(candidates);
   /** 候補の一覧（listbox）の id。各候補の id は `${listId}-${index}` */
