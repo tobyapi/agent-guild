@@ -13,5 +13,6 @@ export const zhHant: Messages<typeof ja> = {
   installing: '正在更新…',
   install: '更新並重新啟動',
   autoCheck: '自動檢查新版本',
-  autoCheckHelp: '啟動時及之後每 6 小時檢查一次 GitHub Releases。關閉後，只在點擊「檢查更新」時檢查。',
+  autoCheckHelp:
+    '啟動時、返回應用程式或恢復連線時，以及每 5 分鐘檢查一次 GitHub Releases。關閉後，只在點擊「檢查更新」時檢查。',
 };

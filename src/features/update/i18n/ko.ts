@@ -13,5 +13,6 @@ export const ko: Messages<typeof ja> = {
   installing: '업데이트하는 중…',
   install: '업데이트 후 다시 시작',
   autoCheck: '새 버전 자동 확인',
-  autoCheckHelp: '시작할 때와 6시간마다 GitHub 릴리스를 확인합니다. 끄면 [업데이트 확인]을 눌렀을 때만 확인합니다.',
+  autoCheckHelp:
+    '시작할 때, 앱으로 돌아오거나 연결이 복구될 때, 그리고 5분마다 GitHub 릴리스를 확인합니다. 끄면 [업데이트 확인]을 눌렀을 때만 확인합니다.',
 };

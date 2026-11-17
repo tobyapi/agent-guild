@@ -17,11 +17,10 @@ export function UpdateSection() {
 
   const autoCheck = useAutoCheckStore((s) => s.enabled);
 
-  // まだ一度も確かめていなければ、開いたときに確かめる（起動時の確認が済んでいれば、その結果を出す）。
+  // 起動後の公開や通信の復旧に気づけるよう、開くたびに確かめ直す。
   // 自動の確認をオフにしていれば、押されるまで確かめない
   useEffect(() => {
-    const { status: known, error: failed } = useUpdateStore.getState();
-    if (useAutoCheckStore.getState().enabled && known === null && failed === null) void checkForUpdate();
+    if (useAutoCheckStore.getState().enabled) void checkForUpdate();
   }, []);
 
   return (

@@ -14,5 +14,5 @@ export const en: Messages<typeof ja> = {
   install: 'Update and restart',
   autoCheck: 'Check for new versions automatically',
   autoCheckHelp:
-    'Checks GitHub Releases on startup and every six hours. When off, the app checks only when you press Check for updates.',
+    'Checks GitHub Releases on startup, when returning to the app or reconnecting, and every five minutes. When off, the app checks only when you press Check for updates.',
 };
