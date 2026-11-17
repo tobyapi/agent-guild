@@ -23,7 +23,7 @@ fn delegation(app: &TestApp) -> Delegation {
     app.store.delegations.lock().first().cloned().unwrap_or_else(|| panic!("割り振りがありません"))
 }
 
-#[tokio::test]
+#[tokio::test(start_paused = true)]
 async fn stopping_the_channel_cancels_the_delegation_and_its_subtasks() {
     let app = TestApp::new();
     let kaname = app.agent("manager", "カナメ");
@@ -35,6 +35,12 @@ async fn stopping_the_channel_cancels_the_delegation_and_its_subtasks() {
     app.runtime.script(sora.id.as_str(), Script::Hang);
     app.services.conversation.send_human_message(&lobby.id, "お願い", &[]).unwrap();
     tick().await;
+
+    tokio::time::advance(Duration::from_secs(24 * 60 * 60)).await;
+    tick().await;
+    assert!(app.runtime.cancelled.lock().is_empty());
+    assert_eq!(app.services.conversation.activity().activities.len(), 2);
+    assert_eq!(delegation(&app).status, DelegationStatus::Running);
 
     app.services.conversation.stop(&lobby.id).await.unwrap();
     app.settle().await;

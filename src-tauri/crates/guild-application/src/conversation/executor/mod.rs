@@ -21,7 +21,6 @@ use std::sync::Arc;
 
 use guild_domain::conversation::JobSpec;
 
-use super::JOB_TIMEOUT;
 use crate::ports::{RunUpdate, RuntimeError};
 use crate::services::Ports;
 
@@ -32,7 +31,6 @@ pub(crate) enum RunOutcome {
     Reply(String, guild_domain::skill_usage::SkillUsage),
     /// 失敗（日本語のメッセージ）
     Failed(String),
-    TimedOut(u64),
     /// 中断された（失敗ではない）
     Cancelled,
     /// 始める前にエージェントやチャンネルがなくなっていた
@@ -100,46 +98,12 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
     };
     let records = skill_records::SkillRecords::new(job_id, job.agent_id.as_str(), &agent_name);
     let sink = records.sink(measurement.sink(update));
-    // Keep the historical 15 minute job limit for other backends. Ollama's per-response
-    // limit must not be cut short by the outer job timeout.
-    let timeout = job_timeout(&request.backend, &request.options);
-    let timeout_minutes = timeout.as_secs().div_ceil(60);
-    let result = tokio::time::timeout(timeout, ports.runtime.run(job_id, request, sink)).await;
+    let result = ports.runtime.run(job_id, request, sink).await;
     let usage = records.finish();
     measurement.save(ports);
     match result {
-        Ok(Ok(text)) => RunOutcome::Reply(text, usage),
-        Ok(Err(RuntimeError::Cancelled)) => RunOutcome::Cancelled,
-        Ok(Err(RuntimeError::Failed(message))) => RunOutcome::Failed(message),
-        Err(_) => {
-            ports.runtime.cancel(job_id).await;
-            RunOutcome::TimedOut(timeout_minutes)
-        }
-    }
-}
-
-fn job_timeout(backend: &str, options: &serde_json::Map<String, serde_json::Value>) -> std::time::Duration {
-    if backend != "ollama" {
-        return JOB_TIMEOUT;
-    }
-    let configured = options
-        .get("timeoutMinutes")
-        .and_then(serde_json::Value::as_u64)
-        .filter(|minutes| (1..=60).contains(minutes))
-        .unwrap_or(5);
-    JOB_TIMEOUT.max(std::time::Duration::from_secs(configured * 60))
-}
-
-#[cfg(test)]
-mod timeout_tests {
-    use super::*;
-
-    #[test]
-    fn ollama_job_timeout_respects_configured_limit_but_keeps_other_defaults() {
-        let mut options = serde_json::Map::new();
-        assert_eq!(job_timeout("ollama", &options), JOB_TIMEOUT);
-        options.insert("timeoutMinutes".into(), serde_json::json!(30));
-        assert_eq!(job_timeout("ollama", &options), std::time::Duration::from_secs(30 * 60));
-        assert_eq!(job_timeout("claude", &options), JOB_TIMEOUT);
+        Ok(text) => RunOutcome::Reply(text, usage),
+        Err(RuntimeError::Cancelled) => RunOutcome::Cancelled,
+        Err(RuntimeError::Failed(message)) => RunOutcome::Failed(message),
     }
 }

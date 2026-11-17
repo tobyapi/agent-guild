@@ -17,7 +17,6 @@ interface NoticesFixture {
   stopped: string;
   depthLimit: string;
   noResponder: string;
-  timedOut: string;
   joined: Named;
   undeliverable: Named;
   didNotAnswer: Named;
@@ -35,10 +34,8 @@ describe.each(LANGUAGES.map((option) => option.value))('%s', (language) => {
   const expected = fixture[language];
 
   it('決まった文面は Rust と同じ', () => {
-    const fixed = [notices.stopped, notices.depthLimit, notices.noResponder, notices.timedOut].map((text) =>
-      text(language),
-    );
-    expect(fixed).toEqual([expected.stopped, expected.depthLimit, expected.noResponder, expected.timedOut]);
+    const fixed = [notices.stopped, notices.depthLimit, notices.noResponder].map((text) => text(language));
+    expect(fixed).toEqual([expected.stopped, expected.depthLimit, expected.noResponder]);
     for (const [key, text] of Object.entries(expected.subtaskNotes)) {
       expect(notices.subtaskNote(key as notices.SubtaskNote, language)).toBe(text);
     }

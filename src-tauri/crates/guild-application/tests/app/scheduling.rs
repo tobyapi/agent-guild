@@ -1,9 +1,9 @@
-//! 実行モデル（design.md §6）: 合流・エージェント単位の排他・全体の上限・1つの会話の返答回数に上限がないこと・時間切れ。
+//! 実行モデル（design.md §6）: 合流・エージェント単位の排他・全体の上限・1つの会話の返答回数に上限がないこと・長時間実行。
 
 use std::sync::Arc;
 use std::time::Duration;
 
-use guild_application::conversation::{JOB_TIMEOUT, MAX_CONCURRENT_JOBS};
+use guild_application::conversation::MAX_CONCURRENT_JOBS;
 use guild_domain::activity::ChannelQueue;
 use tokio::sync::Notify;
 
@@ -96,27 +96,29 @@ async fn one_conversation_has_no_limit_on_the_number_of_replies() {
 }
 
 #[tokio::test(start_paused = true)]
-async fn a_job_times_out_after_fifteen_minutes() {
+async fn a_job_runs_past_fifteen_minutes_and_stop_releases_the_agent_for_next_job() {
     let app = TestApp::new();
     let haru = app.agent("worker", "ハル");
-    let logica = app.agent("expert", "ロジカ");
-    let lobby = app.channel("ロビー", &[&haru, &logica]);
-    app.runtime.script(haru.id.as_str(), reply("@ロジカ 見て"));
-    app.runtime.script(logica.id.as_str(), Script::Hang);
-    app.runtime.script(haru.id.as_str(), reply("待ちきれませんでした"));
-    app.services.conversation.send_human_message(&lobby.id, "お願い", &[]).unwrap();
+    let lobby = app.channel("ロビー", &[&haru]);
+    app.runtime.script(haru.id.as_str(), Script::Hang);
+    app.runtime.script(haru.id.as_str(), reply("次の作業は完了"));
+    app.services.conversation.send_human_message(&lobby.id, "長い作業を", &[]).unwrap();
     tick().await;
-    tokio::time::advance(JOB_TIMEOUT + Duration::from_secs(1)).await;
+    tokio::time::advance(Duration::from_secs(24 * 60 * 60)).await;
+    tick().await;
+    assert_eq!(app.transcript(&lobby), vec!["人間: 長い作業を"]);
+    assert_eq!(app.services.conversation.activity().activities.len(), 1);
+    assert!(app.runtime.cancelled.lock().is_empty());
+
+    app.services.conversation.stop(&lobby.id).await.unwrap();
     app.settle().await;
+    assert_eq!(app.runtime.cancelled.lock().len(), 1);
+    app.services.conversation.send_human_message(&lobby.id, "次をお願い", &[]).unwrap();
+    app.settle().await;
+    assert_eq!(app.runtime.requests_for(haru.id.as_str()).len(), 2);
     assert_eq!(
         app.transcript(&lobby),
-        vec![
-            "人間: お願い",
-            "ハル: @ロジカ 見て",
-            "ロジカ: 時間切れで中断しました（15分）",
-            "ハル: 待ちきれませんでした"
-        ]
+        vec!["人間: 長い作業を", "システム: 停止しました", "人間: 次をお願い", "ハル: 次の作業は完了"]
     );
-    assert_eq!(app.runtime.cancelled.lock().len(), 1, "時間切れのジョブは中断を送る");
-    assert!(app.runtime.requests_for(haru.id.as_str())[1].prompt.contains("ロジカ は失敗しました"));
+    assert!(app.services.conversation.activity().activities.is_empty());
 }

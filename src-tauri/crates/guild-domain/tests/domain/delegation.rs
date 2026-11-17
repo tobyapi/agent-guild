@@ -55,8 +55,6 @@ fn judging_waits_while_consulting_and_settles_otherwise() {
     let error = MessageId::new("e1");
     let failed = Settlement::Failed { note: "失敗しました", message: Some(error.clone()) };
     assert_eq!(judge(Turn::Failed { error: &error }, ja), Verdict::Settle(failed));
-    let timed_out = Settlement::Failed { note: "時間切れで中断しました", message: Some(error.clone()) };
-    assert_eq!(judge(Turn::TimedOut { error: &error }, ja), Verdict::Settle(timed_out));
     let english = Settlement::Failed { note: "No answer.", message: None };
     assert_eq!(judge(Turn::Passed, Language::En), Verdict::Settle(english), "理由は渡した言語の文面");
 }

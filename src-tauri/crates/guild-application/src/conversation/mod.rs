@@ -8,8 +8,6 @@ mod executor;
 mod interrupted;
 pub(crate) mod posting;
 
-use std::time::Duration;
-
 use guild_domain::activity::ActivityState;
 use guild_domain::attachment::{Attachment, NewAttachment};
 use guild_domain::author::Author;
@@ -27,8 +25,6 @@ use posting::Origin;
 
 /// 全体の同時実行上限
 pub const MAX_CONCURRENT_JOBS: usize = 3;
-/// 1ジョブの時間切れ
-pub const JOB_TIMEOUT: Duration = Duration::from_secs(15 * 60);
 /// list_messages の既定件数と上限
 pub const MESSAGE_PAGE_DEFAULT: u32 = 50;
 pub const MESSAGE_PAGE_MAX: u32 = 200;

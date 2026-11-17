@@ -11,7 +11,7 @@ use crate::locale::Language;
 use crate::message::Message;
 
 /// AI 同士の往復の上限（この depth に達した返答からは振り分けない）
-pub const MAX_DEPTH: u32 = 10;
+pub const MAX_DEPTH: u32 = 30;
 
 /// 振り分けに必要な状況
 #[derive(Debug, Clone, Copy)]

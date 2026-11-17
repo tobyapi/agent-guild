@@ -3,7 +3,7 @@ import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, BackendInfo, Channel, Message, UnmentionedPolicy } from '@/shared/types/domain';
 import { noResponder, undeliverable } from '../notices';
 
-export const MAX_DEPTH = 10;
+export const MAX_DEPTH = 30;
 
 /** task: 割り振られたサブタスク（レーンの外で並行に動く）/ report: マネージャーのまとめ（レーンに積む） */
 export type JobMode = 'reply' | 'return' | 'autonomous' | 'task' | 'report';

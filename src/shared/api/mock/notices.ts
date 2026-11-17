@@ -35,16 +35,6 @@ export const noResponder = (language = currentLanguage()) =>
     ko: '지금 답할 수 있는 에이전트가 없습니다(백엔드가 준비되지 않았거나, 답하도록 설정된 멤버가 없습니다).',
   })[language];
 
-/** ジョブが時間切れになったとき */
-export const timedOut = (language = currentLanguage()) =>
-  ({
-    ja: '時間切れで中断しました（15分）',
-    en: 'Stopped because it took too long (15 minutes).',
-    'zh-Hans': '已超时中断（15 分钟）。',
-    'zh-Hant': '已逾時中斷（15 分鐘）。',
-    ko: '시간이 초과되어 중단했습니다(15분).',
-  })[language];
-
 /** チャンネル外のエージェントが呼ばれて自動で参加したとき */
 export const joined = (name: string, language = currentLanguage()) =>
   ({
@@ -136,13 +126,6 @@ const SUBTASK_NOTES = {
     'zh-Hans': '执行失败。',
     'zh-Hant': '執行失敗。',
     ko: '실패했습니다.',
-  },
-  timedOut: {
-    ja: '時間切れで中断しました',
-    en: 'Timed out.',
-    'zh-Hans': '已超时中断。',
-    'zh-Hant': '已逾時中斷。',
-    ko: '시간이 초과되어 중단했습니다.',
   },
   assigneeRemoved: {
     ja: '担当者が外れました',
