@@ -2,6 +2,8 @@ import { invoke } from '@/shared/api';
 import type { DataDirMode, Language } from '@/shared/types/domain';
 
 export const settingsApi = {
+  getGlobalInstructions: () => invoke('get_global_instructions'),
+  setGlobalInstructions: (instructions: string) => invoke('set_global_instructions', { instructions }),
   importBackground: (data: string) => invoke('import_background_image', { data }),
   listBackgrounds: () => invoke('list_background_images'),
   getBackground: (id: string) => invoke('get_background_image', { id }),

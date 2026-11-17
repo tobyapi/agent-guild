@@ -58,6 +58,9 @@ pub fn ready(
         auth_modes,
     );
     let ports = Ports {
+        global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(Arc::new(
+            SettingsFile::in_dir(&paths.config_dir),
+        )),
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),
         messages: Arc::new(SqliteMessageRepository::new(db.clone())),

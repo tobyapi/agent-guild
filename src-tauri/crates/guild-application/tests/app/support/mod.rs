@@ -78,6 +78,9 @@ impl TestApp {
             notifier.clone(),
         ));
         let ports = Ports {
+            global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(
+                settings.clone(),
+            ),
             agents: store.clone(),
             channels: store.clone(),
             messages: store.clone(),

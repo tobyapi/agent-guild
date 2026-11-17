@@ -92,6 +92,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 |---|---|---|---|---|
 | `get_boot_status` | – | `BootStatus`（`needsSetup` が true なら初回起動。React が初期設定のダイアログを出す。`language` は settings.json に保存した言語で、まだ選んでいなければ null） | – | – |
 | `get_desktop_notifications` | なし | `boolean`（旧設定は有効） | – | storage |
+| `get_global_instructions` | なし | `string`（未設定は空文字） | instructions（上限超過） | storage |
+| `set_global_instructions` | `{ instructions: string }` | `null`（settings.json の `globalInstructions` に保存。次の実行から反映） | instructions（UTF-16で4,000単位を超過） | storage |
 | `set_desktop_notifications` | `{ enabled: boolean }` | `null`（OS通知の有効／無効を保存） | – | storage |
 | `set_language` | `{ language: Language }`（`ja` / `en` / `zh-Hans` / `zh-Hant` / `ko`） | `null`（settings.json の `language` に保存し、Rust のいまの言語にして、ランナーに `setLanguage` を送る。以後のお知らせ・エラー・プロンプトの言語になる。docs/i18n.md） | – | storage（settings.json が新しい版のもの・書けない） |
 | `complete_setup` | – | `null`（settings.json に `setupDone: true` を書く。名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） | – | storage |

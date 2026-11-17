@@ -69,7 +69,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         workspace: paths.work,
         state_dir: paths.state,
         readable_dirs,
-        system_prompt: build_system_prompt(&ctx),
+        system_prompt: ports.global_instructions.apply(build_system_prompt(&ctx))?,
         prompt: build_conversation_prompt(&ctx, &history, job, &sources),
         intent: build_intent(&ctx, &history, job),
         model: agent.model.clone(),

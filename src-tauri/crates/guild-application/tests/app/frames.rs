@@ -25,6 +25,14 @@ fn painting_app() -> TestApp {
     app
 }
 
+#[tokio::test]
+async fn frame_generation_uses_global_instructions_when_configured() {
+    let app = painting_app();
+    app.services.global_instructions.set("FRAME_SHARED_RULE".to_owned()).unwrap();
+    app.services.frames.generate(PAINTER, "roses", "").await.unwrap();
+    assert!(app.runtime.image_requests.lock()[0].system_prompt.contains("FRAME_SHARED_RULE"));
+}
+
 fn script(app: &TestApp, script: ImageScript) {
     app.runtime.image_scripts.lock().push_back(script);
 }

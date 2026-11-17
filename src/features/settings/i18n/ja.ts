@@ -1,5 +1,12 @@
 // settings の文言（日本語。キーの正）。保存先は storage/、バックエンドは backends/ に分けている
 export const ja = {
+  globalInstructionsTitle: '全エージェント共通の指示',
+  globalInstructionsHint:
+    '保存した次の実行から、すべてのAIに適用します。空欄で無効。アプリの必須ルール、個別設定、共通の指示の順で優先します。Markdownを使えます。',
+  globalInstructionsTooLong: '4,000文字以内にしてください（絵文字などは2文字分です）。',
+  globalInstructionsFailed:
+    '共通の指示を読み込むか保存することができませんでした。閉じて開き直すか、再度保存してください。',
+  globalInstructionsSave: '共通の指示を保存',
   languageSection: '言語',
   languageLabel: '表示と会話の言語',
   languageHint: '画面の表示と、エージェントが会話に使う言語です。エージェントへの反映は次の返答からです。',

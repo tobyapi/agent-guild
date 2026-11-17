@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  globalInstructionsTitle: '所有代理程式的共同指令',
+  globalInstructionsHint:
+    '儲存後從下一次執行開始套用至所有 AI。留空可停用。優先順序：應用程式規則、個別設定、共同指令。支援 Markdown。',
+  globalInstructionsTooLong: '請勿超過 4,000 個字元（部分表情符號計為兩個字元）。',
+  globalInstructionsFailed: '無法讀取或儲存指令。請重新開啟設定或再次嘗試儲存。',
+  globalInstructionsSave: '儲存共同指令',
   languageSection: '語言',
   languageLabel: '顯示與對話語言',
   languageHint: '用於應用程式介面以及代理的對話。代理從下一次回覆起生效。',

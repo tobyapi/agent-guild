@@ -59,6 +59,11 @@ impl SettingsStore for SettingsFile {
     fn load(&self) -> AppResult<LaunchSettings> {
         let object = self.read().map_err(AppError::Storage)?;
         Ok(LaunchSettings {
+            global_instructions: object
+                .get("globalInstructions")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_owned(),
             data_dir: data_dir_of(&object),
             skill_library_dirs: library_dirs_of(&object),
             setup_done: object.get("setupDone").and_then(Value::as_bool).unwrap_or(false),
@@ -88,6 +93,7 @@ impl SettingsStore for SettingsFile {
         object.insert("dataDir".to_owned(), data_dir.unwrap_or(Value::Null));
         let library_dirs = settings.skill_library_dirs.iter().map(|dir| Value::String(dir.display().to_string()));
         object.insert("skillLibraryDirs".to_owned(), Value::Array(library_dirs.collect()));
+        object.insert("globalInstructions".to_owned(), Value::String(settings.global_instructions.clone()));
         object.insert("setupDone".to_owned(), Value::Bool(settings.setup_done));
         if let Some(enabled) = settings.desktop_notifications {
             object.insert("desktopNotifications".to_owned(), Value::Bool(enabled));

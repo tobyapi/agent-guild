@@ -52,8 +52,8 @@ impl FrameService {
             backend: backend.id.clone(),
             workspace: paths.work,
             state_dir: paths.state,
-            // 人格や決まりは足さない（スキルの手順を狭めない）
-            system_prompt: String::new(),
+            // 個別の人格は足さない。共通指示が空なら従来どおり空。
+            system_prompt: self.ports.global_instructions.apply(String::new())?,
             prompt: frame_prompt(&description, &output.display().to_string()),
             skills: vec![frame_skill_payload()?],
             output: output.clone(),

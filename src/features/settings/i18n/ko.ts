@@ -2,6 +2,12 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  globalInstructionsTitle: '모든 에이전트의 공통 지침',
+  globalInstructionsHint:
+    '저장 후 다음 실행부터 모든 AI에 적용합니다. 비우면 비활성화됩니다. 앱 규칙, 개별 설정, 공통 지침 순으로 우선합니다. Markdown을 사용할 수 있습니다.',
+  globalInstructionsTooLong: '4,000자 이내로 입력하세요(일부 이모지는 2자로 계산됩니다).',
+  globalInstructionsFailed: '지침을 불러오거나 저장하지 못했습니다. 설정을 다시 열거나 저장을 다시 시도하세요.',
+  globalInstructionsSave: '공통 지침 저장',
   languageSection: '언어',
   languageLabel: '표시 및 대화 언어',
   languageHint: '앱 화면과 에이전트의 대화에 사용하는 언어입니다. 에이전트에는 다음 답변부터 반영됩니다.',

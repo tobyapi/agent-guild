@@ -39,6 +39,11 @@ fn snapshot() {
 }
 
 #[test]
+fn global_instructions() {
+    assert_round_trip::<String>("global-instructions.json");
+}
+
+#[test]
 fn channel_statistics() {
     assert_round_trip::<ChannelStatistics>("channel-statistics.json");
 }

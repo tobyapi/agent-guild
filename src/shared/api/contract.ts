@@ -33,6 +33,8 @@ export type LocalImage =
 
 /** コマンド名 → 引数（JS 側は camelCase）と戻り値。失敗はすべて CommandError で reject される */
 export interface CommandMap {
+  get_global_instructions: { args: NoArgs; result: string };
+  set_global_instructions: { args: { instructions: string }; result: null };
   get_boot_status: { args: NoArgs; result: BootStatus };
   /** 初回起動の初期設定を終えた（名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） */
   complete_setup: { args: NoArgs; result: null };

@@ -1,3 +1,4 @@
+import { GLOBAL_INSTRUCTIONS_LIMIT } from '@/shared/lib/globalInstructions';
 import { rolePermissions } from '@/shared/lib/permissionPolicy';
 // 起動状態・スナップショット・プロフィール・バックエンドの再確認・再起動・リンクを開く。
 import { isExternalUrl } from '@/shared/lib/links';
@@ -8,6 +9,8 @@ import { checkFrameId } from './frames';
 import type { HandlerGroup } from './types';
 
 type SystemCommands =
+  | 'get_global_instructions'
+  | 'set_global_instructions'
   | 'get_desktop_notifications'
   | 'set_desktop_notifications'
   | 'get_boot_status'
@@ -31,6 +34,13 @@ const PROBE_MS = 800;
 const LOGIN_MS = 1500;
 
 export const systemHandlers: HandlerGroup<SystemCommands> = {
+  get_global_instructions: (_args, runtime) => runtime.state.globalInstructions ?? '',
+  set_global_instructions({ instructions }, runtime) {
+    if (instructions.length > GLOBAL_INSTRUCTIONS_LIMIT)
+      fail('validation', 'Instructions are too long', 'instructions');
+    runtime.state.globalInstructions = instructions;
+    return null;
+  },
   get_desktop_notifications: () => false,
   set_desktop_notifications() {
     fail('unavailable', 'デスクトップ通知はデスクトップアプリで利用してください');

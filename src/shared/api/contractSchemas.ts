@@ -36,6 +36,8 @@ const localImage = anyOf(
 export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   get_boot_status: objectOf(bootStatusSchema),
   get_snapshot: objectOf(snapshotSchema),
+  get_global_instructions: string,
+  set_global_instructions: nullValue,
   get_desktop_notifications: boolean,
   set_desktop_notifications: nullValue,
   create_agent: agent,

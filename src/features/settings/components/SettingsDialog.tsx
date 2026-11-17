@@ -11,6 +11,7 @@ import { tAppearance } from '../i18n/appearance';
 import { closeSettings, useSettingsStore } from '../store';
 import { AppearanceSection } from './AppearanceSection';
 import { BackendsSection } from './BackendsSection';
+import { GlobalInstructionsSection } from './GlobalInstructionsSection';
 import { LanguageSection } from './LanguageSection';
 import { SettingsSection as Section } from './SettingsSection';
 import { StorageSection } from './StorageSection';
@@ -77,6 +78,9 @@ function SettingsContent({ focus }: { focus: 'skillLibrary' | 'update' | null })
             )}
             {group === 'ai' && (
               <>
+                <Section title={t('globalInstructionsTitle')}>
+                  <GlobalInstructionsSection />
+                </Section>
                 <Section title={t('sectionBackends')}>
                   <BackendsSection />
                 </Section>

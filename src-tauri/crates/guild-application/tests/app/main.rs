@@ -8,6 +8,7 @@ mod delegation;
 mod delegation_stopping;
 mod flow;
 mod frames;
+mod global_instructions;
 mod guild;
 mod history;
 mod interruption;

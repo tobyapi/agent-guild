@@ -37,6 +37,9 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
     let db = Arc::new(Database::open_in_memory().unwrap());
     let meta = Arc::new(SqliteMetaRepository::new(db.clone()));
     let ports = Ports {
+        global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(Arc::new(
+            SettingsFile::in_dir(&dir.0),
+        )),
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),
         messages: Arc::new(SqliteMessageRepository::new(db.clone())),

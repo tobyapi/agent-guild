@@ -10,6 +10,7 @@ mod delegation;
 mod desktop_notification;
 mod frame;
 mod frame_svg;
+mod global_instructions;
 mod guild;
 mod job_merge;
 mod mentions;
