@@ -28,7 +28,7 @@ export function MemberPanel({ channel }: { channel: Channel }) {
       </div>
       <div className={styles.scroll}>
         <SideSection title={t('you')} mark={<AccentMark accent={HUMAN_ACCENT} human />}>
-          <li className={styles.row}>
+          <li className={styles.row} aria-label={`${me.name} (${t('you')})`} title={`${me.name} (${t('you')})`}>
             <MemberAvatar avatar={me.avatar} name={me.name} color={me.color} frame={me.frame} size="row" human />
             <div className={styles.text}>
               <span className={styles.name}>
@@ -57,6 +57,9 @@ export function MemberPanel({ channel }: { channel: Channel }) {
           <Icon name="plus" />
           {t('addMembers')}
         </Button>
+        <IconButton className={styles.compactAdd} label={t('addMembers')} onClick={() => setAdding(true)}>
+          <Icon name="plus" />
+        </IconButton>
       </div>
       {adding && <AddMembersDialog channel={channel} onClose={() => setAdding(false)} />}
     </aside>
@@ -66,16 +69,28 @@ export function MemberPanel({ channel }: { channel: Channel }) {
 function MemberRow({ agent, channelId }: { agent: Agent; channelId: string }) {
   const activity = useAgentActivity(agent.id);
   const backend = useBackend(agent.backend);
+  const avatar = (
+    <MemberAvatar
+      avatar={agent.avatar}
+      name={agent.name}
+      color={agent.color}
+      frame={agent.frame}
+      size="row"
+      busy={activity !== undefined}
+    />
+  );
   return (
     <li className={styles.row} title={activity?.detail}>
-      <MemberAvatar
-        avatar={agent.avatar}
-        name={agent.name}
-        color={agent.color}
-        frame={agent.frame}
-        size="row"
-        busy={activity !== undefined}
-      />
+      <span className={styles.fullAvatar}>{avatar}</span>
+      <button
+        type="button"
+        className={styles.compactAvatar}
+        aria-label={t('editAgent', { name: agent.name })}
+        title={[agent.name, activity?.detail].filter(Boolean).join(' / ')}
+        onClick={() => openAgentEditor(agent.id)}
+      >
+        {avatar}
+      </button>
       <div className={styles.text}>
         <span className={styles.name}>{agent.name}</span>
         <span className={styles.sub}>

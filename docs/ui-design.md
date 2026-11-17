@@ -168,7 +168,7 @@
 
 ### 3.7 レイアウト・寸法（`tokens-layout.css`）
 
-`--sidebar-width` 260 / `--member-panel-width` 248 / `--header-height` 52 / `--banner-height` 36 / `--row-height` 32 / `--control-sm|md|lg` 28·32·40 / `--badge-height` 18 / スイッチ `--switch-width` 34・`--switch-height` 20・`--switch-knob` 14 / `--composer-max-height` 40vh / `--measure` 46em / アバター `--avatar-xs` 20・`-sm` 24・`-row` 32・`-md` 40・`-lg` 64 / 枠の倍率 `--frame-scale` 1.4545（128 / 88。§6.8） / 紋 `--crest-sm` 20（紋の行）・`--crest-md` 44（空の状態）・`--crest-lg` 48（復旧・起動画面）/ `--dialog-width-sm|md|lg` 440·560·760 / `--preview-width` 220 / `--popover-width` 340 / `--toast-width` 360 / 重なり順 `--z-banner` 10・`--z-popover` 30・`--z-overlay` 40・`--z-dialog` 50・`--z-toast` 60。
+`--sidebar-width` 260 / `--member-panel-width` 248 / `--member-panel-compact-width` 64 (760px < width <= 1120px) / `--header-height` 52 / `--banner-height` 36 / `--row-height` 32 / `--control-sm|md|lg` 28·32·40 / `--badge-height` 18 / スイッチ `--switch-width` 34・`--switch-height` 20・`--switch-knob` 14 / `--composer-max-height` 40vh / `--measure` 46em / アバター `--avatar-xs` 20・`-sm` 24・`-row` 32・`-md` 40・`-lg` 64 / 枠の倍率 `--frame-scale` 1.4545（128 / 88。§6.8） / 紋 `--crest-sm` 20（紋の行）・`--crest-md` 44（空の状態）・`--crest-lg` 48（復旧・起動画面）/ `--dialog-width-sm|md|lg` 440·560·760 / `--preview-width` 220 / `--popover-width` 340 / `--toast-width` 360 / 重なり順 `--z-banner` 10・`--z-popover` 30・`--z-overlay` 40・`--z-dialog` 50・`--z-toast` 60。
 
 ### 3.8 この段階で足したトークン（既存の名前はすべて残してある）
 

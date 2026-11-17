@@ -42,14 +42,10 @@
   overflow-y: auto;
 }
 
-/* 狭い窓ではメンバーパネル、さらに狭ければサイドバーを畳む（style-tile.html と同じ区切り） */
+/* 狭い窓ではメンバーをアイコン列にし、760px 以下では両パネルを畳む */
 @media (max-width: 1120px) {
   .columns[data-members] {
-    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
-  }
-
-  .columns[data-members] > :last-child {
-    display: none;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--member-panel-compact-width);
   }
 }
 
@@ -59,7 +55,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .columns > :first-child {
+  .columns > :first-child,
+  .columns[data-members] > :last-child {
     display: none;
   }
 }

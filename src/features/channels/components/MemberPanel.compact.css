@@ -1,0 +1,51 @@
+.panel .compactAvatar,
+.panel .compactAdd {
+  display: none;
+}
+
+.fullAvatar {
+  display: contents;
+}
+
+@media (760px < width <= 1120px) {
+  .panel .title,
+  .panel .text,
+  .panel .rowActions,
+  .panel .fullAvatar,
+  .panel .alone,
+  .panel .add,
+  .scroll > section > :first-child {
+    display: none;
+  }
+
+  .panel .head,
+  .panel .foot,
+  .panel .row {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .panel .scroll {
+    padding-inline: var(--space-1);
+  }
+
+  .scroll > section + section {
+    margin-block-start: var(--space-2);
+    padding-block-start: var(--space-2);
+    border-block-start: 1px solid var(--border-subtle);
+  }
+
+  .panel .compactAvatar,
+  .panel .compactAdd {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--control-lg);
+    block-size: var(--control-lg);
+    border-radius: var(--radius-md);
+  }
+
+  .panel .foot {
+    display: flex;
+  }
+}

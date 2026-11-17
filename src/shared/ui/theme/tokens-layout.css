@@ -6,6 +6,7 @@
   /* 骨組み */
   --sidebar-width: 260px;
   --member-panel-width: 248px;
+  --member-panel-compact-width: 64px;
   --header-height: 52px;
   --banner-height: 36px; /* 画面上部の帯（ランナーの状態） */
   --row-height: 32px; /* サイドバーの行 */

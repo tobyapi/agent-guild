@@ -1,3 +1,5 @@
+@import './MemberPanel.compact.css';
+
 .panel {
   --surface: var(--bg-panel);
   display: flex;

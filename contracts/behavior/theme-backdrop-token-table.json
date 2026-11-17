@@ -28,62 +28,62 @@
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 67,
+      "line": 64,
       "expression": ":global(:root[data-background='active']) .shell {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 68,
+      "line": 65,
       "expression": "--surface: var(--bg-app);"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 72,
+      "line": 69,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 73,
+      "line": 70,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 71,
+      "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/AppShell.module.css",
       "line": 74,
-      "expression": "--glass-ink-weight: 100%;"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 77,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 83,
+      "line": 80,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 84,
+      "line": 81,
       "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 90,
+      "line": 87,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 91,
+      "line": 88,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 92,
+      "line": 89,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 95,
+      "line": 92,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
     },
     {
@@ -973,102 +973,102 @@
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 2,
+      "line": 4,
       "expression": "--surface: var(--bg-panel);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 7,
+      "line": 9,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 8,
+      "line": 10,
       "expression": "background: var(--surface-members);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 26,
+      "line": 28,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 47,
+      "line": 49,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 48,
+      "line": 50,
       "expression": "background: var(--bg-hover);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 83,
+      "line": 85,
       "expression": "color: var(--kind-human);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 89,
+      "line": 91,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 105,
+      "line": 107,
       "expression": "opacity: 0;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 111,
+      "line": 113,
       "expression": "opacity: 1;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 118,
+      "line": 120,
       "expression": "color: var(--text-secondary);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 124,
+      "line": 126,
       "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 140,
+      "line": 142,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .panel {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 141,
+      "line": 143,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 142,
+      "line": 144,
       "expression": "background: var(--surface-members);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 146,
+      "line": 148,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .foot {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 152,
+      "line": 154,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .panel {"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 153,
+      "line": 155,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 154,
+      "line": 156,
       "expression": "background: var(--bg-panel);"
     },
     {
       "file": "src/features/channels/components/MemberPanel.module.css",
-      "line": 158,
+      "line": 160,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .foot {"
     },
     {
@@ -1078,7 +1078,7 @@
     },
     {
       "file": "src/features/channels/components/MemberPanel.tsx",
-      "line": 74,
+      "line": 76,
       "expression": "color={agent.color}"
     },
     {
@@ -6099,156 +6099,161 @@
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
       "line": 9,
-      "expression": "--header-height: 52px;"
+      "expression": "--member-panel-compact-width: 64px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
       "line": 10,
-      "expression": "--banner-height: 36px; /* 画面上部の帯（ランナーの状態） */"
+      "expression": "--header-height: 52px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
       "line": 11,
-      "expression": "--row-height: 32px; /* サイドバーの行 */"
+      "expression": "--banner-height: 36px; /* 画面上部の帯（ランナーの状態） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
       "line": 12,
+      "expression": "--row-height: 32px; /* サイドバーの行 */"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-layout.css",
+      "line": 13,
       "expression": "--measure: 46em; /* 本文の最大行長（約 46 字） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 15,
+      "line": 16,
       "expression": "--control-sm: 28px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 16,
+      "line": 17,
       "expression": "--control-md: 32px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 17,
+      "line": 18,
       "expression": "--control-lg: 40px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 18,
+      "line": 19,
       "expression": "--badge-height: 18px; /* 札（種別・バックエンド・自発） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 19,
+      "line": 20,
       "expression": "--switch-width: 34px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 20,
+      "line": 21,
       "expression": "--switch-height: 20px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 21,
+      "line": 22,
       "expression": "--switch-knob: 14px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 22,
+      "line": 23,
       "expression": "--composer-max-height: 40vh; /* 入力欄はここまで伸びて、あとはスクロール */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 25,
+      "line": 26,
       "expression": "--avatar-xs: 20px; /* メンション候補・動作中表示 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 26,
+      "line": 27,
       "expression": "--avatar-sm: 24px; /* サイドバー */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 27,
+      "line": 28,
       "expression": "--avatar-row: 32px; /* 2 行の行（メンバー一覧・プロフィール） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 28,
+      "line": 29,
       "expression": "--avatar-md: 40px; /* メッセージ */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 29,
+      "line": 30,
       "expression": "--avatar-lg: 64px; /* 編集画面のプレビュー・プロフィールの編集 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 32,
+      "line": 33,
       "expression": "--crest-sm: 20px; /* サイドバーの紋の行 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 33,
+      "line": 34,
       "expression": "--crest-md: 44px; /* 空の状態 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 34,
+      "line": 35,
       "expression": "--crest-lg: 48px; /* 復旧画面・起動画面 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 37,
+      "line": 38,
       "expression": "--dialog-width-sm: 440px; /* 確認・チャンネル作成 */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 38,
+      "line": 39,
       "expression": "--dialog-width-md: 560px; /* 設定・復旧画面のカード */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 39,
+      "line": 40,
       "expression": "--dialog-width-lg: 760px; /* エージェント編集（プレビュー + 入力） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 40,
+      "line": 41,
       "expression": "--toast-width: 360px;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 41,
+      "line": 42,
       "expression": "--preview-width: 220px; /* エージェント編集の左のプレビュー */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 42,
+      "line": 43,
       "expression": "--popover-width: 340px; /* メンション候補などのポップオーバー（狭ければ親の幅まで） */"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 45,
+      "line": 46,
       "expression": "--z-banner: 10;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 46,
+      "line": 47,
       "expression": "--z-popover: 30;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 47,
+      "line": 48,
       "expression": "--z-overlay: 40;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 48,
+      "line": 49,
       "expression": "--z-dialog: 50;"
     },
     {
       "file": "src/shared/ui/theme/tokens-layout.css",
-      "line": 49,
+      "line": 50,
       "expression": "--z-toast: 60;"
     },
     {
@@ -17214,7 +17219,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17224,14 +17229,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17241,14 +17246,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17258,14 +17263,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17275,14 +17280,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17292,14 +17297,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17309,14 +17314,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -17326,7 +17331,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -17350,7 +17355,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -17360,7 +17365,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
@@ -32829,7 +32834,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32839,14 +32844,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32856,14 +32861,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32873,14 +32878,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32890,14 +32895,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32907,14 +32912,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32924,14 +32929,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -32941,7 +32946,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -32965,7 +32970,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -32975,7 +32980,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
@@ -47044,7 +47049,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47054,14 +47059,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47071,14 +47076,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47088,14 +47093,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47105,14 +47110,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47122,14 +47127,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47139,14 +47144,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -47156,7 +47161,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -47180,7 +47185,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -47190,7 +47195,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
@@ -61259,7 +61264,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61269,14 +61274,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61286,14 +61291,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61303,14 +61308,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61320,14 +61325,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61337,14 +61342,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61354,14 +61359,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -61371,7 +61376,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -61395,7 +61400,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -61405,7 +61410,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
@@ -76874,7 +76879,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76884,14 +76889,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76901,14 +76906,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76918,14 +76923,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76935,14 +76940,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76952,14 +76957,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76969,14 +76974,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -76986,7 +76991,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -77010,7 +77015,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -77020,7 +77025,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
@@ -91089,7 +91094,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:26",
+          "name": "src/features/channels/components/MemberPanel.module.css:28",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91099,14 +91104,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 26,
+              "line": 28,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:83",
+          "name": "src/features/channels/components/MemberPanel.module.css:85",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91116,14 +91121,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 83,
+              "line": 85,
               "expression": "color: var(--kind-human);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:89",
+          "name": "src/features/channels/components/MemberPanel.module.css:91",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91133,14 +91138,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 89,
+              "line": 91,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:105",
+          "name": "src/features/channels/components/MemberPanel.module.css:107",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91150,14 +91155,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 105,
+              "line": 107,
               "expression": "opacity: 0;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:111",
+          "name": "src/features/channels/components/MemberPanel.module.css:113",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91167,14 +91172,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 111,
+              "line": 113,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:118",
+          "name": "src/features/channels/components/MemberPanel.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91184,14 +91189,14 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.module.css:124",
+          "name": "src/features/channels/components/MemberPanel.module.css:126",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -91201,7 +91206,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.module.css",
-              "line": 124,
+              "line": 126,
               "expression": "color: var(--text-primary);"
             }
           ],
@@ -91225,7 +91230,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/channels/components/MemberPanel.tsx:74",
+          "name": "src/features/channels/components/MemberPanel.tsx:76",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -91235,7 +91240,7 @@
           "sources": [
             {
               "file": "src/features/channels/components/MemberPanel.tsx",
-              "line": 74,
+              "line": 76,
               "expression": "color={agent.color}"
             }
           ],
