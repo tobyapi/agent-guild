@@ -8,7 +8,7 @@ export function GenerateBackgroundDialog({
   onClose,
   onGenerated,
 }: {
-  onClose: () => void;
+  onClose: (cancelled: boolean) => void;
   onGenerated: (id: string) => void;
 }) {
   const form = useBackgroundGeneration(onGenerated, onClose);

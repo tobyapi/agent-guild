@@ -11,6 +11,7 @@ import fields from './AccentPicker.module.css';
 export function BackgroundPicker({ scheme }: { scheme: Scheme }) {
   const { ids, error, busy, removing, setRemoving, add, remove, generated } = useBackgroundLibrary();
   const [generating, setGenerating] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
   const canGenerate = useBackends().some((backend) => backend.backgroundGeneration && backend.status === 'ready');
   const input = useRef<HTMLInputElement>(null);
   return (
@@ -35,19 +36,29 @@ export function BackgroundPicker({ scheme }: { scheme: Scheme }) {
         {t('backgroundAdd')}
       </Button>
       {canGenerate && (
-        <Button disabled={busy} onClick={() => setGenerating(true)}>
+        <Button
+          disabled={busy}
+          onClick={() => {
+            setCancelled(false);
+            setGenerating(true);
+          }}
+        >
           {t('backgroundGenerate')}
         </Button>
       )}
       {generating && (
         <GenerateBackgroundDialog
-          onClose={() => setGenerating(false)}
+          onClose={(wasCancelled) => {
+            setCancelled(wasCancelled);
+            setGenerating(false);
+          }}
           onGenerated={(id) => {
             generated(id);
             setGenerating(false);
           }}
         />
       )}
+      {cancelled && <p role="status">{t('backgroundCancelled')}</p>}
       {error && <p role="alert">{error}</p>}
       {removing && (
         <ConfirmDialog

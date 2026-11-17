@@ -112,6 +112,17 @@ async fn background_cancel_before_start_is_remembered() {
     assert!(store.imported.lock().is_empty());
 }
 
+#[tokio::test]
+async fn background_cancel_after_persistence_keeps_the_saved_image() {
+    let (app, store, service) = setup();
+    let generator = &app.services.background_generation;
+    let id = generator.generate(&service, "saved", "painter", "lake").await.unwrap();
+    generator.cancel_generation("saved").await;
+    assert_eq!(id, "saved-background");
+    assert_eq!(store.imported.lock().as_slice(), &[vec![1, 2, 3]]);
+    assert_eq!(app.runtime.backgrounds.cancelled.lock().as_slice(), &["background-saved"]);
+}
+
 #[tokio::test(start_paused = true)]
 async fn background_timeout_cancels_its_runtime_without_import() {
     let (app, store, service) = setup();

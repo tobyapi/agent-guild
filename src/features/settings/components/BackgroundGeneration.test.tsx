@@ -137,6 +137,38 @@ it('keeps the dialog open and reports a failed cancellation', async () => {
     return Promise.resolve();
   });
 });
+it('keeps a saved image unselected when success arrives while cancellation is pending', async () => {
+  const deleteImage = vi.spyOn(settingsApi, 'deleteBackground');
+  let finishCancel!: () => void;
+  vi.mocked(settingsApi.cancelBackgroundGeneration).mockImplementation(
+    () =>
+      new Promise<null>((done) => {
+        finishCancel = () => done(null);
+      }),
+  );
+  const view = render(<BackgroundPicker scheme="light" />);
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerate }));
+  submit();
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundStop }));
+  // Persistence completed, but the generation response crosses the cancellation request.
+  vi.mocked(settingsApi.listBackgrounds).mockResolvedValue([id]);
+  await act(() => {
+    resolve(id);
+    return Promise.resolve();
+  });
+  expect(screen.getByRole('dialog')).toBeTruthy();
+  await act(() => {
+    finishCancel();
+    return Promise.resolve();
+  });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe(ja.backgroundCancelled);
+  view.unmount();
+  render(<BackgroundPicker scheme="light" />);
+  const saved = await screen.findByRole('radio', { name: `${ja.backgroundImage} 1` });
+  expect(saved.getAttribute('aria-checked')).toBe('false');
+  expect(deleteImage).not.toHaveBeenCalled();
+});
 it('cancels on unmount without applying a late result', async () => {
   const view = render(<BackgroundPicker scheme="light" />);
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerate }));

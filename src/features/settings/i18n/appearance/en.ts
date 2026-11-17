@@ -37,6 +37,7 @@ export const en: Messages<typeof ja> = {
   backgroundGenerating: 'Generating background…',
   backgroundStop: 'Cancel generation',
   backgroundCancel: 'Close',
+  backgroundCancelled: 'Background generation cancelled.',
   backgroundGenerationFailed: 'Could not generate the background. Please try again.',
   backgroundCancelFailed: 'Could not cancel. Please try again.',
   backgroundAdd: 'Add image',

@@ -36,6 +36,7 @@ export const zhHant: Messages<typeof ja> = {
   backgroundGenerating: '正在產生背景…',
   backgroundStop: '取消產生',
   backgroundCancel: '關閉',
+  backgroundCancelled: '已取消背景產生。',
   backgroundGenerationFailed: '無法產生背景，請重試。',
   backgroundCancelFailed: '無法取消，請重試。',
   backgroundAdd: '新增圖片',

@@ -36,6 +36,7 @@ export const ko: Messages<typeof ja> = {
   backgroundGenerating: '배경 생성 중…',
   backgroundStop: '생성 취소',
   backgroundCancel: '닫기',
+  backgroundCancelled: '배경 생성을 취소했습니다.',
   backgroundGenerationFailed: '배경을 생성하지 못했습니다. 다시 시도해 주세요.',
   backgroundCancelFailed: '취소하지 못했습니다. 다시 시도해 주세요.',
   backgroundAdd: '이미지 추가',

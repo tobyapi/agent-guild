@@ -36,6 +36,7 @@ export const zhHans: Messages<typeof ja> = {
   backgroundGenerating: '正在生成背景…',
   backgroundStop: '取消生成',
   backgroundCancel: '关闭',
+  backgroundCancelled: '已取消背景生成。',
   backgroundGenerationFailed: '无法生成背景，请重试。',
   backgroundCancelFailed: '无法取消，请重试。',
   backgroundAdd: '添加图片',

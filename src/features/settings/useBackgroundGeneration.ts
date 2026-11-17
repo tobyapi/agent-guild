@@ -4,7 +4,7 @@ import { useBackends } from '@/features/runtime';
 import { settingsApi } from './api';
 import { tAppearance as t } from './i18n/appearance';
 
-export function useBackgroundGeneration(onGenerated: (id: string) => void, onClose: () => void) {
+export function useBackgroundGeneration(onGenerated: (id: string) => void, onClose: (cancelled: boolean) => void) {
   const backends = useBackends().filter((b) => b.backgroundGeneration && b.status === 'ready');
   const [selected, setSelected] = useState('');
   const backendId = backends.some((b) => b.id === selected) ? selected : (backends[0]?.id ?? '');
@@ -68,7 +68,7 @@ export function useBackgroundGeneration(onGenerated: (id: string) => void, onClo
         return;
       }
     }
-    if (active.current) onClose();
+    if (active.current) onClose(cancelled.current);
   }
   return {
     backends,

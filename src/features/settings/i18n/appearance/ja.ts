@@ -34,6 +34,7 @@ export const ja = {
   backgroundGenerating: '背景を生成しています…',
   backgroundStop: '取り消す',
   backgroundCancel: '閉じる',
+  backgroundCancelled: '背景の生成を取り消しました。',
   backgroundGenerationFailed: '背景を生成できませんでした。もう一度お試しください。',
   backgroundCancelFailed: '取り消せませんでした。もう一度お試しください。',
   backgroundAdd: '画像を追加',
