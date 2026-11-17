@@ -20,7 +20,7 @@ async fn notifications_titles_remove_controls_and_preserve_normal_names() {
         app.services.conversation.send_human_message(&channel.id, "依頼", &[]).unwrap();
         app.settle().await;
         assert_eq!(*app.notifier.calls.lock(), vec![(expected.to_owned(), "作業が完了しました".to_owned())]);
-        assert!(app.transcript(&channel).iter().any(|message| message == "デスクトップ通知を送信しました。"));
+        assert!(app.messages(&channel).iter().any(|message| message.content == "デスクトップ通知を送信しました。"));
     }
 }
 
