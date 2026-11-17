@@ -71,5 +71,6 @@ mod channel_workspace;
 mod voice;
 
 mod agent_creation;
+mod agent_creation_identity;
 
 mod agent_creation_migration;
