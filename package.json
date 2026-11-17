@@ -1,6 +1,6 @@
 {
   "name": "agent-guild",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.json && vite build",
