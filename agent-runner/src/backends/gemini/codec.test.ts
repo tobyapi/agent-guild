@@ -26,9 +26,8 @@ it('retains parts and signatures verbatim and omits invented IDs from optional-I
     { role: 'user', parts: [{ functionResponse: { name: 'post', response: { result: 'posted' } } }] },
   ]);
 });
-it('refuses unsigned or invalid tool continuations and unsupported server tools', async () => {
+it('refuses invalid tool continuations and unsupported server tools', async () => {
   for (const part of [
-    { functionCall: { name: 'post', args: { text: 'no signature' } } },
     { functionCall: { name: 'post', args: [] }, thoughtSignature: 'opaque' },
     { executableCode: { code: 'unknown' } },
   ]) {
@@ -40,7 +39,7 @@ it('refuses unsigned or invalid tool continuations and unsupported server tools'
     ).rejects.toThrow();
   }
 });
-it('waits for a signature on a later part before accepting a completed tool batch', async () => {
+it('preserves a signature on a later part of a completed tool batch', async () => {
   const parts = [
     { functionCall: { name: 'post', args: { text: 'ok' } } },
     { text: '', thoughtSignature: 'tail-signature' },
@@ -54,4 +53,15 @@ it('waits for a signature on a later part before accepting a completed tool batc
   );
   expect(result.calls).toHaveLength(1);
   expect(result.continuation).toEqual({ role: 'model', parts });
+});
+it('accepts a completed tool batch without a signature and continues without inventing one', async () => {
+  const parts = [{ functionCall: { name: 'post', args: { text: 'unsigned' }, id: 'call-1' } }];
+  const result = await geminiCodec.receive(
+    sequence([{ candidates: [{ content: { role: 'model', parts }, finishReason: 'STOP' }] }]),
+    'gemini-4-hydrogen',
+  );
+  expect(result.continuation).toEqual({ role: 'model', parts });
+  expect(geminiCodec.results(result.calls, ['posted'])).toEqual([
+    { role: 'user', parts: [{ functionResponse: { id: 'call-1', name: 'post', response: { result: 'posted' } } }] },
+  ]);
 });

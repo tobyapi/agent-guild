@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { invalid, object, type Item } from '../api/json.ts';
+import { blocked, invalid, object, truncated, type Item } from '../api/json.ts';
 import type { Call } from '../api/tools.ts';
 
 function call(part: Item, fallback: string): Call | undefined {
@@ -33,7 +33,8 @@ export class State {
   rawUsage: unknown;
   #turn = randomUUID();
   add(event: Item): void {
-    if (event.error || (object(event.promptFeedback) && event.promptFeedback.blockReason)) throw invalid();
+    if (event.error) throw invalid();
+    if (object(event.promptFeedback) && event.promptFeedback.blockReason) throw blocked();
     this.rawUsage = event.usageMetadata ?? this.rawUsage;
     if (event.candidates === undefined) return;
     if (!Array.isArray(event.candidates) || event.candidates.length > 1) throw invalid();
@@ -44,6 +45,20 @@ export class State {
       throw invalid();
     for (const part of partsOf(candidate)) this.part(part);
     if (candidate.finishReason !== undefined) {
+      if (candidate.finishReason === 'MAX_TOKENS') throw truncated();
+      if (
+        [
+          'SAFETY',
+          'RECITATION',
+          'LANGUAGE',
+          'BLOCKLIST',
+          'PROHIBITED_CONTENT',
+          'SPII',
+          'IMAGE_SAFETY',
+          'IMAGE_PROHIBITED_CONTENT',
+        ].includes(String(candidate.finishReason))
+      )
+        throw blocked();
       if (candidate.finishReason !== 'STOP') throw invalid();
       this.finished = true;
     }

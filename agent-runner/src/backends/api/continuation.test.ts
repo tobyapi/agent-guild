@@ -31,7 +31,7 @@ describe.each(providers)('$id continuation', ({ id, adapter }) => {
     const fetcher = mockFetch(id);
     fetcher.mockResolvedValueOnce(events(callEvents(id))).mockResolvedValueOnce(events(callEvents(id)));
     const context = runContext();
-    await expect(adapter.run(runRequest(id), context)).rejects.toMatchObject({ code: 'internal' });
+    await expect(adapter.run(runRequest(id), context)).rejects.toMatchObject({ code: 'invalid_response' });
     expect(context.onPost).toHaveBeenCalledTimes(1);
   });
   it('checks a whole tool batch before effects, refuses forbidden and malformed calls', async () => {

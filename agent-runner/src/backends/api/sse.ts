@@ -1,9 +1,8 @@
-import { t } from './texts.ts';
+import { invalid } from './json.ts';
 import { BackendError } from '../types.ts';
 
 const STREAM_LIMIT = 4 * 1024 * 1024;
 const EVENT_LIMIT = 1024 * 1024;
-const invalid = () => new BackendError('internal', t('invalid'));
 
 /** SSE framing only; provider adapters must validate JSON and require their own terminal event. */
 class Frames {

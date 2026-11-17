@@ -457,3 +457,10 @@ Grok uses a direct read-only Responses runner: unrestricted=[], writes/commands/
 「読込確認」は当該コメントでの使用や成功の証明ではない。投稿区間内の読込であり、帰属の限界を詳細に示す。申告は本文のコピーでも作れるが、観測へ昇格しない。空本文・[PASS]に申告だけが付いたものは投稿しない。
 
 明示取消（停止・全停止・エージェント除外などの `cancel_job` 経路）だけが、ジョブ単位の打切りを `skill_record_cutoffs` へ同期保存してからランナーの取消を別タスクへ送る。内部Cancel・タイムアウト・異常終了の打切り保存は未対応。既に保存した投稿本文・作者・区間・観測は変更しない。`get_skill_record_truncated(messageId)` は保存済み投稿のrunIdから別表を参照する。falseは打切り記録がないことだけを意味し、完全性を保証しない。打切り保存に失敗した場合も取消を続行し、既存の世代・除外判定で遅延投稿と遅延最終返答を保存しないが、打切り記録は残らない。最終投稿の欠落だけで終了原因を断定しない。UI詳細にもこの対象範囲と限界を表示する。
+
+
+### API応答の終了エラー（runner内部契約）
+
+`error`イベントの`code`に`response_truncated`（出力上限・提供元中断）、`response_blocked`（提供元ポリシー）、`invalid_response`（不正・未完了）を定義する。
+TS/Rustのrunner型と`contracts/runner/events.jsonl`が同じコードを扱う。画面にはアダプタの秘匿済み・翻訳済み`message`を失敗発言として表示する。
+認証状態の変更は従来の`auth`だけで、上記は`needs_auth`へ変更しない。`backend_api_key`や`requests.jsonl`の形式は変更しない。

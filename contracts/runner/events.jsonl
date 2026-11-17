@@ -8,3 +8,6 @@
 {"type":"error","id":null,"code":"bad_request","message":"JSON として読めない行を受け取りました"}
 {"type":"skillObservation","id":"job-skill","name":null}
 {"type":"skillObservation","id":"job-skill","name":"clean-code","sequence":1,"toolCallId":"backend:call-1"}
+{"type":"error","id":"job-0001","code":"response_truncated","message":"API response reached the token limit."}
+{"type":"error","id":"job-0001","code":"response_blocked","message":"API response was blocked by the provider policy."}
+{"type":"error","id":"job-0001","code":"invalid_response","message":"API response is invalid or incomplete."}

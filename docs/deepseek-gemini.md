@@ -40,3 +40,26 @@ Vitest で両アダプタ・Dispatcher・資格情報ストアのモック、Rea
 
 - DeepSeek: [モデルと能力](https://api-docs.deepseek.com/quick_start/pricing/)、[Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/)、[thinking と reasoning_content](https://api-docs.deepseek.com/guides/thinking_mode/)、[tool calls](https://api-docs.deepseek.com/guides/tool_calls/)
 - Gemini: [Hydrogen と GenerateContent](https://aistudio.google.com/docs/whats-new-gemini-4-hydrogen)、[Hydrogen](https://aistudio.google.com/docs/models/gemini-4-hydrogen)、[Argon](https://aistudio.google.com/docs/models/gemini-4-argon)、[Carbon](https://aistudio.google.com/docs/models/gemini-4-carbon)、[GenerateContent wire 型・thinkingLevel・thoughtSignature](https://aistudio.google.com/api-reference/generate-content)、[thinking の API 間の署名の違い](https://aistudio.google.com/docs/thinking)、[API キー](https://aistudio.google.com/docs/api-key)、[function calling](https://aistudio.google.com/docs/function-calling)
+
+## 2026-11-17 再確認と終了理由
+
+モデルIDは変更していない。公式モデル表とモデル別ページで上記5モデルを再確認した。
+DeepSeek Chat Completionsは`thinking.type=enabled`と`reasoning_effort=low/high/max`を受け付ける。
+Gemini GenerateContentは`thinkingConfig.thinkingLevel`の大文字enumと`parametersJsonSchema`を定義している。
+`ai.google.dev/gemini-api/docs/models`から`aistudio.google.com/docs/models`への転送を取得して確認した。
+
+GenerateContentの`Part.thoughtSignature`は任意フィールド。署名なしの正常なSTOPとツール継続も受け付ける。
+存在する署名はpart順序・付与位置を変えず、そのmodel turn全体を返す。別partへの複製や署名の捏造はしない。
+Interactionsの必須`thought.signature`は今回使わない別APIの契約であり、GenerateContentへの一律必須検査には使わない。
+これは送信側の任意フィールド定義に従う判断であり、実モデルが署名なし継続を受理する実API検証は未実施。
+
+| 終了理由 | runnerエラーコード・表示 |
+| --- | --- |
+| DeepSeek `length/insufficient_system_resource/aborted`、Gemini `MAX_TOKENS` | `response_truncated`。出力上限または提供元の中断による打切り |
+| DeepSeek `content_filter`、Gemini `SAFETY/RECITATION/LANGUAGE/BLOCKLIST/PROHIBITED_CONTENT/SPII/IMAGE_SAFETY/IMAGE_PROHIBITED_CONTENT`、prompt block | `response_blocked`。提供元のポリシーによるブロック |
+| 未知/不正な終了理由、未終端、壊れたJSON/SSE、過大応答 | `invalid_response`。不正・未完了・容量超過 |
+
+正常終端以外で部分応答を成功として返さず、未完了バッチを実行しない。これらは認証エラーにせず、既存の失敗発言へ専用文面を渡す。
+既に正常な前ターンで投稿済みの途中投稿は残る。通信失敗は既存の接続失敗文面で区別する。
+
+再確認の原文14ページ、UTC取得日時、全転送履歴、HTTP状態、SHA256、モデル・字段別の短い引用と行位置は、提出物の`official-evidence/manifest.json`と`official-evidence/index.md`に保存した。

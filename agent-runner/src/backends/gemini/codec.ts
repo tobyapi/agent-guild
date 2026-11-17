@@ -10,7 +10,6 @@ async function receive(events: AsyncIterable<Item | null>, model: string): Promi
     state.add(event);
   }
   if (!state.finished) throw invalid();
-  if (state.calls.length && !state.parts.some((part) => part.thoughtSignature)) throw invalid();
   return {
     text: state.text,
     calls: state.calls,

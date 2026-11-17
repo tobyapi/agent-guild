@@ -26,22 +26,22 @@ it('accepts split UTF-8, comments, CRLF, CR, LF and multiline data', async () =>
 it('rejects a truncated final event, including after a complete event', async () => {
   for (const tail of ['data: incomplete\n', 'data: incomplete', 'data'])
     await expect(collect(bytes([encode('data: complete\n\n' + tail)]))).rejects.toMatchObject({
-      code: 'internal',
+      code: 'invalid_response',
     });
 });
 
 it('rejects malformed UTF-8 without exposing its contents', async () => {
   const result = collect(bytes([encode('data: private-canary'), Uint8Array.of(0xff)]));
-  await expect(result).rejects.toMatchObject({ code: 'internal' });
+  await expect(result).rejects.toMatchObject({ code: 'invalid_response' });
   await expect(result).rejects.not.toThrow('private-canary');
 });
 
 it('bounds an unterminated event and aggregate stream bytes', async () => {
   await expect(collect(bytes([encode('data:' + 'a'.repeat(1024 * 1024))]))).rejects.toMatchObject({
-    code: 'internal',
+    code: 'invalid_response',
   });
   const chunk = encode('data: ' + 'a'.repeat(1024 * 512) + '\n\n');
-  await expect(collect(bytes(Array<Uint8Array>(9).fill(chunk)))).rejects.toMatchObject({ code: 'internal' });
+  await expect(collect(bytes(Array<Uint8Array>(9).fill(chunk)))).rejects.toMatchObject({ code: 'invalid_response' });
 });
 
 it('actively cancels a pending read when aborted and releases its lock', async () => {

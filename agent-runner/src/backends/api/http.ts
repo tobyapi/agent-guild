@@ -1,7 +1,7 @@
 import { t } from './texts.ts';
 import { BackendError } from '../types.ts';
 import { sse } from './sse.ts';
-import { json, type Item } from './json.ts';
+import { invalid, json, type Item } from './json.ts';
 
 async function checked(response: Response): Promise<ReadableStream<Uint8Array>> {
   if (!response.ok) {
@@ -18,7 +18,7 @@ async function checked(response: Response): Promise<ReadableStream<Uint8Array>> 
   }
   if (!response.body || !response.headers.get('content-type')?.includes('text/event-stream')) {
     await response.body?.cancel();
-    throw new BackendError('internal', t('invalid'));
+    throw invalid();
   }
   return response.body;
 }
@@ -43,7 +43,7 @@ export async function* stream(url: string, keyHeader: Record<string, string>, bo
         return;
       }
       const value = json(event);
-      if (value.error) throw new BackendError('internal', t('invalid'));
+      if (value.error) throw invalid();
       yield value;
     }
   } catch (error) {

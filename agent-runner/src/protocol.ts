@@ -117,6 +117,9 @@ export type ErrorCode =
   | 'auth' // 認証がない・失敗した
   | 'rate_limit'
   | 'model_not_found'
+  | 'response_truncated'
+  | 'response_blocked'
+  | 'invalid_response'
   | 'cancelled'
   | 'unknown_backend'
   | 'unsupported_permission' // 要求された制限を守れない

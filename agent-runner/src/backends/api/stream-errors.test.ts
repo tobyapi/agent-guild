@@ -9,6 +9,50 @@ beforeEach(() =>
 );
 afterEach(() => vi.unstubAllGlobals());
 describe.each(providers)('$id stream errors', ({ id, adapter }) => {
+  it('classifies documented terminal reasons without posting or continuing tools', async () => {
+    const fetcher = mockFetch(id);
+    const cases =
+      id === 'deepseek'
+        ? [
+            ...['length', 'insufficient_system_resource', 'aborted'].map((reason) => [reason, 'response_truncated']),
+            ['content_filter', 'response_blocked'],
+            ['UNKNOWN', 'invalid_response'],
+          ]
+        : [
+            ['MAX_TOKENS', 'response_truncated'],
+            ...[
+              'SAFETY',
+              'RECITATION',
+              'LANGUAGE',
+              'BLOCKLIST',
+              'PROHIBITED_CONTENT',
+              'SPII',
+              'IMAGE_SAFETY',
+              'IMAGE_PROHIBITED_CONTENT',
+            ].map((reason) => [reason, 'response_blocked']),
+            ...['OTHER', 'MALFORMED_FUNCTION_CALL', 'FINISH_REASON_UNSPECIFIED', 'UNKNOWN'].map((reason) => [
+              reason,
+              'invalid_response',
+            ]),
+          ];
+    for (const [reason, code] of cases) {
+      const chunks =
+        id === 'deepseek'
+          ? [{ choices: [{ index: 0, delta: { content: 'private-canary' }, finish_reason: reason }] }, '[DONE]']
+          : [
+              {
+                candidates: [{ content: { role: 'model', parts: [{ text: 'private-canary' }] }, finishReason: reason }],
+              },
+            ];
+      fetcher.mockResolvedValueOnce(events(chunks));
+      const context = runContext();
+      const result = adapter.run(runRequest(id), context);
+      await expect(result).rejects.toMatchObject({ code });
+      await expect(result).rejects.not.toThrow('private-canary');
+      expect(context.onPost).not.toHaveBeenCalled();
+    }
+    expect(fetcher).toHaveBeenCalledTimes(cases.length);
+  });
   it('does not execute partial tool calls or an unterminated stream', async () => {
     const fetcher = mockFetch(id);
     const values = callEvents(id);

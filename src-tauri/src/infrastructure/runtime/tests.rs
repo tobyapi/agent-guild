@@ -12,6 +12,20 @@ use crate::infrastructure::plain_path::plain_path;
 use crate::infrastructure::tests::TempDir;
 
 #[test]
+fn provider_failure_messages_reach_the_conversation_unchanged() {
+    use guild_application::ports::RuntimeError;
+    use runner_client::{ErrorCode, RunnerError};
+    for (code, message) in [
+        (ErrorCode::ResponseTruncated, "API応答がトークン上限で打ち切られました。"),
+        (ErrorCode::ResponseBlocked, "API応答が提供元のポリシーによりブロックされました。"),
+        (ErrorCode::InvalidResponse, "API応答が不正です。"),
+    ] {
+        let failure = super::failure::error(RunnerError::Backend { code, message: message.to_owned() });
+        assert!(matches!(failure, RuntimeError::Failed(actual) if actual == message));
+    }
+}
+
+#[test]
 fn the_bundled_runner_is_used_when_the_resources_have_it() {
     let resources = TempDir::new("resources");
     let script = resources.0.join(BUNDLED_DIR).join("agent-runner").join("src").join("main.js");
