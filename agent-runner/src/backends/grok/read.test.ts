@@ -3,7 +3,7 @@ import { mkdtemp, realpath, writeFile, link, symlink, mkdir, rm } from 'node:fs/
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { runRequest } from '../run.test-support.ts';
-import { readLocal } from './read.ts';
+import { readLocal } from '../api/read.ts';
 
 const roots: string[] = [];
 afterEach(async () => {

@@ -3,7 +3,7 @@ import type { ClientRequest, IncomingMessage, RequestOptions } from 'node:http';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { lookup } from 'node:dns/promises';
 import { request } from 'node:https';
-import { fetchURL, publicIP, publicURL } from './fetch-url.ts';
+import { fetchURL, publicIP, publicURL } from '../api/fetch-url.ts';
 
 vi.mock('node:dns/promises', () => ({ lookup: vi.fn() }));
 vi.mock('node:https', () => ({ request: vi.fn() }));

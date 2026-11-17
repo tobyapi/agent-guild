@@ -5,8 +5,8 @@ import { BlockList, isIP } from 'node:net';
 import { BackendError } from '../types.ts';
 import { controls } from './characters.ts';
 
-const denied = () => new BackendError('unsupported_permission', 'Grok URL is not a public HTTP(S) destination.');
-const invalid = () => new BackendError('bad_request', 'Grok URL fetch failed or exceeded its limits.');
+const denied = () => new BackendError('unsupported_permission', 'API URL is not a public HTTP(S) destination.');
+const invalid = () => new BackendError('bad_request', 'API URL fetch failed or exceeded its limits.');
 
 const blocked = new BlockList();
 for (const [network, prefix] of [

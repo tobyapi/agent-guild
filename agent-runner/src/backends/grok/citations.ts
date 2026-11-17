@@ -1,5 +1,5 @@
 import { object, type Item } from './response.ts';
-import { controls } from './characters.ts';
+import { controls } from '../api/characters.ts';
 
 function url(value: unknown): string | null {
   if (typeof value !== 'string' || controls(value, true)) return null;

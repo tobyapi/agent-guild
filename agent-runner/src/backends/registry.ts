@@ -9,6 +9,8 @@ import { codexAdapter } from './codex.ts';
 import { grokAdapter } from './grok.ts';
 import { museAdapter } from './muse.ts';
 import { ollamaAdapter } from './ollama.ts';
+import { deepseekAdapter } from './deepseek.ts';
+import { geminiAdapter } from './gemini.ts';
 import { EMPTY_CATALOG, type BackendAdapter, type BackendProbe, type ModelCatalog } from './types.ts';
 
 const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
@@ -17,6 +19,8 @@ const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
   grokAdapter,
   museAdapter,
   ollamaAdapter,
+  deepseekAdapter,
+  geminiAdapter,
 ];
 
 export class BackendRegistry {

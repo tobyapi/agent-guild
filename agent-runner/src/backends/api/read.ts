@@ -5,7 +5,7 @@ import { secretRoots } from '../secret-roots.ts';
 import { BackendError, isInside, type RunRequest } from '../types.ts';
 import { controls } from './characters.ts';
 
-const denied = () => new BackendError('unsupported_permission', 'Grok read denied by file policy.');
+const denied = () => new BackendError('unsupported_permission', 'API read denied by file policy.');
 function normalized(path: string): string {
   const value = resolve(path)
     .normalize('NFC')
@@ -102,7 +102,7 @@ export async function readBytes(request: RunRequest, raw: string, signal: AbortS
     const buffer = Buffer.alloc(limit + 1);
     const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
     signal.throwIfAborted();
-    if (bytesRead > limit) throw new BackendError('bad_request', 'Grok file size limit exceeded.');
+    if (bytesRead > limit) throw new BackendError('bad_request', 'API file size limit exceeded.');
     return buffer.subarray(0, bytesRead);
   } finally {
     await handle.close();

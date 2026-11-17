@@ -1,0 +1,165 @@
+[
+  {
+    "id": "deepseek",
+    "label": "DeepSeek",
+    "capabilities": {
+      "webSearch": false,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    },
+    "options": [],
+    "permissionRules": [
+      {
+        "when": "readAnywhere",
+        "requires": [
+          "readFiles"
+        ]
+      }
+    ],
+    "leakRisks": [
+      [
+        "readFiles",
+        "webFetch"
+      ],
+      [
+        "readAnywhere",
+        "webFetch"
+      ]
+    ],
+    "unrestricted": [],
+    "midRunPost": "tool",
+    "toolsOption": null,
+    "local": false,
+    "frameGeneration": false,
+    "setup": {
+      "install": null,
+      "start": null,
+      "login": null,
+      "apiKey": {
+        "envVar": "DEEPSEEK_API_KEY"
+      }
+    },
+    "defaultModel": "deepseek-flash",
+    "models": [
+      {
+        "id": "deepseek-flash",
+        "label": "DeepSeek Flash",
+        "description": "文章・読取専用ツール・スキルに対応。画像・検索・書込・コマンド実行・MEMORY.md更新は未対応です。",
+        "efforts": [
+          "low",
+          "high",
+          "max"
+        ],
+        "defaultEffort": "high",
+        "tools": true
+      },
+      {
+        "id": "deepseek-v4-pro",
+        "label": "DeepSeek V4 Pro",
+        "description": "文章・読取専用ツール・スキルに対応。画像・検索・書込・コマンド実行・MEMORY.md更新は未対応です。",
+        "efforts": [
+          "low",
+          "high",
+          "max"
+        ],
+        "defaultEffort": "high",
+        "tools": true
+      }
+    ],
+    "status": "needs_auth",
+    "statusMessage": ""
+  },
+  {
+    "id": "gemini",
+    "label": "Gemini (Developer API)",
+    "capabilities": {
+      "webSearch": false,
+      "webFetch": true,
+      "readFiles": true,
+      "readAnywhere": true,
+      "writeFiles": false,
+      "writeAnywhere": false,
+      "runCommands": false,
+      "skills": true
+    },
+    "options": [],
+    "permissionRules": [
+      {
+        "when": "readAnywhere",
+        "requires": [
+          "readFiles"
+        ]
+      }
+    ],
+    "leakRisks": [
+      [
+        "readFiles",
+        "webFetch"
+      ],
+      [
+        "readAnywhere",
+        "webFetch"
+      ]
+    ],
+    "unrestricted": [],
+    "midRunPost": "tool",
+    "toolsOption": null,
+    "local": false,
+    "frameGeneration": false,
+    "setup": {
+      "install": null,
+      "start": null,
+      "login": null,
+      "apiKey": {
+        "envVar": "GEMINI_API_KEY"
+      }
+    },
+    "defaultModel": "gemini-4-hydrogen",
+    "models": [
+      {
+        "id": "gemini-4-hydrogen",
+        "label": "Gemini 4 Hydrogen",
+        "description": "文章・読取専用ツール・スキルに対応。画像・検索・書込・コマンド実行・MEMORY.md更新は未対応です。",
+        "efforts": [
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+        ],
+        "defaultEffort": "high",
+        "tools": true
+      },
+      {
+        "id": "gemini-4-argon",
+        "label": "Gemini 4 Argon",
+        "description": "文章・読取専用ツール・スキルに対応。画像・検索・書込・コマンド実行・MEMORY.md更新は未対応です。",
+        "efforts": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "defaultEffort": "high",
+        "tools": true
+      },
+      {
+        "id": "gemini-4-carbon",
+        "label": "Gemini 4 Carbon",
+        "description": "文章・読取専用ツール・スキルに対応。画像・検索・書込・コマンド実行・MEMORY.md更新は未対応です。",
+        "efforts": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "defaultEffort": "high",
+        "tools": true
+      }
+    ],
+    "status": "needs_auth",
+    "statusMessage": ""
+  }
+]

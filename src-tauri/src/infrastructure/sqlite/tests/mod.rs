@@ -1,5 +1,6 @@
 //! SQLite アダプタのテスト（メモリ上の DB と一時ファイル）。
 
+mod api_backends;
 mod channel_icon;
 mod channels_messages;
 mod delegations;

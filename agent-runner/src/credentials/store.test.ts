@@ -52,6 +52,25 @@ afterEach(() => {
 });
 
 describe('OS credential settings', () => {
+  it('isolates DeepSeek/Gemini save/update/delete, restores only their declared environment and strips helper secrets', async () => {
+    vi.stubEnv('DEEPSEEK_API_KEY', 'deepseek-env');
+    vi.stubEnv('GEMINI_API_KEY', 'gemini-env');
+    vi.stubEnv('GOOGLE_API_KEY', 'ignored-alias');
+    vi.stubEnv('OPENAI_API_KEY', 'unrelated-key');
+    await manageApiKey('deepseek', 'DEEPSEEK_API_KEY', 'set', 'deepseek-saved');
+    await manageApiKey('gemini', 'GEMINI_API_KEY', 'set', 'gemini-saved');
+    await manageApiKey('deepseek', 'DEEPSEEK_API_KEY', 'set', 'deepseek-new');
+    expect((await apiKeyEnvironment('deepseek', 'DEEPSEEK_API_KEY')).DEEPSEEK_API_KEY).toBe('deepseek-new');
+    expect((await apiKeyEnvironment('gemini', 'GEMINI_API_KEY')).GEMINI_API_KEY).toBe('gemini-saved');
+    expect(await manageApiKey('deepseek', 'DEEPSEEK_API_KEY', 'delete')).toContain('environment');
+    expect((await apiKeyEnvironment('deepseek', 'DEEPSEEK_API_KEY')).DEEPSEEK_API_KEY).toBe('deepseek-env');
+    expect((await apiKeyEnvironment('gemini', 'GEMINI_API_KEY')).GEMINI_API_KEY).toBe('gemini-saved');
+    for (const call of spawn.mock.calls) {
+      const options = call[2] as { env: Record<string, string> };
+      for (const name of ['DEEPSEEK_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_API_KEY', 'OPENAI_API_KEY'])
+        expect(options.env).not.toHaveProperty(name);
+    }
+  });
   it('saves, replaces and deletes independently; status never returns a key', async () => {
     vi.stubEnv('XAI_API_KEY', 'environment-grok');
     await manageApiKey('grok', 'XAI_API_KEY', 'set', 'first-grok');

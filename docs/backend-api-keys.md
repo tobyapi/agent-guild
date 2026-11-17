@@ -1,12 +1,12 @@
 # バックエンドのAPIキー設定
 
-設定 → バックエンドで、APIキーを保存できると申告しているバックエンド（`BackendInfo.setup.apiKey`）の欄から、APIキーを保存・更新・削除する。Claude と Codex は認証方式の切替を備え、API を選んだ場合にだけキー欄を表示する。Grok と Muse Spark は従来どおり API キー欄を表示する。
+設定 → バックエンドで、APIキーを保存できると申告しているバックエンド（`BackendInfo.setup.apiKey`）の欄から、APIキーを保存・更新・削除する。Claude と Codex は認証方式の切替を備え、API を選んだ場合にだけキー欄を表示する。Grok・Muse Spark・DeepSeek・Gemini (Developer API) は API キー欄を表示する。
 
 Claude と Codex の方式は `settings.json` の `backendAuthModes` にバックエンド ID ごとに保存する。未指定時は `desktop` として扱う。起動時は設定を RunnerClient に渡し、sidecar が ready になった接続へ mode 要求を再送する。切替時は Tauri の `set_backend_auth_mode` で保存し、同じ sidecar 要求を送り、probe で状態を更新する。`desktop` では Claude Code / Codex CLI のログインを使い、`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` を子プロセスへ渡さない。`api` では保存したキーを優先し、なければ環境変数を使う。どちらにもキーがなければ `needs_auth`。
 入力はpasswordフィールドで伏せ字にし、送信開始時と画面を閉じたときに入力値を破棄する。
 保存済みキーを読み戻して画面に表示する機能はない。
 
-- 優先順位は、保存済みキー → アダプタが申告した環境変数（`setup.apiKey.envVar`。Grokは`XAI_API_KEY`、Museは`MODEL_API_KEY`）。
+- 優先順位は、保存済みキー → アダプタが申告した環境変数（`setup.apiKey.envVar`。Grokは`XAI_API_KEY`、Museは`MODEL_API_KEY`、DeepSeekは`DEEPSEEK_API_KEY`、Geminiは`GEMINI_API_KEY`）。Geminiは`GOOGLE_API_KEY`を参照しない。Vertex AIは対象外。
 - 削除すると保存済みキーだけを消す。環境変数が残っていれば、引き続き認証に使う。
 - キーはprobeと実行開始のたびに読み直す。変更完了後の次の実行から反映する。
   実行中のSDKは開始時のキーを保持する。環境変数自体の変更にはアプリの再起動が必要。

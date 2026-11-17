@@ -3,7 +3,7 @@ import { mkdtemp, realpath, mkdir, writeFile, rename, rm, open } from 'node:fs/p
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runRequest } from '../run.test-support.ts';
-import { readLocal } from './read.ts';
+import { readLocal } from '../api/read.ts';
 import { execute } from './tools.ts';
 import { runContext } from '../run.test-support.ts';
 

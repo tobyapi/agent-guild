@@ -1,7 +1,7 @@
 # AIギルド
 
 人間と AI エージェントが、チャンネルで会話しながら一緒に仕事をするデスクトップアプリです。
-Claude、Codex、Ollama のモデルを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
+Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
 
 > まだ 0.1.0 です。機能や画面は変わることがありますが、保存したデータは新しい版でも開けるように保ちます。
 
@@ -33,6 +33,8 @@ Markdown に加えて、チャット本文の一部を次のように組版で�
 ## 必要なもの
 
 配布版にはランナー用の Node.js が入っています。使うバックエンドに合わせて準備してください。
+
+DeepSeek と Gemini は「設定 → バックエンド」で API キーを保存し、エージェントでモデルを選びます。Gemini は Developer API に対応します。両バックエンドの道具は読取専用で、画像・検索・書込・コマンド実行は未対応です。対応範囲と接続確認の意味は [DeepSeek / Gemini](docs/deepseek-gemini.md) を参照してください。
 
 - Claude: [Claude Code](https://code.claude.com/docs/ja/quickstart)。macOS では「設定 → バックエンド → Claude」でセットアップし、必要なら Claude Code が開くブラウザーでログインできます。
 - Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex)。macOS では「設定 → バックエンド → Codex」でセットアップし、必要ならブラウザーで ChatGPT にログインできます。ほかの OS では同じ画面で手順を開けます。

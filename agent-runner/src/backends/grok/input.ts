@@ -1,5 +1,5 @@
 import { BackendError, type RunRequest } from '../types.ts';
-import { readBytes } from './read.ts';
+import { readBytes } from '../api/read.ts';
 import type { Item } from './response.ts';
 import { t } from './texts.ts';
 

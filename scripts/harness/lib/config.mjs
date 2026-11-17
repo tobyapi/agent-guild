@@ -51,6 +51,7 @@ export const RUNNER_BACKEND_COMMON_MODULES = new Set([
   'tool-paths',
   'secret-roots',
   'command-sandbox',
+  'api',
 ]);
 /** アダプタを束ねる登録表（アダプタではないが、アダプタから import してもいけない） */
 export const RUNNER_BACKEND_REGISTRY = 'registry';

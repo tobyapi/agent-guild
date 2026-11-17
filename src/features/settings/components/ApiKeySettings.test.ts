@@ -12,6 +12,8 @@ describe('API key settings initial render', () => {
     for (const [id, label, envVar] of [
       ['grok', 'Grok', 'XAI_API_KEY'],
       ['muse', 'Muse Spark', 'MODEL_API_KEY'],
+      ['deepseek', 'DeepSeek', 'DEEPSEEK_API_KEY'],
+      ['gemini', 'Gemini (Developer API)', 'GEMINI_API_KEY'],
     ] as const) {
       const backend = backendInfo({ id, label, setup: { ...NO_SETUP, apiKey: { envVar } } });
       const html = renderToStaticMarkup(createElement(ApiKeySettings, { backend, envVar }));

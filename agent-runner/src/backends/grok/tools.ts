@@ -1,8 +1,8 @@
 import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { object, type Item } from './response.ts';
-import { readLocal } from './read.ts';
-import { fetchURL } from './fetch-url.ts';
-import { readSkill } from './skills.ts';
+import { readLocal } from '../api/read.ts';
+import { fetchURL } from '../api/fetch-url.ts';
+import { readSkill } from '../api/skills.ts';
 
 function tool(name: string, field: string): Item {
   const properties = { [field]: { type: 'string' }, ...(name === 'read_skill' ? { path: { type: 'string' } } : {}) };

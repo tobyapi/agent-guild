@@ -75,3 +75,5 @@
 3. **macOS・Linux でも共通の隔離を使う**（Claude の作業者以外のコマンドも、macOS・Linux では使えないまま）: MXC は macOS（Seatbelt）と Linux（bubblewrap）にも対応しているが、試していない。macOS の Ollama は自前の Seatbelt の設定を使い続けている。
 
 Grok: direct search/read-only runner on all OSes. Known-secret exclusions and single-link file checks apply. Writes, commands and MEMORY updates have no exception. Existing agents are restricted at execution time; saved role grants remain unchanged. See [grok.md](grok.md).
+
+DeepSeek / Gemini (Developer API): 共通の読取専用ツールで役割の権限を守る。ファイルの読取範囲・秘密の場所・リンクと公開 URL の検査は Grok と共有する。検索・書込・コマンド・MEMORY.md 更新は提供しない。保存済みの役割権限は変えず、実行時に対応範囲へ絞る。詳しくは [deepseek-gemini.md](deepseek-gemini.md)。

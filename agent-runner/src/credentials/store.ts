@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { BackendError } from '../backends/types.ts';
+import { withoutSecrets } from '../backends/agent-env.ts';
 import { t } from '../texts/index.ts';
 import { WINDOWS_CREDENTIAL_SCRIPT } from './windows-script.ts';
 
@@ -46,6 +47,7 @@ async function operate(backend: string, action: 'get' | 'set' | 'delete', key?: 
     const child = spawn(executable, ['-NoProfile', '-NonInteractive', '-Command', WINDOWS_CREDENTIAL_SCRIPT], {
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: withoutSecrets(process.env, () => false),
     });
     let output = '';
     const timer = setTimeout(() => {

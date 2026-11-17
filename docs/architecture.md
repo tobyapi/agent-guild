@@ -129,6 +129,9 @@ agent-runner/src/
     codex-runtime.ts, codex-runtime/  Codex 互換の CLI を動かす共通の実行部（イベント・実行ファイル・モデル・オプション・スキルの置き場所 skills.ts・画像の依頼 image.ts）。codex・muse が使う。
                        画像の依頼（image.ts・image-options.ts・generated-images.ts）は codex だけが使う
     grok.ts, grok/    xAI Responses 直接接続。検索・読取専用（docs/grok.md）
+    deepseek.ts, deepseek/  DeepSeek Chat Completions API（docs/deepseek-gemini.md）
+    gemini.ts, gemini/  Gemini Developer API の GenerateContent（docs/deepseek-gemini.md）
+    api/              直接API接続の共通部品。SSE・HTTP・継続ループと、Grokとも共有する読取専用の道具。wire形式は各アダプタに置く
     muse.ts          Muse Spark。codex-runtime に provider 設定を渡す（docs/muse.md）
     describe.ts        ツール呼び出し → 「Web検索: …」などの表示文
     environment.ts, executables.ts  認証状態の確認に使う部品（資格情報は存在だけを見る）と、利用者の環境の CLI を探す部品
