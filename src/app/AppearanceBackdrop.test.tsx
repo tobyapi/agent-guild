@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
-import type { BackgroundSpec } from '@/shared/theme/types';
-import { defaultAppearance } from '@/shared/theme/registry';
+import type { AppearancePreference, BackgroundSpec, ThemeRegistry } from '@/shared/theme/types';
+import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
 import { AppearanceBackdrop } from './AppearanceBackdrop';
 
 const state = vi.hoisted((): { background: BackgroundSpec; url: string | null } => ({
@@ -11,10 +11,8 @@ const state = vi.hoisted((): { background: BackgroundSpec; url: string | null } 
 }));
 vi.mock('@/features/settings', () => ({
   useBackgroundImage: () => state.url,
-  useAppearanceStore: () => ({
-    ...defaultAppearance(),
-    backgroundOverride: state.background,
-  }),
+  useAppearanceStore: <T,>(select: (s: { preference: AppearancePreference; registry: ThemeRegistry }) => T) =>
+    select({ preference: { ...defaultAppearance(), backgroundOverride: state.background }, registry: themeRegistry }),
 }));
 afterEach(cleanup);
 
