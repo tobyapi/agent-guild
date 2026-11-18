@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { errorCode, errorField } from '@/shared/lib/errors';
 import { parseCandidate, type ThemeCandidate, type SavedTheme, uuidPattern } from '@/shared/theme/candidate';
 import { checkTheme, type ContrastIssue } from '@/shared/theme/checkTheme';
 import { useDraftRequest } from './useDraftRequest';
@@ -42,9 +43,9 @@ export function useThemeDraft(textBackend: string, imageBackend: string, onClose
       setCandidate(draft);
       finish(request);
       await background(draft);
-    } catch {
+    } catch (reason) {
       if (current(request)) {
-        setProblem('failed');
+        setProblem(errorCode(reason) === 'validation' && errorField(reason) === 'candidate' ? 'invalid' : 'failed');
         setStage('subject');
       }
     } finally {

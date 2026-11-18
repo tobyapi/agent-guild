@@ -1,4 +1,4 @@
-import { isSavedTheme, type SavedTheme } from '@/shared/theme/candidate';
+import { isSavedTheme, THEME_SCHEMA_VERSION, type SavedTheme } from '@/shared/theme/candidate';
 import { checkTheme } from '@/shared/theme/checkTheme';
 import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
@@ -41,7 +41,7 @@ function isFuture(value: unknown) {
     typeof value === 'object' &&
     'schemaVersion' in value &&
     typeof value.schemaVersion === 'number' &&
-    value.schemaVersion > 1
+    value.schemaVersion > THEME_SCHEMA_VERSION
   );
 }
 function verifiedThemes(values: unknown[]) {

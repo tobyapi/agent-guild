@@ -1,7 +1,10 @@
 use crate::{AppError, AppResult, Ports};
+use guild_domain::error::ValidationError;
 use parking_lot::Mutex;
 use std::{collections::VecDeque, sync::Arc, time::Duration};
 use tokio::sync::watch;
+
+mod candidate;
 
 #[derive(Default)]
 struct Jobs {
@@ -49,7 +52,14 @@ impl ThemeGenerationService {
             biased;
             _=cancel.changed()=>Err(AppError::Runtime("Theme generation cancelled".into())),
             reply=tokio::time::timeout(Duration::from_secs(150),call)=>match reply {
-                Ok(Ok(text)) if text.len()<=32768 && !text.is_empty()=>Ok(text),
+                Ok(Ok(text)) if candidate::valid(&text) => Ok(text),
+                Ok(Ok(_)) => Err(ValidationError::on("candidate", guild_domain::locale::pick([
+                    "生成されたテーマの形式が正しくありません",
+                    "The generated theme has an invalid format",
+                    "生成的主题格式无效",
+                    "產生的主題格式無效",
+                    "생성된 테마의 형식이 올바르지 않습니다",
+                ])).into()),
                 _=>Err(AppError::Runtime("Theme generation failed".into())),
             }
         };

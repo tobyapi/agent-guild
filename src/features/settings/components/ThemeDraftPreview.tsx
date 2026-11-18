@@ -91,7 +91,7 @@ function Sample({ name, url }: { name: string; url: string | null }) {
       <style>{tokens + global + css}</style>
       <main>
         {url && <img className="sample-background" src={url} alt="" />}
-        <aside># {t('sampleChannel')}</aside>
+        <aside className="sample-sidebar"># {t('sampleChannel')}</aside>
         <section>
           <h2>{name}</h2>
           <p>
@@ -103,6 +103,7 @@ function Sample({ name, url }: { name: string; url: string | null }) {
           </label>
           <button>{t('themeSave')}</button>
         </section>
+        <aside className="sample-members">{t('sampleMembers')}</aside>
       </main>
     </>
   );

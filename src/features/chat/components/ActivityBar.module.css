@@ -32,7 +32,7 @@
 
 @supports (backdrop-filter: blur(1px)) {
   :global(:root[data-background='active'][data-glass='frosted']) .bar {
-    --glass-ink-weight: 0%;
+    --glass-ink-weight: 100%;
     background: var(--surface-chat);
   }
 }

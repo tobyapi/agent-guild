@@ -1,4 +1,5 @@
 import type { Palette, ThemeStyle } from './candidate';
+import { FOCUS_MIN, GLASS_TEXT_MIN, glassBounds, glassInk } from './glassTheme';
 import type { AccentId, Scheme } from './types';
 import { buttonInk, mix } from './themeColors';
 
@@ -59,14 +60,18 @@ export function paletteTokens(p: Palette, scheme: Scheme, override: AccentId | n
     'text-on-danger': buttonInk(inks.danger!),
     'focus-color': accent,
     'border-focus': accent,
-    'glass-veil-color': p.surface,
-    'glass-veil-weight': '92%',
     'accent-swatch-default': p.accent,
+    // Blur-only filters keep the painted backdrop within the checked RGB envelope.
     'glass-pane-filter': 'blur(18px)',
     'glass-card-filter': 'blur(12px)',
   };
-  const tokens: Record<string, string> = { ...fills, ...inks, ...controls };
-  for (const [key, ink] of Object.entries(inks)) tokens['glass-' + key] = ink;
+  const veil = glassBounds(scheme);
+  const glassInks = Object.fromEntries(
+    Object.entries(inks).map(([key, ink]) => [key, glassInk(ink, scheme, veil, GLASS_TEXT_MIN)]),
+  );
+  const glassFocus = glassInk(controls['focus-color']!, scheme, veil, FOCUS_MIN);
+  const tokens: Record<string, string> = { ...fills, ...inks, ...controls, 'glass-focus-color': glassFocus };
+  for (const [key, ink] of Object.entries(glassInks)) tokens['glass-' + key] = ink;
   for (const [syntax, key] of Object.entries({
     comment: 'text-muted',
     keyword: 'kind-manager',
@@ -75,7 +80,7 @@ export function paletteTokens(p: Palette, scheme: Scheme, override: AccentId | n
     title: 'kind-worker',
     type: 'kind-expert',
   }))
-    tokens['glass-syntax-' + syntax] = inks[key]!;
+    tokens['glass-syntax-' + syntax] = glassInks[key]!;
   // The pane CSS recomputes state surfaces from these source tokens on descendants.
   for (const [key, color] of Object.entries(fills)) {
     if (!key.endsWith('-soft') && key !== 'mention-self-bg' && key !== 'selection-bg') continue;
@@ -83,10 +88,12 @@ export function paletteTokens(p: Palette, scheme: Scheme, override: AccentId | n
     tokens['raw-' + key + '-ink'] = color;
     tokens['raw-' + key + '-weight'] = '100%';
   }
-  return { tokens, fills, inks, controls };
+  return { tokens, fills, inks, controls, glassInks, glassFocus, veil };
 }
 export function themeTokens(style: ThemeStyle, scheme: Scheme, accent: AccentId | null) {
-  const { tokens } = paletteTokens(style.variants[scheme], scheme, accent);
+  const palette = style.variants[scheme];
+  const { tokens } = paletteTokens(palette, scheme, accent);
+  if (palette.divider) Object.assign(tokens, dividerTokens(palette.divider));
   const radii = { square: [0, 2, 3, 4], standard: [4, 8, 12, 16], soft: [6, 12, 16, 22] }[style.corners];
   ['sm', 'md', 'lg', 'xl'].forEach((size, i) => {
     tokens['radius-' + size] = radii[i] + 'px';
@@ -96,4 +103,17 @@ export function themeTokens(style: ThemeStyle, scheme: Scheme, accent: AccentId 
       ? 'var(--font-sans)'
       : "'Yu Mincho', 'Hiragino Mincho ProN', 'Noto Serif CJK JP', Georgia, serif";
   return tokens;
+}
+
+function dividerTokens({ color, style, width }: NonNullable<Palette['divider']>) {
+  return {
+    'border-subtle': `color-mix(in srgb, ${color} 65%, transparent)`,
+    'border-strong': `color-mix(in srgb, ${color} 85%, transparent)`,
+    'border-hover': color,
+    'glass-edge': `color-mix(in srgb, ${color} 65%, transparent)`,
+    'area-divider-width': style === 'none' ? 'var(--hidden-divider-width, 0px)' : width + 'px',
+    'area-divider-style': style === 'none' ? 'var(--hidden-divider-style, none)' : style,
+    'area-divider-glass-color': 'var(--glass-edge)',
+    'area-divider-glass-shadow': 'none',
+  };
 }

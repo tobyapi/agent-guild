@@ -159,5 +159,15 @@
   --animation-rise: guild-rise var(--duration-slow) var(--ease-out);
   --animation-fade: guild-fade var(--duration-normal) var(--ease-standard);
 
+  /* エリア間の境界線。生成テーマは線種と幅を上書きできる */
+  --area-divider: var(--area-divider-width, 1px) var(--area-divider-style, solid) var(--border-subtle);
+
   /* レイアウト（寸法・重なり順）は tokens-layout.css */
+}
+
+@media (forced-colors: active) {
+  :root {
+    --hidden-divider-width: 1px;
+    --hidden-divider-style: solid;
+  }
 }

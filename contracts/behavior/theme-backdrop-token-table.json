@@ -13,77 +13,82 @@
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 29,
-      "expression": "--surface: var(--bg-app);"
+      "line": 13,
+      "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/app/AppShell.module.css",
       "line": 30,
-      "expression": "--glass-ink-weight: 0%;"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 31,
-      "expression": "background: var(--surface-chat);"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 64,
-      "expression": ":global(:root[data-background='active']) .shell {"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 65,
       "expression": "--surface: var(--bg-app);"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 69,
-      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 70,
-      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 71,
-      "expression": "--glass-ink-weight: 100%;"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 74,
-      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 80,
-      "expression": "--glass-ink-weight: 100%;"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 81,
-      "expression": "background: var(--glass-veil);"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 87,
-      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 88,
-      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
-    },
-    {
-      "file": "src/app/AppShell.module.css",
-      "line": 89,
+      "line": 31,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/app/AppShell.module.css",
-      "line": 92,
+      "line": 32,
+      "expression": "background: var(--surface-chat);"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 65,
+      "expression": ":global(:root[data-background='active']) .shell {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 66,
+      "expression": "--surface: var(--bg-app);"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 70,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 71,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 72,
+      "expression": "--glass-ink-weight: 100%;"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 75,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 81,
+      "expression": "--glass-ink-weight: 100%;"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 82,
+      "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 88,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell,"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 89,
+      "expression": ":global(:root[data-background='active'][data-glass='frosted']) .main {"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 90,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/app/AppShell.module.css",
+      "line": 93,
       "expression": ":global(:root[data-background='active'][data-glass='frosted']) .shell::after {"
     },
     {
@@ -1104,7 +1109,7 @@
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
       "line": 35,
-      "expression": "--glass-ink-weight: 0%;"
+      "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/chat/components/ActivityBar.module.css",
@@ -3138,8 +3143,8 @@
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 19,
-      "expression": "background: var(--surface-sidebar);"
+      "line": 6,
+      "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
@@ -3148,83 +3153,123 @@
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 32,
+      "line": 23,
+      "expression": "background: var(--surface-sidebar);"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 27,
+      "expression": "background: var(--surface-members);"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 42,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 35,
+      "line": 45,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 46,
       "expression": "background: var(--bg-sunken);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 44,
+      "line": 55,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 56,
       "expression": "background: var(--bg-input);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 45,
+      "line": 57,
       "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 50,
+      "line": 62,
       "expression": "background: var(--accent);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 51,
+      "line": 63,
       "expression": "color: var(--text-on-accent);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 54,
+      "line": 66,
       "expression": "background: var(--accent-hover);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 61,
-      "expression": ":root[data-background='active'] main {"
+      "line": 73,
+      "expression": ":root[data-background='active'][data-glass='frosted'] main {"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 62,
+      "line": 74,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 64,
-      "expression": ":root[data-background='active'] .sample-background,"
+      "line": 76,
+      "expression": ":root[data-background='active'][data-glass='frosted'] :is(aside, h2) {"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 65,
-      "expression": ":root[data-background='active'] main::before {"
-    },
-    {
-      "file": "src/features/settings/components/themeSample.css",
-      "line": 72,
-      "expression": ":root[data-background='active'] .sample-background {"
-    },
-    {
-      "file": "src/features/settings/components/themeSample.css",
-      "line": 78,
-      "expression": ":root[data-background='active'] main::before {"
+      "line": 79,
+      "expression": ":root[data-background='active'][data-glass='frosted'] .sample-background,"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
       "line": 80,
+      "expression": ":root[data-background='active'][data-glass='frosted'] main::before {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 87,
+      "expression": ":root[data-background='active'][data-glass='frosted'] .sample-background {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 93,
+      "expression": ":root[data-background='active'][data-glass='frosted'] main::before {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 95,
       "expression": "background: var(--glass-veil);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 85,
-      "expression": ":root[data-background='active'] .sample-background,"
+      "line": 100,
+      "expression": ":root[data-background='active'][data-glass='frosted'] main {"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 86,
-      "expression": ":root[data-background='active'] main::before {"
+      "line": 101,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 103,
+      "expression": ":root[data-background='active'][data-glass='frosted'] :is(aside, h2) {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 106,
+      "expression": ":root[data-background='active'][data-glass='frosted'] .sample-background,"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 107,
+      "expression": ":root[data-background='active'][data-glass='frosted'] main::before {"
     },
     {
       "file": "src/features/skills/components/LibraryPicker.module.css",
@@ -3480,11 +3525,6 @@
       "file": "src/shared/lib/guild.ts",
       "line": 30,
       "expression": "const color = CREST_COLORS.includes(guild.crest.color) ? guild.crest.color : DEFAULT_GUILD.crest.color;"
-    },
-    {
-      "file": "src/shared/theme/candidate.ts",
-      "line": 40,
-      "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
     },
     {
       "file": "src/shared/types/domain/guild.ts",
@@ -5539,556 +5579,601 @@
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 3,
-      "expression": "--solid-accent-text: var(--accent-text);"
+      "expression": "--solid-focus-color: var(--focus-color);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 4,
-      "expression": "--glass-accent-text: var(--solid-accent-text);"
+      "expression": "--glass-focus-color: var(--solid-focus-color);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 5,
-      "expression": "--solid-autonomous: var(--autonomous);"
+      "expression": "--solid-text-primary: var(--text-primary);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 6,
-      "expression": "--glass-autonomous: var(--solid-autonomous);"
+      "expression": "--glass-text-primary: var(--solid-text-primary);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 7,
-      "expression": "--solid-danger: var(--danger);"
+      "expression": "--solid-text-link: var(--text-link);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 8,
-      "expression": "--glass-danger: var(--solid-danger);"
+      "expression": "--glass-text-link: var(--solid-text-link);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 9,
-      "expression": "--solid-kind-expert: var(--kind-expert);"
+      "expression": "--solid-accent-text: var(--accent-text);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 10,
-      "expression": "--glass-kind-expert: var(--solid-kind-expert);"
+      "expression": "--glass-accent-text: var(--solid-accent-text);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 11,
-      "expression": "--solid-kind-human: var(--kind-human);"
+      "expression": "--solid-autonomous: var(--autonomous);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 12,
-      "expression": "--glass-kind-human: var(--solid-kind-human);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 13,
-      "expression": "--solid-kind-ideator: var(--kind-ideator);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 14,
-      "expression": "--glass-kind-ideator: var(--solid-kind-ideator);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 15,
-      "expression": "--solid-kind-manager: var(--kind-manager);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 16,
-      "expression": "--glass-kind-manager: var(--solid-kind-manager);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 17,
-      "expression": "--solid-kind-worker: var(--kind-worker);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 18,
-      "expression": "--glass-kind-worker: var(--solid-kind-worker);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 19,
-      "expression": "--solid-success: var(--success);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 20,
-      "expression": "--glass-success: var(--solid-success);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 21,
-      "expression": "--solid-syntax-comment: var(--syntax-comment);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 22,
-      "expression": "--glass-syntax-comment: var(--solid-syntax-comment);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 23,
-      "expression": "--solid-syntax-keyword: var(--syntax-keyword);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 24,
-      "expression": "--glass-syntax-keyword: var(--solid-syntax-keyword);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 25,
-      "expression": "--solid-syntax-number: var(--syntax-number);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 26,
-      "expression": "--glass-syntax-number: var(--solid-syntax-number);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 27,
-      "expression": "--solid-syntax-string: var(--syntax-string);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 28,
-      "expression": "--glass-syntax-string: var(--solid-syntax-string);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 29,
-      "expression": "--solid-syntax-title: var(--syntax-title);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 30,
-      "expression": "--glass-syntax-title: var(--solid-syntax-title);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 31,
-      "expression": "--solid-syntax-type: var(--syntax-type);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 32,
-      "expression": "--glass-syntax-type: var(--solid-syntax-type);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 33,
-      "expression": "--solid-text-muted: var(--text-muted);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 34,
-      "expression": "--glass-text-muted: var(--solid-text-muted);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 35,
-      "expression": "--solid-text-secondary: var(--text-secondary);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 36,
-      "expression": "--glass-text-secondary: var(--solid-text-secondary);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 37,
-      "expression": "--solid-warning: var(--warning);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 38,
-      "expression": "--glass-warning: var(--solid-warning);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 42,
-      "expression": "--glass-text-secondary: #cdd1d9;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 43,
-      "expression": "--glass-text-muted: #bcbfc5;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 44,
-      "expression": "--glass-danger: #ffa7ac;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 45,
-      "expression": "--glass-warning: #fcae6e;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 46,
-      "expression": "--glass-kind-manager: #aabdff;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 47,
-      "expression": "--glass-kind-expert: #ccb3fb;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 48,
-      "expression": "--glass-syntax-keyword: #aabdff;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 49,
-      "expression": "--glass-syntax-type: #ccb3fb;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 50,
-      "expression": "--glass-syntax-comment: #bcbfc5;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 54,
-      "expression": "--glass-accent-text: #ffaa8e;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 58,
-      "expression": "--glass-accent-text: #f6a8ca;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 62,
-      "expression": "--glass-accent-text: #92c2ff;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 66,
-      "expression": "--glass-accent-text: #c6b4ff;"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 70,
-      "expression": "--glass-accent-text: var(--solid-accent-text);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 71,
       "expression": "--glass-autonomous: var(--solid-autonomous);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 72,
+      "line": 13,
+      "expression": "--solid-danger: var(--danger);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 14,
       "expression": "--glass-danger: var(--solid-danger);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 73,
+      "line": 15,
+      "expression": "--solid-kind-expert: var(--kind-expert);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 16,
       "expression": "--glass-kind-expert: var(--solid-kind-expert);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 74,
+      "line": 17,
+      "expression": "--solid-kind-human: var(--kind-human);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 18,
       "expression": "--glass-kind-human: var(--solid-kind-human);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 75,
+      "line": 19,
+      "expression": "--solid-kind-ideator: var(--kind-ideator);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 20,
       "expression": "--glass-kind-ideator: var(--solid-kind-ideator);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 76,
+      "line": 21,
+      "expression": "--solid-kind-manager: var(--kind-manager);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 22,
       "expression": "--glass-kind-manager: var(--solid-kind-manager);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 77,
+      "line": 23,
+      "expression": "--solid-kind-worker: var(--kind-worker);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 24,
       "expression": "--glass-kind-worker: var(--solid-kind-worker);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 78,
+      "line": 25,
+      "expression": "--solid-success: var(--success);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 26,
       "expression": "--glass-success: var(--solid-success);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 79,
+      "line": 27,
+      "expression": "--solid-syntax-comment: var(--syntax-comment);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 28,
       "expression": "--glass-syntax-comment: var(--solid-syntax-comment);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 80,
+      "line": 29,
+      "expression": "--solid-syntax-keyword: var(--syntax-keyword);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 30,
       "expression": "--glass-syntax-keyword: var(--solid-syntax-keyword);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 81,
+      "line": 31,
+      "expression": "--solid-syntax-number: var(--syntax-number);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 32,
       "expression": "--glass-syntax-number: var(--solid-syntax-number);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 82,
+      "line": 33,
+      "expression": "--solid-syntax-string: var(--syntax-string);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 34,
       "expression": "--glass-syntax-string: var(--solid-syntax-string);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 83,
+      "line": 35,
+      "expression": "--solid-syntax-title: var(--syntax-title);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 36,
       "expression": "--glass-syntax-title: var(--solid-syntax-title);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 84,
+      "line": 37,
+      "expression": "--solid-syntax-type: var(--syntax-type);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 38,
       "expression": "--glass-syntax-type: var(--solid-syntax-type);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 85,
+      "line": 39,
+      "expression": "--solid-text-muted: var(--text-muted);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 40,
       "expression": "--glass-text-muted: var(--solid-text-muted);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 86,
+      "line": 41,
+      "expression": "--solid-text-secondary: var(--text-secondary);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 42,
       "expression": "--glass-text-secondary: var(--solid-text-secondary);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 87,
+      "line": 43,
+      "expression": "--solid-warning: var(--warning);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 44,
       "expression": "--glass-warning: var(--solid-warning);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 48,
+      "expression": "--glass-text-secondary: #cdd1d9;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 49,
+      "expression": "--glass-text-muted: #bcbfc5;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 50,
+      "expression": "--glass-danger: #ffa7ac;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 51,
+      "expression": "--glass-warning: #fcae6e;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 52,
+      "expression": "--glass-kind-manager: #aabdff;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 53,
+      "expression": "--glass-kind-expert: #ccb3fb;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 54,
+      "expression": "--glass-syntax-keyword: #aabdff;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 55,
+      "expression": "--glass-syntax-type: #ccb3fb;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 56,
+      "expression": "--glass-syntax-comment: #bcbfc5;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 60,
+      "expression": "--glass-accent-text: #ffaa8e;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 64,
+      "expression": "--glass-accent-text: #f6a8ca;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 68,
+      "expression": "--glass-accent-text: #92c2ff;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 72,
+      "expression": "--glass-accent-text: #c6b4ff;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 76,
+      "expression": "--glass-accent-text: var(--solid-accent-text);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 77,
+      "expression": "--glass-autonomous: var(--solid-autonomous);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 78,
+      "expression": "--glass-danger: var(--solid-danger);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 79,
+      "expression": "--glass-kind-expert: var(--solid-kind-expert);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 80,
+      "expression": "--glass-kind-human: var(--solid-kind-human);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 81,
+      "expression": "--glass-kind-ideator: var(--solid-kind-ideator);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 82,
+      "expression": "--glass-kind-manager: var(--solid-kind-manager);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 83,
+      "expression": "--glass-kind-worker: var(--solid-kind-worker);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 84,
+      "expression": "--glass-success: var(--solid-success);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 85,
+      "expression": "--glass-syntax-comment: var(--solid-syntax-comment);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 86,
+      "expression": "--glass-syntax-keyword: var(--solid-syntax-keyword);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 87,
+      "expression": "--glass-syntax-number: var(--solid-syntax-number);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 88,
-      "expression": "--glass-text-muted: #4f535a;"
+      "expression": "--glass-syntax-string: var(--solid-syntax-string);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 89,
-      "expression": "--glass-accent-text: #774801;"
+      "expression": "--glass-syntax-title: var(--solid-syntax-title);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 90,
-      "expression": "--glass-danger: #a01e2b;"
+      "expression": "--glass-syntax-type: var(--solid-syntax-type);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 91,
-      "expression": "--glass-warning: #863e08;"
+      "expression": "--glass-text-muted: var(--solid-text-muted);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 92,
-      "expression": "--glass-success: #1a5f30;"
+      "expression": "--glass-text-secondary: var(--solid-text-secondary);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 93,
-      "expression": "--glass-kind-ideator: #455a08;"
+      "expression": "--glass-warning: var(--solid-warning);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 94,
-      "expression": "--glass-kind-worker: #115d4b;"
+      "expression": "--glass-text-muted: #4f535a;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 95,
-      "expression": "--glass-kind-manager: #414b9d;"
+      "expression": "--glass-accent-text: #774801;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 96,
-      "expression": "--glass-kind-expert: #643f98;"
+      "expression": "--glass-danger: #a01e2b;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 97,
-      "expression": "--glass-kind-human: #774801;"
+      "expression": "--glass-warning: #863e08;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 98,
-      "expression": "--glass-autonomous: #6b4e03;"
+      "expression": "--glass-success: #1a5f30;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 99,
-      "expression": "--glass-syntax-keyword: #414b9d;"
+      "expression": "--glass-kind-ideator: #455a08;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 100,
-      "expression": "--glass-syntax-string: #455a08;"
+      "expression": "--glass-kind-worker: #115d4b;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 101,
-      "expression": "--glass-syntax-number: #774801;"
+      "expression": "--glass-kind-manager: #414b9d;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 102,
-      "expression": "--glass-syntax-title: #115d4b;"
+      "expression": "--glass-kind-expert: #643f98;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 103,
-      "expression": "--glass-syntax-type: #643f98;"
+      "expression": "--glass-kind-human: #774801;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 104,
-      "expression": "--glass-syntax-comment: #4f535a;"
+      "expression": "--glass-autonomous: #6b4e03;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 105,
+      "expression": "--glass-syntax-keyword: #414b9d;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 106,
+      "expression": "--glass-syntax-string: #455a08;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 107,
+      "expression": "--glass-syntax-number: #774801;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 108,
+      "expression": "--glass-syntax-title: #115d4b;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 109,
+      "expression": "--glass-syntax-type: #643f98;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 110,
+      "expression": "--glass-syntax-comment: #4f535a;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 114,
       "expression": "--glass-accent-text: #923410;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 112,
+      "line": 118,
       "expression": "--glass-accent-text: #972555;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 116,
+      "line": 122,
       "expression": "--glass-accent-text: #285e1f;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 120,
+      "line": 126,
       "expression": "--glass-accent-text: #1c5390;"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 124,
+      "line": 130,
       "expression": "--glass-accent-text: var(--solid-accent-text);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 128,
-      "expression": "--glass-accent-text: var(--solid-accent-text);"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 132,
-      "expression": ":root[data-background='active'][data-glass='frosted'] * {"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 133,
-      "expression": "--accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 134,
-      "expression": "--autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 135,
-      "expression": "--danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 136,
-      "expression": "--kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 137,
-      "expression": "--kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));"
+      "expression": "--glass-accent-text: var(--solid-accent-text);"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
       "line": 138,
-      "expression": "--kind-ideator: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 143,
-      "expression": "--kind-manager: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 148,
-      "expression": "--kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 149,
-      "expression": "--success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 150,
-      "expression": "--syntax-comment: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 155,
-      "expression": "--syntax-keyword: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 160,
-      "expression": "--syntax-number: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 165,
-      "expression": "--syntax-string: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 170,
-      "expression": "--syntax-title: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 175,
-      "expression": "--syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 176,
-      "expression": "--text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 177,
-      "expression": "--text-secondary: color-mix("
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 182,
-      "expression": "--warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));"
-    },
-    {
-      "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 186,
       "expression": ":root[data-background='active'][data-glass='frosted'] * {"
     },
     {
       "file": "src/shared/ui/theme/tokens-glass-ink.css",
-      "line": 187,
+      "line": 139,
+      "expression": "--focus-color: color-mix(in srgb, var(--glass-focus-color) var(--glass-ink-weight, 0%), var(--solid-focus-color));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 140,
+      "expression": "--text-primary: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 145,
+      "expression": "--text-link: color-mix(in srgb, var(--glass-text-link) var(--glass-ink-weight, 0%), var(--solid-text-link));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 146,
+      "expression": "--accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 147,
+      "expression": "--autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 148,
+      "expression": "--danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 149,
+      "expression": "--kind-expert: color-mix(in srgb, var(--glass-kind-expert) var(--glass-ink-weight, 0%), var(--solid-kind-expert));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 150,
+      "expression": "--kind-human: color-mix(in srgb, var(--glass-kind-human) var(--glass-ink-weight, 0%), var(--solid-kind-human));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 151,
+      "expression": "--kind-ideator: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 156,
+      "expression": "--kind-manager: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 161,
+      "expression": "--kind-worker: color-mix(in srgb, var(--glass-kind-worker) var(--glass-ink-weight, 0%), var(--solid-kind-worker));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 162,
+      "expression": "--success: color-mix(in srgb, var(--glass-success) var(--glass-ink-weight, 0%), var(--solid-success));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 163,
+      "expression": "--syntax-comment: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 168,
+      "expression": "--syntax-keyword: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 173,
+      "expression": "--syntax-number: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 178,
+      "expression": "--syntax-string: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 183,
+      "expression": "--syntax-title: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 188,
+      "expression": "--syntax-type: color-mix(in srgb, var(--glass-syntax-type) var(--glass-ink-weight, 0%), var(--solid-syntax-type));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 189,
+      "expression": "--text-muted: color-mix(in srgb, var(--glass-text-muted) var(--glass-ink-weight, 0%), var(--solid-text-muted));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 190,
+      "expression": "--text-secondary: color-mix("
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 195,
+      "expression": "--warning: color-mix(in srgb, var(--glass-warning) var(--glass-ink-weight, 0%), var(--solid-warning));"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 199,
+      "expression": ":root[data-background='active'][data-glass='frosted'] * {"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens-glass-ink.css",
+      "line": 200,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
@@ -8025,6 +8110,21 @@
       "file": "src/shared/ui/theme/tokens.css",
       "line": 160,
       "expression": "--animation-fade: guild-fade var(--duration-normal) var(--ease-standard);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens.css",
+      "line": 163,
+      "expression": "--area-divider: var(--area-divider-width, 1px) var(--area-divider-style, solid) var(--border-subtle);"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens.css",
+      "line": 170,
+      "expression": "--hidden-divider-width: 1px;"
+    },
+    {
+      "file": "src/shared/ui/theme/tokens.css",
+      "line": 171,
+      "expression": "--hidden-divider-style: solid;"
     },
     {
       "file": "src/shared/ui/toast/ToastViewport.module.css",
@@ -15879,6 +15979,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -20146,6 +20263,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -20163,7 +20297,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20173,14 +20307,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20190,14 +20324,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20207,7 +20341,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -20841,23 +20975,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -31613,6 +31730,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -35880,6 +36014,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -35897,7 +36048,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35907,14 +36058,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35924,14 +36075,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35941,7 +36092,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -36575,23 +36726,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -45947,6 +46081,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -50214,6 +50365,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -50231,7 +50399,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50241,14 +50409,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50258,14 +50426,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50275,7 +50443,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -50909,23 +51077,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -60281,6 +60432,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -64548,6 +64716,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -64565,7 +64750,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64575,14 +64760,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64592,14 +64777,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64609,7 +64794,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -65243,23 +65428,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -76015,6 +76183,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -80282,6 +80467,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -80299,7 +80501,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80309,14 +80511,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80326,14 +80528,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80343,7 +80545,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -80977,23 +81179,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",
@@ -90349,6 +90534,23 @@
           "reason": "Static conservative token/state coverage; element cascade is separately pending."
         },
         {
+          "name": "src/app/AppShell.module.css:13",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/app/AppShell.module.css",
+              "line": 13,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/app/Sidebar.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -94616,6 +94818,23 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/settings/components/themeSample.css:6",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/settings/components/themeSample.css",
+              "line": 6,
+              "expression": "color: var(--text-primary);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
@@ -94633,7 +94852,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:32",
+          "name": "src/features/settings/components/themeSample.css:42",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94643,14 +94862,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 32,
+              "line": 42,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:45",
+          "name": "src/features/settings/components/themeSample.css:57",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94660,14 +94879,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 45,
+              "line": 57,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:51",
+          "name": "src/features/settings/components/themeSample.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94677,7 +94896,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 51,
+              "line": 63,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -95311,23 +95530,6 @@
             }
           ],
           "reason": "User/tag/inline color is dynamic and unguaranteed."
-        },
-        {
-          "name": "src/shared/theme/candidate.ts:40",
-          "state": "source-cascade",
-          "accent": "all",
-          "status": "unresolved",
-          "text": null,
-          "overlays": [],
-          "background": null,
-          "sources": [
-            {
-              "file": "src/shared/theme/candidate.ts",
-              "line": 40,
-              "expression": "Object.values(value).every((color) => typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color))"
-            }
-          ],
-          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
           "name": "src/shared/types/domain/guild.ts:9",

@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { arrayOf, boolean, objectOf, string } from './schema';
 import type { Validator } from './schema';
+import { parseCandidate } from '@/shared/theme/candidate';
 import { delegationSchema } from './schemas/delegation';
 import { agentInputSchema, messageSchema } from './schemas/entities';
 import {
@@ -24,10 +25,16 @@ import {
 
 const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: true, import: 'default' });
 
+const themeCandidate: Validator = (value) => {
+  parseCandidate(JSON.stringify(value));
+  return [];
+};
+
 const CASES: Record<string, Validator> = {
   'global-instructions.json': string,
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
+  'theme-candidate.json': themeCandidate,
   'snapshot.json': objectOf(snapshotSchema),
   'channel-statistics.json': objectOf(channelStatisticsSchema),
   'agent-input.json': objectOf(agentInputSchema),

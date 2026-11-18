@@ -1,8 +1,9 @@
 main {
   display: grid;
-  grid-template-columns: minmax(4rem, 1fr) 3fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
   min-height: 100%;
   background-color: var(--bg-app);
+  color: var(--text-primary);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -16,8 +17,15 @@ section {
   overflow-wrap: anywhere;
 }
 aside {
-  background: var(--surface-sidebar);
   color: var(--text-secondary);
+}
+.sample-sidebar {
+  background: var(--surface-sidebar);
+  border-inline-end: var(--area-divider);
+}
+.sample-members {
+  background: var(--surface-members);
+  border-inline-start: var(--area-divider);
 }
 section {
   display: grid;
@@ -27,11 +35,14 @@ section {
 h2 {
   font-family: var(--font-heading, var(--font-sans));
   font-size: var(--text-xl);
+  padding-block-end: var(--space-2);
+  border-block-end: var(--area-divider);
 }
 time {
   color: var(--text-muted);
 }
 code {
+  --glass-ink-weight: 0%;
   background: var(--bg-sunken);
   font-family: var(--font-mono);
 }
@@ -41,6 +52,7 @@ button {
   border-radius: var(--radius-md);
 }
 input {
+  --glass-ink-weight: 0%;
   background: var(--bg-input);
   color: var(--text-primary);
   width: 100%;
@@ -54,36 +66,45 @@ button:hover {
   background: var(--accent-hover);
 }
 :focus-visible {
-  box-shadow: var(--focus-ring);
+  box-shadow: 0 0 0 2px var(--bg-app);
 }
 
 @supports (backdrop-filter: blur(1px)) {
-  :root[data-background='active'] main {
+  :root[data-background='active'][data-glass='frosted'] main {
     --glass-ink-weight: 100%;
   }
-  :root[data-background='active'] .sample-background,
-  :root[data-background='active'] main::before {
+  :root[data-background='active'][data-glass='frosted'] :is(aside, h2) {
+    border-color: var(--area-divider-glass-color, var(--glass-edge));
+  }
+  :root[data-background='active'][data-glass='frosted'] .sample-background,
+  :root[data-background='active'][data-glass='frosted'] main::before {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
   }
-  :root[data-background='active'] .sample-background {
+  :root[data-background='active'][data-glass='frosted'] .sample-background {
     display: block;
     object-fit: cover;
     filter: blur(var(--glass-background-blur));
     z-index: -2;
   }
-  :root[data-background='active'] main::before {
+  :root[data-background='active'][data-glass='frosted'] main::before {
     content: '';
     background: var(--glass-veil);
     z-index: -1;
   }
 }
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-  :root[data-background='active'] .sample-background,
-  :root[data-background='active'] main::before {
+  :root[data-background='active'][data-glass='frosted'] main {
+    --glass-ink-weight: 0%;
+  }
+  :root[data-background='active'][data-glass='frosted'] :is(aside, h2) {
+    border-color: var(--border-subtle);
+  }
+  :root[data-background='active'][data-glass='frosted'] .sample-background,
+  :root[data-background='active'][data-glass='frosted'] main::before {
     display: none;
   }
 }

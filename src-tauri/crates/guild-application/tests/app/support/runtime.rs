@@ -18,6 +18,8 @@ use tokio::sync::Notify;
 pub use super::backends::ready_backend;
 use super::frames::ImageScript;
 
+pub const THEME_CANDIDATE: &str = include_str!("../../../../../../contracts/ipc/theme-candidate.json");
+
 /// 1回分の返し方
 pub enum Script {
     Reply(String),
@@ -43,6 +45,7 @@ pub fn reply(text: &str) -> Script {
 
 #[derive(Default)]
 pub struct FakeRuntime {
+    pub theme_response: Mutex<Option<String>>,
     pub theme_requests: Mutex<Vec<(String, String, String)>>,
     pub backgrounds: super::backgrounds::BackgroundRenderer,
     scripts: Mutex<HashMap<String, VecDeque<Script>>>,
@@ -97,7 +100,7 @@ impl AgentRuntime for FakeRuntime {
         if subject == "wait" {
             std::future::pending().await
         } else {
-            Ok("theme JSON".into())
+            Ok(self.theme_response.lock().take().unwrap_or_else(|| THEME_CANDIDATE.to_owned()))
         }
     }
     async fn generate_background(&self, id: &str, backend: &str, prompt: &str) -> Result<Vec<u8>, RuntimeError> {

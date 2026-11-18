@@ -1,5 +1,11 @@
 /* Glass ink is recomputed at each consumer; opaque paint resets its inherited weight. */
 :root {
+  --solid-focus-color: var(--focus-color);
+  --glass-focus-color: var(--solid-focus-color);
+  --solid-text-primary: var(--text-primary);
+  --glass-text-primary: var(--solid-text-primary);
+  --solid-text-link: var(--text-link);
+  --glass-text-link: var(--solid-text-link);
   --solid-accent-text: var(--accent-text);
   --glass-accent-text: var(--solid-accent-text);
   --solid-autonomous: var(--autonomous);
@@ -130,6 +136,13 @@
 
 @supports (backdrop-filter: blur(1px)) {
   :root[data-background='active'][data-glass='frosted'] * {
+    --focus-color: color-mix(in srgb, var(--glass-focus-color) var(--glass-ink-weight, 0%), var(--solid-focus-color));
+    --text-primary: color-mix(
+      in srgb,
+      var(--glass-text-primary) var(--glass-ink-weight, 0%),
+      var(--solid-text-primary)
+    );
+    --text-link: color-mix(in srgb, var(--glass-text-link) var(--glass-ink-weight, 0%), var(--solid-text-link));
     --accent-text: color-mix(in srgb, var(--glass-accent-text) var(--glass-ink-weight, 0%), var(--solid-accent-text));
     --autonomous: color-mix(in srgb, var(--glass-autonomous) var(--glass-ink-weight, 0%), var(--solid-autonomous));
     --danger: color-mix(in srgb, var(--glass-danger) var(--glass-ink-weight, 0%), var(--solid-danger));

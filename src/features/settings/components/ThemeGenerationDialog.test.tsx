@@ -57,7 +57,16 @@ it('isolates the preview document, toggles schemes there and saves without chang
   expect(frame.contentDocument?.documentElement.style.getPropertyValue('--bg-app')).toBe(
     candidate.variants.dark.surface,
   );
+  const previewRoot = frame.contentDocument!.documentElement;
+  expect(previewRoot.style.getPropertyValue('--area-divider-style')).toBe('dashed');
+  expect(previewRoot.style.getPropertyValue('--area-divider-width')).toBe('2px');
+  expect(frame.contentDocument?.querySelector('.sample-members')?.textContent).toBe(ja.sampleMembers);
   fireEvent.click(screen.getByRole('radio', { name: ja.themeGuildLight }));
+  expect(previewRoot.style.getPropertyValue('--area-divider-style')).toBe('double');
+  expect(previewRoot.style.getPropertyValue('--area-divider-width')).toBe('3px');
+  fireEvent.click(screen.getByRole('radio', { name: ja.previewCurrent }));
+  expect(previewRoot.style.getPropertyValue('--area-divider-style')).toBe('');
+  fireEvent.click(screen.getByRole('radio', { name: ja.previewCandidate }));
   expect(frame.contentDocument?.documentElement.style.getPropertyValue('--bg-app')).toBe(
     candidate.variants.light.surface,
   );
@@ -66,6 +75,7 @@ it('isolates the preview document, toggles schemes there and saves without chang
   fireEvent.click(screen.getByRole('button', { name: ja.themeSave }));
   expect(onClose).toHaveBeenCalledOnce();
   expect(library().themes[0]?.backgroundId).toBe(imageId);
+  expect(library().themes[0]?.variants).toEqual(candidate.variants);
   expect(library().active.themeId).toBe('guild');
 });
 it('shows the failed ratio, allows regeneration, and applies only a verified candidate', async () => {
@@ -112,4 +122,11 @@ it('keeps the palette after an image failure and saves without an image on reque
   fireEvent.click(await screen.findByRole('button', { name: ja.noImage }));
   fireEvent.click(await screen.findByRole('button', { name: ja.saveApply }));
   expect(library().themes[0]).toMatchObject({ name: candidate.name, backgroundId: null });
+});
+
+it('shows a localized format error for a candidate rejected by Rust', async () => {
+  vi.mocked(settingsApi.generateTheme).mockRejectedValueOnce({ code: 'validation', field: 'candidate' });
+  open();
+  expect((await screen.findByRole('alert')).textContent).toContain(ja.invalidTheme);
+  expect(settingsApi.generateBackground).not.toHaveBeenCalled();
 });

@@ -28,6 +28,7 @@
 | ipc/update-status.json | UpdateStatus（check_update） |
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
+| ipc/theme-candidate.json | `generate_theme` が返す JSON 文字列の中身。guild-application とフロントエンドの候補検証で共用 |
 | ipc/desktop-notifications.json | boolean（通知の有効／無効。Rust と TS の IPC 契約テスト） |
 | runner/requests.jsonl | RunnerRequest（run / image / login / cancel / probe / setLanguage / shutdown / apiKey） |
 | runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules・midRunPost と、バックエンドごとの違いの申告（toolsOption・local・frameGeneration・backgroundGeneration・themeGeneration・setup）を含む |

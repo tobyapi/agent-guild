@@ -706,6 +706,8 @@ AppShell の不透明な下地の上に共有 ThemeBackdrop を1層だけ置き�
 
 元の bg トークンとローカル `--surface` は不透明な下地として維持。背景ありでは透過だった hover・選択中の状態色を元の地色と合成した不透明色にし、overlay も不透明にする。未読の印・入力欄・コード・dialog・toast の面は不透明のまま。
 
+サイドバー・チャット見出し・メンバー欄などの境界線には `--area-divider` を使う。生成テーマの罫線指定から色・線種・太さを設定し、ガラス面の境界では `--area-divider-glass-color` を使う。組み込みテーマと罫線未指定の保存済みテーマでは、従来のガラスの縁取りを使う。
+
 背景定義はデータだけ。shared/theme の登録 ID で生成背景（現在は登録なし）を解決し、外部 URL・絶対パス・data_dir は読まない。none は背景なし、旧nullもv2ではnoneに正規化し、未登録 ID は背景だけ none。背景と motion はv2 appearance キーだけに保存。reduced-motion・設定 off・document 非表示のどれかで scene を一時停止し、復帰時も全条件を確認する。フレームごとの React/store 更新はしない。
 
 ### 背景ありのガラス素材

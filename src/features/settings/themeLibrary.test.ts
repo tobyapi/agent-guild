@@ -1,11 +1,24 @@
 // @vitest-environment jsdom
 import { expect, it } from 'vitest';
 import { savedTheme, imageId } from '@/shared/theme/candidate.test-support';
+import type { SavedTheme } from '@/shared/theme/candidate';
+import { ColorEnvelope } from '@/shared/lib/themeBackdrop/envelope';
+import { rgb, worstRatio } from '@/shared/theme/themeColors';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import { defaultAppearance } from '@/shared/theme/registry';
 import { appearanceHarness } from './appearance.test-support';
 import { LIBRARY_KEY } from './themeLibrary';
 import { APPEARANCE_STORAGE_KEY } from './model/appearance';
+
+const legacyTheme = {
+  ...savedTheme(),
+  schemaVersion: 1,
+  id: 'user-abcdefab-1234-1234-1234-123456789abc',
+  variants: {
+    dark: { surface: '#131316', text: '#ffffff', muted: '#8f8e8f', accent: '#f0ce94' },
+    light: { surface: '#fffefa', text: '#111111', muted: '#666666', accent: '#51360d' },
+  },
+} satisfies SavedTheme;
 
 it('saves without applying, then shares one image across schemes and restores a full snapshot on restart', () => {
   const old = JSON.stringify({
@@ -41,7 +54,7 @@ it('saves without applying, then shares one image across schemes and restores a 
 it('preserves newer versions byte-for-byte and refuses writes', () => {
   for (const data of [
     { version: 4 },
-    { version: 3, themes: [{ ...savedTheme(), schemaVersion: 2 }], active: defaultAppearance(), previous: null },
+    { version: 3, themes: [{ ...savedTheme(), schemaVersion: 3 }], active: defaultAppearance(), previous: null },
   ]) {
     const raw = JSON.stringify(data);
     const h = appearanceHarness({ [LIBRARY_KEY]: raw });
@@ -68,18 +81,75 @@ it('keeps selection on a failed write, accepts retry, and falls back after delet
   expect(h.root.dataset.themeId).toBe('guild');
 });
 
-it('rejects an otherwise readable theme accent when the replacement fails only on glass', () => {
+it('adapts the accent on glass while retaining the opaque accent and persisted preference', () => {
   const theme = savedTheme();
   theme.variants = { ...theme.variants, dark: { ...theme.variants.dark, surface: '#303030' } };
   const h = appearanceHarness();
   const c = h.controller;
   c.init();
   expect(c.saveTheme(theme, true)).toBe(true);
-  const before = h.values.get(LIBRARY_KEY);
-  expect(c.setPreference({ ...c.store.getState().active, accentOverride: 'vermilion' })).toBe(false);
-  expect(c.store.getState().issues).toContainEqual(
-    expect.objectContaining({ scheme: 'dark', background: 'glass', required: 4.6 }),
-  );
-  expect(h.values.get(LIBRARY_KEY)).toBe(before);
-  expect(h.root.dataset.accent).toBeUndefined();
+  expect(c.setPreference({ ...c.store.getState().active, accentOverride: 'vermilion' })).toBe(true);
+  expect(h.root.style.getPropertyValue('--accent-text')).toBe('#ff8f6b');
+  expect(h.root.style.getPropertyValue('--glass-accent-text')).not.toBe('#ff8f6b');
+  expect(JSON.parse(h.values.get(LIBRARY_KEY)!)).toMatchObject({ active: { accentOverride: 'vermilion' } });
+});
+
+it('rejects saved themes whose divider shape does not match their schema version', () => {
+  const newer = savedTheme();
+  const h = appearanceHarness({
+    [LIBRARY_KEY]: JSON.stringify({
+      version: 3,
+      themes: [
+        { ...newer, schemaVersion: 1 },
+        { ...legacyTheme, schemaVersion: 2 },
+        { ...newer, variants: { ...newer.variants, light: legacyTheme.variants.light } },
+      ],
+      active: defaultAppearance(),
+      previous: null,
+    }),
+  });
+  h.controller.init();
+  expect(h.controller.store.getState()).toMatchObject({ themes: [], readOnly: false });
+});
+
+it('loads a saved theme near the old 92% glass contrast threshold', () => {
+  const { surface, muted } = legacyTheme.variants.dark;
+  const oldVeil = ColorEnvelope.fullRgb().over(rgb(surface), 0.92).roundedOut();
+  const oldRatio = worstRatio(muted, oldVeil);
+  expect(oldRatio).toBeGreaterThanOrEqual(4.6);
+  expect(oldRatio).toBeLessThan(4.61);
+
+  const active = { ...defaultAppearance(), themeId: legacyTheme.id, schemePreference: 'dark' };
+  const h = appearanceHarness({
+    [LIBRARY_KEY]: JSON.stringify({ version: 3, themes: [legacyTheme], active, previous: null }),
+  });
+  h.controller.init();
+  expect(h.controller.store.getState()).toMatchObject({ themes: [legacyTheme], active, readOnly: false });
+  expect(h.root.style.getPropertyValue('--text-muted')).toBe(muted);
+  expect(h.root.style.getPropertyValue('--glass-text-muted')).not.toBe(muted);
+});
+
+it('loads legacy themes and clears divider overrides on switching, undo and deletion', () => {
+  const newer = savedTheme();
+  const legacy = legacyTheme;
+  const active = { ...defaultAppearance(), themeId: legacy.id, backgroundOverride: null };
+  const h = appearanceHarness({
+    [LIBRARY_KEY]: JSON.stringify({ version: 3, themes: [legacy, newer], active, previous: null }),
+  });
+  const c = h.controller;
+  const divider = () => h.root.style.getPropertyValue('--area-divider-style');
+  c.init();
+  expect(c.store.getState().themes).toEqual([legacy, newer]);
+  expect(h.root.dataset.background).toBe('active');
+  expect(divider()).toBe('');
+  expect(c.select(newer.id)).toBe(true);
+  expect(divider()).toBe('dashed');
+  expect(c.undo()).toBe(true);
+  expect(divider()).toBe('');
+  expect(c.select(newer.id)).toBe(true);
+  expect(c.remove(newer.id)).toBe(true);
+  expect(h.root.dataset.themeId).toBe(legacy.id);
+  expect(divider()).toBe('');
+  expect(h.root.style.getPropertyValue('--glass-edge')).toBe('');
+  expect(h.root.dataset.background).toBe('active');
 });

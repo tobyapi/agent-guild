@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "name": "夜の図書館",
+  "variants": {
+    "dark": {
+      "surface": "#131316",
+      "text": "#ffffff",
+      "muted": "#d2d2d2",
+      "accent": "#f0ce94",
+      "divider": { "color": "#bb9865", "style": "dashed", "width": 2 }
+    },
+    "light": {
+      "surface": "#fffefa",
+      "text": "#111111",
+      "muted": "#383839",
+      "accent": "#51360d",
+      "divider": { "color": "#765b40", "style": "double", "width": 3 }
+    }
+  },
+  "corners": "soft",
+  "typeStyle": "serifHeadings",
+  "background": { "kind": "generate", "description": "Quiet library at night" }
+}
