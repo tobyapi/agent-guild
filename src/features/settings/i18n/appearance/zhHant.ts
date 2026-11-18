@@ -31,6 +31,8 @@ export const zhHant: Messages<typeof ja> = {
   sampleInput: '輸入訊息',
   schemeLabel: '明暗',
   themeLabel: '主題',
+  schemeDark: '深色',
+  schemeLight: '淺色',
   themeGuildDark: '公會深色',
   themeGuildLight: '公會淺色',
   themeGuildSystem: '跟隨系統',

@@ -32,20 +32,22 @@ export function BackgroundPicker({ scheme, revision = 0 }: { scheme: Scheme; rev
           if (file) void add(file);
         }}
       />
-      <Button disabled={busy} onClick={() => input.current?.click()}>
-        {t('backgroundAdd')}
-      </Button>
-      {canGenerate && (
-        <Button
-          disabled={busy}
-          onClick={() => {
-            setCancelled(false);
-            setGenerating(true);
-          }}
-        >
-          {t('backgroundGenerate')}
+      <div className={fields.actions}>
+        <Button disabled={busy} onClick={() => input.current?.click()}>
+          {t('backgroundAdd')}
         </Button>
-      )}
+        {canGenerate && (
+          <Button
+            disabled={busy}
+            onClick={() => {
+              setCancelled(false);
+              setGenerating(true);
+            }}
+          >
+            {t('backgroundGenerateTitle')}
+          </Button>
+        )}
+      </div>
       {generating && (
         <GenerateBackgroundDialog
           onClose={(wasCancelled) => {

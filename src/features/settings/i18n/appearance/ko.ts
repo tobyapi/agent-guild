@@ -31,6 +31,8 @@ export const ko: Messages<typeof ja> = {
   sampleInput: '메시지 입력',
   schemeLabel: '밝기',
   themeLabel: '테마',
+  schemeDark: '다크',
+  schemeLight: '라이트',
   themeGuildDark: '길드 다크',
   themeGuildLight: '길드 라이트',
   themeGuildSystem: '시스템 설정',

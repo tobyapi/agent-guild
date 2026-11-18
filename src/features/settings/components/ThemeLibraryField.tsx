@@ -14,34 +14,38 @@ export function ThemeLibraryField({ onDraftClosed }: { onDraftClosed: () => void
   return (
     <div className={fields.field}>
       {state.readOnly && <FormAlert>{t('newerTheme')}</FormAlert>}
-      <SelectField
-        label={t('themeLabel')}
-        value={state.active.themeId}
-        onChange={themeActions.select}
-        disabled={state.readOnly}
-      >
-        <option value="guild">{t('builtInTheme')}</option>
-        {state.themes.map((theme) => (
-          <option key={theme.id} value={theme.id}>
-            {theme.name}
-          </option>
-        ))}
-      </SelectField>
-      <div>
+      <div className={fields.themeControls}>
+        <SelectField
+          label={t('themeLabel')}
+          value={state.active.themeId}
+          onChange={themeActions.select}
+          disabled={state.readOnly}
+        >
+          <option value="guild">{t('builtInTheme')}</option>
+          {state.themes.map((theme) => (
+            <option key={theme.id} value={theme.id}>
+              {theme.name}
+            </option>
+          ))}
+        </SelectField>
         <Button disabled={state.readOnly} onClick={() => setOpen(true)}>
           {t('themeCreate')}
         </Button>
-        {state.previous && (
-          <Button disabled={state.readOnly} onClick={themeActions.undo}>
-            {t('themeUndo')}
-          </Button>
-        )}
-        {state.active.themeId !== 'guild' && (
-          <Button disabled={state.readOnly} onClick={() => setRemove(true)}>
-            {t('themeRemove')}
-          </Button>
-        )}
       </div>
+      {(state.previous || state.active.themeId !== 'guild') && (
+        <div className={fields.actions}>
+          {state.previous && (
+            <Button disabled={state.readOnly} onClick={themeActions.undo}>
+              {t('themeUndo')}
+            </Button>
+          )}
+          {state.active.themeId !== 'guild' && (
+            <Button disabled={state.readOnly} onClick={() => setRemove(true)}>
+              {t('themeRemove')}
+            </Button>
+          )}
+        </div>
+      )}
       {state.problem === 'save' && <FormAlert>{t('themeSaveFailed')}</FormAlert>}
       {state.problem === 'contrast' && issue && (
         <FormAlert>

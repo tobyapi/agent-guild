@@ -29,6 +29,8 @@ export const ja = {
   sampleInput: 'メッセージを書く',
   schemeLabel: '明るさ',
   themeLabel: 'テーマ',
+  schemeDark: 'ダーク',
+  schemeLight: 'ライト',
   themeGuildDark: 'ギルド ダーク',
   themeGuildLight: 'ギルド ライト',
   themeGuildSystem: 'システムに合わせる',

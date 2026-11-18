@@ -31,6 +31,8 @@ export const en: Messages<typeof ja> = {
   sampleInput: 'Write a message',
   schemeLabel: 'Brightness',
   themeLabel: 'Theme',
+  schemeDark: 'Dark',
+  schemeLight: 'Light',
   themeGuildDark: 'Guild Dark',
   themeGuildLight: 'Guild Light',
   themeGuildSystem: 'Follow system',
