@@ -31,13 +31,13 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   },
   {
     id: 'ideator',
-    roleTags: ['発想役', 'Ideator', '创意者', '發想者', '아이디어 담당'],
+    roleTags: ['発案者', 'Ideator', '创意者', '發想者', '아이디어 담당', '発想役'],
     builtinSkills: ['concept-shift', 'introspection', 'easily-amazed'],
-    label: '発想役',
+    label: '発案者',
     description: '複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。',
     accent: 'ideator',
     defaults: {
-      tags: ['発想役'],
+      tags: ['発案者'],
       role: '目的に合う複数のアイデアや別の切り口を考える。案ごとの狙いと違いを示し、未確認の仮説は事実と区別して、選べる形でまとめて返す',
       expertise: 'アイデア出し・企画・視点の転換',
       permissions: {

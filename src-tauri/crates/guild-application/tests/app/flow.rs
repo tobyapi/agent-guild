@@ -171,7 +171,7 @@ async fn an_ideator_waits_for_a_request_and_returns_ideas_to_the_worker() {
     app.runtime.script(haru.id.as_str(), reply("調べて試します。"));
     app.services.conversation.send_human_message(&lobby.id, "進めて", &[]).unwrap();
     app.settle().await;
-    assert!(app.runtime.requests_for(ideator.id.as_str()).is_empty(), "発想役は自動で割り込まない");
+    assert!(app.runtime.requests_for(ideator.id.as_str()).is_empty(), "発案者は自動で割り込まない");
 
     app.runtime.script(haru.id.as_str(), reply("@ヒラメ 別の切り口で3案考えて"));
     app.runtime.script(ideator.id.as_str(), reply("違う切り口の3案です。"));

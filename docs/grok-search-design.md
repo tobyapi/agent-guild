@@ -89,7 +89,7 @@ Consoleには自動チャージの有効/無効と月次チャージ総額の設
 | post / 進捗 | post関数をonPostに接続、最終回答との二重投稿を防ぐ | 既存EventReaderの途中agent_message処理を維持できる |
 | 判定 | **採用推奨**。ユーザーの「Codex経由をやめる」にも直接対応 | 今回は採用しない。namespaceの非互換を回避できる設定は未確認 |
 
-現在の制約は `codex-runtime/options.ts` のコードで確認した。古い `docs/role-permissions.md` には発想役Web不可の表が残るが、現在の `guild-domain/src/agent/templates.rs` では発想役のWeb検索・閲覧はともにtrue。実装時は現行の役割表とDispatcher計算を正とし、古い表で権限を上書きしない。
+現在の制約は `codex-runtime/options.ts` のコードで確認した。古い `docs/role-permissions.md` には発案者Web不可の表が残るが、現在の `guild-domain/src/agent/templates.rs` では発案者のWeb検索・閲覧はともにtrue。実装時は現行の役割表とDispatcher計算を正とし、古い表で権限を上書きしない。
 
 ## 3. 推奨2aの設計
 
@@ -159,7 +159,7 @@ fetch_urlはHTTP(S)公開URLだけ、file/data/UNC・loopback・private/link-loc
 | backends/grok*.test.ts と新grok/各テスト | 旧Codex前提の置換、API fixtureと権限拒否・キャンセル・二重実行の確認 |
 | scripts/harness/lib/config.mjs 等 | 新共通部品の依存方向・構成ルールを登録 |
 | contracts/runner と contracts/behavior の該当fixture | capabilityと実効権限が変わる箇所だけ更新。保存データの形式変更は不要 |
-| docs/design.md / architecture.md / role-permissions.md | 新Grokの実行経路と制約、古い発想役Webの表を更新 |
+| docs/design.md / architecture.md / role-permissions.md | 新Grokの実行経路と制約、古い発案者Webの表を更新 |
 | ランナーの既存多言語texts | API・検索・隔離不能エラーを既存5言語で追加 |
 
 Rustの役割権限・保存データ・DB migrationは変更不要。capability反映の共通契約テストはRust/TS双方で確認する。新しいusageの金額/件数をUIに表示する場合はプロトコル・Rust・UIも追加範囲になり、初回は内部集計に留めるかを決める。

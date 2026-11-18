@@ -135,9 +135,9 @@
     }
   },
   {
-    "name": "発想役 / claude",
+    "name": "発案者 / claude",
     "tags": [
-      "発想役"
+      "発案者"
     ],
     "backend": "claude",
     "permissions": {
@@ -189,9 +189,9 @@
     }
   },
   {
-    "name": "発想役 / codex",
+    "name": "発案者 / codex",
     "tags": [
-      "発想役"
+      "発案者"
     ],
     "backend": "codex",
     "permissions": {
@@ -243,9 +243,9 @@
     }
   },
   {
-    "name": "発想役 / ollama",
+    "name": "発案者 / ollama",
     "tags": [
-      "発想役"
+      "発案者"
     ],
     "backend": "ollama",
     "permissions": {
@@ -458,9 +458,9 @@
     }
   },
   {
-    "name": "発想役 / grok",
+    "name": "発案者 / grok",
     "tags": [
-      "発想役"
+      "発案者"
     ],
     "backend": "grok",
     "permissions": {

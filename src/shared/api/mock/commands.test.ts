@@ -29,7 +29,7 @@ describe('モックのコマンド', () => {
     expect(snapshot.agents[0]?.avatar).toBe('🧭');
     expect(snapshot.templates.map((template) => template.label)).toEqual([
       '作業者',
-      '発想役',
+      '発案者',
       '専門家',
       'マネージャー',
     ]);

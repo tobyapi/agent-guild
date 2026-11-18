@@ -8,7 +8,7 @@ import { call, fixture, home, outside, peer, read, request, root, workspace } fr
 
 vi.mock('node:os', async (original) => ({ ...(await original<typeof import('node:os')>()), homedir: () => home }));
 
-const ROLES = ['作業者', '専門家', '発想役', 'マネージャー'];
+const ROLES = ['作業者', '専門家', '発案者', 'マネージャー'];
 const policies = (role: string) => {
   const req = request(role);
   return [fileAccessPolicy(req), checkedPolicy(req, vi.fn().mockResolvedValue({ allow: true, reason: '' }), vi.fn())];
@@ -83,7 +83,7 @@ describe('判定するパスと道具が使うパスの食い違い', () => {
 
 describe('リンクを通じた範囲外の読み取り（readAnywhere のない役割）', () => {
   const scoped = () => {
-    const req = request('発想役');
+    const req = request('発案者');
     return { ...req, permissions: { ...req.permissions, readAnywhere: false, writeAnywhere: false } };
   };
 
@@ -114,7 +114,7 @@ describe('リンクを通じた範囲外の読み取り（readAnywhere のない
 
 describe('Glob の pattern で起点の外を一覧させない（writeAnywhere のない役割）', () => {
   it.each(['../../**/*', '{.,x}{.,x}/**', '../peer/.env'])('pattern %s を拒否する', async (pattern) => {
-    for (const role of ['専門家', '発想役', 'マネージャー']) {
+    for (const role of ['専門家', '発案者', 'マネージャー']) {
       for (const policy of policies(role)) {
         for (const path of [undefined, workspace, outside]) {
           const result = await call(policy, 'Glob', { pattern, ...(path ? { path } : {}) });
@@ -125,7 +125,7 @@ describe('Glob の pattern で起点の外を一覧させない（writeAnywhere 
   });
 
   it('普通の pattern は引き続き通る', async () => {
-    for (const policy of policies('発想役')) {
+    for (const policy of policies('発案者')) {
       expect(await call(policy, 'Glob', { pattern: '**/*.{md,txt}', path: workspace })).toMatchObject({
         behavior: 'allow',
       });
@@ -142,7 +142,7 @@ describe('canUseTool が呼ばれない呼び出し（PreToolUse のフック）
     );
   const denied = { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny' } };
 
-  it.each(['発想役', '専門家'])('%s: 作業場所の中から外を指す呼び出しを拒否し、許可は返さない', async (role) => {
+  it.each(['発案者', '専門家'])('%s: 作業場所の中から外を指す呼び出しを拒否し、許可は返さない', async (role) => {
     const hook = fileAccessHook(request(role));
     expect(await hookCall(hook, 'Glob', { pattern: '../../**/*' })).toMatchObject(denied);
     expect(await hookCall(hook, 'Read', { file_path: join(workspace, 'secret-link', 'config') })).toMatchObject(denied);
@@ -156,7 +156,7 @@ describe('canUseTool が呼ばれない呼び出し（PreToolUse のフック）
   });
 
   it('通常実行のオプションに、登録の確認のあとに入っている', async () => {
-    const sdk = claudeOptions(request('発想役'), {
+    const sdk = claudeOptions(request('発案者'), {
       abortController: new AbortController(),
       pluginDir: null,
       onPost: vi.fn(),

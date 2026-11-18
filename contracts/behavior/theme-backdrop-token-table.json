@@ -7729,7 +7729,7 @@
     {
       "file": "src/shared/ui/theme/tokens.css",
       "line": 71,
-      "expression": "--kind-ideator: #bfdc73; /* 若葉: 発想役 */"
+      "expression": "--kind-ideator: #bfdc73; /* 若葉: 発案者 */"
     },
     {
       "file": "src/shared/ui/theme/tokens.css",

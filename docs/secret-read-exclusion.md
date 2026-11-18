@@ -1,6 +1,6 @@
 # readAnywhere の秘密情報の除外（B）
 
-この変更は Claude の readAnywhere が追加した読み取りに適用する。writeAnywhere の作業者、readAnywhere のない発想役、書き込み判定、Codex の設定は変更しない。作業場所・readableDirs の中に実体も収まる読み取りは従来どおり許可する。ただし readAnywhere あり・writeAnywhere なしの場合、Glob の絶対パス pattern は起点に関係なく拒否する。絶対 pattern は path を無視して範囲外を一覧できるためで、作業場所内の検索は path と相対 pattern で指定する。その範囲にある .env 等の Read は今回の除外対象ではない。外へ出るシンボリックリンクは拡張範囲として判定する。
+この変更は Claude の readAnywhere が追加した読み取りに適用する。writeAnywhere の作業者、readAnywhere のない発案者、書き込み判定、Codex の設定は変更しない。作業場所・readableDirs の中に実体も収まる読み取りは従来どおり許可する。ただし readAnywhere あり・writeAnywhere なしの場合、Glob の絶対パス pattern は起点に関係なく拒否する。絶対 pattern は path を無視して範囲外を一覧できるためで、作業場所内の検索は path と相対 pattern で指定する。その範囲にある .env 等の Read は今回の除外対象ではない。外へ出るシンボリックリンクは拡張範囲として判定する。
 
 ## 除外リストと理由
 
@@ -52,7 +52,7 @@ Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒
 ## 残る制約
 
 - Codex は今回対象外。既存の workspace-write sandbox は読み取りを絞らず、同じ役割名でもこの除外は効かない。
-- 作業者の writeAnywhere は維持する。発想役等の writeAnywhere のない役割では、従来通っていた絶対 Glob pattern を拒否する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
+- 作業者の writeAnywhere は維持する。発案者等の writeAnywhere のない役割では、従来通っていた絶対 Glob pattern を拒否する。元から読める作業場所・readableDirs 内の秘密名も維持する。これは PC 全体の秘密情報をすべての役割から隔離する仕組みではない。
 - パスの事前判定なので、判定後・検索点検後に別プロセスがファイルやリンクを差し替える競合（TOCTOU）を OS の境界として止められない。除外先の実体の変更もポリシー再作成までは追従しない。ハードリンク、別名コピー、別マウントによる別経路は内容の由来を判別できない。
 - 一覧外のブラウザ・独自プロファイル、別名の認証ファイル、認証設定のバックアップ等を網羅する保証はない。
 - Chrome Beta/Canary の標準プロファイルと、~/.zsh_history・.zsh_history.new・.bash_history・.zsh_sessions・.bash_sessions は追加済み。履歴の任意の移動先（HISTFILE・ZDOTDIR）や別名のバックアップ、1Password、Slack、iCloud 等は未追加。Windows・Linux 用のブラウザとアプリ設定の既定の保存先は、下の「Windows・Linux の場所と、パスの形による拒否」で追加した（網羅ではない）。
@@ -63,7 +63,7 @@ Grep・Glob・LS は、除外先の中、および除外先を含む起点を拒
 
 ## 2026-11-11 全役割の Glob 修正と除外追加
 
-絶対 pattern の拒否理由は path に起点、pattern に相対パターンを書く案内だけを返し、狭い検索範囲への一般案内は付けない。writeAnywhere のある Claude、Codex、Ollama の処理は変更しない。作業者の既定は writeAnywhere=true なので維持される。writeAnywhere を外した作業者の構成も、発想役と同じ拒否判定を通る。
+絶対 pattern の拒否理由は path に起点、pattern に相対パターンを書く案内だけを返し、狭い検索範囲への一般案内は付けない。writeAnywhere のある Claude、Codex、Ollama の処理は変更しない。作業者の既定は writeAnywhere=true なので維持される。writeAnywhere を外した作業者の構成も、発案者と同じ拒否判定を通る。
 
 追加場所の根拠（履歴の内容は閲覧していない）:
 - Chrome Beta/Canary: [Chromium公式 user_data_dir.md](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/user_data_dir.md) の Mac OS X。~/Library/Application Support/Google/Chrome Beta と Chrome Canary。独自 --user-data-dir の移動先は網羅しない。

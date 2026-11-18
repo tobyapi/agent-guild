@@ -1,6 +1,6 @@
 # AIギルド 設計書（仕様と契約）— 改訂2
 
-人間と AI エージェント（作業者・発想役・専門家・マネージャー）がチャンネルで会話する Tauri デスクトップアプリ。
+人間と AI エージェント（作業者・発案者・専門家・マネージャー）がチャンネルで会話する Tauri デスクトップアプリ。
 エージェントごとにバックエンド（Claude / Codex / Ollama など）を選べ、異なるバックエンドのエージェント同士も同じチャンネルで会話する。
 コード構造は `docs/architecture.md`。型の正は `src/shared/types/domain/` と `agent-runner/src/protocol.ts`。実例は `contracts/`。
 
@@ -39,7 +39,7 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | テンプレート（表の順） | tags | permissions | unmentioned | consultable | canDelegate | autonomyEnabled | accent |
 |---|---|---|---|---|---|---|---|
 | `worker` 作業者 | 作業者 | webSearch, webFetch, readFiles, writeFiles, writeAnywhere, runCommands, skills | answer | false | false | false | worker |
-| `ideator` 発想役 | 発想役 | webSearch, webFetch, readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
+| `ideator` 発案者 | 発案者 | webSearch, webFetch, readFiles, writeFiles, runCommands, skills | ignore | true | false | false | ideator |
 | `expert` 専門家 | 専門家 | readFiles, readAnywhere, writeFiles, runCommands, skills | fallback | true | false | false | expert |
 | `manager` マネージャー | マネージャー | readFiles, readAnywhere, writeFiles, runCommands, skills | lead | false | true | false | manager |
 
@@ -57,12 +57,12 @@ React (src/) ──invoke/listen──▶ Rust (src-tauri/) ──stdio JSON Lin
 | 役割 | 既定の内蔵スキル |
 |---|---|
 | 作業者 | なし |
-| 発想役 | concept-shift, introspection, easily-amazed |
+| 発案者 | concept-shift, introspection, easily-amazed |
 | 専門家 | universal-critique |
 | マネージャー | universal-manager, reflection |
 
-- 標準の役割は「作業者・発想役・専門家・マネージャー」の4つ。調査・議事録は作業者の人格例、反対意見・利用者目線は専門家の人格例にまとめる。追加タグ・担当・得意分野で視点を表現できる。
-- 発想役は指名・相談・割り振りがあったときにだけ答え、自発活動は既定で無効。案ごとの狙いと違いをまとめて返す。
+- 標準の役割は「作業者・発案者・専門家・マネージャー」の4つ。調査・議事録は作業者の人格例、反対意見・利用者目線は専門家の人格例にまとめる。追加タグ・担当・得意分野で視点を表現できる。
+- 発案者は指名・相談・割り振りがあったときにだけ答え、自発活動は既定で無効。案ごとの狙いと違いをまとめて返す。
 - 作業者は必要な調査・制作・動作確認を続けて行う。マネージャーは分担の必要性を判断し、独立した部分だけ分ける。全員を順番に呼び出す固定の手順は設けない。
 - システムプロンプトの「基本の役割」は現在の先頭タグに対応する表から毎回組み立てる。個別の担当・人格・得意分野を保ちながら、役割変更を次回の実行に反映する。
 - 表に存在しないタグは役割未設定として扱う。旧役割名を別の役割へ自動変換せず、編集画面で4種類から選べる。既存データや履歴は削除しない。
