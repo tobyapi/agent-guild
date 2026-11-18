@@ -32,7 +32,7 @@ export function ThemePicker({ backgroundRevision = 0 }: { backgroundRevision?: n
           options={[
             { value: 'dark', label: t('schemeDark') },
             { value: 'light', label: t('schemeLight') },
-            { value: 'system', label: t('themeGuildSystem') },
+            { value: 'system', label: t('schemeSystem') },
           ]}
           onChange={setSchemePreference}
         />

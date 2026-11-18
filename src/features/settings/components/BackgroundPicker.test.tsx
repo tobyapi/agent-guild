@@ -5,6 +5,7 @@ import { savedTheme } from '@/shared/theme/candidate.test-support';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
+import { format } from '@/shared/i18n';
 import { APPEARANCE_STORAGE_KEY, parseAppearance } from '../model/appearance';
 import { settingsApi } from '../api';
 import { initAppearance, setBackground, themeActions, useAppearanceStore } from '../appearance';
@@ -59,7 +60,7 @@ it('lists, selects, confirms deletion and preserves all other settings', async (
   fireEvent.keyDown(screen.getByRole('radio', { name: ja.backgroundNone }), { key: 'ArrowRight' });
   expect(image.getAttribute('aria-checked')).toBe('true');
   expect(document.documentElement.dataset.glass).toBe('frosted');
-  fireEvent.click(screen.getByRole('button', { name: `${ja.backgroundDelete} 1` }));
+  fireEvent.click(screen.getByRole('button', { name: '画像 1を削除' }));
   expect(settingsApi.deleteBackground).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(screen.queryByRole('radio', { name: `${ja.backgroundImage} 1` })).toBeNull());
@@ -155,7 +156,14 @@ it('reads existing v2 settings and rejects paths/URLs while preserving the schem
 });
 
 it('provides every image action and error in all five languages', () => {
-  for (const table of [en, ja, ko, zhHans, zhHant]) {
+  for (const [table, deleteLabel] of [
+    [ja, '画像 1を削除'],
+    [en, 'Delete Image 1'],
+    [ko, '이미지 1 삭제'],
+    [zhHans, '删除图片 1'],
+    [zhHant, '刪除圖片 1'],
+  ] as const) {
+    expect(format(table.backgroundDeleteLabel, { label: `${table.backgroundImage} 1` })).toBe(deleteLabel);
     for (const key of [
       'backgroundAdd',
       'backgroundDelete',
@@ -175,7 +183,7 @@ it('deleting an unselected image preserves the current background', async () => 
   const other = 'abcdefab-1234-1234-1234-123456789abc';
   vi.mocked(settingsApi.listBackgrounds).mockResolvedValue([id, other]);
   render(<BackgroundPicker scheme="light" />);
-  fireEvent.click(await screen.findByRole('button', { name: `${ja.backgroundDelete} 2` }));
+  fireEvent.click(await screen.findByRole('button', { name: '画像 2を削除' }));
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(settingsApi.deleteBackground).toHaveBeenCalledWith(other));
   expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual(preference);
@@ -191,7 +199,7 @@ it('restores the theme default and falls back to an opaque surface if its shared
   expect(document.documentElement.dataset.glass).toBe('none');
   fireEvent.click(inherited);
   expect(document.documentElement.dataset.glass).toBe('frosted');
-  fireEvent.click(await screen.findByRole('button', { name: ja.backgroundDelete + ' 1' }));
+  fireEvent.click(await screen.findByRole('button', { name: '画像 1を削除' }));
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(document.documentElement.dataset.glass).toBe('none'));
   expect(JSON.parse(localStorage.getItem(LIBRARY_KEY)!)).toMatchObject({

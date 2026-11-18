@@ -84,7 +84,7 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
                 variant="danger"
                 disabled={busy}
                 onClick={() => setRemoving(id)}
-                aria-label={`${t('backgroundDelete')} ${image}`}
+                aria-label={t('backgroundDeleteLabel', { label })}
               >
                 {t('backgroundDelete')}
               </Button>
