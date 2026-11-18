@@ -59,11 +59,11 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
       {choices.map(({ id, label, image }, index) => {
         const checked = id === selected;
         return (
-          <div key={id} className={styles.imageRow}>
+          <div key={id} className={styles.card}>
             <button
               type="button"
               role="radio"
-              className={styles.card}
+              className={styles.choice}
               aria-checked={checked}
               tabIndex={id === firstTab ? 0 : -1}
               onClick={() => select(id)}
