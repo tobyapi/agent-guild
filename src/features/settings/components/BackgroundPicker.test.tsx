@@ -163,7 +163,8 @@ it('provides every image action and error in all five languages', () => {
     [zhHans, '删除图片 1'],
     [zhHant, '刪除圖片 1'],
   ] as const) {
-    expect(format(table.backgroundDeleteLabel, { label: `${table.backgroundImage} 1` })).toBe(deleteLabel);
+    const label = `${format(table.backgroundImage)} 1`;
+    expect(format(table.backgroundDeleteLabel, { label })).toBe(deleteLabel);
     for (const key of [
       'backgroundAdd',
       'backgroundDelete',
