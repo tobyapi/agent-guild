@@ -31,21 +31,17 @@ export function ThemeLibraryField({ onDraftClosed }: { onDraftClosed: () => void
         <Button disabled={state.readOnly} onClick={() => setOpen(true)}>
           {t('themeCreate')}
         </Button>
+        {state.previous && (
+          <Button disabled={state.readOnly} onClick={themeActions.undo}>
+            {t('themeUndo')}
+          </Button>
+        )}
+        {state.active.themeId !== 'guild' && (
+          <Button disabled={state.readOnly} onClick={() => setRemove(true)}>
+            {t('themeRemove')}
+          </Button>
+        )}
       </div>
-      {(state.previous || state.active.themeId !== 'guild') && (
-        <div className={fields.actions}>
-          {state.previous && (
-            <Button disabled={state.readOnly} onClick={themeActions.undo}>
-              {t('themeUndo')}
-            </Button>
-          )}
-          {state.active.themeId !== 'guild' && (
-            <Button disabled={state.readOnly} onClick={() => setRemove(true)}>
-              {t('themeRemove')}
-            </Button>
-          )}
-        </div>
-      )}
       {state.problem === 'save' && <FormAlert>{t('themeSaveFailed')}</FormAlert>}
       {state.problem === 'contrast' && issue && (
         <FormAlert>

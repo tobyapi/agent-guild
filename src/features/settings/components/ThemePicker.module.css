@@ -28,6 +28,7 @@
 }
 .selectedMark {
   color: var(--accent-text);
+  font-size: var(--text-lg);
 }
 .preview,
 .emptyPreview {
