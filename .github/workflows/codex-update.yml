@@ -1,0 +1,181 @@
+name: Update Codex SDK
+
+on:
+  schedule:
+    # JST 09:23 / 21:23。Actions が混みやすい毎時0分を避ける。
+    - cron: '23 0,12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: codex-update
+  cancel-in-progress: false
+
+jobs:
+  check-published-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check whether the app version has been published
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! latest=$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2> "$RUNNER_TEMP/latest-release-error"); then
+            if grep -q '(HTTP 404)$' "$RUNNER_TEMP/latest-release-error"; then
+              echo '::error::公開済みの安定版リリースが見つかりません。アプリのリリースを公開してから再実行してください'
+            fi
+            cat "$RUNNER_TEMP/latest-release-error" >&2
+            exit 1
+          fi
+          node scripts/codex-update.mjs check-published-release "$latest"
+
+  prepare:
+    needs: check-published-release
+    runs-on: macos-latest
+    timeout-minutes: 30
+    outputs:
+      old: ${{ steps.check.outputs.old }}
+      new: ${{ steps.check.outputs.new }}
+      tag: ${{ steps.update.outputs.tag }}
+      patch-artifact: ${{ steps.patches.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check the stable SDK on npm
+        id: check
+        env:
+          MIN_AGE_HOURS: ${{ vars.MIN_AGE_HOURS || '72' }}
+        run: |
+          sdk_metadata="$RUNNER_TEMP/codex-sdk.json"
+          curl -fsSL --retry 3 --compressed https://registry.npmjs.org/@openai%2Fcodex-sdk -o "$sdk_metadata"
+          node scripts/codex-update.mjs check "$sdk_metadata"
+
+      - name: Update the SDK and bump the app patch version
+        if: steps.check.outputs.new != ''
+        id: update
+        env:
+          SDK_VERSION: ${{ steps.check.outputs.new }}
+        run: |
+          cli_metadata="$RUNNER_TEMP/codex-cli.json"
+          curl -fsSL --retry 3 --compressed https://registry.npmjs.org/@openai%2Fcodex -o "$cli_metadata"
+          npm install "@openai/codex-sdk@$SDK_VERSION" --package-lock-only --ignore-scripts --no-audit --no-fund
+          git add -- package.json package-lock.json
+          git diff --cached --check
+          git diff --cached -- package.json package-lock.json > "$RUNNER_TEMP/codex.patch"
+          tag=$(node scripts/codex-update.mjs bump "$SDK_VERSION" "$cli_metadata")
+          git diff --check
+          git diff -- package.json package-lock.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock > "$RUNNER_TEMP/version.patch"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        id: patches
+        if: steps.check.outputs.new != ''
+        with:
+          name: codex-release-patches-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/codex.patch
+            ${{ runner.temp }}/version.patch
+          if-no-files-found: error
+
+      - name: Check the updated dependency
+        if: steps.check.outputs.new != ''
+        run: |
+          npm ci --ignore-scripts
+          npm audit signatures
+          npm rebuild
+          npm run typecheck
+          npm run lint
+          npm run harness
+          # macOS の隔離を使うテストには、別名を含まない一時ディレクトリを渡す。
+          test_temp=$(mktemp -d "$RUNNER_TEMP/codex-tests.XXXXXX")
+          test_temp=$(cd "$test_temp" && pwd -P)
+          export TMPDIR="$test_temp"
+          npm test
+
+  push:
+    needs: prepare
+    if: needs.prepare.outputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      sha: ${{ steps.push.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.patch-artifact }}
+          path: ${{ runner.temp }}
+
+      # npm やテストはここでは実行しない。許可した版管理ファイルの差分だけを適用する。
+      - name: Commit and push main and the release tag atomically
+        id: push
+        env:
+          OLD_SDK: ${{ needs.prepare.outputs.old }}
+          NEW_SDK: ${{ needs.prepare.outputs.new }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          refs=$(git ls-remote --refs origin refs/heads/main "refs/tags/$TAG")
+          if [[ "$refs" != "$GITHUB_SHA"$'\t'refs/heads/main ]]; then
+            echo "::error::main が進んだか、タグ $TAG が既にあります。main とタグの状態を確認してください"
+            exit 1
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git apply --index --include=package.json --include=package-lock.json "$RUNNER_TEMP/codex.patch"
+          git commit -m "Codex SDK を $OLD_SDK から $NEW_SDK に更新"
+          git apply --index --include=package.json --include=package-lock.json \
+            --include=src-tauri/tauri.conf.json --include=src-tauri/Cargo.toml --include=src-tauri/Cargo.lock \
+            "$RUNNER_TEMP/version.patch"
+          git commit -m "リリース ${TAG#v}"
+          git tag "$TAG"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+          # main の保護やタグの競合で片方が拒否された場合は、両方の反映を取り消す。
+          git push --atomic origin HEAD:refs/heads/main "refs/tags/$TAG"
+
+  publish:
+    needs: [prepare, push]
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build, verify and publish the draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_SHA: ${{ needs.push.outputs.sha }}
+          OLD_SDK: ${{ needs.prepare.outputs.old }}
+          NEW_SDK: ${{ needs.prepare.outputs.new }}
+        run: bash scripts/publish-codex-update.sh

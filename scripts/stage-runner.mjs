@@ -1,8 +1,8 @@
 // 配布用に agent-runner をまとめる（`npm run bundle` の beforeBuildCommand から呼ばれる）。
 // TypeScript を JS にして src-tauri/bundled-runner/ に出し（agent-runner/tsconfig.build.json）、実行に要る npm パッケージを
 // node_modules に写す。写すのは、まとめた JS が読み込むパッケージと、その dependencies・peerDependencies をたどったもの
-// （手書きの一覧にすると、SDK が前提にする zod などが漏れる）。OS ごとの実行ファイルのパッケージ（optionalDependencies）は
-// 入れない: Claude Code と Codex CLI は、ランナーが利用者の環境に入っているものを探して使う。
+// （手書きの一覧にすると、SDK が前提にする zod などが漏れる）。Codex の npm 起動用パッケージも写すが、OS ごとの
+// 実行ファイル（optionalDependencies）は入れない。Claude Code と Codex CLI は利用者の環境にあるものを使う。
 // Windows 向けには、コマンドの隔離の実行ファイル（@microsoft/mxc-sdk の wxc-exec.exe）だけを同じ並びで入れる。
 // 最後に、まとめたものから各パッケージを実際に読み込んで確かめ、足りなければ失敗する。
 
