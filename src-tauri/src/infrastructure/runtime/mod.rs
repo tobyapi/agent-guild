@@ -79,6 +79,9 @@ async fn notify_changes(
 
 #[async_trait]
 impl AgentRuntime for RunnerRuntime {
+    async fn generate_theme(&self, id: &str, backend: &str, subject: &str) -> Result<String, RuntimeError> {
+        self.client.generate_theme(id, backend, subject).await.map_err(failure::error)
+    }
     async fn generate_background(&self, id: &str, backend: &str, prompt: &str) -> Result<Vec<u8>, RuntimeError> {
         self.draw_background(id, backend, prompt).await
     }

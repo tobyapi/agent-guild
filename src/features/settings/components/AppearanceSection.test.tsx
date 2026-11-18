@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
+import { storedActive } from '../appearance.test-support';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance } from '@/shared/theme/registry';
 import { initAppearance } from '../appearance';
 import { ACCENT_STORAGE_KEY } from '../model/accent';
 import { APPEARANCE_STORAGE_KEY } from '../model/appearance';
+import { LIBRARY_KEY } from '../themeLibrary';
 import { THEME_STORAGE_KEY } from '../model/theme';
 import { AppearanceSection } from './AppearanceSection';
 
@@ -65,8 +67,8 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
   expect(document.activeElement).toBe(screen.getByRole('radio', { name: 'なし' }));
   fireEvent.keyDown(document.activeElement!, { key: 'Home' });
   expect(document.documentElement.dataset.glass).toBe('none');
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).not.toHaveProperty('glass');
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
+  expect(storedActive(values.get(LIBRARY_KEY)!)).not.toHaveProperty('glass');
+  expect(storedActive(values.get(LIBRARY_KEY)!)).toMatchObject({
     schemePreference: 'dark',
     backgroundOverride: { kind: 'none' },
     accentOverride: 'sky',
@@ -101,7 +103,7 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
   render(<AppearanceSection />);
   expect(screen.getByRole('radio', { name: 'ギルド ライト' }).getAttribute('aria-checked')).toBe('true');
   expect(screen.getByRole('radio', { name: '空' }).getAttribute('aria-checked')).toBe('true');
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
+  expect(storedActive(values.get(LIBRARY_KEY)!)).toMatchObject({
     schemePreference: 'light',
     accentOverride: 'sky',
   });
@@ -110,6 +112,7 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
 it('明暗とアクセントを相互に保持してv2に保存し、再起動後もUIを復元する', () => {
   stopAppearance();
   const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: { kind: 'none' } };
+  values.delete(LIBRARY_KEY);
   values.set(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
@@ -117,7 +120,7 @@ it('明暗とアクセントを相互に保持してv2に保存し、再起動�
   fireEvent.click(screen.getByRole('radio', { name: 'ギルド ライト' }));
   expect(document.documentElement.dataset).toMatchObject({ theme: 'light', accent: 'sky' });
   expect(document.documentElement.hasAttribute('style')).toBe(false);
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toEqual({
+  expect(storedActive(values.get(LIBRARY_KEY)!)).toEqual({
     ...preference,
     schemePreference: 'light',
     accentOverride: 'sky',
@@ -132,7 +135,7 @@ it('明暗とアクセントを相互に保持してv2に保存し、再起動�
   expect(screen.getByRole('radio', { name: '空' }).getAttribute('aria-checked')).toBe('true');
   fireEvent.click(screen.getByRole('radio', { name: '灯の金（既定）' }));
   expect(document.documentElement.dataset.theme).toBe('light');
-  expect(JSON.parse(values.get(APPEARANCE_STORAGE_KEY)!)).toMatchObject({ accentOverride: null });
+  expect(storedActive(values.get(LIBRARY_KEY)!)).toMatchObject({ accentOverride: null });
   expect(values.get(ACCENT_STORAGE_KEY)).toBeUndefined();
 });
 

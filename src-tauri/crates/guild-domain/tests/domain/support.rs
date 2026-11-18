@@ -116,6 +116,7 @@ pub fn backend(id: &str) -> BackendInfo {
         local: false,
         frame_generation: false,
         background_generation: false,
+        theme_generation: false,
         setup: BackendSetup::default(),
     }
 }

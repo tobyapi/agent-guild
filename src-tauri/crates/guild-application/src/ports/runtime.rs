@@ -114,6 +114,9 @@ pub trait AgentRuntime: Send + Sync {
         Err(RuntimeError::Failed("Background generation is unavailable".into()))
     }
     async fn cancel_background(&self, _id: &str) {}
+    async fn generate_theme(&self, _id: &str, _backend: &str, _subject: &str) -> Result<String, RuntimeError> {
+        Err(RuntimeError::Failed("Theme generation unavailable".into()))
+    }
     fn status(&self) -> RuntimeStatus;
     /// ランナーが ready でなければ空
     fn backends(&self) -> Vec<BackendInfo>;

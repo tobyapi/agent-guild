@@ -9,6 +9,11 @@ use crate::{BackendInfo, ErrorCode, ImageRequest, RunRequest, RunUsage, RunnerEr
 #[derive(Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub(crate) enum Request<'a> {
+    Theme {
+        id: &'a str,
+        backend: &'a str,
+        subject: &'a str,
+    },
     Background {
         id: &'a str,
         #[serde(flatten)]

@@ -24,6 +24,11 @@ fn requests_fixture_round_trips() {
     for expected in lines {
         let id = expected["id"].as_str().unwrap_or_default();
         let actual = match expected["type"].as_str() {
+            Some("theme") => serde_json::to_value(Request::Theme {
+                id,
+                backend: expected["backend"].as_str().unwrap(),
+                subject: expected["subject"].as_str().unwrap(),
+            }),
             Some("background") => {
                 let request: crate::BackgroundRequest = serde_json::from_value(expected.clone()).unwrap();
                 serde_json::to_value(Request::Background { id, request: &request })

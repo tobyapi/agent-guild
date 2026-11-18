@@ -160,7 +160,7 @@ src/
                              transport.ts, tauri.ts, mock/（ブラウザ用の偽バックエンド）, errors.ts（CommandError の判定）
     types/domain/            ドメイン型（契約。index.ts から import する）
     types/schemas/           契約の実例（contracts/ipc）が型に合うかを検査するスキーマ
-    theme/                   外観の型・guild の dark/light 登録表・I/O のない ID 解決（色の実値は持たない）
+    theme/                   外観の型、テーマの登録と解決、生成候補の色の導出・検査
     ui/                      汎用部品とテーマ（theme/ は配色の正となる CSS。デザイナー担当。frames/ は内蔵のアイコンの枠の絵（1つの枠が art/ の1ファイル。共通の部品は kit/）とアバターへの重ね方）
     lib/                     画面とモックの両方が使う純粋な関数（メンション・tasks ブロック・権限・上限など。Rust と同じ規則）
 ```
@@ -169,9 +169,10 @@ src/
 
 - バックエンド呼び出しは、コマンド名から引数・戻り値の型が決まる型付きクライアントで行う。失敗は `CommandError` として扱い、code で分岐する。validation のどの入力のことかは `field`（`shared/lib/errors` の `errorField`）で決める（メッセージの語から推し量らない）。
 - 権限の表示・役割で決まる権限・その AI で使える操作と使わない理由（`shared/lib/permissions.ts`・`shared/lib/permissionPolicy.ts`）、外で開くリンクの判定（`shared/lib/links.ts`）、チャンネル名の正規化（`shared/lib/limits.ts`）は、編集画面とモックの両方が使うので shared/lib に置く（Rust の検証と同じ規則）。
-- 外観の型・テーマ登録・純粋な ID 解決は `shared/theme/`、配色の実値は `shared/ui/theme/` の CSS が持つ。規則を UI と I/O から独立させ、色を TypeScript に転記しないために分ける。`shared` から settings や app は参照しない。
-- 外観の保存・検証・移行と設定 UI は settings feature が持つ。`main.tsx` が公開 index 経由で初回描画前に `initAppearance()` を1回呼び、単一の appearance controller が `<html data-theme>`・`data-theme-id`・`data-accent` を反映する。OS 明暗の監視もこの controller だけが持ち、重複初期化で増やさない。設定 UI は同じ store を購読し、明暗・アクセントの変更は他の好みを維持して保存する。
-- 好みは localStorage の `agent-guild.appearance.v1`（DB には入れない）。新キーがなければ旧 `agent-guild.theme`・`agent-guild.accent` の文字列を移行する。有効な新キーを優先し、不正値や読出し失敗は guild＋system に復旧する。初回未設定は従来の dark。旧版へ戻せるよう当面は新旧3キーへ二重書きする（段階1は guild のみ）。キー別の保存失敗をログに残し、メモリと DOM の反映は続ける。背景と motion は旧版に対応がなく、新キーだけに保持する。
+- 組み込みの配色は `shared/ui/theme/` の CSS に置く。生成テーマは `shared/theme/candidate.ts` で JSON の構造を検査し、`themeTokens.ts` で色・角丸・見出し書体を導く。`checkTheme.ts` は描画と同じ導出結果を受け、`ColorEnvelope` から各状態の最小コントラストを求める。
+- `features/settings/themeLibrary.ts` が旧版の移行、定義の検証、カタログと直前のスナップショットを管理する。`appearanceStore.ts` は v3 の書き込みが成功してからストアと HTML を更新する。起動時の復元、OS の明暗変更、背景描画は同じカタログを参照する。v2、v1、旧 theme/accent の値は保持する。
+- `ThemeGenerationDialog` の下書きは `useThemeDraft` が保持する。画像ライブラリに生成した UUID を受け取り、保存操作でテーマに紐づける。`ThemeDraftPreview` は iframe の初期文書に CSS と React の見本を描画する。ホストとプレビューは同じトークンと解決処理を使う。
+- テーマのテキスト要求は `generate_theme` → `ThemeGenerationService` → `AgentRuntime.generate_theme` → runner-client → ランナーの `theme` と流れる。アダプターが `themeGeneration` を申告し、画像は既存の `backgroundGeneration` の経路で受け取る。
 - 通知の音は sounds feature が持つ（好みは localStorage）。`app/` が message-created を chat に渡したあと `playMessageSound()` を呼び、鳴らすかは `sounds/model/incoming.ts` の純粋な関数で決める。
 - 画面の振る舞い（押す → 状態が変わる → 表示が変わる）は `src/app/App.*.test.tsx` で検査する。アプリ全体（`<App />`）を、ブラウザで動かすときと同じモックのバックエンドにつないで jsdom に描き、偽のタイマーで時間を進める（組み立ては `src/app/appFlow.test-support.tsx`）。jsdom を使うテストは先頭に `// @vitest-environment jsdom` を書き、ほかのテストは node のまま動かす。
 - テストだけで使う部品（モックの組み立て・共通の値）は `<名前>.test-support.ts` に置く。vitest を import してよいのはテストとこれだけで、本番のコードからは import しない（ハーネスが検査）。

@@ -148,6 +148,8 @@ pub struct BackendInfo {
     pub frame_generation: bool,
     #[serde(default)]
     pub background_generation: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub theme_generation: bool,
     /// アプリからのセットアップでできること
     pub setup: BackendSetup,
 }

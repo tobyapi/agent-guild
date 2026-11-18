@@ -6,6 +6,7 @@ import { t } from '../texts/index.ts';
 import type { BackendInfo } from '../protocol.ts';
 import { claudeAdapter } from './claude.ts';
 import { codexAdapter } from './codex.ts';
+import { codexTheme } from '../themes/codex.ts';
 import { codexBackground, codexBackgroundReady } from '../backgrounds/codex.ts';
 import { grokAdapter } from './grok.ts';
 import { museAdapter } from './muse.ts';
@@ -16,7 +17,7 @@ import { EMPTY_CATALOG, type BackendAdapter, type BackendProbe, type ModelCatalo
 
 const BUILTIN_ADAPTERS: readonly BackendAdapter[] = [
   claudeAdapter,
-  { ...codexAdapter, background: codexBackground, backgroundReady: codexBackgroundReady },
+  { ...codexAdapter, theme: codexTheme, background: codexBackground, backgroundReady: codexBackgroundReady },
   grokAdapter,
   museAdapter,
   ollamaAdapter,
@@ -48,7 +49,13 @@ export class BackendRegistry {
 async function describeAdapter(adapter: BackendAdapter): Promise<BackendInfo> {
   const [probe, catalog] = await Promise.all([probeOf(adapter), catalogOf(adapter)]);
   const backgroundGeneration = Boolean(adapter.background) && (await adapter.backgroundReady?.()) !== false;
-  return { ...adapter.info(), ...catalog, ...probe, backgroundGeneration };
+  return {
+    ...adapter.info(),
+    ...catalog,
+    ...probe,
+    backgroundGeneration,
+    ...(adapter.theme ? { themeGeneration: true } : {}),
+  };
 }
 
 /** probe に失敗したら unavailable */

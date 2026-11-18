@@ -39,6 +39,7 @@ pub(super) fn backend(info: runner::BackendInfo) -> BackendInfo {
         local: info.local,
         frame_generation: info.frame_generation,
         background_generation: info.background_generation,
+        theme_generation: info.theme_generation,
         setup: setup(info.setup),
     }
 }

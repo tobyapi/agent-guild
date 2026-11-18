@@ -72,6 +72,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   update_profile: objectOf(profileSchema),
   update_guild: objectOf(guildProfileSchema),
   generate_background_image: string,
+  generate_theme: string,
+  cancel_theme_generation: nullValue,
   cancel_background_generation: nullValue,
   generate_avatar_frame: customFrameSchema,
   get_frame_image: string,

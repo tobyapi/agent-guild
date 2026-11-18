@@ -16,6 +16,9 @@ pub struct RunnerClient {
 }
 
 impl RunnerClient {
+    pub async fn generate_theme(&self, id: &str, backend: &str, subject: &str) -> Result<String, RunnerError> {
+        run::run(&self.shared, id, run::Work::Theme { backend, subject }, Box::new(|_| {})).await
+    }
     pub async fn generate_background(
         &self,
         id: &str,

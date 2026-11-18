@@ -27,6 +27,7 @@ mod statistics;
 mod stopping;
 mod storage;
 mod support;
+mod theme_generation;
 mod use_cases;
 
 mod role_permissions;

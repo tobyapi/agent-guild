@@ -1,8 +1,9 @@
-﻿// 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
+// 受信した JSON オブジェクトを RunnerRequest として検証する。未知のフィールドは捨てる。
 // 未知の type・不正な要求は理由つきで返す（id があれば Dispatcher が bad_request を返し、なければ記録だけする）。
 
 import type { RunRequest } from './backends/types.ts';
 import { decodeBackground } from './backgrounds/decoder.ts';
+import { decodeTheme } from './themes/decoder.ts';
 import { decodeImage } from './image-request-decoder.ts';
 import { LANGUAGES, parseLanguage } from './i18n.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
@@ -190,6 +191,7 @@ function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
 
 function decodeSpecial(value: JsonObject, id: string | null): DecodeResult | undefined {
   if (value.type === 'backendAuthMode') return decodeBackendAuthMode(value, id);
+  if (value.type === 'theme') return decodeTheme(value, id);
   if (value.type === 'background' || value.type === 'backgroundCancel') return decodeBackground(value, id);
   return undefined;
 }

@@ -80,6 +80,7 @@ export interface BackendInfo {
   frameGeneration: boolean;
   /** Dedicated background renderer; omitted means unsupported. */
   backgroundGeneration?: boolean;
+  themeGeneration?: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }

@@ -1,9 +1,16 @@
+import { notifyInfo } from '@/shared/ui';
+import { tAppearance } from './i18n/appearance';
 import { useStore } from 'zustand';
-import type { AppearancePreference, BackgroundSpec, SchemePreference, MotionPreference } from '@/shared/theme/types';
+import type { BackgroundSpec, SchemePreference, MotionPreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
 const controller = createAppearanceStore();
+export function missingBackground(id: string) {
+  const state = controller.store.getState();
+  if (state.active.themeId === 'guild') clearBackgroundIfSelected(id);
+  else controller.missingImage(id);
+}
 
 export function setSchemePreference(schemePreference: SchemePreference): void {
   controller.setPreference({ ...controller.store.getState().preference, schemePreference });
@@ -25,10 +32,17 @@ export function setMotionPreference(motionPreference: MotionPreference): void {
 /** 初回描画前に保存値を反映する。返す関数は監視の解除用。 */
 export function initAppearance(): () => void {
   controller.init();
+  if (controller.store.getState().readOnly) notifyInfo(tAppearance('newerTheme'));
   return () => controller.dispose();
 }
 
-export function useAppearanceStore<T>(selector: (state: { preference: AppearancePreference }) => T): T {
+export const themeActions = {
+  save: controller.saveTheme,
+  select: (id: string) => controller.select(id),
+  remove: (id: string) => controller.remove(id),
+  undo: () => controller.undo(),
+};
+export function useAppearanceStore<T>(selector: (state: ReturnType<typeof controller.store.getState>) => T): T {
   return useStore(controller.store, selector);
 }
 

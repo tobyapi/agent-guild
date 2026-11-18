@@ -9,7 +9,9 @@ export function resolveAppearance(
 ): ResolvedAppearance {
   const selected = hasThemeVariants(registry, preference.themeId) ? preference : safeAppearance();
   const scheme = selected.schemePreference === 'system' ? systemScheme : selected.schemePreference;
-  const background = resolveBackground(selected.backgroundOverride ?? { kind: 'none' });
+  const background = resolveBackground(
+    selected.backgroundOverride ?? registry[selected.themeId]?.variants[scheme].background ?? { kind: 'none' },
+  );
   return {
     themeId: selected.themeId,
     scheme,

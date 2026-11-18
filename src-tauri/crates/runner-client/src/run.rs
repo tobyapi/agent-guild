@@ -16,6 +16,10 @@ const STARTING_MARGIN: Duration = Duration::from_secs(1);
 /// ランナーに頼む仕事。どちらも終端イベント（result / error）をちょうど1回返す
 #[derive(Clone, Copy)]
 pub(crate) enum Work<'a> {
+    Theme {
+        backend: &'a str,
+        subject: &'a str,
+    },
     Background(&'a crate::BackgroundRequest),
     Run(&'a RunRequest),
     /// 画像を1枚描く（PNG は依頼の output に書かれる）
@@ -32,6 +36,7 @@ pub(crate) enum Work<'a> {
 
 fn request<'a>(work: Work<'a>, id: &'a str) -> Request<'a> {
     match work {
+        Work::Theme { backend, subject } => Request::Theme { id, backend, subject },
         Work::Background(request) => Request::Background { id, request },
         Work::ApiKey { backend, action, key } => Request::ApiKey { id, backend, action, key },
         Work::Run(request) => Request::Run { id, request },

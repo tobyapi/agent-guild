@@ -5,7 +5,8 @@ import { themeCards, selectThemeCard } from '@/shared/theme/catalog';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import { THEME_STORAGE_KEY as THEME } from './model/theme';
 import { ACCENT_STORAGE_KEY as ACCENT } from './model/accent';
-import { appearanceHarness } from './appearance.test-support';
+import { LIBRARY_KEY } from './themeLibrary';
+import { appearanceHarness, storedActive } from './appearance.test-support';
 import { APPEARANCE_STORAGE_KEY as KEY, LEGACY_APPEARANCE_STORAGE_KEY as OLD } from './model/appearance';
 
 const backgrounds = [
@@ -44,7 +45,7 @@ it.each(
         : (background ?? { kind: 'none' }),
     };
     expect(h.controller.store.getState().preference).toEqual(expected);
-    expect(JSON.parse(h.values.get(KEY)!)).toEqual(expected);
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(expected);
     expect(h.values.get(OLD)).toBe(JSON.stringify(legacy));
     h.controller.dispose();
     h.storage.setItem.mockClear();
@@ -109,7 +110,7 @@ it.each(themeCards)('migrates the saved v1 card $id without modifying any old ke
   expect(h.values.get(OLD)).toBe(stored);
   expect(h.values.get(THEME)).toBe('light');
   expect(h.values.get(ACCENT)).toBe('sky');
-  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
 });
 
 it('never reapplies the v1 art priority to a v2 independent selection', () => {
@@ -124,7 +125,7 @@ it('never reapplies the v1 art priority to a v2 independent selection', () => {
   expect(h.controller.store.getState().preference).toEqual(preference);
   expect(h.root.dataset.theme).toBe('dark');
   expect(h.root.hasAttribute('data-background-source')).toBe(false);
-  expect(h.storage.setItem).not.toHaveBeenCalled();
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
 });
 
 it.each(
@@ -149,8 +150,8 @@ it.each(
     themeId: 'guild',
     backgroundOverride: { kind: 'none' },
   });
-  expect(JSON.parse(h.values.get(KEY)!)).toEqual(h.controller.store.getState().preference);
-  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(h.controller.store.getState().preference);
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
   expect(h.root.hasAttribute('data-background')).toBe(false);
 });
 
@@ -174,7 +175,7 @@ it.each(backgrounds.slice(2))('migrates retired v1 card %j with its original sch
   expect(h.values.get(OLD)).toBe(stored);
   expect(h.values.get(THEME)).toBe('light');
   expect(h.values.get(ACCENT)).toBe('sky');
-  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
 });
 
 it('retains independent v2 settings when the retired turtle theme has no background', () => {
@@ -192,7 +193,7 @@ it('retains independent v2 settings when the retired turtle theme has no backgro
   expect(h.values.get(OLD)).toBe(legacy);
   expect(h.values.get(THEME)).toBe('light');
   expect(h.values.get(ACCENT)).toBe('sky');
-  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
+  expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
   h.controller.dispose();
   h.storage.setItem.mockClear();
   h.controller.init();

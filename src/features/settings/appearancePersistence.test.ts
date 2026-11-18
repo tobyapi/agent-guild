@@ -5,7 +5,8 @@ import type { ThemeRegistry } from '@/shared/theme/types';
 import { APPEARANCE_STORAGE_KEY as KEY } from './model/appearance';
 import { ACCENTS, ACCENT_STORAGE_KEY as ACCENT } from './model/accent';
 import { THEME_STORAGE_KEY as THEME } from './model/theme';
-import { appearanceHarness } from './appearance.test-support';
+import { LIBRARY_KEY } from './themeLibrary';
+import { appearanceHarness, storedActive } from './appearance.test-support';
 
 describe('legacy appearance migration', () => {
   const cases = (['dark', 'light', 'system'] as const).flatMap((scheme) =>
@@ -21,8 +22,8 @@ describe('legacy appearance migration', () => {
       schemePreference: scheme,
       accentOverride: accent === 'default' ? null : accent,
     });
-    expect(JSON.parse(h.values.get(KEY)!)).toEqual(preference);
-    expect(h.storage.setItem.mock.calls.filter(([key]) => key === KEY)).toHaveLength(1);
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(preference);
+    expect(h.storage.setItem.mock.calls.filter(([key]) => key === LIBRARY_KEY)).toHaveLength(1);
     expect(h.values.get(THEME)).toBe(scheme);
     expect(h.values.get(ACCENT)).toBe(accent);
     expect(h.query.addEventListener).toHaveBeenCalledTimes(1);
@@ -46,8 +47,8 @@ describe('legacy appearance migration', () => {
     const h = appearanceHarness({ [KEY]: JSON.stringify(preference), [THEME]: 'dark', [ACCENT]: 'sky' });
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(preference);
-    expect(h.storage.getItem.mock.calls).toEqual([[KEY]]);
-    expect(h.storage.setItem).not.toHaveBeenCalled();
+    expect(h.storage.getItem.mock.calls).toEqual([[LIBRARY_KEY], [KEY]]);
+    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
     expect(h.root.dataset.theme).toBe('light');
     expect(h.root.dataset.accent).toBe('silver');
   });
@@ -95,7 +96,7 @@ describe('invalid appearance recovery', () => {
     const h = appearanceHarness({ [KEY]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(safeAppearance());
-    expect(JSON.parse(h.values.get(KEY)!)).toEqual(safeAppearance());
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(safeAppearance());
     expect(h.values.get(THEME)).toBe('light');
     expect(h.values.get(ACCENT)).toBe('sky');
     expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(KEY));
@@ -154,8 +155,8 @@ it.each([undefined, null, 'invalid', { dark: 'liquid', light: 'liquid' }, { dark
     const h = appearanceHarness({ [KEY]: JSON.stringify({ ...preference, glass }) });
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(preference);
-    expect(JSON.parse(h.values.get(KEY)!)).toEqual(preference);
-    expect(JSON.parse(h.values.get(KEY)!)).not.toHaveProperty('glass');
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(preference);
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).not.toHaveProperty('glass');
     expect(h.root.dataset).toMatchObject({ theme: 'dark', glass: 'frosted', accent: 'sky' });
     h.changeScheme(true);
     expect(h.root.dataset).toMatchObject({ theme: 'light', glass: 'frosted', accent: 'sky' });

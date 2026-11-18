@@ -35,6 +35,7 @@ describe('contracts/runner', () => {
       'apiKey',
       'background',
       'backgroundCancel',
+      'theme',
     ]);
     for (const expected of requests) {
       const decoded = decodeRequest(expected);

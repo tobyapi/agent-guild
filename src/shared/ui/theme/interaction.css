@@ -48,3 +48,18 @@
   --glass-ink-weight: 0%;
   background-color: var(--b-selection-bg);
 }
+
+/* Generated palettes guarantee both edges of the outline: the inner spacer is bg-app,
+   the outer surface is checked in every state, including translucent panes. */
+@media (forced-colors: none) {
+  :root[data-custom-theme] :focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--bg-app);
+  }
+}
+
+:where(button, input, select, textarea):disabled {
+  outline: 1px dashed currentColor;
+  outline-offset: -2px;
+}

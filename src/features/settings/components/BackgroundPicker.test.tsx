@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { LIBRARY_KEY } from '../themeLibrary';
+import { storedActive } from '../appearance.test-support';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
@@ -60,7 +62,7 @@ it('lists, selects, confirms deletion and preserves all other settings', async (
   expect(settingsApi.deleteBackground).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(screen.queryByRole('radio', { name: `${ja.backgroundImage} 1` })).toBeNull());
-  expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!)).toEqual({
+  expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual({
     ...preference,
     backgroundOverride: { kind: 'none' },
   });
@@ -75,7 +77,7 @@ it('imports raw base64, selects the image and persists only its ID', async () =>
   });
   await waitFor(() => expect(settingsApi.importBackground).toHaveBeenCalledWith('cGl4ZWw='));
   expect(await screen.findByRole('radio', { name: `${ja.backgroundImage} 1` })).toBeTruthy();
-  expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!)).toEqual(preference);
+  expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual(preference);
 });
 
 it('reports unsupported, oversized and broken images', async () => {
@@ -104,7 +106,7 @@ it('shows unavailable when the browser mock rejects importing', async () => {
 
 function BackdropProbe() {
   const background = useAppearanceStore((s) => s.preference.backgroundOverride);
-  const url = useBackgroundImage(background?.kind === 'image' ? background.assetId : null);
+  const url = useBackgroundImage(background?.kind === 'image' ? background.assetId : null, true);
   return <div data-testid="probe">{url}</div>;
 }
 
@@ -112,11 +114,11 @@ it('falls back to none on startup read failure, retaining brightness and other p
   vi.mocked(settingsApi.getBackground).mockRejectedValue({ code: 'not_found' });
   render(<BackdropProbe />);
   await waitFor(() =>
-    expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!)).toMatchObject({
+    expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toMatchObject({
       backgroundOverride: { kind: 'none' },
     }),
   );
-  expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!)).toEqual({
+  expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual({
     ...preference,
     backgroundOverride: { kind: 'none' },
   });
@@ -175,5 +177,5 @@ it('deleting an unselected image preserves the current background', async () => 
   fireEvent.click(await screen.findByRole('button', { name: `${ja.backgroundDelete} 2` }));
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(settingsApi.deleteBackground).toHaveBeenCalledWith(other));
-  expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!)).toEqual(preference);
+  expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual(preference);
 });

@@ -1,7 +1,7 @@
 //! IPC のコマンド登録表。宣言の一覧とハンドラの構築を分ける。
 use super::{
     agents, backgrounds, boot, channels, frames, global_instructions, guild, language, links, local_files, messages,
-    notifications, profile, skills, snapshot, storage, update,
+    notifications, profile, skills, snapshot, storage, themes, update,
 };
 
 macro_rules! commands {
@@ -58,6 +58,8 @@ macro_rules! commands {
             frames::cancel_avatar_frame_generation,
             frames::get_frame_image,
             backgrounds::generate_background_image,
+            themes::generate_theme,
+            themes::cancel_theme_generation,
             backgrounds::cancel_background_generation,
             backgrounds::import_background_image,
             backgrounds::list_background_images,

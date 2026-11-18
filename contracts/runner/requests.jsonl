@@ -8,3 +8,4 @@
 {"type":"apiKey","id":"key-0001","backend":"grok","action":"status"}
 {"type":"background","id":"background-0001","backend":"codex","prompt":"Create a quiet landscape background. Save as background.png."}
 {"type":"backgroundCancel","id":"background-0001"}
+{"type":"theme","id":"theme-0001","backend":"codex","subject":"A moonlit library"}

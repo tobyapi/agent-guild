@@ -32,6 +32,7 @@ pub fn ready_backend(id: &str) -> BackendInfo {
         local: false,
         frame_generation: false,
         background_generation: false,
+        theme_generation: false,
         setup: BackendSetup {
             login: Some(LoginSpec {
                 label: "ログイン".to_owned(), waiting: "ログインを待っています".to_owned()

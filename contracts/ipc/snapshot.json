@@ -370,7 +370,8 @@
         "start": null,
         "login": null,
         "apiKey": null
-      }
+      },
+      "themeGeneration": true
     },
     {
       "id": "ollama",

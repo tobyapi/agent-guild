@@ -1,0 +1,66 @@
+main {
+  display: grid;
+  grid-template-columns: minmax(4rem, 1fr) 3fr;
+  min-height: 100%;
+  background-color: var(--bg-app);
+  background-size: cover;
+  background-position: center;
+}
+aside,
+section {
+  padding: var(--space-3);
+  overflow-wrap: anywhere;
+}
+aside {
+  background: var(--surface-sidebar);
+  color: var(--text-secondary);
+}
+section {
+  display: grid;
+  gap: var(--space-2);
+  align-content: center;
+}
+h2 {
+  font-family: var(--font-heading, var(--font-sans));
+  font-size: var(--text-xl);
+}
+time {
+  color: var(--text-muted);
+}
+code {
+  background: var(--bg-sunken);
+  font-family: var(--font-mono);
+}
+input,
+button {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+}
+input {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  width: 100%;
+}
+button {
+  justify-self: start;
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+button:hover {
+  background: var(--accent-hover);
+}
+:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  :root[data-background='active'] main {
+    --glass-ink-weight: 100%;
+    background-image: linear-gradient(var(--glass-veil), var(--glass-veil)), var(--preview-image);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :root[data-background='active'] main {
+    background-image: none;
+  }
+}

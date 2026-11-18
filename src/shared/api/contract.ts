@@ -88,6 +88,8 @@ export interface CommandMap {
    * 検査して整えて保存する（kind は png）。返事を待つ（最長5分）。name が空なら説明の頭を名前にする
    */
   generate_background_image: { args: { requestId: string; backendId: string; description: string }; result: string };
+  generate_theme: { args: { requestId: string; backendId: string; subject: string }; result: string };
+  cancel_theme_generation: { args: { requestId: string }; result: null };
   cancel_background_generation: { args: { requestId: string }; result: null };
   generate_avatar_frame: { args: { backendId: string; description: string; name: string }; result: CustomFrame };
   /** 生成中の枠を取り消す（生成のコマンドは runtime で失敗する） */

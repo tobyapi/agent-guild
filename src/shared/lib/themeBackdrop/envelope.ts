@@ -16,6 +16,19 @@ export class ColorEnvelope {
     private readonly high: Rgb,
   ) {}
 
+  static fullRgb(): ColorEnvelope {
+    return new ColorEnvelope([0, 0, 0], [1, 1, 1]);
+  }
+
+  /** Outward rounding bounds the compositor's 8-bit result. */
+  roundedOut(): ColorEnvelope {
+    const scale = (v: number, delta: number) => Math.max(0, Math.min(1, v + delta / 510));
+    return new ColorEnvelope(
+      [scale(this.low[0], -1), scale(this.low[1], -1), scale(this.low[2], -1)],
+      [scale(this.high[0], 1), scale(this.high[1], 1), scale(this.high[2], 1)],
+    );
+  }
+
   static fromRecipe(recipe: unknown, scheme: string, expansion: ColorExpansion): ColorEnvelope {
     validateRecipeStructure(recipe);
     if (!['dark', 'light'].includes(scheme)) reject('palette', 'invalid_scheme');

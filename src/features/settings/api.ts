@@ -2,6 +2,9 @@ import { invoke } from '@/shared/api';
 import type { DataDirMode, Language } from '@/shared/types/domain';
 
 export const settingsApi = {
+  generateTheme: (requestId: string, backendId: string, subject: string) =>
+    invoke('generate_theme', { requestId, backendId, subject }),
+  cancelTheme: (requestId: string) => invoke('cancel_theme_generation', { requestId }),
   getGlobalInstructions: () => invoke('get_global_instructions'),
   setGlobalInstructions: (instructions: string) => invoke('set_global_instructions', { instructions }),
   generateBackground: (requestId: string, backendId: string, description: string) =>

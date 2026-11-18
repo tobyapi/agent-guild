@@ -27,7 +27,7 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
     themeId: value.themeId,
     schemePreference: value.schemePreference,
     accentOverride: value.accentOverride,
-    backgroundOverride: background ?? { kind: 'none' },
+    backgroundOverride: value.themeId === 'guild' ? (background ?? { kind: 'none' }) : background,
     motionPreference: value.motionPreference,
   };
   return value.version === 1 ? unifyAppearance(preference) : preference;

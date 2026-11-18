@@ -41,3 +41,7 @@ export function appearanceHarness(initial: Record<string, string> = {}, registry
     },
   };
 }
+
+export function storedActive(raw: string): unknown {
+  return (JSON.parse(raw) as { active: unknown }).active;
+}

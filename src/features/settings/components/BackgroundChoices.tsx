@@ -24,7 +24,9 @@ interface Props {
   setRemoving: (id: string) => void;
 }
 export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
-  const selected = useAppearanceStore((s) => s.preference.backgroundOverride);
+  const selected = useAppearanceStore(
+    (s) => s.preference.backgroundOverride ?? s.registry[s.active.themeId]?.variants[scheme].background,
+  );
   const choices = [null, ...ids];
   function select(id: string | null) {
     setBackground(id ? { kind: 'image', assetId: id } : { kind: 'none' });

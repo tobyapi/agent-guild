@@ -21,6 +21,7 @@ pub mod services;
 pub mod skills;
 pub mod snapshot;
 pub mod storage;
+pub mod theme_generation;
 
 pub use error::{AppError, AppResult};
 pub use services::{AppServices, Ports, StoragePorts};

@@ -1,4 +1,4 @@
-﻿import { toErrorEvent } from './dispatcher-errors.ts';
+import { toErrorEvent } from './dispatcher-errors.ts';
 import { apiKeyWork } from './dispatcher-api-key.ts';
 import { applyBackendAuthMode } from './backends/auth-mode-request.ts';
 import type { BackendRegistry } from './backends/registry.ts';
@@ -9,8 +9,9 @@ import { logError } from './log.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
 import { t } from './texts/index.ts';
-import { skillEvents } from './dispatcher-skill-events.ts';
+import { currentEvents, skillEvents } from './dispatcher-skill-events.ts';
 import { BackgroundJobs } from './backgrounds/jobs.ts';
+import { themeWork } from './themes/codex.ts';
 
 type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
 export interface DispatcherOptions {
@@ -71,7 +72,8 @@ export class Dispatcher {
   }
 
   #handle(request: RunnerRequest): void {
-    if (request.type === 'background') this.#backgrounds.start(request);
+    if (request.type === 'theme') this.#track(request.id, themeWork(this.#options.registry, request));
+    else if (request.type === 'background') this.#backgrounds.start(request);
     else if (request.type === 'backgroundCancel') this.#backgrounds.cancel(request.id);
     else if (request.type === 'run') this.#run(request);
     else if (request.type === 'image') this.#image(request);
@@ -85,15 +87,19 @@ export class Dispatcher {
       setLanguage(request.language);
       void this.#probe();
     } else if (request.type === 'probe') {
-      if (this.#jobs.has(request.id)) {
-        this.#fail(request.id, 'bad_request', 'Duplicate probe id');
-        return;
-      }
-      this.#track(request.id, async () => {
-        await this.#refreshBackends();
-        return '';
-      });
+      this.#probeRequest(request.id);
     } else this.shutdown();
+  }
+
+  #probeRequest(id: string) {
+    if (this.#jobs.has(id)) {
+      this.#fail(id, 'bad_request', 'Duplicate probe id');
+      return;
+    }
+    this.#track(id, async () => {
+      await this.#refreshBackends();
+      return '';
+    });
   }
 
   #apiKey(request: Extract<RunnerRequest, { type: 'apiKey' }>): void {
@@ -122,10 +128,7 @@ export class Dispatcher {
     if (!adapter) return;
     this.#track(id, (signal, isCurrent) => {
       // 騾比ｸｭ邨碁℃縺ｨ騾比ｸｭ縺ｮ謚慕ｨｿ縺ｯ縲∫ｵらｫｯ繧､繝吶Φ繝医ｒ騾√ｋ縺ｾ縺ｧ縺ｮ縺ゅ＞縺縺縺鷹√ｋ
-      const send = (event: RunnerEvent): void => {
-        if (isCurrent()) this.#options.send(event);
-      };
-      // 萓晞ｼ縺ｮ讓ｩ髯舌・蠖ｹ蜑ｲ縺ｧ豎ｺ縺ｾ繧具ｼ医ヰ繝・け繧ｨ繝ｳ繝峨〒縺ｯ螟峨ｏ繧峨↑縺・ｼ峨ゅい繝繝励ち縺ｫ縺ｯ縲√◎縺ｮ荳ｭ縺ｧ縺薙・繝舌ャ繧ｯ繧ｨ繝ｳ繝峨′螳医ｌ繧区桃菴懊□縺代ｒ貂｡縺・
+      const send = currentEvents(isCurrent, this.#options.send);
       return adapter.run(usableRequest(request, adapter.info()), {
         signal,
         onActivity: (detail) => send({ type: 'activity', id, detail }),
@@ -176,16 +179,16 @@ export class Dispatcher {
 
   /** id 縺檎ｩｺ縺・※縺・※ backend 縺梧里遏･縺ｪ繧峨√◎縺ｮ繧｢繝繝励ち縲ゅ◎縺・〒縺ｪ縺代ｌ縺ｰ error 繧定ｿ斐＠縺ｦ undefined */
   #claim(id: string, backend: string): BackendAdapter | undefined {
-    if (this.#jobs.has(id)) {
-      this.#fail(id, 'bad_request', t('duplicateJob', { id }));
-      return undefined;
-    }
     const adapter = this.#options.registry.find(backend);
     if (!adapter) this.#fail(id, 'unknown_backend', t('unknownBackend', { backend }));
     return adapter;
   }
 
   #track(id: string, work: Work): void {
+    if (this.#jobs.has(id)) {
+      this.#fail(id, 'bad_request', t('duplicateJob', { id }));
+      return;
+    }
     const controller = new AbortController();
     this.#jobs.set(id, controller);
     this.#settle(id, controller, work).catch((error: unknown) => {

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { settingsApi } from './api';
-import { clearBackgroundIfSelected } from './appearance';
+import { missingBackground } from './appearance';
 
 const images = new Map<string, { users: number; promise: Promise<string> }>();
 
 /** Share pending reads; release full-size data URLs when their last view unmounts. */
-export function useBackgroundImage(id: string | null): string | null {
+export function useBackgroundImage(id: string | null, activeBackground = false): string | null {
   const [loaded, setLoaded] = useState<{ id: string; url: string } | null>(null);
   useEffect(() => {
     if (!id) return;
@@ -21,7 +21,7 @@ export function useBackgroundImage(id: string | null): string | null {
         if (active) setLoaded({ id, url });
       },
       () => {
-        if (active) clearBackgroundIfSelected(id);
+        if (active && activeBackground) missingBackground(id);
       },
     );
     return () => {
@@ -29,6 +29,6 @@ export function useBackgroundImage(id: string | null): string | null {
       setLoaded(null);
       if (--entry.users === 0) images.delete(id);
     };
-  }, [id]);
+  }, [id, activeBackground]);
   return loaded?.id === id ? loaded.url : null;
 }

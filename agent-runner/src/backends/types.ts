@@ -55,6 +55,7 @@ export interface LoginContext {
 
 /** バックエンドの実装。新しいバックエンドはこれを実装して registry.ts に1行登録する */
 export interface BackendAdapter {
+  theme?: (subject: string, signal: AbortSignal) => Promise<string>;
   background?: (prompt: string, signal: AbortSignal) => Promise<Uint8Array>;
   backgroundReady?: () => Promise<boolean>;
   info(): BackendDescriptor;

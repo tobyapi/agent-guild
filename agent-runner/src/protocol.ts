@@ -111,6 +111,7 @@ export interface BackendInfo {
   frameGeneration: boolean;
   /** Dedicated background renderer is available; omitted means unsupported. */
   backgroundGeneration?: boolean;
+  themeGeneration?: boolean;
   /** アプリからのセットアップ（インストール・起動・ログイン・API キー）のうち、このバックエンドでできること */
   setup: BackendSetup;
 }
@@ -130,6 +131,7 @@ export type ErrorCode =
 
 /** Rust → runner */
 export type RunnerRequest =
+  | { type: 'theme'; id: string; backend: string; subject: string }
   | { type: 'background'; id: string; backend: string; prompt: string }
   | { type: 'backgroundCancel'; id: string }
   | {

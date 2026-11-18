@@ -7,6 +7,8 @@ function desktopOnly(): never {
 
 export const backgroundHandlers: HandlerGroup<
   | 'generate_background_image'
+  | 'generate_theme'
+  | 'cancel_theme_generation'
   | 'cancel_background_generation'
   | 'import_background_image'
   | 'list_background_images'
@@ -14,6 +16,8 @@ export const backgroundHandlers: HandlerGroup<
   | 'delete_background_image'
 > = {
   generate_background_image: desktopOnly,
+  generate_theme: desktopOnly,
+  cancel_theme_generation: () => null,
   cancel_background_generation: () => null,
   import_background_image: desktopOnly,
   list_background_images: () => [],

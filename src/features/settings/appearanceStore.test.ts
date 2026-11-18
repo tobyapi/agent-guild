@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
 import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
-import { appearanceHarness } from './appearance.test-support';
+import { LIBRARY_KEY } from './themeLibrary';
+import { appearanceHarness, storedActive } from './appearance.test-support';
 import { createAppearanceStore } from './appearanceStore';
 import { APPEARANCE_STORAGE_KEY as KEY } from './model/appearance';
 import { ACCENT_STORAGE_KEY as ACCENT } from './model/accent';
@@ -16,14 +17,14 @@ describe('appearance lifecycle', () => {
     expect(h.root.attributes).toHaveLength(0);
   });
 
-  it('updates memory, attributes and v2 storage only, removing the default accent attribute', () => {
+  it('updates memory, attributes and v3 storage only, removing the default accent attribute', () => {
     const h = appearanceHarness();
     h.controller.init();
     const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
     h.controller.setPreference(preference);
     expect(h.controller.store.getState().preference).toEqual(preference);
     expect(h.root.dataset).toMatchObject({ theme: 'light', themeId: 'guild', accent: 'sky' });
-    expect(JSON.parse(h.values.get(KEY)!)).toEqual(preference);
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(preference);
     expect(h.values.get(THEME)).toBeUndefined();
     expect(h.values.get(ACCENT)).toBeUndefined();
     h.controller.setPreference(defaultAppearance());
@@ -57,7 +58,7 @@ describe('appearance lifecycle', () => {
       backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
     expect(h.root.hasAttribute('data-background')).toBe(false);
-    expect(JSON.parse(h.values.get(KEY)!)).toMatchObject({
+    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toMatchObject({
       backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
     });
     h.controller.dispose();
@@ -85,13 +86,13 @@ describe('storage exceptions', () => {
     const h = appearanceHarness({ [KEY]: JSON.stringify(defaultAppearance()) });
     h.controller.init();
     h.storage.setItem.mockImplementation((key, value) => {
-      if (key === KEY) throw new Error('blocked');
+      if (key === LIBRARY_KEY) throw new Error('blocked');
       h.values.set(key, value);
     });
     h.controller.setPreference({ ...defaultAppearance(), schemePreference: 'light', accentOverride: 'sky' });
     expect(h.values.get(THEME)).toBeUndefined();
     expect(h.values.get(ACCENT)).toBeUndefined();
-    expect(h.root.dataset.theme).toBe('light');
+    expect(h.root.dataset.theme).toBe('dark');
     h.controller.dispose();
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(defaultAppearance());
@@ -111,7 +112,7 @@ describe('storage exceptions', () => {
     expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(failedKey));
   });
 
-  it.each([KEY])('continues memory and DOM updates when %s cannot be saved', (failedKey) => {
+  it.each([LIBRARY_KEY])('preserves memory and DOM when %s cannot be saved', (failedKey) => {
     const h = appearanceHarness();
     h.storage.setItem.mockImplementation((key, value) => {
       if (key === failedKey) throw new DOMException('full', 'QuotaExceededError');
@@ -121,9 +122,9 @@ describe('storage exceptions', () => {
     h.storage.setItem.mockClear();
     const preference = { ...defaultAppearance(), schemePreference: 'light' as const, accentOverride: 'sky' as const };
     expect(() => h.controller.setPreference(preference)).not.toThrow();
-    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([KEY]);
-    expect(h.controller.store.getState().preference).toEqual(preference);
-    expect(h.root.dataset).toMatchObject({ theme: 'light', accent: 'sky' });
+    expect(h.storage.setItem.mock.calls.map(([key]) => key)).toEqual([LIBRARY_KEY]);
+    expect(h.controller.store.getState().preference).toEqual(defaultAppearance());
+    expect(h.root.dataset.theme).toBe('dark');
     expect(h.values.has(failedKey)).toBe(false);
     expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(failedKey));
   });
@@ -138,9 +139,9 @@ describe('storage exceptions', () => {
     });
     expect(() => controller.init()).not.toThrow();
     expect(h.root.dataset.theme).toBe('dark');
-    expect(h.environment.warn).toHaveBeenCalledTimes(2);
-    expect(() => controller.setPreference({ ...defaultAppearance(), schemePreference: 'light' })).not.toThrow();
-    expect(h.root.dataset.theme).toBe('light');
+    expect(h.environment.warn).toHaveBeenCalledTimes(1);
+    expect(controller.setPreference({ ...defaultAppearance(), schemePreference: 'light' })).toBe(false);
+    expect(h.root.dataset.theme).toBe('dark');
   });
 });
 
@@ -159,5 +160,5 @@ it('automatically enables frosted glass only for images across OS changes', () =
   expect(h.root.dataset.glass).toBe('frosted');
   h.controller.setPreference({ ...preference, backgroundOverride: { kind: 'none' } });
   expect(h.root.dataset.glass).toBe('none');
-  expect(JSON.parse(h.values.get(KEY)!)).not.toHaveProperty('glass');
+  expect(storedActive(h.values.get(LIBRARY_KEY)!)).not.toHaveProperty('glass');
 });

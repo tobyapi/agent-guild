@@ -9,3 +9,9 @@ export function skillEvents(id: string, send: (event: RunnerEvent) => void) {
       send({ type: 'skillObservation', id, name, sequence: ++sequence, toolCallId: toolCallId ?? `host:${sequence}` });
   };
 }
+
+export function currentEvents(isCurrent: () => boolean, send: (event: RunnerEvent) => void) {
+  return (event: RunnerEvent) => {
+    if (isCurrent()) send(event);
+  };
+}

@@ -43,6 +43,7 @@ pub fn reply(text: &str) -> Script {
 
 #[derive(Default)]
 pub struct FakeRuntime {
+    pub theme_requests: Mutex<Vec<(String, String, String)>>,
     pub backgrounds: super::backgrounds::BackgroundRenderer,
     scripts: Mutex<HashMap<String, VecDeque<Script>>>,
     /// (ジョブ ID, エージェント ID, 依頼)
@@ -97,6 +98,14 @@ fn agent_of(workspace: &Path) -> String {
 
 #[async_trait]
 impl AgentRuntime for FakeRuntime {
+    async fn generate_theme(&self, id: &str, backend: &str, subject: &str) -> Result<String, RuntimeError> {
+        self.theme_requests.lock().push((id.into(), backend.into(), subject.into()));
+        if subject == "wait" {
+            std::future::pending().await
+        } else {
+            Ok("theme JSON".into())
+        }
+    }
     async fn generate_background(&self, id: &str, backend: &str, prompt: &str) -> Result<Vec<u8>, RuntimeError> {
         self.backgrounds.draw(id, backend, prompt).await
     }

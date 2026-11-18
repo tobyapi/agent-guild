@@ -17,6 +17,7 @@ pub mod profile;
 pub mod skills;
 pub mod snapshot;
 pub mod storage;
+pub mod themes;
 pub mod update;
 
 use guild_application::AppError;

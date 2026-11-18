@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
+import { storedActive } from '../appearance.test-support';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { backendInfo } from '@/shared/lib/backends.test-support';
 import { settingsApi } from '../api';
 import { setBackground } from '../appearance';
-import { APPEARANCE_STORAGE_KEY } from '../model/appearance';
+import { LIBRARY_KEY } from '../themeLibrary';
 import { BackgroundPicker } from './BackgroundPicker';
 import { ja } from '../i18n/appearance/ja';
 
@@ -85,7 +86,7 @@ it('shows progress, prevents duplicate submissions and selects the saved backgro
   expect(image.getAttribute('aria-checked')).toBe('true');
   expect(
     (
-      JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!) as {
+      storedActive(localStorage.getItem(LIBRARY_KEY)!) as {
         backgroundOverride: { kind: string; assetId?: string };
       }
     ).backgroundOverride,
@@ -119,7 +120,7 @@ it('cancels and ignores a late success', async () => {
   });
   expect(
     (
-      JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!) as {
+      storedActive(localStorage.getItem(LIBRARY_KEY)!) as {
         backgroundOverride: { kind: string; assetId?: string };
       }
     ).backgroundOverride?.kind,
@@ -181,7 +182,7 @@ it('cancels on unmount without applying a late result', async () => {
   });
   expect(
     (
-      JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!) as {
+      storedActive(localStorage.getItem(LIBRARY_KEY)!) as {
         backgroundOverride: { kind: string; assetId?: string };
       }
     ).backgroundOverride?.kind,

@@ -3,12 +3,15 @@ import { setMotionPreference, useAppearanceStore } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { AccentPicker } from './AccentPicker';
 import { ThemePicker } from './ThemePicker';
+import { ThemeLibraryField } from './ThemeLibraryField';
 import styles from './AccentPicker.module.css';
 
 export function AppearanceSection() {
+  const readOnly = useAppearanceStore((state) => state.readOnly);
   const motion = useAppearanceStore((state) => state.preference.motionPreference);
   return (
-    <div className={styles.appearance}>
+    <fieldset disabled={readOnly} className={styles.appearance}>
+      <ThemeLibraryField />
       <ThemePicker />
       <AccentPicker />
       <div className={styles.field}>
@@ -25,6 +28,6 @@ export function AppearanceSection() {
           onChange={setMotionPreference}
         />
       </div>
-    </div>
+    </fieldset>
   );
 }
