@@ -1,6 +1,7 @@
 import { notifyInfo } from '@/shared/ui';
 import { tAppearance } from './i18n/appearance';
 import { useStore } from 'zustand';
+import { resolveAppearance } from '@/shared/theme/resolve';
 import type { BackgroundSpec, SchemePreference, MotionPreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
@@ -8,7 +9,9 @@ import type { Accent } from './model/accent';
 const controller = createAppearanceStore();
 export function missingBackground(id: string) {
   const state = controller.store.getState();
-  if (state.active.themeId === 'guild') clearBackgroundIfSelected(id);
+  const background = resolveAppearance(state.active, state.registry, 'dark').backgroundOverride;
+  if (background.kind !== 'image' || background.assetId !== id) return;
+  if (state.active.themeId === 'guild') setBackground({ kind: 'none' });
   else controller.missingImage(id);
 }
 
@@ -16,13 +19,8 @@ export function setSchemePreference(schemePreference: SchemePreference): void {
   controller.setPreference({ ...controller.store.getState().preference, schemePreference });
 }
 
-export function setBackground(backgroundOverride: BackgroundSpec): void {
+export function setBackground(backgroundOverride: BackgroundSpec | null): void {
   controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
-}
-
-export function clearBackgroundIfSelected(id: string): void {
-  const background = controller.store.getState().preference.backgroundOverride;
-  if (background?.kind === 'image' && background.assetId === id) setBackground({ kind: 'none' });
 }
 
 export function setMotionPreference(motionPreference: MotionPreference): void {

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { errorCode } from '@/shared/lib/errors';
 import { settingsApi } from './api';
-import { clearBackgroundIfSelected, setBackground } from './appearance';
+import { missingBackground, setBackground } from './appearance';
 import { BackgroundInputError, readBackground } from './model/readBackground';
 import { tAppearance as t } from './i18n/appearance';
 
-export function useBackgroundLibrary() {
+export function useBackgroundLibrary(revision: number) {
   const [ids, setIds] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -23,7 +23,7 @@ export function useBackgroundLibrary() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [revision]);
   function generated(id: string) {
     setIds((items) => [...new Set([...items, id])].sort());
     setBackground({ kind: 'image', assetId: id });
@@ -53,7 +53,7 @@ export function useBackgroundLibrary() {
     setBusy(true);
     try {
       await settingsApi.deleteBackground(removing);
-      clearBackgroundIfSelected(removing);
+      missingBackground(removing);
       setIds((items) => items.filter((id) => id !== removing));
       setRemoving(null);
     } catch {

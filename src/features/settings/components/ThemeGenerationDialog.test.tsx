@@ -49,6 +49,11 @@ it('isolates the preview document, toggles schemes there and saves without chang
   const onClose = open();
   const frame = await screen.findByTitle<HTMLIFrameElement>(ja.previewCompare);
   await waitFor(() => expect(frame.contentDocument?.documentElement.dataset.themeId).toBe('candidate'));
+  await waitFor(() =>
+    expect(frame.contentDocument?.querySelector('main img')?.getAttribute('src')).toBe(
+      'data:image/png;base64,cGl4ZWw=',
+    ),
+  );
   expect(frame.contentDocument?.documentElement.style.getPropertyValue('--bg-app')).toBe(
     candidate.variants.dark.surface,
   );

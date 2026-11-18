@@ -152,3 +152,15 @@ it('OSに合わせる選択でOSの変更に追従し、明示選択は保持す
   query.dispatchEvent(new Event('change'));
   expect(document.documentElement.dataset.theme).toBe('dark');
 });
+
+it('notifies and disables appearance changes when a newer library is present', () => {
+  stopAppearance();
+  const future = '{"version":4,"themes":[],"future":"keep"}';
+  values.set(LIBRARY_KEY, future);
+  stopAppearance = initAppearance();
+  render(<AppearanceSection />);
+  expect(screen.getByRole('alert').textContent).toContain('読み取り専用');
+  const create = screen.getByRole<HTMLButtonElement>('button', { name: 'テーマを作る' });
+  expect(create.matches(':disabled')).toBe(true);
+  expect(values.get(LIBRARY_KEY)).toBe(future);
+});

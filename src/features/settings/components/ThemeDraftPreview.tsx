@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ThemeCandidate } from '@/shared/theme/candidate';
 import { resolveAppearance } from '@/shared/theme/resolve';
@@ -89,7 +89,8 @@ function Sample({ name, url }: { name: string; url: string | null }) {
   return (
     <>
       <style>{tokens + global + css}</style>
-      <main style={url ? ({ '--preview-image': 'url("' + url + '")' } as CSSProperties) : undefined}>
+      <main>
+        {url && <img className="sample-background" src={url} alt="" />}
         <aside># {t('sampleChannel')}</aside>
         <section>
           <h2>{name}</h2>

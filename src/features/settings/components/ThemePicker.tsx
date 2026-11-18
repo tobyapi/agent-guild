@@ -15,7 +15,7 @@ function getSystemLight() {
   return window.matchMedia?.('(prefers-color-scheme: light)').matches ?? false;
 }
 
-export function ThemePicker() {
+export function ThemePicker({ backgroundRevision = 0 }: { backgroundRevision?: number }) {
   const preference = useAppearanceStore((state) => state.preference);
   const systemLight = useSyncExternalStore(subscribeScheme, getSystemLight, () => false);
   const scheme =
@@ -37,7 +37,7 @@ export function ThemePicker() {
           onChange={setSchemePreference}
         />
       </div>
-      <BackgroundPicker scheme={scheme} />
+      <BackgroundPicker scheme={scheme} revision={backgroundRevision} />
     </div>
   );
 }

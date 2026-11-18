@@ -8,8 +8,8 @@ import type { Scheme } from '@/shared/theme/types';
 import { tAppearance as t } from '../i18n/appearance';
 import fields from './AccentPicker.module.css';
 
-export function BackgroundPicker({ scheme }: { scheme: Scheme }) {
-  const { ids, error, busy, removing, setRemoving, add, remove, generated } = useBackgroundLibrary();
+export function BackgroundPicker({ scheme, revision = 0 }: { scheme: Scheme; revision?: number }) {
+  const { ids, error, busy, removing, setRemoving, add, remove, generated } = useBackgroundLibrary(revision);
   const [generating, setGenerating] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const canGenerate = useBackends().some((backend) => backend.backgroundGeneration && backend.status === 'ready');

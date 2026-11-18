@@ -5,7 +5,7 @@ import { tAppearance as t } from '../i18n/appearance';
 import { ThemeGenerationDialog } from './ThemeGenerationDialog';
 import fields from './AccentPicker.module.css';
 
-export function ThemeLibraryField() {
+export function ThemeLibraryField({ onDraftClosed }: { onDraftClosed: () => void }) {
   const state = useAppearanceStore((s) => s);
   const [open, setOpen] = useState(false);
   const [remove, setRemove] = useState(false);
@@ -50,7 +50,14 @@ export function ThemeLibraryField() {
         </FormAlert>
       )}
       {state.missingId && <FormAlert>{t('missingImage')}</FormAlert>}
-      {open && <ThemeGenerationDialog onClose={() => setOpen(false)} />}
+      {open && (
+        <ThemeGenerationDialog
+          onClose={() => {
+            setOpen(false);
+            onDraftClosed();
+          }}
+        />
+      )}
       {remove && (
         <ConfirmDialog
           title={t('themeRemove')}

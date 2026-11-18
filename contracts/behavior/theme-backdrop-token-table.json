@@ -3138,63 +3138,93 @@
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 15,
+      "line": 19,
       "expression": "background: var(--surface-sidebar);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 16,
+      "line": 20,
       "expression": "color: var(--text-secondary);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 28,
+      "line": 32,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 31,
+      "line": 35,
       "expression": "background: var(--bg-sunken);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 40,
+      "line": 44,
       "expression": "background: var(--bg-input);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 41,
+      "line": 45,
       "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 46,
+      "line": 50,
       "expression": "background: var(--accent);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 47,
+      "line": 51,
       "expression": "color: var(--text-on-accent);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 50,
+      "line": 54,
       "expression": "background: var(--accent-hover);"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 57,
+      "line": 61,
       "expression": ":root[data-background='active'] main {"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 58,
+      "line": 62,
       "expression": "--glass-ink-weight: 100%;"
     },
     {
       "file": "src/features/settings/components/themeSample.css",
-      "line": 63,
-      "expression": ":root[data-background='active'] main {"
+      "line": 64,
+      "expression": ":root[data-background='active'] .sample-background,"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 65,
+      "expression": ":root[data-background='active'] main::before {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 72,
+      "expression": ":root[data-background='active'] .sample-background {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 78,
+      "expression": ":root[data-background='active'] main::before {"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 80,
+      "expression": "background: var(--glass-veil);"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 85,
+      "expression": ":root[data-background='active'] .sample-background,"
+    },
+    {
+      "file": "src/features/settings/components/themeSample.css",
+      "line": 86,
+      "expression": ":root[data-background='active'] main::before {"
     },
     {
       "file": "src/features/skills/components/LibraryPicker.module.css",
@@ -4650,6 +4680,11 @@
       "file": "src/shared/ui/theme/interaction.css",
       "line": 49,
       "expression": "background-color: var(--b-selection-bg);"
+    },
+    {
+      "file": "src/shared/ui/theme/interaction.css",
+      "line": 64,
+      "expression": "opacity: 1;"
     },
     {
       "file": "src/shared/ui/theme/motion.css",
@@ -20111,7 +20146,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20121,14 +20156,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20138,14 +20173,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20155,14 +20190,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20172,7 +20207,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -22231,6 +22266,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -35828,7 +35880,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35838,14 +35890,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35855,14 +35907,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35872,14 +35924,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -35889,7 +35941,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -37948,6 +38000,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -50145,7 +50214,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50155,14 +50224,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50172,14 +50241,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50189,14 +50258,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50206,7 +50275,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -52265,6 +52334,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -64462,7 +64548,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64472,14 +64558,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64489,14 +64575,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64506,14 +64592,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -64523,7 +64609,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -66582,6 +66668,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -80179,7 +80282,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80189,14 +80292,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80206,14 +80309,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80223,14 +80326,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80240,7 +80343,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -82299,6 +82402,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
@@ -94496,7 +94616,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:16",
+          "name": "src/features/settings/components/themeSample.css:20",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94506,14 +94626,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 16,
+              "line": 20,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:28",
+          "name": "src/features/settings/components/themeSample.css:32",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94523,14 +94643,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 28,
+              "line": 32,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:41",
+          "name": "src/features/settings/components/themeSample.css:45",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94540,14 +94660,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 41,
+              "line": 45,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/themeSample.css:47",
+          "name": "src/features/settings/components/themeSample.css:51",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -94557,7 +94677,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/themeSample.css",
-              "line": 47,
+              "line": 51,
               "expression": "color: var(--text-on-accent);"
             }
           ],
@@ -96616,6 +96736,23 @@
               "file": "src/shared/ui/theme/interaction.css",
               "line": 49,
               "expression": "background-color: var(--b-selection-bg);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/shared/ui/theme/interaction.css:64",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/shared/ui/theme/interaction.css",
+              "line": 64,
+              "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."

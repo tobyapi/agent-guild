@@ -24,12 +24,18 @@ interface Props {
   setRemoving: (id: string) => void;
 }
 export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
-  const selected = useAppearanceStore(
-    (s) => s.preference.backgroundOverride ?? s.registry[s.active.themeId]?.variants[scheme].background,
-  );
-  const choices = [null, ...ids];
-  function select(id: string | null) {
-    setBackground(id ? { kind: 'image', assetId: id } : { kind: 'none' });
+  const preference = useAppearanceStore((s) => s.preference);
+  const override = preference.backgroundOverride;
+  const custom = preference.themeId !== 'guild';
+  const choices = [
+    ...(custom ? [{ id: 'default', label: t('backgroundDefault'), image: null }] : []),
+    { id: 'none', label: t('backgroundNone'), image: null },
+    ...ids.map((id, i) => ({ id, label: t('backgroundImage') + ' ' + (i + 1), image: i + 1 })),
+  ];
+  const selected = custom && override === null ? 'default' : override?.kind === 'image' ? override.assetId : 'none';
+  const firstTab = choices.some((item) => item.id === selected) ? selected : 'none';
+  function select(id: string) {
+    setBackground(id === 'default' ? null : id === 'none' ? { kind: 'none' } : { kind: 'image', assetId: id });
   }
   function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const steps: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
@@ -42,7 +48,7 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
         : event.key === 'End'
           ? choices.length - 1
           : (index + step! + choices.length) % choices.length;
-    select(choices[next]!);
+    select(choices[next]!.id);
     const buttons = event.currentTarget
       .closest('[role="radiogroup"]')
       ?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
@@ -50,28 +56,28 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
   }
   return (
     <div className={styles.cards} role="radiogroup" aria-label={t('backgroundLabel')}>
-      {choices.map((id, index) => {
-        const checked = id ? selected?.kind === 'image' && selected.assetId === id : selected?.kind !== 'image';
+      {choices.map(({ id, label, image }, index) => {
+        const checked = id === selected;
         return (
-          <div key={id ?? 'none'} className={styles.imageRow}>
+          <div key={id} className={styles.imageRow}>
             <button
               type="button"
               role="radio"
               className={styles.card}
               aria-checked={checked}
-              tabIndex={checked ? 0 : -1}
+              tabIndex={id === firstTab ? 0 : -1}
               onClick={() => select(id)}
               onKeyDown={(event) => navigate(event, index)}
             >
-              {id ? <Thumbnail id={id} scheme={scheme} /> : <span className={styles.preview} data-scheme={scheme} />}
-              <span>{id ? `${t('backgroundImage')} ${index}` : t('backgroundNone')}</span>
+              {image ? <Thumbnail id={id} scheme={scheme} /> : <span className={styles.preview} data-scheme={scheme} />}
+              <span>{label}</span>
             </button>
-            {id && (
+            {image && (
               <Button
                 variant="danger"
                 disabled={busy}
                 onClick={() => setRemoving(id)}
-                aria-label={`${t('backgroundDelete')} ${index}`}
+                aria-label={`${t('backgroundDelete')} ${image}`}
               >
                 {t('backgroundDelete')}
               </Button>

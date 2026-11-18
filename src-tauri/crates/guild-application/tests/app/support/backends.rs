@@ -3,6 +3,14 @@
 use guild_domain::agent::Permissions;
 use guild_domain::backend::{BackendInfo, BackendSetup, BackendStatus, LoginSpec};
 
+impl super::runtime::FakeRuntime {
+    pub fn with_backend(id: &str) -> Self {
+        let runtime = Self::default();
+        runtime.backends.lock().push(ready_backend(id));
+        runtime
+    }
+}
+
 pub fn ready_backend(id: &str) -> BackendInfo {
     let all = Permissions {
         web_search: true,

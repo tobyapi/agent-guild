@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 import { LIBRARY_KEY } from '../themeLibrary';
 import { storedActive } from '../appearance.test-support';
+import { savedTheme } from '@/shared/theme/candidate.test-support';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
 import { APPEARANCE_STORAGE_KEY, parseAppearance } from '../model/appearance';
 import { settingsApi } from '../api';
-import { initAppearance, setBackground, useAppearanceStore } from '../appearance';
+import { initAppearance, setBackground, themeActions, useAppearanceStore } from '../appearance';
 import { readBackground } from '../model/readBackground';
 import { useBackgroundImage } from '../useBackgroundImage';
 import { BackgroundPicker } from './BackgroundPicker';
@@ -178,4 +179,23 @@ it('deleting an unselected image preserves the current background', async () => 
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
   await waitFor(() => expect(settingsApi.deleteBackground).toHaveBeenCalledWith(other));
   expect(storedActive(localStorage.getItem(LIBRARY_KEY)!)).toEqual(preference);
+});
+
+it('restores the theme default and falls back to an opaque surface if its shared image is deleted', async () => {
+  const theme = savedTheme();
+  expect(themeActions.save(theme, true)).toBe(true);
+  render(<BackgroundPicker scheme="light" />);
+  const inherited = screen.getByRole('radio', { name: ja.backgroundDefault });
+  expect(inherited.getAttribute('aria-checked')).toBe('true');
+  fireEvent.click(screen.getByRole('radio', { name: ja.backgroundNone }));
+  expect(document.documentElement.dataset.glass).toBe('none');
+  fireEvent.click(inherited);
+  expect(document.documentElement.dataset.glass).toBe('frosted');
+  fireEvent.click(await screen.findByRole('button', { name: ja.backgroundDelete + ' 1' }));
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundDelete }));
+  await waitFor(() => expect(document.documentElement.dataset.glass).toBe('none'));
+  expect(JSON.parse(localStorage.getItem(LIBRARY_KEY)!)).toMatchObject({
+    active: { themeId: theme.id, backgroundOverride: null },
+    themes: [{ id: theme.id, backgroundId: id }],
+  });
 });

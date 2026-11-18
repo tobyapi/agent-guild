@@ -62,12 +62,6 @@ pub struct FakeRuntime {
 }
 
 impl FakeRuntime {
-    pub fn with_backend(id: &str) -> Self {
-        let runtime = Self::default();
-        runtime.backends.lock().push(ready_backend(id));
-        runtime
-    }
-
     /// そのエージェントの次の実行の返し方を足す
     pub fn script(&self, agent_id: &str, script: Script) {
         self.scripts.lock().entry(agent_id.to_owned()).or_default().push_back(script);

@@ -59,7 +59,9 @@
   }
 }
 
-:where(button, input, select, textarea):disabled {
+:root[data-custom-theme]
+  :where(button, input, select, textarea, [aria-disabled]):is(:disabled, [aria-disabled='true']) {
+  opacity: 1;
   outline: 1px dashed currentColor;
   outline-offset: -2px;
 }

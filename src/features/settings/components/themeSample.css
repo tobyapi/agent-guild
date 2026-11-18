@@ -3,8 +3,12 @@ main {
   grid-template-columns: minmax(4rem, 1fr) 3fr;
   min-height: 100%;
   background-color: var(--bg-app);
-  background-size: cover;
-  background-position: center;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.sample-background {
+  display: none;
 }
 aside,
 section {
@@ -56,11 +60,30 @@ button:hover {
 @supports (backdrop-filter: blur(1px)) {
   :root[data-background='active'] main {
     --glass-ink-weight: 100%;
-    background-image: linear-gradient(var(--glass-veil), var(--glass-veil)), var(--preview-image);
+  }
+  :root[data-background='active'] .sample-background,
+  :root[data-background='active'] main::before {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  :root[data-background='active'] .sample-background {
+    display: block;
+    object-fit: cover;
+    filter: blur(var(--glass-background-blur));
+    z-index: -2;
+  }
+  :root[data-background='active'] main::before {
+    content: '';
+    background: var(--glass-veil);
+    z-index: -1;
   }
 }
 @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
-  :root[data-background='active'] main {
-    background-image: none;
+  :root[data-background='active'] .sample-background,
+  :root[data-background='active'] main::before {
+    display: none;
   }
 }
