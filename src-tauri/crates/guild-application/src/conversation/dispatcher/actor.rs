@@ -115,7 +115,6 @@ impl Actor {
                 Err(error) => log::error!("ジョブの結果を保存できませんでした: {error}"),
             }
         }
-        self.state.prune_roots();
         self.settle_waiters();
     }
 

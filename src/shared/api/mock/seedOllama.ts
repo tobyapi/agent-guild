@@ -40,10 +40,10 @@ export const MOCK_OLLAMA: BackendInfo = {
     {
       key: 'timeoutMinutes',
       label: '1回の実行の上限（分）',
-      description: '1回の返答にかけられる時間（分）。1〜60分。',
+      description: '上限を設定する場合は1〜60分の整数を入力します。空欄なら既定の30分です。',
       type: 'number',
       choices: [],
-      default: 5,
+      default: null,
     },
     {
       key: 'enableTools',

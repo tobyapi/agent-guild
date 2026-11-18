@@ -63,13 +63,13 @@ impl RunnerClient {
 
     /// 1回実行して最終テキストを返す。途中経過と途中の投稿は `on_update` に届く。起動中なら ready になるまで
     /// （最長 ready_timeout）待ち、使えなければ `Err(Unavailable)`。`cancel(job_id)` されたら、終端イベントか
-    /// cancel_grace の早いほうで `Err(Cancelled)`。
+    /// 接続断を確認してから `Err(Cancelled)`。
     pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError> {
         run::run(&self.shared, job_id, run::Work::Run(&request), on_update).await
     }
 
     /// 画像を1枚描いてもらう（枠の生成を申告したバックエンドだけ）。成功したら PNG は `request.output` にある。
-    /// 途中経過は `on_update` に届く。待ち方と `cancel(job_id)` の扱いは `run` と同じ
+    /// 途中経過は `on_update` に届く。cancel 後は終端イベントか cancel_grace の早いほうで戻る
     pub async fn generate_image(
         &self,
         job_id: &str,

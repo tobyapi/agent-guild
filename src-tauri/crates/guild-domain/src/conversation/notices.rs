@@ -13,17 +13,6 @@ pub fn stopped(language: Language) -> &'static str {
     language.pick(["停止しました", "Stopped.", "已停止。", "已停止。", "중지했습니다."])
 }
 
-/// depth が上限に達して振り分けを止めたとき（起点ごとに1回）
-pub fn depth_limit(language: Language) -> &'static str {
-    language.pick([
-        "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。",
-        "Stopped because the back-and-forth between AIs reached its limit. Mention someone to continue.",
-        "AI 之间的往返次数已达上限，已停止。如需继续，请提及成员。",
-        "AI 之間的往返次數已達上限，已停止。如需繼續，請提及成員。",
-        "AI 간 대화가 한도에 도달하여 멈췄습니다. 계속하려면 멘션하세요.",
-    ])
-}
-
 /// メンションなしの人間の発言に答えられるエージェントがいないとき
 pub fn no_responder(language: Language) -> &'static str {
     language.pick([

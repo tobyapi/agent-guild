@@ -34,7 +34,6 @@ describe('noticeIcon / splitLeadingName', () => {
   it('決まった言い回しからアイコンを選び、知らない文面は other', () => {
     expect(noticeIcon('ロジカ がチャンネルに参加しました')).toBe('join');
     expect(noticeIcon('停止しました')).toBe('stop');
-    expect(noticeIcon('AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。')).toBe('limit');
     expect(noticeIcon('ようこそ')).toBe('other');
   });
 

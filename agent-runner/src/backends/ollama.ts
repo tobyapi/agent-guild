@@ -3,7 +3,9 @@ import type { ImagePayload, ModelSpec, Permissions } from '../protocol.ts';
 import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
 import {
   BackendError,
+  DEFAULT_RUN_TIMEOUT_MINUTES,
   NO_SETUP,
+  optionPositiveInt,
   type BackendAdapter,
   type BackendProbe,
   type RunContext,
@@ -16,13 +18,7 @@ import { toolChat } from './ollama/chat.ts';
 import { prepareCommandSandbox } from './command-sandbox.ts';
 import { canIsolate, canRunCommands } from './ollama/sandbox.ts';
 import { t } from './ollama/texts/index.ts';
-import { optionPositiveInt } from './types.ts';
 
-const DEFAULT_TIMEOUT_MINUTES = 5;
-export function timeoutMinutes(options: Record<string, unknown>): number {
-  const value = optionPositiveInt(options, 'timeoutMinutes');
-  return value !== undefined && value <= 60 ? value : DEFAULT_TIMEOUT_MINUTES;
-}
 const NO_TOOLS: Permissions = {
   webSearch: false,
   webFetch: false,
@@ -76,11 +72,8 @@ async function encodeImage(image: ImagePayload, signal: AbortSignal): Promise<st
 }
 
 async function run(request: RunRequest, context: RunContext): Promise<string> {
-  let { signal } = context;
-  const { onActivity, onUsage } = context;
-  signal = AbortSignal.any([signal, AbortSignal.timeout(timeoutMinutes(request.options) * 60_000)]);
+  const { signal, onActivity, onUsage } = context;
   signal.throwIfAborted();
-  context = { ...context, signal };
   const enabled = request.options.enableTools === true;
   context.onSkillRead?.(null);
   // 道具を有効にしていなければ会話だけ（役割の権限があっても、どの操作も使わない）
@@ -147,10 +140,10 @@ export const ollamaAdapter: BackendAdapter = {
       {
         key: 'timeoutMinutes',
         label: t('timeoutMinutesLabel'),
-        description: t('timeoutMinutesDescription'),
+        description: t('timeoutMinutesDescription', { minutes: DEFAULT_RUN_TIMEOUT_MINUTES }),
         type: 'number',
         choices: [],
-        default: DEFAULT_TIMEOUT_MINUTES,
+        default: null,
       },
       {
         key: 'enableTools',
@@ -180,5 +173,9 @@ export const ollamaAdapter: BackendAdapter = {
     setup: { ...NO_SETUP, start: process.platform === 'darwin' ? { macBundleId: 'com.electron.ollama' } : null },
   }),
   probe,
+  runTimeoutMinutes(options) {
+    const minutes = optionPositiveInt(options, 'timeoutMinutes');
+    return minutes !== undefined && minutes <= 60 ? minutes : undefined;
+  },
   run,
 };

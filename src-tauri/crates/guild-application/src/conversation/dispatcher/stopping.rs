@@ -29,7 +29,6 @@ impl Actor {
         self.cancel_delegations(|delegation| delegation.channel_id == channel);
         let announce = announce && (had_pending || cancelled > 0);
         self.waiters.push(StopWaiter { channel: Some(channel), announce, done });
-        self.state.prune_roots();
         self.settle_waiters();
     }
 
@@ -42,7 +41,6 @@ impl Actor {
         self.cancel_running(|_| true);
         self.cancel_delegations(|_| true);
         self.waiters.push(StopWaiter { channel: None, announce: false, done });
-        self.state.prune_roots();
         self.settle_waiters();
     }
 
@@ -68,7 +66,6 @@ impl Actor {
             self.cancel_job(job_id);
         }
         self.release_delegations(agent, channel);
-        self.state.prune_roots();
     }
 
     /// 条件に合う実行中のジョブを中断する。中断を依頼した数を返す

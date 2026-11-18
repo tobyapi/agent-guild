@@ -56,7 +56,7 @@ it('combines server search, duplicate posts and continuation without double fina
     [{ type: 'message', content: [{ type: 'output_text', text: 'posted once' }] }],
   ];
   const bodies: unknown[] = [];
-  const fetcher = vi.fn((_url: string, options: { body: string }) => {
+  const fetcher = vi.fn((_url: string, options: { body: string; signal: AbortSignal }) => {
     bodies.push(JSON.parse(options.body));
     return Promise.resolve(
       Response.json({
@@ -76,6 +76,7 @@ it('combines server search, duplicate posts and continuation without double fina
   expect(context.onPost).toHaveBeenCalledExactlyOnceWith('posted once');
   expect(context.onActivity).toHaveBeenCalledTimes(2);
   expect(context.onUsage).toHaveBeenCalledTimes(2);
+  for (const [, options] of fetcher.mock.calls) expect(options.signal).toBe(context.signal);
   for (const body of bodies) {
     expect(body).toMatchObject({ store: false, stream: false });
     expect(body).not.toHaveProperty('previous_response_id');

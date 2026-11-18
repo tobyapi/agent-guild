@@ -30,8 +30,8 @@ pub struct WorkspacePaths {
 }
 
 pub trait Workspace: Send + Sync {
-    /// エージェント共通の作業場所を、実行の前に用意する: work/ を作り、state/<backend>/ を作り直す
-    fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths>;
+    /// エージェント共通の作業場所と管理領域のパス。ファイルはランナーがジョブを受理してから準備する
+    fn run_paths(&self, agent: &AgentId, backend: &str) -> WorkspacePaths;
     /// エージェントに属さない一度きりの実行（アイコンの枠の生成など）の作業場所: tools/<purpose>/work と
     /// state/<backend>/ を、実行の前に用意する（state は作り直す）
     fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths>;

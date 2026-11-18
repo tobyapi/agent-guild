@@ -66,7 +66,12 @@ impl Actor {
             return;
         };
         let triggers = tracked.results();
-        let depth = triggers.iter().map(|message| message.depth).max().unwrap_or(tracked.depth + 1) + 1;
+        let depth = triggers
+            .iter()
+            .map(|message| message.depth)
+            .max()
+            .unwrap_or_else(|| tracked.depth.saturating_add(1))
+            .saturating_add(1);
         let job = JobSpec {
             agent_id: tracked.delegation.manager_id.clone(),
             channel_id: tracked.delegation.channel_id.clone(),

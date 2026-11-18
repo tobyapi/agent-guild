@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
-import { timeoutMinutes } from '../ollama.ts';
 import { localHttp } from './http.ts';
 import { sandbox, executeTool } from './tools.ts';
 import { NUM_PREDICT } from './limits.ts';
@@ -19,12 +18,6 @@ function reply(body: object): void {
 beforeEach(() => http.mockReset());
 pretendMacOS();
 describe('Ollama tool loop', () => {
-  it('timeoutMinutes は1〜60の正の整数だけを適用する', () => {
-    expect(timeoutMinutes({ timeoutMinutes: 12 })).toBe(12);
-    expect(timeoutMinutes({ timeoutMinutes: 0 })).toBe(5);
-    expect(timeoutMinutes({ timeoutMinutes: 61 })).toBe(5);
-    expect(timeoutMinutes({ timeoutMinutes: 2.5 })).toBe(5);
-  });
   const toolModel = { model: 'small:1b', capabilities: ['completion', 'tools'] };
   function start() {
     reply({ models: [toolModel] });
@@ -32,7 +25,9 @@ describe('Ollama tool loop', () => {
   }
   it('設定項目から think と toolProtocol を除き、timeoutMinutes を残す', () => {
     const keys = ollamaAdapter.info().options.map((option) => option.key);
-    expect(keys).toContain('timeoutMinutes');
+    expect(ollamaAdapter.info().options).toContainEqual(
+      expect.objectContaining({ key: 'timeoutMinutes', default: null }),
+    );
     expect(keys).not.toContain('think');
     expect(keys).not.toContain('toolProtocol');
   });

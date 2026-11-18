@@ -2,7 +2,7 @@
 
 use guild_domain::agent::Agent;
 use guild_domain::conversation::{
-    route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, Notice, Routing, RoutingContext, MAX_DEPTH,
+    route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, Notice, Routing, RoutingContext,
 };
 use guild_domain::ids::{AgentId, MessageId};
 use guild_domain::locale::Language;
@@ -91,25 +91,22 @@ fn returns_skip_the_author_deleted_agents_and_non_members() {
 }
 
 #[test]
-fn stops_at_the_depth_limit_with_a_notice() {
-    assert_eq!(MAX_DEPTH, 30);
-    let (message, job) = reply("logica", 10, &[], &["haru"]);
-    assert_eq!(route(&message, &job).jobs[0].depth, 11);
-    let (message, job) = reply("logica", MAX_DEPTH, &[], &["haru"]);
-    let routing = route(&message, &job);
-    assert!(routing.jobs.is_empty());
-    assert_eq!(routing.notices, vec![Notice::DepthLimit]);
-
-    let (message, job) = reply("logica", MAX_DEPTH - 1, &[], &["haru"]);
-    assert_eq!(route(&message, &job).jobs[0].depth, MAX_DEPTH);
-
-    let (quiet, job) = reply("haru", MAX_DEPTH, &[], &[]);
-    assert_eq!(route(&quiet, &job), Routing::default(), "振り分けるものがなければ知らせない");
+fn a_deep_reply_still_returns_and_starts_new_consultations() {
+    for depth in [30, 100, u32::MAX] {
+        let (message, job) = reply("logica", depth, &["sora"], &["haru"]);
+        let routing = route(&message, &job);
+        assert_eq!(
+            summary(&routing),
+            vec![("haru".to_owned(), JobMode::Return, vec![]), ("sora".to_owned(), JobMode::Reply, ids(&["logica"]))]
+        );
+        assert!(routing.jobs.iter().all(|job| job.depth == depth.saturating_add(1)));
+        assert!(routing.notices.is_empty());
+    }
 }
 
 #[test]
 fn no_answer_returns_to_callers_with_a_note() {
-    let (_, job) = reply("logica", 2, &[], &["haru"]);
+    let (_, job) = reply("logica", 100, &[], &["haru"]);
     let logica = agent("logica", "expert", "ロジカ");
     let lobby = channel("c1", &["me", "haru", "logica"]);
     let agents = agents();
@@ -118,7 +115,7 @@ fn no_answer_returns_to_callers_with_a_note() {
     assert_eq!(summary(&passed), vec![("haru".to_owned(), JobMode::Return, vec![])]);
     assert_eq!(passed.jobs[0].notes, vec!["ロジカ は回答しませんでした".to_owned()]);
     assert!(passed.jobs[0].triggers.is_empty());
-    assert_eq!(passed.jobs[0].depth, 3);
+    assert_eq!(passed.jobs[0].depth, 101);
     let failed = route_no_answer(&job, &logica, NoAnswer::Failed, Language::Ja, &ctx);
     assert_eq!(failed.jobs[0].notes, vec!["ロジカ は失敗しました".to_owned()]);
     let english = route_no_answer(&job, &logica, NoAnswer::Passed, Language::En, &ctx);

@@ -1,7 +1,6 @@
 {
   "ja": {
     "stopped": "停止しました",
-    "depthLimit": "AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。",
     "noResponder": "いま返答できるエージェントがいません（バックエンドの準備ができていないか、答える設定のメンバーがいません）",
     "joined": { "name": "ロジカ", "text": "ロジカ がチャンネルに参加しました" },
     "undeliverable": { "name": "ロジカ", "text": "ロジカ はこのチャンネルにいないため、メッセージは届きませんでした" },
@@ -28,7 +27,6 @@
   },
   "en": {
     "stopped": "Stopped.",
-    "depthLimit": "Stopped because the back-and-forth between AIs reached its limit. Mention someone to continue.",
     "noResponder": "No agent can reply right now (the backend isn't ready, or no member is set to answer).",
     "joined": { "name": "ロジカ", "text": "ロジカ joined the channel." },
     "undeliverable": { "name": "ロジカ", "text": "ロジカ is not in this channel, so the message was not delivered." },
@@ -55,7 +53,6 @@
   },
   "zh-Hans": {
     "stopped": "已停止。",
-    "depthLimit": "AI 之间的往返次数已达上限，已停止。如需继续，请提及成员。",
     "noResponder": "目前没有可以回复的智能体（后端尚未就绪，或没有设置为回答的成员）。",
     "joined": { "name": "ロジカ", "text": "ロジカ 加入了频道。" },
     "undeliverable": { "name": "ロジカ", "text": "ロジカ 不在此频道中，消息未送达。" },
@@ -82,7 +79,6 @@
   },
   "zh-Hant": {
     "stopped": "已停止。",
-    "depthLimit": "AI 之間的往返次數已達上限，已停止。如需繼續，請提及成員。",
     "noResponder": "目前沒有可以回覆的代理人（後端尚未就緒，或沒有設定為回答的成員）。",
     "joined": { "name": "ロジカ", "text": "ロジカ 加入了頻道。" },
     "undeliverable": { "name": "ロジカ", "text": "ロジカ 不在此頻道中，訊息未送達。" },
@@ -109,7 +105,6 @@
   },
   "ko": {
     "stopped": "중지했습니다.",
-    "depthLimit": "AI 간 대화가 한도에 도달하여 멈췄습니다. 계속하려면 멘션하세요.",
     "noResponder": "지금 답할 수 있는 에이전트가 없습니다(백엔드가 준비되지 않았거나, 답하도록 설정된 멤버가 없습니다).",
     "joined": { "name": "ロジカ", "text": "ロジカ 님이 채널에 참여했습니다." },
     "undeliverable": { "name": "ロジカ", "text": "ロジカ 님은 이 채널에 없어서 메시지가 전달되지 않았습니다." },

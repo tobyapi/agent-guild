@@ -134,6 +134,7 @@ pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
         backend: request.backend,
         workspace: request.workspace,
         state_dir: request.state_dir,
+        prepare_workspace: true,
         readable_dirs: request.readable_dirs,
 
         system_prompt: request.system_prompt,

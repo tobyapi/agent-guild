@@ -3,11 +3,11 @@
 import type { ActivityState, Channel, Message } from '@/shared/types/domain';
 import { createDelegations } from '../delegation/engine';
 import type { MockDelegations } from '../delegation/engine';
-import { depthLimit, stopped } from '../notices';
+import { stopped } from '../notices';
 import { activeAgents, emitStateChanged, joinChannel, postSystem } from '../runtime';
 import type { MockCore } from '../runtime';
 import type { JobOutcome } from './executor';
-import { MAX_DEPTH, routeAgentReply, routeHumanMessage, routeMissingReply } from './routing';
+import { routeAgentReply, routeHumanMessage, routeMissingReply } from './routing';
 import type { MockJob, RoutingContext, RoutingEffect } from './routing';
 import { createScheduler } from './scheduler';
 import type { Scheduler } from './scheduler';
@@ -57,7 +57,6 @@ function cancellations(core: MockCore, scheduler: Scheduler, delegations: MockDe
 }
 
 export function createConversation(core: MockCore): MockConversation {
-  const notified = new Set<string>();
   const scheduler = createScheduler(core, {
     onStarted: (job) => delegations.started(job),
     onFinished: (job, outcome) => settle(job, outcome),
@@ -67,13 +66,6 @@ export function createConversation(core: MockCore): MockConversation {
     agents: activeAgents(core),
     backends: core.state.backends,
   });
-
-  function noticeOnce(channelId: string, rootId: string, content: string): void {
-    const key = `${rootId}\n${content}`;
-    if (notified.has(key)) return;
-    notified.add(key);
-    postSystem(core, channelId, content, rootId);
-  }
 
   function enqueue(job: MockJob): void {
     scheduler.enqueue(job);
@@ -107,7 +99,6 @@ export function createConversation(core: MockCore): MockConversation {
     }
     const reply = outcome.message;
     if (outcome.tasks) delegations.create(reply, outcome.tasks, channel);
-    if (reply.depth >= MAX_DEPTH) return noticeOnce(channel.id, reply.rootId, depthLimit());
     apply(routeAgentReply(reply, job, contextOf(channel)), channel, reply.rootId);
   }
 

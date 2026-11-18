@@ -11,7 +11,6 @@ import styles from './MessageList.module.css';
 const NOTICE_ICONS: Readonly<Record<NoticeIcon, IconName>> = {
   join: 'join',
   stop: 'stop',
-  limit: 'alert',
   other: 'diamond',
 };
 

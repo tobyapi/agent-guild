@@ -45,6 +45,12 @@ describe('parseOptionValues', () => {
     });
   });
 
+  it('Ollama の空欄は保存せず、明示した5分は保存する', () => {
+    const timeout = spec({ key: 'timeoutMinutes', type: 'number' });
+    expect(parseOptionValues([timeout], { timeoutMinutes: '' }).options).toEqual({});
+    expect(parseOptionValues([timeout], { timeoutMinutes: '5' }).options).toEqual({ timeoutMinutes: 5 });
+  });
+
   it('数値でない数値・選択肢にない値は、その項目のエラーにする', () => {
     expect(parseOptionValues(specs, { maxTurns: 'たくさん', effort: 'max' }).errors).toEqual({
       maxTurns: '数値を入力してください',

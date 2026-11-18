@@ -28,13 +28,13 @@ pub(super) fn accepts_job(ports: &Ports, job: &JobSpec, channel: &Channel) -> Ap
     Ok(true)
 }
 
-pub(super) fn prepare(ports: &Ports, agent: &Agent, backend: Option<&BackendInfo>) -> AppResult<RunScope> {
+pub(super) fn prepare(ports: &Ports, agent: &Agent, backend: Option<&BackendInfo>) -> RunScope {
     let permissions = agent.behavior().permissions;
     let usable = effective_permissions(agent, backend);
-    let paths = ports.workspace.prepare(&agent.id, &agent.backend)?;
+    let paths = ports.workspace.run_paths(&agent.id, &agent.backend);
     let memory = ports.workspace.read_memory(&agent.id).unwrap_or_else(|error| {
         log::warn!("{} の MEMORY.md を読めませんでした: {error}", agent.name);
         String::new()
     });
-    Ok(RunScope { permissions, usable, paths, memory })
+    RunScope { permissions, usable, paths, memory }
 }

@@ -3,7 +3,7 @@
 // 実例は contracts/runner/*.jsonl。Rust 側の対応は src-tauri/crates/runner-client。
 //
 // 規則:
-// - run ごとに終端イベント（result か error）を必ずちょうど1回返す。
+// - run ごとに終端イベント（result か error）を必ずちょうど1回返す。時間切れは error{code:'timeout'}。
 //   cancel されたら error{code:'cancelled'} を返す（中断が間に合わず完了したなら result でよい）。
 // - probe は id を必須とし、backends の更新後に同じ id の result（text は空）か error を返す。
 // - run は終端イベントの前に post（作業の途中の投稿）を 0 回以上返してよい。終端イベントのあとは送らない。
@@ -123,6 +123,7 @@ export type ErrorCode =
   | 'response_truncated'
   | 'response_blocked'
   | 'invalid_response'
+  | 'timeout'
   | 'cancelled'
   | 'unknown_backend'
   | 'unsupported_permission' // 要求された制限を守れない
@@ -142,6 +143,8 @@ export type RunnerRequest =
       workspace: string;
       /** アダプタの管理領域（スキルの展開・人格ファイル・SDK 設定など）。エージェントからは書けない */
       stateDir: string;
+      /** 作業場所を作り、管理領域を実行前に作り直す。アプリが管理するパスにだけ指定する */
+      prepareWorkspace?: boolean;
       /** 追加で読み取りを許すフォルダ（相談元の作業場所など） */
       readableDirs: string[];
       /** Present only for a restricted folder channel. Additional writable roots. */

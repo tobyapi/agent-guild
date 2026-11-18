@@ -55,7 +55,7 @@ pub struct RunnerConfig {
     pub language: String,
     /// 起動から `ready` までを待つ上限
     pub ready_timeout: Duration,
-    /// cancel 後に終端イベントを待つ上限。過ぎたら `Err(Cancelled)` を返し、以後その id のイベントは捨てる
+    /// 会話の run 以外で、cancel 後に終端イベントを待つ上限。過ぎたら `Err(Cancelled)` を返す
     pub cancel_grace: Duration,
 }
 

@@ -30,7 +30,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         return Ok(None);
     }
     let super::request_scope::RunScope { permissions, usable, paths, memory } =
-        super::request_scope::prepare(ports, &agent, backend)?;
+        super::request_scope::prepare(ports, &agent, backend);
     let skills = if usable.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;
     let me = ports.profile.get()?;

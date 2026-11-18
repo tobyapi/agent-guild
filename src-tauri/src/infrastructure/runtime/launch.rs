@@ -13,7 +13,7 @@ use crate::infrastructure::plain_path::plain_path;
 
 /// ready を待つ上限
 const READY_TIMEOUT: Duration = Duration::from_secs(20);
-/// cancel 後に終端イベントを待つ上限（design.md §5）
+/// 会話の run 以外で、cancel 後に終端イベントを待つ上限（design.md §5）
 const CANCEL_GRACE: Duration = Duration::from_secs(10);
 /// リソースのフォルダの中の、同梱の runner の置き場所
 pub const BUNDLED_DIR: &str = "runner";

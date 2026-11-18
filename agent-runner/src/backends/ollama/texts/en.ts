@@ -4,7 +4,7 @@ import type { ja } from './ja.ts';
 export const en: Messages<typeof ja> = {
   label: 'Ollama (this PC)',
   timeoutMinutesLabel: 'Run time limit (minutes)',
-  timeoutMinutesDescription: 'Maximum time for one response, in minutes (1–60).',
+  timeoutMinutesDescription: 'Enter a whole number from 1 to 60. Leave blank for the default of {minutes} minutes.',
   enableToolsLabel: 'Enable tools',
   enableToolsDescription:
     "Runs tools (reading and writing files, skills, progress updates) within the role's permissions. Models such as DeepSeek use JSON actions. Commands run only inside OS isolation (macOS and supported Windows 11; no network access). Writing outside the workspace is available only on macOS.",

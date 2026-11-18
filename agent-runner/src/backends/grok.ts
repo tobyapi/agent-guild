@@ -76,11 +76,11 @@ export const grokAdapter: BackendAdapter = {
     const request = usableRequest(structuredClone(original), grokAdapter.info());
     const key = await credential();
     if (!key?.trim()) throw new BackendError('auth', t('key'));
-    const signal = AbortSignal.any([context.signal, AbortSignal.timeout(300000)]);
+    const { signal } = context;
+    signal.throwIfAborted();
     let lastPost = '';
-    const bounded = {
+    const posting = {
       ...context,
-      signal,
       onPost: (text: string) => {
         signal.throwIfAborted();
         lastPost = text;
@@ -94,12 +94,12 @@ export const grokAdapter: BackendAdapter = {
       execute: (name, args, id) =>
         execute(
           request,
-          { ...bounded, onSkillRead: (skill) => context.onSkillRead?.(skill, `backend:${id}`) },
+          { ...posting, onSkillRead: (skill) => context.onSkillRead?.(skill, `backend:${id}`) },
           name,
           args,
         ),
       send: client(key),
-      context: bounded,
+      context: posting,
     });
     return result.text.trim() === lastPost.trim() ? '' : result.text;
   },

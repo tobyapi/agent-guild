@@ -2,7 +2,7 @@
 //   echo:<text>  activity と post を1回ずつ送ってから result      pid      自分のプロセス ID を返す
 //   inspect      受け取った run 要求を JSON で返す      context  引数・環境変数・作業ディレクトリを返す
 //   fail:<code>  その code の error を返す             crash    異常終了する
-//   hang         cancel されたら error{cancelled}      stubborn cancel を無視して終わらない
+//   hang         cancel されたら error{cancelled}      stubborn release-stubborn が届くまで cancel を無視する
 //   late         cancel されたら 100ms 後に result（中断が間に合わなかった完了）
 // image は受け取った要求を JSON で output に書いてから result（text は空）。prompt が fail:<code> ならその code の error。
 // login は状態を ready にして backends を送ってから result（text は空）で終える。
@@ -68,7 +68,7 @@ function startJob(request, waiting) {
 
 function cancelJob(id, waiting) {
   const mode = waiting.get(id);
-  if (mode === 'probe') return;
+  if (mode === 'probe' || mode === 'stubborn') return;
   waiting.delete(id);
   if (mode === 'hang') send({ type: 'error', id, code: 'cancelled', message: '実行を中断しました' });
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
@@ -78,6 +78,14 @@ export function startFakeRunner({ protocolVersion = 4, sendReady = true, probeMo
   const waiting = new Map();
   const handlers = {
     run: (request) => {
+      if (request.prompt === 'release-stubborn') {
+        for (const [id, mode] of waiting) {
+          if (mode !== 'stubborn') continue;
+          waiting.delete(id);
+          send({ type: 'error', id, code: 'cancelled', message: '実行を中断しました' });
+        }
+        return send({ type: 'result', id: request.id, text: '' });
+      }
       if (request.prompt === 'finish-probes') {
         for (const [id, mode] of waiting) {
           if (mode === 'probe') send({ type: 'result', id, text: '' });

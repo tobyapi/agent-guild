@@ -6,7 +6,7 @@ import { createSeedState } from '../seed';
 import { SEED_IDS } from '../seedIds';
 import { mergeJobs, pushJob } from './lanes';
 import { noResponder } from '../notices';
-import { MAX_DEPTH, defaultResponders, routeAgentReply, routeHumanMessage } from './routing';
+import { defaultResponders, routeAgentReply, routeHumanMessage } from './routing';
 import type { MockJob, RoutingContext } from './routing';
 
 const state = createSeedState(0, null, true);
@@ -49,9 +49,6 @@ const job = (overrides: Partial<MockJob>): MockJob => ({
 });
 
 describe('routing', () => {
-  it('AI 同士の往復の上限は30', () => {
-    expect(MAX_DEPTH).toBe(30);
-  });
   it('メンションなし: ready な lead がいれば lead だけが受け、いなければ answer の全員が作成順に答える', () => {
     const ready = MOCK_BACKENDS.map((backend) => ({ ...backend, status: 'ready' as const }));
     const ids = (ctx: RoutingContext) => defaultResponders(ctx).map((agent) => agent.id);

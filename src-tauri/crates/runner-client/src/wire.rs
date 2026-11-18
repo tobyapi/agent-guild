@@ -139,6 +139,7 @@ pub(crate) fn runner_error(code: &str, message: String) -> RunnerError {
         "response_truncated" => ErrorCode::ResponseTruncated,
         "response_blocked" => ErrorCode::ResponseBlocked,
         "invalid_response" => ErrorCode::InvalidResponse,
+        "timeout" => ErrorCode::Timeout,
         "unknown_backend" => ErrorCode::UnknownBackend,
         "unsupported_permission" => ErrorCode::UnsupportedPermission,
         "bad_request" => ErrorCode::BadRequest,

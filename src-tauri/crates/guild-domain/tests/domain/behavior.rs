@@ -88,7 +88,6 @@ fn notices_in(language: Language, expected: &Value) -> Value {
     let note = |note: SubtaskNote| note.text(language);
     json!({
         "stopped": notices::stopped(language),
-        "depthLimit": notices::depth_limit(language),
         "noResponder": notices::no_responder(language),
         "joined": one("joined", notices::joined),
         "undeliverable": one("undeliverable", notices::undeliverable),

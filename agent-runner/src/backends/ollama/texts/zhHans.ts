@@ -4,7 +4,7 @@ import type { ja } from './ja.ts';
 export const zhHans: Messages<typeof ja> = {
   label: 'Ollama（本机）',
   timeoutMinutesLabel: '单次运行上限（分钟）',
-  timeoutMinutesDescription: '单次回复允许的时间（分钟），1 到 60 分钟。',
+  timeoutMinutesDescription: '可输入 1 到 60 的整数。留空时使用默认的 {minutes} 分钟。',
   enableToolsLabel: '启用工具',
   enableToolsDescription:
     '按角色的权限执行工具（读写文件、技能、进度更新）。DeepSeek 等模型使用 JSON 操作。命令只在操作系统隔离中运行（macOS 和受支持的 Windows 11；无法联网）。写入工作文件夹之外仅限 macOS。',

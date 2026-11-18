@@ -18,9 +18,9 @@ pub struct FakeWorkspace {
 }
 
 impl Workspace for FakeWorkspace {
-    fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
+    fn run_paths(&self, agent: &AgentId, backend: &str) -> WorkspacePaths {
         let root = PathBuf::from("/ws").join(agent.as_str());
-        Ok(WorkspacePaths { work: root.join("work"), state: root.join("state").join(backend) })
+        WorkspacePaths { work: root.join("work"), state: root.join("state").join(backend) }
     }
     fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths> {
         let root = PathBuf::from("/ws").join(purpose);

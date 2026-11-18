@@ -10,6 +10,7 @@ pub enum ErrorCode {
     ResponseTruncated,
     ResponseBlocked,
     InvalidResponse,
+    Timeout,
     UnknownBackend,
     UnsupportedPermission,
     BadRequest,

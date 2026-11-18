@@ -61,6 +61,7 @@ export async function runCodex(
   signal.throwIfAborted();
   try {
     await installCodexSkills(request.workspace, request.skills);
+    signal.throwIfAborted();
     const codex = new Codex({
       config: { ...provider.config, ...codexConfig(request) },
       codexPathOverride: executable.path,

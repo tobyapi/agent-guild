@@ -11,6 +11,4 @@ pub use attachments::{file_attachments, image_messages, MAX_IMAGES_PER_RUN};
 pub use job::{JobMode, JobSpec};
 pub use mentions::parse_mentions;
 pub use reply::format_reply;
-pub use routing::{
-    route_human_message, route_no_answer, route_reply, NoAnswer, Notice, Routing, RoutingContext, MAX_DEPTH,
-};
+pub use routing::{route_human_message, route_no_answer, route_reply, NoAnswer, Notice, Routing, RoutingContext};

@@ -48,9 +48,9 @@ pub fn agent_work_dir(data_dir: &Path, agent: &AgentId) -> PathBuf {
 }
 
 impl Workspace for FsWorkspace {
-    fn prepare(&self, agent: &AgentId, backend: &str) -> AppResult<WorkspacePaths> {
+    fn run_paths(&self, agent: &AgentId, backend: &str) -> WorkspacePaths {
         let state = self.root(agent).join("state").join(safe_component(backend));
-        prepare_dirs(self.work_dir(agent), state)
+        WorkspacePaths { work: self.work_dir(agent), state }
     }
 
     fn prepare_scratch(&self, purpose: &str, backend: &str) -> AppResult<WorkspacePaths> {

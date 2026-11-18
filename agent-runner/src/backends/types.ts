@@ -18,6 +18,8 @@ export type RunRequest = Extract<RunnerRequest, { type: 'run' }>;
 /** 検証済みの image 要求（画像を1枚描く） */
 export type ImageRequest = Extract<RunnerRequest, { type: 'image' }>;
 
+export const DEFAULT_RUN_TIMEOUT_MINUTES = 30;
+
 /** 状態とモデルの一覧を除いた、アダプタが静的に申告する情報 */
 export type BackendDescriptor = Omit<BackendInfo, 'status' | 'statusMessage' | 'models' | 'defaultModel'>;
 export type BackendProbe = Pick<BackendInfo, 'status' | 'statusMessage'> & Partial<ModelCatalog>;
@@ -31,7 +33,7 @@ export const NO_SETUP: BackendSetup = { install: null, start: null, login: null,
 export const EMPTY_CATALOG: ModelCatalog = { models: [], defaultModel: '' };
 
 export interface RunContext {
-  /** cancel・shutdown で中断される */
+  /** 時間切れ・cancel・shutdown で中断される */
   signal: AbortSignal;
   /** 途中経過（「Web検索: …」など）を Rust へ送る */
   onActivity: (detail: string) => void;
@@ -63,6 +65,8 @@ export interface BackendAdapter {
   probe(): Promise<BackendProbe>;
   /** 選べるモデルと推論の深さ。なければ EMPTY_CATALOG（probe と一緒に聞き直す） */
   catalog?: () => Promise<ModelCatalog>;
+  /** 利用者が有効な時間上限を指定した場合だけ、その分数を返す */
+  runTimeoutMinutes?: (options: RunRequest['options']) => number | undefined;
   /** 1回実行して最終テキストを返す。分類できる失敗は BackendError で投げる */
   run(request: RunRequest, context: RunContext): Promise<string>;
   /**

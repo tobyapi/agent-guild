@@ -7,7 +7,6 @@ import { noticeIcon, splitLeadingName } from './systemNotice';
 
 interface NoticesFixture {
   stopped: string;
-  depthLimit: string;
   noResponder: string;
   joined: { name: string; text: string };
 }
@@ -19,7 +18,6 @@ describe('noticeIcon', () => {
     const notices = fixture[language];
     expect(noticeIcon(notices.joined.text)).toBe('join');
     expect(noticeIcon(notices.stopped)).toBe('stop');
-    expect(noticeIcon(notices.depthLimit)).toBe('limit');
     expect(noticeIcon(notices.noResponder)).toBe('other');
     expect(splitLeadingName(notices.joined.text, [notices.joined.name])?.name).toBe(notices.joined.name);
   });

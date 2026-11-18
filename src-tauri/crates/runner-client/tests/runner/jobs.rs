@@ -1,11 +1,11 @@
 //! 実行: 途中経過と途中の投稿の中継・要求の形・エラーコード・cancel と猶予・job_id ごとの配送。
 
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use runner_client::{ErrorCode, RunUpdate, RunUsage, RunnerClient, RunnerError};
 
-use crate::support::{no_updates, ready_client, request, updates, within, CANCEL_GRACE};
+use crate::support::{config, no_updates, ready_client, request, updates, wait_status, within, CANCEL_GRACE};
 
 #[tokio::test]
 async fn run_relays_activity_posts_and_usage_then_returns_the_result() {
@@ -35,6 +35,7 @@ async fn run_request_has_the_protocol_shape() {
     assert_eq!(sent["type"], "run");
     assert_eq!(sent["id"], "j1");
     assert_eq!(sent["stateDir"], r"C:\data\agents\a1\state\fake");
+    assert_eq!(sent["prepareWorkspace"], true);
     assert_eq!(sent["readableDirs"][0], r"C:\data\agents\a0\work");
     assert_eq!(sent["permissions"]["runCommands"], false);
     assert_eq!(sent["intent"], "# 人間の依頼\n> 試して\n");
@@ -50,6 +51,10 @@ async fn runner_errors_keep_their_codes() {
     assert!(matches!(&auth, RunnerError::Backend { code: ErrorCode::Auth, message } if message == "失敗: auth"));
     let denied = within(client.run("b", request("fail:unsupported_permission"), no_updates())).await;
     assert!(matches!(denied, Err(RunnerError::Backend { code: ErrorCode::UnsupportedPermission, .. })));
+    let timeout = within(client.run("t", request("fail:timeout"), no_updates())).await;
+    assert!(
+        matches!(timeout, Err(RunnerError::Backend { code: ErrorCode::Timeout, message }) if message == "失敗: timeout")
+    );
     let cancelled = within(client.run("c", request("fail:cancelled"), no_updates())).await;
     assert!(matches!(cancelled, Err(RunnerError::Cancelled)));
     client.shutdown().await;
@@ -83,14 +88,21 @@ async fn cancel_returns_as_soon_as_the_runner_stops() {
 }
 
 #[tokio::test]
-async fn cancel_gives_up_after_the_grace_period() {
-    let client = Arc::new(ready_client("ok.mjs").await);
-    let running = start_waiting_job(&client, "stubborn").await;
-    let started = Instant::now();
+async fn cancelling_a_run_keeps_waiting_for_its_terminal_after_ten_seconds() {
+    let mut config = config("ok.mjs");
+    config.cancel_grace = Duration::from_secs(10);
+    let client = Arc::new(RunnerClient::new(config));
+    wait_status(&client, |status| *status == runner_client::RunnerStatus::Ready).await;
+    let mut running = start_waiting_job(&client, "stubborn").await;
     client.cancel("job").await;
+    assert!(tokio::time::timeout(Duration::from_millis(10_100), &mut running).await.is_err());
+    let mut release = request("release-stubborn");
+    release.workspace = "other-workspace".into();
+    within(client.run("release", release, no_updates())).await.expect("終端を返す");
     let outcome = within(running).await.expect("タスク");
     assert!(matches!(outcome, Err(RunnerError::Cancelled)), "{outcome:?}");
-    assert!(started.elapsed() >= CANCEL_GRACE, "終端イベントが来なければ猶予まで待つ");
+    let next = within(client.run("next", request("echo:next"), no_updates())).await;
+    assert_eq!(next.expect("同じ作業場所で次のジョブを実行できる"), "next");
     client.shutdown().await;
 }
 

@@ -37,6 +37,35 @@ async fn stop_cancels_the_running_job_drops_the_queue_and_then_announces() {
 }
 
 #[tokio::test]
+async fn stop_all_cancels_running_jobs_and_drops_pending_jobs_across_channels() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let sora = app.agent("worker", "ソラ");
+    let kai = app.agent("worker", "カイ");
+    let lobby = app.channel("ロビー", &[&haru, &kai]);
+    let lab = app.channel("実験室", &[&sora]);
+    app.runtime.script(haru.id.as_str(), Script::Hang);
+    app.runtime.script(sora.id.as_str(), Script::Hang);
+    let conversation = &app.services.conversation;
+    conversation.send_human_message(&lobby.id, "ロビーで作業", &[]).unwrap();
+    conversation.send_human_message(&lab.id, "実験室で作業", &[]).unwrap();
+    tick().await;
+    let started_ids: Vec<_> = app.runtime.requests.lock().iter().map(|(id, _, _)| id.clone()).collect();
+    assert_eq!(started_ids.len(), 2);
+    assert_eq!(conversation.activity().queues.iter().map(|queue| queue.pending).sum::<u32>(), 1);
+
+    conversation.stop_all().await;
+
+    let cancelled = app.runtime.cancelled.lock();
+    assert_eq!(cancelled.len(), started_ids.len());
+    assert!(started_ids.iter().all(|id| cancelled.contains(id)));
+    assert!(app.runtime.requests_for(kai.id.as_str()).is_empty());
+    assert_eq!(conversation.activity(), ActivityState::default());
+    assert_eq!(app.transcript(&lobby), vec!["人間: ロビーで作業"]);
+    assert_eq!(app.transcript(&lab), vec!["人間: 実験室で作業"]);
+}
+
+#[tokio::test]
 async fn a_result_that_arrives_after_stop_is_discarded() {
     let app = TestApp::new();
     let haru = app.agent("worker", "ハル");
@@ -56,6 +85,39 @@ async fn a_result_that_arrives_after_stop_is_discarded() {
     app.settle().await;
 
     assert_eq!(app.transcript(&lobby), vec!["人間: お願い", "システム: 停止しました"]);
+}
+
+#[tokio::test(start_paused = true)]
+async fn a_stop_wait_timeout_does_not_release_the_agents_workspace() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let lobby = app.channel("ロビー", &[&haru]);
+    let late = Arc::new(Notify::new());
+    app.runtime.script(haru.id.as_str(), Script::Stubborn(late.clone(), "古い返答".to_owned()));
+    app.runtime.script(haru.id.as_str(), reply("次の返答"));
+    app.services.conversation.send_human_message(&lobby.id, "最初の依頼", &[]).unwrap();
+    tick().await;
+
+    let conversation = app.services.conversation.clone();
+    let channel_id = lobby.id.clone();
+    let stopping = tokio::spawn(async move { conversation.stop(&channel_id).await });
+    tick().await;
+    assert_eq!(app.runtime.cancelled.lock().len(), 1);
+    tokio::time::advance(Duration::from_secs(31)).await;
+    stopping.await.unwrap().unwrap();
+
+    app.services.conversation.send_human_message(&lobby.id, "次の依頼", &[]).unwrap();
+    tick().await;
+    assert_eq!(app.runtime.requests_for(haru.id.as_str()).len(), 1);
+    assert_eq!(app.transcript(&lobby), vec!["人間: 最初の依頼", "人間: 次の依頼"]);
+
+    late.notify_one();
+    app.settle().await;
+    assert_eq!(app.runtime.requests_for(haru.id.as_str()).len(), 2);
+    assert_eq!(
+        app.transcript(&lobby),
+        vec!["人間: 最初の依頼", "人間: 次の依頼", "システム: 停止しました", "ハル: 次の返答"]
+    );
 }
 
 #[tokio::test]

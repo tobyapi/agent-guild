@@ -1,10 +1,10 @@
 //! アクターだけが触る実行管理の状態: レーン（チャンネルごとの待機 FIFO・割り振りの枠・世代）・実行中のジョブ・
-//! 起点ごとの記録・進行中の割り振り。
+//! 進行中の割り振り。
 
 use std::collections::{HashMap, VecDeque};
 
 use guild_domain::conversation::JobSpec;
-use guild_domain::ids::{AgentId, ChannelId, DelegationId, MessageId};
+use guild_domain::ids::{AgentId, ChannelId, DelegationId};
 
 use super::tracking::Tracked;
 
@@ -47,18 +47,11 @@ impl Lane {
     }
 }
 
-/// 起点ごとの記録（往復の上限のお知らせを1回だけ出すため）
-#[derive(Default)]
-pub(crate) struct RootState {
-    pub depth_notified: bool,
-}
-
 #[derive(Default)]
 pub(crate) struct DispatchState {
     pub lanes: HashMap<ChannelId, Lane>,
     /// ジョブ ID → 実行中のジョブ
     pub running: HashMap<String, Running>,
-    pub roots: HashMap<MessageId, RootState>,
     /// 進行中（running / reporting）の割り振り
     pub delegations: HashMap<DelegationId, Tracked>,
     next_ticket: u64,
@@ -120,12 +113,6 @@ impl DispatchState {
         } else {
             lane.pending.push_back(pending);
         }
-    }
-
-    /// 待機・実行中のジョブが残っていない起点の記録を捨てる
-    pub fn prune_roots(&mut self) {
-        let alive: Vec<MessageId> = self.jobs().filter_map(|job| job.root_id.clone()).collect();
-        self.roots.retain(|root, _| alive.contains(root));
     }
 
     /// そのチャンネル（None なら全体）で実行中のジョブがあるか（割り振りの枠を含む）

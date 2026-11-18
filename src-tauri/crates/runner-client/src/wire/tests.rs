@@ -90,6 +90,7 @@ fn error_codes_map_to_runner_errors() {
         ("response_truncated", ErrorCode::ResponseTruncated),
         ("response_blocked", ErrorCode::ResponseBlocked),
         ("invalid_response", ErrorCode::InvalidResponse),
+        ("timeout", ErrorCode::Timeout),
         ("unknown_backend", ErrorCode::UnknownBackend),
         ("unsupported_permission", ErrorCode::UnsupportedPermission),
         ("bad_request", ErrorCode::BadRequest),

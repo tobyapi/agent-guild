@@ -57,6 +57,7 @@ describe.each(providers)('$id adapter', ({ id, envVar, adapter }) => {
     expect(JSON.stringify(options)).not.toContain('synthetic-other');
     expect(JSON.stringify(requestBody(fetcher))).not.toContain('synthetic-');
     expect(options?.redirect).toBe('error');
+    expect(options?.signal).toBe(context.signal);
     expect(JSON.stringify(vi.mocked(context.onPost).mock.calls)).not.toContain('private-thought');
     vi.mocked(apiKeyEnvironment).mockResolvedValue({ [envVar]: 'replacement' });
     await adapter.run(runRequest(id), runContext());

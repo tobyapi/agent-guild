@@ -1,6 +1,6 @@
 //! ジョブの受け入れ: 振り分けの結果の反映（参加・お知らせ・ジョブ）と合流。
 
-use guild_domain::conversation::{JobSpec, Notice, Routing};
+use guild_domain::conversation::{JobSpec, Routing};
 use guild_domain::locale;
 
 use super::actor::Actor;
@@ -13,23 +13,11 @@ impl Actor {
             log::error!("チャンネルへの参加を保存できませんでした: {error}");
         }
         for notice in &routing.notices {
-            self.notify(notice, origin);
+            self.post_notice(origin, &notice.text(locale::current()));
         }
         for job in routing.jobs {
             self.accept(job);
         }
-    }
-
-    /// 上限のお知らせは起点ごとに1回だけ
-    fn notify(&mut self, notice: &Notice, origin: &Origin) {
-        if *notice == Notice::DepthLimit {
-            let root = self.state.roots.entry(origin.root_id.clone()).or_default();
-            if root.depth_notified {
-                return;
-            }
-            root.depth_notified = true;
-        }
-        self.post_notice(origin, &notice.text(locale::current()));
     }
 
     /// 待機ジョブに合流できれば合流し、新しいジョブなら積む。

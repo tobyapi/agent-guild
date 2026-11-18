@@ -15,16 +15,6 @@ const list = (names: readonly string[], language: Language) => names.join(SEPARA
 export const stopped = (language = currentLanguage()) =>
   ({ ja: '停止しました', en: 'Stopped.', 'zh-Hans': '已停止。', 'zh-Hant': '已停止。', ko: '중지했습니다.' })[language];
 
-/** AI 同士の往復が上限に達して振り分けを止めたとき（起点ごとに1回） */
-export const depthLimit = (language = currentLanguage()) =>
-  ({
-    ja: 'AI 同士の往復が上限に達したので止めました。続けるにはメンションしてください。',
-    en: 'Stopped because the back-and-forth between AIs reached its limit. Mention someone to continue.',
-    'zh-Hans': 'AI 之间的往返次数已达上限，已停止。如需继续，请提及成员。',
-    'zh-Hant': 'AI 之間的往返次數已達上限，已停止。如需繼續，請提及成員。',
-    ko: 'AI 간 대화가 한도에 도달하여 멈췄습니다. 계속하려면 멘션하세요.',
-  })[language];
-
 /** メンションなしの人間の発言に答えられるエージェントがいないとき */
 export const noResponder = (language = currentLanguage()) =>
   ({

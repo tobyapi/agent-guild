@@ -51,7 +51,7 @@ impl JobSpec {
             mode,
             triggers: vec![trigger.clone()],
             return_to,
-            depth: trigger.depth + 1,
+            depth: trigger.depth.saturating_add(1),
             root_id: Some(trigger.root_id.clone()),
             notes: Vec::new(),
             subtask: None,

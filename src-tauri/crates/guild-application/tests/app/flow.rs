@@ -48,6 +48,29 @@ async fn a_consultation_goes_to_the_expert_and_comes_back() {
 }
 
 #[tokio::test]
+async fn a_conversation_completes_more_than_thirty_round_trips() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let logica = app.agent("expert", "ロジカ");
+    let lobby = app.channel("ロビー", &[&haru, &logica]);
+    for _ in 0..31 {
+        app.runtime.script(haru.id.as_str(), reply("@ロジカ 確認して"));
+        app.runtime.script(logica.id.as_str(), reply("確認しました"));
+    }
+    app.runtime.script(haru.id.as_str(), reply("これで完了です"));
+
+    let origin = app.services.conversation.send_human_message(&lobby.id, "進めて", &[]).unwrap();
+    app.settle().await;
+
+    let messages = app.messages(&lobby);
+    assert_eq!(messages.iter().map(|message| message.depth).collect::<Vec<_>>(), (0..=63).collect::<Vec<_>>());
+    assert!(messages.iter().all(|message| message.root_id == origin.id));
+    assert_eq!(messages.last().unwrap().content, "これで完了です");
+    assert_eq!(app.runtime.requests_for(haru.id.as_str()).len(), 32);
+    assert_eq!(app.runtime.requests_for(logica.id.as_str()).len(), 31);
+}
+
+#[tokio::test]
 async fn a_silent_consultant_hands_the_turn_back_with_a_note() {
     let app = TestApp::new();
     let haru = app.agent("worker", "ハル");
@@ -84,6 +107,28 @@ async fn a_failed_consultation_leaves_an_error_and_returns_with_a_note() {
     );
     assert_eq!(app.messages(&lobby)[2].kind, guild_domain::message::MessageKind::Error);
     assert!(app.runtime.requests_for(haru.id.as_str())[1].prompt.contains("ロジカ は失敗しました"));
+}
+
+#[tokio::test]
+async fn a_timed_out_job_posts_the_error_and_releases_the_lane() {
+    let app = TestApp::new();
+    let haru = app.agent("worker", "ハル");
+    let lobby = app.channel("ロビー", &[&haru]);
+    let reason = "時間切れで実行を中断しました（30分）";
+    app.runtime.script(haru.id.as_str(), Script::Fail(reason.to_owned()));
+    app.runtime.script(haru.id.as_str(), reply("次の依頼に返答しました"));
+
+    app.services.conversation.send_human_message(&lobby.id, "最初の依頼", &[]).unwrap();
+    app.settle().await;
+    app.services.conversation.send_human_message(&lobby.id, "次の依頼", &[]).unwrap();
+    app.settle().await;
+
+    let messages = app.messages(&lobby);
+    assert_eq!(messages[1].kind, guild_domain::message::MessageKind::Error);
+    assert_eq!(messages[1].content, reason);
+    assert_eq!(messages[1].author_id, guild_domain::author::Author::Agent(haru.id));
+    assert_eq!(messages.last().unwrap().content, "次の依頼に返答しました");
+    assert_eq!(app.services.conversation.activity(), ActivityState::default());
 }
 
 #[tokio::test]

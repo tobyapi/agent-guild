@@ -98,20 +98,24 @@ fn settings_from_a_newer_app_are_not_rewritten() {
 }
 
 #[test]
-fn the_state_folder_is_recreated_for_every_run() {
+fn resolving_run_paths_does_not_touch_the_work_or_state_folders() {
     let data = TempDir::new("workspace");
     let workspace = FsWorkspace::new(&data.0);
     let agent = AgentId::new("a1");
-    let paths = workspace.prepare(&agent, "claude").unwrap();
+    let paths = workspace.run_paths(&agent, "claude");
     assert_eq!(paths.work, data.0.join("agents").join("a1").join("work"));
     assert_eq!(paths.state, data.0.join("agents").join("a1").join("state").join("claude"));
+    assert!(!paths.work.exists());
+    assert!(!paths.state.exists());
+    fs::create_dir_all(&paths.state).unwrap();
+    fs::create_dir_all(&paths.work).unwrap();
     fs::write(paths.state.join("settings.json"), "{}").unwrap();
     fs::write(paths.work.join("MEMORY.md"), "覚えておくこと").unwrap();
 
-    let again = workspace.prepare(&agent, "claude").unwrap();
-    assert!(!again.state.join("settings.json").exists(), "state は作り直す");
+    let again = workspace.run_paths(&agent, "claude");
+    assert_eq!(fs::read_to_string(again.state.join("settings.json")).unwrap(), "{}");
     assert_eq!(workspace.read_memory(&agent).unwrap(), "覚えておくこと", "work は残す");
-    let odd = workspace.prepare(&agent, "../evil").unwrap();
+    let odd = workspace.run_paths(&agent, "../evil");
     assert!(odd.state.starts_with(data.0.join("agents").join("a1").join("state")), "外に出ない");
 }
 
@@ -121,14 +125,14 @@ fn memory_is_empty_until_written_and_removal_deletes_everything() {
     let workspace = FsWorkspace::new(&data.0);
     let agent = AgentId::new("a1");
     assert_eq!(workspace.read_memory(&agent).unwrap(), "");
-    workspace.prepare(&agent, "codex").unwrap();
+    fs::create_dir_all(workspace.run_paths(&agent, "codex").state).unwrap();
     workspace.remove(&agent).unwrap();
     assert!(!data.0.join("agents").join("a1").exists());
     workspace.remove(&agent).unwrap();
 }
 
 #[test]
-fn preparing_shared_workspace_leaves_retired_channel_data_untouched() {
+fn resolving_shared_workspace_leaves_retired_channel_data_untouched() {
     let data = TempDir::new("retired-channel-data");
     let legacy = data.0.join("agents/a/channels/c/7");
     fs::create_dir_all(legacy.join("work")).unwrap();
@@ -136,7 +140,7 @@ fn preparing_shared_workspace_leaves_retired_channel_data_untouched() {
     fs::write(legacy.join("work/MEMORY.md"), "legacy memory").unwrap();
     fs::write(legacy.join("state/codex/session"), "legacy session").unwrap();
     let workspace = FsWorkspace::new(&data.0);
-    let paths = workspace.prepare(&AgentId::new("a"), "codex").unwrap();
+    let paths = workspace.run_paths(&AgentId::new("a"), "codex");
     assert_eq!(paths.work, data.0.join("agents/a/work"));
     assert_eq!(workspace.read_memory(&AgentId::new("a")).unwrap(), "");
     assert_eq!(fs::read_to_string(legacy.join("work/MEMORY.md")).unwrap(), "legacy memory");

@@ -78,8 +78,7 @@ export function createApiAdapter(provider: Provider): BackendAdapter {
       const key = await credential(provider);
       context.signal.throwIfAborted();
       context.onSkillRead?.(null);
-      const signal = AbortSignal.any([context.signal, AbortSignal.timeout(300000)]);
-      return runLoop(provider.codec, request, key, model, effort, { ...context, signal });
+      return runLoop(provider.codec, request, key, model, effort, context);
     },
   };
   return adapter;

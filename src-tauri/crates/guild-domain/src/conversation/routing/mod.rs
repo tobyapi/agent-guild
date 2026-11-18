@@ -10,9 +10,6 @@ use crate::ids::AgentId;
 use crate::locale::Language;
 use crate::message::Message;
 
-/// AI 同士の往復の上限（この depth に達した返答からは振り分けない）
-pub const MAX_DEPTH: u32 = 30;
-
 /// 振り分けに必要な状況
 #[derive(Debug, Clone, Copy)]
 pub struct RoutingContext<'a> {
@@ -28,8 +25,6 @@ pub struct RoutingContext<'a> {
 pub enum Notice {
     /// メンションなしの人間の発言に答えられるエージェントがいない
     NoResponder,
-    /// depth が上限に達した（起点ごとに1回だけ出すのは呼び出し側の責務）
-    DepthLimit,
     /// メンションされた相手（名前）がチャンネルにおらず、自動参加もしない
     Undeliverable(String),
     /// tasks ブロックの割り振れなかった名前（見つからない・削除済み・自分自身）
@@ -43,7 +38,6 @@ impl Notice {
     pub fn text(&self, language: Language) -> String {
         match self {
             Self::NoResponder => notices::no_responder(language).to_owned(),
-            Self::DepthLimit => notices::depth_limit(language).to_owned(),
             Self::Undeliverable(name) => notices::undeliverable(language, name),
             Self::Unassignable(names) => notices::unassignable(language, names),
             Self::TooManyTasks(names) => notices::too_many_tasks(language, names),
@@ -110,7 +104,7 @@ pub fn route_reply(reply: &Message, job: &JobSpec, ctx: &RoutingContext<'_>) -> 
     for id in reply.mentions.iter().filter(|id| *id != author && !job.return_to.contains(id)) {
         targets::consult(&mut routing, id, author, reply, ctx);
     }
-    limit_depth(routing, reply.depth)
+    routing
 }
 
 /// §7-3: returnTo を持つジョブが返答なしで終わったら、注記（language の文面）つきで呼び出し元に戻す
@@ -133,21 +127,12 @@ pub fn route_no_answer(
             mode: JobMode::Return,
             triggers: Vec::new(),
             return_to: Vec::new(),
-            depth: job.depth + 1,
+            depth: job.depth.saturating_add(1),
             root_id: job.root_id.clone(),
             notes: vec![note.clone()],
             subtask: None,
             report: None,
         })
         .collect();
-    limit_depth(Routing { jobs, ..Routing::default() }, job.depth)
-}
-
-/// depth が上限に達していたら振り分けず、上限のお知らせだけにする（振り分けるものがなければ何もしない）
-fn limit_depth(routing: Routing, depth: u32) -> Routing {
-    if depth >= MAX_DEPTH && !routing.jobs.is_empty() {
-        Routing { notices: vec![Notice::DepthLimit], ..Routing::default() }
-    } else {
-        routing
-    }
+    Routing { jobs, ..Routing::default() }
 }

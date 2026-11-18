@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HUMAN_ID, SYSTEM_ID } from '@/shared/types/domain';
 import { SEED_IDS } from './seedIds';
 import { createHarness } from './harness.test-support';
+import * as replies from './conversation/replies';
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -50,6 +51,30 @@ describe('モックの会話', () => {
     expect(thread.map((message) => message.authorId)).toEqual([HUMAN_ID, SEED_IDS.hal, SEED_IDS.logica, SEED_IDS.hal]);
     expect(thread.map((message) => message.depth)).toEqual([0, 1, 2, 3]);
     expect(thread[1]?.mentions).toEqual([SEED_IDS.logica]);
+  });
+
+  it('30往復を超えても、作業者が相談を終えるまで返答を振り分ける', async () => {
+    const plan = vi.spyOn(replies, 'planReply').mockImplementation(({ job }) => ({
+      steps: ['考え中…'],
+      content: job.agentId === SEED_IDS.hal && job.depth < 62 ? '@ロジカ 確認して' : '確認しました',
+      kind: 'chat',
+    }));
+    try {
+      const mock = await createHarness();
+      const sent = await mock.transport.invoke('send_message', {
+        channelId: SEED_IDS.lobby,
+        content: '@ハル 確認を続けて',
+        attachments: [],
+      });
+      await mock.settle();
+
+      const thread = mock.messages.filter((message) => message.rootId === sent.id);
+      expect(thread.map((message) => message.depth)).toEqual(Array.from({ length: 64 }, (_, depth) => depth));
+      expect(thread.at(-1)).toMatchObject({ authorId: SEED_IDS.hal, content: '確認しました' });
+      expect(mock.activities.at(-1)).toEqual({ activities: [], queues: [] });
+    } finally {
+      plan.mockRestore();
+    }
   });
 
   it('バックエンドの準備ができていないエージェントは失敗の発言（error）を出す', async () => {

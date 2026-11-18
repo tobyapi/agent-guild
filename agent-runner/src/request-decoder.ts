@@ -129,6 +129,7 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     backend: value.backend,
     workspace: value.workspace,
     stateDir: value.stateDir,
+    ...(value.prepareWorkspace === true && { prepareWorkspace: true }),
     readableDirs,
     systemPrompt: value.systemPrompt,
     prompt: value.prompt,

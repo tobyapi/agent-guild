@@ -1,5 +1,5 @@
 //! 1回の実行の流れ: ready の接続を得る → 待ち手を登録 → run（または image・login など）を送る → 終端イベント・接続断・cancel を待つ。
-//! cancel 後は終端イベントか cancel_grace の早いほうで `Cancelled` を返す（以後その id のイベントは捨てる）。
+//! run の cancel 後は終端イベントか接続断まで待つ。ほかの要求は cancel_grace を過ぎたら `Cancelled` を返す。
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -68,14 +68,18 @@ pub(crate) async fn run(
         result = &mut outcome => return result.unwrap_or(Err(RunnerError::Disconnected)),
         () = connection.closed() => return Err(RunnerError::Disconnected),
     }
-    // ランナー側の実行が止まった印（終端イベント）を猶予の間だけ待つ。届いた結果は使わない
+    // 届いた結果は使わない。会話ジョブは、終端を確認するまでアプリで実行中にしておく
     let stopped = async {
         tokio::select! {
             _ = &mut outcome => {}
             () = connection.closed() => {}
         }
     };
-    let _ = tokio::time::timeout(shared.config.cancel_grace, stopped).await;
+    if matches!(work, Work::Run(_)) {
+        stopped.await;
+    } else {
+        let _ = tokio::time::timeout(shared.config.cancel_grace, stopped).await;
+    }
     Err(RunnerError::Cancelled)
 }
 

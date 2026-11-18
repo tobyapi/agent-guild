@@ -3,8 +3,6 @@ import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, BackendInfo, Channel, Message, UnmentionedPolicy } from '@/shared/types/domain';
 import { noResponder, undeliverable } from '../notices';
 
-export const MAX_DEPTH = 30;
-
 /** task: 割り振られたサブタスク（レーンの外で並行に動く）/ report: マネージャーのまとめ（レーンに積む） */
 export type JobMode = 'reply' | 'return' | 'autonomous' | 'task' | 'report';
 
@@ -102,7 +100,7 @@ function consult(agentId: string, reply: Message, ctx: RoutingContext): RoutingE
   return [{ type: 'notice', content: undeliverable(agent.name) }];
 }
 
-/** エージェントの返答（§7-2）: 呼び出し元へ必ず戻し、新しくメンションした相手に相談する。depth の上限は呼び出し側で確かめる */
+/** エージェントの返答（§7-2）: 呼び出し元へ必ず戻し、新しくメンションした相手に相談する */
 export function routeAgentReply(reply: Message, job: MockJob, ctx: RoutingContext): RoutingEffect[] {
   const returns = returnTargets(job, reply.authorId, ctx).map((id) => enqueue(jobFrom(reply, id, 'return', [])));
   const consulted = reply.mentions.filter(

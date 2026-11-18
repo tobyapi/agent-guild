@@ -195,6 +195,9 @@ pub struct RunRequest {
     pub workspace: PathBuf,
     /// アダプタの管理領域（スキルの展開・人格ファイルなど）。エージェントからは書けない
     pub state_dir: PathBuf,
+    /// アプリが管理する作業場所を作り、管理領域を実行前に作り直す
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub prepare_workspace: bool,
     /// 追加で読み取りを許すフォルダ（相談元の作業場所など）
     pub readable_dirs: Vec<PathBuf>,
     pub system_prompt: String,
