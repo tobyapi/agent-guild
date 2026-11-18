@@ -31,8 +31,6 @@ export const ja = {
   themeLabel: 'テーマ',
   schemeDark: 'ダーク',
   schemeLight: 'ライト',
-  themeGuildDark: 'ギルド ダーク',
-  themeGuildLight: 'ギルド ライト',
   themeGuildSystem: 'システムに合わせる',
   sectionTitle: '外観',
   accentLabel: 'アクセントの色',

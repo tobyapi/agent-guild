@@ -33,8 +33,6 @@ export const zhHant: Messages<typeof ja> = {
   themeLabel: '主題',
   schemeDark: '深色',
   schemeLight: '淺色',
-  themeGuildDark: '公會深色',
-  themeGuildLight: '公會淺色',
   themeGuildSystem: '跟隨系統',
   sectionTitle: '外觀',
   accentLabel: '強調色',

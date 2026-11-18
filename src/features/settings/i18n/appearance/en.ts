@@ -33,8 +33,6 @@ export const en: Messages<typeof ja> = {
   themeLabel: 'Theme',
   schemeDark: 'Dark',
   schemeLight: 'Light',
-  themeGuildDark: 'Guild Dark',
-  themeGuildLight: 'Guild Light',
   themeGuildSystem: 'Follow system',
   sectionTitle: 'Appearance',
   accentLabel: 'Accent color',

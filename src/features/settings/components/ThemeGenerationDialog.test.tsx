@@ -61,7 +61,8 @@ it('isolates the preview document, toggles schemes there and saves without chang
   expect(previewRoot.style.getPropertyValue('--area-divider-style')).toBe('dashed');
   expect(previewRoot.style.getPropertyValue('--area-divider-width')).toBe('2px');
   expect(frame.contentDocument?.querySelector('.sample-members')?.textContent).toBe(ja.sampleMembers);
-  fireEvent.click(screen.getByRole('radio', { name: ja.themeGuildLight }));
+  expect(screen.getByRole('radio', { name: 'ダーク', checked: true })).toBeTruthy();
+  fireEvent.click(screen.getByRole('radio', { name: 'ライト' }));
   expect(previewRoot.style.getPropertyValue('--area-divider-style')).toBe('double');
   expect(previewRoot.style.getPropertyValue('--area-divider-width')).toBe('3px');
   fireEvent.click(screen.getByRole('radio', { name: ja.previewCurrent }));

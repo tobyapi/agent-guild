@@ -69,8 +69,8 @@ export function ThemeDraftPreview({ candidate, image }: { candidate: ThemeCandid
         value={scheme}
         onChange={setScheme}
         options={[
-          { value: 'dark', label: t('themeGuildDark') },
-          { value: 'light', label: t('themeGuildLight') },
+          { value: 'dark', label: t('schemeDark') },
+          { value: 'light', label: t('schemeLight') },
         ]}
       />
       <iframe
