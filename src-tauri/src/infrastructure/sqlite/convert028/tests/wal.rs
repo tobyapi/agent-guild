@@ -89,7 +89,7 @@ fn failed_backup_verification_removes_partial_files() {
     let f = Fixture::new();
     let db = old(&f.db(), 7);
     db.execute("UPDATE meta SET value='wrong'", []).unwrap();
-    assert!(super::backup::create(&db, &f.0).is_err());
+    assert!(super::backup::create(&db, &f.db()).is_err());
     assert_eq!(fs::read_dir(f.0.join("backups/pre-1.0.0")).unwrap().count(), 0);
 }
 
@@ -103,10 +103,35 @@ fn conversion_error_after_backup_reports_the_verified_copy() {
     let OpenError::Conversion { backup: Some(backup), .. } = error else {
         panic!("{error:?}");
     };
+    let retry = prepare(&f.db()).unwrap_err();
+    assert!(matches!(retry, OpenError::Conversion {backup:Some(ref p), ..} if p == &backup));
+    assert_eq!(fs::read_dir(f.0.join("backups/pre-1.0.0")).unwrap().count(), 1);
     db.execute_batch("ROLLBACK").unwrap();
     for file in [f.db(), backup] {
         let copy = source::read_only(&file).unwrap();
         assert_eq!(copy.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 7);
         assert_eq!(copy.query_row("SELECT count(*) FROM messages", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
     }
+}
+
+#[test]
+fn existing_copies_must_be_independent_and_match_the_current_database() {
+    let f = Fixture::new();
+    let db = old(&f.db(), 7);
+    populate(&db);
+    let parent = f.0.join("backups/pre-1.0.0");
+    let alias = parent.join("20261120T000000Z-00000000-0000-4000-8000-000000000000");
+    fs::create_dir_all(&alias).unwrap();
+    fs::hard_link(f.db(), alias.join("guild.db")).unwrap();
+    let first = super::backup::create(&db, &f.db()).unwrap();
+    assert!(!same_file::is_same_file(f.db(), &first).unwrap());
+    db.execute("UPDATE messages SET content='new' WHERE id='m'", []).unwrap();
+    let second = super::backup::create(&db, &f.db()).unwrap();
+    assert_ne!(first, second);
+    assert_eq!(super::backup::create(&db, &f.db()).unwrap(), second);
+    let old_content: String = source::read_only(&first)
+        .unwrap()
+        .query_row("SELECT content FROM messages WHERE id='m'", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(old_content, "one");
 }

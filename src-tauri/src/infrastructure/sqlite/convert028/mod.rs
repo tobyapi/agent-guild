@@ -51,7 +51,7 @@ pub(super) fn prepare(path: &Path) -> std::result::Result<(), OpenError> {
         return Ok(());
     }
     let root = path.parent().ok_or_else(|| corrupt("Missing data directory"))?;
-    let backup = backup::create(&snapshot.db, root).map_err(|error| conversion(error, None))?;
+    let backup = backup::create(&snapshot.db, path).map_err(|error| conversion(error, None))?;
     #[cfg(unix)]
     backup::sync_published(&backup).map_err(|error| conversion(error, Some(backup.clone())))?;
     drop(snapshot);

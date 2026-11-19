@@ -388,7 +388,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - **リリース後に壊してはいけない境界**: (1) データフォルダ（構成・guild-data.json・SQLite スキーマ・settings.json）(2) スキル形式（Agent Skills の SKILL.md 標準）(3) 将来のエージェント定義のエクスポート形式。
 - React ⇄ Rust の IPC と Rust ⇄ ランナーのプロトコルは、同じアプリに同梱して同時に出荷する**内部契約**。自由に変えてよいが、文書とフィクスチャは常に正しく保つ。
 - SQLite の application_id は `0x4755494c`。v1 は user_version 8 と `schema-v1.sql` の表・索引定義を照合する。変換対象は v0.1.28 と同一のスキーマ 7、指紋 `14512365f8e91d16`、既知の実体定義を備えた DB。データフォルダのロックを保持し、WAL 内の確定済み変更も含む読み取り用スナップショットを検査する。
-- 変換前に旧データを検査し、SQLite Backup API で `backups/pre-1.0.0/.pending/guild.db.partial` にコピーする。全行・rowid・採番・整合性を照合して同期し、`backups/pre-1.0.0/<UTC日時>-<UUID>/guild.db` に確定する。変換は1回のトランザクションで行い、検証後に確定する。再起動時も DB の状態から開始する。
+- 変換前に旧データを検査し、SQLite Backup API で `backups/pre-1.0.0/.pending/guild.db.partial` にコピーする。全行・rowid・採番・整合性を照合して同期し、`backups/pre-1.0.0/<UTC日時>-<UUID>/guild.db` に確定する。再試行時は元の DB と別ファイルで、旧スキーマ・整合性・全行と rowid を再照合できた正式バックアップを使える。変換は1回のトランザクションで行い、検証後に確定する。再起動時も DB の状態から開始する。
 - 手動復元はすべての AIギルドを閉じ、現在の保存先を保管してから行う。空の別フォルダへ `guild-data.json`、元の `agents/`・`attachments/`・`frames/`・`backgrounds/` のうち存在するもの、検証済みのバックアップを `guild.db` として配置し、v0.1.28 で開く。WAL・SHM と途中の `.partial` は持ち込まない。バックアップが復元するのは DB の内容で、DB 外のファイルは別途保管が必要。
 - 発言の並びは seq（INTEGER PRIMARY KEY AUTOINCREMENT）。エージェントは論理削除。外部キー: skills → agents、channel_members・messages → channels（ON DELETE CASCADE）。
 - **拡張の余白**: バックエンドの能力・状態・設定項目と、バックエンドごとの違い（§5 の「バックエンドごとの違いの申告」）はランナーが申告する（Rust・React は列挙せず、ID で分岐しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。

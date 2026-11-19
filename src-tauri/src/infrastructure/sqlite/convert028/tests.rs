@@ -101,7 +101,7 @@ fn conversion_restarts_at_every_durability_boundary() {
         assert_eq!(copies[0].join("guild.db").exists(), point != "before-backup");
         prepare(&f.db()).unwrap();
         inspect(&f.db()).unwrap();
-        assert_eq!(folders().len(), if matches!(point, "after-backup" | "before-commit") { 2 } else { 1 });
+        assert_eq!(folders().len(), 1);
         assert!(!f.0.join("backups/pre-1.0.0/.pending").exists());
         verify(&source::read_only(&f.db()).unwrap());
     }

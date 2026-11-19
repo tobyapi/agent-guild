@@ -21,7 +21,8 @@ pub(super) const TABLES: [&str; 13] = [
     "sqlite_sequence",
 ];
 
-pub(super) fn create(src: &Connection, root: &Path) -> Result<PathBuf> {
+pub(super) fn create(src: &Connection, original: &Path) -> Result<PathBuf> {
+    let root = original.parent().ok_or_else(|| fail("Missing data directory"))?;
     let parent = root.join("backups").join("pre-1.0.0");
     fs::create_dir_all(&parent)?;
     let staging = parent.join(".pending");
@@ -32,11 +33,54 @@ pub(super) fn create(src: &Connection, root: &Path) -> Result<PathBuf> {
         }
         clear_staging(&staging)?;
     }
+    if let Some(path) = previous_verified(src, original, &parent)? {
+        return Ok(path);
+    }
     source::private_dir(&staging)?;
     let result = create_verified(src, &staging, &parent);
     if let Err(error) = clear_staging(&staging) {
         log::warn!("Could not clean up backup staging directory {}: {error}", staging.display());
     }
+    result
+}
+
+/// Retry only with a complete independent backup that still matches the locked source.
+fn previous_verified(src: &Connection, original: &Path, parent: &Path) -> Result<Option<PathBuf>> {
+    for entry in fs::read_dir(parent)?.flatten() {
+        let name = entry.file_name();
+        let Some((stamp, id)) = name.to_str().and_then(|s| s.split_once('-')) else { continue };
+        if !entry.file_type().is_ok_and(|t| t.is_dir())
+            || chrono::NaiveDateTime::parse_from_str(stamp, "%Y%m%dT%H%M%SZ").is_err()
+            || uuid::Uuid::try_parse(id).is_err()
+        {
+            continue;
+        }
+        let dir = entry.path();
+        let path = dir.join("guild.db");
+        if !path.symlink_metadata().is_ok_and(|m| m.is_file())
+            || ["guild.db-wal", "guild.db-journal", "guild.db-shm"]
+                .iter()
+                .any(|name| !dir.join(name).symlink_metadata().is_err_and(|e| e.kind() == std::io::ErrorKind::NotFound))
+            || same_file::is_same_file(original, &path).unwrap_or(true)
+        {
+            continue;
+        }
+        if verify_copy(src, &path).is_ok() {
+            return Ok(Some(path));
+        }
+    }
+    Ok(None)
+}
+
+fn verify_copy(src: &Connection, path: &Path) -> Result<()> {
+    let copy = source::read_only(path)?;
+    if !matches!(super::identity::classify(&copy)?, super::identity::Generation::Legacy) {
+        return Err(fail("Invalid backup header"));
+    }
+    integrity(&copy)?;
+    src.execute("ATTACH DATABASE ?1 AS verified", [source::uri(path)?])?;
+    let result = compare(src, "verified");
+    src.execute_batch("DETACH verified")?;
     result
 }
 
@@ -59,17 +103,7 @@ fn create_verified(src: &Connection, staging: &Path, parent: &Path) -> Result<Pa
         Backup::new(src, &mut dest)?.run_to_completion(256, Duration::from_millis(1), None)?;
         dest.pragma_update(None, "journal_mode", "DELETE")?;
     }
-    {
-        let copy = source::read_only(&partial)?;
-        if !matches!(super::identity::classify(&copy)?, super::identity::Generation::Legacy) {
-            return Err(fail("Invalid backup header"));
-        }
-        integrity(&copy)?;
-    }
-    src.execute("ATTACH DATABASE ?1 AS verified", [source::uri(&partial)?])?;
-    let result = compare(src, "verified");
-    src.execute_batch("DETACH verified")?;
-    result?;
+    verify_copy(src, &partial)?;
     File::options().read(true).write(true).open(&partial)?.sync_all()?;
     #[cfg(test)]
     super::fault("before-backup");
