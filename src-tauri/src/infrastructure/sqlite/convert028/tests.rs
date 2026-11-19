@@ -145,7 +145,6 @@ fn bad_values_roll_back_to_seven() {
         "UPDATE messages SET mentions='{}'",
         "UPDATE messages SET delegation_id=NULL",
         "UPDATE channels SET workspace_json='{}'",
-        "UPDATE meta SET value=json_set(value,'$.name',printf('%040d',1)) WHERE key='guild_profile'",
         "INSERT INTO channel_members VALUES('c','system')",
         "UPDATE messages SET skill_usage='42'",
         "UPDATE messages SET root_id='missing'",

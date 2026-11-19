@@ -5,6 +5,30 @@ use super::{
 use std::fs;
 
 #[test]
+fn guild_profiles_keep_the_values_displayed_by_028() {
+    let long_name = "界".repeat(33);
+    let cases = [
+        (r#"{"crest":{"shape":"shield"}}"#, "", "shield", "default"),
+        (r#"{"name":"　灯の団  ","crest":{"shape":"circle","color":"jade"}}"#, "灯の団", "circle", "jade"),
+        (&format!(r#"{{"name":"{long_name}","crest":{{"shape":"star","color":"azure"}}}}"#), "", "star", "azure"),
+        ("{invalid", "", "diamond", "default"),
+    ];
+    for (raw, name, shape, color) in cases {
+        let f = Fixture::new();
+        old(&f.db(), 7).execute("INSERT INTO meta VALUES ('guild_profile', ?)", [raw]).unwrap();
+        super::inspect(&f.db()).unwrap();
+        super::prepare(&f.db()).unwrap();
+        let db = source::read_only(&f.db()).unwrap();
+        let actual: (String, String, String) = db
+            .query_row("SELECT name,crest_shape,crest_color FROM guild_profile", [], |r| {
+                Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+            })
+            .unwrap();
+        assert_eq!(actual, (name.to_owned(), shape.to_owned(), color.to_owned()));
+    }
+}
+
+#[test]
 fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
     let f = Fixture::new();
     populate_damaged_records(&f);

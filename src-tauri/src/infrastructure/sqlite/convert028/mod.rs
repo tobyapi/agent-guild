@@ -1,6 +1,7 @@
 //! Convert a classified v0.1.28 database while the data-directory lock is held.
 mod adjustments;
 mod backup;
+mod guild_profile;
 mod identity;
 mod source;
 mod svg;

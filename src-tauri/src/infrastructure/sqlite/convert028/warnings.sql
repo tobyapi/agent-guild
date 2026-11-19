@@ -28,9 +28,11 @@ UNION ALL
 SELECT 'unknown_attachment_field',m.id||'/'||json_extract(a.value,'$.id') FROM messages m,json_each(m.attachments) a,json_each(a.value) j
 WHERE j.key NOT IN ('id','name','mediaType','size')
 UNION ALL
-SELECT 'unknown_guild_field',m.key FROM meta m,json_each(m.value) j WHERE m.key='guild_profile' AND j.key NOT IN ('name','crest')
+SELECT 'unknown_guild_field','guild_profile' FROM temp.legacy_guild_profile,json_each(original_json) j
+WHERE json_type(original_json)='object' AND j.key NOT IN ('name','crest')
 UNION ALL
-SELECT 'unknown_crest_field',m.key FROM meta m,json_each(m.value,'$.crest') j WHERE m.key='guild_profile' AND j.key NOT IN ('shape','color')
+SELECT 'unknown_crest_field','guild_profile' FROM temp.legacy_guild_profile,json_each(original_json,'$.crest') j
+WHERE json_type(original_json,'$.crest')='object' AND j.key NOT IN ('shape','color')
 UNION ALL
 SELECT 'unknown_interrupted_job_field',json_extract(job.value,'$.rootId') FROM meta m,json_each(m.value) job,json_each(job.value) j
 WHERE m.key='interrupted_jobs' AND j.key NOT IN ('depth','rootId','channelId','agentId')
@@ -39,7 +41,14 @@ SELECT 'voice_mode_defaulted',id FROM agents WHERE legacy_voice_mode(json_extrac
 UNION ALL
 SELECT 'voice_intensity_defaulted',id FROM agents WHERE json_extract(voice,'$.intensity') NOT IN ('weak','medium','strong')
 UNION ALL
-SELECT 'crest_shape_defaulted',key FROM meta WHERE key='guild_profile' AND json_extract(value,'$.crest.shape') NOT IN ('diamond','shield','circle','hexagon','star')
+SELECT 'guild_profile_defaulted','guild_profile' FROM temp.legacy_guild_profile WHERE json_type(original_json) IS NOT 'object'
 UNION ALL
-SELECT 'crest_color_defaulted',key FROM meta WHERE key='guild_profile' AND json_extract(value,'$.crest.color') NOT IN ('default','gold','crimson','jade','azure','violet')
+SELECT 'guild_name_normalized','guild_profile' FROM temp.legacy_guild_profile
+WHERE json_type(original_json)='object' AND json_extract(original_json,'$.name') IS NOT name
+UNION ALL
+SELECT 'crest_shape_defaulted','guild_profile' FROM temp.legacy_guild_profile
+WHERE json_type(original_json)='object' AND json_extract(original_json,'$.crest.shape') IS NOT json_extract(crest_json,'$.shape')
+UNION ALL
+SELECT 'crest_color_defaulted','guild_profile' FROM temp.legacy_guild_profile
+WHERE json_type(original_json)='object' AND json_extract(original_json,'$.crest.color') IS NOT json_extract(crest_json,'$.color')
 ORDER BY 1,2;

@@ -23,6 +23,7 @@ impl Warnings {
 
 pub(super) fn stage(db: &Connection, root: &Path) -> Result<()> {
     let mut warnings = Warnings::default();
+    super::guild_profile::stage(db)?;
     db.execute_batch("CREATE TEMP TABLE frame_repairs(id TEXT PRIMARY KEY, svg_text TEXT)")?;
     check_frames(db, root, &mut warnings)?;
     check_attachments(db, root, &mut warnings)?;

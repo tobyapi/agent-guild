@@ -1,13 +1,6 @@
 -- Return the first v0.1.28 row whose meaning would be lost on conversion.
 -- Qualify JSON inputs: json_each also supplies columns named key and value.
-SELECT 'guild_profile' AS kind, key AS id FROM meta WHERE key='guild_profile' AND CASE
-  WHEN NOT json_valid(value) THEN 1
-  ELSE json_type(value)<>'object' OR
-    json_type(value,'$.name') IS NOT 'text' OR json_type(value,'$.crest') IS NOT 'object' OR
-    json_type(value,'$.crest.shape') IS NOT 'text' OR json_type(value,'$.crest.color') IS NOT 'text'
-END
-UNION ALL
-SELECT 'interrupted_jobs', key FROM meta WHERE key='interrupted_jobs' AND CASE
+SELECT 'interrupted_jobs' AS kind, key AS id FROM meta WHERE key='interrupted_jobs' AND CASE
   WHEN NOT json_valid(value) THEN 1
   ELSE json_type(value)<>'array' OR EXISTS (
     SELECT 1 FROM json_each(meta.value) j WHERE CASE WHEN j.type<>'object' THEN 1 ELSE
