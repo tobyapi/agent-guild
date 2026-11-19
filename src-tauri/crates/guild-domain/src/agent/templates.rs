@@ -7,6 +7,7 @@ use super::template_model::{AgentTemplate, AgentTemplateDefaults};
 use super::template_texts::{self as texts, Texts};
 use super::{name_key, UnmentionedPolicy};
 use crate::locale;
+use crate::skill::expert_collaboration;
 
 /// 表の1行。accent はテンプレート ID と同じ名前、タグは表示名と同じ1つ（サイドバーの区分になる）
 struct Row {
@@ -38,9 +39,11 @@ struct Flags {
     can_delegate: bool,
     can_notify: bool,
     autonomy: bool,
+    expert_collaboration: bool,
 }
 
-const QUIET: Flags = Flags { consultable: false, can_delegate: false, can_notify: false, autonomy: false };
+const QUIET: Flags =
+    Flags { consultable: false, can_delegate: false, can_notify: false, autonomy: false, expert_collaboration: false };
 
 /// 作業者は対応する全機能を使う。
 const FULL_ACCESS: Permissions = Permissions {
@@ -98,7 +101,7 @@ const ROWS: [Row; 4] = [
     },
     Row {
         id: "expert",
-        builtin_skills: &["universal-critique"],
+        builtin_skills: &[expert_collaboration::NAME, "universal-critique"],
         label: ["専門家", "Expert", "专家", "專家", "전문가"],
         legacy_tags: &[],
         description: [
@@ -112,7 +115,7 @@ const ROWS: [Row; 4] = [
         expertise: texts::EMPTY,
         permissions: Permissions { read_anywhere: true, ..WORKSPACE_TOOLS },
         unmentioned: UnmentionedPolicy::Fallback,
-        flags: Flags { consultable: true, ..QUIET },
+        flags: Flags { consultable: true, expert_collaboration: true, ..QUIET },
     },
     Row {
         id: "manager",
@@ -166,12 +169,19 @@ pub fn find_template(id: &str) -> Option<AgentTemplate> {
 /// 先頭タグに対応する役割。権限とプロンプトの基本の仕事で共通に使う。
 /// どの言語の表示名のタグでも同じ役割になる（作成したときの言語のタグが保存されている）
 pub fn role_template(tags: &[String]) -> Option<AgentTemplate> {
+    find_template(row_for_tags(tags)?.id)
+}
+
+fn row_for_tags(tags: &[String]) -> Option<&'static Row> {
     let head = name_key(tags.first()?.trim());
-    templates().into_iter().find(|template| template.role_tags.iter().any(|tag| name_key(tag) == head))
+    ROWS.iter().find(|row| row.role_tags().any(|tag| name_key(tag) == head))
+}
+
+pub(crate) fn uses_expert_collaboration(tags: &[String]) -> bool {
+    row_for_tags(tags).is_some_and(|row| row.flags.expert_collaboration)
 }
 
 /// アプリが実行する通知の権限。会話の割り振り設定やランナーの道具の権限とは独立。
 pub(super) fn notification_allowed(tags: &[String]) -> bool {
-    let Some(head) = tags.first().map(|tag| name_key(tag.trim())) else { return false };
-    ROWS.iter().find(|row| row.role_tags().any(|tag| name_key(tag) == head)).is_some_and(|row| row.flags.can_notify)
+    row_for_tags(tags).is_some_and(|row| row.flags.can_notify)
 }

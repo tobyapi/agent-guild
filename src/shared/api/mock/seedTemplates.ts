@@ -59,7 +59,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   {
     id: 'expert',
     roleTags: ['専門家', 'Expert', '专家', '專家', '전문가'],
-    builtinSkills: ['universal-critique'],
+    builtinSkills: ['expert-collaboration', 'universal-critique'],
     label: '専門家',
     description: '専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。',
     accent: 'expert',

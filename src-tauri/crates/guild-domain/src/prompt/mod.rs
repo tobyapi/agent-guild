@@ -1,6 +1,6 @@
 //! システムプロンプトと会話プロンプトの組み立て（design.md §8）。
 //! I/O はしない: 現在日時の文字列・MEMORY.md の内容・スキル・実効権限・時刻の表示方法は引数で受け取る。
-//! 節はエージェントの振る舞いの設定（Agent::behavior）と実効権限から組み立てる（種別やタグで分岐しない）。
+//! 基本の役割・専門家の協働指示は役割表から、それ以外の節は振る舞いの設定（Agent::behavior）と実効権限から組み立てる。
 
 mod answering;
 mod attachments;
@@ -29,7 +29,7 @@ pub use conversation::{
 };
 pub use intent::{build_intent, INTENT_CHAR_LIMIT, INTENT_MESSAGE_LIMIT};
 
-use crate::agent::{Agent, Permissions};
+use crate::agent::{uses_expert_collaboration, Agent, Permissions};
 use crate::attachment::Attachment;
 use crate::backend::BackendInfo;
 use crate::channel::Channel;
@@ -37,7 +37,7 @@ use crate::delegation::Delegation;
 use crate::locale::Language;
 use crate::message::Message;
 use crate::profile::Profile;
-use crate::skill::Skill;
+use crate::skill::{expert_collaboration, Skill};
 
 /// プロンプトの材料
 #[derive(Clone, Copy)]
@@ -77,14 +77,19 @@ pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
 
 /// 個別設定の後、アプリの仕事・権限・必須書式の前に共通指示を置く。
 pub fn build_system_prompt_with_global(ctx: &PromptContext<'_>, instructions: &str) -> String {
+    let (consultation, delegation) = if uses_expert_collaboration(&ctx.agent.tags) {
+        (expert_collaboration::body().to_owned(), String::new())
+    } else {
+        (answering::consultee_section(ctx), delegating::section(ctx))
+    };
     let sections = [
         language::section(ctx.language),
         persona::section(ctx.agent),
         voice::section(ctx.agent),
         global_instructions_section(instructions),
         answering::work_section(ctx),
-        answering::consultee_section(ctx),
-        delegating::section(ctx),
+        consultation,
+        delegation,
         notifications::section(ctx),
         consult::section(ctx),
         skills::section(ctx.skills, &ctx.permissions),

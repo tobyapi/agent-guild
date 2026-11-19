@@ -642,6 +642,7 @@
         "autonomyEnabled": false
       },
       "builtinSkills": [
+        "expert-collaboration",
         "universal-critique"
       ],
       "roleTags": [

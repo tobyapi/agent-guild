@@ -19,6 +19,7 @@ pub use permission_policy::{role_can_notify, role_permissions, usable_permission
 pub use permissions::{effective_permissions, PermissionKey, Permissions};
 pub use tags::{normalize_tags, TAG_MAX_CHARS, TAG_MAX_COUNT};
 pub use template_model::{AgentTemplate, AgentTemplateDefaults};
+pub(crate) use templates::uses_expert_collaboration;
 pub use templates::{find_template, role_template, templates};
 pub use validation::{normalize_agent_input, AUTONOMY_INTERVAL_MIN, AVATAR_MAX_BYTES};
 

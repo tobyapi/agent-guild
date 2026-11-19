@@ -16,9 +16,7 @@ it('役割に応じた既定スキルを付け、通常の保存では外した�
     const agent = await transport.invoke('create_agent', { input });
     const skills = await transport.invoke('list_skills', { agentId: agent.id });
     expect(skills.map((skill) => skill.name).sort()).toEqual([...template.builtinSkills].sort());
-    expect(skills).toHaveLength(
-      template.id === 'ideator' || template.id === 'manager' ? 2 : template.id === 'expert' ? 1 : 0,
-    );
+    expect(skills).toHaveLength(template.id === 'worker' ? 0 : 2);
     expect(skills.every((skill) => skill.source?.kind === 'builtin')).toBe(true);
   }
   const ideator = snapshot.templates.find((item) => item.id === 'ideator')!;
@@ -33,5 +31,9 @@ it('役割に応じた既定スキルを付け、通常の保存では外した�
   const expert = snapshot.templates.find((item) => item.id === 'expert')!;
   await transport.invoke('update_agent', { id: starter.id, input: { ...original, ...expert.defaults } });
   const changed = await transport.invoke('list_skills', { agentId: starter.id });
-  expect(changed.map((skill) => skill.name).sort()).toEqual(['concept-shift', 'universal-critique']);
+  expect(changed.map((skill) => skill.name).sort()).toEqual([
+    'concept-shift',
+    'expert-collaboration',
+    'universal-critique',
+  ]);
 });

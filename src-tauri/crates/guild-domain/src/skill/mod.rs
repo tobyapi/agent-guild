@@ -3,6 +3,7 @@
 //! 内蔵スキルを参照する builtin のスキルはアプリに同梱した SKILL.md が正。
 
 mod builtin;
+pub mod expert_collaboration;
 mod file;
 mod frontmatter;
 mod library;
