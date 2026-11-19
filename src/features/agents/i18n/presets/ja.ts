@@ -25,7 +25,7 @@ export const ja = {
   'minutes.name': 'フデ',
   'minutes.role': '議論を要約して、決定事項と宿題を残す担当',
   'minutes.expertise': '議事の要約と記録',
-  // 発想役
+  // 発案者
   'idea-maker.title': 'アイデアメーカー',
   'idea-maker.name': 'ヒラメ',
   'idea-maker.role': '目的に合う複数のアイデアを出し、それぞれの狙いと違いをまとめる担当',

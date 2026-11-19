@@ -1,8 +1,8 @@
 //! エージェント: 入力規則・名前の一意性・テンプレート・実効権限。
 
 use guild_domain::agent::{
-    effective_permissions, ensure_unique_name, find_template, normalize_agent_input, templates, Agent, PermissionKey,
-    UnmentionedPolicy,
+    effective_permissions, ensure_unique_name, find_template, normalize_agent_input, role_template, templates, Agent,
+    PermissionKey, UnmentionedPolicy,
 };
 use guild_domain::backend::PermissionRule;
 use guild_domain::ids::AgentId;
@@ -111,6 +111,13 @@ fn templates_match_the_design_table() {
         assert_eq!(template.defaults.tags, vec![template.label.clone()]);
     }
     assert!(find_template("unknown").is_none());
+}
+
+#[test]
+fn saved_japanese_ideator_tag_resolves_to_the_renamed_role() {
+    let ideator = find_template("ideator").unwrap();
+    assert_eq!(ideator.defaults.tags, ["発案者"]);
+    assert_eq!(role_template(&["発想役".to_owned()]), Some(ideator));
 }
 
 #[test]

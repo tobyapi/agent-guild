@@ -17,7 +17,7 @@ import { registeredToolResult, registeredToolsHook, toolsFor } from './tool-poli
 
 const role = (name: string): Permissions => cases.find((row) => row.name === `${name} / claude`)!.permissions;
 const WORKER = role('作業者');
-const ROLES = ['発想役', '専門家', 'マネージャー'];
+const ROLES = ['発案者', '専門家', 'マネージャー'];
 const available = await prepareCommandSandbox();
 
 describe('コマンドの渡し方（隔離の有無を引数で指定）', () => {
@@ -152,9 +152,9 @@ describe.skipIf(!available)('隔離が使える PC での Claude の道具（本
 
   it('終了コードをそのまま返し、空のコマンドと動かせなかった場合はエラーとして返す', async () => {
     const signal = new AbortController().signal;
-    expect(text(await handleCommand(request('発想役'), 'cmd.exe /d /c exit 4', signal))).toContain('終了コード: 4');
-    expect(await handleCommand(request('発想役'), '  ', signal)).toMatchObject({ isError: true });
-    const tooLong = await handleCommand(request('発想役'), 'x'.repeat(9000), signal);
+    expect(text(await handleCommand(request('発案者'), 'cmd.exe /d /c exit 4', signal))).toContain('終了コード: 4');
+    expect(await handleCommand(request('発案者'), '  ', signal)).toMatchObject({ isError: true });
+    const tooLong = await handleCommand(request('発案者'), 'x'.repeat(9000), signal);
     expect(tooLong).toMatchObject({ isError: true });
     expect(text(tooLong)).toContain('コマンドを実行できませんでした');
   }, 60_000);

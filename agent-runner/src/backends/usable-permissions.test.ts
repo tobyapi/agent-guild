@@ -34,8 +34,8 @@ describe('役割の権限と、バックエンドで使える操作（Rust・画
   it.each(cases)('$name', (example) => {
     expect(usablePermissions(example.permissions, info(example.backend))).toEqual(example.usable);
   });
-  it('発想役を Grok に渡すと、検索と読み取りが残り、書き込みとコマンドは使わない', () => {
-    const granted = cases.find((example) => example.tags[0] === '発想役')!.permissions;
+  it('発案者を Grok に渡すと、検索と読み取りが残り、書き込みとコマンドは使わない', () => {
+    const granted = cases.find((example) => example.tags[0] === '発案者')!.permissions;
     const backend = info('grok');
     const usable = usablePermissions(granted, backend);
     expect(usable).toEqual({ ...granted, writeFiles: false, writeAnywhere: false, runCommands: false });

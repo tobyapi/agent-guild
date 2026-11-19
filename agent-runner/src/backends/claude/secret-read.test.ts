@@ -159,13 +159,13 @@ describe('readAnywhere の秘密の場所の除外', () => {
     await fixture(path, 'report');
     expect(await read(path)).toMatchObject({ behavior: 'allow' });
   });
-  it('書き込み・作業者・発想役の既存権限を変えない', async () => {
+  it('書き込み・作業者・発案者の既存権限を変えない', async () => {
     const secret = join(home, '.ssh/config');
     for (const tool of ['Read', 'Write']) {
       expect(await call(fileAccessPolicy(request('作業者')), tool, { file_path: secret })).toMatchObject({
         behavior: 'allow',
       });
-      expect(await call(fileAccessPolicy(request('発想役')), tool, { file_path: secret })).toMatchObject({
+      expect(await call(fileAccessPolicy(request('発案者')), tool, { file_path: secret })).toMatchObject({
         behavior: 'deny',
       });
     }

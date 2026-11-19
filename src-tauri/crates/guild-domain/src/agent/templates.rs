@@ -13,6 +13,8 @@ struct Row {
     id: &'static str,
     /// 表示名（日本語・英語・簡体字・繁体字・韓国語）。作成時のタグはいまの言語のもの。どの言語のタグでも同じ役割になる
     label: Texts,
+    /// 旧版の保存タグを照合するための別名。保存済みの先頭タグをすべて移行するまで残す。
+    legacy_tags: &'static [&'static str],
     /// 説明（同じ順）
     description: Texts,
     role: Texts,
@@ -21,6 +23,12 @@ struct Row {
     permissions: Permissions,
     unmentioned: UnmentionedPolicy,
     flags: Flags,
+}
+
+impl Row {
+    fn role_tags(&self) -> impl Iterator<Item = &'static str> {
+        self.label.into_iter().chain(self.legacy_tags.iter().copied())
+    }
 }
 
 /// 振る舞いのスイッチ
@@ -56,6 +64,7 @@ const ROWS: [Row; 4] = [
         id: "worker",
         builtin_skills: &[],
         label: ["作業者", "Worker", "执行者", "執行者", "작업자"],
+        legacy_tags: &[],
         description: [
             "必要なことを調べ、作り、試して、仕事を完成させます。メンションがなくても答えます。",
             "Researches, builds, and tests whatever is needed to finish the job. Answers even without a mention.",
@@ -72,7 +81,8 @@ const ROWS: [Row; 4] = [
     Row {
         id: "ideator",
         builtin_skills: &["concept-shift", "introspection", "easily-amazed"],
-        label: ["発想役", "Ideator", "创意者", "發想者", "아이디어 담당"],
+        label: ["発案者", "Ideator", "创意者", "發想者", "아이디어 담당"],
+        legacy_tags: &["発想役"],
         description: [
             "複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。",
             "Proposes multiple ideas and alternative angles. When called on, returns the options in summary.",
@@ -90,6 +100,7 @@ const ROWS: [Row; 4] = [
         id: "expert",
         builtin_skills: &["universal-critique"],
         label: ["専門家", "Expert", "专家", "專家", "전문가"],
+        legacy_tags: &[],
         description: [
             "専門知識や指定された目線で案・成果物を評価し、根拠と改善案を返します。",
             "Evaluates proposals and deliverables with expert knowledge or a given perspective, returning reasons and improvements.",
@@ -107,6 +118,7 @@ const ROWS: [Row; 4] = [
         id: "manager",
         builtin_skills: &["universal-manager", "reflection"],
         label: ["マネージャー", "Manager", "经理", "經理", "매니저"],
+        legacy_tags: &[],
         description: [
             "分担が必要かを判断し、方針と担当を決めます。結果を確かめ、まとめて報告します。",
             "Decides whether work needs to be split, then sets the direction and responsibilities. Checks the results and reports a summary.",
@@ -131,7 +143,7 @@ pub fn templates() -> Vec<AgentTemplate> {
             description: locale::pick(row.description).to_owned(),
             accent: Some(row.id.to_owned()),
             builtin_skills: row.builtin_skills.iter().map(|name| (*name).to_owned()).collect(),
-            role_tags: row.label.iter().map(|label| (*label).to_owned()).collect(),
+            role_tags: row.role_tags().map(str::to_owned).collect(),
             defaults: AgentTemplateDefaults {
                 tags: vec![locale::pick(row.label).to_owned()],
                 role: locale::pick(row.role).to_owned(),
@@ -161,5 +173,5 @@ pub fn role_template(tags: &[String]) -> Option<AgentTemplate> {
 /// アプリが実行する通知の権限。会話の割り振り設定やランナーの道具の権限とは独立。
 pub(super) fn notification_allowed(tags: &[String]) -> bool {
     let Some(head) = tags.first().map(|tag| name_key(tag.trim())) else { return false };
-    ROWS.iter().find(|row| row.label.iter().any(|tag| name_key(tag) == head)).is_some_and(|row| row.flags.can_notify)
+    ROWS.iter().find(|row| row.role_tags().any(|tag| name_key(tag) == head)).is_some_and(|row| row.flags.can_notify)
 }

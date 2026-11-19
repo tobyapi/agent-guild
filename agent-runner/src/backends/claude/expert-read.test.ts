@@ -74,10 +74,10 @@ describe.each(['専門家', 'マネージャー'])('%s の独立した読み取�
     }
     expect(await readFile(join(outside, 'source.txt'), 'utf8')).toBe('review source');
   });
-  it('作業者の外への読み書きと発想役の範囲制限は維持する', async () => {
+  it('作業者の外への読み書きと発案者の範囲制限は維持する', async () => {
     for (const tool of ['Read', 'Write']) {
       expect(await decision('作業者', tool, join(outside, 'source.txt'))).toMatchObject({ behavior: 'allow' });
-      for (const role of ['発想役']) {
+      for (const role of ['発案者']) {
         expect(await decision(role, tool, join(outside, 'source.txt'))).toMatchObject({ behavior: 'deny' });
       }
     }

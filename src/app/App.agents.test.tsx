@@ -160,17 +160,17 @@ it('役割で権限が固定され、バックエンドを変えても個別ス�
   expect(screen.queryByRole('dialog')).toBeNull();
 });
 
-it('役割は4つで、発想役は呼ばれたときだけ答える設定で作成・保存できる', async () => {
+it('役割は4つで、発案者は呼ばれたときだけ答える設定で作成・保存できる', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'エージェントを追加' }));
   const roles = within(openDialog()).getByRole('radiogroup', { name: 'どんな役割を任せますか' });
   const cards = within(roles).getAllByRole('radio');
   expect(cards.map((card) => card.querySelector('b')?.textContent)).toEqual([
     '作業者',
-    '発想役',
+    '発案者',
     '専門家',
     'マネージャー',
   ]);
-  fireEvent.click(within(roles).getByRole('radio', { name: /^発想役/ }));
+  fireEvent.click(within(roles).getByRole('radio', { name: /^発案者/ }));
   fireEvent.click(within(openDialog()).getByRole('tab', { name: '振る舞い' }));
   expect(within(openDialog()).getByRole<HTMLInputElement>('radio', { name: /^答えない/ }).checked).toBe(true);
   expect(within(openDialog()).getByRole('switch', { name: '相談相手になる' }).getAttribute('aria-checked')).toBe(
@@ -188,10 +188,10 @@ it('役割は4つで、発想役は呼ばれたときだけ答える設定で作
   expect(within(openDialog()).getByRole('heading', { name: 'ヒラメ を編集' })).toBeTruthy();
   expect(
     within(openDialog())
-      .getByRole('radio', { name: /^発想役/ })
+      .getByRole('radio', { name: /^発案者/ })
       .getAttribute('aria-checked'),
   ).toBe('true');
-  expect(screen.getByRole('button', { name: '発想役を作成' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: '発案者を作成' })).toBeTruthy();
   expect(enabledPermissions()).toEqual([
     'Web 検索',
     'Web ページを読む',

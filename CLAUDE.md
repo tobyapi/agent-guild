@@ -1,6 +1,6 @@
 # AIギルド
 
-人間と AI エージェント（作業者・発想役・専門家・マネージャー）がチャンネルで会話する Tauri + React デスクトップアプリ。
+人間と AI エージェント（作業者・発案者・専門家・マネージャー）がチャンネルで会話する Tauri + React デスクトップアプリ。
 - 仕様・IPC 契約・実行モデル・振り分け規則・データフォルダ・互換性方針: `docs/design.md`
 - コード構造と拡張のしかた: `docs/architecture.md`
 - 型の正: `src/shared/types/domain/`（React ⇄ Rust。import は `@/shared/types/domain` から）、`agent-runner/src/protocol.ts`（Rust ⇄ ランナー）。実例: `contracts/`

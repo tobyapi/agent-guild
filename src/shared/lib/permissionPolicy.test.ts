@@ -26,8 +26,8 @@ describe('役割で決まる権限と、バックエンドで使える操作（R
       for (const other of same) expect(other.permissions).toEqual(example.permissions);
     }
   });
-  it('発想役の Web は Claude と Codex で使えるが、コマンドと漏えい注意は既存の規則に従う', () => {
-    const permissions = rolePermissions(templates, ['発想役']);
+  it('発案者の Web は Claude と Codex で使えるが、コマンドと漏えい注意は既存の規則に従う', () => {
+    const permissions = rolePermissions(templates, ['発案者']);
     const claude = snapshot.backends.find((item) => item.id === 'claude') as BackendInfo;
     const codex = snapshot.backends.find((item) => item.id === 'codex') as BackendInfo;
     const usableClaude = supportedPermissions(permissions, claude);
@@ -59,7 +59,7 @@ describe('役割で決まる権限と、バックエンドで使える操作（R
   it('役割で許可していないのに止められない操作を、バックエンドの申告から挙げる', () => {
     const codex = snapshot.backends.find((item) => item.id === 'codex') as BackendInfo;
     const claude = snapshot.backends.find((item) => item.id === 'claude') as BackendInfo;
-    expect(unrestrictedPermissions(rolePermissions(templates, ['発想役']), codex)).toEqual(['readAnywhere']);
+    expect(unrestrictedPermissions(rolePermissions(templates, ['発案者']), codex)).toEqual(['readAnywhere']);
     expect(unrestrictedPermissions(rolePermissions(templates, []), codex)).toEqual([
       'readAnywhere',
       'writeFiles',
@@ -67,8 +67,8 @@ describe('役割で決まる権限と、バックエンドで使える操作（R
     ]);
     expect(unrestrictedPermissions(rolePermissions(templates, ['専門家']), codex)).toEqual([]);
     expect(unrestrictedPermissions(rolePermissions(templates, ['作業者']), codex)).toEqual([]);
-    expect(unrestrictedPermissions(rolePermissions(templates, ['発想役']), claude)).toEqual([]);
-    expect(unrestrictedPermissions(rolePermissions(templates, ['発想役']), undefined)).toEqual([]);
+    expect(unrestrictedPermissions(rolePermissions(templates, ['発案者']), claude)).toEqual([]);
+    expect(unrestrictedPermissions(rolePermissions(templates, ['発案者']), undefined)).toEqual([]);
   });
   it('依存が連鎖していても、許可範囲を拡大せず解決する', () => {
     const backend = {

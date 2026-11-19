@@ -68,7 +68,7 @@
 
   /* 役割の色 --kind-<テンプレートの accent>。暖色側（赤〜金）は人と状態に取っておき、役割は寒色側に
      金（あなた）に近い順に並べる: 若葉 → 若竹 → 群青 → 藤。文字にも点にも使える明度 */
-  --kind-ideator: #bfdc73; /* 若葉: 発想役 */
+  --kind-ideator: #bfdc73; /* 若葉: 発案者 */
   --kind-ideator-soft: rgba(191, 220, 115, 0.14);
   --kind-worker: #67dab2; /* 若竹: 作業者 */
   --kind-worker-soft: rgba(103, 218, 178, 0.14);
