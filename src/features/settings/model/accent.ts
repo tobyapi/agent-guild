@@ -8,14 +8,6 @@ import { tAppearance } from '../i18n/appearance';
 export const ACCENTS = ['default', ...ACCENT_IDS] as const;
 export type Accent = (typeof ACCENTS)[number];
 
-export const ACCENT_STORAGE_KEY = 'agent-guild.accent';
-export const DEFAULT_ACCENT: Accent = 'default';
-
-/** 保存されていた値（なければ・知らない値なら既定） */
-export function parseAccent(stored: string | null): Accent {
-  return ACCENTS.find((value) => value === stored) ?? DEFAULT_ACCENT;
-}
-
 /** 見本の名前（いまの言語で描画のたびに引く） */
 export function accentName(accent: Accent): string {
   const names: Record<Accent, string> = {

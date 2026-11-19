@@ -1,16 +1,4 @@
-/** 作業場所はエージェント共通。revision と afterSeq は旧版の履歴境界を保つ互換情報 */
-export type WorkspaceMode = 'shared';
-
-export interface ChannelWorkspace {
-  mode: WorkspaceMode;
-  /** 旧保存形式との互換用。常に null */
-  folder: null;
-  revision: number;
-  afterSeq: number;
-}
-
 export interface Channel {
-  workspace: ChannelWorkspace;
   id: string;
   name: string;
   topic: string;

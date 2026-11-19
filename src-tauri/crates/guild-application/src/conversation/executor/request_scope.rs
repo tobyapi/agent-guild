@@ -18,9 +18,9 @@ pub(super) struct RunScope {
 }
 
 pub(super) fn accepts_job(ports: &Ports, job: &JobSpec, channel: &Channel) -> AppResult<bool> {
-    if channel.workspace.revision > 0 {
+    if channel.guard_old_roots {
         for root in job.conversations() {
-            if ports.messages.get(root)?.is_some_and(|m| m.seq <= channel.workspace.after_seq) {
+            if ports.messages.get(root)?.is_some_and(|m| m.seq <= channel.history_after_seq) {
                 return Ok(false);
             }
         }

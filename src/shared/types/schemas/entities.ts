@@ -12,21 +12,8 @@ import type {
   Permissions,
   Profile,
   UnmentionedPolicy,
-  WorkspaceMode,
 } from '../domain';
-import {
-  anything,
-  arrayOf,
-  boolean,
-  nullable,
-  nullValue,
-  number,
-  objectOf,
-  omitKeys,
-  oneOf,
-  recordOf,
-  string,
-} from '../schema';
+import { anything, arrayOf, boolean, nullable, number, objectOf, omitKeys, oneOf, recordOf, string } from '../schema';
 import type { Schema } from '../schema';
 
 export const permissionKey = oneOf<PermissionKey>({
@@ -85,6 +72,7 @@ export const agentInputSchema: Schema<AgentInput> = omitKeys(agentSchema, [
   'createdAt',
   'lastAutonomousAt',
   'deletedAt',
+  'permissions',
 ]);
 
 const templateDefaultsSchema = {
@@ -108,14 +96,7 @@ export const agentTemplateSchema = {
   defaults: objectOf(templateDefaultsSchema),
 } satisfies Schema<AgentTemplate>;
 
-export const workspaceSchema = {
-  mode: oneOf<WorkspaceMode>({ shared: true }),
-  folder: nullValue,
-  revision: number,
-  afterSeq: number,
-};
 export const channelSchema = {
-  workspace: objectOf(workspaceSchema),
   isLobby: boolean,
   id: string,
   name: string,

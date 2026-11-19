@@ -122,7 +122,6 @@ describe('モックのコマンド', () => {
     const codex = agentInput({
       backend: 'codex',
       backendOptions: {},
-      permissions: { ...allowAll, webFetch: false, runCommands: false },
     });
     expect((await mock.transport.invoke('create_agent', { input: codex })).permissions).toEqual(allowAll);
   });

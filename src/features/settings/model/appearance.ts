@@ -1,11 +1,8 @@
-import { unifyAppearance } from '@/shared/theme/catalog';
-import { defaultAppearance, hasThemeVariants } from '@/shared/theme/registry';
+import { hasThemeVariants } from '@/shared/theme/registry';
 import { resolveBackground } from '@/shared/theme/backgrounds';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import { ACCENTS } from './accent';
 
-export const APPEARANCE_STORAGE_KEY = 'agent-guild.appearance.v2';
-export const LEGACY_APPEARANCE_STORAGE_KEY = 'agent-guild.appearance.v1';
 const SCHEMES = ['dark', 'light', 'system'];
 
 export class AppearanceValidationError extends Error {}
@@ -15,45 +12,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function parseAppearance(stored: string, registry: ThemeRegistry): AppearancePreference {
-  const parsed: unknown = JSON.parse(stored);
-  if (!isRecord(parsed) || (parsed.version !== 1 && parsed.version !== 2))
-    throw new AppearanceValidationError('unsupported appearance version');
-  const value = migrateRetiredBackground(parsed);
+  const value: unknown = JSON.parse(stored);
+  if (!isRecord(value) || value.version !== 2) throw new AppearanceValidationError('unsupported appearance version');
   validateFields(value, registry);
   const background = parseBackground(value.backgroundOverride);
-  // Ignore the retired glass field while v1/v2 data remains supported; derive it from the background.
-  const preference: AppearancePreference = {
+  return {
     version: 2,
     themeId: value.themeId,
     schemePreference: value.schemePreference,
     accentOverride: value.accentOverride,
     backgroundOverride: value.themeId === 'guild' ? (background ?? { kind: 'none' }) : background,
   };
-  return value.version === 1 ? unifyAppearance(preference) : preference;
-}
-
-/** Keep retired v1/v2 selections readable until those storage versions are retired. */
-function migrateRetiredBackground(value: Record<string, unknown>): Record<string, unknown> {
-  const retired = ['dawn', 'night', 'aurora', 'turtle'];
-  const theme = retired.includes(String(value.themeId)) ? String(value.themeId) : null;
-  const background = isRecord(value.backgroundOverride) ? value.backgroundOverride : {};
-  const id = retiredBackgroundId(background);
-  const legacy = theme ?? (value.themeId === 'guild' && retired.includes(String(id)) ? String(id) : null);
-  return {
-    ...value,
-    themeId: theme ? 'guild' : value.themeId,
-    ...(value.version === 1 && legacy
-      ? {
-          schemePreference: legacy === 'dawn' || legacy === 'turtle' ? 'light' : 'dark',
-          backgroundOverride: { kind: 'none' },
-        }
-      : {}),
-  };
-}
-
-function retiredBackgroundId(background: Record<string, unknown>): unknown {
-  if (background.kind === 'generated') return background.presetId === 'tile-turtle' ? 'turtle' : null;
-  return background.kind === 'image' ? background.assetId : background.sceneId;
 }
 
 function validateFields(
@@ -84,15 +53,4 @@ function parseBackground(value: unknown): AppearancePreference['backgroundOverri
   )
     return { kind: 'none' };
   throw new AppearanceValidationError('invalid background kind');
-}
-
-export function migrateAppearance(theme: string | null, accent: string | null): AppearancePreference {
-  if ((theme !== null && !SCHEMES.includes(theme)) || (accent !== null && !ACCENTS.some((id) => id === accent))) {
-    throw new AppearanceValidationError('invalid legacy appearance');
-  }
-  return {
-    ...defaultAppearance(),
-    schemePreference: (theme ?? 'dark') as AppearancePreference['schemePreference'],
-    accentOverride: accent === null || accent === 'default' ? null : (accent as AppearancePreference['accentOverride']),
-  };
 }

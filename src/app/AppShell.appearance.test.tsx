@@ -1,8 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, screen } from '@testing-library/react';
 import { afterAll, beforeAll, expect, it } from 'vitest';
-import { initAppearance, setBackground } from '@/features/settings';
-import { themeCards } from '@/shared/theme/catalog';
+import { initAppearance, setSchemePreference } from '@/features/settings';
 import { advance, bootApp, closeApp } from './appFlow.test-support';
 
 let stop: () => void;
@@ -21,16 +20,14 @@ it('keeps the active chat, draft, scroll node and focus while switching a single
   fireEvent.change(input, { target: { value: 'background draft' } });
   input.focus();
   log.scrollTop = 123;
-  for (const card of themeCards) {
-    act(() => setBackground(card.background));
+  for (const scheme of ['light', 'dark', 'system'] as const) {
+    act(() => setSchemePreference(scheme));
     await advance(0);
     expect(screen.getByRole('log')).toBe(log);
     expect(screen.getByRole('textbox', { name: /メッセージ/ })).toBe(input);
     expect((input as HTMLTextAreaElement).value).toBe('background draft');
     expect(document.activeElement).toBe(input);
     expect(log.scrollTop).toBe(123);
-    expect(document.querySelectorAll('[data-asset], [data-scene], [data-generated]').length).toBe(
-      card.background.kind !== 'none' ? 1 : 0,
-    );
+    expect(document.querySelectorAll('[data-asset], [data-scene], [data-generated]').length).toBe(0);
   }
 });

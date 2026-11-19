@@ -6,9 +6,8 @@ import { ColorEnvelope } from '@/shared/lib/themeBackdrop/envelope';
 import { rgb, worstRatio } from '@/shared/theme/themeColors';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import { defaultAppearance } from '@/shared/theme/registry';
-import { appearanceHarness } from './appearance.test-support';
+import { appearanceHarness, storedLibrary } from './appearance.test-support';
 import { LIBRARY_KEY } from './themeLibrary';
-import { APPEARANCE_STORAGE_KEY } from './model/appearance';
 
 const legacyTheme = {
   ...savedTheme(),
@@ -21,13 +20,13 @@ const legacyTheme = {
 } satisfies SavedTheme;
 
 it('saves without applying, then shares one image across schemes and restores a full snapshot on restart', () => {
-  const old = JSON.stringify({
+  const old = storedLibrary({
     ...defaultAppearance(),
     accentOverride: 'sky',
     motionPreference: 'off',
     schemePreference: 'system',
   });
-  const h = appearanceHarness({ [APPEARANCE_STORAGE_KEY]: old });
+  const h = appearanceHarness({ [LIBRARY_KEY]: old });
   const c = h.controller;
   c.init();
   const before = c.store.getState().active;
@@ -48,7 +47,6 @@ it('saves without applying, then shares one image across schemes and restores a 
   expect(c.store.getState().active).toEqual(before);
   expect(c.store.getState().themes).toEqual([theme]);
   expect(c.undo()).toBe(false);
-  expect(h.values.get(APPEARANCE_STORAGE_KEY)).toBe(old);
 });
 it('preserves newer versions byte-for-byte and refuses writes', () => {
   for (const data of [

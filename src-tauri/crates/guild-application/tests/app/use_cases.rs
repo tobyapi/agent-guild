@@ -26,8 +26,7 @@ async fn saving_uses_the_fixed_role_permissions() {
     let app = TestApp::new();
     let rule = PermissionRule { when: PermissionKey::WriteFiles, requires: vec![PermissionKey::RunCommands] };
     app.runtime.backends.lock()[0].permission_rules = vec![rule];
-    let mut denied = input("worker", "ソラ");
-    denied.permissions.run_commands = false;
+    let denied = input("worker", "ソラ");
     let saved = app.services.agents.create(denied).unwrap();
     assert!(saved.permissions.run_commands);
     assert!(app.services.agents.create(input("expert", "ギア")).is_ok());

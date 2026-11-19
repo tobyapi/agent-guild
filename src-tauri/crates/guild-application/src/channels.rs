@@ -59,7 +59,8 @@ impl ChannelService {
             }
         }
         let channel = Channel {
-            workspace: Default::default(),
+            history_after_seq: 0,
+            guard_old_roots: false,
             is_lobby,
             id: ChannelId::new(self.ports.ids.new_id()),
             name: normalize_channel_name(fields.name)?,

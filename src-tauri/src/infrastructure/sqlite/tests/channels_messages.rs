@@ -33,7 +33,8 @@ pub(super) fn add_root(db: &std::sync::Arc<crate::infrastructure::sqlite::Databa
 
 pub(super) fn lobby() -> Channel {
     Channel {
-        workspace: Default::default(),
+        history_after_seq: 0,
+        guard_old_roots: false,
         is_lobby: false,
         id: ChannelId::new("c1"),
         name: "ロビー".to_owned(),

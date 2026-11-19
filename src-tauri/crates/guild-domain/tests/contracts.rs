@@ -140,25 +140,6 @@ fn agents_in_the_snapshot_carry_the_permissions_of_their_role() {
 }
 
 #[test]
-fn retired_channel_workspace_modes_normalize_to_the_current_contract() {
-    use guild_domain::channel::ChannelWorkspace;
-    let cases: Vec<Value> =
-        serde_json::from_str(include_str!("../../../../contracts/behavior/channel-workspaces.json")).unwrap();
-    for case in cases {
-        let loaded: ChannelWorkspace = serde_json::from_value(case["saved"].clone()).unwrap();
-        assert_eq!(serde_json::to_value(loaded).unwrap(), case["loaded"]);
-    }
-}
-
-#[test]
-fn workspace_without_optional_legacy_folder_still_loads() {
-    let scope: guild_domain::channel::ChannelWorkspace =
-        serde_json::from_value(serde_json::json!({"mode": "folder", "revision": 1, "afterSeq": 0})).unwrap();
-    assert_eq!(scope.folder, None);
-    assert_eq!(scope.mode, guild_domain::channel::WorkspaceMode::Shared);
-}
-
-#[test]
 fn desktop_notifications() {
     assert_round_trip::<bool>("desktop-notifications.json");
 }

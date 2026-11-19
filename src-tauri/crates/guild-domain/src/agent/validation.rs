@@ -2,7 +2,7 @@
 
 use super::name::normalize_name;
 use super::tags::normalize_tags;
-use super::{role_permissions, AgentInput};
+use super::AgentInput;
 use crate::backend::{sanitize_backend_options, BackendInfo};
 use crate::error::ValidationError;
 use crate::frame::normalize_frame_id;
@@ -23,7 +23,6 @@ pub fn normalize_agent_input(
     input.tags = normalize_tags(&input.tags)?;
     input.frame = normalize_frame_id(&input.frame)?;
     input.voice = crate::voice::normalize_voice(input.voice)?;
-    input.permissions = role_permissions(&input.tags);
     input.backend = input.backend.trim().to_owned();
     input.model = input.model.trim().to_owned();
     if input.backend.is_empty() {

@@ -19,7 +19,11 @@ pub const CHANNEL_TOPIC_MAX_CHARS: usize = 200;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Channel {
-    pub workspace: ChannelWorkspace,
+    /// These bounds only affect runner history and admission of jobs for old roots.
+    #[serde(skip)]
+    pub history_after_seq: i64,
+    #[serde(skip)]
+    pub guard_old_roots: bool,
     pub id: ChannelId,
     pub name: String,
     pub topic: String,
@@ -30,32 +34,6 @@ pub struct Channel {
     /// 参加順。人間は常に入る
     pub member_ids: Vec<MemberId>,
     pub created_at: i64,
-}
-
-/// エージェント共通の作業範囲。revision と after_seq は旧版で設定した履歴境界を保つ互換情報。
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct ChannelWorkspace {
-    pub mode: WorkspaceMode,
-    #[serde(default, deserialize_with = "discard_legacy_folder")]
-    pub folder: Option<String>,
-    pub revision: u64,
-    pub after_seq: i64,
-}
-
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum WorkspaceMode {
-    /// エージェント共通の作業場所とメモを使う（どのチャンネルでも同じ。権限は役割どおり）
-    #[default]
-    #[serde(alias = "folder", alias = "global")]
-    Shared,
-}
-
-// 旧版の workspace_json を書き換えずに読めるようにする。旧形式のサポート終了まで残す。
-fn discard_legacy_folder<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<String>, D::Error> {
-    let _ = Option::<String>::deserialize(deserializer)?;
-    Ok(None)
 }
 
 impl Channel {

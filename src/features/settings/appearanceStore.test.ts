@@ -2,11 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import { LIBRARY_KEY } from './themeLibrary';
-import { appearanceHarness, storedActive } from './appearance.test-support';
+import { appearanceHarness, storedActive, storedLibrary } from './appearance.test-support';
 import { createAppearanceStore } from './appearanceStore';
-import { APPEARANCE_STORAGE_KEY as KEY } from './model/appearance';
-import { ACCENT_STORAGE_KEY as ACCENT } from './model/accent';
-import { THEME_STORAGE_KEY as THEME } from './model/theme';
 
 describe('appearance lifecycle', () => {
   it('has no import/construction side effects', () => {
@@ -25,15 +22,13 @@ describe('appearance lifecycle', () => {
     expect(h.controller.store.getState().preference).toEqual(preference);
     expect(h.root.dataset).toMatchObject({ theme: 'light', themeId: 'guild', accent: 'sky' });
     expect(storedActive(h.values.get(LIBRARY_KEY)!)).toEqual(preference);
-    expect(h.values.get(THEME)).toBeUndefined();
-    expect(h.values.get(ACCENT)).toBeUndefined();
     h.controller.setPreference(defaultAppearance());
     expect(h.root.hasAttribute('data-accent')).toBe(false);
     expect(h.root.hasAttribute('style')).toBe(false);
   });
 
   it('registers one listener, follows OS only for system, and removes the listener on disposal', () => {
-    const h = appearanceHarness({ [THEME]: 'system' });
+    const h = appearanceHarness({ [LIBRARY_KEY]: storedLibrary(safeAppearance()) });
     h.controller.init();
     h.controller.init();
     h.changeScheme(true);
@@ -73,33 +68,19 @@ describe('appearance lifecycle', () => {
 
 describe('storage exceptions', () => {
   it('reloads the actual saved new value after a write failure', () => {
-    const h = appearanceHarness({ [KEY]: JSON.stringify(defaultAppearance()) });
+    const h = appearanceHarness({ [LIBRARY_KEY]: storedLibrary(defaultAppearance()) });
     h.controller.init();
     h.storage.setItem.mockImplementation((key, value) => {
       if (key === LIBRARY_KEY) throw new Error('blocked');
       h.values.set(key, value);
     });
     h.controller.setPreference({ ...defaultAppearance(), schemePreference: 'light', accentOverride: 'sky' });
-    expect(h.values.get(THEME)).toBeUndefined();
-    expect(h.values.get(ACCENT)).toBeUndefined();
     expect(h.root.dataset.theme).toBe('dark');
     h.controller.dispose();
     h.controller.init();
     expect(h.controller.store.getState().preference).toEqual(defaultAppearance());
     expect(h.root.dataset.theme).toBe('dark');
     expect(h.root.hasAttribute('data-accent')).toBe(false);
-  });
-
-  it.each([KEY, THEME, ACCENT])('recovers getItem failure for %s and attempts repair', (failedKey) => {
-    const h = appearanceHarness();
-    h.storage.getItem.mockImplementation((key) => {
-      if (key === failedKey) throw new Error('blocked');
-      return null;
-    });
-    expect(() => h.controller.init()).not.toThrow();
-    expect(h.controller.store.getState().preference).toEqual(safeAppearance());
-    expect(h.storage.setItem).toHaveBeenCalledTimes(1);
-    expect(h.environment.warn).toHaveBeenCalledWith(expect.stringContaining(failedKey));
   });
 
   it.each([LIBRARY_KEY])('preserves memory and DOM when %s cannot be saved', (failedKey) => {
@@ -141,7 +122,7 @@ it('automatically enables frosted glass only for images across OS changes', () =
     schemePreference: 'system' as const,
     backgroundOverride: { kind: 'image' as const, assetId: '12345678-1234-1234-1234-123456789abc' },
   };
-  const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
+  const h = appearanceHarness({ [LIBRARY_KEY]: storedLibrary(preference) });
   h.controller.init();
   expect(h.root.dataset.glass).toBe('frosted');
   h.changeScheme(true);

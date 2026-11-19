@@ -55,7 +55,8 @@ pub fn run_once(
     let agent = Agent::new(AgentId::new(ids.new_id()), normalize_agent_input(agent_input(agent)?, None)?, now);
     let channel = Channel {
         id: ChannelId::new(ids.new_id()),
-        workspace: Default::default(),
+        history_after_seq: 0,
+        guard_old_roots: false,
         name: LOBBY_NAME.into(),
         topic: LOBBY_TOPIC.into(),
         icon: String::new(),
@@ -101,7 +102,6 @@ fn agent_input(seed: SeedAgent) -> Result<AgentInput, String> {
         backend: seed.backend,
         model: seed.model,
         backend_options: serde_json::Map::new(),
-        permissions: defaults.permissions,
         unmentioned: defaults.unmentioned,
         consultable: defaults.consultable,
         can_delegate: defaults.can_delegate,

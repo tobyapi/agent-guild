@@ -45,3 +45,7 @@ export function appearanceHarness(initial: Record<string, string> = {}, registry
 export function storedActive(raw: string): unknown {
   return (JSON.parse(raw) as { active: unknown }).active;
 }
+
+export function storedLibrary(active: unknown): string {
+  return JSON.stringify({ version: 3, themes: [], active, previous: null });
+}

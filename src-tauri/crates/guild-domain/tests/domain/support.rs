@@ -23,7 +23,6 @@ pub fn input(template: &str, name: &str) -> AgentInput {
         backend: "claude".to_owned(),
         model: String::new(),
         backend_options: serde_json::Map::new(),
-        permissions: defaults.permissions,
         unmentioned: defaults.unmentioned,
         consultable: defaults.consultable,
         can_delegate: defaults.can_delegate,
@@ -45,7 +44,8 @@ pub fn agent(id: &str, template: &str, name: &str) -> Agent {
 /// members は "me" かエージェント ID
 pub fn channel(id: &str, members: &[&str]) -> Channel {
     Channel {
-        workspace: Default::default(),
+        history_after_seq: 0,
+        guard_old_roots: false,
         is_lobby: false,
         id: ChannelId::new(id),
         name: "ロビー".to_owned(),

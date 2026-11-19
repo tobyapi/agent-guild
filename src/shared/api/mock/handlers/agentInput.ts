@@ -32,7 +32,11 @@ function pickOptions(backend: BackendInfo, input: AgentInput): Record<string, un
 }
 
 /** 問題があれば validation で失敗させ、保存してよい形にそろえた入力を返す */
-export function validateAgentInput(core: MockCore, input: AgentInput, selfId: string | null): AgentInput {
+export function validateAgentInput(
+  core: MockCore,
+  input: AgentInput,
+  selfId: string | null,
+): AgentInput & { permissions: ReturnType<typeof rolePermissions> } {
   const taken = activeAgents(core)
     .filter((agent) => agent.id !== selfId)
     .map((agent) => agent.name);

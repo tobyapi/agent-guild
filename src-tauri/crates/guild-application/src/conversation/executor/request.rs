@@ -34,7 +34,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
     let skills = if usable.skills { runnable_skills(ports, &agent)? } else { Vec::new() };
     let agents = ports.agents.list()?;
     let me = ports.profile.get()?;
-    let history: Vec<_> = history(ports, job)?.into_iter().filter(|m| m.seq > channel.workspace.after_seq).collect();
+    let history: Vec<_> = history(ports, job)?.into_iter().filter(|m| m.seq > channel.history_after_seq).collect();
     let (sources, mut readable_dirs) = consult_sources(ports, job, &agents);
     // 添えられたファイルはパスを伝えて読んでもらうので、そのチャンネルの添付のフォルダを読めるようにする
     if !file_attachments(job, &history).is_empty() {

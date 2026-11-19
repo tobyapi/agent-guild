@@ -50,7 +50,7 @@ export interface Agent {
   deletedAt: number | null;
 }
 
-export type AgentInput = Omit<Agent, 'id' | 'createdAt' | 'lastAutonomousAt' | 'deletedAt'>;
+export type AgentInput = Omit<Agent, 'id' | 'createdAt' | 'lastAutonomousAt' | 'deletedAt' | 'permissions'>;
 
 /**
  * テンプレートの見た目のアクセント。トークン `--kind-<accent>` と `--kind-<accent>-soft` の名前に対応する（例: 'worker' → --kind-worker）。

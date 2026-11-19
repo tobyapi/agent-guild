@@ -26,7 +26,6 @@ pub struct AgentInput {
     pub backend: String,
     pub model: String,
     pub backend_options: Map<String, Value>,
-    pub permissions: Permissions,
     pub unmentioned: UnmentionedPolicy,
     pub consultable: bool,
     pub can_delegate: bool,
@@ -95,7 +94,6 @@ impl Agent {
             backend,
             model,
             backend_options,
-            permissions,
             unmentioned,
             consultable,
             can_delegate,
@@ -103,6 +101,7 @@ impl Agent {
             autonomy_interval_min,
             autonomy_channel_id,
         } = input;
+        let permissions = super::role_permissions(&tags);
         Self {
             id,
             name,

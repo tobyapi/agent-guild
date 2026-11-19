@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { newDraft } from './draft';
 import type { AgentDraft } from './draft';
 import { allCapabilities, BACKENDS, TEMPLATES } from './fixtures.test-support';
-import { rolePermissions } from '@/shared/lib/permissionPolicy';
 import { agentErrorField, validateAgentDraft } from './validation';
 
 const ctx = { templates: TEMPLATES, backends: BACKENDS, takenNames: ['ハル', 'あなた'] };
@@ -68,7 +67,7 @@ describe('validateAgentDraft', () => {
     const permissions = { ...allCapabilities, runCommands: false, writeAnywhere: false };
     const result = validateAgentDraft(draft({ backend: 'codex', permissions }), ctx);
     expect(result.ok).toBe(true);
-    expect(result.ok && result.input.permissions).toEqual(allCapabilities);
+    expect(result.ok && result.input).not.toHaveProperty('permissions');
     expect(validateAgentDraft(draft({ backend: 'codex', permissions: allCapabilities }), ctx).ok).toBe(true);
     const expert = newDraft(
       TEMPLATES.find((template) => template.id === 'expert'),
@@ -108,13 +107,13 @@ it('道具の利用を切り替えるバックエンドでも権限は役割の�
   const local = { ...ctx, backends: [info] };
   const old = validateAgentDraft(draft({ backend: 'ollama', model: 'small', optionValues: {} }), local);
   // 権限は役割で決まるので、道具を有効にしていなくても変わらない（有効にするまでは、使える操作がないだけ）
-  expect(old.ok && old.input.permissions).toEqual(rolePermissions(local.templates, draft({}).tags));
+  expect(old.ok && old.input).not.toHaveProperty('permissions');
   expect(old.ok && old.input.backendOptions.enableTools).toBeUndefined();
   const enabled = validateAgentDraft(
     draft({ backend: 'ollama', model: 'small', optionValues: { enableTools: true } }),
     local,
   );
-  expect(enabled.ok && enabled.input.permissions).toEqual(rolePermissions(local.templates, draft({}).tags));
+  expect(enabled.ok && enabled.input).not.toHaveProperty('permissions');
   expect(enabled.ok && enabled.input.backendOptions.enableTools).toBe(true);
   const unsupported = validateAgentDraft(
     draft({ backend: 'ollama', model: 'unknown', optionValues: { enableTools: true } }),

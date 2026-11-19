@@ -2,7 +2,7 @@ import { isSavedTheme, THEME_SCHEMA_VERSION, type SavedTheme } from '@/shared/th
 import { checkTheme } from '@/shared/theme/checkTheme';
 import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
-import { loadAppearance, type AppearancePersistence } from './appearancePersistence';
+import type { AppearancePersistence } from './appearancePersistence';
 import { parseAppearance } from './model/appearance';
 
 export const LIBRARY_KEY = 'agent-guild.appearance.v3';
@@ -69,12 +69,7 @@ export function loadLibrary(io: AppearancePersistence, base: ThemeRegistry) {
     const storage = io.storage();
     const raw = storage.getItem(LIBRARY_KEY);
     if (raw === null) {
-      // Legacy migration may normalize v2. Keep its rollback copy byte-for-byte.
-      const readOnly = {
-        storage: () => ({ getItem: (k: string) => storage.getItem(k), setItem: () => undefined }),
-        warn: io.warn,
-      };
-      const library = { ...safe, active: loadAppearance(readOnly, base) };
+      const library = emptyLibrary();
       try {
         storage.setItem(LIBRARY_KEY, JSON.stringify({ version: 3, ...library }));
       } catch {

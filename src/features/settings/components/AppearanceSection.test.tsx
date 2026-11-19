@@ -1,13 +1,10 @@
 // @vitest-environment jsdom
-import { storedActive } from '../appearance.test-support';
+import { storedActive, storedLibrary } from '../appearance.test-support';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance } from '@/shared/theme/registry';
 import { initAppearance } from '../appearance';
-import { ACCENT_STORAGE_KEY } from '../model/accent';
-import { APPEARANCE_STORAGE_KEY } from '../model/appearance';
 import { LIBRARY_KEY } from '../themeLibrary';
-import { THEME_STORAGE_KEY } from '../model/theme';
 import { AppearanceSection } from './AppearanceSection';
 
 let stopAppearance: () => void;
@@ -92,11 +89,10 @@ it('アクセントの色の見本を選ぶと <html data-accent> に反映し�
   expect(document.documentElement.dataset.accent).toBeUndefined();
 });
 
-it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択を反映する', () => {
+it('初回描画前に保存済みのv3を読み込み、設定画面とDOMに同じ選択を反映する', () => {
   stopAppearance();
   values.clear();
-  values.set(THEME_STORAGE_KEY, 'light');
-  values.set(ACCENT_STORAGE_KEY, 'sky');
+  values.set(LIBRARY_KEY, storedLibrary({ ...defaultAppearance(), schemePreference: 'light', accentOverride: 'sky' }));
   stopAppearance = initAppearance();
   expect(document.documentElement.dataset).toMatchObject({ theme: 'light', themeId: 'guild', accent: 'sky' });
   render(<AppearanceSection />);
@@ -108,11 +104,11 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
   });
 });
 
-it('明暗とアクセントを相互に保持してv2に保存し、再起動後もUIを復元する', () => {
+it('明暗とアクセントを相互に保持してv3に保存し、再起動後もUIを復元する', () => {
   stopAppearance();
   const preference = { ...defaultAppearance(), backgroundOverride: { kind: 'none' } };
   values.delete(LIBRARY_KEY);
-  values.set(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
+  values.set(LIBRARY_KEY, storedLibrary(preference));
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
@@ -124,8 +120,6 @@ it('明暗とアクセントを相互に保持してv2に保存し、再起動�
     schemePreference: 'light',
     accentOverride: 'sky',
   });
-  expect(values.get(THEME_STORAGE_KEY)).toBeUndefined();
-  expect(values.get(ACCENT_STORAGE_KEY)).toBeUndefined();
   cleanup();
   stopAppearance();
   stopAppearance = initAppearance();
@@ -135,7 +129,6 @@ it('明暗とアクセントを相互に保持してv2に保存し、再起動�
   fireEvent.click(screen.getByRole('radio', { name: '灯の金（既定）' }));
   expect(document.documentElement.dataset.theme).toBe('light');
   expect(storedActive(values.get(LIBRARY_KEY)!)).toMatchObject({ accentOverride: null });
-  expect(values.get(ACCENT_STORAGE_KEY)).toBeUndefined();
 });
 
 it('OSに合わせる選択でOSの変更に追従し、明示選択は保持する', () => {
@@ -149,7 +142,6 @@ it('OSに合わせる選択でOSの変更に追従し、明示選択は保持す
   query.matches = true;
   query.dispatchEvent(new Event('change'));
   expect(document.documentElement.dataset.theme).toBe('light');
-  expect(values.get(THEME_STORAGE_KEY)).toBeUndefined();
   expect(screen.getByRole('radio', { name: 'システムに合わせる' }).getAttribute('aria-checked')).toBe('true');
   fireEvent.click(dark);
   expect(system.getAttribute('aria-checked')).toBe('false');

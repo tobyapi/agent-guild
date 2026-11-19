@@ -39,12 +39,17 @@ fn role_permissions_follow_the_shared_examples() {
         if case.backend == "ollama" {
             raw.backend_options.insert("enableTools".to_owned(), serde_json::json!(true));
         }
-        raw.permissions = ALL;
         let mut offline = raw.clone();
         offline.backend_options.clear();
-        let unknown_backend = normalize_agent_input(offline, None).unwrap().permissions;
+        let unknown_backend =
+            guild_domain::agent::role_permissions(&normalize_agent_input(offline, None).unwrap().tags);
         assert_eq!(unknown_backend, case.permissions, "{}: バックエンドが分からなくても同じ", case.name);
-        assert_eq!(normalize_agent_input(raw, Some(backend)).unwrap().permissions, case.permissions, "{}", case.name);
+        assert_eq!(
+            guild_domain::agent::role_permissions(&normalize_agent_input(raw, Some(backend)).unwrap().tags),
+            case.permissions,
+            "{}",
+            case.name
+        );
         let mut existing = agent("test", "worker", "テスト");
         existing.backend = case.backend.clone();
         if case.backend == "ollama" {
@@ -80,7 +85,7 @@ fn permissions_depend_on_the_role_and_never_on_the_backend() {
             let mut raw = input("worker", "テスト");
             raw.tags = case.tags.clone();
             raw.backend = (*id).to_owned();
-            let saved = normalize_agent_input(raw, Some(&info)).unwrap().permissions;
+            let saved = guild_domain::agent::role_permissions(&normalize_agent_input(raw, Some(&info)).unwrap().tags);
             assert_eq!(saved, case.permissions, "{} を {id} で保存", case.name);
         }
     }
@@ -128,9 +133,15 @@ fn a_tools_option_requires_explicit_opt_in_and_a_tool_capable_model() {
     let mut raw = input("worker", "テスト");
     raw.backend = "ollama".to_owned();
     // 権限は役割のまま。道具を有効にするまでは、使える操作がないだけ
-    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, ALL);
+    assert_eq!(
+        guild_domain::agent::role_permissions(&normalize_agent_input(raw.clone(), Some(&info)).unwrap().tags),
+        ALL
+    );
     raw.backend_options.insert("enableTools".to_owned(), json!(true));
-    assert_eq!(normalize_agent_input(raw.clone(), Some(&info)).unwrap().permissions, ALL);
+    assert_eq!(
+        guild_domain::agent::role_permissions(&normalize_agent_input(raw.clone(), Some(&info)).unwrap().tags),
+        ALL
+    );
     existing.backend_options = raw.backend_options.clone();
     assert_eq!(effective_permissions(&existing, Some(&info)), ALL);
     info.models[0].tools = Some(false);

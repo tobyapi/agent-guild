@@ -25,7 +25,6 @@ export const agentInput = (overrides: Partial<AgentInput> = {}): AgentInput => (
   backend: 'claude',
   model: '',
   backendOptions: { maxTurns: 10, unknownKey: true },
-  permissions: allowAll,
   unmentioned: 'answer',
   consultable: false,
   canDelegate: false,

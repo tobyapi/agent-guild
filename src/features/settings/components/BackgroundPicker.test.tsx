@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { LIBRARY_KEY } from '../themeLibrary';
-import { storedActive } from '../appearance.test-support';
+import { storedActive, storedLibrary } from '../appearance.test-support';
 import { savedTheme } from '@/shared/theme/candidate.test-support';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
 import { format } from '@/shared/i18n';
-import { APPEARANCE_STORAGE_KEY, parseAppearance } from '../model/appearance';
+import { parseAppearance } from '../model/appearance';
 import { settingsApi } from '../api';
 import { initAppearance, setBackground, themeActions, useAppearanceStore } from '../appearance';
 import { readBackground } from '../model/readBackground';
@@ -35,7 +35,7 @@ beforeEach(() => {
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => values.set(key, value),
   });
-  localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
+  localStorage.setItem(LIBRARY_KEY, storedLibrary(preference));
   vi.spyOn(settingsApi, 'listBackgrounds').mockResolvedValue([id]);
   vi.spyOn(settingsApi, 'getBackground').mockResolvedValue('data:image/png;base64,cGl4ZWw=');
   vi.spyOn(settingsApi, 'importBackground').mockResolvedValue(id);

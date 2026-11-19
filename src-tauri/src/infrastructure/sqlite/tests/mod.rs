@@ -48,7 +48,6 @@ pub(super) fn input(template: &str, name: &str) -> AgentInput {
         backend: "claude".to_owned(),
         model: "sonnet".to_owned(),
         backend_options: serde_json::Map::new(),
-        permissions: defaults.permissions,
         unmentioned: defaults.unmentioned,
         consultable: defaults.consultable,
         can_delegate: defaults.can_delegate,

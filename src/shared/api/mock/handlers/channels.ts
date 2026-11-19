@@ -52,7 +52,6 @@ export const channelHandlers: HandlerGroup<ChannelCommands> = {
     const channel: Channel = {
       id: runtime.env.newId(),
       isLobby: false,
-      workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
       ...cleanFields(name, topic, icon),
       memberIds: [HUMAN_ID, ...agentIds],
       createdAt: runtime.env.now(),

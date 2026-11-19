@@ -17,7 +17,6 @@ const channel = (id: string, memberIds: string[] = ['me']): Channel => ({
   topic: '',
   icon: '',
   isLobby: false,
-  workspace: { mode: 'shared', folder: null, revision: 0, afterSeq: 0 },
   memberIds,
   createdAt: 0,
 });

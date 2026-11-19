@@ -114,7 +114,7 @@ impl ChannelRepository for SqliteChannelRepository {
 pub(super) fn insert_channel(conn: &Connection, channel: &Channel) -> rusqlite::Result<()> {
     conn.execute(
                     "INSERT INTO channels (id, name, topic, created_at, is_lobby, history_after_seq, guard_old_roots, icon) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at, channel.is_lobby, channel.workspace.after_seq, channel.workspace.revision > 0, channel.icon],
+                    params![channel.id.as_str(), channel.name, channel.topic, channel.created_at, channel.is_lobby, channel.history_after_seq, channel.guard_old_roots, channel.icon],
                 )?;
     for member in &channel.member_ids {
         add(conn, &channel.id, member)?;
@@ -139,11 +139,8 @@ fn members_of(conn: &Connection, id: &ChannelId) -> rusqlite::Result<Vec<MemberI
 
 fn read_channel(row: &Row<'_>) -> rusqlite::Result<Channel> {
     Ok(Channel {
-        workspace: guild_domain::channel::ChannelWorkspace {
-            after_seq: row.get::<_, Option<i64>>(5)?.unwrap_or(0),
-            revision: u64::from(row.get::<_, bool>(6)?),
-            ..Default::default()
-        },
+        history_after_seq: row.get::<_, Option<i64>>(5)?.unwrap_or(0),
+        guard_old_roots: row.get(6)?,
         id: ChannelId::new(row.get::<_, String>(0)?),
         name: row.get(1)?,
         topic: row.get(2)?,

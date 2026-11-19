@@ -42,12 +42,16 @@ fn role_permissions_replace_individual_settings_and_ignore_the_backend() {
     let mut codex = backend("codex");
     codex.permission_rules =
         vec![PermissionRule { when: PermissionKey::WriteFiles, requires: vec![PermissionKey::RunCommands] }];
-    let mut raw = input("worker", "ソラ");
-    raw.permissions.run_commands = false;
-    assert_eq!(normalize_agent_input(raw, Some(&codex)).unwrap().permissions, ALL);
+    let raw = input("worker", "ソラ");
+    assert_eq!(guild_domain::agent::role_permissions(&normalize_agent_input(raw, Some(&codex)).unwrap().tags), ALL);
     // バックエンドに道具がなくても、権限（役割で決まる）は変わらない。変わるのは実際に使える操作だけ
     codex.capabilities.run_commands = false;
-    assert_eq!(normalize_agent_input(input("worker", "ソラ"), Some(&codex)).unwrap().permissions, ALL);
+    assert_eq!(
+        guild_domain::agent::role_permissions(
+            &normalize_agent_input(input("worker", "ソラ"), Some(&codex)).unwrap().tags
+        ),
+        ALL
+    );
     let mut sora = agent("sora", "worker", "ソラ");
     sora.backend = "codex".to_owned();
     let usable = effective_permissions(&sora, Some(&codex));
@@ -60,9 +64,9 @@ fn restricted_roles_never_gain_outside_access_to_enable_commands() {
     claude.permission_rules =
         vec![PermissionRule { when: PermissionKey::RunCommands, requires: vec![PermissionKey::WriteAnywhere] }];
     for role in ["ideator", "expert", "manager"] {
-        let mut raw = input(role, "ハル");
-        raw.permissions = ALL;
-        let permissions = normalize_agent_input(raw, Some(&claude)).unwrap().permissions;
+        let raw = input(role, "ハル");
+        let permissions =
+            guild_domain::agent::role_permissions(&normalize_agent_input(raw, Some(&claude)).unwrap().tags);
         assert!(!permissions.write_anywhere, "{role}: 役割にない許可は増えない");
         assert_eq!((permissions.web_search, permissions.web_fetch), (role == "ideator", role == "ideator"));
         assert!(permissions.write_files && permissions.read_files && permissions.skills);
@@ -72,7 +76,12 @@ fn restricted_roles_never_gain_outside_access_to_enable_commands() {
         assert_eq!((usable.web_search, usable.web_fetch), (role == "ideator", role == "ideator"));
         assert!(usable.write_files && usable.read_files && usable.skills, "{role}");
     }
-    assert_eq!(normalize_agent_input(input("worker", "ハル"), Some(&claude)).unwrap().permissions, ALL);
+    assert_eq!(
+        guild_domain::agent::role_permissions(
+            &normalize_agent_input(input("worker", "ハル"), Some(&claude)).unwrap().tags
+        ),
+        ALL
+    );
 }
 
 #[test]

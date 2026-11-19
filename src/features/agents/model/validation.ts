@@ -70,7 +70,6 @@ function toInput(draft: AgentDraft, backendOptions: Record<string, unknown>): Ag
     backend: draft.backend,
     model: draft.model.trim(),
     backendOptions: withEffort(backendOptions, draft.effort),
-    permissions: draft.permissions,
     unmentioned: draft.unmentioned,
     consultable: draft.consultable,
     canDelegate: draft.canDelegate,

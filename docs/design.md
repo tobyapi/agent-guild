@@ -421,11 +421,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 
 作業範囲は **shared（エージェントごとの作業場所）だけ**。全チャンネルで同じ `agents/<agent>/work` と `MEMORY.md` を使い、管理領域は `agents/<agent>/state/<backend>` に用意する。権限は役割で決まり、バックエンドが守れない操作は実効権限から取り除く。範囲の選択画面と変更 API はない。
 
-`Channel.workspace` は `{ mode: "shared", folder: null, revision: number, afterSeq: number }`。新しいチャンネルでは revision と afterSeq は 0。SQLite の `channels.workspace_json` の旧保存形式（mode が `folder` または `global`）は、読み込み時に shared・folder は null として扱う。割り当て先の存在確認は行わない。DB を書き換える移行はなく、名前・話題の更新でも旧保存値を変更しない。
-
-revision と afterSeq は、旧版で作業範囲を変えたときの会話の境界を保つ互換情報として残す。afterSeq 以前の会話をプロンプトへ戻さず、その会話を起点にする古いジョブも実行しない。旧チャンネル専用の作業場所・メモ・セッション（`agents/<agent>/channels/<channel>/<revision>/`）は削除・移動・自動コピーしない。これからの実行では使用しない。
-
-folder 専用の読み書き制限・スキル制限・バックエンド対応判定と、global の作業場所・メモの分離は廃止。Codex 系の読み取り制限を含め、通常の shared の制約は [role-permissions.md](role-permissions.md) を参照。旧設定の読み替え例は `contracts/behavior/channel-workspaces.json` で検証する。
+ランナーには SQLite の `history_after_seq` より後の発言を渡す。`guard_old_roots` が有効なら、境界以前の起点からのジョブも停止する。名前や話題を編集しても、この2つの値は保持する。画面には全履歴が表示される。
 
 ## アプリの更新（自動アップデート）
 
