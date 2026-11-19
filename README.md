@@ -3,7 +3,7 @@
 人間と AI エージェントが、チャンネルで会話しながら一緒に仕事をするデスクトップアプリです。
 Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
 
-> まだ 0.1.0 です。機能や画面は変わることがありますが、保存したデータは新しい版でも開けるように保ちます。
+> v1.0.0 は初回起動時に v0.1.28 の DB をバックアップして変換します。それより前の版をお使いの方は、先に v0.1.28 で同じデータフォルダを一度開いてください。[更新手順とバックアップの場所](docs/releases/v1.0.0.md)
 
 ![AIギルドの画面: 左にチャンネルとエージェント、中央に #ロビー の会話、右にメンバーの一覧](docs/images/screenshot.png)
 
@@ -46,7 +46,7 @@ Claude と Codex の利用料は、それぞれのサービスのアカウント
 
 ## 動かす
 
-インストーラー（Windows x64・macOS Apple Silicon）は [GitHub のリリース](https://github.com/tobyapi/agent-guild/releases) から無料でダウンロードできます（最初のリリースは準備中です）。ソースからビルドして動かすこともできます。
+インストーラー（Windows x64・macOS Apple Silicon）は [GitHub のリリース](https://github.com/tobyapi/agent-guild/releases) から無料でダウンロードできます。ソースからビルドして動かすこともできます。
 
 ビルドには Node.js 24、[Rust](https://www.rust-lang.org/)（1.89 以降）、[Tauri の前提ソフト](https://tauri.app/start/prerequisites/)（Windows なら WebView2 と Visual Studio Build Tools、macOS なら Xcode Command Line Tools）が要ります。
 
