@@ -12,7 +12,12 @@ use super::{schema, OpenError};
 use guild_domain::voice::{migrate_stored_voice, VoiceSettings};
 use identity::{classify, Generation};
 use rusqlite::{functions::FunctionFlags, Connection, OpenFlags, TransactionBehavior};
-use std::{error::Error, fmt::Display, path::Path, time::Duration};
+use std::{
+    error::Error,
+    fmt::Display,
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 fn fail(reason: impl Into<String>) -> Box<dyn Error> {
@@ -20,6 +25,10 @@ fn fail(reason: impl Into<String>) -> Box<dyn Error> {
 }
 fn corrupt(reason: impl Display) -> OpenError {
     OpenError::Corrupt(reason.to_string())
+}
+
+fn conversion(reason: impl Display, backup: Option<PathBuf>) -> OpenError {
+    OpenError::Conversion { reason: reason.to_string(), backup }
 }
 
 pub(super) fn inspect(path: &Path) -> std::result::Result<(), OpenError> {
@@ -31,7 +40,7 @@ fn checked_snapshot(path: &Path) -> std::result::Result<(source::Snapshot, Gener
     let generation = classify(&snapshot.db)?;
     backup::integrity(&snapshot.db).map_err(corrupt)?;
     if matches!(generation, Generation::Legacy) {
-        validate::legacy(&snapshot.db).map_err(corrupt)?;
+        validate::legacy(&snapshot.db).map_err(|error| conversion(error, None))?;
     }
     Ok((snapshot, generation))
 }
@@ -42,13 +51,13 @@ pub(super) fn prepare(path: &Path) -> std::result::Result<(), OpenError> {
         return Ok(());
     }
     let root = path.parent().ok_or_else(|| corrupt("Missing data directory"))?;
-    let backup = backup::create(&snapshot.db, root)
-        .map_err(|e| corrupt(format!("{}: {e}", root.join("backups/pre-1.0.0").display())))?;
+    let backup = backup::create(&snapshot.db, root).map_err(|error| conversion(error, None))?;
+    #[cfg(unix)]
+    backup::sync_published(&backup).map_err(|error| conversion(error, Some(backup.clone())))?;
     drop(snapshot);
     #[cfg(test)]
     fault("after-backup");
-    convert(path, &backup, root)
-        .map_err(|e| corrupt(format!("{}\n{}: {e}", super::database::messages::restore_backup(), backup.display())))
+    convert(path, &backup, root).map_err(|error| conversion(error, Some(backup)))
 }
 
 fn convert(path: &Path, backup: &Path, root: &Path) -> Result<()> {

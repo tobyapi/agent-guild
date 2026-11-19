@@ -23,11 +23,19 @@ pub enum BootReason {
     /// 新しい版のアプリが作ったデータ
     NewerVersion,
     Needs028,
+    ConversionFailed,
     /// ギルドのデータではない
     Foreign,
     /// データベースが壊れている
     Corrupt,
     NotWritable,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConversionRecovery {
+    pub backup_path: Option<String>,
+    pub log_path: Option<String>,
 }
 
 /// TS の BootStatus
@@ -38,6 +46,7 @@ pub struct BootStatus {
     pub reason: BootReason,
     pub data_dir: String,
     pub message: String,
+    pub conversion: Option<Box<ConversionRecovery>>,
     /// 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）がまだ（React が初期設定のダイアログを出す）
     pub needs_setup: bool,
     /// settings.json に保存した言語（まだ選んでいなければ null。React は OS の言語を使う）
@@ -48,6 +57,7 @@ pub struct BootStatus {
 impl BootStatus {
     pub fn ok(data_dir: impl Into<String>, needs_setup: bool) -> Self {
         Self {
+            conversion: None,
             state: BootState::Ok,
             reason: BootReason::None,
             data_dir: data_dir.into(),
@@ -59,6 +69,7 @@ impl BootStatus {
 
     pub fn recovery(reason: BootReason, data_dir: impl Into<String>, message: impl Into<String>) -> Self {
         Self {
+            conversion: None,
             state: BootState::Recovery,
             reason,
             data_dir: data_dir.into(),

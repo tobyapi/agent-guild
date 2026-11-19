@@ -18,6 +18,12 @@ export const en: Messages<typeof ja> = {
     'The configured location can’t be reached. If it’s on an external drive or a network location, connect it and retry.',
   lockedTitle: 'AI Guild is already running',
   lockedDescription: 'Another AI Guild is running with the same data folder. Close it, then retry.',
+  conversionTitle: 'Data conversion could not finish',
+  conversionDescription:
+    'Your original data is intact. Retry the conversion, or open this data folder in v0.1.28 to keep using it.',
+  backupLocation: 'Verified backup',
+  logLocation: 'Log location',
+  standardError: 'Standard error output',
   legacyDownload: 'Open the v0.1.28 release page',
   legacyTitle: 'Open the data in v0.1.28 first',
   legacyDescription: 'Open this data folder in v0.1.28, close the app, then retry.',

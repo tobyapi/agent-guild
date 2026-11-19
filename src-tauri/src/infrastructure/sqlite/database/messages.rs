@@ -74,9 +74,12 @@ pub(super) fn needs_028() -> &'static str {
         "v0.1.28에서 이 폴더를 열고 종료한 뒤 다시 시도하세요.",
     ])
 }
-pub(in crate::infrastructure::sqlite) fn restore_backup() -> &'static str {
-    locale::pick(["変換を停止しました。検証済みバックアップの対象は DB です。添付などのファイルは別に保管してください。",
-    "Conversion stopped. The verified backup contains the database. Keep attachments and other external files separately.",
-    "转换已停止。已验证的备份包含数据库。请单独保留附件等文件。","轉換已停止。已驗證的備份包含資料庫。請另行保留附件等檔案。",
-    "변환이 중단되었습니다. 확인된 백업에는 데이터베이스가 들어 있습니다. 첨부 파일 등은 별도로 보관하세요."])
+pub(super) fn conversion_stopped(reason: &str) -> String {
+    locale::pick([
+        format!("データの変換を完了できませんでした。{reason}"),
+        format!("Data conversion could not finish. {reason}"),
+        format!("数据转换未能完成。{reason}"),
+        format!("資料轉換未能完成。{reason}"),
+        format!("데이터 변환을 완료하지 못했습니다. {reason}"),
+    ])
 }

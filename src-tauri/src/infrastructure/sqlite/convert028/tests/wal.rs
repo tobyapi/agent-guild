@@ -92,3 +92,21 @@ fn failed_backup_verification_removes_partial_files() {
     assert!(super::backup::create(&db, &f.0).is_err());
     assert_eq!(fs::read_dir(f.0.join("backups/pre-1.0.0")).unwrap().count(), 0);
 }
+
+#[test]
+fn conversion_error_after_backup_reports_the_verified_copy() {
+    let f = Fixture::new();
+    let db = old(&f.db(), 7);
+    populate(&db);
+    db.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let error = prepare(&f.db()).unwrap_err();
+    let OpenError::Conversion { backup: Some(backup), .. } = error else {
+        panic!("{error:?}");
+    };
+    db.execute_batch("ROLLBACK").unwrap();
+    for file in [f.db(), backup] {
+        let copy = source::read_only(&file).unwrap();
+        assert_eq!(copy.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 7);
+        assert_eq!(copy.query_row("SELECT count(*) FROM messages", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
+    }
+}

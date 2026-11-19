@@ -1,8 +1,12 @@
 {
   "state": "recovery",
-  "reason": "missing",
+  "reason": "conversion_failed",
   "dataDir": "E:\\GuildData",
-  "message": "データフォルダ E:\\GuildData が見つかりません。ドライブが接続されているか確認してください。",
+  "message": "Data conversion could not finish.",
   "needsSetup": false,
-  "language": "en"
+  "language": "en",
+  "conversion": {
+    "backupPath": "E:\\GuildData\\backups\\pre-1.0.0\\sample\\guild.db",
+    "logPath": "C:\\Logs\\agent-guild.log"
+  }
 }

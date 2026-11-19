@@ -35,7 +35,7 @@ export function RecoveryScreen({ boot }: { boot: BootStatus }) {
         <p className={styles.kicker}>{t('kicker')}</p>
         <h1 className={styles.title}>{copy.title}</h1>
         <p className={styles.description}>{copy.description}</p>
-        {boot.reason === 'needs028' && (
+        {(boot.reason === 'needs028' || boot.reason === 'conversion_failed') && (
           <Button variant="link" onClick={recovery.openLegacyRelease}>
             {t('legacyDownload')}
           </Button>
@@ -50,12 +50,26 @@ export function RecoveryScreen({ boot }: { boot: BootStatus }) {
             </Button>
           )}
         </div>
+        {boot.conversion && (
+          <>
+            {boot.conversion.backupPath && (
+              <div className={styles.location}>
+                <span className={styles.label}>{t('backupLocation')}</span>
+                <code className={styles.path}>{boot.conversion.backupPath}</code>
+              </div>
+            )}
+            <div className={styles.location}>
+              <span className={styles.label}>{t('logLocation')}</span>
+              <code className={styles.path}>{boot.conversion.logPath ?? t('standardError')}</code>
+            </div>
+          </>
+        )}
         <div className={styles.actions}>
           {primary && actionButton(primary, 'primary')}
           {others.map((action) => actionButton(action, 'secondary'))}
         </div>
         {recovery.error && <FormAlert>{recovery.error}</FormAlert>}
-        <p className={styles.note}>{t('note')}</p>
+        {boot.reason !== 'conversion_failed' && <p className={styles.note}>{t('note')}</p>}
         {boot.message && (
           <details className={styles.details}>
             <summary className={styles.summary}>{t('details')}</summary>

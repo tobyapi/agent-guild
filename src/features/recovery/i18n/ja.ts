@@ -16,6 +16,12 @@ export const ja = {
     '設定されている場所にアクセスできません。外付けドライブやネットワーク上の場所なら、つないでから再試行してください。',
   lockedTitle: 'AIギルドがすでに起動しています',
   lockedDescription: '同じデータフォルダを使う AIギルドがもう 1 つ動いています。そちらを閉じてから再試行してください。',
+  conversionTitle: 'データの変換を完了できませんでした',
+  conversionDescription:
+    '元のデータはそのまま残っています。再試行するか、v0.1.28 でこのデータフォルダを開いて引き続き利用できます。',
+  backupLocation: '検証済みバックアップ',
+  logLocation: 'ログの場所',
+  standardError: '標準エラー出力',
   legacyDownload: 'v0.1.28 の配布ページを開く',
   legacyTitle: 'v0.1.28 での準備が必要です',
   legacyDescription: 'v0.1.28 でこのデータフォルダを開き、終了してから再試行してください。',

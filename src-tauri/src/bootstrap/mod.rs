@@ -28,7 +28,8 @@ const SHUTDOWN_WAIT: Duration = Duration::from_secs(5);
 /// Tauri の setup から呼ぶ。通常時か復旧モードの AppState を State に入れる
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn Error>> {
     let handle = app.handle().clone();
-    if let Some(file) = logging::init(handle.path().app_log_dir().ok().as_deref()) {
+    let log_file = logging::init(handle.path().app_log_dir().ok().as_deref());
+    if let Some(file) = &log_file {
         log::info!("ログ: {}", file.display());
     }
     let paths = paths::resolve(&handle)?;
@@ -38,7 +39,10 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn Error>> {
     locale::set_current(language.unwrap_or_default());
     let state = match boot::open(&paths) {
         Ok(opened) => assemble::ready(&handle, &paths, opened, language)?,
-        Err(boot) => {
+        Err(mut boot) => {
+            if let Some(recovery) = &mut boot.conversion {
+                recovery.log_path = log_file.map(|path| path.display().to_string());
+            }
             log::warn!("データフォルダを開けないため、復旧モードで起動します: {:?} {}", boot.reason, boot.message);
             assemble::recovery(&handle, &paths, boot.with_language(language))
         }

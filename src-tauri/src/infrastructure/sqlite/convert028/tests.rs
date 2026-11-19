@@ -157,9 +157,9 @@ fn bad_values_roll_back_to_seven() {
         db.execute_batch(sql).unwrap();
         drop(db);
         let before = fs::read(f.db()).unwrap();
-        assert!(inspect(&f.db()).is_err(), "{sql}");
+        assert!(matches!(inspect(&f.db()), Err(OpenError::Conversion { backup: None, .. })), "{sql}");
         for _ in 0..2 {
-            assert!(prepare(&f.db()).is_err(), "{sql}");
+            assert!(matches!(prepare(&f.db()), Err(OpenError::Conversion { backup: None, .. })), "{sql}");
             assert!(!f.0.join("backups").exists(), "{sql}");
         }
         assert_eq!(before, fs::read(f.db()).unwrap(), "{sql}");

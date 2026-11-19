@@ -54,11 +54,20 @@ export type Language = 'ja' | 'en' | 'zh-Hans' | 'zh-Hant' | 'ko';
 
 export type BootState = 'ok' | 'recovery';
 export type BootReason =
-  'none' | 'missing' | 'locked' | 'newer_version' | 'needs028' | 'foreign' | 'corrupt' | 'not_writable';
+  | 'none'
+  | 'missing'
+  | 'locked'
+  | 'newer_version'
+  | 'needs028'
+  | 'conversion_failed'
+  | 'foreign'
+  | 'corrupt'
+  | 'not_writable';
 
 export interface BootStatus {
   state: BootState;
   reason: BootReason;
+  conversion: { backupPath: string | null; logPath: string | null } | null;
   dataDir: string;
   message: string;
   /** 初回起動の初期設定（名前・スキルのフォルダ・データの保存先）がまだ（初期設定のダイアログを出す。復旧モードでは false） */

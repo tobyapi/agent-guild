@@ -28,6 +28,8 @@ pub enum OpenError {
     Newer(usize),
     #[error("{}", messages::needs_028())]
     Needs028,
+    #[error("{}", messages::conversion_stopped(.reason))]
+    Conversion { reason: String, backup: Option<std::path::PathBuf> },
     #[error("{}", messages::corrupt(.0))]
     Corrupt(String),
 }

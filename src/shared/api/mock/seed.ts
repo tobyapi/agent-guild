@@ -139,12 +139,21 @@ export function createSeedState(
       ? {
           state: 'recovery',
           reason: bootFailure,
+          conversion: bootFailure === 'conversion_failed' ? { backupPath: null, logPath: null } : null,
           dataDir: MOCK_BROKEN_DATA_DIR,
           message: `（モック）${MOCK_BROKEN_DATA_DIR} を開けませんでした`,
           needsSetup: false,
           language: 'ja',
         }
-      : { state: 'ok', reason: 'none', dataDir: MOCK_DEFAULT_DATA_DIR, message: '', needsSetup: false, language: 'ja' },
+      : {
+          state: 'ok',
+          reason: 'none',
+          conversion: null,
+          dataDir: MOCK_DEFAULT_DATA_DIR,
+          message: '',
+          needsSetup: false,
+          language: 'ja',
+        },
     guild: DEFAULT_GUILD,
     me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },
     frames: [],

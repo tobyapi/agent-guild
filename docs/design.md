@@ -370,6 +370,8 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 5. 既存 DB の application_id、user_version、スキーマ実体と整合性を確認する。既知の 7 は §12 の手順で変換する。1〜6 は v0.1.28 を一度経由するよう復旧画面で案内する。既存の印があるのに DB がない場合は起動を止める。新規の空の保存先に限り v1 を作成し、`db_state.seeded` で初期データを管理する。
 6. ランナーとサービスを起動し、スケジューラを動かす。
 
+旧 DB の指紋・構造・整合性を確認した後に変換を完了できない場合は、復旧理由を `conversion_failed` とする。`BootStatus.conversion` に検証済みバックアップのパス（作成前は null）と実際のログファイルのパス（標準エラー出力なら null）を返す。他の起動結果では `conversion` は null。画面では再試行を勧め、v0.1.28 の配布ページも開ける。
+
 **初回起動**: settings.json の `setupDone` が true でなければ（読めないときは除く）、`BootStatus.needsSetup` を true にして通常どおり起動する。React は本体の上に初期設定のダイアログ（名前・スキルのフォルダ・データの保存先。ui-design.md §5.11）を出し、「はじめる」で 名前（`update_profile`）→ `complete_setup` → 保存先を変えたなら `change_data_dir`（空のフォルダなら copy で、いまのデータと保存した名前を写す。ギルドのデータがあれば conflict を受けて open に切り替える。どちらも再起動する）の順に保存する。マシンごとの印なので、別の PC で同じデータフォルダを開くときも、その PC の初回起動では出る。
 
 **言語**: 1 のあと（利用者に見える文字列を作る前）に settings.json の `language`（なければ日本語）をプロセスのいまの言語にし、ランナーには起動のたびに環境変数 `GUILD_LANGUAGE` で渡す（復旧モードの理由の文面もこの言語）。
@@ -386,7 +388,7 @@ Ollama はローカルモデルのバックエンド。`/api/chat` に `:local` 
 - **リリース後に壊してはいけない境界**: (1) データフォルダ（構成・guild-data.json・SQLite スキーマ・settings.json）(2) スキル形式（Agent Skills の SKILL.md 標準）(3) 将来のエージェント定義のエクスポート形式。
 - React ⇄ Rust の IPC と Rust ⇄ ランナーのプロトコルは、同じアプリに同梱して同時に出荷する**内部契約**。自由に変えてよいが、文書とフィクスチャは常に正しく保つ。
 - SQLite の application_id は `0x4755494c`。v1 は user_version 8 と `schema-v1.sql` の表・索引定義を照合する。変換対象は v0.1.28 と同一のスキーマ 7、指紋 `14512365f8e91d16`、既知の実体定義を備えた DB。データフォルダのロックを保持し、WAL 内の確定済み変更も含む読み取り用スナップショットを検査する。
-- 変換前に SQLite Backup API で `backups/pre-1.0.0/<UTC日時>-<UUID>/guild.db.partial` を取得する。全行・rowid・採番・整合性を照合して同期し、`guild.db` へ改名する。変換は1回のトランザクションで行い、検証後に確定する。再起動時も DB の状態から開始する。
+- 変換前に旧データを検査し、SQLite Backup API で `backups/pre-1.0.0/.pending/guild.db.partial` にコピーする。全行・rowid・採番・整合性を照合して同期し、`backups/pre-1.0.0/<UTC日時>-<UUID>/guild.db` に確定する。変換は1回のトランザクションで行い、検証後に確定する。再起動時も DB の状態から開始する。
 - 手動復元はすべての AIギルドを閉じ、現在の保存先を保管してから行う。空の別フォルダへ `guild-data.json`、元の `agents/`・`attachments/`・`frames/`・`backgrounds/` のうち存在するもの、検証済みのバックアップを `guild.db` として配置し、v0.1.28 で開く。WAL・SHM と途中の `.partial` は持ち込まない。バックアップが復元するのは DB の内容で、DB 外のファイルは別途保管が必要。
 - 発言の並びは seq（INTEGER PRIMARY KEY AUTOINCREMENT）。エージェントは論理削除。外部キー: skills → agents、channel_members・messages → channels（ON DELETE CASCADE）。
 - **拡張の余白**: バックエンドの能力・状態・設定項目と、バックエンドごとの違い（§5 の「バックエンドごとの違いの申告」）はランナーが申告する（Rust・React は列挙せず、ID で分岐しない）。エージェントの振る舞いは種別ではなく本人の設定で決まり、作成のプリセットは guild-domain のテンプレート表から `Snapshot.templates` で React に届ける。

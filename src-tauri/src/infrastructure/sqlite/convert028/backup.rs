@@ -80,11 +80,16 @@ fn create_verified(src: &Connection, staging: &Path, parent: &Path) -> Result<Pa
         }
         return Err(error.into());
     }
-    #[cfg(unix)]
-    for dir in [folder.as_path(), staging].into_iter().chain(parent.ancestors().take(3)) {
+    Ok(path)
+}
+
+#[cfg(unix)]
+pub(super) fn sync_published(path: &Path) -> std::io::Result<()> {
+    // Sync the timestamp folder, pre-1.0.0, backups and the data directory before changing the original DB.
+    for dir in path.ancestors().skip(1).take(4) {
         File::open(dir)?.sync_all()?;
     }
-    Ok(path)
+    Ok(())
 }
 #[cfg(not(windows))]
 fn publish(from: &Path, to: &Path) -> std::io::Result<()> {

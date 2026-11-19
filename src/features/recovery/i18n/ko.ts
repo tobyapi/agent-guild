@@ -18,6 +18,12 @@ export const ko: Messages<typeof ja> = {
     '설정된 위치에 접근할 수 없습니다. 외장 드라이브나 네트워크 위치라면 연결한 뒤 다시 시도하십시오.',
   lockedTitle: 'AI 길드가 이미 실행 중입니다',
   lockedDescription: '같은 데이터 폴더를 사용하는 AI 길드가 하나 더 실행 중입니다. 그쪽을 닫은 뒤 다시 시도하십시오.',
+  conversionTitle: '데이터 변환을 완료하지 못했습니다',
+  conversionDescription:
+    '원본 데이터는 그대로 남아 있습니다. 변환을 다시 시도하거나 v0.1.28에서 이 데이터 폴더를 열어 계속 사용할 수 있습니다.',
+  backupLocation: '검증된 백업',
+  logLocation: '로그 위치',
+  standardError: '표준 오류 출력',
   legacyDownload: 'v0.1.28 릴리스 페이지 열기',
   legacyTitle: 'v0.1.28에서 먼저 여세요',
   legacyDescription: 'v0.1.28에서 이 데이터 폴더를 열고 앱을 종료한 뒤 다시 시도하세요.',

@@ -18,6 +18,7 @@ const COPIES: Readonly<Record<FailureReason, { title: CopyKey; description: Copy
   missing: { title: 'missingTitle', description: 'missingDescription', recommended: 'retry' },
   locked: { title: 'lockedTitle', description: 'lockedDescription', recommended: 'retry' },
   needs028: { title: 'legacyTitle', description: 'legacyDescription', recommended: 'retry' },
+  conversion_failed: { title: 'conversionTitle', description: 'conversionDescription', recommended: 'retry' },
   newer_version: { title: 'newerTitle', description: 'newerDescription', recommended: 'choose' },
   foreign: { title: 'foreignTitle', description: 'foreignDescription', recommended: 'choose' },
   corrupt: { title: 'corruptTitle', description: 'corruptDescription', recommended: 'useDefault' },

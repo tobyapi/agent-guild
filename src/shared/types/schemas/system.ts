@@ -138,12 +138,18 @@ export const bootStatusSchema = {
     locked: true,
     newer_version: true,
     needs028: true,
+    conversion_failed: true,
     foreign: true,
     corrupt: true,
     not_writable: true,
   }),
   dataDir: string,
   message: string,
+  conversion: nullable(
+    objectOf({ backupPath: nullable(string), logPath: nullable(string) } satisfies Schema<
+      NonNullable<BootStatus['conversion']>
+    >),
+  ),
   needsSetup: boolean,
   language: nullable(languageEnum()),
 } satisfies Schema<BootStatus>;

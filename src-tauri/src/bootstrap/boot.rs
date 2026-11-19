@@ -8,7 +8,7 @@ use std::io;
 use std::path::Path;
 use std::time::Duration;
 
-use guild_domain::boot::{BootReason, BootStatus};
+use guild_domain::boot::{BootReason, BootStatus, ConversionRecovery};
 use guild_domain::locale;
 use guild_domain::storage::StorageSource;
 
@@ -35,16 +35,27 @@ pub fn open(paths: &AppPaths) -> Result<OpenedData, BootStatus> {
         LockError::Io(error) => recovery(BootReason::NotWritable, dir, error.to_string()),
     })?;
     check_marker(dir)?;
-    let database = Database::open(&dir.join(DB_FILE)).map_err(|error| {
-        let reason = match error {
-            OpenError::Needs028 => BootReason::Needs028,
-            OpenError::Foreign => BootReason::Foreign,
-            OpenError::Newer(_) => BootReason::NewerVersion,
-            OpenError::Corrupt(_) => BootReason::Corrupt,
-        };
-        recovery(reason, dir, error.to_string())
-    })?;
+    let database = Database::open(&dir.join(DB_FILE)).map_err(|error| database_failure(dir, error))?;
     Ok(OpenedData { database, lock })
+}
+
+fn database_failure(dir: &Path, error: OpenError) -> BootStatus {
+    let message = error.to_string();
+    let reason = match error {
+        OpenError::Needs028 => BootReason::Needs028,
+        OpenError::Foreign => BootReason::Foreign,
+        OpenError::Newer(_) => BootReason::NewerVersion,
+        OpenError::Corrupt(_) => BootReason::Corrupt,
+        OpenError::Conversion { backup, .. } => {
+            let mut status = recovery(BootReason::ConversionFailed, dir, message);
+            status.conversion = Some(Box::new(ConversionRecovery {
+                backup_path: backup.map(|path| path.display().to_string()),
+                log_path: None,
+            }));
+            return status;
+        }
+    };
+    recovery(reason, dir, message)
 }
 
 fn prepare_folder(dir: &Path, source: StorageSource) -> Result<(), BootStatus> {

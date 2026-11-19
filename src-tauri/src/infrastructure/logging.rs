@@ -12,13 +12,12 @@ const PREVIOUS_LOG_FILE: &str = "agent-guild.old.log";
 pub fn init(log_dir: Option<&Path>) -> Option<PathBuf> {
     let mut builder = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"));
     let file = if cfg!(debug_assertions) { None } else { log_dir.and_then(open_log_file) };
-    if let Some((_, handle)) = &file {
-        if let Ok(target) = handle.try_clone() {
-            builder.target(env_logger::Target::Pipe(Box::new(target)));
-        }
-    }
-    let _ = builder.try_init();
-    file.map(|(path, _)| path)
+    let path = file.map(|(path, handle)| {
+        builder.target(env_logger::Target::Pipe(Box::new(handle)));
+        path
+    });
+    builder.try_init().ok()?;
+    path
 }
 
 /// 前回のログを回してから、新しいファイルを作る
