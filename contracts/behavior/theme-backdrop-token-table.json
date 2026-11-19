@@ -3127,16 +3127,6 @@
       "expression": "background-color: var(--theme-preview-light);"
     },
     {
-      "file": "src/features/settings/components/ThemePicker.module.css",
-      "line": 37,
-      "expression": "background: linear-gradient(90deg, var(--theme-preview-dark) 50%, var(--theme-preview-light) 50%);"
-    },
-    {
-      "file": "src/features/settings/components/ThemePicker.module.css",
-      "line": 49,
-      "expression": "background: linear-gradient(90deg, transparent 23%, var(--glass-edge) 23%, var(--glass-edge) 24%, transparent 24%);"
-    },
-    {
       "file": "src/features/settings/components/themeSample.css",
       "line": 5,
       "expression": "background-color: var(--bg-app);"

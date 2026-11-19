@@ -21,16 +21,12 @@ describe('resolveAppearance', () => {
     expect(
       resolveAppearance({ ...preference, backgroundOverride: { kind: 'none' } }, registry, 'dark').backgroundOverride,
     ).toEqual({ kind: 'none' });
-    for (const backgroundOverride of [
-      { kind: 'image', assetId: 'missing' },
-      { kind: 'scene', sceneId: 'missing' },
-    ] as const) {
-      expect(resolveAppearance({ ...preference, backgroundOverride }, registry, 'dark')).toMatchObject({
-        scheme: 'light',
-        accentOverride: 'sky',
-        backgroundOverride: { kind: 'none' },
-      });
-    }
+    const backgroundOverride = { kind: 'image' as const, assetId: 'missing' };
+    expect(resolveAppearance({ ...preference, backgroundOverride }, registry, 'dark')).toMatchObject({
+      scheme: 'light',
+      accentOverride: 'sky',
+      backgroundOverride: { kind: 'none' },
+    });
     expect(resolveAppearance(defaultAppearance(), themeRegistry, 'dark').backgroundOverride).toEqual({ kind: 'none' });
   });
   it.each(['dark', 'light'] as const)('follows the OS only for system (%s)', (scheme) => {

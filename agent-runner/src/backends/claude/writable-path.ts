@@ -35,7 +35,3 @@ export async function insideRoots(target: string, roots: readonly string[]): Pro
     return false;
   }
 }
-
-export function writableInWorkspace(target: string, workspace: string): Promise<boolean> {
-  return insideRoots(target, [workspace]);
-}

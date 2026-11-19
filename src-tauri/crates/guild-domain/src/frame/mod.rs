@@ -2,11 +2,10 @@
 //! 内蔵の枠の絵は React が持ち、ここでは ID の形だけを決める（`builtin:<名前>`）。生成した枠（`custom:<ID>`）は
 //! ギルドのデータとして DB に置く。いまの生成は画像（PNG。内蔵スキル `ornate-avatar-frame` をそのまま渡して描いてもらい
 //! （`prompt`）、`image` の決まりで検査して整え、データフォルダに置く）。
-//! 以前の版は SVG を生成していた: その枠は `svg` で許可した要素と属性だけに作り直したものが DB に残っている。
+//! 以前の版は SVG を生成していた: 保存済みの SVG は DB から読み出し、表示時にフロント側で検査する。
 
 mod image;
 mod prompt;
-mod svg;
 
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +14,6 @@ pub use image::{
     FRAME_SOURCE_MAX_SIDE, FRAME_SOURCE_MIN_SIDE, FRAME_VIEWBOX,
 };
 pub use prompt::{frame_prompt, FRAME_SKILL_NAME};
-pub use svg::{extract_svg, sanitize_frame_svg, SvgProblem, FRAME_SVG_MAX_BYTES};
 
 use crate::error::{ensure_max_chars, ValidationError};
 use crate::locale;

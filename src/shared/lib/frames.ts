@@ -1,7 +1,6 @@
 // アイコンの枠の ID と生成の入力の規則（Rust の guild-domain frame/mod.rs と同じ）。UI の事前検査とモックが使う。
 import { textLength } from './validation';
 
-export const BUILTIN_FRAME_PREFIX = 'builtin:';
 export const CUSTOM_FRAME_PREFIX = 'custom:';
 /** 生成を頼む説明の最大文字数 */
 export const FRAME_DESCRIPTION_MAX = 200;

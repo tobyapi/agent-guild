@@ -6,7 +6,7 @@ import { defaultAppearance, themeRegistry } from '@/shared/theme/registry';
 import { AppearanceBackdrop } from './AppearanceBackdrop';
 
 const state = vi.hoisted((): { background: BackgroundSpec; url: string | null } => ({
-  background: { kind: 'generated', presetId: 'tile-turtle' },
+  background: { kind: 'none' },
   url: null,
 }));
 vi.mock('@/features/settings', () => ({
@@ -16,7 +16,7 @@ vi.mock('@/features/settings', () => ({
 }));
 afterEach(cleanup);
 
-it('renders no background for a retired preset', () => {
+it('renders no background for an empty selection', () => {
   const { container } = render(<AppearanceBackdrop />);
   expect(container.childElementCount).toBe(0);
 });

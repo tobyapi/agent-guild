@@ -4,11 +4,7 @@ export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'sil
 export type AccentId = (typeof ACCENT_IDS)[number];
 export type MotionPreference = 'system' | 'off';
 
-export type BackgroundSpec =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'image'; readonly assetId: string }
-  | { readonly kind: 'scene'; readonly sceneId: string }
-  | { readonly kind: 'generated'; readonly presetId: string };
+export type BackgroundSpec = { readonly kind: 'none' } | { readonly kind: 'image'; readonly assetId: string };
 
 export interface AppearancePreference {
   readonly version: 2;

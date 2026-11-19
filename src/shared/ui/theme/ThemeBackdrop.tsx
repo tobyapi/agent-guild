@@ -9,18 +9,17 @@ interface Props {
   imageUrl?: string | null;
 }
 
-/** Decorative only. Assets use library UUIDs or bundled IDs, never user-provided paths. */
+/** Decorative only. Assets use library UUIDs, never user-provided paths. */
 export function ThemeBackdrop({ background, motion, imageUrl }: Props) {
   const running = useBackdropMotion(motion);
   const resolved = resolveBackground(background);
-  if (resolved.kind === 'none' || (resolved.kind === 'image' && !imageUrl)) return null;
+  if (resolved.kind === 'none' || !imageUrl) return null;
   return (
     <div
-      style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
+      style={{ backgroundImage: `url("${imageUrl}")` }}
       aria-hidden="true"
       className={styles.backdrop}
-      data-asset={resolved.kind === 'image' ? resolved.assetId : undefined}
-      data-scene={resolved.kind === 'scene' ? resolved.sceneId : undefined}
+      data-asset={resolved.assetId}
       data-running={running ? 'true' : 'false'}
     />
   );

@@ -50,24 +50,14 @@ describe('appearance lifecycle', () => {
     expect(h.query.addEventListener).toHaveBeenCalledTimes(2);
   });
 
-  it('tracks legacy background sources and clears stale source attributes for none', () => {
+  it('clears the background attributes when a library image is deselected', () => {
     const h = appearanceHarness();
     h.controller.init();
     h.controller.setPreference({
       ...defaultAppearance(),
-      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
+      backgroundOverride: { kind: 'image', assetId: '12345678-1234-1234-1234-123456789abc' },
     });
-    expect(h.root.hasAttribute('data-background')).toBe(false);
-    expect(storedActive(h.values.get(LIBRARY_KEY)!)).toMatchObject({
-      backgroundOverride: { kind: 'generated', presetId: 'tile-turtle' },
-    });
-    h.controller.dispose();
-    h.controller.init();
-    expect(h.controller.store.getState().preference.backgroundOverride).toEqual({ kind: 'none' });
-    h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'image', assetId: 'dawn' } });
-    expect(h.root.hasAttribute('data-background')).toBe(false);
-    h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'scene', sceneId: 'aurora' } });
-    expect(h.root.hasAttribute('data-background-source')).toBe(false);
+    expect(h.root.dataset.backgroundSource).toBe('image');
     h.controller.setPreference({ ...defaultAppearance(), backgroundOverride: { kind: 'none' } });
     expect(h.root.hasAttribute('data-background')).toBe(false);
     expect(h.root.hasAttribute('data-background-source')).toBe(false);

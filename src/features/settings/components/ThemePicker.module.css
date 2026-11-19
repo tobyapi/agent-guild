@@ -33,22 +33,6 @@
 .preview[data-scheme='light'] {
   background-color: var(--theme-preview-light);
 }
-.preview[data-scheme='system'] {
-  background: linear-gradient(90deg, var(--theme-preview-dark) 50%, var(--theme-preview-light) 50%);
-}
-.preview > svg {
-  inline-size: 100%;
-  block-size: 100%;
-}
-.sample {
-  position: absolute;
-  inset: var(--space-3);
-  border: 1px solid var(--glass-edge);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--glass-shadow);
-  background: linear-gradient(90deg, transparent 23%, var(--glass-edge) 23%, var(--glass-edge) 24%, transparent 24%);
-}
-
 .choice {
   display: flex;
   flex: 1;

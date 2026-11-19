@@ -20,14 +20,12 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it('renders only bundled backgrounds, with no interactive decoration', () => {
+it('rejects missing and non-library backgrounds', () => {
   const { container, rerender } = render(<ThemeBackdrop background={{ kind: 'none' }} motion="system" />);
   expect(container.childElementCount).toBe(0);
   rerender(<ThemeBackdrop background={{ kind: 'image', assetId: 'dawn' }} motion="system" />);
   expect(container.querySelectorAll('button,input,a,[tabindex]')).toHaveLength(0);
   expect(container.childElementCount).toBe(0);
   rerender(<ThemeBackdrop background={{ kind: 'image', assetId: 'https://example.com/a.svg' }} motion="system" />);
-  expect(container.childElementCount).toBe(0);
-  rerender(<ThemeBackdrop background={{ kind: 'scene', sceneId: 'missing' }} motion="system" />);
   expect(container.childElementCount).toBe(0);
 });

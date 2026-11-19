@@ -82,10 +82,11 @@ function parseBackground(value: unknown): AppearancePreference['backgroundOverri
   if (value.kind === 'none') return { kind: 'none' };
   if (value.kind === 'image' && typeof value.assetId === 'string')
     return resolveBackground({ kind: 'image', assetId: value.assetId });
-  if (value.kind === 'scene' && typeof value.sceneId === 'string')
-    return resolveBackground({ kind: 'scene', sceneId: value.sceneId });
-  if (value.kind === 'generated' && typeof value.presetId === 'string')
-    return resolveBackground({ kind: 'generated', presetId: value.presetId });
+  if (
+    (value.kind === 'scene' && typeof value.sceneId === 'string') ||
+    (value.kind === 'generated' && typeof value.presetId === 'string')
+  )
+    return { kind: 'none' };
   throw new AppearanceValidationError('invalid background kind');
 }
 
