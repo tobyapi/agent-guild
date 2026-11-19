@@ -3,6 +3,7 @@ use super::{
     source, Command,
 };
 use std::fs;
+use std::process::Output;
 
 #[test]
 fn guild_profiles_keep_the_values_displayed_by_028() {
@@ -32,12 +33,7 @@ fn guild_profiles_keep_the_values_displayed_by_028() {
 fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
     let f = Fixture::new();
     populate_damaged_records(&f);
-    let out = Command::new(std::env::current_exe().unwrap())
-        .args(["--exact", "infrastructure::sqlite::convert028::tests::open_disposable_copy", "--nocapture"])
-        .env("GUILD_DATA_DIR", &f.0)
-        .env("GUILD_CONVERSION_TEST_CHILD", "1")
-        .output()
-        .unwrap();
+    let out = open_in_child(&f, None);
     let log = String::from_utf8(out.stderr).unwrap();
     assert!(out.status.success(), "{log}");
     for warning in [
@@ -79,6 +75,32 @@ fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
     let untouched: bool =
         original.query_row("SELECT value='private-value' FROM meta WHERE key='unexpected'", [], |r| r.get(0)).unwrap();
     assert!(untouched);
+}
+
+#[test]
+fn rolled_back_adjustments_are_logged_only_on_successful_retry() {
+    let f = Fixture::new();
+    old(&f.db(), 7).execute("INSERT INTO meta VALUES ('guild_profile', ?)", ["{private-value"]).unwrap();
+    let aborted = open_in_child(&f, Some("before-commit"));
+    assert_eq!(aborted.status.code(), Some(87));
+    assert!(!String::from_utf8(aborted.stderr).unwrap().contains("v0.1.28 conversion:"));
+
+    let committed = open_in_child(&f, None);
+    let log = String::from_utf8(committed.stderr).unwrap();
+    assert!(committed.status.success(), "{log}");
+    assert_eq!(log.matches(r#"guild_profile_defaulted count=1 ids=["guild_profile"]"#).count(), 1);
+    assert!(!log.contains("private-value"));
+}
+
+fn open_in_child(f: &Fixture, fault: Option<&str>) -> Output {
+    let mut cmd = Command::new(std::env::current_exe().unwrap());
+    cmd.args(["--exact", "infrastructure::sqlite::convert028::tests::open_disposable_copy", "--nocapture"])
+        .env("GUILD_DATA_DIR", &f.0)
+        .env("GUILD_CONVERSION_TEST_CHILD", "1");
+    if let Some(point) = fault {
+        cmd.env("GUILD_DB_TEST_FAULT", point);
+    }
+    cmd.output().unwrap()
 }
 
 fn populate_damaged_records(f: &Fixture) {

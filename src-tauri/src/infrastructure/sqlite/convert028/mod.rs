@@ -76,7 +76,7 @@ fn convert(path: &Path, backup: &Path, root: &Path) -> Result<()> {
     }
     backup::compare(&tx, "legacy")?;
     validate::legacy(&tx)?;
-    adjustments::stage(&tx, root)?;
+    let warnings = adjustments::stage(&tx, root)?;
     tx.execute_batch(
         "DROP TABLE subtasks; DROP TABLE delegations; DROP TABLE messages;
        DROP TABLE channel_members; DROP TABLE run_measurements; DROP TABLE skill_record_cutoffs;
@@ -93,6 +93,7 @@ fn convert(path: &Path, backup: &Path, root: &Path) -> Result<()> {
     #[cfg(test)]
     fault("before-commit");
     tx.commit()?;
+    warnings.emit();
     #[cfg(test)]
     fault("after-commit");
     Ok(())

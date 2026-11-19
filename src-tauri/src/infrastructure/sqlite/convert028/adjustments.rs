@@ -7,21 +7,21 @@ use rusqlite::{params, Connection};
 use std::{collections::BTreeMap, fs, path::Path};
 
 #[derive(Default)]
-struct Warnings(BTreeMap<String, Vec<String>>);
+pub(super) struct Warnings(BTreeMap<String, Vec<String>>);
 
 impl Warnings {
     fn add(&mut self, kind: &str, id: String) {
         self.0.entry(kind.to_owned()).or_default().push(id);
     }
 
-    fn emit(self) {
+    pub(super) fn emit(self) {
         for (kind, ids) in self.0 {
             log::warn!("v0.1.28 conversion: {kind} count={} ids={ids:?}", ids.len());
         }
     }
 }
 
-pub(super) fn stage(db: &Connection, root: &Path) -> Result<()> {
+pub(super) fn stage(db: &Connection, root: &Path) -> Result<Warnings> {
     let mut warnings = Warnings::default();
     super::guild_profile::stage(db)?;
     db.execute_batch("CREATE TEMP TABLE frame_repairs(id TEXT PRIMARY KEY, svg_text TEXT)")?;
@@ -32,8 +32,7 @@ pub(super) fn stage(db: &Connection, root: &Path) -> Result<()> {
     while let Some(row) = rows.next()? {
         warnings.add(&row.get::<_, String>(0)?, row.get(1)?);
     }
-    warnings.emit();
-    Ok(())
+    Ok(warnings)
 }
 
 fn check_attachments(db: &Connection, root: &Path, warnings: &mut Warnings) -> Result<()> {
