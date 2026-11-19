@@ -67,6 +67,7 @@ export const zhHans: Messages<typeof ja> = {
   revealInFolder: '在文件夹中显示 {name}',
   imageLoadFailed: '无法加载图片（{name}）',
   revealLocalImage: '在文件夹中显示 {path}',
+  localLinkHint: '按住 Shift 点击可在文件夹中显示',
   localImageLoading: '正在检查图片…',
   localImageNotFound: '找不到文件',
   localImageUnsupported: '无法显示',

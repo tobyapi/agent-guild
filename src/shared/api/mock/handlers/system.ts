@@ -26,7 +26,8 @@ type SystemCommands =
   | 'get_backend_auth_modes'
   | 'set_backend_auth_mode'
   | 'restart_app'
-  | 'open_url';
+  | 'open_url'
+  | 'open_local_path';
 
 /** 「再確認」で probe してから結果が届くまでの間 */
 const PROBE_MS = 800;
@@ -154,6 +155,9 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     return null;
   },
 
+  open_local_path() {
+    fail('unavailable', 'ローカルのリンクはデスクトップアプリで開けます');
+  },
   open_url({ url }, runtime) {
     if (!isExternalUrl(url.trim())) fail('validation', '開けるのは http と https のリンクだけです', 'url');
     runtime.env.openUrl(url.trim());

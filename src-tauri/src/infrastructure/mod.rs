@@ -13,6 +13,8 @@ pub mod frame_images;
 pub mod ids;
 pub mod local_file_access;
 pub mod local_files;
+mod local_link;
+mod local_volume;
 pub mod logging;
 pub mod notifications;
 pub mod plain_path;

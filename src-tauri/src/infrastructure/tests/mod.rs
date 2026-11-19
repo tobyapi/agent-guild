@@ -5,6 +5,7 @@ mod data_folder;
 mod export;
 mod frame_images;
 mod global_instructions;
+mod local_link;
 mod notification_receipts;
 mod notification_settings;
 mod path_components;

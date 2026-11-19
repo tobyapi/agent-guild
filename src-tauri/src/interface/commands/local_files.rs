@@ -5,6 +5,17 @@ use guild_domain::ids::AgentId;
 use tauri::State;
 
 #[tauri::command]
+pub async fn open_local_path(
+    state: State<'_, crate::interface::state::AppState>,
+    files: State<'_, LocalFileService>,
+    path: String,
+    reveal: bool,
+) -> CommandResult<()> {
+    state.services()?;
+    files.open_link(&path, reveal).map_err(reject)
+}
+
+#[tauri::command]
 pub async fn reveal_local_file(
     files: State<'_, LocalFileService>,
     path: String,

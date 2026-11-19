@@ -23,4 +23,5 @@ export const chatApi = {
   delegations: (channelId: string) => invoke('list_delegations', { channelId }),
   /** 本文のリンクを OS の既定のブラウザで開く（http・https だけ） */
   openUrl: (url: string) => invoke('open_url', { url }),
+  openLocalPath: (path: string, reveal: boolean) => invoke('open_local_path', { path, reveal }),
 };

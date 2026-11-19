@@ -48,6 +48,7 @@ macro_rules! commands {
             messages::send_message,
             messages::get_attachment,
             messages::reveal_attachment,
+            local_files::open_local_path,
             local_files::reveal_local_file,
             local_files::read_local_image,
             messages::stop_channel,

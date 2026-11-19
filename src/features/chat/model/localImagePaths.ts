@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 export interface LocalImagePath {
   path: string;
   alt: string;
@@ -25,6 +27,22 @@ function localPath(value: string): string | null {
   return path;
 }
 
+/** Only scan visible text and image syntax. A Markdown link destination is opened on click. */
+function imageSource(markdown: string): string {
+  if (!markdown.includes('[')) return markdown.replace(FENCED_CODE, blank);
+  const source: string[] = [];
+  void marked.walkTokens(marked.lexer(markdown), (token) => {
+    if (token.type === 'link' || token.type === 'image') {
+      if (token.type === 'image') source.push(token.raw);
+      // Skip the label's descendants in this private token tree.
+      token.tokens = [];
+    } else if (token.type === 'codespan' || token.type === 'html' || (token.type === 'text' && !token.tokens?.length)) {
+      source.push(token.raw);
+    }
+  });
+  return source.join('\n');
+}
+
 function blank(value: string): string {
   return value.replace(/[^\n]/g, ' ');
 }
@@ -34,7 +52,8 @@ function blank(value: string): string {
  * コードブロックは対象外、インラインコードは対象。人間の発言では起点を決められない相対パスを除く。
  */
 export function findLocalImagePaths(markdown: string, agentId: string | null): LocalImagePath[] {
-  const source = markdown.replace(FENCED_CODE, blank);
+  if (!/\.(?:png|jpe?g|gif|webp)\b/i.test(markdown)) return [];
+  const source = imageSource(markdown);
   const found: LocalImagePath[] = [];
   const seen = new Set<string>();
   const add = (candidate: string, alt = '') => {

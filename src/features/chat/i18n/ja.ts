@@ -67,6 +67,7 @@ export const ja = {
   revealInFolder: '{name} をフォルダで表示',
   imageLoadFailed: '画像を読み込めませんでした（{name}）',
   revealLocalImage: '{path} をフォルダで表示',
+  localLinkHint: 'Shift＋クリックでフォルダに表示',
   localImageLoading: '画像を確認しています…',
   localImageNotFound: '見つかりません',
   localImageUnsupported: '表示できません',

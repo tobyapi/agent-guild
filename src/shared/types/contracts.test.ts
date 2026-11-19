@@ -1,7 +1,7 @@
 // 契約の実例（contracts/ipc/*.json）が domain.ts の型に合うことを検査する。
 // JSON を import すると文字列の型が広がって satisfies が効かないので、Schema<T> で値を検証する。
 import { describe, expect, it } from 'vitest';
-import { arrayOf, boolean, objectOf, string } from './schema';
+import { arrayOf, boolean, nullValue, objectOf, string } from './schema';
 import type { Validator } from './schema';
 import { parseCandidate } from '@/shared/theme/candidate';
 import { delegationSchema } from './schemas/delegation';
@@ -35,6 +35,11 @@ const CASES: Record<string, Validator> = {
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
   'theme-candidate.json': themeCandidate,
+  'open-local-path.json': objectOf({
+    markdown: string,
+    args: objectOf({ path: string, reveal: boolean }),
+    result: nullValue,
+  }),
   'snapshot.json': objectOf(snapshotSchema),
   'channel-statistics.json': objectOf(channelStatisticsSchema),
   'agent-input.json': objectOf(agentInputSchema),

@@ -128,6 +128,7 @@ export interface CommandMap {
   restart_app: { args: NoArgs; result: null };
   /** OS の既定のブラウザでリンクを開く（http・https だけ。それ以外は validation） */
   open_url: { args: { url: string }; result: null };
+  open_local_path: { args: { path: string; reveal: boolean }; result: null };
   /** 新しい版があるかを配布元（GitHub のリリース）に確かめる */
   check_update: { args: NoArgs; result: UpdateStatus };
   /** 新しい版をダウンロードし、署名を確かめて入れ、アプリを起動し直す */

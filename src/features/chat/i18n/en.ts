@@ -70,6 +70,7 @@ export const en: Messages<typeof ja> = {
   revealInFolder: 'Show {name} in folder',
   imageLoadFailed: 'Could not load image ({name})',
   revealLocalImage: 'Show {path} in folder',
+  localLinkHint: 'Shift-click to show in folder',
   localImageLoading: 'Checking image…',
   localImageNotFound: 'Not found',
   localImageUnsupported: 'Cannot display',

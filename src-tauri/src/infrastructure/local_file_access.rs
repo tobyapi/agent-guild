@@ -10,6 +10,9 @@ use std::path::PathBuf;
 pub struct FsLocalFiles(pub PathBuf);
 
 impl LocalFileAccess for FsLocalFiles {
+    fn open_link(&self, path: &str, reveal: bool) -> AppResult<()> {
+        super::local_link::open(path, reveal)
+    }
     fn reveal(&self, path: &str, agent_id: Option<&AgentId>) -> AppResult<()> {
         let path =
             local_files::resolve(path, agent_id, &self.0).ok_or_else(|| AppError::validation(unsupported_path()))?;
@@ -27,10 +30,10 @@ impl LocalFileAccess for FsLocalFiles {
     }
 }
 
-fn local_file() -> &'static str {
+pub(super) fn local_file() -> &'static str {
     locale::pick(["ローカルファイル", "Local file", "本地文件", "本機檔案", "로컬 파일"])
 }
-fn unsupported_path() -> &'static str {
+pub(super) fn unsupported_path() -> &'static str {
     locale::pick([
         "このローカルファイルのパスは使えません",
         "This local file path cannot be used",

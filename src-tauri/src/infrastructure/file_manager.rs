@@ -45,8 +45,12 @@ fn opener(path: &Path) -> Command {
 
 #[cfg(target_os = "macos")]
 fn opener(path: &Path) -> Command {
+    // An application bundle is a directory on disk. Select it without sending an open event.
+    if path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case("app")) {
+        return selector(path);
+    }
     let mut command = Command::new("open");
-    command.arg(path);
+    command.args(["-a", "Finder"]).arg(path);
     command
 }
 

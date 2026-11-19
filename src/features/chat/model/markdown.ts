@@ -1,6 +1,6 @@
 // メッセージ本文（Markdown）を HTML にする。表示する前に必ず sanitizeHtml を通すこと。
 // - 生の HTML は文字としてそのまま見せる（タグとして解釈しない）
-// - リンクは http / https だけ（クリックすると OS の既定のブラウザで開く）
+// - Web リンクとローカルの絶対パスを識別し、クリックしたときだけ OS に渡す
 // - 画像・動画とコードブロックは、あとから部品を差し込む口にする（markdownEmbeds.ts）。画像はここでは読み込まない
 // - 「@名前」はメンションのチップにする（コードの中は対象外。NFKC・大文字小文字無視、名前の長い順に照合）
 import { Marked } from 'marked';
@@ -10,6 +10,7 @@ import { escapeHtml } from '@/shared/lib/html';
 import { matchMentionAt, sortByNameLength } from '@/shared/lib/mentions';
 import type { MentionTarget } from '@/shared/lib/mentions';
 import { codeBlockHtml, mediaHtml } from './markdownEmbeds';
+import { localLinkPath } from './localLinkPath';
 import { typographyInline, typographyLayout } from './typographyMarkdown';
 import { t } from '../i18n';
 
@@ -72,9 +73,14 @@ export function createMarkdownRenderer(targets: readonly ChipTarget[]): (markdow
     extensions: [typographyLayout, typographyInline, mentionExtension(targets)],
     renderer: {
       html: ({ text }) => escapeHtml(text),
-      link({ href, title, tokens }) {
+      link({ href, title, tokens, raw }) {
         const label = this.parser.parseInline(tokens);
-        return SAFE_URL.test(href) ? externalLink(href, label, title) : label;
+        if (SAFE_URL.test(href)) return externalLink(href, label, title);
+        const path = localLinkPath(href, raw);
+        if (path === null) return label;
+        const escaped = escapeHtml(path);
+        // 空の href でネイティブのリンク操作（Tab・Enter）を保つ。パス自身は遷移先にしない。
+        return `<a role="link" href="" data-local-path="${escaped}" title="${escaped}&#10;${escapeHtml(t('localLinkHint'))}">${label}</a>`;
       },
       code: ({ text, lang, raw }) => codeBlockHtml(text, lang, raw),
       image({ href, text }) {

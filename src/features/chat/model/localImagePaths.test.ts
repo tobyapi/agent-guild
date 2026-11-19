@@ -40,6 +40,12 @@ describe('findLocalImagePaths', () => {
     ]);
   });
 
+  it('文書リンクの画像はクリック前に読み込まず、画像の埋め込みだけを拾う', () => {
+    const source =
+      '[資料](/tmp/docs(a)/photo.png) [共有](//server/share/x.png) [別紙][file]\n\n[file]: /tmp/hidden.png\n\n![図](/tmp/visible.png)';
+    expect(paths(source)).toEqual(['/tmp/visible.png']);
+  });
+
   it('同じパスは一度だけ返す', () => {
     expect(paths('![a](work/a.png) and `work/a.png` and work/a.png')).toEqual(['work/a.png']);
   });

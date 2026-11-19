@@ -98,6 +98,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   complete_setup: nullValue,
   set_language: nullValue,
   open_url: nullValue,
+  open_local_path: nullValue,
   check_update: objectOf(updateStatusSchema),
   install_update: nullValue,
 };

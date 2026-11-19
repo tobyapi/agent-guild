@@ -102,6 +102,16 @@ describe('sanitizeHtml（DOM のある環境）', () => {
     expect([...cells].map((cell) => cell.getAttribute('align'))).toEqual(['center', 'right']);
   });
 
+  it('ローカルパスはクリック用のデータとツールチップにだけ残す', () => {
+    const host = body('[手順](<D:/資料/手順 1.md>) [相対](../x.md) [共有](//server/share/a.md)');
+    const [link] = host.querySelectorAll('a');
+    expect(host.querySelectorAll('a')).toHaveLength(1);
+    expect(link?.getAttribute('href')).toBe('');
+    expect(link?.dataset.localPath).toBe('D:/資料/手順 1.md');
+    expect(link?.title).toContain('D:/資料/手順 1.md');
+    expect(sanitizeHtml('<a href="file:///D:/a.md">文書</a>')).not.toContain('href');
+  });
+
   it('リンクは http・https の行き先と、別の窓で開く指定を残す', () => {
     const link = body('[サイト](https://example.com/a?b=1)').querySelector('a');
     expect(link?.getAttribute('href')).toBe('https://example.com/a?b=1');

@@ -67,6 +67,7 @@ export const zhHant: Messages<typeof ja> = {
   revealInFolder: '在資料夾中顯示 {name}',
   imageLoadFailed: '無法載入圖片（{name}）',
   revealLocalImage: '在資料夾中顯示 {path}',
+  localLinkHint: '按住 Shift 點選可在資料夾中顯示',
   localImageLoading: '正在檢查圖片…',
   localImageNotFound: '找不到檔案',
   localImageUnsupported: '無法顯示',

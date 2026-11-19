@@ -6,6 +6,7 @@ pub use guild_domain::local_image::LocalImage;
 use std::sync::Arc;
 
 pub trait LocalFileAccess: Send + Sync {
+    fn open_link(&self, path: &str, reveal: bool) -> AppResult<()>;
     fn reveal(&self, path: &str, agent_id: Option<&AgentId>) -> AppResult<()>;
     fn read_image(&self, path: &str, agent_id: Option<&AgentId>) -> LocalImage;
 }
@@ -15,6 +16,9 @@ pub struct LocalFileService(Arc<dyn LocalFileAccess>);
 impl LocalFileService {
     pub fn new(access: Arc<dyn LocalFileAccess>) -> Self {
         Self(access)
+    }
+    pub fn open_link(&self, path: &str, reveal: bool) -> AppResult<()> {
+        self.0.open_link(path, reveal)
     }
     pub fn reveal(&self, path: &str, agent_id: Option<&AgentId>) -> AppResult<()> {
         self.0.reveal(path, agent_id)

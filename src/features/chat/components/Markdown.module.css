@@ -138,3 +138,8 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+
+.markdown :global(a[data-local-path]) {
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}

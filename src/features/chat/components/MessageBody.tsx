@@ -29,7 +29,7 @@ export interface MessageBodyProps {
 }
 
 /**
- * 本文（Markdown をサニタイズした HTML）。リンクは OS の既定のブラウザで開く。
+ * 本文（Markdown をサニタイズした HTML）。リンクのクリックは OS に渡す。
  * HTML の中の差し込み口（コードブロック・mermaid・画像・動画）には、React の部品をポータルで差し込む。
  */
 export function MessageBody({ content, render, agentId = null }: MessageBodyProps) {

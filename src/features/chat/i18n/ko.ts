@@ -69,6 +69,7 @@ export const ko: Messages<typeof ja> = {
   revealInFolder: '{name}을(를) 폴더에서 보기',
   imageLoadFailed: '이미지를 불러오지 못했습니다({name})',
   revealLocalImage: '{path}을(를) 폴더에서 보기',
+  localLinkHint: 'Shift 키를 누른 채 클릭하면 폴더에서 표시',
   localImageLoading: '이미지를 확인하는 중…',
   localImageNotFound: '찾을 수 없음',
   localImageUnsupported: '표시할 수 없음',

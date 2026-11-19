@@ -52,6 +52,36 @@ describe('createMarkdownRenderer: メンション', () => {
 });
 
 describe('createMarkdownRenderer: 安全性', () => {
+  it('絶対パスとホストなしの file URL をローカルリンクにする', () => {
+    for (const [source, path] of [
+      ['D:/資料/手順.md', 'D:/資料/手順.md'],
+      [String.raw`D:\資料\.作業\#手順.md`, String.raw`D:\資料\.作業\#手順.md`],
+      [String.raw`D:\資料\手順.md`, String.raw`D:\資料\手順.md`],
+      ['<D:/資料/手順 1.md>', 'D:/資料/手順 1.md'],
+      ['file:///D:/%E8%B3%87%E6%96%99/手順%201.md', 'D:/資料/手順 1.md'],
+      ['file:///tmp/a%2520b.md', '/tmp/a%20b.md'],
+      ['/tmp/手順%201.md', '/tmp/手順 1.md'],
+    ]) {
+      expect(render('[手順](' + source + ')')).toContain('data-local-path="' + path + '"');
+    }
+  });
+
+  it('相対パス・UNC・ホスト付き file URL は文字で表示する', () => {
+    for (const path of [
+      'guide.md',
+      '../guide.md',
+      'C:guide.md',
+      '//server/share',
+      String.raw`\\server\share`,
+      'file://host/path',
+      'file:////server/share',
+      'file:///%2Fserver/share',
+      'file:///tmp/a%00b',
+    ]) {
+      expect(render('[手順](' + path + ')')).not.toContain('<a');
+    }
+  });
+
   it('生の HTML はタグとして解釈せず文字にする', () => {
     const html = render('<script>alert(1)</script><b onclick="x()">b</b>');
     expect(html).not.toContain('<script');

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useToastStore } from '@/shared/ui/toast/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import localLink from '../../../../contracts/ipc/open-local-path.json';
 import { chatApi } from '../api';
 import { createMarkdownRenderer } from '../model/markdown';
 import { renderDiagram } from '../model/mermaid';
@@ -10,6 +12,7 @@ import { MessageBody } from './MessageBody';
 vi.mock('../api', () => ({
   chatApi: {
     openUrl: vi.fn(),
+    openLocalPath: vi.fn(),
     localImage: vi.fn(),
     revealLocalFile: vi.fn(),
   },
@@ -22,6 +25,8 @@ const writeText = vi.fn((text: string) => Promise.resolve(text));
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(chatApi.openLocalPath).mockResolvedValue(localLink.result);
+  vi.mocked(chatApi.openUrl).mockResolvedValue(null);
   vi.mocked(chatApi.localImage).mockResolvedValue({ status: 'unsupported' });
   vi.mocked(chatApi.revealLocalFile).mockResolvedValue(null);
   writeText.mockImplementation((text) => Promise.resolve(text));
@@ -30,6 +35,33 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('MessageBody', () => {
+  it('ローカル文書を開き、Shift クリックでフォルダ表示を依頼する', () => {
+    render(
+      <MessageBody
+        content={`${localLink.markdown} [*共有*](//server/x) [*相対*](../x) [Web](https://example.org)`}
+        render={renderBody}
+      />,
+    );
+    const label = screen.getByText('手順');
+    expect(fireEvent.click(label)).toBe(false);
+    expect(chatApi.openLocalPath).toHaveBeenCalledWith(localLink.args.path, localLink.args.reveal);
+    fireEvent.click(label, { shiftKey: true });
+    expect(chatApi.openLocalPath).toHaveBeenCalledWith(localLink.args.path, true);
+    fireEvent.click(screen.getByText('共有'));
+    fireEvent.click(screen.getByText('相対'));
+    fireEvent.click(screen.getByRole('link', { name: 'Web' }));
+    expect(chatApi.openLocalPath).toHaveBeenCalledTimes(2);
+    expect(chatApi.openUrl).toHaveBeenCalledExactlyOnceWith('https://example.org');
+  });
+
+  it('見つからないファイルのエラーをトーストに出す', async () => {
+    const message = 'ローカルファイルが見つかりません';
+    vi.mocked(chatApi.openLocalPath).mockRejectedValue(new Error(message));
+    render(<MessageBody content="[手順](/tmp/missing.md)" render={renderBody} />);
+    fireEvent.click(screen.getByRole('link', { name: '手順' }));
+    await waitFor(() => expect(useToastStore.getState().toasts.at(-1)).toMatchObject({ kind: 'error', message }));
+  });
+
   it('コードブロックにコピーのボタンを差し込み、押すと中身をコピーする', async () => {
     const view = render(<MessageBody content={'```ts\nconst a = "<b>";\n```'} render={renderBody} />);
     expect(view.container.querySelector('.hljs-keyword')?.textContent).toBe('const');

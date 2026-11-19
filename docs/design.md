@@ -148,6 +148,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `reveal_data_dir` | – | `null` | – | storage |
 | `restart_app` | – | `null` | – | – |
 | `open_url` | `{ url }` | `null`（OS の既定のブラウザで開く。発言の Markdown のリンク用） | – | validation（http・https 以外） |
+| `open_local_path` | `{ path, reveal }` | `null`（実在するローカルの絶対パスを開く。`reveal: true` のファイルはフォルダで表示） | – | validation・not_found・storage・unavailable |
 | `check_update` | – | `UpdateStatus`（いまの版と、あれば新しい版。配布元の latest.json を見る） | – | unavailable（配布元に届かない・読めない） |
 | `install_update` | – | `null`（ダウンロード → 署名の検証 → ランナーを止める → 入れ替え → 再起動。Windows はインストーラーに任せて終了するので戻らない） | – | conflict（新しい版がない）, unavailable（ダウンロード・署名の検証・入れ替えの失敗） |
 
@@ -158,7 +159,8 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
   - 本文の中の画像・動画（`![名前](URL)`）: https のものは、利用者が札を押してから読み込む（発言を開いただけでは外へ通信しない。URL に情報を載せた持ち出しを防ぐため。Referer は送らない）。data: の画像（PNG・JPEG・GIF・WebP の base64）はそのまま見せる。http はリンクのまま、ほかのスキームは文字だけ。CSP は img-src・media-src に `https:` と `data:` を許す（押す前に読み込まないのは描画側の決まりで、CSP は種類を絞るだけ）。
   - コードブロックは highlight.js で色分けする（言語が書かれていて分かるときだけ。出力は中身をエスケープした span だけ）。
   - ```mermaid の図は `securityLevel: 'strict'` で描く（ラベルの HTML・クリックの動作は無効）。本体は最初の図が出るまで読み込まない。文法の誤り・閉じていないフェンス（書きかけ）は図にせず、ソースを見せる。
-- 発言の本文のリンクは http・https だけをリンクにする（`javascript:`・`mailto:` などは文字だけ）。クリックしても WebView の中では遷移させず、`open_url` で OS の既定のブラウザに渡す。Rust も http・https 以外は開かない（`tauri-plugin-opener` の Rust の API だけを使い、JS には opener の権限を渡さない）。
+- 発言の Markdown リンクは http・https を `open_url` でブラウザに渡す。ドライブ付きまたは `/` 始まりの絶対パス、ホストなしの `file:///` は点線の下線で示し、フルパスをツールチップに出す。相対パス、UNC、ホスト付きの file URL は文字で表示する。
+- ローカルリンクはクリック時に `open_local_path` が実在とローカルボリュームを検証する。フォルダはファイルマネージャーで開く。文書（md・txt・log・json・csv・pdf）と画像（png・jpg・jpeg・gif・webp・bmp・tif・tiff）は既定のアプリで開く。ほかの拡張子、Unix で実行権限のあるファイル、macOS の `.app` バンドル、Shift＋クリックしたファイルはフォルダで表示する。Linux ではローカルと識別できるファイルシステムだけを受け付け、フォルダ表示は親フォルダを開く。
 
 ## 4. イベントと同期の規約
 

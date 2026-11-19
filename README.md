@@ -21,6 +21,8 @@ Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを「仲間」と
 
 ## 本文の表現用書式
 
+チャットに `[手順書](<D:/資料/作業 手順.md>)` のように書くと、手順書をクリックして既定のアプリで読めます。Shift＋クリックでフォルダに表示できます。
+
 Markdown に加えて、チャット本文の一部を次のように組版できます。
 
 - `:t[あのー]{color=red size=2.5 rotate=180 weight=bold}` — 色・文字サイズ（em 倍率）・回転角（度）・太さ。色は red などの基本色か `#rgb` / `#rrggbb`。
