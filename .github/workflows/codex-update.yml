@@ -126,6 +126,7 @@ jobs:
         with:
           artifact-ids: ${{ needs.prepare.outputs.patch-artifact }}
           path: ${{ runner.temp }}
+          merge-multiple: true
 
       # npm やテストはここでは実行しない。許可した版管理ファイルの差分だけを適用する。
       - name: Commit and push main and the release tag atomically
