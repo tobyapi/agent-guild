@@ -18,6 +18,7 @@ describe('モックの内蔵スキル', () => {
       'ambiguous-word-rewrite',
       'character-voice',
       'concept-shift',
+      'expert-collaboration',
       'introspection',
       'ornate-avatar-frame',
       'reflection',

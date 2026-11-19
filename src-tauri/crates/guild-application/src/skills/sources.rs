@@ -4,7 +4,7 @@
 use std::path::Path;
 
 use guild_domain::locale;
-use guild_domain::skill::{find_builtin_skill, parse_skill_file, Skill, SkillFile};
+use guild_domain::skill::{expert_collaboration, find_builtin_skill, parse_skill_file, Skill, SkillFile};
 
 use crate::ports::SkillLibraryScanner;
 
@@ -42,7 +42,8 @@ fn read_builtin(name: &str) -> Result<SkillFile, String> {
 /// 実行に渡すスキル: linked は読み直し、読めないものと name が先のものと重なるものは外して警告ログを残す
 pub(crate) fn runnable(library: &dyn SkillLibraryScanner, agent_name: &str, skills: Vec<Skill>) -> Vec<Skill> {
     let mut picked: Vec<Skill> = Vec::with_capacity(skills.len());
-    for skill in skills.into_iter().map(|skill| refresh(library, skill)) {
+    let refreshed = skills.into_iter().map(|skill| refresh(library, skill));
+    for skill in refreshed.filter(|skill| !expert_collaboration::is_role_instruction(skill)) {
         if let Some(problem) = &skill.problem {
             log::warn!("{agent_name} のスキル「{}」を読めないため、外して実行します: {problem}", skill.name);
         } else if picked.iter().any(|other| other.name == skill.name) {
