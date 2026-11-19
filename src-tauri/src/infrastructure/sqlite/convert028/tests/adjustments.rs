@@ -7,28 +7,7 @@ use std::fs;
 #[test]
 fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
     let f = Fixture::new();
-    let db = old(&f.db(), 7);
-    populate(&db);
-    db.execute_batch(r#"
-      INSERT INTO meta VALUES ('unexpected','private-value');
-      INSERT INTO meta VALUES ('desktop-notification:old','unrecognized');
-      UPDATE meta SET value='arbitrary-marker' WHERE key='seeded';
-      UPDATE messages SET mentions='["me","a","system","me"]',
-        attachments='[{"id":"lost","name":"p.txt","size":17,"mediaType":"text/plain"},{"id":"short","name":"s.txt","size":5,"mediaType":"text/plain"}]'
-        WHERE id='m';
-      INSERT INTO avatar_frames(id,name,kind,svg,created_at) VALUES
-        ('custom:ok','Ok','svg','  <svg><circle r="6"/></svg>  ',0),
-        ('custom:bad','Bad','svg','invalid',0), ('custom:png','Png','png','',0);
-      UPDATE agents SET frame='custom:bad',voice='{"mode":"discarded","intensity":"retired"}';
-      UPDATE meta SET value=json_set(value,'$.crest.shape','retired','$.crest.color','retired') WHERE key='guild_profile';
-      INSERT INTO profile(id,name,avatar,color,frame) VALUES(1,'User','x','y','custom:bad');
-    "#).unwrap();
-    drop(db);
-    fs::create_dir_all(f.0.join("attachments/c")).unwrap();
-    fs::write(f.0.join("attachments/c/short.txt"), b"x").unwrap();
-    fs::create_dir(f.0.join("frames")).unwrap();
-    fs::write(f.0.join("frames/custom_png.png"), b"broken").unwrap();
-
+    populate_damaged_records(&f);
     let out = Command::new(std::env::current_exe().unwrap())
         .args(["--exact", "infrastructure::sqlite::convert028::tests::open_disposable_copy", "--nocapture"])
         .env("GUILD_DATA_DIR", &f.0)
@@ -76,4 +55,28 @@ fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
     let untouched: bool =
         original.query_row("SELECT value='private-value' FROM meta WHERE key='unexpected'", [], |r| r.get(0)).unwrap();
     assert!(untouched);
+}
+
+fn populate_damaged_records(f: &Fixture) {
+    let db = old(&f.db(), 7);
+    populate(&db);
+    db.execute_batch(r#"
+      INSERT INTO meta VALUES ('unexpected','private-value');
+      INSERT INTO meta VALUES ('desktop-notification:old','unrecognized');
+      UPDATE meta SET value='arbitrary-marker' WHERE key='seeded';
+      UPDATE messages SET mentions='["me","a","system","me"]',
+        attachments='[{"id":"lost","name":"p.txt","size":17,"mediaType":"text/plain"},{"id":"short","name":"s.txt","size":5,"mediaType":"text/plain"}]'
+        WHERE id='m';
+      INSERT INTO avatar_frames(id,name,kind,svg,created_at) VALUES
+        ('custom:ok','Ok','svg','  <svg><circle r="6"/></svg>  ',0),
+        ('custom:bad','Bad','svg','invalid',0), ('custom:png','Png','png','',0);
+      UPDATE agents SET frame='custom:bad',voice='{"mode":"discarded","intensity":"retired"}';
+      UPDATE meta SET value=json_set(value,'$.crest.shape','retired','$.crest.color','retired') WHERE key='guild_profile';
+      INSERT INTO profile(id,name,avatar,color,frame) VALUES(1,'User','x','y','custom:bad');
+    "#).unwrap();
+    drop(db);
+    fs::create_dir_all(f.0.join("attachments/c")).unwrap();
+    fs::write(f.0.join("attachments/c/short.txt"), b"x").unwrap();
+    fs::create_dir(f.0.join("frames")).unwrap();
+    fs::write(f.0.join("frames/custom_png.png"), b"broken").unwrap();
 }
