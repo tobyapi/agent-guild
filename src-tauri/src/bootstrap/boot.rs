@@ -37,6 +37,7 @@ pub fn open(paths: &AppPaths) -> Result<OpenedData, BootStatus> {
     check_marker(dir)?;
     let database = Database::open(&dir.join(DB_FILE)).map_err(|error| {
         let reason = match error {
+            OpenError::Needs028 => BootReason::Needs028,
             OpenError::Foreign => BootReason::Foreign,
             OpenError::Newer(_) => BootReason::NewerVersion,
             OpenError::Corrupt(_) => BootReason::Corrupt,
@@ -58,7 +59,8 @@ fn prepare_folder(dir: &Path, source: StorageSource) -> Result<(), BootStatus> {
 
 fn check_marker(dir: &Path) -> Result<(), BootStatus> {
     match read_marker(dir) {
-        MarkerState::Valid => Ok(()),
+        MarkerState::Valid if dir.join(DB_FILE).is_file() => Ok(()),
+        MarkerState::Valid => Err(recovery(BootReason::Missing, dir, missing(&dir.join(DB_FILE)))),
         MarkerState::Missing => {
             let empty = is_empty_folder(dir).map_err(|error| io_failure(dir, &error))?;
             if !empty {

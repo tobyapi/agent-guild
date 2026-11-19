@@ -35,6 +35,11 @@ export function RecoveryScreen({ boot }: { boot: BootStatus }) {
         <p className={styles.kicker}>{t('kicker')}</p>
         <h1 className={styles.title}>{copy.title}</h1>
         <p className={styles.description}>{copy.description}</p>
+        {boot.reason === 'needs028' && (
+          <Button variant="link" onClick={recovery.openLegacyRelease}>
+            {t('legacyDownload')}
+          </Button>
+        )}
         <div className={styles.location}>
           <span className={styles.label}>{t('location')}</span>
           <code className={styles.path}>{boot.dataDir}</code>

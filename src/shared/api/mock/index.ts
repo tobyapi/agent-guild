@@ -42,6 +42,7 @@ const BOOT_FAILURES: readonly BootFailure[] = [
   'missing',
   'locked',
   'newer_version',
+  'needs028',
   'foreign',
   'corrupt',
   'not_writable',

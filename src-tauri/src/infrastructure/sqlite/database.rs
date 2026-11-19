@@ -4,11 +4,11 @@
 use std::path::Path;
 
 use parking_lot::Mutex;
-use rusqlite::{Connection, OpenFlags};
+use rusqlite::Connection;
 
 use super::schema;
 
-mod messages;
+pub(super) mod messages;
 
 /// データベースの操作の失敗
 #[derive(Debug, thiserror::Error)]
@@ -26,6 +26,8 @@ pub enum OpenError {
     Foreign,
     #[error("{}", messages::newer(.0))]
     Newer(usize),
+    #[error("{}", messages::needs_028())]
+    Needs028,
     #[error("{}", messages::corrupt(.0))]
     Corrupt(String),
 }
@@ -39,7 +41,7 @@ impl Database {
     pub fn open(path: &Path) -> Result<Self, OpenError> {
         let existing = path.try_exists().map_err(corrupt)?;
         if existing {
-            inspect_database(path)?;
+            super::convert028::prepare(path)?;
         }
         let conn = connect(path).map_err(corrupt)?;
         if !existing {
@@ -69,19 +71,7 @@ impl Database {
 
 /// 移動先の候補にある guild.db を、書き込まずに調べる（この版で開けるなら Ok）
 pub fn inspect_database(path: &Path) -> Result<(), OpenError> {
-    let flags = OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX;
-    let conn = Connection::open_with_flags(path, flags).map_err(corrupt)?;
-    if conn.query_row("PRAGMA application_id", [], |r| r.get::<_, i32>(0)).map_err(corrupt)? != schema::APPLICATION_ID {
-        return Err(OpenError::Foreign);
-    }
-    let version = conn.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).map_err(corrupt)?;
-    if version > schema::VERSION {
-        return Err(OpenError::Newer(version as usize));
-    }
-    if version != schema::VERSION || schema::structure(&conn).map_err(corrupt)? != schema::STRUCTURE {
-        return Err(OpenError::Corrupt(messages::fingerprint_mismatch()));
-    }
-    Ok(())
+    super::convert028::inspect(path)
 }
 
 fn initialize(conn: &Connection) -> rusqlite::Result<()> {

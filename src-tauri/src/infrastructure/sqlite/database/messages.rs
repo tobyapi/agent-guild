@@ -54,7 +54,7 @@ pub(super) fn corrupt(reason: &str) -> String {
     ])
 }
 
-pub(super) fn fingerprint_mismatch() -> String {
+pub(in crate::infrastructure::sqlite) fn fingerprint_mismatch() -> String {
     locale::pick([
         "スキーマの指紋が一致しません",
         "The schema fingerprint does not match",
@@ -63,4 +63,20 @@ pub(super) fn fingerprint_mismatch() -> String {
         "스키마 지문이 일치하지 않습니다",
     ])
     .to_owned()
+}
+
+pub(super) fn needs_028() -> &'static str {
+    locale::pick([
+        "このフォルダを v0.1.28 で一度開いて終了してから、再試行してください。",
+        "Open this folder in v0.1.28, close it, then try again.",
+        "请先用 v0.1.28 打开此文件夹并退出，再重试。",
+        "請先用 v0.1.28 開啟此資料夾並結束，再重試。",
+        "v0.1.28에서 이 폴더를 열고 종료한 뒤 다시 시도하세요.",
+    ])
+}
+pub(in crate::infrastructure::sqlite) fn restore_backup() -> &'static str {
+    locale::pick(["変換を停止しました。検証済みバックアップの対象は DB です。添付などのファイルは別に保管してください。",
+    "Conversion stopped. The verified backup contains the database. Keep attachments and other external files separately.",
+    "转换已停止。已验证的备份包含数据库。请单独保留附件等文件。","轉換已停止。已驗證的備份包含資料庫。請另行保留附件等檔案。",
+    "변환이 중단되었습니다. 확인된 백업에는 데이터베이스가 들어 있습니다. 첨부 파일 등은 별도로 보관하세요."])
 }

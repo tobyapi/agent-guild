@@ -52,6 +52,23 @@ fn folders_of_other_apps_are_left_alone() {
 }
 
 #[test]
+fn a_locked_folder_and_a_marked_folder_with_a_missing_database_stop_startup() {
+    let root = TempDir::new("lock-or-missing");
+    let location = paths(root.0.clone(), StorageSource::Env);
+    let first = open(&location).unwrap();
+    let marker = fs::read(root.0.join("guild-data.json")).unwrap();
+    let bytes = fs::read(root.0.join("guild.db")).unwrap();
+    assert_eq!(reason(&location), Some(BootReason::Locked));
+    assert_eq!(fs::read(root.0.join("guild.db")).unwrap(), bytes);
+    assert!(!root.0.join("backups").exists());
+    drop(first);
+    fs::remove_file(root.0.join("guild.db")).unwrap();
+    assert_eq!(reason(&location), Some(BootReason::Missing));
+    assert!(!root.0.join("guild.db").exists());
+    assert_eq!(fs::read(root.0.join("guild-data.json")).unwrap(), marker);
+}
+
+#[test]
 fn newer_or_broken_data_is_not_touched() {
     let newer = TempDir::new("newer");
     fs::write(newer.0.join("guild-data.json"), r#"{ "app": "agent-guild", "layoutVersion": 2 }"#).unwrap();

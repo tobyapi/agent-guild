@@ -22,6 +22,7 @@ pub enum BootReason {
     Locked,
     /// 新しい版のアプリが作ったデータ
     NewerVersion,
+    Needs028,
     /// ギルドのデータではない
     Foreign,
     /// データベースが壊れている

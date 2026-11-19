@@ -18,6 +18,9 @@ export const en: Messages<typeof ja> = {
     'The configured location can’t be reached. If it’s on an external drive or a network location, connect it and retry.',
   lockedTitle: 'AI Guild is already running',
   lockedDescription: 'Another AI Guild is running with the same data folder. Close it, then retry.',
+  legacyDownload: 'Open the v0.1.28 release page',
+  legacyTitle: 'Open the data in v0.1.28 first',
+  legacyDescription: 'Open this data folder in v0.1.28, close the app, then retry.',
   newerTitle: 'Data from a newer version',
   newerDescription:
     'This folder was saved by a newer AI Guild. To protect your data, this version won’t open it. Update the app or choose another folder.',

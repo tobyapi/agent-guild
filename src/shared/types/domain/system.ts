@@ -53,7 +53,8 @@ export type DataDirMode = 'copy' | 'open';
 export type Language = 'ja' | 'en' | 'zh-Hans' | 'zh-Hant' | 'ko';
 
 export type BootState = 'ok' | 'recovery';
-export type BootReason = 'none' | 'missing' | 'locked' | 'newer_version' | 'foreign' | 'corrupt' | 'not_writable';
+export type BootReason =
+  'none' | 'missing' | 'locked' | 'newer_version' | 'needs028' | 'foreign' | 'corrupt' | 'not_writable';
 
 export interface BootStatus {
   state: BootState;

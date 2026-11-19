@@ -17,6 +17,7 @@ type CopyKey = Parameters<typeof t>[0];
 const COPIES: Readonly<Record<FailureReason, { title: CopyKey; description: CopyKey; recommended: RecoveryAction }>> = {
   missing: { title: 'missingTitle', description: 'missingDescription', recommended: 'retry' },
   locked: { title: 'lockedTitle', description: 'lockedDescription', recommended: 'retry' },
+  needs028: { title: 'legacyTitle', description: 'legacyDescription', recommended: 'retry' },
   newer_version: { title: 'newerTitle', description: 'newerDescription', recommended: 'choose' },
   foreign: { title: 'foreignTitle', description: 'foreignDescription', recommended: 'choose' },
   corrupt: { title: 'corruptTitle', description: 'corruptDescription', recommended: 'useDefault' },

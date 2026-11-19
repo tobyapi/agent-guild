@@ -18,6 +18,9 @@ export const ko: Messages<typeof ja> = {
     '설정된 위치에 접근할 수 없습니다. 외장 드라이브나 네트워크 위치라면 연결한 뒤 다시 시도하십시오.',
   lockedTitle: 'AI 길드가 이미 실행 중입니다',
   lockedDescription: '같은 데이터 폴더를 사용하는 AI 길드가 하나 더 실행 중입니다. 그쪽을 닫은 뒤 다시 시도하십시오.',
+  legacyDownload: 'v0.1.28 릴리스 페이지 열기',
+  legacyTitle: 'v0.1.28에서 먼저 여세요',
+  legacyDescription: 'v0.1.28에서 이 데이터 폴더를 열고 앱을 종료한 뒤 다시 시도하세요.',
   newerTitle: '새 버전의 데이터입니다',
   newerDescription:
     '이 폴더는 더 새로운 AI 길드에서 저장되었습니다. 데이터를 보호하기 위해 이 버전에서는 열지 않습니다. 앱을 업데이트하거나 다른 폴더를 선택하십시오.',

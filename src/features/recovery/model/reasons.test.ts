@@ -4,6 +4,7 @@ import { orderedActions, reasonCopy, recommendedAction } from './reasons';
 describe('reasonCopy', () => {
   it('理由ごとの見出しを返す', () => {
     expect(reasonCopy('missing').title).toBe('データフォルダが見つかりません');
+    expect(reasonCopy('needs028').description).toContain('v0.1.28');
     expect(reasonCopy('locked').title).toBe('AIギルドがすでに起動しています');
     expect(reasonCopy('none').title).toBe('データフォルダを開けませんでした');
   });

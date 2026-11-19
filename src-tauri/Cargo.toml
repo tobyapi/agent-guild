@@ -48,7 +48,7 @@ thiserror = { workspace = true }
 log = { workspace = true }
 parking_lot = { workspace = true }
 tokio = { workspace = true }
-rusqlite = { version = "0.41", features = ["bundled"] }
+rusqlite = { version = "0.41", features = ["bundled","backup","functions"] }
 async-trait = "0.1"
 uuid = { version = "1", features = ["v4"] }
 base64 = "0.23"

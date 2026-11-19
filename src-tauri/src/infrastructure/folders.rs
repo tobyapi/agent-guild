@@ -12,8 +12,6 @@ use super::data_dir::{is_empty_folder, read_marker, MarkerState, DB_FILE};
 use super::file_manager;
 use super::sqlite::{inspect_database, OpenError};
 
-const WRITE_PROBE: &str = ".guild-write-test";
-
 pub struct FsFolders {
     current: PathBuf,
     default: PathBuf,
@@ -37,19 +35,25 @@ impl Folders for FsFolders {
                 format!("폴더를 만들 수 없습니다({e})"),
             ]))
         })?;
-        let probe = dir.join(WRITE_PROBE);
-        fs::write(&probe, b"ok").and_then(|()| fs::remove_file(&probe)).map_err(|e| {
-            AppError::validation(locale::pick([
-                format!("このフォルダには書き込めません（{e}）"),
-                format!("Cannot write to this folder ({e})"),
-                format!("无法写入此文件夹（{e}）"),
-                format!("無法寫入此資料夾（{e}）"),
-                format!("이 폴더에는 쓸 수 없습니다({e})"),
-            ]))
-        })?;
+        let probe = dir.join(format!(".guild-write-test-{}", uuid::Uuid::new_v4()));
+        fs::File::create_new(&probe)
+            .and_then(|file| {
+                drop(file);
+                fs::remove_file(&probe)
+            })
+            .map_err(|e| {
+                AppError::validation(locale::pick([
+                    format!("このフォルダには書き込めません（{e}）"),
+                    format!("Cannot write to this folder ({e})"),
+                    format!("无法写入此文件夹（{e}）"),
+                    format!("無法寫入此資料夾（{e}）"),
+                    format!("이 폴더에는 쓸 수 없습니다({e})"),
+                ]))
+            })?;
+        let is_current = same(dir, &self.current);
         Ok(TargetFolder {
-            state: folder_state(dir)?,
-            is_current: same(dir, &self.current),
+            state: folder_state(dir, is_current)?,
+            is_current,
             is_nested: nested(dir, &self.current),
             is_default: same(dir, &self.default),
         })
@@ -68,12 +72,13 @@ impl Folders for FsFolders {
     }
 }
 
-fn folder_state(dir: &Path) -> AppResult<FolderState> {
+fn folder_state(dir: &Path, current: bool) -> AppResult<FolderState> {
     let empty = is_empty_folder(dir).map_err(|e| AppError::Storage(e.to_string()))?;
     if empty {
         return Ok(FolderState::Empty);
     }
     Ok(match read_marker(dir) {
+        MarkerState::Valid if current => FolderState::Guild,
         MarkerState::Valid => database_state(dir),
         MarkerState::Missing | MarkerState::Foreign => FolderState::Foreign,
         MarkerState::Newer(_) => FolderState::IncompatibleGuild(newer_data()),
@@ -81,12 +86,13 @@ fn folder_state(dir: &Path) -> AppResult<FolderState> {
     })
 }
 
-/// 印のあるフォルダの guild.db を書き込まずに調べる（まだ DB がなければ開ける）
+/// 別の保存先は排他ロックを取って読み取り専用で判定する。変換は再起動後に行う。
 fn database_state(dir: &Path) -> FolderState {
     let db = dir.join(DB_FILE);
-    if !db.exists() {
-        return FolderState::Guild;
-    }
+    let _lock = match super::data_dir::acquire_lock(dir, std::time::Duration::ZERO) {
+        Ok(lock) => lock,
+        Err(err) => return FolderState::IncompatibleGuild(format!("{err:?}")),
+    };
     match inspect_database(&db) {
         Ok(()) => FolderState::Guild,
         Err(OpenError::Newer(_)) => FolderState::IncompatibleGuild(newer_data()),

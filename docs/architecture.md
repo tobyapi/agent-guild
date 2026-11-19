@@ -73,7 +73,7 @@ src-tauri/
   SkillLibraryScanner { scan(dir, limit); read_skill_file(folder); is_folder(path) }   // スキルライブラリ（design.md §14）。全体の上限はアプリ側が残り件数を渡して守る
   ```
 - `error.rs`（AppError → CommandError の code と field に対応）、`services.rs`（AppServices）
-- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・内蔵スキル・ライブラリ・参照しているスキルの読み直し）, `profile`, `guild`（meta 表の `guild_profile`）, `frames`（アイコンの枠の生成・取り消し・画像の読み出し・削除。権限を持たない画像の依頼に内蔵スキル ornate-avatar-frame をそのまま添えて PNG を描かせ、FrameImageStore で検査して整えて保存する）, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
+- ユースケース: `agents`, `channels`, `skills/`（アプリ内のスキル・内蔵スキル・ライブラリ・参照しているスキルの読み直し）, `profile`, `guild`（`guild_profile` 表）, `frames`（アイコンの枠の生成・取り消し・画像の読み出し・削除。権限を持たない画像の依頼に内蔵スキル ornate-avatar-frame をそのまま添えて PNG を描かせ、FrameImageStore で検査して整えて保存する）, `snapshot`, `storage`, `autonomy`, `backends`（状態の確認し直しとログイン）, `maintenance`（保存先の変更中は送信と自発活動を止める）
 - `conversation/`: `ConversationService`（入口）、`dispatcher`（**単一タスクのアクター**。レーン・割り振りの枠・エージェント排他・同時実行上限・世代・進行中の割り振りの記録を持ち、mpsc で Enqueue / Finished / Stop / RemoveAgent などを受ける。共有ロック不要。受け入れと合流は `intake`、選び方は `pick`（レーンの中は会話ごとに直列）、割り振りの記録は `tracking`、決着と打ち切りは `delegation`、停止と取り消しは `stopping`、毎回の処理のあとの見直しは `reconcile`、終了で消えるジョブの記録は `inflight`）、`executor`（1ジョブの実行: プロンプト組み立て → ランタイム → 保存 → イベント → 振り分け。依頼の組み立ては `request`、プロンプトに入れる発言の選び方は `history`、結果の確定は `commit` が結末（`ending`）と結果を返し、tasks ブロックからの割り振りの作成は `delegate`、作業の途中の投稿の保存は `interim`。実行中の知らせ（途中経過・途中の投稿）はアクターの `reporting` がコマンドにして受け取る）、`posting`（発言の保存と message-created の発行、参加とお知らせ）、`attachments`、`interrupted`（終了で中断された返答の知らせ）、`activity`
 - テスト: ポートのフェイク（インメモリ）で、振り分けの一連の流れ・合流・排他・停止と世代・削除・長時間実行・自発活動・保存先変更を検証する。時間は Clock のフェイクと tokio の時間停止で制御する。
 
@@ -170,7 +170,7 @@ src/
 - バックエンド呼び出しは、コマンド名から引数・戻り値の型が決まる型付きクライアントで行う。失敗は `CommandError` として扱い、code で分岐する。validation のどの入力のことかは `field`（`shared/lib/errors` の `errorField`）で決める（メッセージの語から推し量らない）。
 - 権限の表示・役割で決まる権限・その AI で使える操作と使わない理由（`shared/lib/permissions.ts`・`shared/lib/permissionPolicy.ts`）、外で開くリンクの判定（`shared/lib/links.ts`）、チャンネル名の正規化（`shared/lib/limits.ts`）は、編集画面とモックの両方が使うので shared/lib に置く（Rust の検証と同じ規則）。
 - 組み込みの配色は `shared/ui/theme/` の CSS に置く。生成テーマは `shared/theme/candidate.ts` で JSON の構造を検査し、`themeTokens.ts` で色・角丸・見出し書体を導く。`checkTheme.ts` は描画と同じ導出結果を受け、`ColorEnvelope` から各状態の最小コントラストを求める。
-- `features/settings/themeLibrary.ts` が旧版の移行、定義の検証、カタログと直前のスナップショットを管理する。`appearanceStore.ts` は v3 の書き込みが成功してからストアと HTML を更新する。起動時の復元、OS の明暗変更、背景描画は同じカタログを参照する。v2、v1、旧 theme/accent の値は保持する。
+- `features/settings/themeLibrary.ts` が v3 の読み込み、定義の検証、カタログと直前のスナップショットを管理する。`appearanceStore.ts` は v3 の書き込みが成功してからストアと HTML を更新する。起動時の復元、OS の明暗変更、背景描画は同じカタログを参照する。旧保存キーは読み込まない。
 - `ThemeGenerationDialog` の下書きは `useThemeDraft` が保持する。画像ライブラリに生成した UUID を受け取り、保存操作でテーマに紐づける。`ThemeDraftPreview` は iframe の初期文書に CSS と React の見本を描画する。ホストとプレビューは同じトークンと解決処理を使う。
 - テーマのテキスト要求は `generate_theme` → `ThemeGenerationService` → `AgentRuntime.generate_theme` → runner-client → ランナーの `theme` と流れる。アダプターが `themeGeneration` を申告し、画像は既存の `backgroundGeneration` の経路で受け取る。
 - 通知の音は sounds feature が持つ（好みは localStorage）。`app/` が message-created を chat に渡したあと `playMessageSound()` を呼び、鳴らすかは `sounds/model/incoming.ts` の純粋な関数で決める。

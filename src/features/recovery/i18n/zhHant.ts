@@ -17,6 +17,9 @@ export const zhHant: Messages<typeof ja> = {
   missingDescription: '無法存取設定的位置。如果位於外接磁碟機或網路位置，請連接後重試。',
   lockedTitle: 'AI 公會已在執行',
   lockedDescription: '另一個使用同一資料資料夾的 AI 公會正在執行。請將其關閉後重試。',
+  legacyDownload: '開啟 v0.1.28 發布頁面',
+  legacyTitle: '請先使用 v0.1.28',
+  legacyDescription: '使用 v0.1.28 開啟此資料夾，結束應用程式後重試。',
   newerTitle: '這是新版本的資料',
   newerDescription:
     '此資料夾由較新版本的 AI 公會儲存。為保護資料，此版本不會開啟它。請更新應用程式，或選擇其他資料夾。',

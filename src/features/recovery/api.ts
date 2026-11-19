@@ -8,4 +8,5 @@ export const recoveryApi = {
   openDataDir: (path: string) => invoke('change_data_dir', { path, mode: 'open' }),
   revealDataDir: () => invoke('reveal_data_dir'),
   restartApp: () => invoke('restart_app'),
+  openLegacyRelease: () => invoke('open_url', { url: 'https://github.com/tobyapi/agent-guild/releases/tag/v0.1.28' }),
 };

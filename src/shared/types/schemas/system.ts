@@ -137,6 +137,7 @@ export const bootStatusSchema = {
     missing: true,
     locked: true,
     newer_version: true,
+    needs028: true,
     foreign: true,
     corrupt: true,
     not_writable: true,

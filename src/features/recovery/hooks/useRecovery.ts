@@ -63,5 +63,7 @@ export function useRecovery(boot: BootStatus) {
 
   const reveal = () => void recoveryApi.revealDataDir().catch(reportError);
 
-  return { atDefault, busy, error, run, reveal };
+  const openLegacyRelease = () => void recoveryApi.openLegacyRelease().catch(reportError);
+
+  return { atDefault, busy, error, run, reveal, openLegacyRelease };
 }
