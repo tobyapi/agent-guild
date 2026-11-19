@@ -34,4 +34,12 @@ SELECT 'unknown_crest_field',m.key FROM meta m,json_each(m.value,'$.crest') j WH
 UNION ALL
 SELECT 'unknown_interrupted_job_field',json_extract(job.value,'$.rootId') FROM meta m,json_each(m.value) job,json_each(job.value) j
 WHERE m.key='interrupted_jobs' AND j.key NOT IN ('depth','rootId','channelId','agentId')
+UNION ALL
+SELECT 'voice_mode_defaulted',id FROM agents WHERE legacy_voice_mode(json_extract(voice,'$.mode')) IS NULL
+UNION ALL
+SELECT 'voice_intensity_defaulted',id FROM agents WHERE json_extract(voice,'$.intensity') NOT IN ('weak','medium','strong')
+UNION ALL
+SELECT 'crest_shape_defaulted',key FROM meta WHERE key='guild_profile' AND json_extract(value,'$.crest.shape') NOT IN ('diamond','shield','circle','hexagon','star')
+UNION ALL
+SELECT 'crest_color_defaulted',key FROM meta WHERE key='guild_profile' AND json_extract(value,'$.crest.color') NOT IN ('default','gold','crimson','jade','azure','violet')
 ORDER BY 1,2;

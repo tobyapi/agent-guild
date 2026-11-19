@@ -9,7 +9,7 @@ mod tests;
 mod validate;
 
 use super::{schema, OpenError};
-use guild_domain::voice::{migrate_stored_voice, VoiceSettings};
+use guild_domain::voice::{normalize_voice, VoiceSettings};
 use identity::{classify, Generation};
 use rusqlite::{functions::FunctionFlags, Connection, OpenFlags, TransactionBehavior};
 use std::{
@@ -66,10 +66,8 @@ fn convert(path: &Path, backup: &Path, root: &Path) -> Result<()> {
     db.execute_batch("PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON; PRAGMA trusted_schema=OFF;")?;
     db.execute("ATTACH DATABASE ?1 AS legacy", [source::uri(backup)?])?;
     db.create_scalar_function("legacy_voice_mode", 1, FunctionFlags::SQLITE_DETERMINISTIC, |ctx| {
-        let raw = ctx.get::<String>(0)?;
-        let voice: VoiceSettings =
-            serde_json::from_str(&raw).map_err(|e| rusqlite::Error::UserFunctionError(Box::new(e)))?;
-        Ok(migrate_stored_voice(voice).mode)
+        let mode = ctx.get::<Option<String>>(0)?.unwrap_or_else(|| "auto".to_owned());
+        Ok(normalize_voice(VoiceSettings { mode, ..VoiceSettings::default() }).ok().map(|voice| voice.mode))
     })?;
     let tx = db.transaction_with_behavior(TransactionBehavior::Immediate)?;
     if !matches!(classify(&tx)?, Generation::Legacy) {

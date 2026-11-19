@@ -19,7 +19,8 @@ fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
       INSERT INTO avatar_frames(id,name,kind,svg,created_at) VALUES
         ('custom:ok','Ok','svg','  <svg><circle r="6"/></svg>  ',0),
         ('custom:bad','Bad','svg','invalid',0), ('custom:png','Png','png','',0);
-      UPDATE agents SET frame='custom:bad';
+      UPDATE agents SET frame='custom:bad',voice='{"mode":"discarded","intensity":"retired"}';
+      UPDATE meta SET value=json_set(value,'$.crest.shape','retired','$.crest.color','retired') WHERE key='guild_profile';
       INSERT INTO profile(id,name,avatar,color,frame) VALUES(1,'User','x','y','custom:bad');
     "#).unwrap();
     drop(db);
@@ -45,6 +46,10 @@ fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
         r#"svg_normalized count=1 ids=["custom:ok"]"#,
         r#"svg_reset count=1 ids=["custom:bad"]"#,
         r#"agent_frame_reset count=1 ids=["a"]"#,
+        r#"voice_mode_defaulted count=1 ids=["a"]"#,
+        r#"voice_intensity_defaulted count=1 ids=["a"]"#,
+        r#"crest_shape_defaulted count=1 ids=["guild_profile"]"#,
+        r#"crest_color_defaulted count=1 ids=["guild_profile"]"#,
         r#"profile_frame_reset count=1 ids=["1"]"#,
         r#"receipt_normalized count=1 ids=["old"]"#,
     ] {
@@ -56,7 +61,8 @@ fn converts_optional_damage_and_logs_counts_and_ids_without_logging_values() {
         "SELECT count(*)=2 FROM messages",
         "SELECT count(*)=1 AND min(position)=0 AND min(actor_id)='a' FROM message_mentions",
         "SELECT count(*)=2 AND sum(size_bytes)=22 FROM message_attachments",
-        "SELECT frame_id IS NULL FROM agents",
+        "SELECT frame_id IS NULL AND voice_mode='auto' AND voice_intensity='weak' FROM agents",
+        "SELECT name='Guild' AND crest_shape='diamond' AND crest_color='default' FROM guild_profile",
         "SELECT frame_id IS NULL FROM user_profile",
         "SELECT count(*)=2 FROM avatar_frames",
         "SELECT kind='png' AND svg_text IS NULL FROM avatar_frames WHERE id='custom:png'",

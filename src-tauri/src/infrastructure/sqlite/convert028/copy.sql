@@ -5,8 +5,8 @@ INSERT INTO agents (
   autonomy_channel_id, last_autonomous_at, created_at, deleted_at, frame_id, voice_mode, voice_intensity
 ) SELECT rowid, id, name, name_key, avatar, color, role, personality, tone, expertise, backend, model,
   backend_options, unmentioned, consultable, can_delegate, autonomy_enabled, autonomy_interval_min,
-  autonomy_channel_id, last_autonomous_at, created_at, deleted_at, nullif(frame,''), legacy_voice_mode(voice),
-  coalesce(json_extract(voice,'$.intensity'),'weak') FROM legacy.agents;
+  autonomy_channel_id, last_autonomous_at, created_at, deleted_at, nullif(frame,''), coalesce(legacy_voice_mode(json_extract(voice,'$.mode')),'auto'),
+  CASE json_extract(voice,'$.intensity') WHEN 'medium' THEN 'medium' WHEN 'strong' THEN 'strong' ELSE 'weak' END FROM legacy.agents;
 INSERT INTO actors (id,kind,agent_id) SELECT id,'agent',id FROM legacy.agents;
 INSERT INTO agent_tags (agent_id,position,label) SELECT a.id,j.key,j.value FROM legacy.agents a,json_each(a.tags) j;
 INSERT INTO user_profile (id,name,avatar,color,frame_id) SELECT id,name,avatar,color,nullif(frame,'') FROM legacy.profile;
@@ -46,7 +46,10 @@ INSERT INTO run_measurements (job_id,channel_id,backend,model,duration_ms,input_
 INSERT INTO skill_record_cutoffs (job_id,channel_id) SELECT job_id,channel_id FROM legacy.skill_record_cutoffs;
 UPDATE db_state SET seeded=EXISTS(SELECT 1 FROM legacy.meta WHERE key='seeded') WHERE id=1;
 INSERT INTO guild_profile (id,name,crest_shape,crest_color)
-  SELECT 1,json_extract(value,'$.name'),json_extract(value,'$.crest.shape'),json_extract(value,'$.crest.color') FROM legacy.meta WHERE key='guild_profile';
+  SELECT 1,json_extract(value,'$.name'),
+    CASE WHEN json_extract(value,'$.crest.shape') IN ('shield','circle','hexagon','star') THEN json_extract(value,'$.crest.shape') ELSE 'diamond' END,
+    CASE WHEN json_extract(value,'$.crest.color') IN ('gold','crimson','jade','azure','violet') THEN json_extract(value,'$.crest.color') ELSE 'default' END
+  FROM legacy.meta WHERE key='guild_profile';
 INSERT INTO notification_receipts (message_id,outcome) SELECT substr(key,22),'attempted'
   FROM legacy.meta WHERE substr(key,1,21)='desktop-notification:' AND length(key)>21;
 INSERT INTO interrupted_jobs (position,channel_id,root_id,depth,agent_id)
