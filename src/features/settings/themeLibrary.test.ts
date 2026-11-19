@@ -40,7 +40,6 @@ it('saves without applying, then shares one image across schemes and restores a 
     expect(resolveAppearance(active, registry, scheme)).toMatchObject({
       scheme,
       backgroundOverride: { kind: 'image', assetId: imageId },
-      motion: 'off',
     });
   }
   c.dispose();
@@ -152,4 +151,25 @@ it('loads legacy themes and clears divider overrides on switching, undo and dele
   expect(divider()).toBe('');
   expect(h.root.style.getPropertyValue('--glass-edge')).toBe('');
   expect(h.root.dataset.background).toBe('active');
+});
+
+it('reads v3 active and previous selections with obsolete motion values and omits them on save', () => {
+  const theme = savedTheme();
+  const active = { ...defaultAppearance(), themeId: theme.id, backgroundOverride: null };
+  const previous = { ...defaultAppearance(), accentOverride: 'sky' };
+  const h = appearanceHarness({
+    [LIBRARY_KEY]: JSON.stringify({
+      version: 3,
+      themes: [theme],
+      active: { ...active, motionPreference: 'off' },
+      previous: { ...previous, motionPreference: 'unrecognized' },
+    }),
+  });
+  const c = h.controller;
+  c.init();
+  expect(c.store.getState()).toMatchObject({ active, previous, themes: [theme] });
+  expect(c.undo()).toBe(true);
+  const saved: unknown = JSON.parse(h.values.get(LIBRARY_KEY)!);
+  expect(saved).toEqual({ version: 3, active: previous, previous: null, themes: [theme] });
+  expect(h.values.get(LIBRARY_KEY)).not.toContain('motionPreference');
 });

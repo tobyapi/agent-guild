@@ -2,7 +2,6 @@ export type Scheme = 'dark' | 'light';
 export type SchemePreference = Scheme | 'system';
 export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'silver'] as const;
 export type AccentId = (typeof ACCENT_IDS)[number];
-export type MotionPreference = 'system' | 'off';
 
 export type BackgroundSpec = { readonly kind: 'none' } | { readonly kind: 'image'; readonly assetId: string };
 
@@ -12,7 +11,6 @@ export interface AppearancePreference {
   readonly schemePreference: SchemePreference;
   readonly accentOverride: AccentId | null;
   readonly backgroundOverride: BackgroundSpec | null;
-  readonly motionPreference: MotionPreference;
 }
 
 export interface ThemeDefinition {
@@ -28,6 +26,5 @@ export interface ResolvedAppearance {
   readonly scheme: Scheme;
   readonly accentOverride: AccentId | null;
   readonly backgroundOverride: BackgroundSpec;
-  readonly motion: MotionPreference;
   readonly glass: 'frosted' | 'none';
 }

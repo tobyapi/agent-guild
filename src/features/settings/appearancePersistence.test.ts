@@ -91,7 +91,6 @@ describe('invalid appearance recovery', () => {
     JSON.stringify({ ...defaultAppearance(), schemePreference: 'sepia' }),
     JSON.stringify({ ...defaultAppearance(), accentOverride: 'nope' }),
     JSON.stringify({ ...defaultAppearance(), backgroundOverride: {} }),
-    JSON.stringify({ ...defaultAppearance(), motionPreference: 'on' }),
   ])('repairs invalid new data without adopting legacy values: %s', (stored) => {
     const h = appearanceHarness({ [KEY]: stored, [THEME]: 'light', [ACCENT]: 'sky' });
     h.controller.init();
@@ -149,7 +148,6 @@ it.each([undefined, null, 'invalid', { dark: 'liquid', light: 'liquid' }, { dark
       ...defaultAppearance(),
       schemePreference: 'system' as const,
       accentOverride: 'sky' as const,
-      motionPreference: 'off' as const,
       backgroundOverride: { kind: 'image' as const, assetId: '12345678-1234-1234-1234-123456789abc' },
     };
     const h = appearanceHarness({ [KEY]: JSON.stringify({ ...preference, glass }) });

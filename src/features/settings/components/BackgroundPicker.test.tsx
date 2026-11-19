@@ -24,7 +24,6 @@ const preference = {
   ...defaultAppearance(),
   schemePreference: 'light',
   accentOverride: 'sky',
-  motionPreference: 'off',
   backgroundOverride: { kind: 'image', assetId: id },
 };
 beforeEach(() => {

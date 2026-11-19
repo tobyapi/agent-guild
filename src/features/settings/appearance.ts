@@ -2,7 +2,7 @@ import { notifyInfo } from '@/shared/ui';
 import { tAppearance } from './i18n/appearance';
 import { useStore } from 'zustand';
 import { resolveAppearance } from '@/shared/theme/resolve';
-import type { BackgroundSpec, SchemePreference, MotionPreference } from '@/shared/theme/types';
+import type { BackgroundSpec, SchemePreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
 import type { Accent } from './model/accent';
 
@@ -21,10 +21,6 @@ export function setSchemePreference(schemePreference: SchemePreference): void {
 
 export function setBackground(backgroundOverride: BackgroundSpec | null): void {
   controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
-}
-
-export function setMotionPreference(motionPreference: MotionPreference): void {
-  controller.setPreference({ ...controller.store.getState().preference, motionPreference });
 }
 
 /** 初回描画前に保存値を反映する。返す関数は監視の解除用。 */

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { DiagramTheme } from '../model/mermaid';
+import type { Scheme } from '@/shared/theme/types';
 
 function subscribe(notify: () => void): () => void {
   const observer = new MutationObserver(notify);
@@ -7,9 +7,9 @@ function subscribe(notify: () => void): () => void {
   return () => observer.disconnect();
 }
 
-const read = (): DiagramTheme => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+const read = (): Scheme => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
 
 /** いまのテーマ（<html data-theme>）。切り替わったら描き直せるように追従する */
-export function useDocumentTheme(): DiagramTheme {
+export function useDocumentTheme(): Scheme {
   return useSyncExternalStore(subscribe, read, () => 'dark');
 }

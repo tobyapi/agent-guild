@@ -50,7 +50,7 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
   expect([...group.querySelectorAll('[role="radio"]')].map((button) => button.textContent)).toEqual(['なし']);
   expect(screen.queryByRole('radiogroup', { name: /ガラス/ })).toBeNull();
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
-  fireEvent.click(screen.getByRole('radio', { name: '停止' }));
+  expect(screen.queryByRole('radiogroup', { name: '背景の動き' })).toBeNull();
   expect(document.documentElement.dataset).toMatchObject({
     theme: 'dark',
     glass: 'none',
@@ -72,7 +72,6 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
     schemePreference: 'dark',
     backgroundOverride: { kind: 'none' },
     accentOverride: 'sky',
-    motionPreference: 'off',
   });
 });
 
@@ -111,7 +110,7 @@ it('初回描画前に旧保存値を移し、設定画面とDOMに同じ選択�
 
 it('明暗とアクセントを相互に保持してv2に保存し、再起動後もUIを復元する', () => {
   stopAppearance();
-  const preference = { ...defaultAppearance(), motionPreference: 'off', backgroundOverride: { kind: 'none' } };
+  const preference = { ...defaultAppearance(), backgroundOverride: { kind: 'none' } };
   values.delete(LIBRARY_KEY);
   values.set(APPEARANCE_STORAGE_KEY, JSON.stringify(preference));
   stopAppearance = initAppearance();

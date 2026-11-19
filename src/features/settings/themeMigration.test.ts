@@ -31,7 +31,6 @@ it.each(
       schemePreference: scheme,
       backgroundOverride: background,
       accentOverride: 'silver',
-      motionPreference: 'off',
     };
     const h = appearanceHarness({ [OLD]: JSON.stringify(legacy) });
     h.controller.init();
@@ -141,7 +140,6 @@ it.each(
     ...defaultAppearance(),
     ...selection,
     accentOverride: 'sky' as const,
-    motionPreference: 'off' as const,
   };
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference) });
   h.controller.init();
@@ -184,7 +182,6 @@ it('retains independent v2 settings when the retired turtle theme has no backgro
     themeId: 'turtle',
     schemePreference: 'system' as const,
     accentOverride: 'silver' as const,
-    motionPreference: 'off' as const,
   };
   const legacy = JSON.stringify({ ...preference, version: 1 });
   const h = appearanceHarness({ [KEY]: JSON.stringify(preference), [OLD]: legacy, [THEME]: 'light', [ACCENT]: 'sky' });

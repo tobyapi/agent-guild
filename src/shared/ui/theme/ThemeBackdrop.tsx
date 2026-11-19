@@ -1,17 +1,14 @@
 import { resolveBackground } from '@/shared/theme/backgrounds';
-import type { BackgroundSpec, MotionPreference } from '@/shared/theme/types';
-import { useBackdropMotion } from './useBackdropMotion';
+import type { BackgroundSpec } from '@/shared/theme/types';
 import styles from './ThemeBackdrop.module.css';
 
 interface Props {
   background: BackgroundSpec;
-  motion: MotionPreference;
   imageUrl?: string | null;
 }
 
 /** Decorative only. Assets use library UUIDs, never user-provided paths. */
-export function ThemeBackdrop({ background, motion, imageUrl }: Props) {
-  const running = useBackdropMotion(motion);
+export function ThemeBackdrop({ background, imageUrl }: Props) {
   const resolved = resolveBackground(background);
   if (resolved.kind === 'none' || !imageUrl) return null;
   return (
@@ -20,7 +17,6 @@ export function ThemeBackdrop({ background, motion, imageUrl }: Props) {
       aria-hidden="true"
       className={styles.backdrop}
       data-asset={resolved.assetId}
-      data-running={running ? 'true' : 'false'}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { useBackdropEnvironment } from './useBackdropEnvironment';
+import { useDocumentTheme } from '@/shared/ui/theme/useDocumentTheme';
 import { useBackgroundImage, useAppearanceStore } from '@/features/settings';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import { ThemeBackdrop } from '@/shared/ui/theme/ThemeBackdrop';
@@ -8,12 +8,12 @@ export function AppearanceBackdrop() {
   const preference = useAppearanceStore((state) => state.preference);
   const themeRegistry = useAppearanceStore((state) => state.registry);
   const missingId = useAppearanceStore((state) => state.missingId);
-  const { scheme } = useBackdropEnvironment();
+  const scheme = useDocumentTheme();
   const appearance = resolveAppearance(preference, themeRegistry, scheme);
   const background = appearance.backgroundOverride;
   const imageUrl = useBackgroundImage(
     background.kind === 'image' && background.assetId !== missingId ? background.assetId : null,
     true,
   );
-  return <ThemeBackdrop background={background} motion={appearance.motion} imageUrl={imageUrl} />;
+  return <ThemeBackdrop background={background} imageUrl={imageUrl} />;
 }

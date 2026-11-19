@@ -49,9 +49,6 @@ export const en: Messages<typeof ja> = {
   backgroundDawn: 'Dawn hills (light image)',
   backgroundNight: 'Night hills (dark image)',
   backgroundAurora: 'Aurora (animated)',
-  motionLabel: 'Background motion',
-  motionSystem: 'Follow OS',
-  motionOff: 'Off',
   backgroundGenerate: 'Generate',
   backgroundGenerateTitle: 'Generate background',
   backgroundGenerateHint:

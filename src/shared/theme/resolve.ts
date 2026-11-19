@@ -18,6 +18,5 @@ export function resolveAppearance(
     accentOverride: selected.accentOverride,
     backgroundOverride: background,
     glass: background.kind === 'none' ? 'none' : 'frosted',
-    motion: selected.motionPreference,
   };
 }

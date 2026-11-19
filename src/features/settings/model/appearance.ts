@@ -28,7 +28,6 @@ export function parseAppearance(stored: string, registry: ThemeRegistry): Appear
     schemePreference: value.schemePreference,
     accentOverride: value.accentOverride,
     backgroundOverride: value.themeId === 'guild' ? (background ?? { kind: 'none' }) : background,
-    motionPreference: value.motionPreference,
   };
   return value.version === 1 ? unifyAppearance(preference) : preference;
 }
@@ -61,7 +60,7 @@ function validateFields(
   value: Record<string, unknown>,
   registry: ThemeRegistry,
 ): asserts value is Record<string, unknown> &
-  Pick<AppearancePreference, 'themeId' | 'schemePreference' | 'accentOverride' | 'motionPreference'> {
+  Pick<AppearancePreference, 'themeId' | 'schemePreference' | 'accentOverride'> {
   if (typeof value.themeId !== 'string' || !hasThemeVariants(registry, value.themeId)) {
     throw new AppearanceValidationError('unknown theme or missing variants');
   }
@@ -70,9 +69,6 @@ function validateFields(
   }
   if (value.accentOverride !== null && !ACCENTS.some((id) => id !== 'default' && id === value.accentOverride)) {
     throw new AppearanceValidationError('invalid accent override');
-  }
-  if (value.motionPreference !== 'system' && value.motionPreference !== 'off') {
-    throw new AppearanceValidationError('invalid motion preference');
   }
 }
 

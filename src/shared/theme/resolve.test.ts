@@ -40,14 +40,12 @@ describe('resolveAppearance', () => {
     const preference = Object.freeze({
       ...defaultAppearance(),
       accentOverride: 'sky' as const,
-      motionPreference: 'off' as const,
     });
     expect(resolveAppearance(preference, themeRegistry, 'light')).toEqual({
       themeId: 'guild',
       scheme: 'dark',
       accentOverride: 'sky',
       backgroundOverride: { kind: 'none' },
-      motion: 'off',
       glass: 'none',
     });
   });

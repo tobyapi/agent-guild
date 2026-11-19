@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDocumentTheme } from '../hooks/useDocumentTheme';
+import { useDocumentTheme } from '@/shared/ui/theme/useDocumentTheme';
 import { renderDiagram } from '../model/mermaid';
 import type { DiagramResult } from '../model/mermaid';
 import { t } from '../i18n';

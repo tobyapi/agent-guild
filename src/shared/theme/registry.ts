@@ -20,7 +20,6 @@ export function defaultAppearance(): AppearancePreference {
     schemePreference: 'dark',
     accentOverride: null,
     backgroundOverride: { kind: 'none' },
-    motionPreference: 'system',
   };
 }
 
