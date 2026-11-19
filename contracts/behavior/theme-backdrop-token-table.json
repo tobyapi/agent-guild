@@ -3498,7 +3498,7 @@
     },
     {
       "file": "src/shared/api/mock/seed.ts",
-      "line": 149,
+      "line": 158,
       "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
     },
     {
@@ -20899,7 +20899,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20909,7 +20909,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
@@ -36650,7 +36650,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36660,7 +36660,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
@@ -51001,7 +51001,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -51011,7 +51011,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
@@ -65352,7 +65352,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65362,7 +65362,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
@@ -81103,7 +81103,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81113,7 +81113,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
@@ -95454,7 +95454,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/shared/api/mock/seed.ts:149",
+          "name": "src/shared/api/mock/seed.ts:158",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95464,7 +95464,7 @@
           "sources": [
             {
               "file": "src/shared/api/mock/seed.ts",
-              "line": 149,
+              "line": 158,
               "expression": "me: { name: 'ユーザー', avatar: '🙂', color: '#f0ba5f', frame: '' },"
             }
           ],
