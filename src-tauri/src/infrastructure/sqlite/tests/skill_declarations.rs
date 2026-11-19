@@ -19,7 +19,9 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
     let dir = temp_dir("skill-declarations");
     let path = dir.join("guild.db");
     let db = Arc::new(Database::open(&path).unwrap());
+    super::channels_messages::add_agents(&db);
     SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    super::channels_messages::add_root(&db);
     let repository = SqliteMessageRepository::new(db.clone());
     let progress = NewMessage {
         kind: MessageKind::Progress,
@@ -60,7 +62,7 @@ fn skill_declarations_survive_database_reopen_without_crossing_messages() {
     let reopened = Arc::new(Database::open(&path).unwrap());
     let repository = SqliteMessageRepository::new(reopened.clone());
     let restored = repository.list(&ChannelId::new("c1"), MessageFilter::All, None, 10).unwrap();
-    assert_eq!(restored, expected);
+    assert_eq!(&restored[1..], expected);
     let cutoffs = SqliteSkillRecordRepository::new(reopened.clone());
     assert!(cutoffs.is_truncated("run-a").unwrap());
     assert!(!cutoffs.is_truncated("run-b").unwrap());

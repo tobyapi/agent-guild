@@ -1,12 +1,9 @@
 //! ギルドのプロフィール（名前と紋）のユースケース。DB の meta 表に JSON で保存する（マイグレーションは不要）。
 
-use guild_domain::guild::{normalize_guild, read_stored_guild, GuildProfile};
+use guild_domain::guild::{normalize_guild, GuildProfile};
 
-use crate::error::{AppError, AppResult};
+use crate::error::AppResult;
 use crate::services::Ports;
-
-/// meta 表のキー
-pub const GUILD_KEY: &str = "guild_profile";
 
 #[derive(Clone)]
 pub struct GuildService {
@@ -25,8 +22,7 @@ impl GuildService {
 
     pub fn update(&self, guild: GuildProfile) -> AppResult<GuildProfile> {
         let guild = normalize_guild(guild)?;
-        let json = serde_json::to_string(&guild).map_err(|e| AppError::Internal(e.to_string()))?;
-        self.ports.meta.set(GUILD_KEY, &json)?;
+        self.ports.guild_state.save_guild(&guild)?;
         self.ports.events.state_changed();
         Ok(guild)
     }
@@ -34,5 +30,5 @@ impl GuildService {
 
 /// 保存したギルドのプロフィールを読む（Snapshot の組み立てでも使う）
 pub(crate) fn load(ports: &Ports) -> AppResult<GuildProfile> {
-    Ok(read_stored_guild(ports.meta.get(GUILD_KEY)?.as_deref()))
+    ports.guild_state.guild()
 }

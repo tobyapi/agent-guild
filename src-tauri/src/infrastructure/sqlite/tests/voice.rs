@@ -7,13 +7,15 @@ use super::{saved_agent, temp_dir};
 use crate::infrastructure::sqlite::{Database, SqliteAgentRepository};
 
 #[test]
-fn voice_old_choice_migrates_to_auto_when_read() {
+fn voice_constraints_reject_unknown_modes_and_preserve_intensity() {
     let dir = temp_dir("voice-persistence");
     let path = dir.join("guild.db");
     let db = Arc::new(Database::open(&path).unwrap());
     let mut agent = saved_agent(&db, "voice-agent", "ミナ", 1);
     assert_eq!(agent.voice, VoiceSettings::default());
     agent.voice = VoiceSettings { mode: "045".to_owned(), intensity: VoiceIntensity::Medium };
+    assert!(SqliteAgentRepository::new(db.clone()).update(&agent).is_err());
+    agent.voice.mode = "auto".into();
     SqliteAgentRepository::new(db.clone()).update(&agent).unwrap();
     drop(db);
     let db = Arc::new(Database::open(&path).unwrap());

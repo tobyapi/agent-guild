@@ -1,7 +1,7 @@
 use super::TempDir;
 use crate::infrastructure::{
     settings::SettingsFile,
-    sqlite::{Database, SqliteMetaRepository},
+    sqlite::{Database, SqliteGuildStateRepository},
 };
 use guild_application::{
     notifications::{NotificationOutcome, NotificationService},
@@ -31,7 +31,7 @@ fn notification_receipt_survives_sqlite_reopen() {
         let db = Arc::new(Database::open(&database).unwrap());
         let service = NotificationService::new(
             Arc::new(SettingsFile::in_dir(&dir.0)),
-            Arc::new(SqliteMetaRepository::new(db)),
+            Arc::new(SqliteGuildStateRepository::new(db)),
             notifier.clone(),
         );
         let result = service.submit_once("same-message", "Manager", "Done").unwrap();
@@ -49,7 +49,7 @@ fn disabled_notification_receipt_and_setting_survive_sqlite_reopen() {
         let db = Arc::new(Database::open(&database).unwrap());
         let service = NotificationService::new(
             Arc::new(SettingsFile::in_dir(&dir.0)),
-            Arc::new(SqliteMetaRepository::new(db)),
+            Arc::new(SqliteGuildStateRepository::new(db)),
             notifier.clone(),
         );
         if attempt == 0 {

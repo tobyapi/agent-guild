@@ -30,7 +30,7 @@ use crate::infrastructure::skill_library::FsSkillLibrary;
 use crate::infrastructure::spawner::TauriSpawner;
 use crate::infrastructure::sqlite::{
     SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteFrameRepository,
-    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
+    SqliteGuildStateRepository, SqliteMessageRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
     SqliteSkillRepository, SqliteStatisticsRepository,
 };
 use crate::infrastructure::workspace::FsWorkspace;
@@ -48,6 +48,8 @@ pub fn ready(
     let events: Arc<dyn EventPublisher> = Arc::new(TauriEventPublisher::new(app.clone()));
     let spawner: Arc<dyn Spawner> = Arc::new(TauriSpawner);
     let clock: Arc<dyn Clock> = Arc::new(SystemClock::new());
+    let state = Arc::new(SqliteGuildStateRepository::new(db.clone()));
+    seed::run_once(&state, &UuidGenerator, clock.as_ref())?;
     let settings_file = SettingsFile::in_dir(&paths.config_dir);
     let auth_modes = settings_file.load()?.backend_auth_modes;
     let runtime = RunnerRuntime::start(
@@ -73,12 +75,12 @@ pub fn ready(
         profile: Arc::new(SqliteProfileRepository::new(db.clone())),
         frames: Arc::new(SqliteFrameRepository::new(db.clone())),
         frame_images: Arc::new(FsFrameImages::new(&paths.data_dir)),
-        meta: Arc::new(SqliteMetaRepository::new(db.clone())),
+        guild_state: state.clone(),
         runtime: runtime.clone(),
         events,
         notifications: Arc::new(guild_application::notifications::NotificationService::new(
             Arc::new(SettingsFile::in_dir(&paths.config_dir)),
-            Arc::new(SqliteMetaRepository::new(db.clone())),
+            state,
             Arc::new(crate::infrastructure::notifications::TauriNotifier(app.config().identifier.clone())),
         )),
         workspace: Arc::new(FsWorkspace::new(&paths.data_dir)),
@@ -93,7 +95,6 @@ pub fn ready(
     app.manage(LanguageService::new(storage.settings.clone(), Some(runner)));
     let services = AppServices::new(ports.clone(), storage, exporter);
     manage_local_files(app, paths);
-    seed::run_once(&services, ports.meta.as_ref())?;
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
     app.manage(guild_application::backgrounds::BackgroundService::new(Arc::new(
         crate::infrastructure::backgrounds::FsBackgrounds::new(&paths.data_dir),

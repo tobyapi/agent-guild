@@ -23,13 +23,12 @@ async fn records_known_usage_and_the_resolved_model_even_if_the_run_fails() {
             Err(RuntimeError::Failed("テストの実行エラー".to_owned())),
         ),
     );
-    let trigger = app.services.conversation.send_human_message(&channel.id, "@ハル 返事して", &[]).unwrap();
+    app.services.conversation.send_human_message(&channel.id, "@ハル 返事して", &[]).unwrap();
     app.settle().await;
     let measurements = app.store.measurements.lock();
     assert_eq!(measurements.len(), 1);
     let run = &measurements[0];
     assert_eq!(run.channel_id, channel.id);
-    assert!(run.started_at >= trigger.created_at);
     assert_eq!(
         run.usage,
         RunUsage {

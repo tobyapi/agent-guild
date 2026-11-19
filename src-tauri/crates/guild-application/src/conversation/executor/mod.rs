@@ -90,7 +90,7 @@ async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -
         Ok(None) => return RunOutcome::Skipped,
         Err(error) => return RunOutcome::Failed(error.to_string()),
     };
-    let measurement = measurement::Measurement::new(ports, job_id, &job.channel_id, &request);
+    let measurement = measurement::Measurement::new(job_id, &job.channel_id, &request);
     let agent_name = match ports.agents.get(&job.agent_id) {
         Ok(Some(agent)) => agent.name,
         Ok(None) => return RunOutcome::Skipped,

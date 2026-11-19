@@ -1,6 +1,6 @@
 //! インメモリのリポジトリ（SQLite の代わり）: エージェントとチャンネル。残りは records.rs。
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 use guild_application::ports::{AgentRepository, ChannelRepository, SkillRecordRepository, StatisticsRepository};
 use guild_application::{AppError, AppResult};
@@ -29,7 +29,10 @@ pub struct MemoryStore {
     pub skills: Mutex<Vec<Skill>>,
     pub profile: Mutex<Option<Profile>>,
     pub frames: Mutex<Vec<CustomFrame>>,
-    pub meta: Mutex<HashMap<String, String>>,
+    pub seeded: Mutex<bool>,
+    pub guild: Mutex<guild_domain::guild::GuildProfile>,
+    pub interrupted: Mutex<Vec<guild_application::ports::InterruptedJob>>,
+    pub receipts: Mutex<HashSet<String>>,
     pub reject_notification_receipts: Mutex<bool>,
 }
 

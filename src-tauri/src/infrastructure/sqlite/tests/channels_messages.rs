@@ -4,11 +4,32 @@ use guild_application::ports::{ChannelRepository, MessageFilter, MessageReposito
 use guild_domain::attachment::Attachment;
 use guild_domain::author::{Author, MemberId};
 use guild_domain::channel::Channel;
-use guild_domain::ids::{AgentId, AttachmentId, ChannelId, DelegationId, MessageId};
+use guild_domain::ids::{AgentId, AttachmentId, ChannelId, MessageId};
 use guild_domain::message::{MessageKind, NewMessage};
 
 use super::memory;
 use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteMessageRepository};
+
+pub(super) fn member_database() -> std::sync::Arc<crate::infrastructure::sqlite::Database> {
+    let db = memory();
+    add_agents(&db);
+    db
+}
+pub(super) fn add_agents(db: &std::sync::Arc<crate::infrastructure::sqlite::Database>) {
+    for id in ["a", "b", "c"] {
+        super::saved_agent(db, id, id, 0);
+    }
+}
+pub(super) fn add_root(db: &std::sync::Arc<crate::infrastructure::sqlite::Database>) {
+    db.with(|c| {
+        c.execute(
+            "INSERT INTO messages (id,channel_id,author_id,content,kind,root_id,depth,created_at)
+        VALUES ('m0','c1','me','','chat','m0',0,0)",
+            [],
+        )
+    })
+    .unwrap();
+}
 
 pub(super) fn lobby() -> Channel {
     Channel {
@@ -41,14 +62,14 @@ pub(super) fn new_message(id: &str, content: &str) -> NewMessage {
         reply_to_id: Some(MessageId::new("m0")),
         root_id: MessageId::new("m0"),
         depth: 2,
-        delegation_id: Some(DelegationId::new("d1")),
+        delegation_id: None,
         created_at: 100,
     }
 }
 
 #[test]
 fn channels_keep_members_in_join_order() {
-    let db = memory();
+    let db = member_database();
     let repository = SqliteChannelRepository::new(db);
     let mut channel = lobby();
     repository.insert(&channel).unwrap();
@@ -71,8 +92,9 @@ fn channels_keep_members_in_join_order() {
 
 #[test]
 fn messages_get_increasing_seq_and_page_backwards() {
-    let db = memory();
+    let db = member_database();
     SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    add_root(&db);
     let repository = SqliteMessageRepository::new(db);
     let first = repository.insert(new_message("m1", "一つ目")).unwrap();
     let second = repository.insert(new_message("m2", "二つ目")).unwrap();
@@ -81,7 +103,7 @@ fn messages_get_increasing_seq_and_page_backwards() {
 
     let channel = ChannelId::new("c1");
     assert_eq!(repository.list(&channel, MessageFilter::All, None, 2).unwrap(), vec![second.clone(), third]);
-    assert_eq!(repository.list(&channel, MessageFilter::All, Some(second.seq), 50).unwrap(), vec![first.clone()]);
+    assert_eq!(repository.list(&channel, MessageFilter::All, Some(second.seq), 1).unwrap(), vec![first.clone()]);
     assert_eq!(first.mentions, vec![AgentId::new("b")]);
     assert_eq!(first.reply_to_id, Some(MessageId::new("m0")));
     assert_eq!(first.attachments[0].name, "screen.png", "添付のメタデータも保存する");
@@ -91,8 +113,9 @@ fn messages_get_increasing_seq_and_page_backwards() {
 
 #[test]
 fn messages_of_conversations_are_the_latest_within_the_limit() {
-    let db = memory();
+    let db = member_database();
     SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    add_root(&db);
     let repository = SqliteMessageRepository::new(db);
     let in_root = |id: &str, root: &str| NewMessage { root_id: MessageId::new(root), ..new_message(id, id) };
     let a1 = repository.insert(in_root("a1", "a1")).unwrap();
@@ -109,8 +132,9 @@ fn messages_of_conversations_are_the_latest_within_the_limit() {
 
 #[test]
 fn progress_posts_can_be_left_out_or_listed_alone() {
-    let db = memory();
+    let db = member_database();
     SqliteChannelRepository::new(db.clone()).insert(&lobby()).unwrap();
+    add_root(&db);
     let repository = SqliteMessageRepository::new(db);
     let progress = |id: &str| NewMessage { kind: MessageKind::Progress, ..new_message(id, id) };
     let reply1 = repository.insert(new_message("r1", "返答1")).unwrap();
@@ -119,18 +143,20 @@ fn progress_posts_can_be_left_out_or_listed_alone() {
     let reply2 = repository.insert(new_message("r2", "返答2")).unwrap();
     let channel = ChannelId::new("c1");
     let roots = [MessageId::new("m0")];
+    let root = repository.get(&roots[0]).unwrap().unwrap();
     let (without, only) = (MessageFilter::WithoutProgress, MessageFilter::ProgressOnly);
     assert_eq!(repository.list(&channel, without, None, 2).unwrap(), vec![reply1.clone(), reply2.clone()]);
     assert_eq!(repository.list(&channel, only, None, 1).unwrap(), vec![post2.clone()]);
-    assert_eq!(repository.list_in_conversations(&channel, &roots, without, 10).unwrap(), vec![reply1, reply2]);
+    assert_eq!(repository.list_in_conversations(&channel, &roots, without, 10).unwrap(), vec![root, reply1, reply2]);
     assert_eq!(repository.list_in_conversations(&channel, &roots, only, 10).unwrap(), vec![post1, post2]);
 }
 
 #[test]
 fn deleting_a_channel_removes_its_members_and_messages() {
-    let db = memory();
+    let db = member_database();
     let channels = SqliteChannelRepository::new(db.clone());
     channels.insert(&lobby()).unwrap();
+    add_root(&db);
     let messages = SqliteMessageRepository::new(db);
     messages.insert(new_message("m1", "消える発言")).unwrap();
     channels.delete(&ChannelId::new("c1")).unwrap();

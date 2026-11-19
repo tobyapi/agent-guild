@@ -1,29 +1,19 @@
-//! 旧設定を読み替えるだけで、保存値もユーザーの作業データも変更しない。
-use super::memory;
+use super::channels_messages::{lobby, member_database};
 use crate::infrastructure::sqlite::SqliteChannelRepository;
 use guild_application::ports::ChannelRepository;
-use guild_domain::channel::{ChannelWorkspace, WorkspaceMode};
+use guild_domain::author::MemberId;
 
 #[test]
-fn legacy_workspaces_load_as_shared_without_rewriting_saved_settings() {
-    let cases: serde_json::Value =
-        serde_json::from_str(include_str!("../../../../../contracts/behavior/channel-workspaces.json")).unwrap();
-    for case in cases.as_array().unwrap() {
-        let db = memory();
-        let repository = SqliteChannelRepository::new(db.clone());
-        let channel = super::channels_messages::lobby();
-        repository.insert(&channel).unwrap();
-        let original = case["saved"].to_string();
-        db.with(|conn| conn.execute("UPDATE channels SET workspace_json = ?1", [&original])).unwrap();
-        let expected: ChannelWorkspace = serde_json::from_value(case["loaded"].clone()).unwrap();
-        let loaded = repository.get(&channel.id).unwrap().unwrap();
-        assert_eq!(loaded.workspace, expected);
-        assert_eq!(loaded.workspace.mode, WorkspaceMode::Shared);
-        assert_eq!(loaded.workspace.folder, None);
-        assert_eq!(repository.list().unwrap()[0], loaded);
-        repository.update(&loaded).unwrap();
-        let still_saved: String =
-            db.with(|conn| conn.query_row("SELECT workspace_json FROM channels", [], |row| row.get(0))).unwrap();
-        assert_eq!(still_saved, original, "read and unrelated updates must preserve the original settings");
+fn membership_and_lobby_constraints_reject_invalid_writes() {
+    let db = member_database();
+    let repo = SqliteChannelRepository::new(db);
+    let mut ch = lobby();
+    ch.is_lobby = true;
+    repo.insert(&ch).unwrap();
+    for member in ["system", "missing"] {
+        assert!(repo.add_member(&ch.id, &MemberId::from(member.to_owned())).is_err());
     }
+    ch.id = guild_domain::ids::ChannelId::new("other");
+    assert!(repo.insert(&ch).is_err());
+    assert_eq!(repo.list().unwrap().len(), 1);
 }

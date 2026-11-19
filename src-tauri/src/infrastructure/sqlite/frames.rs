@@ -13,7 +13,7 @@ use super::database::Database;
 
 const KIND_SVG: &str = "svg";
 const KIND_PNG: &str = "png";
-const COLUMNS: &str = "id, name, kind, svg, created_at";
+const COLUMNS: &str = "id, name, kind, svg_text, created_at";
 
 pub struct SqliteFrameRepository {
     db: Arc<Database>,
@@ -48,13 +48,13 @@ impl FrameRepository for SqliteFrameRepository {
 
     fn insert(&self, frame: &CustomFrame) -> AppResult<()> {
         let (kind, svg) = match &frame.art {
-            FrameArt::Svg { svg } => (KIND_SVG, svg.as_str()),
-            FrameArt::Png => (KIND_PNG, ""),
+            FrameArt::Svg { svg } => (KIND_SVG, Some(svg.as_str())),
+            FrameArt::Png => (KIND_PNG, None),
         };
         self.db
             .with(|conn| {
                 conn.execute(
-                    "INSERT INTO avatar_frames (id, name, kind, svg, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+                    "INSERT INTO avatar_frames (id, name, kind, svg_text, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
                     params![frame.id, frame.name, kind, svg, frame.created_at],
                 )
             })

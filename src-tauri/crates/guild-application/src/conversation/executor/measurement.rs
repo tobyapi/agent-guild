@@ -18,13 +18,12 @@ pub(super) struct Measurement {
 }
 
 impl Measurement {
-    pub(super) fn new(ports: &Ports, job_id: &str, channel: &ChannelId, request: &RuntimeRequest) -> Self {
+    pub(super) fn new(job_id: &str, channel: &ChannelId, request: &RuntimeRequest) -> Self {
         let model = (!request.model.is_empty()).then(|| request.model.clone());
         let record = RunMeasurement {
             job_id: job_id.to_owned(),
             channel_id: channel.clone(),
             backend: request.backend.clone(),
-            started_at: ports.clock.now_ms(),
             duration_ms: 0,
             usage: RunUsage { model, ..RunUsage::default() },
         };

@@ -5,16 +5,21 @@ use std::sync::Arc;
 use guild_application::ports::{MessageFilter, MessageRepository};
 use guild_application::AppResult;
 use guild_domain::author::Author;
+use guild_domain::delegation::Delegation;
 use guild_domain::ids::{ChannelId, DelegationId, MessageId};
 use guild_domain::message::{Message, MessageKind, NewMessage};
-use rusqlite::{params, params_from_iter, OptionalExtension, Row};
+use rusqlite::{params, params_from_iter, Connection, OptionalExtension, Row};
 
 use super::codec::{json_column, parsed_column, storage, to_json};
 use super::database::Database;
 
 /// read_message が読む列（この順）
-const COLUMNS: &str = "seq, id, channel_id, author_id, content, attachments, kind, mentions, reply_to_id, root_id, \
-                       depth, delegation_id, created_at, skill_usage";
+const COLUMNS: &str = "seq,id,channel_id,author_id,content,
+    (SELECT json_group_array(json_object('id',attachment_id,'name',name,'mediaType',media_type,'size',size_bytes))
+     FROM (SELECT * FROM message_attachments WHERE message_id=messages.id ORDER BY position)),
+    kind,(SELECT json_group_array(actor_id) FROM
+          (SELECT actor_id FROM message_mentions WHERE message_id=messages.id ORDER BY position)),
+    reply_to_id,root_id,depth,(SELECT id FROM delegations WHERE source_message_id=messages.id),created_at,skill_usage_json";
 
 pub struct SqliteMessageRepository {
     db: Arc<Database>,
@@ -27,30 +32,17 @@ impl SqliteMessageRepository {
 }
 
 impl MessageRepository for SqliteMessageRepository {
-    fn insert(&self, message: NewMessage) -> AppResult<Message> {
+    fn publish(&self, message: NewMessage, delegation: Option<&Delegation>) -> AppResult<Message> {
         let seq = self
             .db
             .with(|conn| {
-                conn.execute(
-                    "INSERT INTO messages (id, channel_id, author_id, content, attachments, kind, mentions, reply_to_id, \
-                     root_id, depth, delegation_id, created_at, skill_usage) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
-                    params![
-                        message.id.as_str(),
-                        message.channel_id.as_str(),
-                        message.author_id.as_str(),
-                        message.content,
-                        to_json(&message.attachments)?,
-                        message.kind.as_str(),
-                        to_json(&message.mentions)?,
-                        message.reply_to_id.as_ref().map(MessageId::as_str),
-                        message.root_id.as_str(),
-                        message.depth,
-                        message.delegation_id.as_ref().map(DelegationId::as_str),
-                        message.created_at,
-                        to_json(&message.skill_usage)?,
-                    ],
-                )?;
-                Ok(conn.last_insert_rowid())
+                let tx = conn.unchecked_transaction()?;
+                let seq = store_message(&tx, &message)?;
+                if let Some(delegation) = delegation {
+                    super::delegation_rows::insert_rows(&tx, delegation)?;
+                }
+                tx.commit()?;
+                Ok(seq)
             })
             .map_err(storage)?;
         Ok(message.into_message(seq))
@@ -118,6 +110,54 @@ impl MessageRepository for SqliteMessageRepository {
         messages.reverse();
         Ok(messages)
     }
+}
+
+pub(super) fn store_message(conn: &Connection, m: &NewMessage) -> rusqlite::Result<i64> {
+    let reply = m.reply_to_id.as_ref().map(MessageId::as_str);
+    let inserted = conn.execute(
+        "INSERT INTO messages
+        (id,channel_id,author_id,content,kind,reply_to_id,root_id,depth,created_at,skill_usage_json)
+        SELECT ?1,?2,?3,?4,?5,?6,?7,?8,?9,?10
+        WHERE (?6 IS NULL OR EXISTS (SELECT 1 FROM messages WHERE id=?6 AND channel_id=?2))
+        AND (?7=?1 OR EXISTS (SELECT 1 FROM messages WHERE id=?7 AND channel_id=?2))",
+        params![
+            m.id.as_str(),
+            m.channel_id.as_str(),
+            m.author_id.as_str(),
+            m.content,
+            m.kind.as_str(),
+            reply,
+            m.root_id.as_str(),
+            m.depth,
+            m.created_at,
+            m.skill_usage.as_ref().map(to_json).transpose()?
+        ],
+    )?;
+    if inserted != 1 {
+        return Err(rusqlite::Error::QueryReturnedNoRows);
+    }
+    let seq = conn.last_insert_rowid();
+    for (position, a) in (0_i64..).zip(m.attachments.iter()) {
+        conn.execute(
+            "INSERT INTO message_attachments (message_id,position,attachment_id,name,media_type,size_bytes)
+            VALUES (?1,?2,?3,?4,?5,?6)",
+            params![
+                m.id.as_str(),
+                position,
+                a.id.as_str(),
+                a.name,
+                a.media_type,
+                i64::try_from(a.size).map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?
+            ],
+        )?;
+    }
+    for (position, agent) in (0_i64..).zip(m.mentions.iter()) {
+        conn.execute(
+            "INSERT INTO message_mentions (message_id,position,actor_id) VALUES (?1,?2,?3)",
+            params![m.id.as_str(), position, agent.as_str()],
+        )?;
+    }
+    Ok(seq)
 }
 
 /// 種類での絞り込みを WHERE に足す句（値は固定の識別子だけ）

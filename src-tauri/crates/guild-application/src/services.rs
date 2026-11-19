@@ -14,8 +14,8 @@ use crate::guild::GuildService;
 use crate::maintenance::Maintenance;
 use crate::ports::{
     AgentRepository, AgentRuntime, AppControl, AttachmentStore, ChannelRepository, Clock, DataExporter,
-    DelegationRepository, EventPublisher, Folders, FrameImageStore, FrameRepository, IdGenerator, MessageRepository,
-    MetaRepository, ProfileRepository, SettingsStore, SkillLibraryScanner, SkillRecordRepository, SkillRepository,
+    DelegationRepository, EventPublisher, Folders, FrameImageStore, FrameRepository, GuildStateRepository, IdGenerator,
+    MessageRepository, ProfileRepository, SettingsStore, SkillLibraryScanner, SkillRecordRepository, SkillRepository,
     Spawner, StatisticsRepository, Workspace,
 };
 use crate::profile::ProfileService;
@@ -44,7 +44,7 @@ pub struct Ports {
     pub frames: Arc<dyn FrameRepository>,
     /// 生成した枠の絵（PNG）
     pub frame_images: Arc<dyn FrameImageStore>,
-    pub meta: Arc<dyn MetaRepository>,
+    pub guild_state: Arc<dyn GuildStateRepository>,
     pub runtime: Arc<dyn AgentRuntime>,
     pub events: Arc<dyn EventPublisher>,
     pub notifications: Arc<crate::notifications::NotificationService>,

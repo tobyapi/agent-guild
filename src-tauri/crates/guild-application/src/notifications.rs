@@ -1,12 +1,12 @@
 //! 通知設定と永続的な送信試行記録。OSへの再送は行わず、会話の成否から切り離す。
 use crate::error::AppResult;
-use crate::ports::{DesktopNotifier, MetaRepository, SettingsStore};
+use crate::ports::{DesktopNotifier, GuildStateRepository, SettingsStore};
 use parking_lot::Mutex;
 use std::sync::Arc;
 
 pub struct NotificationService {
     settings: Arc<dyn SettingsStore>,
-    receipts: Arc<dyn MetaRepository>,
+    receipts: Arc<dyn GuildStateRepository>,
     notifier: Arc<dyn DesktopNotifier>,
     gate: Mutex<()>,
 }
@@ -21,7 +21,7 @@ pub enum NotificationOutcome {
 impl NotificationService {
     pub fn new(
         settings: Arc<dyn SettingsStore>,
-        receipts: Arc<dyn MetaRepository>,
+        receipts: Arc<dyn GuildStateRepository>,
         notifier: Arc<dyn DesktopNotifier>,
     ) -> Self {
         Self { settings, receipts, notifier, gate: Mutex::new(()) }
@@ -38,11 +38,9 @@ impl NotificationService {
     /// 送信より先に記録する。クラッシュやOSの成否不明でも同じ発言の通知は再送しない。
     pub fn submit_once(&self, message_id: &str, title: &str, body: &str) -> AppResult<NotificationOutcome> {
         let _guard = self.gate.lock();
-        let key = format!("desktop-notification:{message_id}");
-        if self.receipts.get(&key)?.is_some() {
+        if !self.receipts.claim_notification(message_id)? {
             return Ok(NotificationOutcome::Duplicate);
         }
-        self.receipts.set(&key, "attempted")?;
         if !self.enabled()? {
             return Ok(NotificationOutcome::Disabled);
         }

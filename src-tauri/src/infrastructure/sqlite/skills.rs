@@ -6,13 +6,12 @@ use guild_application::ports::SkillRepository;
 use guild_application::{AppError, AppResult};
 use guild_domain::ids::{AgentId, SkillId};
 use guild_domain::skill::{skill_name_taken, Skill, SkillSource};
-use rusqlite::types::Type;
 use rusqlite::{params, OptionalExtension, Row};
 
-use super::codec::{is_unique_violation, storage, to_json};
+use super::codec::{is_unique_violation, storage};
 use super::database::Database;
 
-const COLUMNS: &str = "id, agent_id, name, description, body, source, updated_at";
+const COLUMNS: &str = "id, agent_id, name, description, body, source_kind, source_path, builtin_name, updated_at";
 
 pub struct SqliteSkillRepository {
     db: Arc<Database>,
@@ -37,19 +36,23 @@ impl SkillRepository for SqliteSkillRepository {
 
     fn upsert(&self, skill: &Skill) -> AppResult<()> {
         let result = self.db.with(|conn| {
-            let source = skill.source.as_ref().map(to_json).transpose()?;
+            let (kind,path,builtin) = match &skill.source {
+                None => ("local",None,None),
+                Some(SkillSource::Linked { path }) => ("linked",Some(path),None),
+                Some(SkillSource::Builtin { name }) => ("builtin",None,Some(name)),
+            };
             conn.execute(
-                "INSERT INTO skills (id, agent_id, name, description, body, source, updated_at) \
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) \
+                "INSERT INTO skills (id, agent_id, name, description, body, source_kind, source_path, builtin_name, updated_at) \
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9) \
                  ON CONFLICT (id) DO UPDATE SET name = excluded.name, description = excluded.description, \
-                 body = excluded.body, source = excluded.source, updated_at = excluded.updated_at",
+                 body = excluded.body, source_kind = excluded.source_kind, source_path=excluded.source_path, builtin_name=excluded.builtin_name, updated_at = excluded.updated_at",
                 params![
                     skill.id.as_str(),
                     skill.agent_id.as_str(),
                     skill.name,
                     skill.description,
                     skill.body,
-                    source,
+                    kind, path, builtin,
                     skill.updated_at,
                 ],
             )
@@ -85,16 +88,15 @@ fn read_skill(row: &Row<'_>) -> rusqlite::Result<Skill> {
         body: row.get(4)?,
         source: read_source(row, 5)?,
         problem: None,
-        updated_at: row.get(6)?,
+        updated_at: row.get(8)?,
     })
 }
 
-/// source の列（SkillSource の JSON。NULL ならアプリ内のスキル）
 fn read_source(row: &Row<'_>, index: usize) -> rusqlite::Result<Option<SkillSource>> {
-    let Some(text) = row.get::<_, Option<String>>(index)? else {
-        return Ok(None);
-    };
-    serde_json::from_str(&text)
-        .map(Some)
-        .map_err(|error| rusqlite::Error::FromSqlConversionFailure(index, Type::Text, Box::new(error)))
+    match row.get::<_, String>(index)?.as_str() {
+        "local" => Ok(None),
+        "linked" => Ok(Some(SkillSource::Linked { path: row.get(index + 1)? })),
+        "builtin" => Ok(Some(SkillSource::Builtin { name: row.get(index + 2)? })),
+        other => Err(rusqlite::Error::InvalidColumnName(other.to_owned())),
+    }
 }

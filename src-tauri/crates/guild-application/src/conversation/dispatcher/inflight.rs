@@ -23,7 +23,7 @@ impl Actor {
         if summary == self.recorded {
             return;
         }
-        match self.ports.meta.set(interrupted::KEY, &summary) {
+        match self.ports.guild_state.replace_interrupted(&summary) {
             Ok(()) => self.recorded = summary,
             Err(error) => log::warn!("待機中のジョブの記録を保存できませんでした: {error}"),
         }

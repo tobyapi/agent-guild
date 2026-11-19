@@ -20,7 +20,7 @@ use crate::infrastructure::settings::SettingsFile;
 use crate::infrastructure::skill_library::FsSkillLibrary;
 use crate::infrastructure::sqlite::{
     Database, SqliteAgentRepository, SqliteChannelRepository, SqliteDelegationRepository, SqliteFrameRepository,
-    SqliteMessageRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
+    SqliteGuildStateRepository, SqliteMessageRepository, SqliteProfileRepository, SqliteSkillRecordRepository,
     SqliteSkillRepository, SqliteStatisticsRepository,
 };
 use crate::infrastructure::workspace::FsWorkspace;
@@ -33,9 +33,9 @@ impl Spawner for TokioSpawner {
     }
 }
 
-fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
+fn services(dir: &TempDir) -> (AppServices, Arc<SqliteGuildStateRepository>) {
     let db = Arc::new(Database::open_in_memory().unwrap());
-    let meta = Arc::new(SqliteMetaRepository::new(db.clone()));
+    let meta = Arc::new(SqliteGuildStateRepository::new(db.clone()));
     let ports = Ports {
         global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(Arc::new(
             SettingsFile::in_dir(&dir.0),
@@ -52,7 +52,7 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
         profile: Arc::new(SqliteProfileRepository::new(db.clone())),
         frames: Arc::new(SqliteFrameRepository::new(db.clone())),
         frame_images: Arc::new(FsFrameImages::new(&dir.0)),
-        meta: meta.clone(),
+        guild_state: meta.clone(),
         runtime: Arc::new(NoRuntime),
         events: Arc::new(Silent),
         notifications: Arc::new(guild_application::notifications::NotificationService::new(
@@ -84,8 +84,8 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteMetaRepository>) {
 async fn seeds_the_lobby_with_one_worker_once() {
     let dir = TempDir::new("seed");
     let (services, meta) = services(&dir);
-    run_once(&services, meta.as_ref()).unwrap();
-    run_once(&services, meta.as_ref()).unwrap();
+    run_once(&meta, &UuidGenerator, &SystemClock::new()).unwrap();
+    run_once(&meta, &UuidGenerator, &SystemClock::new()).unwrap();
 
     let snapshot = services.snapshot.get().unwrap();
     assert_eq!(snapshot.agents.len(), 1);

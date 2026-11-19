@@ -11,7 +11,7 @@ use super::stopping::StopWaiter;
 use super::Command;
 use crate::conversation::executor::{self, Committed, Ending, RunOutcome};
 use crate::conversation::posting::{self, Origin};
-use crate::conversation::{activity, interrupted, MAX_CONCURRENT_JOBS};
+use crate::conversation::{activity, MAX_CONCURRENT_JOBS};
 use crate::services::Ports;
 
 pub(super) struct Actor {
@@ -21,7 +21,7 @@ pub(super) struct Actor {
     pub(super) state: DispatchState,
     pub(super) waiters: Vec<StopWaiter>,
     /// 最後に保存した、待機・実行中のジョブの要約（inflight.rs）
-    pub(super) recorded: String,
+    pub(super) recorded: Vec<crate::ports::InterruptedJob>,
 }
 
 impl Actor {
@@ -30,7 +30,7 @@ impl Actor {
         sender: mpsc::UnboundedSender<Command>,
         activity_tx: watch::Sender<ActivityState>,
     ) -> Self {
-        let recorded = interrupted::EMPTY.to_owned();
+        let recorded = Vec::new();
         Self { ports, sender, activity_tx, state: DispatchState::default(), waiters: Vec::new(), recorded }
     }
 

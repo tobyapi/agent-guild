@@ -7,7 +7,7 @@ use rusqlite::{params, Connection, Row};
 use super::codec::parsed_column;
 
 pub(super) const COLUMNS: &str =
-    "id, channel_id, manager_id, message_id, status, summary_message_id, created_at, updated_at";
+    "id, channel_id, manager_id, source_message_id, status, summary_message_id, created_at, updated_at";
 
 /// 割り振りとサブタスクの行を書く
 pub(super) fn insert_rows(conn: &Connection, delegation: &Delegation) -> rusqlite::Result<()> {

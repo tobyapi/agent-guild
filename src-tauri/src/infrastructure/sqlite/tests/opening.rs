@@ -3,18 +3,19 @@
 use std::fs;
 use std::sync::Arc;
 
-use guild_application::ports::{AgentRepository, MetaRepository};
+use guild_application::ports::AgentRepository;
 use rusqlite::Connection;
 
 use super::{saved_agent, temp_dir};
-use crate::infrastructure::sqlite::migrations::{self, APPLICATION_ID};
-use crate::infrastructure::sqlite::{
-    inspect_database, Database, OpenError, SqliteAgentRepository, SqliteMetaRepository,
-};
+use crate::infrastructure::sqlite::schema::{APPLICATION_ID, VERSION};
+use crate::infrastructure::sqlite::{inspect_database, Database, OpenError, SqliteAgentRepository};
 
-fn header(path: &std::path::Path) -> (i32, usize) {
+fn header(path: &std::path::Path) -> (i32, i64) {
     let conn = Connection::open(path).unwrap();
-    (migrations::application_id(&conn).unwrap(), migrations::applied_version(&conn).unwrap())
+    (
+        conn.query_row("PRAGMA application_id", [], |r| r.get(0)).unwrap(),
+        conn.query_row("PRAGMA user_version", [], |r| r.get(0)).unwrap(),
+    )
 }
 
 #[test]
@@ -24,7 +25,7 @@ fn a_new_database_gets_the_application_id_and_schema() {
     let db = Arc::new(Database::open(&path).unwrap());
     saved_agent(&db, "a1", "ハル", 1);
     drop(db);
-    assert_eq!(header(&path), (APPLICATION_ID, migrations::latest_version()));
+    assert_eq!(header(&path), (APPLICATION_ID, VERSION));
     let reopened = Arc::new(Database::open(&path).unwrap());
     assert_eq!(SqliteAgentRepository::new(reopened.clone()).list().unwrap().len(), 1, "既存のデータを開ける");
     assert!(inspect_database(&path).is_ok());
@@ -60,19 +61,14 @@ fn reports_a_broken_file_as_corrupt() {
 }
 
 #[test]
-fn a_changed_schema_moves_the_old_database_aside_in_debug_builds() {
+fn a_changed_schema_is_refused_without_replacing_the_database() {
     let dir = temp_dir("outdated");
     let path = dir.join("guild.db");
-    let db = Arc::new(Database::open(&path).unwrap());
-    saved_agent(&db, "a1", "ハル", 1);
-    SqliteMetaRepository::new(db.clone()).set("schema_fingerprint", "0000").unwrap();
-    drop(db);
-
-    let reopened = Arc::new(Database::open(&path).unwrap());
-    assert!(SqliteAgentRepository::new(reopened).list().unwrap().is_empty(), "作り直された");
-    let names: Vec<String> =
-        fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
-    assert!(names.iter().any(|name| name.starts_with("guild.db.bak-")), "{names:?}");
+    drop(Database::open(&path).unwrap());
+    Connection::open(&path).unwrap().execute_batch("CREATE TABLE extra(x)").unwrap();
+    let before = fs::read(&path).unwrap();
+    assert!(matches!(Database::open(&path), Err(OpenError::Corrupt(_))));
+    assert_eq!(before, fs::read(&path).unwrap());
     fs::remove_dir_all(dir).unwrap();
 }
 
@@ -83,28 +79,9 @@ fn export_writes_a_consistent_copy() {
     saved_agent(&db, "a1", "ハル", 1);
     let copy = dir.join("copy.db");
     db.export_to(&copy).unwrap();
-    assert_eq!(header(&copy), (APPLICATION_ID, migrations::latest_version()));
+    assert_eq!(header(&copy), (APPLICATION_ID, VERSION));
     let copied = Arc::new(Database::open(&copy).unwrap());
     assert_eq!(SqliteAgentRepository::new(copied.clone()).list().unwrap()[0].name, "ハル");
     drop((db, copied));
     fs::remove_dir_all(dir).unwrap();
-}
-
-/// 凍結した移行は書き換えない: 配布済みのアプリのデータベースと指紋が合わなくなり、開けなくなる。
-/// スキーマを変えるときは新しい移行を末尾に足し、その指紋をここに足す（既存の行は変えない）
-#[test]
-fn frozen_migrations_keep_their_fingerprints() {
-    let frozen = [
-        "b9ebe7d784f86fd1",
-        "e90b30a50a9e4abc",
-        "ce03e20d1d737e55",
-        "201414d358f138da",
-        "477db875bafd7dfb",
-        "38d0abd74e58bd41",
-        "14512365f8e91d16",
-    ];
-    assert_eq!(frozen.len(), migrations::latest_version(), "足した移行の指紋を、この一覧にも足す");
-    for (index, expected) in frozen.iter().enumerate() {
-        assert_eq!(&migrations::fingerprint(index + 1), expected, "移行 {:04} までの指紋", index + 1);
-    }
 }

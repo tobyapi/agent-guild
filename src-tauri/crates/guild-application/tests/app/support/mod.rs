@@ -94,7 +94,7 @@ impl TestApp {
             profile: store.clone(),
             frames: store.clone(),
             frame_images: frame_images.clone(),
-            meta: store.clone(),
+            guild_state: store.clone(),
             runtime: runtime.clone(),
             events: events.clone(),
             notifications: notifications.clone(),

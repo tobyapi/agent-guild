@@ -7,7 +7,7 @@ use guild_domain::conversation::{
     format_reply, parse_mentions, route_no_answer, route_reply, JobMode, JobSpec, NoAnswer, RoutingContext,
 };
 use guild_domain::delegation::{carry_subtask, parse_tasks, starts_consultation};
-use guild_domain::ids::{AgentId, DelegationId, MessageId};
+use guild_domain::ids::{AgentId, MessageId};
 use guild_domain::locale;
 use guild_domain::message::{Message, MessageKind, NewMessage};
 
@@ -72,16 +72,20 @@ fn replied(
     ctx: &RoutingContext<'_>,
 ) -> AppResult<Committed> {
     let plan = if agent.behavior().can_delegate { parse_tasks(&content, &agent.id, ctx.agents) } else { None };
-    let delegation_id =
-        plan.as_ref().filter(|plan| !plan.tasks.is_empty()).map(|_| DelegationId::new(ports.ids.new_id()));
-    let reply = post_reply(ports, job, agent, content, usage, ctx.agents, delegation_id.clone())?;
+    let mut reply = build_reply(ports, job, agent, content, usage, ctx.agents);
+    let delegation = plan.as_ref().and_then(|plan| delegate::prepare(ports, &reply, plan));
+    reply.delegation_id = delegation.as_ref().map(|d| d.id.clone());
+    let reply = ports.messages.publish(reply, delegation.as_ref())?;
+    ports.events.message_created(&reply);
+    if let Some(d) = &delegation {
+        ports.events.delegation_changed(d);
+    }
     let mut routing = route_reply(&reply, job, ctx);
     carry_subtask(job, &mut routing);
     let consulted = starts_consultation(&routing);
-    let delegation = match plan {
-        Some(plan) => delegate::start(ports, &reply, plan, delegation_id, ctx, &mut routing)?,
-        None => None,
-    };
+    if let Some(plan) = plan {
+        delegate::route(&reply, plan, delegation.as_ref(), ctx, &mut routing);
+    }
     let continues = consulted || delegation.is_some();
     let origin = Origin::of(&reply);
     Ok(Committed {
@@ -101,20 +105,17 @@ fn no_answer(job: &JobSpec, agent: &Agent, reason: NoAnswer, ctx: &RoutingContex
     Committed { routing, ending, delegation: None }
 }
 
-fn post_reply(
+fn build_reply(
     ports: &Ports,
     job: &JobSpec,
     agent: &Agent,
     content: String,
     usage: guild_domain::skill_usage::SkillUsage,
     agents: &[Agent],
-    delegation_id: Option<DelegationId>,
-) -> AppResult<Message> {
+) -> NewMessage {
     let mentions: Vec<AgentId> = parse_mentions(&content, agents).into_iter().filter(|id| id != &agent.id).collect();
     let kind = if job.mode == JobMode::Autonomous { MessageKind::Autonomous } else { MessageKind::Chat };
-    let message =
-        NewMessage { delegation_id, skill_usage: Some(usage), ..from_job(ports, job, agent, content, kind, mentions) };
-    posting::publish(ports, message)
+    NewMessage { skill_usage: Some(usage), ..from_job(ports, job, agent, content, kind, mentions) }
 }
 
 /// 失敗はそのエージェント名義の kind=error の発言にする

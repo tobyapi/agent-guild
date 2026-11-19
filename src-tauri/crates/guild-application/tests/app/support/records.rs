@@ -1,7 +1,7 @@
 //! インメモリのリポジトリ（発言・割り振り・スキル・プロフィール・枠・meta）。
 
 use guild_application::ports::{
-    DelegationRepository, FrameRepository, MessageFilter, MessageRepository, MetaRepository, ProfileRepository,
+    DelegationRepository, FrameRepository, GuildStateRepository, MessageFilter, MessageRepository, ProfileRepository,
     SkillRepository,
 };
 use guild_application::AppResult;
@@ -15,7 +15,7 @@ use guild_domain::skill::Skill;
 use super::store::MemoryStore;
 
 impl MessageRepository for MemoryStore {
-    fn insert(&self, message: NewMessage) -> AppResult<Message> {
+    fn publish(&self, message: NewMessage, delegation: Option<&Delegation>) -> AppResult<Message> {
         if message.kind == guild_domain::message::MessageKind::Progress
             && std::mem::take(&mut *self.reject_next_progress.lock())
         {
@@ -24,6 +24,9 @@ impl MessageRepository for MemoryStore {
         let mut messages = self.messages.lock();
         let seq = messages.iter().map(|m| m.seq).max().unwrap_or(0) + 1;
         let message = message.into_message(seq);
+        if let Some(delegation) = delegation {
+            self.delegations.lock().push(delegation.clone());
+        }
         messages.push(message.clone());
         Ok(message)
     }
@@ -145,15 +148,28 @@ impl FrameRepository for MemoryStore {
     }
 }
 
-impl MetaRepository for MemoryStore {
-    fn get(&self, key: &str) -> AppResult<Option<String>> {
-        Ok(self.meta.lock().get(key).cloned())
+impl GuildStateRepository for MemoryStore {
+    fn seeded(&self) -> AppResult<bool> {
+        Ok(*self.seeded.lock())
     }
-    fn set(&self, key: &str, value: &str) -> AppResult<()> {
-        if key.starts_with("desktop-notification:") && *self.reject_notification_receipts.lock() {
-            return Err(guild_application::AppError::Storage("injected notification receipt failure".to_owned()));
-        }
-        self.meta.lock().insert(key.to_owned(), value.to_owned());
+    fn guild(&self) -> AppResult<guild_domain::guild::GuildProfile> {
+        Ok(self.guild.lock().clone())
+    }
+    fn save_guild(&self, guild: &guild_domain::guild::GuildProfile) -> AppResult<()> {
+        *self.guild.lock() = guild.clone();
         Ok(())
+    }
+    fn interrupted_jobs(&self) -> AppResult<Vec<guild_application::ports::InterruptedJob>> {
+        Ok(self.interrupted.lock().clone())
+    }
+    fn replace_interrupted(&self, jobs: &[guild_application::ports::InterruptedJob]) -> AppResult<()> {
+        *self.interrupted.lock() = jobs.to_vec();
+        Ok(())
+    }
+    fn claim_notification(&self, message: &str) -> AppResult<bool> {
+        if *self.reject_notification_receipts.lock() {
+            return Err(guild_application::AppError::Storage("receipt unavailable".into()));
+        }
+        Ok(self.receipts.lock().insert(message.into()))
     }
 }

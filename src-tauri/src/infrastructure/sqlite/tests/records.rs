@@ -1,6 +1,6 @@
 //! エージェント・スキル・プロフィール・meta の往復。
 
-use guild_application::ports::{AgentRepository, MetaRepository, ProfileRepository, SkillRepository};
+use guild_application::ports::{AgentRepository, GuildStateRepository, ProfileRepository, SkillRepository};
 use guild_application::AppError;
 use guild_domain::agent::{Agent, UnmentionedPolicy};
 use guild_domain::ids::{AgentId, ChannelId, SkillId};
@@ -10,7 +10,7 @@ use serde_json::json;
 
 use super::{input, memory, saved_agent};
 use crate::infrastructure::sqlite::{
-    SqliteAgentRepository, SqliteMetaRepository, SqliteProfileRepository, SqliteSkillRepository,
+    SqliteAgentRepository, SqliteGuildStateRepository, SqliteProfileRepository, SqliteSkillRepository,
 };
 
 #[test]
@@ -105,11 +105,8 @@ fn the_profile_defaults_until_saved_and_meta_stores_records() {
     profile.set(&mine).unwrap();
     assert_eq!(profile.get().unwrap(), mine);
 
-    let meta = SqliteMetaRepository::new(db);
-    assert_eq!(meta.get("seeded").unwrap(), None);
-    meta.set("seeded", "1").unwrap();
-    meta.set("seeded", "2").unwrap();
-    assert_eq!(meta.get("seeded").unwrap(), Some("2".to_owned()));
+    let meta = SqliteGuildStateRepository::new(db);
+    assert!(!meta.seeded().unwrap());
 }
 
 #[test]

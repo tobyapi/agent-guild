@@ -17,7 +17,6 @@ pub struct RunMeasurement {
     pub job_id: String,
     pub channel_id: ChannelId,
     pub backend: String,
-    pub started_at: i64,
     pub duration_ms: i64,
     pub usage: RunUsage,
 }

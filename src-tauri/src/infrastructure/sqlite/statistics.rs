@@ -42,16 +42,15 @@ impl StatisticsRepository for SqliteStatisticsRepository {
         self.db
             .with(|conn| {
                 conn.execute(
-                    "INSERT INTO run_measurements (job_id, channel_id, backend, model, started_at, duration_ms,
+                    "INSERT INTO run_measurements (job_id, channel_id, backend, model, duration_ms,
                     input_tokens, output_tokens, estimated_cost_nano_usd)
-                 SELECT ?1, id, ?3, ?4, ?5, ?6, ?7, ?8, ?9 FROM channels WHERE id = ?2
+                 SELECT ?1, id, ?3, ?4, ?5, ?6, ?7, ?8 FROM channels WHERE id = ?2
                  ON CONFLICT (job_id) DO NOTHING",
                     params![
                         run.job_id,
                         run.channel_id.as_str(),
                         run.backend,
                         usage.model,
-                        run.started_at,
                         run.duration_ms,
                         usage.input_tokens,
                         usage.output_tokens,

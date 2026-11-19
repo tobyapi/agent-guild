@@ -2,8 +2,7 @@
 
 use std::sync::atomic::Ordering;
 
-use guild_application::guild::GUILD_KEY;
-use guild_application::ports::MetaRepository;
+use guild_application::ports::GuildStateRepository;
 use guild_application::AppError;
 use guild_domain::guild::{CrestColor, CrestShape, GuildCrest, GuildProfile};
 
@@ -42,12 +41,5 @@ async fn invalid_names_are_rejected_without_saving() {
         Err(AppError::Validation(error)) => assert_eq!(error.field(), Some("name")),
         other => panic!("validation になるはず: {other:?}"),
     }
-    assert_eq!(app.store.get(GUILD_KEY).unwrap(), None);
-}
-
-#[tokio::test]
-async fn unreadable_saved_values_read_as_the_default() {
-    let app = TestApp::new();
-    app.store.set(GUILD_KEY, "{ 壊れた").unwrap();
-    assert_eq!(app.services.snapshot.get().unwrap().guild, GuildProfile::default());
+    assert_eq!(app.store.guild().unwrap(), GuildProfile::default());
 }

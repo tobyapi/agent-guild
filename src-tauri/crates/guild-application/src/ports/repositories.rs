@@ -63,7 +63,11 @@ impl MessageFilter {
 
 pub trait MessageRepository: Send + Sync {
     /// 保存して seq を振った発言を返す
-    fn insert(&self, message: NewMessage) -> AppResult<Message>;
+    fn insert(&self, message: NewMessage) -> AppResult<Message> {
+        self.publish(message, None)
+    }
+    /// Store a reply and its optional delegation in the same transaction before publishing events.
+    fn publish(&self, message: NewMessage, delegation: Option<&Delegation>) -> AppResult<Message>;
     fn get(&self, id: &MessageId) -> AppResult<Option<Message>>;
     /// filter に合う発言のうち、seq が before_seq より小さい最新 limit 件を、seq の昇順で返す
     fn list(
@@ -132,8 +136,19 @@ pub trait FrameRepository: Send + Sync {
     fn delete(&self, id: &str) -> AppResult<()>;
 }
 
-/// データベースの meta 表（スキーマ指紋や初期データ投入の記録）
-pub trait MetaRepository: Send + Sync {
-    fn get(&self, key: &str) -> AppResult<Option<String>>;
-    fn set(&self, key: &str, value: &str) -> AppResult<()>;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InterruptedJob {
+    pub channel_id: ChannelId,
+    pub root_id: MessageId,
+    pub depth: u32,
+    pub agent_id: AgentId,
+}
+
+pub trait GuildStateRepository: Send + Sync {
+    fn seeded(&self) -> AppResult<bool>;
+    fn guild(&self) -> AppResult<guild_domain::guild::GuildProfile>;
+    fn save_guild(&self, guild: &guild_domain::guild::GuildProfile) -> AppResult<()>;
+    fn interrupted_jobs(&self) -> AppResult<Vec<InterruptedJob>>;
+    fn replace_interrupted(&self, jobs: &[InterruptedJob]) -> AppResult<()>;
+    fn claim_notification(&self, message: &str) -> AppResult<bool>;
 }

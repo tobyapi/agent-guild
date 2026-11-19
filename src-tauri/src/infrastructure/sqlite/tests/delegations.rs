@@ -44,10 +44,27 @@ fn delegation(id: &str, channel: &str, created_at: i64) -> Delegation {
     }
 }
 
+fn add_messages(db: &std::sync::Arc<crate::infrastructure::sqlite::Database>, channel: &str, ids: &[&str]) {
+    for id in ids {
+        db.with(|c| {
+            c.execute(
+                "INSERT INTO messages (id,channel_id,author_id,content,kind,root_id,depth,created_at)
+            VALUES (?1,?2,'kaname','','chat',?1,0,1)",
+                [id, &channel],
+            )
+        })
+        .unwrap();
+    }
+}
+
 #[test]
 fn delegations_round_trip_and_update_their_subtasks() {
     let db = memory();
+    for id in ["kaname", "haru", "sora"] {
+        super::saved_agent(&db, id, id, 0);
+    }
     SqliteChannelRepository::new(db.clone()).insert(&channel("c1")).unwrap();
+    add_messages(&db, "c1", &["d1-m", "r1", "summary"]);
     let repository = SqliteDelegationRepository::new(db);
     let mut first = delegation("d1", "c1", 10);
     repository.insert(&first).unwrap();
@@ -70,9 +87,14 @@ fn delegations_round_trip_and_update_their_subtasks() {
 #[test]
 fn listing_returns_the_newest_in_creation_order_and_unfinished_ones_are_cancelled_on_start() {
     let db = memory();
+    for id in ["kaname", "haru", "sora"] {
+        super::saved_agent(&db, id, id, 0);
+    }
     let channels = SqliteChannelRepository::new(db.clone());
     channels.insert(&channel("c1")).unwrap();
     channels.insert(&channel("c2")).unwrap();
+    add_messages(&db, "c1", &["d1-m", "d2-m", "d3-m"]);
+    add_messages(&db, "c2", &["d4-m"]);
     let repository = SqliteDelegationRepository::new(db);
     for (id, created_at) in [("d1", 10), ("d2", 20), ("d3", 30)] {
         repository.insert(&delegation(id, "c1", created_at)).unwrap();

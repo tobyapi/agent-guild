@@ -3,13 +3,12 @@
 
 use std::error::Error;
 
-use guild_application::ports::MetaRepository;
-use guild_application::AppServices;
-use guild_domain::agent::{find_template, AgentInput};
+use crate::infrastructure::sqlite::SqliteGuildStateRepository;
+use guild_application::ports::GuildStateRepository;
+use guild_domain::agent::{find_template, normalize_agent_input, Agent, AgentInput};
 use guild_domain::author::MemberId;
 use serde::Deserialize;
 
-const SEEDED_KEY: &str = "seeded";
 const STARTER: &str = include_str!("../../../src/shared/assets/starter.json");
 const LOBBY_NAME: &str = "ロビー";
 const LOBBY_TOPIC: &str = "みんなの雑談と相談の場";
@@ -37,16 +36,50 @@ struct SeedAgent {
 }
 
 /// 初回だけ初期データを入れる（ユースケース経由なので入力規則の検証も通る）
-pub fn run_once(services: &AppServices, meta: &dyn MetaRepository) -> Result<(), Box<dyn Error>> {
-    if meta.get(SEEDED_KEY)?.is_some() {
+pub fn run_once(
+    state: &SqliteGuildStateRepository,
+    ids: &dyn guild_application::ports::IdGenerator,
+    clock: &dyn guild_application::ports::Clock,
+) -> Result<(), Box<dyn Error>> {
+    use guild_domain::{
+        author::Author,
+        channel::Channel,
+        ids::{AgentId, ChannelId, MessageId},
+        message::{MessageKind, NewMessage},
+    };
+    if state.seeded()? {
         return Ok(());
     }
     let Starter { agent, welcome } = serde_json::from_str(STARTER)?;
-    let agent = services.agents.create(agent_input(agent)?)?;
-    let lobby = services.channels.create_lobby(LOBBY_NAME, LOBBY_TOPIC, &[MemberId::Agent(agent.id)])?;
-    services.conversation.post_system(&lobby.id, &welcome)?;
-    meta.set(SEEDED_KEY, "1")?;
-    log::info!("初期データを入れました");
+    let now = clock.now_ms();
+    let agent = Agent::new(AgentId::new(ids.new_id()), normalize_agent_input(agent_input(agent)?, None)?, now);
+    let channel = Channel {
+        id: ChannelId::new(ids.new_id()),
+        workspace: Default::default(),
+        name: LOBBY_NAME.into(),
+        topic: LOBBY_TOPIC.into(),
+        icon: String::new(),
+        is_lobby: true,
+        created_at: now,
+        member_ids: vec![MemberId::Human, MemberId::Agent(agent.id.clone())],
+    };
+    let id = MessageId::new(ids.new_id());
+    let welcome = NewMessage {
+        root_id: id.clone(),
+        id,
+        channel_id: channel.id.clone(),
+        author_id: Author::System,
+        content: welcome,
+        skill_usage: None,
+        attachments: Vec::new(),
+        kind: MessageKind::System,
+        mentions: Vec::new(),
+        reply_to_id: None,
+        depth: 0,
+        delegation_id: None,
+        created_at: now,
+    };
+    state.seed(&agent, &channel, &welcome)?;
     Ok(())
 }
 

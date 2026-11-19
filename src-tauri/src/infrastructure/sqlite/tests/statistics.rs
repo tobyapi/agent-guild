@@ -3,12 +3,15 @@ use guild_domain::channel::Channel;
 use guild_domain::ids::ChannelId;
 use guild_domain::statistics::{DelegationStatistics, RunMeasurement, RunUsage};
 
-use super::{channels_messages::lobby, memory};
+use super::channels_messages::{lobby, member_database};
 use crate::infrastructure::sqlite::{SqliteChannelRepository, SqliteStatisticsRepository};
 
 #[test]
 fn aggregates_all_delegations_and_runs_by_channel_and_model() {
-    let db = memory();
+    let db = member_database();
+    for id in ["manager", "worker"] {
+        super::saved_agent(&db, id, id, 0);
+    }
     let channels = SqliteChannelRepository::new(db.clone());
     let c1 = ChannelId::new("c1");
     let c2 = ChannelId::new("c2");
@@ -17,6 +20,11 @@ fn aggregates_all_delegations_and_runs_by_channel_and_model() {
     db.with(|conn| {
         conn.execute_batch(
             "WITH RECURSIVE ids(n) AS (VALUES(1) UNION ALL SELECT n + 1 FROM ids WHERE n < 202)
+             INSERT INTO messages (id,channel_id,author_id,content,kind,root_id,depth,created_at)
+             SELECT 'm'||n,'c1','manager','','chat','m'||n,0,0 FROM ids;
+             INSERT INTO messages (id,channel_id,author_id,content,kind,root_id,depth,created_at)
+             VALUES ('r1','c1','worker','','chat','m1',1,0),('error','c1','worker','','error','m1',1,0);
+             WITH RECURSIVE ids(n) AS (VALUES(1) UNION ALL SELECT n+1 FROM ids WHERE n < 202)
              INSERT INTO delegations SELECT 'd' || n, 'c1', 'manager', 'm' || n, 'done', NULL, 1, 2 FROM ids;
              INSERT INTO subtasks VALUES ('s1', 'd1', 0, 'worker', '', 'done', 'r1', NULL),
                  ('s2', 'd1', 1, 'worker', '', 'failed', 'error', NULL),
@@ -65,7 +73,6 @@ fn example_measurement(channel: ChannelId) -> RunMeasurement {
         job_id: "job-1".to_owned(),
         channel_id: channel,
         backend: "claude".to_owned(),
-        started_at: 2,
         duration_ms: 1250,
         usage: RunUsage {
             model: Some("sonnet".to_owned()),
