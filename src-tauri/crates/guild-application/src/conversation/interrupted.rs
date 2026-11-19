@@ -1,5 +1,5 @@
 //! 終了で中断された返答の知らせ（design.md §6）。待機と実行中のジョブはメモリにしかないので、アクターが
-//! その要約を meta に保存しておき（dispatcher/inflight.rs）、次の起動で会話（起点）ごとにお知らせを出して消す。
+//! その要約を保存しておき（dispatcher/inflight.rs）、次の起動で会話（起点）ごとにお知らせを出して消す。
 
 use crate::ports::InterruptedJob;
 use guild_domain::conversation::{notices, JobSpec};

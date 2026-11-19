@@ -1,7 +1,6 @@
-//! ギルドのプロフィール（名前と紋）。ギルドのデータなので、データフォルダの DB（meta 表）に JSON で保存する。
+//! ギルドのプロフィール（名前と紋）と、名前の入力規則。
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use super::error::{ensure_max_chars, ValidationError};
 use super::locale;
@@ -67,22 +66,4 @@ pub fn normalize_guild(mut guild: GuildProfile) -> Result<GuildProfile, Validati
     )?;
     guild.name = name.to_owned();
     Ok(guild)
-}
-
-/// 保存値を読む。未保存・JSON でない値は既定。項目ごとに読み、読めない項目
-/// （新しい版が足した形や色・長すぎる名前）だけを既定にする（ほかの項目は失わない）
-pub fn read_stored_guild(raw: Option<&str>) -> GuildProfile {
-    let Some(value) = raw.and_then(|raw| serde_json::from_str::<Value>(raw).ok()) else {
-        return GuildProfile::default();
-    };
-    let name = value.get("name").and_then(Value::as_str).unwrap_or_default();
-    let name = normalize_guild(GuildProfile { name: name.to_owned(), ..GuildProfile::default() })
-        .map(|guild| guild.name)
-        .unwrap_or_default();
-    let crest = value.get("crest");
-    GuildProfile { name, crest: GuildCrest { shape: field(crest, "shape"), color: field(crest, "color") } }
-}
-
-fn field<T: serde::de::DeserializeOwned + Default>(crest: Option<&Value>, key: &str) -> T {
-    crest.and_then(|crest| crest.get(key)).and_then(|value| T::deserialize(value).ok()).unwrap_or_default()
 }

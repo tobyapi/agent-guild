@@ -1,4 +1,4 @@
-//! エージェント・スキル・プロフィール・meta の往復。
+//! エージェント・スキル・プロフィール・ギルド状態の往復。
 
 use guild_application::ports::{AgentRepository, GuildStateRepository, ProfileRepository, SkillRepository};
 use guild_application::AppError;

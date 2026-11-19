@@ -1,4 +1,4 @@
-//! ギルドのプロフィール（名前と紋）のユースケース。DB の meta 表に JSON で保存する（マイグレーションは不要）。
+//! ギルドのプロフィール（名前と紋）のユースケース。
 
 use guild_domain::guild::{normalize_guild, GuildProfile};
 
@@ -15,7 +15,7 @@ impl GuildService {
         Self { ports }
     }
 
-    /// 未保存・読めない保存値は既定（読めない項目だけ既定にする）
+    /// 未設定のときは既定のギルドを返す。
     pub fn get(&self) -> AppResult<GuildProfile> {
         load(&self.ports)
     }

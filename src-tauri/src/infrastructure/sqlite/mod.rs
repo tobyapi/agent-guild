@@ -1,4 +1,4 @@
-//! SQLite のアダプタ: 接続・マイグレーション・各リポジトリ・meta。rusqlite はこのフォルダの中だけで使う。
+//! SQLite のアダプタ: 接続・スキーマ判定と変換・各リポジトリ。rusqlite はこのフォルダの中だけで使う。
 
 mod agents;
 mod channels;
@@ -11,10 +11,10 @@ mod frames;
 mod guild_state;
 mod messages;
 mod schema;
-mod settings_tables;
 mod skill_records;
 mod skills;
 mod statistics;
+mod user_profile;
 
 pub use agents::SqliteAgentRepository;
 pub use channels::SqliteChannelRepository;
@@ -23,10 +23,10 @@ pub use delegations::SqliteDelegationRepository;
 pub use frames::SqliteFrameRepository;
 pub use guild_state::SqliteGuildStateRepository;
 pub use messages::SqliteMessageRepository;
-pub use settings_tables::SqliteProfileRepository;
 pub use skill_records::SqliteSkillRecordRepository;
 pub use skills::SqliteSkillRepository;
 pub use statistics::SqliteStatisticsRepository;
+pub use user_profile::SqliteProfileRepository;
 
 #[cfg(test)]
 mod tests;

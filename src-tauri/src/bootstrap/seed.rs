@@ -1,4 +1,4 @@
-//! 初期データ（design.md §13）。meta 表に seeded の記録がないときだけ、ロビーと作業者・歓迎の発言を入れる。
+//! 初期データ（design.md §13）。db_state.seeded が false のときだけ、ロビーと作業者・歓迎の発言を入れる。
 //! 初期データはブラウザーのモックと共有する。
 
 use std::error::Error;

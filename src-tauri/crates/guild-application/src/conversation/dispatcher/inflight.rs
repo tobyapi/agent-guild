@@ -1,5 +1,5 @@
 //! 終了で消える待機・実行中のジョブの記録（design.md §6）: 処理のたびに、要約が前回の保存から変わっていれば
-//! meta に保存する。次の起動での知らせ方は conversation/interrupted.rs。
+//! 順序を保って保存する。次の起動での知らせ方は conversation/interrupted.rs。
 
 use guild_domain::conversation::JobSpec;
 

@@ -23,7 +23,7 @@ src-tauri/
       seed.rs                  初期データ（初回だけ）
       scheduler.rs             自発活動のスケジューラ（30秒ごと）
     infrastructure/            ports の実装
-      sqlite/                  接続・マイグレーション（0001〜0004）・各リポジトリ（生成したアイコンの枠の frames.rs を含む）・meta
+      sqlite/                  接続・schema-v1.sql・0.1.28 の判定と変換（convert028/）・各リポジトリ
       runtime/                 AgentRuntime を runner-client で実装（Launch の組み立てもここ）
       workspace.rs             作業場所（work/・state/ の用意、エージェントに属さない実行の tools/<用途>/、MEMORY.md、削除の再試行、ファイラで開く）
       attachments.rs           発言に添えた画像・ファイルの置き場所（attachments/<channelId>/<id>.<拡張子>。ID は data_dir.rs の safe_component を通す）

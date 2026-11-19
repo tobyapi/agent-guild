@@ -19,7 +19,7 @@ import type {
 export interface MockState {
   globalInstructions?: string;
   boot: BootStatus;
-  /** ギルドの名前と紋（Rust では DB の meta 表） */
+  /** ギルドの名前と紋（Rust では guild_profile 表） */
   guild: GuildProfile;
   me: Profile;
   /** 生成したアイコンの枠（Rust では DB の avatar_frames 表） */

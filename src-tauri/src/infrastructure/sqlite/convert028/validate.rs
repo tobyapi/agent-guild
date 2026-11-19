@@ -15,6 +15,17 @@ pub(super) fn legacy(db: &Connection, root: &Path) -> Result<()> {
     if let Some((table, id)) = issue {
         return Err(fail(format!("{table}: {}", id.as_deref().unwrap_or("NULL"))));
     }
+    if let Some(raw) = db
+        .query_row("SELECT value FROM meta WHERE key='guild_profile'", [], |row| row.get::<_, String>(0))
+        .optional()?
+    {
+        use guild_domain::guild::{normalize_guild, GuildProfile};
+        let profile: GuildProfile = serde_json::from_str(&raw).map_err(|e| fail(format!("meta.guild_profile: {e}")))?;
+        let normalized = normalize_guild(profile.clone()).map_err(|e| fail(format!("meta.guild_profile: {e}")))?;
+        if normalized != profile {
+            return Err(fail("meta.guild_profile: invalid stored name"));
+        }
+    }
     check_messages(db, root)?;
     check_frames(db, root)
 }
