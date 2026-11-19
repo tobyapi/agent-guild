@@ -127,7 +127,7 @@ fn referenced_files_are_bundled_with_their_skill() {
     assert_eq!(find_builtin_skill("reflection").expect("reflection").files, ["references/examples.md"]);
     assert_eq!(
         find_builtin_skill("universal-manager").expect("universal-manager").files,
-        ["references/ROUTING.md", "references/SCENARIOS.md"]
+        ["references/OPTION-SUFFICIENCY.md", "references/ROUTING.md", "references/SCENARIOS.md"]
     );
     assert_eq!(
         find_builtin_skill("concept-shift").expect("concept-shift").files,
