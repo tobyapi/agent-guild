@@ -62,14 +62,22 @@ fn includes_committed_wal_records_in_the_backup_and_the_converted_database() {
 }
 
 #[test]
-fn unexpected_sidecars_and_incomplete_backups_stop_before_conversion() {
+fn an_orphan_shm_is_ignored_during_inspection_and_conversion() {
     let f = Fixture::new();
     populate(&old(&f.db(), 7));
     fs::write(f.0.join("guild.db-shm"), b"orphan").unwrap();
     let original = source_bytes(&f);
-    assert!(prepare(&f.db()).is_err());
+    inspect(&f.db()).unwrap();
     assert_eq!(source_bytes(&f), original);
-    fs::remove_file(f.0.join("guild.db-shm")).unwrap();
+    prepare(&f.db()).unwrap();
+    verify(&source::read_only(&f.db()).unwrap());
+    assert_eq!(fs::read(f.0.join("guild.db-shm")).unwrap(), b"orphan");
+}
+
+#[test]
+fn incomplete_backups_stop_before_conversion() {
+    let f = Fixture::new();
+    populate(&old(&f.db(), 7));
     fs::write(f.0.join("backups"), b"cannot create backup here").unwrap();
     let original = source_bytes(&f);
     assert!(prepare(&f.db()).is_err());

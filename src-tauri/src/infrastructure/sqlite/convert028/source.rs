@@ -55,7 +55,8 @@ impl Snapshot {
         }
         let wal = sidecar(path, "-wal").try_exists()?;
         let journal = sidecar(path, "-journal").try_exists()?;
-        if (wal && journal) || (!wal && sidecar(path, "-shm").try_exists()?) {
+        // The SHM is a derived WAL index. Without a WAL it contains no committed pages.
+        if wal && journal {
             return Err(fail("Unrecognized SQLite journal files"));
         }
         if !wal && !journal {
