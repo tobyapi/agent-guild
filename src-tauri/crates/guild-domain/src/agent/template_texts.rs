@@ -22,14 +22,6 @@ pub(super) const IDEATOR_ROLE: Texts = [
     "목적에 맞는 여러 아이디어와 다른 관점을 생각한다. 안마다 노림수와 차이를 보여 주고, 확인되지 않은 가설은 사실과 구분하여, 고를 수 있는 형태로 정리해 답한다",
 ];
 
-pub(super) const IDEATOR_EXPERTISE: Texts = [
-    "アイデア出し・企画・視点の転換",
-    "Brainstorming, planning, shifting perspectives",
-    "创意发想・企划・视角转换",
-    "點子發想・企劃・觀點轉換",
-    "아이디어 발상·기획·관점 전환",
-];
-
 pub(super) const EXPERT_ROLE: Texts = [
     "専門知識や指定された目線で相談とレビューに答え、完成条件を満たすかを根拠とともに確認し、改善案を示す",
     "Answer consultations and reviews with expert knowledge or a given perspective, check with evidence whether the completion criteria are met, and suggest improvements",

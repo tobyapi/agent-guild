@@ -91,7 +91,7 @@ const ROWS: [Row; 4] = [
             "여러 아이디어와 다른 관점을 제안합니다. 호출되면 안을 정리해서 답합니다.",
         ],
         role: texts::IDEATOR_ROLE,
-        expertise: texts::IDEATOR_EXPERTISE,
+        expertise: texts::EMPTY,
         permissions: Permissions { web_search: true, web_fetch: true, ..WORKSPACE_TOOLS },
         unmentioned: UnmentionedPolicy::Ignore,
         flags: Flags { consultable: true, ..QUIET },

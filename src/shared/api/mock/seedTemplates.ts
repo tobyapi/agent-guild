@@ -39,7 +39,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
     defaults: {
       tags: ['発案者'],
       role: '目的に合う複数のアイデアや別の切り口を考える。案ごとの狙いと違いを示し、未確認の仮説は事実と区別して、選べる形でまとめて返す',
-      expertise: 'アイデア出し・企画・視点の転換',
+      expertise: '',
       permissions: {
         webSearch: true,
         webFetch: true,

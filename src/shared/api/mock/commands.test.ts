@@ -19,7 +19,7 @@ describe('モックのコマンド', () => {
       {
         id: SEED_IDS.starter,
         name: 'ミナト',
-        tags: ['作業者', 'リサーチ'],
+        tags: ['作業者'],
         unmentioned: 'answer',
         canDelegate: false,
         backend: 'codex',

@@ -91,7 +91,9 @@ async fn seeds_the_lobby_with_one_worker_once() {
     assert_eq!(snapshot.agents.len(), 1);
     let worker = &snapshot.agents[0];
     assert_eq!(worker.name, "ミナト");
-    assert_eq!(worker.tags, ["作業者", "リサーチ"]);
+    assert_eq!(worker.tags, ["作業者"]);
+    assert_eq!(worker.role, "必要な調査・制作・実装・動作確認を一連の仕事として進め、完成させる");
+    assert_eq!(worker.personality, "好奇心旺盛。新しいことを調べるのが大好きで、手を動かして最後まで仕上げる");
     assert_eq!((worker.backend.as_str(), worker.model.as_str()), ("codex", ""));
     assert_eq!(worker.avatar, "🧭");
     assert!(worker.permissions.write_files && worker.permissions.run_commands && worker.permissions.write_anywhere);
