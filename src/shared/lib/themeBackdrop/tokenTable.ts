@@ -1,6 +1,5 @@
 import { compositeColor, resolveTokenColor } from './tokenColors';
-import type { ColorDefinitions, ColorSource } from './tokenColors';
-import type { Rgba } from './protection';
+import type { ColorDefinitions, ColorSource, Rgba } from './tokenColors';
 
 export interface SourceFile {
   file: string;

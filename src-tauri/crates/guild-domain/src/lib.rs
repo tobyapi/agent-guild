@@ -27,6 +27,5 @@ pub mod skill_usage;
 pub mod snapshot;
 pub mod statistics;
 pub mod storage;
-pub mod theme_backdrop;
 pub mod update;
 pub mod voice;

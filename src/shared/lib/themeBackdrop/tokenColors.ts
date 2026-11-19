@@ -1,4 +1,9 @@
-import type { Rgba } from './protection';
+import type { Rgb } from './envelope';
+
+export interface Rgba {
+  rgb: Rgb;
+  alpha: number;
+}
 
 export interface ColorSource {
   file: string;

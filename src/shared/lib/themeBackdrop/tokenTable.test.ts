@@ -6,7 +6,6 @@ import { behaviorFixture } from '../behaviorFixtures.test-support';
 import { describe, expect, it } from 'vitest';
 import { buildTokenTable, readTokenUnit } from './tokenTable';
 import type { SourceFile, TokenTable } from './tokenTable';
-import { estimateTokenUnit } from './tokenEstimate';
 import { compositeColor, resolveTokenColor } from './tokenColors';
 
 const root = resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../..');
@@ -79,21 +78,4 @@ describe('static text/surface token inventory', () => {
       compositeColor({ rgb: [0, 1, 0], alpha: 0.5 }, compositeColor({ rgb: [1, 0, 0], alpha: 0.5 }, black)),
     ).toEqual({ rgb: [0.25, 0.5, 0], alpha: 1 });
   });
-});
-
-it('fixes six reference alpha estimates without claiming unresolved units pass', () => {
-  const recipe = behaviorFixture<{ name: string; input: unknown }[]>('theme-backdrop-recipe.json').find(
-    (c) => c.name === 'tile-turtle-none',
-  )!.input;
-  const estimates = table.units.map((unit) => estimateTokenUnit(unit, recipe));
-  expect(estimates.map((unit) => unit.alpha)).toEqual([0.957, 1, 0.973, 1, 0.942, 0.972]);
-  expect(estimates.every((unit) => !unit.verified)).toBe(true);
-  expect(estimates.map((unit) => [unit.limiter?.name, unit.limiter?.state])).toEqual([
-    ['--text-muted', 'accent-soft'],
-    ['--text-muted', 'accent-soft'],
-    ['--text-muted', 'accent-soft'],
-    ['--text-muted', 'selected'],
-    ['--text-muted', 'selected'],
-    ['--text-muted', 'selected'],
-  ]);
 });

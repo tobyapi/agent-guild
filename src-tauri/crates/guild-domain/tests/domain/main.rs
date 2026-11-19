@@ -29,13 +29,6 @@ mod skill_file;
 mod skill_library;
 mod support;
 mod tasks;
-mod theme_backdrop_catalog;
-mod theme_backdrop_cost;
-mod theme_backdrop_envelope;
-mod theme_backdrop_json;
-mod theme_backdrop_protection;
-mod theme_backdrop_shared;
-mod theme_backdrop_structure;
 mod values;
 
 mod voice;

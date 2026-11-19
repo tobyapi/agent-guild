@@ -1,7 +1,5 @@
 # 契約の実例（ゴールデンフィクスチャ）
 
-- 背景レシピの版付き JSON Schema と版規則: [behavior/theme-backdrop-recipe.md](behavior/theme-backdrop-recipe.md)。`*.schema.json` は構造契約であり、入力と期待値を並べた実例ではない。
-
 - `ipc/*.json` … React ⇄ Rust の値の実例（型の正は `src/shared/types/domain/`）。
   - Rust: guild-domain のテストが各ファイルを対応する型に読み込み、書き戻した JSON が元と**値として一致**することを検査する。
     さらに `snapshot.json` の `templates` は guild-domain のテンプレート表と説明文まで含めて完全に一致すること。
@@ -34,7 +32,7 @@
 | runner/requests.jsonl | RunnerRequest（run / image / login / cancel / probe / setLanguage / shutdown / apiKey） |
 | runner/events.jsonl | RunnerEvent（ready / backends / activity / post / result / error）。ready の BackendInfo は permissionRules・midRunPost と、バックエンドごとの違いの申告（toolsOption・local・frameGeneration・backgroundGeneration・themeGeneration・setup）を含む |
 
-| behavior/theme-backdrop-recipe.json | 背景 Recipe v1 の正常・異常入力と期待する valid・field/code（code は工程2・3で確定）。[契約と未実装範囲](behavior/theme-backdrop-recipe.md) |
+| behavior/theme-backdrop-token-table.json | 画面で使う色と出典の一覧。フロント側のテストが現在のソースと照合し、ガラス面上の文字のコントラストを検査する。 |
 | behavior/mentions.json | メンション解析（design.md §8）: エージェントと本文 → 呼ばれた相手の ID。Rust `parse_mentions` / TS `parseMentions` |
 | behavior/tasks.json・behavior/tasks-agents.json | tasks ブロックの読み取り（design.md §7.1）: 本文 → サブタスク・割り振れなかった名前・上限を超えた名前（ブロックがなければ null）。Rust `parse_tasks` / TS `parseTasks`・`findTasksBlock` |
 | behavior/notices.json | システム発言と注記の文面（言語のコードごと: `{ "ja": {...}, "en": {...}, ... }`）。Rust `conversation::notices`・`delegation::SubtaskNote` / TS `mock/notices.ts` |
@@ -47,5 +45,3 @@
 `behavior/role-permissions.json` は、役割で決まる権限（`permissions`。同じ役割ならどのバックエンドでも同じ）と、そのバックエンドで実際に使える操作（`usable`。権限の部分集合）の共有実例。Rust の保存・実行、ランナーの絞り込み、TypeScript の編集画面で同じ結果を検査する。
 
 `behavior/channel-workspaces.json` は旧 shared・folder・global の保存値と、読み込み後に返す shared の形の実例。Rust の契約・SQLite 読み込みテストと TypeScript の IPC 検証で照合する。
-
-Stage 3b Recipe reader/cost/color shared examples: [behavior/theme-backdrop-calculations.md](behavior/theme-backdrop-calculations.md) (`theme-backdrop-raw.json`, `theme-backdrop-cost.json`, `theme-backdrop-color.json`).

@@ -1,14 +1,4 @@
-import { reject } from './checks';
-import { validateRecipeStructure } from './structure';
-
 export type Rgb = readonly [number, number, number];
-export interface ColorExpansion {
-  underlay: Rgb | null;
-  usesBlackShadow: boolean;
-}
-export function validRgb(rgb: Rgb): boolean {
-  return rgb.length === 3 && rgb.every((v) => Number.isFinite(v) && v >= 0 && v <= 1);
-}
 
 export class ColorEnvelope {
   private constructor(
@@ -27,26 +17,6 @@ export class ColorEnvelope {
       [scale(this.low[0], -1), scale(this.low[1], -1), scale(this.low[2], -1)],
       [scale(this.high[0], 1), scale(this.high[1], 1), scale(this.high[2], 1)],
     );
-  }
-
-  static fromRecipe(recipe: unknown, scheme: string, expansion: ColorExpansion): ColorEnvelope {
-    validateRecipeStructure(recipe);
-    if (!['dark', 'light'].includes(scheme)) reject('palette', 'invalid_scheme');
-    if (expansion.underlay && !validRgb(expansion.underlay)) reject('$', 'invalid_expansion');
-    const palettes = (recipe as { palette: Record<string, string[]> }).palette;
-    const colors: Rgb[] = palettes[scheme]!.map((color) => [
-      parseInt(color.slice(1, 3), 16) / 255,
-      parseInt(color.slice(3, 5), 16) / 255,
-      parseInt(color.slice(5, 7), 16) / 255,
-    ]);
-    if (expansion.underlay) colors.push(expansion.underlay);
-    if (expansion.usesBlackShadow) colors.push([0, 0, 0]);
-    const bounds = (operation: (...values: number[]) => number): Rgb => [
-      operation(...colors.map((c) => c[0])),
-      operation(...colors.map((c) => c[1])),
-      operation(...colors.map((c) => c[2])),
-    ];
-    return new ColorEnvelope(bounds(Math.min), bounds(Math.max));
   }
 
   corners(): Rgb[] {
