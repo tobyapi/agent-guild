@@ -32,7 +32,7 @@ export const MOCK_TEMPLATES: AgentTemplate[] = [
   {
     id: 'ideator',
     roleTags: ['発案者', 'Ideator', '创意者', '發想者', '아이디어 담당', '発想役'],
-    builtinSkills: ['concept-shift', 'introspection', 'easily-amazed'],
+    builtinSkills: ['concept-shift', 'introspection'],
     label: '発案者',
     description: '複数のアイデアや別の切り口を提案します。呼ばれたときに案をまとめて返します。',
     accent: 'ideator',

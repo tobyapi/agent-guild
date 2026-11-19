@@ -80,7 +80,7 @@ const ROWS: [Row; 4] = [
     },
     Row {
         id: "ideator",
-        builtin_skills: &["concept-shift", "introspection", "easily-amazed"],
+        builtin_skills: &["concept-shift", "introspection"],
         label: ["発案者", "Ideator", "创意者", "發想者", "아이디어 담당"],
         legacy_tags: &["発想役"],
         description: [

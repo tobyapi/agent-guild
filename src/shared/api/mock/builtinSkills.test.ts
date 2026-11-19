@@ -18,7 +18,6 @@ describe('モックの内蔵スキル', () => {
       'ambiguous-word-rewrite',
       'character-voice',
       'concept-shift',
-      'easily-amazed',
       'introspection',
       'ornate-avatar-frame',
       'reflection',
@@ -29,9 +28,9 @@ describe('モックの内蔵スキル', () => {
     expect(builtins.every((skill) => !skill.description.startsWith('"') && !skill.description.startsWith("'"))).toBe(
       true,
     );
-    const scout = builtins.find((skill) => skill.name === 'easily-amazed');
-    expect(scout?.description).toContain('An easily amazed idea scout');
-    expect(scout?.files).toEqual(['references/EXAMPLES.md', 'references/INTEGRATION.md']);
+    const shift = builtins.find((skill) => skill.name === 'concept-shift');
+    expect(shift?.description).toContain('transformative ideation');
+    expect(shift?.files).toEqual(['references/EVALUATION.md', 'references/OPERATORS.md']);
     const critique = builtins.find((skill) => skill.name === 'universal-critique');
     expect(critique?.files).toContain('references/classical-methods.md');
     expect(builtins.find((skill) => skill.name === 'introspection')?.files).toEqual([]);
