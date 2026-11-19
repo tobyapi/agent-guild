@@ -101,7 +101,8 @@ fn conversion_restarts_at_every_durability_boundary() {
         assert_eq!(copies[0].join("guild.db").exists(), point != "before-backup");
         prepare(&f.db()).unwrap();
         inspect(&f.db()).unwrap();
-        assert_eq!(folders().len(), if point == "after-commit" { 1 } else { 2 });
+        assert_eq!(folders().len(), if matches!(point, "after-backup" | "before-commit") { 2 } else { 1 });
+        assert!(!f.0.join("backups/pre-1.0.0/.pending").exists());
         verify(&source::read_only(&f.db()).unwrap());
     }
 }
@@ -155,7 +156,13 @@ fn bad_values_roll_back_to_seven() {
         populate(&db);
         db.execute_batch(sql).unwrap();
         drop(db);
-        assert!(prepare(&f.db()).is_err(), "{sql}");
+        let before = fs::read(f.db()).unwrap();
+        assert!(inspect(&f.db()).is_err(), "{sql}");
+        for _ in 0..2 {
+            assert!(prepare(&f.db()).is_err(), "{sql}");
+            assert!(!f.0.join("backups").exists(), "{sql}");
+        }
+        assert_eq!(before, fs::read(f.db()).unwrap(), "{sql}");
         let db = source::read_only(&f.db()).unwrap();
         assert!(matches!(classify(&db).unwrap(), Generation::Legacy));
         assert_eq!(db.query_row("SELECT count(*) FROM messages", [], |r| r.get::<_, i64>(0)).unwrap(), 2);

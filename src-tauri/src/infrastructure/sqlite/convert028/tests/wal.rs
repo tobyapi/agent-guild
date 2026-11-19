@@ -83,3 +83,12 @@ fn incomplete_backups_stop_before_conversion() {
     assert!(prepare(&f.db()).is_err());
     assert_eq!(source_bytes(&f), original);
 }
+
+#[test]
+fn failed_backup_verification_removes_partial_files() {
+    let f = Fixture::new();
+    let db = old(&f.db(), 7);
+    db.execute("UPDATE meta SET value='wrong'", []).unwrap();
+    assert!(super::backup::create(&db, &f.0).is_err());
+    assert_eq!(fs::read_dir(f.0.join("backups/pre-1.0.0")).unwrap().count(), 0);
+}

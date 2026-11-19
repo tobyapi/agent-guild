@@ -24,9 +24,35 @@ pub(super) const TABLES: [&str; 13] = [
 pub(super) fn create(src: &Connection, root: &Path) -> Result<PathBuf> {
     let parent = root.join("backups").join("pre-1.0.0");
     fs::create_dir_all(&parent)?;
+    let staging = parent.join(".pending");
+    // The data-directory lock excludes another conversion. A crash can leave only our staging files here.
+    if staging.try_exists()? {
+        if !staging.symlink_metadata()?.file_type().is_dir() {
+            return Err(fail("Invalid backup staging directory"));
+        }
+        clear_staging(&staging)?;
+    }
+    source::private_dir(&staging)?;
+    let result = create_verified(src, &staging, &parent);
+    if let Err(error) = clear_staging(&staging) {
+        log::warn!("Could not clean up backup staging directory {}: {error}", staging.display());
+    }
+    result
+}
+
+fn clear_staging(staging: &Path) -> std::io::Result<()> {
+    for name in ["guild.db.partial", "guild.db.partial-journal", "guild.db.partial-wal", "guild.db.partial-shm"] {
+        match fs::remove_file(staging.join(name)) {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => (),
+            other => other?,
+        }
+    }
+    fs::remove_dir(staging)
+}
+
+fn create_verified(src: &Connection, staging: &Path, parent: &Path) -> Result<PathBuf> {
     let folder = parent.join(format!("{}-{}", chrono::Utc::now().format("%Y%m%dT%H%M%SZ"), uuid::Uuid::new_v4()));
-    source::private_dir(&folder)?;
-    let partial = folder.join("guild.db.partial");
+    let partial = staging.join("guild.db.partial");
     let path = folder.join("guild.db");
     {
         let mut dest = Connection::open(&partial)?;
@@ -47,9 +73,15 @@ pub(super) fn create(src: &Connection, root: &Path) -> Result<PathBuf> {
     File::options().read(true).write(true).open(&partial)?.sync_all()?;
     #[cfg(test)]
     super::fault("before-backup");
-    publish(&partial, &path)?;
+    source::private_dir(&folder)?;
+    if let Err(error) = publish(&partial, &path) {
+        if let Err(cleanup) = fs::remove_dir(&folder) {
+            log::warn!("Could not remove empty backup directory {}: {cleanup}", folder.display());
+        }
+        return Err(error.into());
+    }
     #[cfg(unix)]
-    for dir in [&folder, &parent, &root.join("backups"), root] {
+    for dir in [folder.as_path(), staging].into_iter().chain(parent.ancestors().take(3)) {
         File::open(dir)?.sync_all()?;
     }
     Ok(path)

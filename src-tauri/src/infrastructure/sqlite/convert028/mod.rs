@@ -23,15 +23,21 @@ fn corrupt(reason: impl Display) -> OpenError {
 }
 
 pub(super) fn inspect(path: &Path) -> std::result::Result<(), OpenError> {
-    let snapshot = source::Snapshot::open(path).map_err(corrupt)?;
-    classify(&snapshot.db)?;
-    backup::integrity(&snapshot.db).map_err(corrupt)
+    checked_snapshot(path).map(|_| ())
 }
 
-pub(super) fn prepare(path: &Path) -> std::result::Result<(), OpenError> {
+fn checked_snapshot(path: &Path) -> std::result::Result<(source::Snapshot, Generation), OpenError> {
     let snapshot = source::Snapshot::open(path).map_err(corrupt)?;
     let generation = classify(&snapshot.db)?;
     backup::integrity(&snapshot.db).map_err(corrupt)?;
+    if matches!(generation, Generation::Legacy) {
+        validate::legacy(&snapshot.db).map_err(corrupt)?;
+    }
+    Ok((snapshot, generation))
+}
+
+pub(super) fn prepare(path: &Path) -> std::result::Result<(), OpenError> {
+    let (snapshot, generation) = checked_snapshot(path)?;
     if matches!(generation, Generation::Current) {
         return Ok(());
     }
