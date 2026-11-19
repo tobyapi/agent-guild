@@ -1,12 +1,9 @@
-use super::{fail, svg, Result};
-use crate::infrastructure::{attachments::FsAttachments, frame_images::FsFrameImages};
-use guild_application::ports::{AttachmentStore, FrameImageStore};
-use guild_domain::{attachment::Attachment, ids::ChannelId, skill_usage::SkillUsage};
+use super::{fail, Result};
+use guild_domain::{attachment::Attachment, skill_usage::SkillUsage};
 use rusqlite::{Connection, OptionalExtension};
-use std::{fs, path::Path};
 
 /// Reject legacy values which would otherwise be silently discarded by projecting JSON or by reversing a relation.
-pub(super) fn legacy(db: &Connection, root: &Path) -> Result<()> {
+pub(super) fn legacy(db: &Connection) -> Result<()> {
     let issue = db
         .query_row(include_str!("preflight.sql"), [], |row| {
             Ok((row.get::<_, String>(0)?, row.get::<_, Option<String>>(1)?))
@@ -26,57 +23,24 @@ pub(super) fn legacy(db: &Connection, root: &Path) -> Result<()> {
             return Err(fail("meta.guild_profile: invalid stored name"));
         }
     }
-    check_messages(db, root)?;
-    check_frames(db, root)
+    check_messages(db)
 }
 
-fn check_messages(db: &Connection, root: &Path) -> Result<()> {
-    let store = FsAttachments::new(root);
+fn check_messages(db: &Connection) -> Result<()> {
     let mut st = db.prepare(
-        "SELECT id,channel_id,attachments,skill_usage FROM messages WHERE attachments<>'[]' OR skill_usage IS NOT NULL",
+        "SELECT id,attachments,skill_usage FROM messages WHERE attachments<>'[]' OR skill_usage IS NOT NULL",
     )?;
     let mut rows = st.query([])?;
     while let Some(row) = rows.next()? {
         let id: String = row.get(0)?;
-        let channel = ChannelId::new(row.get::<_, String>(1)?);
-        let items: Vec<Attachment> = serde_json::from_str(&row.get::<_, String>(2)?)
+        let items: Vec<Attachment> = serde_json::from_str(&row.get::<_, String>(1)?)
             .map_err(|e| fail(format!("messages.attachments {id}: {e}")))?;
-        for a in items {
-            if fs::metadata(store.path(&channel, &a)).map_err(|e| fail(format!("attachments {id}: {e}")))?.len()
-                != a.size
-            {
-                return Err(fail(format!("attachments: {id}")));
-            }
+        if items.iter().any(|item| item.size > i64::MAX as u64) {
+            return Err(fail(format!("messages.attachments {id}: size exceeds SQLite integer range")));
         }
-        if let Some(raw) = row.get::<_, Option<String>>(3)? {
+        if let Some(raw) = row.get::<_, Option<String>>(2)? {
             serde_json::from_str::<Option<SkillUsage>>(&raw)
                 .map_err(|e| fail(format!("messages.skill_usage {id}: {e}")))?;
-        }
-    }
-    Ok(())
-}
-
-fn check_frames(db: &Connection, root: &Path) -> Result<()> {
-    let store = FsFrameImages::new(root);
-    let mut st = db.prepare("SELECT id,kind,svg FROM avatar_frames")?;
-    let mut rows = st.query([])?;
-    while let Some(row) = rows.next()? {
-        let id: String = row.get(0)?;
-        match row.get::<_, String>(1)?.as_str() {
-            "svg" => {
-                let raw: String = row.get(2)?;
-                let safe =
-                    svg::sanitize_frame_svg(&raw).map_err(|e| fail(format!("avatar_frames {id}: {}", e.message())))?;
-                if safe != raw {
-                    return Err(fail(format!("avatar_frames {id}: noncanonical SVG")));
-                }
-            }
-            "png" => {
-                let bytes = store.read(&id)?;
-                image::load_from_memory_with_format(&bytes, image::ImageFormat::Png)
-                    .map_err(|e| fail(format!("avatar_frames {id}: {e}")))?;
-            }
-            _ => return Err(fail(format!("avatar_frames {id}: unknown kind"))),
         }
     }
     Ok(())
@@ -91,7 +55,11 @@ pub(super) fn converted(db: &Connection) -> Result<()> {
         ("messages", "messages", "seq,id"),
         ("delegations", "delegations", "id"),
         ("subtasks", "subtasks", "id"),
-        ("avatar_frames", "avatar_frames", "id"),
+        (
+            "avatar_frames",
+            "avatar_frames WHERE id NOT IN (SELECT id FROM temp.frame_repairs WHERE svg_text IS NULL)",
+            "id",
+        ),
         ("run_measurements", "run_measurements", "job_id"),
         ("skill_record_cutoffs", "skill_record_cutoffs", "job_id"),
         ("sqlite_sequence", "sqlite_sequence", "name,seq"),
@@ -111,8 +79,14 @@ pub(super) fn converted(db: &Connection) -> Result<()> {
         ("agent_tags", "SELECT count(*) FROM legacy.agents a,json_each(a.tags)"),
         ("channel_members", "SELECT count(*) FROM legacy.channel_members"),
         ("message_attachments", "SELECT count(*) FROM legacy.messages m,json_each(m.attachments)"),
-        ("message_mentions", "SELECT count(*) FROM legacy.messages m,json_each(m.mentions)"),
-        ("notification_receipts", "SELECT count(*) FROM legacy.meta WHERE substr(key,1,21)='desktop-notification:'"),
+        (
+            "message_mentions",
+            "SELECT count(*) FROM legacy.messages m,json_each(m.mentions) j WHERE j.value NOT IN ('me','system')",
+        ),
+        (
+            "notification_receipts",
+            "SELECT count(*) FROM legacy.meta WHERE substr(key,1,21)='desktop-notification:' AND length(key)>21",
+        ),
         ("interrupted_jobs", "SELECT count(*) FROM legacy.meta m,json_each(m.value) WHERE m.key='interrupted_jobs'"),
         ("guild_profile", "SELECT count(*) FROM legacy.meta WHERE key='guild_profile'"),
     ] {

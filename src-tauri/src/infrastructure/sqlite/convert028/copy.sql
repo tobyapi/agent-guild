@@ -11,11 +11,16 @@ INSERT INTO actors (id,kind,agent_id) SELECT id,'agent',id FROM legacy.agents;
 INSERT INTO agent_tags (agent_id,position,label) SELECT a.id,j.key,j.value FROM legacy.agents a,json_each(a.tags) j;
 INSERT INTO user_profile (id,name,avatar,color,frame_id) SELECT id,name,avatar,color,nullif(frame,'') FROM legacy.profile;
 INSERT INTO avatar_frames (rowid,id,name,kind,svg_text,created_at)
-  SELECT rowid,id,name,kind,CASE kind WHEN 'png' THEN NULL ELSE svg END,created_at FROM legacy.avatar_frames;
+  SELECT f.rowid,f.id,f.name,f.kind,CASE f.kind WHEN 'svg' THEN coalesce(r.svg_text,f.svg) END,f.created_at
+  FROM legacy.avatar_frames f LEFT JOIN temp.frame_repairs r ON r.id=f.id
+  WHERE r.id IS NULL OR r.svg_text IS NOT NULL;
+UPDATE agents SET frame_id=NULL WHERE frame_id IN (SELECT id FROM temp.frame_repairs WHERE svg_text IS NULL);
+UPDATE user_profile SET frame_id=NULL WHERE frame_id IN (SELECT id FROM temp.frame_repairs WHERE svg_text IS NULL);
 INSERT INTO skills (id,agent_id,name,description,body,updated_at,source_kind,source_path,builtin_name)
   SELECT id,agent_id,name,description,body,updated_at,
     CASE WHEN source IS NULL THEN 'local' ELSE json_extract(source,'$.kind') END,
-    json_extract(source,'$.path'),json_extract(source,'$.name') FROM legacy.skills;
+    CASE json_extract(source,'$.kind') WHEN 'linked' THEN json_extract(source,'$.path') END,
+    CASE json_extract(source,'$.kind') WHEN 'builtin' THEN json_extract(source,'$.name') END FROM legacy.skills;
 INSERT INTO channels (rowid,id,name,topic,icon,created_at,is_lobby,history_after_seq,guard_old_roots)
   SELECT rowid,id,name,topic,icon,created_at,is_lobby,json_extract(workspace_json,'$.afterSeq'),
     json_extract(workspace_json,'$.revision')>0 FROM legacy.channels;
@@ -30,7 +35,8 @@ INSERT INTO message_attachments (message_id,position,attachment_id,name,media_ty
   SELECT m.id,j.key,json_extract(j.value,'$.id'),json_extract(j.value,'$.name'),json_extract(j.value,'$.mediaType'),json_extract(j.value,'$.size')
   FROM legacy.messages m,json_each(m.attachments) j;
 INSERT INTO message_mentions (message_id,position,actor_id)
-  SELECT m.id,j.key,j.value FROM legacy.messages m,json_each(m.mentions) j;
+  SELECT m.id,row_number() OVER (PARTITION BY m.id ORDER BY j.key)-1,j.value
+  FROM legacy.messages m,json_each(m.mentions) j WHERE j.value NOT IN ('me','system');
 INSERT INTO delegations (rowid,id,channel_id,manager_id,source_message_id,status,summary_message_id,created_at,updated_at)
   SELECT rowid,id,channel_id,manager_id,message_id,status,summary_message_id,created_at,updated_at FROM legacy.delegations;
 INSERT INTO subtasks (id,delegation_id,position,assignee_id,instruction,status,result_message_id,note)
@@ -41,8 +47,8 @@ INSERT INTO skill_record_cutoffs (job_id,channel_id) SELECT job_id,channel_id FR
 UPDATE db_state SET seeded=EXISTS(SELECT 1 FROM legacy.meta WHERE key='seeded') WHERE id=1;
 INSERT INTO guild_profile (id,name,crest_shape,crest_color)
   SELECT 1,json_extract(value,'$.name'),json_extract(value,'$.crest.shape'),json_extract(value,'$.crest.color') FROM legacy.meta WHERE key='guild_profile';
-INSERT INTO notification_receipts (message_id,outcome) SELECT substr(key,22),value
-  FROM legacy.meta WHERE substr(key,1,21)='desktop-notification:';
+INSERT INTO notification_receipts (message_id,outcome) SELECT substr(key,22),'attempted'
+  FROM legacy.meta WHERE substr(key,1,21)='desktop-notification:' AND length(key)>21;
 INSERT INTO interrupted_jobs (position,channel_id,root_id,depth,agent_id)
   SELECT j.key,json_extract(j.value,'$.channelId'),json_extract(j.value,'$.rootId'),json_extract(j.value,'$.depth'),json_extract(j.value,'$.agentId')
   FROM legacy.meta k,json_each(k.value) j WHERE k.key='interrupted_jobs';

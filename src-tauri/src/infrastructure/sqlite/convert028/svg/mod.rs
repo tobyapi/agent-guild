@@ -1,4 +1,4 @@
-//! Revalidate stored v0.1.28 frame artwork before copying its original bytes.
+//! Revalidate stored v0.1.28 frame artwork before copying it into the v1 database.
 mod allowlist;
 mod policy;
 mod problem;

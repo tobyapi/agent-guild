@@ -1,3 +1,4 @@
+mod adjustments;
 mod fixture;
 mod records;
 mod wal;
@@ -112,6 +113,7 @@ fn open_disposable_copy() {
     }
     let root = PathBuf::from(std::env::var_os("GUILD_DATA_DIR").unwrap());
     assert!(root.file_name().unwrap().to_string_lossy().starts_with("guild-conversion-"));
+    let _ = env_logger::Builder::new().filter_level(log::LevelFilter::Warn).try_init();
     let _lock = crate::infrastructure::data_dir::acquire_lock(&root, Duration::ZERO).unwrap();
     Database::open(&root.join("guild.db")).unwrap();
 }
@@ -139,7 +141,6 @@ fn verify(db: &Connection) {
 #[test]
 fn bad_values_roll_back_to_seven() {
     for sql in [
-        "INSERT INTO meta VALUES('unknown','v')",
         "UPDATE messages SET mentions='{}'",
         "UPDATE messages SET delegation_id=NULL",
         "UPDATE channels SET workspace_json='{}'",
@@ -148,7 +149,6 @@ fn bad_values_roll_back_to_seven() {
         "UPDATE messages SET skill_usage='42'",
         "UPDATE messages SET root_id='missing'",
         "UPDATE delegations SET status='unknown'",
-        "INSERT INTO avatar_frames(id,name,kind,svg,created_at) VALUES('f','x','svg','invalid',0)",
     ] {
         let f = Fixture::new();
         let db = old(&f.db(), 7);

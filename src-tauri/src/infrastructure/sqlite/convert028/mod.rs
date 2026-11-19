@@ -1,4 +1,5 @@
 //! Convert a classified v0.1.28 database while the data-directory lock is held.
+mod adjustments;
 mod backup;
 mod identity;
 mod source;
@@ -60,7 +61,8 @@ fn convert(path: &Path, backup: &Path, root: &Path) -> Result<()> {
         return Err(fail("Expected v0.1.28 database"));
     }
     backup::compare(&tx, "legacy")?;
-    validate::legacy(&tx, root)?;
+    validate::legacy(&tx)?;
+    adjustments::stage(&tx, root)?;
     tx.execute_batch(
         "DROP TABLE subtasks; DROP TABLE delegations; DROP TABLE messages;
        DROP TABLE channel_members; DROP TABLE run_measurements; DROP TABLE skill_record_cutoffs;
