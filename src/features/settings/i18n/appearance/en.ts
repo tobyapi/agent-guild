@@ -7,7 +7,7 @@ export const en: Messages<typeof ja> = {
   saveApply: 'Save and apply',
   themeUndo: 'Undo theme change',
   themeRemove: 'Delete theme',
-  builtInTheme: 'Guild (built-in)',
+  builtInTheme: 'None',
   newerTheme: 'These appearance settings are from a newer version and are read-only.',
   missingImage: 'Background unavailable. Choose another image.',
   noThemeBackend: 'Connect a backend that can generate themes.',

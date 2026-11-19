@@ -7,7 +7,7 @@ export const zhHant: Messages<typeof ja> = {
   saveApply: '儲存並套用',
   themeUndo: '還原上一個主題',
   themeRemove: '刪除主題',
-  builtInTheme: '公會（內建）',
+  builtInTheme: '無',
   newerTheme: '外觀設定來自更新的版本，目前為唯讀。',
   missingImage: '無法載入背景，請重新選擇。',
   noThemeBackend: '請連接可產生主題的後端。',

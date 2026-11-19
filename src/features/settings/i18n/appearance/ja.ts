@@ -5,7 +5,7 @@ export const ja = {
   saveApply: '保存して適用',
   themeUndo: '元に戻す',
   themeRemove: 'テーマを削除',
-  builtInTheme: 'ギルド（組み込み）',
+  builtInTheme: 'なし',
   newerTheme: '新しい版で作られた外観設定です。読み取り専用で表示します。',
   missingImage: '背景を読み込めません。背景を選び直してください。',
   noThemeBackend: 'テーマを生成できるバックエンドを接続してください。',

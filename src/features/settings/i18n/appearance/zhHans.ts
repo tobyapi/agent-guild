@@ -7,7 +7,7 @@ export const zhHans: Messages<typeof ja> = {
   saveApply: '保存并应用',
   themeUndo: '恢复上一个主题',
   themeRemove: '删除主题',
-  builtInTheme: '公会（内置）',
+  builtInTheme: '无',
   newerTheme: '外观设置来自更新的版本，当前为只读。',
   missingImage: '无法加载背景，请重新选择。',
   noThemeBackend: '请连接可生成主题的后端。',

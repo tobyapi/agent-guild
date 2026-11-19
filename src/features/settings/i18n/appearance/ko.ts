@@ -7,7 +7,7 @@ export const ko: Messages<typeof ja> = {
   saveApply: '저장 및 적용',
   themeUndo: '이전 테마로 복원',
   themeRemove: '테마 삭제',
-  builtInTheme: '길드 (기본)',
+  builtInTheme: '없음',
   newerTheme: '새 버전의 외관 설정입니다. 읽기 전용으로 표시합니다.',
   missingImage: '배경을 불러올 수 없습니다. 다시 선택하세요.',
   noThemeBackend: '테마를 생성할 백엔드를 연결하세요.',
