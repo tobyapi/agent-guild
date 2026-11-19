@@ -25,6 +25,22 @@ fn legacy_classification_is_read_only() {
 }
 
 #[test]
+fn upgraded_and_fresh_028_match_the_frozen_identity() {
+    for steps in [&[1, 4, 5, 7][..], &[7][..]] {
+        let fixture = Fixture::new();
+        for &version in steps {
+            drop(old(&fixture.db(), version));
+        }
+        let db = source::read_only(&fixture.db()).unwrap();
+        assert!(matches!(classify(&db), Ok(Generation::Legacy)));
+        assert_eq!(schema::structure(&db).unwrap(), 0x1098ca4437397d6b);
+        let fp: String =
+            db.query_row("SELECT value FROM meta WHERE key='schema_fingerprint'", [], |r| r.get(0)).unwrap();
+        assert_eq!(fp, "14512365f8e91d16");
+    }
+}
+
+#[test]
 fn legacy_rejects_unknown_schema_or_fingerprint_without_writes() {
     for sql in [
         "CREATE INDEX unexpected ON agents(color)",

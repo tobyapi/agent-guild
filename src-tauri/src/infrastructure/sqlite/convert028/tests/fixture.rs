@@ -34,15 +34,18 @@ pub(super) fn old(path: &Path, version: usize) -> Connection {
         include_str!("../migrations/0006_message_skill_usage.sql"),
         include_str!("../migrations/0007_skill_record_cutoffs.sql"),
     ];
-    for ddl in migrations.iter().take(version) {
-        db.execute_batch(ddl).unwrap();
+    let applied: u32 = db.pragma_query_value(None, "user_version", |r| r.get(0)).unwrap();
+    for (index, ddl) in migrations.iter().take(version).enumerate() {
+        if index >= applied as usize {
+            db.execute_batch(ddl).unwrap();
+        }
         for b in ddl.replace("\r\n", "\n").bytes().chain(Some(0)) {
             hash = (hash ^ u64::from(b)).wrapping_mul(0x0100_0000_01b3);
         }
     }
     db.pragma_update(None, "application_id", APPLICATION_ID).unwrap();
     db.pragma_update(None, "user_version", version as i64).unwrap();
-    db.execute("INSERT INTO meta VALUES ('schema_fingerprint',?)", [format!("{hash:016x}")]).unwrap();
+    db.execute("INSERT OR REPLACE INTO meta VALUES ('schema_fingerprint',?)", [format!("{hash:016x}")]).unwrap();
     db
 }
 pub(super) fn populate(db: &Connection) {
