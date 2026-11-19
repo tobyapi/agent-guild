@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import { Button } from '@/shared/ui';
+import { Button, Icon } from '@/shared/ui';
 import type { Scheme } from '@/shared/theme/types';
 import { setBackground, useAppearanceStore } from '../appearance';
 import { useBackgroundImage } from '../useBackgroundImage';
@@ -59,25 +59,32 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
       {choices.map(({ id, label, image }, index) => {
         const checked = id === selected;
         return (
-          <div key={id} className={styles.imageRow}>
+          <div key={id} className={styles.card}>
             <button
               type="button"
               role="radio"
-              className={styles.card}
+              className={styles.choice}
               aria-checked={checked}
               tabIndex={id === firstTab ? 0 : -1}
               onClick={() => select(id)}
               onKeyDown={(event) => navigate(event, index)}
             >
-              {image ? <Thumbnail id={id} scheme={scheme} /> : <span className={styles.preview} data-scheme={scheme} />}
+              {image ? (
+                <Thumbnail id={id} scheme={scheme} />
+              ) : (
+                <span className={styles.emptyPreview}>
+                  <Icon name={id === 'none' ? 'minus' : 'image'} />
+                </span>
+              )}
               <span>{label}</span>
+              {checked && <Icon name="check" className={styles.selectedMark} />}
             </button>
             {image && (
               <Button
                 variant="danger"
                 disabled={busy}
                 onClick={() => setRemoving(id)}
-                aria-label={`${t('backgroundDelete')} ${image}`}
+                aria-label={t('backgroundDeleteLabel', { label })}
               >
                 {t('backgroundDelete')}
               </Button>

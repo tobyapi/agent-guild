@@ -22,7 +22,7 @@ export function ThemePicker({ backgroundRevision = 0 }: { backgroundRevision?: n
     preference.schemePreference === 'system' ? (systemLight ? 'light' : 'dark') : preference.schemePreference;
   return (
     <div className={fields.appearance}>
-      <div className={fields.field}>
+      <div className={fields.scheme}>
         <span className={fields.label} aria-hidden="true">
           {t('schemeLabel')}
         </span>
@@ -30,9 +30,9 @@ export function ThemePicker({ backgroundRevision = 0 }: { backgroundRevision?: n
           label={t('schemeLabel')}
           value={preference.schemePreference}
           options={[
-            { value: 'dark', label: t('themeGuildDark') },
-            { value: 'light', label: t('themeGuildLight') },
-            { value: 'system', label: t('themeGuildSystem') },
+            { value: 'dark', label: t('schemeDark') },
+            { value: 'light', label: t('schemeLight') },
+            { value: 'system', label: t('schemeSystem') },
           ]}
           onChange={setSchemePreference}
         />

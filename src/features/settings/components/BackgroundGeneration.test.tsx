@@ -43,7 +43,7 @@ afterEach(() => {
 });
 function open() {
   render(<BackgroundPicker scheme="dark" />);
-  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerate }));
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerateTitle }));
 }
 function submit() {
   fireEvent.change(screen.getByLabelText(ja.backgroundSubject), { target: { value: ' quiet lake ' } });
@@ -52,10 +52,10 @@ function submit() {
 it('hides generation without background capability or a ready backend', () => {
   runtime.backends = [backendInfo()];
   const view = render(<BackgroundPicker scheme="light" />);
-  expect(screen.queryByRole('button', { name: ja.backgroundGenerate })).toBeNull();
+  expect(screen.queryByRole('button', { name: ja.backgroundGenerateTitle })).toBeNull();
   runtime.backends = [backendInfo({ backgroundGeneration: true, status: 'needs_auth' })];
   view.rerender(<BackgroundPicker scheme="light" />);
-  expect(screen.queryByRole('button', { name: ja.backgroundGenerate })).toBeNull();
+  expect(screen.queryByRole('button', { name: ja.backgroundGenerateTitle })).toBeNull();
 });
 it('selects only ready image backends and validates the subject', () => {
   runtime.backends.push(
@@ -148,7 +148,7 @@ it('keeps a saved image unselected when success arrives while cancellation is pe
       }),
   );
   const view = render(<BackgroundPicker scheme="light" />);
-  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerate }));
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerateTitle }));
   submit();
   fireEvent.click(screen.getByRole('button', { name: ja.backgroundStop }));
   // Persistence completed, but the generation response crosses the cancellation request.
@@ -172,7 +172,7 @@ it('keeps a saved image unselected when success arrives while cancellation is pe
 });
 it('cancels on unmount without applying a late result', async () => {
   const view = render(<BackgroundPicker scheme="light" />);
-  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerate }));
+  fireEvent.click(screen.getByRole('button', { name: ja.backgroundGenerateTitle }));
   submit();
   view.unmount();
   expect(settingsApi.cancelBackgroundGeneration).toHaveBeenCalledTimes(1);

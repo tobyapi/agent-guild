@@ -5,8 +5,8 @@
 .card {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2);
+  gap: var(--space-2);
+  padding-inline-end: var(--space-2);
   text-align: start;
   --glass-ink-weight: 0%;
   background: var(--bg-panel);
@@ -15,15 +15,15 @@
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
 }
-.card[aria-checked='true'] {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
+.card:has(.choice[aria-checked='true']) {
+  border-color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px var(--accent-text);
 }
 .preview {
   display: block;
   position: relative;
   overflow: hidden;
-  flex: 0 0 var(--theme-preview-width);
+  flex: 0 1 var(--theme-preview-width);
   block-size: var(--theme-preview-height);
   border-radius: var(--radius-md);
   background: var(--theme-preview-dark);
@@ -49,11 +49,27 @@
   background: linear-gradient(90deg, transparent 23%, var(--glass-edge) 23%, var(--glass-edge) 24%, transparent 24%);
 }
 
-.imageRow {
+.choice {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.imageRow > .card {
   flex: 1;
+  min-inline-size: 0;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  text-align: start;
+  border-radius: var(--radius-lg);
+}
+
+.selectedMark {
+  font-size: var(--text-lg);
+}
+
+.emptyPreview {
+  display: grid;
+  place-items: center;
+  flex: 0 1 var(--theme-preview-width);
+  block-size: var(--theme-preview-height);
+  border: 1px dashed var(--border-hover);
+  border-radius: var(--radius-md);
+  font-size: var(--text-lg);
 }

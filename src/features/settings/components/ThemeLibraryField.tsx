@@ -14,20 +14,20 @@ export function ThemeLibraryField({ onDraftClosed }: { onDraftClosed: () => void
   return (
     <div className={fields.field}>
       {state.readOnly && <FormAlert>{t('newerTheme')}</FormAlert>}
-      <SelectField
-        label={t('themeLabel')}
-        value={state.active.themeId}
-        onChange={themeActions.select}
-        disabled={state.readOnly}
-      >
-        <option value="guild">{t('builtInTheme')}</option>
-        {state.themes.map((theme) => (
-          <option key={theme.id} value={theme.id}>
-            {theme.name}
-          </option>
-        ))}
-      </SelectField>
-      <div>
+      <div className={fields.themeControls}>
+        <SelectField
+          label={t('themeLabel')}
+          value={state.active.themeId}
+          onChange={themeActions.select}
+          disabled={state.readOnly}
+        >
+          <option value="guild">{t('builtInTheme')}</option>
+          {state.themes.map((theme) => (
+            <option key={theme.id} value={theme.id}>
+              {theme.name}
+            </option>
+          ))}
+        </SelectField>
         <Button disabled={state.readOnly} onClick={() => setOpen(true)}>
           {t('themeCreate')}
         </Button>
