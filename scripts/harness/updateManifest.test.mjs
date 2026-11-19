@@ -50,3 +50,17 @@ test('署名がない・対象が分からない・同じ OS が重なるとき�
   const twice = { [WINDOWS]: 'a', 'agent-guild_windows-x64_other.exe.sig': 'b' };
   assert.throws(() => buildManifest({ ...base, signatures: twice }), /2つあります/);
 });
+
+test('片方の OS の署名だけでは manifest を作らない', () => {
+  assert.throws(() => buildManifest({ ...base, signatures: { [WINDOWS]: 'sig-win' } }), /darwin-aarch64/);
+  assert.throws(() => buildManifest({ ...base, signatures: { [MAC]: 'sig-mac' } }), /windows-x86_64/);
+});
+
+test('空の署名や更新に使えないファイルの署名を拒否する', () => {
+  for (const name of [WINDOWS, MAC]) {
+    const signatures = { [WINDOWS]: 'sig-win', [MAC]: 'sig-mac', [name]: '  \n' };
+    assert.throws(() => buildManifest({ ...base, signatures }), /署名が空/);
+  }
+  assert.equal(updateTarget('agent-guild_macos-arm64_installer.dmg.sig'), null);
+  assert.equal(updateTarget('agent-guild_windows-x64_setup.exe'), null);
+});

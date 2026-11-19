@@ -6,7 +6,10 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /** 配布物の名前に入っているビルドの名前（build.yml の matrix.name）→ 更新プラグインの対象名 */
-const PLATFORMS = { 'windows-x64': 'windows-x86_64', 'macos-arm64': 'darwin-aarch64' };
+const PLATFORMS = [
+  { name: 'windows-x86_64', signature: /_windows-x64_.*\.exe\.sig$/ },
+  { name: 'darwin-aarch64', signature: /_macos-arm64_.*\.app\.tar\.gz\.sig$/ },
+];
 
 /** タグ（v0.2.0）とアプリの版（0.2.0）が合っていなければ、理由を返す。合っていれば null */
 export function versionProblem(tag, version) {
@@ -16,9 +19,8 @@ export function versionProblem(tag, version) {
 
 /** 署名のファイル名（agent-guild_windows-x64_….exe.sig）から、対象名と配布物の名前を読む。対象が分からなければ null */
 export function updateTarget(signatureName) {
-  const artifact = signatureName.replace(/\.sig$/, '');
-  const platform = Object.keys(PLATFORMS).find((name) => artifact.includes(`_${name}_`));
-  return platform ? { platform: PLATFORMS[platform], artifact } : null;
+  const platform = PLATFORMS.find(({ signature }) => signature.test(signatureName));
+  return platform ? { platform: platform.name, artifact: signatureName.slice(0, -4) } : null;
 }
 
 /** latest.json の中身。signatures は { 署名のファイル名: 署名の中身 } */
@@ -28,11 +30,16 @@ export function buildManifest({ version, tag, repository, signatures, pubDate, n
     const target = updateTarget(name);
     if (!target) throw new Error(`どの OS 向けの署名か分かりません: ${name}`);
     if (Object.hasOwn(platforms, target.platform)) throw new Error(`同じ OS 向けの署名が2つあります: ${name}`);
+    const value = signature.trim();
+    if (!value) throw new Error(`署名が空です: ${name}`);
     const url = `https://github.com/${repository}/releases/download/${tag}/${encodeURIComponent(target.artifact)}`;
-    platforms[target.platform] = { signature: signature.trim(), url };
+    platforms[target.platform] = { signature: value, url };
   }
   if (Object.keys(platforms).length === 0) {
     throw new Error('署名（*.sig）がありません。TAURI_SIGNING_PRIVATE_KEY を Secrets に登録してください');
+  }
+  for (const { name } of PLATFORMS) {
+    if (!Object.hasOwn(platforms, name)) throw new Error(`${name} の更新用署名がありません`);
   }
   return { version, notes, pub_date: pubDate, platforms };
 }
