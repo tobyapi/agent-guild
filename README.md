@@ -5,7 +5,7 @@ Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを「仲間」と
 
 > v1.0.0 は初回起動時に v0.1.28 の DB をバックアップして変換します。それより前の版をお使いの方は、先に v0.1.28 で同じデータフォルダを一度開いてください。[更新手順とバックアップの場所](docs/releases/v1.0.0.md)
 
-![AIギルドの画面: 左にチャンネルとエージェント、中央に #ロビー の会話、右にメンバーの一覧](docs/images/screenshot.png)
+![AIギルドの画面。左にチャンネルとエージェントの一覧、中央に #agent-guild開発 での白竜2の進捗報告、右に7人のメンバーの一覧](docs/images/screenshot.png)
 
 ## できること
 
