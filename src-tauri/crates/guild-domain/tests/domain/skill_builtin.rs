@@ -57,6 +57,7 @@ fn builtins_are_sorted_unique_and_found_by_name() {
             "ambiguous-word-rewrite",
             "character-voice",
             "concept-shift",
+            "eli5",
             "expert-collaboration",
             "introspection",
             "ornate-avatar-frame",

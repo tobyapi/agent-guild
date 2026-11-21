@@ -16,6 +16,7 @@ it('役割に応じた既定スキルを付け、通常の保存では外した�
     const agent = await transport.invoke('create_agent', { input });
     const skills = await transport.invoke('list_skills', { agentId: agent.id });
     expect(skills.map((skill) => skill.name).sort()).toEqual([...template.builtinSkills].sort());
+    expect(template.builtinSkills).not.toContain('eli5');
     expect(skills).toHaveLength(template.id === 'worker' ? 0 : 2);
     expect(skills.every((skill) => skill.source?.kind === 'builtin')).toBe(true);
   }

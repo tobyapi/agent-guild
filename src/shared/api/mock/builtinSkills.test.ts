@@ -18,6 +18,7 @@ describe('モックの内蔵スキル', () => {
       'ambiguous-word-rewrite',
       'character-voice',
       'concept-shift',
+      'eli5',
       'expert-collaboration',
       'introspection',
       'ornate-avatar-frame',
@@ -32,6 +33,7 @@ describe('モックの内蔵スキル', () => {
     const shift = builtins.find((skill) => skill.name === 'concept-shift');
     expect(shift?.description).toContain('transformative ideation');
     expect(shift?.files).toEqual(['references/EVALUATION.md', 'references/OPERATORS.md']);
+    expect(builtins.find((skill) => skill.name === 'eli5')?.files).toEqual(['LICENSE', 'references/audiences.md']);
     const critique = builtins.find((skill) => skill.name === 'universal-critique');
     expect(critique?.files).toContain('references/classical-methods.md');
     expect(builtins.find((skill) => skill.name === 'introspection')?.files).toEqual([]);

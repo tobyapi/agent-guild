@@ -39,8 +39,13 @@ async fn linked_builtins_are_read_only_and_copies_are_editable() {
     assert!(matches!(error, AppError::Validation(_)), "内蔵スキルの参照は編集できない");
     assert!(matches!(add("introspection", LibraryAddMode::Copy), Err(AppError::Conflict(_))));
 
-    let copied = add("ambiguous-word-rewrite", LibraryAddMode::Copy).unwrap();
+    let copied = add("eli5", LibraryAddMode::Copy).unwrap();
     assert_eq!(copied.source, None);
+    let license = guild_domain::skill::builtin_skill_files("eli5").into_iter().find(|f| f.path == "LICENSE").unwrap();
+    assert!(
+        copied.body.contains(license.content.replace("\r\n", "\n").trim()),
+        "本文だけをコピーしても著作権・許諾表示が残る"
+    );
     assert_eq!(app.services.skills.save(edit_of(&copied, "新しい説明")).unwrap().description, "新しい説明");
 
     assert_eq!(add("no-such-skill", LibraryAddMode::Link), Err(AppError::NotFound("内蔵スキル")));
@@ -91,6 +96,7 @@ async fn runs_pass_the_bundled_files_of_builtins() {
     let haru = app.agent("worker", "ハル");
     let lobby = app.channel("ロビー", &[&haru]);
     app.services.skills.add_builtin(&haru.id, "universal-critique", LibraryAddMode::Link).unwrap();
+    app.services.skills.add_builtin(&haru.id, "eli5", LibraryAddMode::Link).unwrap();
     app.services.skills.add_builtin(&haru.id, "concept-shift", LibraryAddMode::Copy).unwrap();
     app.runtime.script(haru.id.as_str(), reply("はい"));
 
@@ -104,5 +110,6 @@ async fn runs_pass_the_bundled_files_of_builtins() {
     };
     assert_eq!(files_of("universal-critique"), find_builtin_skill("universal-critique").unwrap().files);
     assert!(files_of("universal-critique").iter().any(|path| path == "references/classical-methods.md"));
+    assert_eq!(files_of("eli5"), ["LICENSE", "references/audiences.md"]);
     assert!(files_of("concept-shift").is_empty(), "コピーしたスキルは本文だけ（付属ファイルは持たない）");
 }
