@@ -1,6 +1,7 @@
-//! 仕事の節（全員）と、相談・レビューへの答え方の節（consultable のエージェントだけ）。
+//! 仕事の節と、役割や相談設定に応じた返答の指示。
 
 use super::{capabilities, PromptContext};
+use crate::agent::uses_manager_reply_guidance;
 
 /// 全員: 何をする人か（役割と得意分野）と、実効権限で「できること」
 pub(super) fn work_section(ctx: &PromptContext<'_>) -> String {
@@ -10,6 +11,14 @@ pub(super) fn work_section(ctx: &PromptContext<'_>) -> String {
 ",
         capabilities::describe(&ctx.permissions)
     )
+}
+
+pub(super) fn manager_reply_section(ctx: &PromptContext<'_>) -> String {
+    if uses_manager_reply_guidance(&ctx.agent.tags) {
+        include_str!("manager_reply.md").to_owned()
+    } else {
+        String::new()
+    }
 }
 
 /// consultable なら: 相談やレビュー依頼への答え方

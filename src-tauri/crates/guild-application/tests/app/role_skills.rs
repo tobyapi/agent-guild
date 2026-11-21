@@ -1,4 +1,6 @@
 //! 役割ごとの内蔵スキル: 作成、役割変更、手動編集の保持。
+mod manager_reply;
+
 use crate::support::runtime::{ready_backend, reply};
 use crate::support::{input, TestApp};
 use guild_application::ports::RuntimeRequest;

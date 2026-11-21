@@ -1,6 +1,6 @@
 //! システムプロンプトと会話プロンプトの組み立て（design.md §8）。
 //! I/O はしない: 現在日時の文字列・MEMORY.md の内容・スキル・実効権限・時刻の表示方法は引数で受け取る。
-//! 基本の役割・専門家の協働指示は役割表から、それ以外の節は振る舞いの設定（Agent::behavior）と実効権限から組み立てる。
+//! 基本の役割・専門家の協働指示・マネージャーの返答指示は役割表から、それ以外の節は振る舞いの設定（Agent::behavior）と実効権限から組み立てる。
 
 mod answering;
 mod attachments;
@@ -69,7 +69,7 @@ pub struct PromptContext<'a> {
     pub language: Language,
 }
 
-/// システムプロンプト: 会話の言語（日本語以外のとき）→ 人格 → 仕事 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
+/// システムプロンプト: 会話の言語（日本語以外のとき）→ 人格 → 仕事 → ユーザーへの話し方 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →
 /// 作業場所とメモ → 外の資料の扱いと操作の前の確認 → 場所と共通ルール
 pub fn build_system_prompt(ctx: &PromptContext<'_>) -> String {
     build_system_prompt_with_global(ctx, "")
@@ -88,6 +88,7 @@ pub fn build_system_prompt_with_global(ctx: &PromptContext<'_>, instructions: &s
         voice::section(ctx.agent),
         global_instructions_section(instructions),
         answering::work_section(ctx),
+        answering::manager_reply_section(ctx),
         consultation,
         delegation,
         notifications::section(ctx),

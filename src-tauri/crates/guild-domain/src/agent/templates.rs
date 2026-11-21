@@ -40,10 +40,17 @@ struct Flags {
     can_notify: bool,
     autonomy: bool,
     expert_collaboration: bool,
+    manager_reply: bool,
 }
 
-const QUIET: Flags =
-    Flags { consultable: false, can_delegate: false, can_notify: false, autonomy: false, expert_collaboration: false };
+const QUIET: Flags = Flags {
+    consultable: false,
+    can_delegate: false,
+    can_notify: false,
+    autonomy: false,
+    expert_collaboration: false,
+    manager_reply: false,
+};
 
 /// 作業者は対応する全機能を使う。
 const FULL_ACCESS: Permissions = Permissions {
@@ -133,7 +140,7 @@ const ROWS: [Row; 4] = [
         expertise: texts::MANAGER_EXPERTISE,
         permissions: Permissions { read_anywhere: true, ..WORKSPACE_TOOLS },
         unmentioned: UnmentionedPolicy::Lead,
-        flags: Flags { can_delegate: true, can_notify: true, ..QUIET },
+        flags: Flags { can_delegate: true, can_notify: true, manager_reply: true, ..QUIET },
     },
 ];
 
@@ -179,6 +186,10 @@ fn row_for_tags(tags: &[String]) -> Option<&'static Row> {
 
 pub(crate) fn uses_expert_collaboration(tags: &[String]) -> bool {
     row_for_tags(tags).is_some_and(|row| row.flags.expert_collaboration)
+}
+
+pub(crate) fn uses_manager_reply_guidance(tags: &[String]) -> bool {
+    row_for_tags(tags).is_some_and(|row| row.flags.manager_reply)
 }
 
 /// アプリが実行する通知の権限。会話の割り振り設定やランナーの道具の権限とは独立。
