@@ -52,6 +52,31 @@ async fn only_managers_get_reply_guidance_once_on_every_backend_with_or_without_
 }
 
 #[tokio::test]
+async fn worker_changed_to_manager_gets_reply_guidance_once() {
+    let app = TestApp::new();
+    let worker = app.services.agents.create(input("worker", "担当")).unwrap();
+    let channel = app.channel("相談", &[&worker]);
+    let before = request_for(&app, &worker, &channel).await;
+    assert_eq!(before.system_prompt.matches(GUIDANCE.trim_end()).count(), 0);
+
+    let manager = app.services.agents.update(&worker.id, input("manager", &worker.name)).unwrap();
+    let after = request_for(&app, &manager, &channel).await;
+    assert_eq!(after.system_prompt.matches(GUIDANCE.trim_end()).count(), 1);
+}
+
+#[tokio::test]
+async fn manager_with_english_first_tag_gets_reply_guidance_once() {
+    let app = TestApp::new();
+    let mut manager_input = input("manager", "進行役");
+    manager_input.tags = vec!["Manager".into()];
+    let manager = app.services.agents.create(manager_input).unwrap();
+    assert_eq!(manager.tags, ["Manager"]);
+    let channel = app.channel("相談", &[&manager]);
+    let request = request_for(&app, &manager, &channel).await;
+    assert_eq!(request.system_prompt.matches(GUIDANCE.trim_end()).count(), 1);
+}
+
+#[tokio::test]
 async fn existing_manager_with_only_pre_eli5_links_gets_reply_guidance_after_restart() {
     let old = TestApp::new();
     let manager = old.agent("manager", "進行役");
