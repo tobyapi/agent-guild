@@ -11,13 +11,18 @@ it('役割に応じた既定スキルを付け、通常の保存では外した�
   const starter = snapshot.agents[0]!;
   const original: AgentInput = { ...starter };
   expect(await transport.invoke('list_skills', { agentId: starter.id })).toEqual([]);
+  const expectedSkills: Record<string, string[]> = {
+    worker: [],
+    ideator: ['concept-shift', 'introspection'],
+    expert: ['expert-collaboration', 'universal-critique'],
+    manager: ['eli5', 'reflection', 'universal-manager'],
+  };
   for (const template of snapshot.templates) {
     const input = { ...original, ...template.defaults, name: template.label };
     const agent = await transport.invoke('create_agent', { input });
     const skills = await transport.invoke('list_skills', { agentId: agent.id });
     expect(skills.map((skill) => skill.name).sort()).toEqual([...template.builtinSkills].sort());
-    expect(template.builtinSkills).not.toContain('eli5');
-    expect(skills).toHaveLength(template.id === 'worker' ? 0 : 2);
+    expect([...template.builtinSkills].sort()).toEqual(expectedSkills[template.id]);
     expect(skills.every((skill) => skill.source?.kind === 'builtin')).toBe(true);
   }
   const ideator = snapshot.templates.find((item) => item.id === 'ideator')!;

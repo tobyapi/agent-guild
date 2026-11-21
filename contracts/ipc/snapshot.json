@@ -675,7 +675,8 @@
       },
       "builtinSkills": [
         "universal-manager",
-        "reflection"
+        "reflection",
+        "eli5"
       ],
       "roleTags": [
         "マネージャー",

@@ -119,7 +119,7 @@ const ROWS: [Row; 4] = [
     },
     Row {
         id: "manager",
-        builtin_skills: &["universal-manager", "reflection"],
+        builtin_skills: &["universal-manager", "reflection", "eli5"],
         label: ["マネージャー", "Manager", "经理", "經理", "매니저"],
         legacy_tags: &[],
         description: [

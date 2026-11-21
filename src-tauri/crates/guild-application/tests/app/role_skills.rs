@@ -17,6 +17,7 @@ async fn every_role_starts_with_linked_builtin_skills() {
         names.sort();
         expected.sort();
         assert_eq!(names, expected);
+        assert_eq!(skills.iter().any(|skill| skill.builtin_name() == Some("eli5")), template.id == "manager");
         assert!(skills
             .iter()
             .all(|skill| skill.problem.is_none()
