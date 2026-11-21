@@ -15,6 +15,7 @@ fn ideator_template_includes_concept_shift_and_introspection() {
     assert_eq!(ideator.builtin_skills, ["concept-shift", "introspection"]);
 }
 
+// eli5 は MIT の許諾表示とともに上流の出典を残すため、この一覧から除く。
 const IMPORTED_BUILTIN_NAMES: [&str; 7] = [
     "ambiguous-word-rewrite",
     "character-voice",
