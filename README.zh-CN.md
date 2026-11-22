@@ -105,7 +105,7 @@ Windows 安装程序的代码签名正在申请 [SignPath Foundation](https://si
 
 除用户主动要求外，本应用不会向网络上的其他系统发送信息。例外如下（英语全文见 [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)）。
 
-- **检查更新**：启动时以及此后每 6 小时，从 GitHub 的 Releases（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）确认是否有新版本。只发送普通的 HTTPS 请求，不会发送对话或文件的内容。在“设置 → 应用更新”中关闭“自动检查新版本”后，只在按下［检查更新］时才确认。
+- **检查更新**：启动时、返回应用或恢复连接时，以及每 5 分钟，从 GitHub 的 Releases（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）确认是否有新版本。只发送普通的 HTTPS 请求，不会发送对话或文件的内容。在“设置 → 应用更新”中关闭“自动检查新版本”后，只在按下［检查更新］时才确认。
 - **AI 后端**：向智能体发送消息时，会把对话交给为该智能体设置的后端（Claude Code、Codex CLI、Ollama 等）。发送目标和数据处理遵循各服务的隐私政策。Ollama（本机）不会发送到设备之外。
 - **角色图鉴**：只有在打开图鉴的选择界面时，才会从图鉴的网站获取图片。
 

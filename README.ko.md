@@ -105,7 +105,7 @@ Windows 설치 프로그램의 코드 서명을 위해 [SignPath Foundation](htt
 
 이 앱은 사용자가 요청한 경우를 제외하고 네트워크로 연결된 다른 시스템에 정보를 보내지 않습니다. 예외는 다음과 같습니다(영어 전문은 [코드 서명 정책](CODE_SIGNING_POLICY.md#privacy-policy)).
 
-- **업데이트 확인**: 실행할 때와 그 후 6시간마다 GitHub Releases(`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`)에서 새 버전을 확인합니다. 보내는 것은 일반 HTTPS 요청뿐이며, 대화나 파일 내용은 보내지 않습니다. 설정 → 앱 업데이트에서 "새 버전 자동 확인"을 끄면 [업데이트 확인]을 눌렀을 때만 확인합니다.
+- **업데이트 확인**: 시작할 때, 앱으로 돌아오거나 연결이 복구될 때, 그리고 5분마다 GitHub Releases(`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`)에서 새 버전을 확인합니다. 보내는 것은 일반 HTTPS 요청뿐이며, 대화나 파일 내용은 보내지 않습니다. 설정 → 앱 업데이트에서 "새 버전 자동 확인"을 끄면 [업데이트 확인]을 눌렀을 때만 확인합니다.
 - **AI 백엔드**: 에이전트에게 말을 걸면 그 에이전트에 설정된 백엔드(Claude Code, Codex CLI, Ollama 등)에 대화를 넘깁니다. 전송 대상과 데이터 처리는 각 서비스의 개인정보 처리방침을 따릅니다. Ollama(이 PC)는 기기 밖으로 보내지 않습니다.
 - **캐릭터 도감**: 도감 선택 화면을 열었을 때만 도감 사이트에서 이미지를 가져옵니다.
 

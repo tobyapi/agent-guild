@@ -105,7 +105,7 @@ Windows 安裝程式的程式碼簽署，正在申請 [SignPath Foundation](http
 
 除了使用者要求時以外，本應用程式不會將資訊傳送到網路上的其他系統。例外如下（英文全文見 [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)）。
 
-- **檢查更新**：啟動時以及之後每 6 小時，會從 GitHub 的 Releases（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）確認是否有新版本。只傳送一般的 HTTPS 請求，不會傳送對話或檔案的內容。在「設定 → 應用程式更新」中關閉「自動檢查新版本」後，只會在按下［檢查更新］時確認。
+- **檢查更新**：啟動時、返回應用程式或恢復連線時，以及每 5 分鐘，會從 GitHub 的 Releases（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）確認是否有新版本。只傳送一般的 HTTPS 請求，不會傳送對話或檔案的內容。在「設定 → 應用程式更新」中關閉「自動檢查新版本」後，只會在按下［檢查更新］時確認。
 - **AI 後端**：對代理人說話時，會把對話交給該代理人設定的後端（Claude Code、Codex CLI、Ollama 等）。傳送對象與資料的處理方式依各服務的隱私權政策。Ollama（本機）不會傳送到裝置之外。
 - **角色圖鑑**：只有在開啟圖鑑的選擇畫面時，才會從圖鑑的網站取得圖片。
 

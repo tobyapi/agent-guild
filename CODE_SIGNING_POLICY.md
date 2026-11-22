@@ -53,6 +53,6 @@ Update packages are additionally signed with the project's update key (minisign)
 
 This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it, with the following exceptions:
 
-- **Update check**: on startup and every six hours, the app requests `https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json` to see whether a newer version exists. Only a plain HTTPS request is sent; no conversations or files are included. You can turn this off in Settings → App updates ("Check for new versions automatically"); the app then checks only when you press "Check for updates".
+- **Update check**: on startup, when returning to the app or reconnecting, and every five minutes, the app requests `https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json` to see whether a newer version exists. Only a plain HTTPS request is sent; no conversations or files are included. You can turn this off in Settings → App updates ("Check for new versions automatically"); the app then checks only when you press "Check for updates".
 - **AI backends**: when you talk to an agent, the conversation is sent to the backend you configured for that agent (Claude Code, Codex CLI, Ollama and others). Those services' privacy policies apply. Ollama running on your own computer does not send data off the machine.
 - **Character gallery**: images are downloaded from the gallery site only when you open the selection screen.

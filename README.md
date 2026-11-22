@@ -105,7 +105,7 @@ We have applied to the free program of [SignPath Foundation](https://signpath.or
 
 This app does not send information to other networked systems except when the user requests it. The exceptions are as follows (full text in English in the [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)).
 
-- **Update checks**: At launch and every 6 hours after that, the app checks GitHub Releases (`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`) for a new version. It sends only a normal HTTPS request and never sends the contents of conversations or files. If you turn off "Check for new versions automatically" in Settings → App updates, it checks only when you press [Check for updates].
+- **Update checks**: On startup, when you return to the app or reconnect, and every five minutes, the app checks GitHub Releases (`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`) for a new version. It sends only a normal HTTPS request and never sends the contents of conversations or files. If you turn off "Check for new versions automatically" in Settings → App updates, it checks only when you press [Check for updates].
 - **AI backends**: When you talk to an agent, the conversation is passed to the backend configured for that agent (Claude Code, Codex CLI, Ollama, etc.). Where it goes and how the data is handled follow each service's privacy policy. Ollama (this PC) does not send anything off the device.
 - **Character gallery**: Images are fetched from the gallery's site only when you open the gallery picker.
 

@@ -105,7 +105,7 @@ Windows のインストーラーへのコード署名は、[SignPath Foundation]
 
 このアプリは、利用者が求めたとき以外、情報をほかのネットワーク上のシステムへ送りません。例外は次のとおりです（英語の全文は [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)）。
 
-- **更新の確認**: 起動時とその後6時間ごとに、GitHub のリリース（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）から新しい版があるかを確かめます。送るのは通常の HTTPS のリクエストだけで、会話やファイルの中身は送りません。「設定 → アプリの更新」の「新しい版を自動で確認する」をオフにすると、［更新を確認］を押したときだけ確かめます。
+- **更新の確認**: 起動時・アプリに戻ったとき・通信が戻ったときと5分ごとに、GitHub のリリース（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）から新しい版があるかを確かめます。送るのは通常の HTTPS のリクエストだけで、会話やファイルの中身は送りません。「設定 → アプリの更新」の「新しい版を自動で確認する」をオフにすると、［更新を確認］を押したときだけ確かめます。
 - **AI のバックエンド**: エージェントに話しかけると、そのエージェントに設定したバックエンド（Claude Code・Codex CLI・Ollama など）に会話を渡します。送り先とデータの扱いは、それぞれのサービスのプライバシーポリシーに従います。Ollama（この PC）は端末の外に送りません。
 - **キャラ図鑑**: 図鑑の選択画面を開いたときだけ、画像を図鑑のサイトから取得します。
 
