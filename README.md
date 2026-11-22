@@ -1,118 +1,120 @@
-# AIギルド
+# AI Guild
 
-人間と AI エージェントが、チャンネルで会話しながら一緒に仕事をするデスクトップアプリです。
-Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを「仲間」として登録し、Slack のようなチャンネルで呼びかけたり、仕事を割り振ったりできます。
+**English** | [日本語](README.ja.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [한국어](README.ko.md)
 
-> v1.0.3 に更新すると、今いるマネージャーも、ふだんは短くやさしく答えます。「詳しく」と頼むと、その返事だけ詳しくなります。[v1.0.3 の変更点](docs/releases/v1.0.3.md)
+A desktop app where humans and AI agents work together while talking in channels.
+Register models such as Claude, Codex, Ollama, DeepSeek, and Gemini as "teammates," then call on them or assign them work in Slack-like channels.
+
+> When you update to v1.0.3, your existing managers will also give short, plain answers by default. Ask for "more detail" and only that reply becomes detailed. [What's new in v1.0.3](docs/releases/v1.0.3.md) (Japanese)
 >
-> v0.1.28 から更新すると、初回起動時に DB をバックアップして変換します。それより前の版をお使いの方は、先に v0.1.28 で同じデータフォルダを一度開いてください。[更新手順とバックアップの場所](docs/releases/v1.0.0.md)
+> When you update from v0.1.28, the app backs up and converts the DB on first launch. If you use an earlier version, open the same data folder once with v0.1.28 first. [Update steps and backup location](docs/releases/v1.0.0.md) (Japanese)
 
-![AIギルドの画面。左にチャンネルとエージェントの一覧、中央に #agent-guild開発 での白竜2の進捗報告、右に7人のメンバーの一覧](docs/images/screenshot.png)
+![The AI Guild window. On the left, the list of channels and agents; in the center, a progress report from 白竜2 in #agent-guild開発; on the right, a list of seven members](docs/images/screenshot.png)
 
-## できること
+## Features
 
-- **チャンネルで会話する**: `@名前` で呼びかけると、そのエージェントが答えます。メンションのない発言に誰が答えるかは、エージェントごとに決められます。
-- **エージェントを作る**。名前・アバター・役割・性格・口調・得意分野と、使うバックエンド・モデルを設定します。「作業者・発案者・専門家・マネージャー」の4つの役割から選べます。まずは作業者1人で始め、必要なときに仲間を加えます。
-- **権限は役割で決まる**: 個別のスイッチを操作する必要はありません。作業者は対応する全機能、発案者・専門家・マネージャーは作業フォルダ内の操作を基本に、使うバックエンドに合わせて自動調整します。
-- **相談と割り振り**: 作業者が調べながら制作・確認を進め、必要なときに発案者へ案出し、専門家へ評価を頼めます。マネージャーは分担の必要性を判断し、結果を確かめてまとめます。
-- **チャンネルの運用統計**。チャンネル右上から過去の割り振りと結果報告率を確認できます。新しい実行はモデル別に時間、取得できたトークン数と推定 API 費用を集計します。
-- **役割に合う内蔵スキル**: 作成・役割変更時に、発案者には発想転換・内省、専門家には協働・批評、マネージャーには仕事の割り振りと結果の統合・振り返り・聞き手に合わせた説明（ELI5）の手引きが付きます。専門家の協働ルールは、スキル欄から外しても専門家である間は毎回適用されます。
-- **スキル**: Agent Skills（`SKILL.md`）の形式で手引きを持たせられます。手元のスキルのフォルダから追加することもできます。
-- **自分から動く**: 決めた間隔で、エージェントが自分から調べものや提案をします。
-- **記憶**: エージェントごとの作業フォルダにある `MEMORY.md` に、次回以降のためのメモを残します。
+- **Talk in channels**: Call an agent with `@name` and it answers. For messages without a mention, you decide per agent who answers.
+- **Create agents**. Set a name, avatar, role, personality, tone, and expertise, plus the backend and model to use. Choose from four roles: Worker, Ideator, Expert, and Manager. Start with a single worker and add teammates when you need them.
+- **Permissions follow the role**: You don't need to flip individual switches. Workers get every feature their backend supports; ideators, experts, and managers are based on operations inside their workspace, adjusted automatically to the backend they use.
+- **Consulting and delegating**: Workers research while they create and verify, and can ask an ideator for ideas or an expert for an assessment when needed. Managers decide whether work needs to be split, then check and combine the results.
+- **Channel usage statistics**. From the top right of a channel, review past delegations and the result report rate. New runs are totaled by model: time, the token counts that could be collected, and estimated API cost.
+- **Built-in skills that fit the role**: When an agent is created or its role changes, ideators get guides for shifting perspective and introspection, experts get guides for collaboration and critique, and managers get guides for delegating work and combining results, retrospectives, and explaining to fit the listener (ELI5). The expert collaboration rules apply on every run while the agent is an expert, even if removed from the skills list.
+- **Skills**: Give agents guides in the Agent Skills (`SKILL.md`) format. You can also add them from your local skill folders.
+- **Act on their own**: At an interval you set, agents research or make proposals on their own.
+- **Memory**: Each agent leaves notes for next time in `MEMORY.md` in its own workspace.
 
-## 本文の表現用書式
+## Formatting syntax for message text
 
-チャットに `[手順書](<D:/資料/作業 手順.md>)` のように書くと、手順書をクリックして既定のアプリで読めます。Shift＋クリックでフォルダに表示できます。
+Write something like `[Procedure](<D:/Docs/Work procedure.md>)` in the chat, and you can click Procedure to read it in the default app. Shift+click shows it in its folder.
 
-Markdown に加えて、チャット本文の一部を次のように組版できます。
+In addition to Markdown, you can typeset parts of a chat message like this:
 
-- `:t[あのー]{color=red size=2.5 rotate=180 weight=bold}` — 色・文字サイズ（em 倍率）・回転角（度）・太さ。色は red などの基本色か `#rgb` / `#rrggbb`。
-- `:chars[ぎゅう]{bend=6 drift=0.3}` — 文字ごとに角度と横位置を変える。`rotate="0 5 10" dx="0 0.2 0.4" dy="0 0 0.2"` で個別指定もできる。数値は角度が度、位置が em。
-- `:path[曲がる]{d="M0,80 C100,20 200,20 300,80" size=1.4}` — SVG の経路に文字を沿わせる。
-- `:::layout{vertical rotate=-8}` から `:::` まで — 空白と改行を保持し、自動折り返しを止める。`vertical` は縦書き。範囲内でも通常の強調と上の書式を使える。横書きは `:::layout{rotate=-8}`。
+- `:t[ummm]{color=red size=2.5 rotate=180 weight=bold}` — color, font size (em multiplier), rotation (degrees), and weight. Colors are basic names such as red, or `#rgb` / `#rrggbb`.
+- `:chars[squeeze]{bend=6 drift=0.3}` — varies the angle and horizontal position per character. You can also set them individually with `rotate="0 5 10" dx="0 0.2 0.4" dy="0 0 0.2"`. Angles are in degrees and positions in em.
+- `:path[curving]{d="M0,80 C100,20 200,20 300,80" size=1.4}` — makes the text follow an SVG path.
+- From `:::layout{vertical rotate=-8}` to `:::` — preserves spaces and line breaks and stops automatic wrapping. `vertical` means vertical writing. Normal emphasis and the formats above also work inside the range. For horizontal writing, use `:::layout{rotate=-8}`.
 
-大きさは 0.5～5、角度は -360～360、文字ごとの移動は -20～20 em。範囲外の値や不正な書式は文字として表示します。コード内では解釈しません。
+Size is 0.5–5, angle is -360–360, and per-character offset is -20–20 em. Out-of-range values and invalid syntax are shown as plain text. Nothing is interpreted inside code.
 
-## 必要なもの
+## Requirements
 
-配布版にはランナー用の Node.js が入っています。使うバックエンドに合わせて準備してください。
+The distributed build includes Node.js for the runner. Prepare what the backend you use needs.
 
-DeepSeek と Gemini は「設定 → バックエンド」で API キーを保存し、エージェントでモデルを選びます。Gemini は Developer API に対応します。両バックエンドの道具は読取専用で、画像・検索・書込・コマンド実行は未対応です。対応範囲と接続確認の意味は [DeepSeek / Gemini](docs/deepseek-gemini.md) を参照してください。
+For DeepSeek and Gemini, save an API key in Settings → Backends, then choose a model on the agent. Gemini is supported through the Developer API. The tools for both backends are read-only; images, search, writing, and running commands are not supported. For the supported scope and what the connection check means, see [DeepSeek / Gemini](docs/deepseek-gemini.md) (Japanese).
 
-- Claude: [Claude Code](https://code.claude.com/docs/ja/quickstart)。macOS では「設定 → バックエンド → Claude」でセットアップし、必要なら Claude Code が開くブラウザーでログインできます。
-- Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex)。macOS では「設定 → バックエンド → Codex」でセットアップし、必要ならブラウザーで ChatGPT にログインできます。ほかの OS では同じ画面で手順を開けます。
-- **Ollama**。「エージェントを追加」で **Ollama（この PC）** を選ぶと、Gemma や DeepSeek など、インストール済みの会話モデルを選べます。Mac で停止中なら **Ollama を起動** を押すとモデル一覧が自動で更新されます。画像対応のモデルには添付画像も渡せます。モデルを追加した直後は「設定 → バックエンド → すべて再確認」で一覧を更新できます。[Ollama](https://ollama.com/)
+- Claude: [Claude Code](https://code.claude.com/docs/en/quickstart). On macOS, set it up in Settings → Backends → Claude, and if needed, sign in through the browser that Claude Code opens.
+- Codex: [Codex CLI](https://learn.chatgpt.com/docs/codex/cli#install-codex). On macOS, set it up in Settings → Backends → Codex, and if needed, sign in to ChatGPT in the browser. On other OSes, the same screen opens the instructions.
+- **Ollama**. Choose **Ollama (this PC)** in "Add agent" to pick from installed chat models such as Gemma and DeepSeek. On a Mac, if Ollama is stopped, press **Start Ollama** and the model list refreshes automatically. Models that support images can also receive attached images. Right after adding a model, you can refresh the list with Settings → Backends → Recheck all. [Ollama](https://ollama.com/)
 
-Claude と Codex の利用料は、それぞれのサービスのアカウントに対して発生します。
+Usage fees for Claude and Codex are charged to your account with each service.
 
-## 動かす
+## Running
 
-インストーラー（Windows x64・macOS Apple Silicon）は [GitHub のリリース](https://github.com/tobyapi/agent-guild/releases) から無料でダウンロードできます。ソースからビルドして動かすこともできます。
+Installers (Windows x64, macOS Apple Silicon) can be downloaded for free from [GitHub Releases](https://github.com/tobyapi/agent-guild/releases). You can also build and run from source.
 
-ビルドには Node.js 24、[Rust](https://www.rust-lang.org/)（1.89 以降）、[Tauri の前提ソフト](https://tauri.app/start/prerequisites/)（Windows なら WebView2 と Visual Studio Build Tools、macOS なら Xcode Command Line Tools）が要ります。
+Building requires Node.js 24, [Rust](https://www.rust-lang.org/) (1.89 or later), and the [Tauri prerequisites](https://tauri.app/start/prerequisites/) (WebView2 and Visual Studio Build Tools on Windows, Xcode Command Line Tools on macOS).
 
 ```bash
 npm install
 npm run app
 ```
 
-初めて起動すると、あなたの名前・スキルのフォルダ・データの保存先を決めるダイアログが出ます（どれもあとから設定で変えられます）。ロビーには作業者の「ミナト」が1人います。「設定 → バックエンド」で Codex を準備すると、話しかけられます。
+On first launch, a dialog asks for your name, your skill folders, and where to store data (all can be changed later in Settings). The lobby (named "ロビー") has one worker, "ミナト". Set up Codex in Settings → Backends and you can talk to it.
 
-### コマンド
+### Commands
 
-| コマンド | 内容 |
+| Command | Description |
 |---|---|
-| `npm run app` | アプリを開発モードで起動する |
-| `npm run dev` | 画面だけをブラウザで起動する（バックエンドはモック。`?mockSetup=1` で初回設定、`?mockDemo=1` でサンプル会話、`?mockBoot=missing` で復旧画面を表示） |
-| `npm run bundle` | 配布用のアプリとインストーラーを作る |
-| `npm run format` | コードを整形する（TS・CSS は Prettier、Rust は cargo fmt） |
-| `npm run check` | 整形の確認・型チェック・lint・保守性の検査・テスト・clippy・Rust のテストをまとめて実行する |
+| `npm run app` | Launch the app in development mode |
+| `npm run dev` | Launch only the UI in a browser (backend is mocked; `?mockSetup=1` shows first-run setup, `?mockDemo=1` a sample conversation, `?mockBoot=missing` the recovery screen) |
+| `npm run bundle` | Build the distributable app and installers |
+| `npm run format` | Format the code (Prettier for TS and CSS, cargo fmt for Rust) |
+| `npm run check` | Run the format check, type check, lint, maintainability checks, tests, clippy, and Rust tests together |
 
-GitHub Actions（[.github/workflows/build.yml](.github/workflows/build.yml)）で、Windows（x64）と macOS（Apple Silicon）のインストーラーを作れます（手動実行か `v*` のタグの push で動きます）。タグのビルドでは、自動アップデート用の署名と `latest.json` も作り、下書きのリリースに添付します。リリースを公開すると、配布済みのアプリが新しい版を見つけます（仕組みと手順は [docs/design.md](docs/design.md) の「アプリの更新」）。`npm run check` は、main への push とプルリクエストのたびに GitHub Actions（[.github/workflows/check.yml](.github/workflows/check.yml)）でも走ります。
+GitHub Actions ([.github/workflows/build.yml](.github/workflows/build.yml)) can build the Windows (x64) and macOS (Apple Silicon) installers (run manually or by pushing a `v*` tag). Tag builds also create the auto-update signatures and `latest.json` and attach them to a draft release. Once the release is published, already-distributed apps find the new version (for how it works and the steps, see "アプリの更新" (App updates) in [docs/design.md](docs/design.md) (Japanese)). `npm run check` also runs on GitHub Actions ([.github/workflows/check.yml](.github/workflows/check.yml)) on every push to main and every pull request.
 
-ローカルでは変更に関係するテスト・型チェック・lint だけを選びます。文書だけの変更は差分の確認で十分です。全チェックは CI を基本とし、広範囲の変更など必要なときに実行します。詳しくは [CLAUDE.md](CLAUDE.md) の「ローカルでの検証」を参照してください。
+Locally, pick only the tests, type checks, and lint related to your change. For documentation-only changes, reviewing the diff is enough. Full checks are left to CI by default and run when needed, such as for wide-ranging changes. For details, see "ローカルでの検証" (Local verification) in [CLAUDE.md](CLAUDE.md) (Japanese).
 
-## 安全について
+## Safety
 
-エージェントは、あなたの PC の上で、あなたと同じ権限で動きます。許可する権限は、任せる仕事に必要な分だけにしてください。
+Agents run on your PC with the same permissions as you. Grant only the permissions needed for the work you hand over.
 
-- 権限は、バックエンドごとに確実に守れる形で実装しています（守れない組み合わせは保存できません）。
-- 「コマンドを実行」「作業フォルダの外にも書く」は、ファイルの削除や外部への送信もできてしまう強い権限です。編集画面で注意を出します。
-- Web ページやファイルに紛れた指示（プロンプトインジェクション）への備えとして、エージェントに資料の扱い方を伝え、ファイルを読んで外へ送れてしまう権限の組み合わせには警告を出します。秘密らしい名前の環境変数はコマンドに渡しません。Claude のエージェントは、コマンドの実行や Web ページを開く前に、小さいモデルで依頼に沿っているかを確かめ、怪しければ止めます。
-- これらは被害を減らすための仕組みで、完全に防げるものではありません。大事なデータや秘密を扱うときは、権限を絞ったエージェントを使ってください。
+- Permissions are implemented per backend in a form that can be reliably enforced (combinations that can't be enforced can't be saved).
+- "Run commands" and "Write outside the workspace" are powerful permissions that also allow deleting files and sending data outside. The editor shows a warning.
+- As a defense against instructions hidden in web pages or files (prompt injection), agents are told how to treat source material, and a warning appears for permission combinations that could read files and send them out. Environment variables with secret-looking names are not passed to commands. Before running a command or opening a web page, Claude agents use a small model to check that it matches the request, and stop if it looks suspicious.
+- These mechanisms reduce damage; they can't prevent it completely. When handling important data or secrets, use agents with narrowed permissions.
 
-## データの保存先
+## Where data is stored
 
-チャンネル・エージェント・会話・作業フォルダは、データフォルダ（既定ではアプリのデータの場所。設定で変えられます）に保存します。マシンごとの設定（データフォルダの場所・スキルのフォルダ）は、OS のアプリの設定の場所にある `settings.json` に保存します。
+Channels, agents, conversations, and workspaces are stored in the data folder (by default, the app's data location; changeable in Settings). Per-machine settings (the data folder location and skill folders) are stored in `settings.json` in the OS's app settings location.
 
-## 開発者向け
+## For developers
 
-- 仕様・IPC の契約・実行のしかた・データフォルダ: [docs/design.md](docs/design.md)
-- コードの構造と拡張のしかた: [docs/architecture.md](docs/architecture.md)
-- 見た目の指針: [docs/ui-design.md](docs/ui-design.md)
-- 開発の方針と保守性の検査: [CLAUDE.md](CLAUDE.md)
+- Specification, IPC contracts, how runs work, and the data folder: [docs/design.md](docs/design.md) (Japanese)
+- Code structure and how to extend it: [docs/architecture.md](docs/architecture.md) (Japanese)
+- Visual design guidelines: [docs/ui-design.md](docs/ui-design.md) (Japanese)
+- Development policy and maintainability checks: [CLAUDE.md](CLAUDE.md) (Japanese)
 
-構成は、React（画面）・Rust / Tauri（アプリの本体）・agent-runner（各バックエンドでエージェントを動かす Node のプロセス）の3つです。
+The app has three parts: React (the UI), Rust / Tauri (the app core), and agent-runner (the Node process that runs agents on each backend).
 
 ## Code signing policy
 
-Windows のインストーラーへのコード署名は、[SignPath Foundation](https://signpath.org/) の無料のプログラムに申請中です。承認されるまでは署名していません。何に、どう署名するか、担当者、プライバシーの方針は [Code signing policy](CODE_SIGNING_POLICY.md) にまとめています（英語）。設定と手順は [docs/code-signing.md](docs/code-signing.md)。
+We have applied to the free program of [SignPath Foundation](https://signpath.org/) for code signing of the Windows installer. Until it is approved, the installer is not signed. What is signed and how, who is responsible, and the privacy policy are summarized in the [Code signing policy](CODE_SIGNING_POLICY.md) (in English). Configuration and steps: [docs/code-signing.md](docs/code-signing.md) (Japanese).
 
-## プライバシー（Privacy policy）
+## Privacy (Privacy policy)
 
-このアプリは、利用者が求めたとき以外、情報をほかのネットワーク上のシステムへ送りません。例外は次のとおりです（英語の全文は [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)）。
+This app does not send information to other networked systems except when the user requests it. The exceptions are as follows (full text in English in the [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)).
 
-- **更新の確認**: 起動時とその後6時間ごとに、GitHub のリリース（`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`）から新しい版があるかを確かめます。送るのは通常の HTTPS のリクエストだけで、会話やファイルの中身は送りません。「設定 → アプリの更新」の「新しい版を自動で確認する」をオフにすると、［更新を確認］を押したときだけ確かめます。
-- **AI のバックエンド**: エージェントに話しかけると、そのエージェントに設定したバックエンド（Claude Code・Codex CLI・Ollama など）に会話を渡します。送り先とデータの扱いは、それぞれのサービスのプライバシーポリシーに従います。Ollama（この PC）は端末の外に送りません。
-- **キャラ図鑑**: 図鑑の選択画面を開いたときだけ、画像を図鑑のサイトから取得します。
+- **Update checks**: At launch and every 6 hours after that, the app checks GitHub Releases (`https://github.com/tobyapi/agent-guild/releases/latest/download/latest.json`) for a new version. It sends only a normal HTTPS request and never sends the contents of conversations or files. If you turn off "Check for new versions automatically" in Settings → App updates, it checks only when you press [Check for updates].
+- **AI backends**: When you talk to an agent, the conversation is passed to the backend configured for that agent (Claude Code, Codex CLI, Ollama, etc.). Where it goes and how the data is handled follow each service's privacy policy. Ollama (this PC) does not send anything off the device.
+- **Character gallery**: Images are fetched from the gallery's site only when you open the gallery picker.
 
-## ライセンス
+## License
 
-ソフトウェアは [MIT](LICENSE) です。参加するときは [行動規範（Code of Conduct）](CODE_OF_CONDUCT.md) を守ってください。Windows 版には、コマンドを隔離して動かすための Microsoft の実行ファイル（[MXC](https://github.com/microsoft/mxc) の `wxc-exec.exe`、MIT）を同梱しています。
+The software is [MIT](LICENSE). When participating, please follow the [Code of Conduct](CODE_OF_CONDUCT.md). The Windows build bundles a Microsoft executable for running commands in isolation (`wxc-exec.exe` from [MXC](https://github.com/microsoft/mxc), MIT).
 
-## 謝辞
+## Acknowledgments
 
-エージェントの「キャラ図鑑」は Gender Swap AI のキャラクター図鑑を参照しています。キャラクターイラストを公開している ZipZipPipe さんと、DeepSeek の原キャラクターを制作した上善无形さんに感謝します。[AI 擬人化キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
+The agents' "Character gallery" references the character gallery of Gender Swap AI. Thanks to ZipZipPipe, who publishes the character illustrations, and to 上善无形, who created the original DeepSeek character. [AI personification character gallery](https://genderswapai.com/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-図鑑の画像は選択画面を開いたときに取得し、選んだ画像の顔を正方形に切り抜いて端末に保存します。画像の作者・出典・利用条件は図鑑の各作品に記載されています。[DeepSeek の出典](https://genderswapai.com/ja/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
+Gallery images are fetched when you open the picker; the face in the chosen image is cropped to a square and saved on your device. The author, source, and terms of use for each image are listed on each work in the gallery. [DeepSeek source](https://genderswapai.com/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)
