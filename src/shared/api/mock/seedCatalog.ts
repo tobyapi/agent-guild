@@ -44,10 +44,10 @@ export const MOCK_BACKENDS: BackendInfo[] = [
       {
         key: 'maxTurns',
         label: '最大ターン数',
-        description: '1回の返答で使うツール呼び出しの上限',
+        description: '1回の返答でツールを使って往復できる回数の上限。空欄なら上限はありません。',
         type: 'number',
         choices: [],
-        default: 30,
+        default: null,
       },
       {
         key: 'extendedThinking',

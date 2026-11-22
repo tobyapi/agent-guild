@@ -39,7 +39,7 @@ export const BACKENDS: BackendInfo[] = [
     local: false,
     frameGeneration: false,
     setup: { install: null, start: null, login: { label: 'ログイン', waiting: '' }, apiKey: null },
-    options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: 30 }],
+    options: [{ key: 'maxTurns', label: '最大ターン数', description: '', type: 'number', choices: [], default: null }],
     permissionRules: [
       { when: 'writeAnywhere', requires: ['writeFiles'] },
       { when: 'runCommands', requires: ['readFiles', 'writeFiles', 'writeAnywhere', 'webFetch', 'webSearch'] },

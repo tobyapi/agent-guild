@@ -37,6 +37,19 @@ describe('isCustomized', () => {
 });
 
 describe('parseOptionValues', () => {
+  it('Claude の旧既定は保存されず、更新後は保存済みの上限と空欄を区別する', () => {
+    const previous = specs[0]!;
+    const current = [{ ...previous, default: null }];
+    for (const raw of ['', '30']) {
+      const stored = parseOptionValues([previous], { maxTurns: raw }).options;
+      expect(stored).toEqual({});
+      expect(parseOptionValues(current, optionValuesFrom(current, stored)).options).toEqual({});
+    }
+    const explicit = optionValuesFrom(current, { maxTurns: 30 });
+    expect(parseOptionValues(current, explicit).options).toEqual({ maxTurns: 30 });
+    expect(parseOptionValues(current, { maxTurns: '' }).options).toEqual({});
+  });
+
   it('既定と違う値だけを型どおりに保存する', () => {
     const values = { maxTurns: '12', thinking: true, effort: 'medium', profile: ' work ' };
     expect(parseOptionValues(specs, values)).toEqual({

@@ -12,7 +12,8 @@ export const zhHant: Messages<typeof ja> = {
   loginLabel: '使用 Claude Code 登入',
   loginWaiting: '請在開啟的視窗與瀏覽器中繼續登入。完成後狀態會自動更新。',
   maxTurnsLabel: '最大回合數',
-  maxTurnsDescription: '一次回覆中使用工具往返的次數上限',
+  maxTurnsDescription: '一次回覆中使用工具往返的次數上限。留空表示不限回合數。',
+  maxTurnsReached: '已達回合數上限（{maxTurns}），本次回覆已停止。',
   operationCheckLabel: '操作確認',
   operationCheckDescription:
     '在執行命令、開啟網頁或寫入工作資料夾之外之前，用小模型（Haiku）確認是否符合請求，可疑時停止（不詢問人類）',

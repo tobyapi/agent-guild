@@ -11,7 +11,7 @@ import { claudePrompt } from './claude/input.ts';
 import { CAN_LOGIN, openLoginWindow } from './claude/login.ts';
 import { consumeMessages } from './claude/messages.ts';
 import { claudeCatalog } from './claude/models.ts';
-import { claudeOptions, DEFAULT_MAX_TURNS } from './claude/options.ts';
+import { claudeOptions } from './claude/options.ts';
 import { LEAK_RISKS, permissionRules, unenforceableReason } from './claude/rules.ts';
 import { writeSkillPlugin } from './claude/plugin.ts';
 import { probeClaude } from './claude/probe.ts';
@@ -50,7 +50,7 @@ const info = (): Omit<BackendDescriptor, 'permissionRules'> => ({
       description: t('maxTurnsDescription'),
       type: 'number',
       choices: [],
-      default: DEFAULT_MAX_TURNS,
+      default: null,
     },
     {
       key: OPERATION_CHECK_OPTION,
@@ -99,7 +99,7 @@ async function run(request: RunRequest, { signal, onActivity, onPost, onUsage }:
     options.env = await claudeAuthEnvironment(options.env ?? process.env);
     const prompt = await claudePrompt(request.prompt, request.images);
     if (options.model) onUsage({ model: options.model });
-    return await consumeMessages(query({ prompt, options }), onActivity, onUsage);
+    return await consumeMessages(query({ prompt, options }), onActivity, onUsage, options.maxTurns);
   } catch (error) {
     if (error instanceof BackendError || signal.aborted) throw error;
     const detail = errorMessage(error);

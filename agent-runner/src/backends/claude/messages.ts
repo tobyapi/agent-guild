@@ -53,22 +53,27 @@ function assistantError(message: SDKAssistantMessage, error: SDKAssistantMessage
 const toolName = (name: string): string => (name === COMMAND_TOOL ? 'Bash' : name);
 
 /** assistant メッセージを途中経過として流し、本文があれば返す */
-function readAssistant(message: SDKAssistantMessage, onActivity: (detail: string) => void): string | undefined {
+function readAssistant(message: SDKAssistantMessage, onActivity: (detail: string) => void): string[] {
   if (message.error) throw assistantError(message, message.error);
-  let text: string | undefined;
+  const paragraphs: string[] = [];
   for (const block of message.message.content) {
     if (block.type === 'tool_use') {
       onActivity(block.name === POST_TOOL ? activity.posting() : describeTool(toolName(block.name), block.input));
     } else if (block.type === 'text' && block.text.trim() !== '') {
-      text = block.text;
+      paragraphs.push(block.text);
       onActivity(activity.writing());
     }
   }
-  return text;
+  return paragraphs;
 }
 
-function readResult(message: SDKResultMessage, lastText: string): string {
-  if (message.subtype === 'success' && !message.is_error) return message.result || lastText;
+function readResult(message: SDKResultMessage, lastReply: string[], maxTurns: number | undefined): string {
+  if (message.subtype === 'success' && !message.is_error) return message.result || lastReply.at(-1) || '';
+  if (message.subtype === 'error_max_turns') {
+    const lastText = lastReply.join('\n\n').trimEnd();
+    const note = t('maxTurnsReached', { maxTurns: maxTurns ?? message.num_turns });
+    return lastText ? `${lastText}\n\n${note}` : note;
+  }
   const detail = message.subtype === 'success' ? message.result : message.errors.join(' / ') || message.subtype;
   throw new BackendError(classifyErrorText(detail), t('interrupted', { detail }));
 }
@@ -78,8 +83,9 @@ export async function consumeMessages(
   messages: AsyncIterable<SDKMessage>,
   onActivity: (detail: string) => void,
   onUsage: (usage: RunUsage) => void,
+  maxTurns?: number,
 ): Promise<string> {
-  let lastText = '';
+  let lastReply: string[] = [];
   let sawMainModel = false;
   for await (const message of messages) {
     if (message.type === 'assistant') {
@@ -87,11 +93,12 @@ export async function consumeMessages(
         sawMainModel = true;
         onUsage({ model: message.message.model });
       }
-      lastText = readAssistant(message, onActivity) ?? lastText;
+      const paragraphs = readAssistant(message, onActivity);
+      if (paragraphs.length > 0) lastReply = paragraphs;
     } else if (message.type === 'result') {
       onUsage(claudeUsage(message));
-      return readResult(message, lastText);
+      return readResult(message, lastReply, maxTurns);
     }
   }
-  return lastText;
+  return lastReply.at(-1) ?? '';
 }

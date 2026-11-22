@@ -13,7 +13,8 @@ export const en: Messages<typeof ja> = {
   loginLabel: 'Sign in with Claude Code',
   loginWaiting: 'Continue signing in in the opened window and the browser. The status updates automatically when done.',
   maxTurnsLabel: 'Max turns',
-  maxTurnsDescription: 'The maximum number of tool round trips in a single reply',
+  maxTurnsDescription: 'Maximum tool round trips per reply. Leave blank for no turn limit.',
+  maxTurnsReached: 'Stopped after reaching the limit of {maxTurns} turns.',
   operationCheckLabel: 'Operation check',
   operationCheckDescription:
     'Before running commands, opening web pages, or writing outside the workspace, a small model (Haiku) checks that the action matches the request and stops it if suspicious (without asking a human)',

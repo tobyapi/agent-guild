@@ -17,8 +17,6 @@ export { toolsFor } from './tool-policy.ts';
 export const DEFAULT_MODEL = 'sonnet';
 /** Claude Code の推論の深さ（浅い順）。backendOptions の effort はこのどれか */
 export const CLAUDE_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
-/** 暴走を防ぐ既定のターン上限（options.maxTurns で上書きできる） */
-export const DEFAULT_MAX_TURNS = 30;
 
 /** パスを扱わないので、確認なしで許すツール（Skill は skills オプションが許す） */
 const PATHLESS_TOOLS = new Set(['WebSearch', 'WebFetch', 'Bash']);
@@ -40,6 +38,7 @@ export function claudeOptions(
   { abortController, pluginDir, onPost, onUsage, executable }: ClaudeRun,
 ): Options {
   const { permissions } = request;
+  const maxTurns = optionPositiveInt(request.options, 'maxTurns');
   const tools = toolsFor(permissions);
   // 操作の確認をするなら、コマンドと Web ページを開くことも canUseTool を通す（judge.ts のモデルに確かめる）
   const checking = checksOperations(request);
@@ -75,7 +74,7 @@ export function claudeOptions(
     ...(permissions.skills ? { skills: 'all' as const } : {}),
     // 会話の記録は DB が持つので、~/.claude/projects にセッションを残さない
     persistSession: false,
-    maxTurns: optionPositiveInt(request.options, 'maxTurns') ?? DEFAULT_MAX_TURNS,
+    ...(maxTurns === undefined ? {} : { maxTurns }),
     abortController,
     // 秘密らしい環境変数は渡さない（Bash から読まれないように。Claude Code 自身の認証に要るものは残す）
     env: { ...claudeEnv(process.env), CLAUDE_AGENT_SDK_CLIENT_APP: 'agent-guild' },
