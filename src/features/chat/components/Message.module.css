@@ -1,6 +1,8 @@
 /* 発言の行（docs/ui-design.md §5.4）。アバターの列 40px + 間 --space-3 */
 .message {
   display: grid;
+  /* 入力時のレイアウトと描画準備を発言ごとに区切る。行の高さは本文に合わせる。 */
+  contain: layout;
   grid-template-columns: var(--avatar-md) minmax(0, 1fr);
   column-gap: var(--space-3);
   padding: var(--space-0-5) var(--space-4);
