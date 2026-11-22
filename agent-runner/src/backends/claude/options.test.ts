@@ -69,8 +69,8 @@ describe('claudeOptions', () => {
       skills: 'all',
       permissionMode: 'default',
       persistSession: false,
-      maxTurns: 30,
     });
+    expect(options, '最大ターン数が空欄（既定）なら上限なし').not.toHaveProperty('maxTurns');
     // 操作の確認をする（既定）ので、Web ページを開くことは canUseTool を通す
     expect(options.allowedTools).toEqual(['WebSearch', POST_TOOL]);
     const unchecked = claudeOptions(request(WORKER, { operationCheck: false }), run());
@@ -93,10 +93,13 @@ describe('claudeOptions', () => {
 
   it('options は maxTurns（正の整数）と effort（Claude Code の深さ）を使う', () => {
     expect(claudeOptions(request(WORKER, { maxTurns: 5 }), run()).maxTurns).toBe(5);
-    expect(claudeOptions(request(WORKER, { maxTurns: -1, effort: 'max' }), run())).toMatchObject({
-      maxTurns: 30,
-      effort: 'max',
-    });
+    expect(claudeOptions(request(WORKER, { maxTurns: 30 }), run()).maxTurns, '30 を入れた人は 30 で止まる').toBe(30);
+    const invalid = claudeOptions(request(WORKER, { maxTurns: -1, effort: 'max' }), run());
+    expect(invalid.effort).toBe('max');
+    for (const maxTurns of [-1, 0, 2.5, '', '10', null, true]) {
+      const options = claudeOptions(request(WORKER, { maxTurns }), run());
+      expect(options, `不正な値（${String(maxTurns)}）は上限なし`).not.toHaveProperty('maxTurns');
+    }
     expect(claudeOptions(request(WORKER, { effort: 'ultra' }), run()).effort, '知らない深さは渡さない').toBeUndefined();
     expect(claudeOptions(request(WORKER), run()).effort, '選ばなければ Claude Code の既定').toBeUndefined();
   });

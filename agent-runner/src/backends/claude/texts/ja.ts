@@ -11,7 +11,8 @@ export const ja = {
   loginLabel: 'Claude Code でログイン',
   loginWaiting: '開いた窓とブラウザでログインを進めてください。終わると自動で状態が変わります。',
   maxTurnsLabel: '最大ターン数',
-  maxTurnsDescription: '1回の返答でツールを使って往復できる回数の上限',
+  maxTurnsDescription: '1回の返答でツールを使って往復できる回数の上限。空欄なら上限はありません。',
+  maxTurnsReached: '最大ターン数（{maxTurns}）に届いたので止まりました。',
   operationCheckLabel: '操作の確認',
   operationCheckDescription:
     'コマンドの実行・Web ページを開く・作業フォルダの外への書き込みの前に、小さいモデル（Haiku）で依頼に沿っているかを確かめ、怪しければ止めます（人間には聞きません）',

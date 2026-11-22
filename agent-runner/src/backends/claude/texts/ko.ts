@@ -13,7 +13,9 @@ export const ko: Messages<typeof ja> = {
   loginLabel: 'Claude Code로 로그인',
   loginWaiting: '열린 창과 브라우저에서 로그인을 진행하십시오. 끝나면 상태가 자동으로 바뀝니다.',
   maxTurnsLabel: '최대 턴 수',
-  maxTurnsDescription: '한 번의 답변에서 도구를 사용해 주고받을 수 있는 횟수의 상한',
+  maxTurnsDescription:
+    '한 번의 답변에서 도구를 사용해 주고받을 수 있는 최대 횟수입니다. 비워 두면 횟수 제한이 없습니다.',
+  maxTurnsReached: '최대 턴 수({maxTurns})에 도달하여 중지했습니다.',
   operationCheckLabel: '작업 확인',
   operationCheckDescription:
     '명령 실행, 웹 페이지 열기, 작업 폴더 밖에 쓰기 전에 작은 모델(Haiku)로 요청에 맞는지 확인하고, 의심스러우면 중지합니다(사람에게 묻지 않습니다)',
