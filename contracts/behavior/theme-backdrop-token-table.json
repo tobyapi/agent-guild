@@ -1793,162 +1793,162 @@
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 15,
+      "line": 17,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 16,
+      "line": 18,
       "expression": "background: var(--bg-hover);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 24,
+      "line": 26,
       "expression": "background: var(--mention-self-bg);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 30,
+      "line": 32,
       "expression": "background: var(--accent-soft);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 46,
+      "line": 48,
       "expression": "background: none;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 47,
+      "line": 49,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 56,
+      "line": 58,
       "expression": "color: var(--text-secondary);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 61,
+      "line": 63,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 72,
+      "line": 74,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 97,
+      "line": 99,
       "expression": "color: var(--text-secondary);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 101,
+      "line": 103,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 106,
+      "line": 108,
       "expression": "color: var(--text-muted);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 121,
+      "line": 123,
       "expression": "background: var(--danger-soft);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 128,
+      "line": 130,
       "expression": "color: var(--danger);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 133,
+      "line": 135,
       "expression": "color: var(--text-secondary);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 139,
+      "line": 141,
       "expression": ":global(:root[data-background='active']) .error {"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 140,
+      "line": 142,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 141,
+      "line": 143,
       "expression": "background: var(--b-danger-soft);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 144,
+      "line": 146,
       "expression": ":global(:root[data-background='active']) .message[data-self] {"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 145,
+      "line": 147,
       "expression": "--surface: color-mix(in srgb, var(--raw-mention-self-bg-ink) var(--raw-mention-self-bg-weight), var(--bg-app));"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 146,
+      "line": 148,
       "expression": "--glass-ink-weight: 0%;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 147,
+      "line": 149,
       "expression": "background: var(--surface);"
-    },
-    {
-      "file": "src/features/chat/components/Message.module.css",
-      "line": 150,
-      "expression": ":global(:root[data-background='active']) .message[data-highlight='on'] {"
-    },
-    {
-      "file": "src/features/chat/components/Message.module.css",
-      "line": 151,
-      "expression": "--surface: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--bg-app));"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
       "line": 152,
-      "expression": "--glass-ink-weight: 0%;"
+      "expression": ":global(:root[data-background='active']) .message[data-highlight='on'] {"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
       "line": 153,
+      "expression": "--surface: color-mix(in srgb, var(--raw-accent-soft-ink) var(--raw-accent-soft-weight), var(--bg-app));"
+    },
+    {
+      "file": "src/features/chat/components/Message.module.css",
+      "line": 154,
+      "expression": "--glass-ink-weight: 0%;"
+    },
+    {
+      "file": "src/features/chat/components/Message.module.css",
+      "line": 155,
       "expression": "background: var(--surface);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 156,
+      "line": 158,
       "expression": ":global(:root[data-background='active']) .error {"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 157,
+      "line": 159,
       "expression": "--author-color-surface: var(--b-danger-soft);"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 160,
+      "line": 162,
       "expression": ":global(:root[data-background='active']) .message[data-live] {"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 161,
+      "line": 163,
       "expression": "opacity: 1;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 167,
+      "line": 169,
       "expression": "opacity: 1;"
     },
     {
       "file": "src/features/chat/components/Message.module.css",
-      "line": 173,
+      "line": 175,
       "expression": ":global(:root[data-background='active']) .message[data-highlight='fade'] {"
     },
     {
@@ -18366,7 +18366,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18376,14 +18376,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18393,14 +18393,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18410,14 +18410,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18427,14 +18427,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18444,14 +18444,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18461,14 +18461,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18478,14 +18478,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18495,14 +18495,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18512,14 +18512,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18529,14 +18529,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -18546,7 +18546,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
@@ -34117,7 +34117,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34127,14 +34127,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34144,14 +34144,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34161,14 +34161,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34178,14 +34178,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34195,14 +34195,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34212,14 +34212,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34229,14 +34229,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34246,14 +34246,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34263,14 +34263,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34280,14 +34280,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -34297,7 +34297,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
@@ -48468,7 +48468,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48478,14 +48478,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48495,14 +48495,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48512,14 +48512,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48529,14 +48529,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48546,14 +48546,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48563,14 +48563,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48580,14 +48580,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48597,14 +48597,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48614,14 +48614,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48631,14 +48631,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -48648,7 +48648,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
@@ -62819,7 +62819,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62829,14 +62829,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62846,14 +62846,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62863,14 +62863,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62880,14 +62880,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62897,14 +62897,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62914,14 +62914,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62931,14 +62931,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62948,14 +62948,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62965,14 +62965,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62982,14 +62982,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -62999,7 +62999,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
@@ -78570,7 +78570,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78580,14 +78580,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78597,14 +78597,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78614,14 +78614,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78631,14 +78631,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78648,14 +78648,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78665,14 +78665,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78682,14 +78682,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78699,14 +78699,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78716,14 +78716,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78733,14 +78733,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -78750,7 +78750,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
@@ -92921,7 +92921,7 @@
           "reason": "User/tag/inline color is dynamic and unguaranteed."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:47",
+          "name": "src/features/chat/components/Message.module.css:49",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -92931,14 +92931,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 47,
+              "line": 49,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:56",
+          "name": "src/features/chat/components/Message.module.css:58",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -92948,14 +92948,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 56,
+              "line": 58,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:61",
+          "name": "src/features/chat/components/Message.module.css:63",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -92965,14 +92965,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 61,
+              "line": 63,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:72",
+          "name": "src/features/chat/components/Message.module.css:74",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -92982,14 +92982,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 72,
+              "line": 74,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:97",
+          "name": "src/features/chat/components/Message.module.css:99",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -92999,14 +92999,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 97,
+              "line": 99,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:101",
+          "name": "src/features/chat/components/Message.module.css:103",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93016,14 +93016,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 101,
+              "line": 103,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:106",
+          "name": "src/features/chat/components/Message.module.css:108",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93033,14 +93033,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 106,
+              "line": 108,
               "expression": "color: var(--text-muted);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:128",
+          "name": "src/features/chat/components/Message.module.css:130",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93050,14 +93050,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 128,
+              "line": 130,
               "expression": "color: var(--danger);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:133",
+          "name": "src/features/chat/components/Message.module.css:135",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93067,14 +93067,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 133,
+              "line": 135,
               "expression": "color: var(--text-secondary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:161",
+          "name": "src/features/chat/components/Message.module.css:163",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93084,14 +93084,14 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 161,
+              "line": 163,
               "expression": "opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/Message.module.css:167",
+          "name": "src/features/chat/components/Message.module.css:169",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -93101,7 +93101,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/Message.module.css",
-              "line": 167,
+              "line": 169,
               "expression": "opacity: 1;"
             }
           ],
