@@ -15,7 +15,7 @@ Register models such as Claude, Codex, Ollama, DeepSeek, and Gemini as "teammate
 
 - **Talk in channels**: Call an agent with `@name` and it answers. For messages without a mention, you decide per agent who answers.
 - **Create agents**. Set a name, avatar, role, personality, tone, and expertise, plus the backend and model to use. Choose from four roles: Worker, Ideator, Expert, and Manager. Start with a single worker and add teammates when you need them.
-- **Permissions follow the role**: You don't need to flip individual switches. Workers get every feature their backend supports; ideators, experts, and managers are based on operations inside their workspace, adjusted automatically to the backend they use.
+- **Permissions follow the role**: You don't need to flip individual switches. Workers get every feature their backend supports; ideators, experts, and managers mainly get operations inside their workspace. Both are adjusted automatically to the backend in use.
 - **Consulting and delegating**: Workers research while they create and verify, and can ask an ideator for ideas or an expert for an assessment when needed. Managers decide whether work needs to be split, then check and combine the results.
 - **Channel usage statistics**. From the top right of a channel, review past delegations and the result report rate. New runs are totaled by model: time, the token counts that could be collected, and estimated API cost.
 - **Built-in skills that fit the role**: When an agent is created or its role changes, ideators get guides for shifting perspective and introspection, experts get guides for collaboration and critique, and managers get guides for delegating work and combining results, retrospectives, and explaining to fit the listener (ELI5). The expert collaboration rules apply on every run while the agent is an expert, even if removed from the skills list.
@@ -34,7 +34,7 @@ In addition to Markdown, you can typeset parts of a chat message like this:
 - `:path[curving]{d="M0,80 C100,20 200,20 300,80" size=1.4}` — makes the text follow an SVG path.
 - From `:::layout{vertical rotate=-8}` to `:::` — preserves spaces and line breaks and stops automatic wrapping. `vertical` means vertical writing. Normal emphasis and the formats above also work inside the range. For horizontal writing, use `:::layout{rotate=-8}`.
 
-Size is 0.5–5, angle is -360–360, and per-character offset is -20–20 em. Out-of-range values and invalid syntax are shown as plain text. Nothing is interpreted inside code.
+Size is 0.5–5, angle is -360 to 360, and per-character offset is -20–20 em. Out-of-range values and invalid syntax are shown as plain text. Nothing is interpreted inside code.
 
 ## Requirements
 
@@ -59,7 +59,7 @@ npm install
 npm run app
 ```
 
-On first launch, a dialog asks for your name, your skill folders, and where to store data (all can be changed later in Settings). The lobby (named "ロビー") has one worker, "ミナト". Set up Codex in Settings → Backends and you can talk to it.
+On first launch, a dialog asks for your name, your skill folders, and where to store data (all can be changed later in Settings). The lobby (named "ロビー") has one worker, "ミナト". Set up Codex in Settings → Backends and you can talk to ミナト.
 
 ### Commands
 
@@ -101,7 +101,7 @@ The app has three parts: React (the UI), Rust / Tauri (the app core), and agent-
 
 We have applied to the free program of [SignPath Foundation](https://signpath.org/) for code signing of the Windows installer. Until it is approved, the installer is not signed. What is signed and how, who is responsible, and the privacy policy are summarized in the [Code signing policy](CODE_SIGNING_POLICY.md) (in English). Configuration and steps: [docs/code-signing.md](docs/code-signing.md) (Japanese).
 
-## Privacy (Privacy policy)
+## Privacy policy
 
 This app does not send information to other networked systems except when the user requests it. The exceptions are as follows (full text in English in the [Code signing policy](CODE_SIGNING_POLICY.md#privacy-policy)).
 
