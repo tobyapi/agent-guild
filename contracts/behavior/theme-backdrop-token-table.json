@@ -3033,72 +3033,82 @@
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 11,
+      "line": 9,
+      "expression": "--mascot-size: 10rem;"
+    },
+    {
+      "file": "src/features/settings/components/MascotScene.module.css",
+      "line": 12,
       "expression": "--mascot-opacity: 0.12;"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 19,
+      "line": 20,
       "expression": "background: var(--bg-app);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 21,
+      "line": 22,
       "expression": "--mascot-opacity: 1;"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 32,
-      "expression": "--item-width: min(calc(var(--item-scale) * 10rem), 42cqw, 82cqh);"
+      "line": 23,
+      "expression": "--mascot-size: 5rem;"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 33,
+      "line": 34,
+      "expression": "--item-width: min(calc(var(--item-scale) * var(--mascot-size)), 42cqw, 82cqh);"
+    },
+    {
+      "file": "src/features/settings/components/MascotScene.module.css",
+      "line": 35,
       "expression": "--item-height: var(--item-width);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 36,
+      "line": 38,
       "expression": "opacity: var(--mascot-opacity);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 64,
+      "line": 66,
       "expression": "--item-width: min(100%, max(8rem, min(calc(var(--item-scale) * 11rem), 62cqw)));"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 65,
+      "line": 67,
       "expression": "--item-height: min(100%, max(3rem, calc(var(--item-scale) * 3.8rem)));"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 71,
+      "line": 73,
       "expression": "opacity: 0.48;"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 79,
+      "line": 81,
       "expression": "color: var(--text-primary);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 80,
+      "line": 82,
       "expression": "background: var(--bg-panel);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 103,
+      "line": 105,
       "expression": "background: var(--text-muted);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 106,
+      "line": 108,
       "expression": "background: var(--accent-text);"
     },
     {
       "file": "src/features/settings/components/MascotScene.module.css",
-      "line": 118,
+      "line": 120,
       "expression": "color: var(--text-secondary);"
     },
     {
@@ -20241,7 +20251,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20251,14 +20261,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20268,14 +20278,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20285,14 +20295,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20302,14 +20312,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20319,14 +20329,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -20336,7 +20346,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
@@ -36128,7 +36138,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36138,14 +36148,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36155,14 +36165,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36172,14 +36182,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36189,14 +36199,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36206,14 +36216,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -36223,7 +36233,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
@@ -50615,7 +50625,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50625,14 +50635,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50642,14 +50652,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50659,14 +50669,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50676,14 +50686,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50693,14 +50703,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -50710,7 +50720,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
@@ -65102,7 +65112,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65112,14 +65122,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65129,14 +65139,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65146,14 +65156,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65163,14 +65173,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65180,14 +65190,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -65197,7 +65207,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
@@ -80989,7 +80999,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -80999,14 +81009,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81016,14 +81026,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81033,14 +81043,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81050,14 +81060,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81067,14 +81077,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -81084,7 +81094,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],
@@ -95476,7 +95486,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:11",
+          "name": "src/features/settings/components/MascotScene.module.css:12",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95486,14 +95496,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 11,
+              "line": 12,
               "expression": "--mascot-opacity: 0.12;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:21",
+          "name": "src/features/settings/components/MascotScene.module.css:22",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95503,14 +95513,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 21,
+              "line": 22,
               "expression": "--mascot-opacity: 1;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:36",
+          "name": "src/features/settings/components/MascotScene.module.css:38",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95520,14 +95530,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 36,
+              "line": 38,
               "expression": "opacity: var(--mascot-opacity);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:71",
+          "name": "src/features/settings/components/MascotScene.module.css:73",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95537,14 +95547,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 71,
+              "line": 73,
               "expression": "opacity: 0.48;"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:79",
+          "name": "src/features/settings/components/MascotScene.module.css:81",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95554,14 +95564,14 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 79,
+              "line": 81,
               "expression": "color: var(--text-primary);"
             }
           ],
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/settings/components/MascotScene.module.css:118",
+          "name": "src/features/settings/components/MascotScene.module.css:120",
           "state": "source-cascade",
           "accent": "all",
           "status": "unresolved",
@@ -95571,7 +95581,7 @@
           "sources": [
             {
               "file": "src/features/settings/components/MascotScene.module.css",
-              "line": 118,
+              "line": 120,
               "expression": "color: var(--text-secondary);"
             }
           ],

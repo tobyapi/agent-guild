@@ -6,6 +6,7 @@
   overflow: hidden;
   pointer-events: none;
   --mascot-opacity: 0.14;
+  --mascot-size: 10rem;
 }
 .scene[data-scheme='light'] {
   --mascot-opacity: 0.12;
@@ -19,6 +20,7 @@
   background: var(--bg-app);
   pointer-events: auto;
   --mascot-opacity: 1;
+  --mascot-size: 5rem;
 }
 .mascot,
 .cardSlot {
@@ -29,7 +31,7 @@
   block-size: var(--item-height);
 }
 .mascot {
-  --item-width: min(calc(var(--item-scale) * 10rem), 42cqw, 82cqh);
+  --item-width: min(calc(var(--item-scale) * var(--mascot-size)), 42cqw, 82cqh);
   --item-height: var(--item-width);
   display: grid;
   place-items: center;
