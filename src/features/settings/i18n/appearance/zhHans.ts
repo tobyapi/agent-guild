@@ -44,6 +44,7 @@ export const zhHans: Messages<typeof ja> = {
   accentViolet: '紫藤',
   accentSilver: '银色',
   backgroundMascot: '吉祥物',
+  mascotHidden: '隐藏吉祥物',
   mascotChoose: '选择吉祥物',
   mascotAgents: '默认及智能体头像',
   mascotDefault: '默认猫头鹰',

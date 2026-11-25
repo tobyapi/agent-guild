@@ -8,6 +8,7 @@ it('bounds stored positions and sizes and discards malformed image references', 
       layout: { mascot: { x: -50, y: 115, size: 600 } },
     }),
   ).toEqual({
+    enabled: false,
     source: { kind: 'default' },
     layout: { ...DEFAULT_MASCOT_LAYOUT, mascot: { x: 0, y: 100, size: 130 } },
   });

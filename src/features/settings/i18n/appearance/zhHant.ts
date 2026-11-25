@@ -44,6 +44,7 @@ export const zhHant: Messages<typeof ja> = {
   accentViolet: '紫藤',
   accentSilver: '銀色',
   backgroundMascot: '吉祥物',
+  mascotHidden: '隱藏吉祥物',
   mascotChoose: '選擇吉祥物',
   mascotAgents: '預設及代理人頭像',
   mascotDefault: '預設貓頭鷹',

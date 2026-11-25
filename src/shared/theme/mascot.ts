@@ -21,6 +21,7 @@ export interface MascotLayout {
 }
 
 export interface MascotSettings {
+  enabled: boolean;
   source: MascotSource;
   layout: MascotLayout;
 }
@@ -29,11 +30,12 @@ export const MASCOT_SIZE_MIN = 70;
 export const MASCOT_SIZE_MAX = 130;
 export const DEFAULT_MASCOT_AVATAR = '🦉';
 export const DEFAULT_MASCOT_LAYOUT: MascotLayout = {
-  mascot: { x: 85, y: 70, size: 100 },
-  card: { x: 12, y: 50, size: 100 },
+  mascot: { x: 98, y: 97, size: 100 },
+  card: { x: 99, y: 1, size: 100 },
 };
 
 export const DEFAULT_MASCOT_SETTINGS: MascotSettings = {
+  enabled: false,
   source: { kind: 'default' },
   layout: DEFAULT_MASCOT_LAYOUT,
 };
@@ -73,11 +75,12 @@ function readSource(value: unknown): MascotSource {
   return DEFAULT_MASCOT_SETTINGS.source;
 }
 
-export function readMascotSettings(value: unknown): MascotSettings {
-  if (value === undefined) return DEFAULT_MASCOT_SETTINGS;
-  const { source, layout } = record(value);
+export function readMascotSettings(value: unknown, legacyEnabled = false): MascotSettings {
+  if (value === undefined && !legacyEnabled) return DEFAULT_MASCOT_SETTINGS;
+  const { enabled, source, layout } = record(value);
   const placements = record(layout);
   return {
+    enabled: typeof enabled === 'boolean' ? enabled : legacyEnabled,
     source: readSource(source),
     layout: {
       mascot: readPlacement(placements.mascot, DEFAULT_MASCOT_LAYOUT.mascot),

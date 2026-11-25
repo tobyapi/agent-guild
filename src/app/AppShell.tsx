@@ -34,8 +34,7 @@ export function AppShell() {
           {channel ? (
             <>
               <ChannelHeader channel={channel} />
-              <ChannelMascot channel={channel} />
-              <ChatView channel={channel} />
+              <ChatView channel={channel} timelineBackdrop={<ChannelMascot channel={channel} />} />
             </>
           ) : (
             <NoChannel />

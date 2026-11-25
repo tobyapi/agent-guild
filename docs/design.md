@@ -554,4 +554,4 @@ Rustで上限付きbase64解読後、既存のBackgroundService.import(bytes)へ
 
 「保存」で一覧に追加する。「保存して適用」または一覧での選択は直前の外観を1件控えてから切り替える。「元に戻す」で明暗、個別アクセントと背景を含む直前の設定を復元する。テーマの削除では共有画像を残す。
 
-テーマと設定は端末内の `agent-guild.appearance.v3` に `{version:3,themes,active,previous,mascot?}` として一括保存する。マスコットの種類は `active.backgroundOverride`、アバターの選択と配置は共有の `mascot` に保存する。v3 がない端末では既定値から開始する。保存済みのテーマは、罫線の指定がない schemaVersion 1 と、明暗の両方に罫線を指定した schemaVersion 2 を読み込む。schemaVersion 1 では組み込みの罫線を使う。対応範囲より新しい保存版やテーマの schemaVersion を検出したときは、データを保持して読み取り専用にし、外観設定に通知を表示する。書き込み失敗時は現在の表示と下書きを保つ。
+テーマと設定は端末内の `agent-guild.appearance.v3` に `{version:3,themes,active,previous,mascot?}` として一括保存する。マスコットの表示・アバターの選択・配置は共有の `mascot` に保存する。マスコットと作業カードはメッセージ一覧の背面に重ね、通常の画像背景と併用できる。従来のマスコット背景指定を読み込むと、マスコットの表示を有効にしてテーマ既定の背景に戻す。v3 がない端末では既定値から開始する。保存済みのテーマは、罫線の指定がない schemaVersion 1 と、明暗の両方に罫線を指定した schemaVersion 2 を読み込む。schemaVersion 1 では組み込みの罫線を使う。対応範囲より新しい保存版やテーマの schemaVersion を検出したときは、データを保持して読み取り専用にし、外観設定に通知を表示する。書き込み失敗時は現在の表示と下書きを保つ。

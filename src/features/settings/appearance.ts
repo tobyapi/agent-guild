@@ -24,6 +24,10 @@ export function setBackground(backgroundOverride: BackgroundSpec | null): void {
   controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
 }
 
+export function setMascotEnabled(enabled: boolean): boolean {
+  return controller.setMascot({ ...controller.store.getState().mascot, enabled });
+}
+
 export function setMascotLayout(layout: MascotLayout): boolean {
   return controller.setMascot({ ...controller.store.getState().mascot, layout });
 }

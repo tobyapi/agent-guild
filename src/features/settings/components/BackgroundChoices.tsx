@@ -31,7 +31,6 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
     ...(custom ? [{ id: 'default', label: t('backgroundDefault'), image: null }] : []),
     { id: 'none', label: t('backgroundNone'), image: null },
     ...ids.map((id, i) => ({ id, label: t('backgroundImage') + ' ' + (i + 1), image: i + 1 })),
-    { id: 'mascot', label: t('backgroundMascot'), image: null },
   ];
   const selected =
     custom && override === null
@@ -42,7 +41,7 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
   const firstTab = choices.some((item) => item.id === selected) ? selected : 'none';
   function select(id: string) {
     if (id === 'default') setBackground(null);
-    else if (id === 'none' || id === 'mascot') setBackground({ kind: id });
+    else if (id === 'none') setBackground({ kind: 'none' });
     else setBackground({ kind: 'image', assetId: id });
   }
   function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -81,7 +80,7 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
                 <Thumbnail id={id} scheme={scheme} />
               ) : (
                 <span className={styles.emptyPreview}>
-                  <Icon name={id === 'none' ? 'minus' : id === 'mascot' ? 'users' : 'image'} />
+                  <Icon name={id === 'none' ? 'minus' : 'image'} />
                 </span>
               )}
               <span>{label}</span>

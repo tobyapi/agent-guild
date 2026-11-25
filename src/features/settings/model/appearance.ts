@@ -11,6 +11,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+export function usesLegacyMascot(value: unknown): boolean {
+  return isRecord(value) && isRecord(value.backgroundOverride) && value.backgroundOverride.kind === 'mascot';
+}
+
 export function parseAppearance(stored: string, registry: ThemeRegistry): AppearancePreference {
   const value: unknown = JSON.parse(stored);
   if (!isRecord(value) || value.version !== 2) throw new AppearanceValidationError('unsupported appearance version');
@@ -44,7 +48,8 @@ function validateFields(
 function parseBackground(value: unknown): AppearancePreference['backgroundOverride'] {
   if (value === null) return null;
   if (!isRecord(value)) throw new AppearanceValidationError('invalid background override');
-  if (value.kind === 'none' || value.kind === 'mascot') return { kind: value.kind };
+  if (value.kind === 'mascot') return null;
+  if (value.kind === 'none') return { kind: 'none' };
   if (value.kind === 'image' && typeof value.assetId === 'string')
     return resolveBackground({ kind: 'image', assetId: value.assetId });
   if (

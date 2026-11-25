@@ -3,8 +3,7 @@ export type SchemePreference = Scheme | 'system';
 export const ACCENT_IDS = ['vermilion', 'sakura', 'green', 'sky', 'violet', 'silver'] as const;
 export type AccentId = (typeof ACCENT_IDS)[number];
 
-export type BackgroundSpec =
-  { readonly kind: 'none' } | { readonly kind: 'image'; readonly assetId: string } | { readonly kind: 'mascot' };
+export type BackgroundSpec = { readonly kind: 'none' } | { readonly kind: 'image'; readonly assetId: string };
 
 export interface AppearancePreference {
   readonly version: 2;

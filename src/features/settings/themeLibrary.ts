@@ -4,7 +4,7 @@ import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import type { AppearancePersistence } from './appearancePersistence';
 import { DEFAULT_MASCOT_SETTINGS, readMascotSettings, type MascotSettings } from '@/shared/theme/mascot';
-import { parseAppearance } from './model/appearance';
+import { parseAppearance, usesLegacyMascot } from './model/appearance';
 
 export const LIBRARY_KEY = 'agent-guild.appearance.v3';
 export interface ThemeLibrary {
@@ -61,10 +61,22 @@ function decodeLibrary(raw: string, base: ThemeRegistry) {
   if (data.version !== 3 || !('themes' in data) || !Array.isArray(data.themes)) throw new Error('themes');
   const themes = verifiedThemes(data.themes);
   const registry = libraryRegistry(base, themes);
-  const active = readPreference('active' in data ? data.active : null, registry, themes) ?? safeAppearance();
-  const previous = readPreference('previous' in data ? data.previous : null, registry, themes);
-  const mascot = readMascotSettings((data as { mascot?: unknown }).mascot);
-  return { library: { themes, active, previous, mascot }, readOnly: data.themes.some(isFuture) };
+  const {
+    active: rawActive,
+    previous: rawPrevious,
+    mascot: rawMascot,
+  } = data as {
+    active?: unknown;
+    previous?: unknown;
+    mascot?: unknown;
+  };
+  const active = readPreference(rawActive, registry, themes);
+  const previous = readPreference(rawPrevious, registry, themes);
+  const mascot = readMascotSettings(rawMascot, !!active && usesLegacyMascot(rawActive));
+  return {
+    library: { themes, active: active ?? safeAppearance(), previous, mascot },
+    readOnly: data.themes.some(isFuture),
+  };
 }
 export function encodeLibrary({ themes, active, previous, mascot }: ThemeLibrary): string {
   return JSON.stringify({

@@ -4,10 +4,10 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { backendInfo } from '@/shared/lib/backends.test-support';
 import { DEFAULT_MASCOT_LAYOUT } from '@/shared/theme/mascot';
 import { settingsApi } from '../api';
-import { setBackground, setMascotSource } from '../appearance';
+import { setMascotEnabled, setMascotSource } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { LIBRARY_KEY, type ThemeLibrary } from '../themeLibrary';
-import { BackgroundPicker } from './BackgroundPicker';
+import { MascotControls } from './MascotControls';
 
 const runtime = vi.hoisted(() => ({ backends: [] as ReturnType<typeof backendInfo>[] }));
 vi.mock('@/features/runtime', () => ({ useBackends: () => runtime.backends }));
@@ -27,10 +27,9 @@ beforeEach(() => {
     this.open = true;
   };
   localStorage.clear();
-  setBackground({ kind: 'mascot' });
+  setMascotEnabled(true);
   setMascotSource({ kind: 'default' });
   runtime.backends = [];
-  vi.spyOn(settingsApi, 'listBackgrounds').mockResolvedValue([]);
   vi.spyOn(settingsApi, 'listMascots').mockResolvedValue([]);
   vi.spyOn(settingsApi, 'getMascot').mockResolvedValue(image);
 });
@@ -40,17 +39,17 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-it('shows a disabled generation button and the reason without a ready backend', async () => {
+it('shows a disabled generation button and the reason without a ready backend', () => {
   runtime.backends = [backendInfo({ status: 'needs_auth', backgroundGeneration: true })];
-  render(<BackgroundPicker scheme="dark" />);
+  render(<MascotControls scheme="dark" />);
   const button = screen.getByRole<HTMLButtonElement>('button', { name: t('mascotGenerateTitle') });
   expect(button.disabled).toBe(true);
   expect(document.getElementById(button.getAttribute('aria-describedby')!)?.textContent).toBe(t('mascotNoReady'));
-  await waitFor(() => expect(screen.getByRole('radio', { name: t('backgroundMascot'), checked: true })).toBeTruthy());
+  expect(screen.getByRole('switch', { name: t('mascotHidden'), checked: false })).toBeTruthy();
 });
 
 it('selects existing agent avatars and reuses the preset picker in Appearance', async () => {
-  const { container } = render(<BackgroundPicker scheme="dark" />);
+  const { container } = render(<MascotControls scheme="dark" />);
   fireEvent.click(screen.getByRole('button', { name: t('mascotChoose') }));
   fireEvent.click(screen.getByRole('button', { name: 'Sample agent' }));
   const preview = container.querySelector('[data-preview][data-mascot-state]')!;
@@ -62,8 +61,8 @@ it('selects existing agent avatars and reuses the preset picker in Appearance', 
   await waitFor(() => expect(settingsApi.listMascots).toHaveBeenCalledOnce());
 });
 
-it('exposes independent position and size controls and resets both items', async () => {
-  render(<BackgroundPicker scheme="dark" />);
+it('exposes independent position and size controls and resets both items', () => {
+  render(<MascotControls scheme="dark" />);
   const mascot = within(screen.getByRole('group', { name: t('backgroundMascot') }));
   const card = within(screen.getByRole('group', { name: t('mascotCard') }));
   fireEvent.change(mascot.getByRole('slider', { name: t('mascotHorizontal') }), { target: { value: '24' } });
@@ -71,12 +70,11 @@ it('exposes independent position and size controls and resets both items', async
   expect(stored().mascot.layout).toMatchObject({ mascot: { x: 24 }, card: { size: 120 } });
   fireEvent.click(screen.getByRole('button', { name: t('mascotResetLayout') }));
   expect(stored().mascot.layout).toEqual(DEFAULT_MASCOT_LAYOUT);
-  await waitFor(() => expect(settingsApi.listBackgrounds).toHaveBeenCalledOnce());
 });
 
 function startGeneration() {
   runtime.backends = [backendInfo({ id: 'artist', backgroundGeneration: true })];
-  render(<BackgroundPicker scheme="light" />);
+  render(<MascotControls scheme="light" />);
   fireEvent.click(screen.getByRole('button', { name: t('mascotGenerateTitle') }));
   const subject = screen.getByLabelText(t('backgroundSubject'));
   fireEvent.change(subject, { target: { value: ' blue owl ' } });
@@ -90,8 +88,7 @@ it('uses the mascot command, selects the saved image, and offers it again in the
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   expect(generate).toHaveBeenCalledWith(expect.any(String), 'artist', 'blue owl');
   expect(stored()).toMatchObject({
-    active: { backgroundOverride: { kind: 'mascot' } },
-    mascot: { source: { kind: 'generated', id } },
+    mascot: { enabled: true, source: { kind: 'generated', id } },
   });
   fireEvent.click(screen.getByRole('button', { name: t('mascotChoose') }));
   const saved = await screen.findByRole('button', { name: t('mascotGeneratedImage', { number: 1 }) });

@@ -6,7 +6,6 @@ export function isBackgroundAssetId(id: string): boolean {
 
 /** Accept library UUIDs, never URLs or paths. */
 export function resolveBackground(background: BackgroundSpec): BackgroundSpec {
-  if (background.kind === 'mascot' || (background.kind === 'image' && isBackgroundAssetId(background.assetId)))
-    return background;
+  if (background.kind === 'image' && isBackgroundAssetId(background.assetId)) return background;
   return { kind: 'none' };
 }

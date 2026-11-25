@@ -1,11 +1,11 @@
 .frame {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-block-size: 0;
 }
-
 /* 発言が少ないうちは入力欄のすぐ上に寄せる（下から積み上がる。あふれたら上の余白は 0 になる） */
 .scroller {
   display: flex;

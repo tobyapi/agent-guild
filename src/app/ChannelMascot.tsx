@@ -1,11 +1,10 @@
-import { ChannelStatisticsButton } from '@/features/channels';
 import { useChannelActivities, useChannelQueue } from '@/features/runtime';
 import { MascotScene, useAppearanceStore, useMascotAvatar } from '@/features/settings';
 import type { Channel } from '@/shared/types/domain';
 import { useDocumentTheme } from '@/shared/ui/theme/useDocumentTheme';
 
 export function ChannelMascot({ channel }: { channel: Channel }) {
-  const enabled = useAppearanceStore((state) => state.preference.backgroundOverride?.kind === 'mascot');
+  const enabled = useAppearanceStore((state) => state.mascot.enabled);
   return enabled ? <ChannelMascotScene channel={channel} /> : null;
 }
 
@@ -22,7 +21,6 @@ function ChannelMascotScene({ channel }: { channel: Channel }) {
       scheme={scheme}
       running={queue?.running ?? activities.length}
       pending={queue?.pending ?? 0}
-      statistics={<ChannelStatisticsButton key={channel.id} channel={channel} />}
     />
   );
 }

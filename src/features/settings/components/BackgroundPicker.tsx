@@ -1,5 +1,3 @@
-import { useAppearanceStore } from '../appearance';
-import { MascotControls } from './MascotControls';
 import { canGenerateBackground } from '../useBackgroundGeneration';
 import { useBackgroundLibrary } from '../useBackgroundLibrary';
 import { BackgroundChoices } from './BackgroundChoices';
@@ -16,7 +14,6 @@ export function BackgroundPicker({ scheme, revision = 0 }: { scheme: Scheme; rev
   const [generating, setGenerating] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const canGenerate = useBackends().some(canGenerateBackground);
-  const showMascot = useAppearanceStore((state) => state.preference.backgroundOverride?.kind === 'mascot');
   const input = useRef<HTMLInputElement>(null);
   return (
     <div className={fields.field}>
@@ -24,7 +21,6 @@ export function BackgroundPicker({ scheme, revision = 0 }: { scheme: Scheme; rev
         {t('backgroundLabel')}
       </span>
       <BackgroundChoices ids={ids} scheme={scheme} busy={busy} setRemoving={setRemoving} />
-      {showMascot && <MascotControls scheme={scheme} />}
       <input
         ref={input}
         type="file"
@@ -41,7 +37,7 @@ export function BackgroundPicker({ scheme, revision = 0 }: { scheme: Scheme; rev
         <Button disabled={busy} onClick={() => input.current?.click()}>
           {t('backgroundAdd')}
         </Button>
-        {canGenerate && !showMascot && (
+        {canGenerate && (
           <Button
             disabled={busy}
             onClick={() => {

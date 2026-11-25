@@ -1,9 +1,9 @@
 import { useId, useState } from 'react';
 import { AvatarPresetPicker } from '@/features/agents';
 import { useBackends } from '@/features/runtime';
-import { Button } from '@/shared/ui';
+import { Button, SwitchField } from '@/shared/ui';
 import type { Scheme } from '@/shared/theme/types';
-import { setMascotSource } from '../appearance';
+import { setMascotEnabled, setMascotSource, useAppearanceStore } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { canGenerateBackground } from '../useBackgroundGeneration';
 import { GenerateBackgroundDialog } from './GenerateBackgroundDialog';
@@ -12,6 +12,16 @@ import { MascotLayoutEditor } from './MascotLayoutEditor';
 import styles from './MascotControls.module.css';
 
 export function MascotControls({ scheme }: { scheme: Scheme }) {
+  const enabled = useAppearanceStore((state) => state.mascot.enabled);
+  return (
+    <div className={styles.group}>
+      <SwitchField label={t('mascotHidden')} checked={!enabled} onChange={(hidden) => setMascotEnabled(!hidden)} />
+      {enabled && <MascotOptions scheme={scheme} />}
+    </div>
+  );
+}
+
+function MascotOptions({ scheme }: { scheme: Scheme }) {
   const reason = useId();
   const [dialog, setDialog] = useState<'select' | 'generate' | null>(null);
   const [cancelled, setCancelled] = useState(false);

@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes } from 'react';
 import { isImageAvatar } from '@/shared/lib/avatar';
 import { currentLanguage } from '@/shared/i18n';
 import type { MascotLayout, MascotPlacement } from '@/shared/theme/mascot';
@@ -19,7 +19,6 @@ interface Props {
   scheme: Scheme;
   running: number;
   pending: number;
-  statistics?: ReactNode;
   dragHandlers?: (item: Item) => MascotDragHandlers;
 }
 
@@ -27,7 +26,7 @@ function placementStyle({ x, y, size }: MascotPlacement): CSSProperties {
   return { '--item-x': x / 100, '--item-y': y / 100, '--item-scale': size / 100 } as CSSProperties;
 }
 
-export function MascotScene({ avatar, layout, scheme, running, pending, statistics, dragHandlers }: Props) {
+export function MascotScene({ avatar, layout, scheme, running, pending, dragHandlers }: Props) {
   const numbers = new Intl.NumberFormat(currentLanguage());
   return (
     <div
@@ -51,7 +50,6 @@ export function MascotScene({ avatar, layout, scheme, running, pending, statisti
           <div className={styles.heading}>
             <span className={styles.lamp} aria-hidden="true" />
             <strong>{t('mascotChannel')}</strong>
-            {statistics && <div className={styles.statistics}>{statistics}</div>}
           </div>
           <dl className={styles.counts}>
             <div>
