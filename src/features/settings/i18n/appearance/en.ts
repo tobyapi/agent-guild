@@ -52,6 +52,7 @@ export const en: Messages<typeof ja> = {
   mascotGeneratedImage: 'Generated image {number}',
   mascotLoading: 'Loading generated images…',
   mascotListFailed: 'Could not load the generated images.',
+  mascotMissingImage: 'Missing generated image',
   mascotDelete: 'Delete mascot',
   mascotDeleteConfirm: 'Delete “{label}”?',
   mascotDeleteFailed: 'Could not delete the mascot. Please try again.',

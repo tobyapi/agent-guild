@@ -50,6 +50,7 @@ export const ja = {
   mascotGeneratedImage: '生成画像 {number}',
   mascotLoading: '生成画像を読み込んでいます…',
   mascotListFailed: '生成画像の一覧を読み込めませんでした。',
+  mascotMissingImage: '見つからない生成画像',
   mascotDelete: 'マスコットを削除',
   mascotDeleteConfirm: '「{label}」を削除しますか？',
   mascotDeleteFailed: 'マスコットを削除できませんでした。もう一度お試しください。',

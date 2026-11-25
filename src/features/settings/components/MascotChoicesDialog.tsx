@@ -56,6 +56,7 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
   const [requestedPage, setPage] = useState(0);
   const { result, target, busy, failed, ask, cancel, remove } = useMascotLibrary();
   const readOnly = useAppearanceStore((state) => state.readOnly);
+  const askToDelete = readOnly ? undefined : ask;
   if (result === null)
     return (
       <p role="status" className={styles.note}>
@@ -63,8 +64,10 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
       </p>
     );
   if (result === 'error') return <FormAlert>{t('mascotListFailed')}</FormAlert>;
-  if (!result.length) return null;
-  const page = Math.min(requestedPage, Math.ceil(result.length / PAGE_SIZE) - 1);
+  const referencedId = selected ?? target?.id;
+  const missingId = result.some((id) => id === referencedId) ? null : referencedId;
+  if (!result.length && !missingId) return null;
+  const page = Math.min(requestedPage, Math.max(0, Math.ceil(result.length / PAGE_SIZE) - 1));
   const offset = page * PAGE_SIZE;
   const ids = result.slice(offset, offset + PAGE_SIZE);
   return (
@@ -78,9 +81,10 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
             label={t('mascotGeneratedImage', { number: offset + index + 1 })}
             selected={selected === id}
             choose={() => choose(id)}
-            askToDelete={readOnly ? undefined : ask}
+            askToDelete={askToDelete}
           />
         ))}
+        <MissingMascotChoice id={missingId} askToDelete={askToDelete} />
       </div>
       {result.length > PAGE_SIZE && (
         <div className={styles.actions}>
@@ -112,6 +116,23 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
   );
 }
 
+function MissingMascotChoice({
+  id,
+  askToDelete,
+}: {
+  id?: string | null;
+  askToDelete?: (id: string, label: string) => void;
+}) {
+  if (!id) return null;
+  const label = t('mascotMissingImage');
+  return (
+    <div className={styles.generatedChoice}>
+      <span className={styles.note}>{label}</span>
+      {askToDelete && <DeleteMascotButton label={label} onClick={() => askToDelete(id, label)} />}
+    </div>
+  );
+}
+
 interface ChoiceProps {
   label: string;
   avatar: string;
@@ -128,15 +149,16 @@ function GeneratedChoice({
   return (
     <div className={styles.generatedChoice}>
       <Choice {...props} avatar={avatar ?? ''} />
-      {askToDelete && (
-        <IconButton
-          label={t('backgroundDeleteLabel', { label: props.label })}
-          onClick={() => askToDelete(id, props.label)}
-        >
-          <Icon name="trash" />
-        </IconButton>
-      )}
+      {askToDelete && <DeleteMascotButton label={props.label} onClick={() => askToDelete(id, props.label)} />}
     </div>
+  );
+}
+
+function DeleteMascotButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <IconButton label={t('backgroundDeleteLabel', { label })} onClick={onClick}>
+      <Icon name="trash" />
+    </IconButton>
   );
 }
 

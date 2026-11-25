@@ -33,9 +33,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-async function openConfirmation(number = 1) {
-  const label = t('mascotGeneratedImage', { number });
-  fireEvent.click(await screen.findByRole('button', { name: t('backgroundDeleteLabel', { label }) }));
+async function openConfirmation(imageLabel = label) {
+  fireEvent.click(await screen.findByRole('button', { name: t('backgroundDeleteLabel', { label: imageLabel }) }));
   return within(screen.getByRole('dialog', { name: t('mascotDelete') }));
 }
 
@@ -83,6 +82,7 @@ it.each(['existing', 'already missing'])('clears the selected %s image before re
   setMascotSource({ kind: 'generated', id });
   if (file === 'already missing') {
     // The desktop command returns success for a missing file.
+    vi.mocked(settingsApi.listMascots).mockResolvedValue([]);
     vi.mocked(settingsApi.getMascot).mockRejectedValue({ code: 'not_found' });
   }
   vi.mocked(settingsApi.deleteMascot).mockImplementation(() => {
@@ -91,9 +91,12 @@ it.each(['existing', 'already missing'])('clears the selected %s image before re
   });
   render(<MascotControls scheme="dark" />);
   fireEvent.click(screen.getByRole('button', { name: t('mascotChoose') }));
-  const confirmation = await openConfirmation();
+  const imageLabel = file === 'already missing' ? t('mascotMissingImage') : label;
+  const confirmation = await openConfirmation(imageLabel);
   fireEvent.click(confirmation.getByRole('button', { name: t('backgroundDelete') }));
-  await waitFor(() => expect(screen.queryByRole('button', { name: label })).toBeNull());
+  await waitFor(() =>
+    expect(screen.queryByRole('button', { name: t('backgroundDeleteLabel', { label: imageLabel }) })).toBeNull(),
+  );
   expect(settingsApi.deleteMascot).toHaveBeenCalledExactlyOnceWith(id);
   expect(screen.getByRole('dialog', { name: t('mascotChoose') })).toBeTruthy();
   expect(screen.getByRole('switch', { name: t('mascotShow'), checked: false })).toBeTruthy();
@@ -146,7 +149,7 @@ it('returns to the preceding page after deleting the last image on a page', asyn
   vi.mocked(settingsApi.listMascots).mockResolvedValue(ids);
   render(<MascotChoicesDialog onClose={vi.fn()} />);
   fireEvent.click(await screen.findByRole('button', { name: t('mascotNext') }));
-  const confirmation = await openConfirmation(7);
+  const confirmation = await openConfirmation(t('mascotGeneratedImage', { number: 7 }));
   fireEvent.click(confirmation.getByRole('button', { name: t('backgroundDelete') }));
   expect(await screen.findByRole('button', { name: label })).toBeTruthy();
   expect(settingsApi.deleteMascot).toHaveBeenCalledExactlyOnceWith(ids[6]);

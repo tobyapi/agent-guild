@@ -52,6 +52,7 @@ export const zhHant: Messages<typeof ja> = {
   mascotGeneratedImage: '生成的圖片 {number}',
   mascotLoading: '正在載入生成的圖片…',
   mascotListFailed: '無法載入已生成的圖片。',
+  mascotMissingImage: '找不到的生成圖片',
   mascotDelete: '刪除吉祥物',
   mascotDeleteConfirm: '要刪除「{label}」嗎？',
   mascotDeleteFailed: '無法刪除吉祥物。請再試一次。',

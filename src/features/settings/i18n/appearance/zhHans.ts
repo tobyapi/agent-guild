@@ -52,6 +52,7 @@ export const zhHans: Messages<typeof ja> = {
   mascotGeneratedImage: '生成的图片 {number}',
   mascotLoading: '正在加载生成的图片…',
   mascotListFailed: '无法加载已生成的图片。',
+  mascotMissingImage: '找不到的生成图片',
   mascotDelete: '删除吉祥物',
   mascotDeleteConfirm: '要删除「{label}」吗？',
   mascotDeleteFailed: '无法删除吉祥物。请重试。',
