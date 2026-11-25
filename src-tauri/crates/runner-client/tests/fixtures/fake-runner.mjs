@@ -85,6 +85,7 @@ function cancelJob(id, waiting) {
 
 export function startFakeRunner({ protocolVersion = 6, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
+  const receivedRuns = [];
   const handlers = {
     approvalResponse: ({ id, requestId, decision }) => {
       if (waiting.get(id) !== 'approvals') return;
@@ -94,6 +95,10 @@ export function startFakeRunner({ protocolVersion = 6, sendReady = true, probeMo
       send({ type: 'result', id, text: decision });
     },
     run: (request) => {
+      if (request.prompt === 'received-runs') {
+        return send({ type: 'result', id: request.id, text: JSON.stringify(receivedRuns) });
+      }
+      receivedRuns.push(request.id);
       if (request.prompt === 'release-stubborn') {
         for (const [id, mode] of waiting) {
           if (mode !== 'stubborn') continue;
@@ -118,6 +123,8 @@ export function startFakeRunner({ protocolVersion = 6, sendReady = true, probeMo
       writeFileSync(request.output, JSON.stringify(request));
       return send({ type: 'result', id: request.id, text: '' });
     },
+    theme: ({ id, subject }) => send({ type: 'result', id, text: subject }),
+    background: ({ id, prompt }) => send({ type: 'result', id, text: prompt }),
     cancel: ({ id }) => cancelJob(id, waiting),
     login: ({ id }) => {
       send({ type: 'backends', backends: [{ ...BACKEND, status: 'ready' }] });

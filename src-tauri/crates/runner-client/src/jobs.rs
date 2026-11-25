@@ -1,6 +1,6 @@
 //! job_id ごとの待ち手（途中経過と途中の投稿のコールバック・結果の受け口・cancel の合図）。stdout の読み取りタスクがここへ配送する。
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 
 use parking_lot::Mutex;
@@ -9,6 +9,8 @@ use tokio::sync::{oneshot, watch};
 use crate::{RunUpdate, RunnerError, UpdateFn};
 
 pub(crate) type Outcome = Result<String, RunnerError>;
+
+const MAX_EARLY_CANCELS: usize = 64;
 
 struct Waiter {
     on_update: Arc<dyn Fn(RunUpdate) + Send + Sync>,
@@ -39,28 +41,46 @@ impl CancelSignal {
 
 #[derive(Default)]
 pub(crate) struct Jobs {
-    waiters: Mutex<HashMap<String, Waiter>>,
+    state: Mutex<JobState>,
+}
+
+#[derive(Default)]
+struct JobState {
+    waiters: HashMap<String, Waiter>,
+    early_cancels: VecDeque<String>,
 }
 
 impl Jobs {
-    /// 待ち手を登録する。同じ job_id が実行中ならエラー。
-    pub(crate) fn register(&self, id: &str, on_update: UpdateFn) -> Result<JobHandle, RunnerError> {
-        let mut waiters = self.waiters.lock();
-        if waiters.contains_key(id) {
+    /// 待ち手を登録する。実行中の ID と、停止要求を引き継ぐ会話の実行はここで弾く。
+    pub(crate) fn register(
+        &self,
+        id: &str,
+        on_update: UpdateFn,
+        honor_early_cancel: bool,
+    ) -> Result<JobHandle, RunnerError> {
+        let mut state = self.state.lock();
+        if state.waiters.contains_key(id) {
             return Err(RunnerError::Protocol(format!("同じ job_id のジョブが実行中です: {id}")));
+        }
+        if let Some(index) = state.early_cancels.iter().position(|pending| pending == id) {
+            state.early_cancels.remove(index);
+            if honor_early_cancel {
+                return Err(RunnerError::Cancelled);
+            }
         }
         let (done, outcome) = oneshot::channel();
         let (cancel, cancel_signal) = watch::channel(false);
         let on_update = Arc::from(on_update);
-        waiters.insert(id.to_owned(), Waiter { on_update, done, cancel });
+        state.waiters.insert(id.to_owned(), Waiter { on_update, done, cancel });
         Ok(JobHandle { outcome, cancel: CancelSignal(cancel_signal) })
     }
 
     /// 途中経過・途中の投稿を渡す。cancel 後は流さない。コールバックはロックの外で呼ぶ（中から cancel などを呼んでも詰まらない）。
     pub(crate) fn update(&self, id: &str, update: RunUpdate) {
         let on_update = self
-            .waiters
+            .state
             .lock()
+            .waiters
             .get(id)
             .filter(|waiter| !*waiter.cancel.borrow())
             .map(|waiter| Arc::clone(&waiter.on_update));
@@ -71,7 +91,7 @@ impl Jobs {
 
     /// 終端イベントの結果を渡して待ち手を外す。待ち手がいなければ（猶予切れなど）false。
     pub(crate) fn finish(&self, id: &str, outcome: Outcome) -> bool {
-        let Some(waiter) = self.waiters.lock().remove(id) else {
+        let Some(waiter) = self.state.lock().waiters.remove(id) else {
             return false;
         };
         // 受け手が先に諦めていても（future の drop）困らない
@@ -80,13 +100,18 @@ impl Jobs {
     }
 
     pub(crate) fn is_active(&self, id: &str) -> bool {
-        self.waiters.lock().get(id).is_some_and(|waiter| !*waiter.cancel.borrow())
+        self.state.lock().waiters.get(id).is_some_and(|waiter| !*waiter.cancel.borrow())
     }
 
-    /// cancel の合図を出す。待ち手がいなければ false。
+    /// cancel の合図を出す。未登録なら記録して false を返す。
     pub(crate) fn request_cancel(&self, id: &str) -> bool {
-        let waiters = self.waiters.lock();
-        let Some(waiter) = waiters.get(id) else {
+        let mut state = self.state.lock();
+        let Some(waiter) = state.waiters.get(id) else {
+            state.early_cancels.retain(|pending| pending != id);
+            if state.early_cancels.len() == MAX_EARLY_CANCELS {
+                state.early_cancels.pop_front();
+            }
+            state.early_cancels.push_back(id.to_owned());
             return false;
         };
         waiter.cancel.send_replace(true);
@@ -95,6 +120,6 @@ impl Jobs {
 
     /// 結果を渡さずに待ち手を外す。外したら Some(cancel 済みだったか)。
     pub(crate) fn remove(&self, id: &str) -> Option<bool> {
-        self.waiters.lock().remove(id).map(|waiter| *waiter.cancel.borrow())
+        self.state.lock().waiters.remove(id).map(|waiter| *waiter.cancel.borrow())
     }
 }

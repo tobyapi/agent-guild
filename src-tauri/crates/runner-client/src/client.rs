@@ -62,8 +62,8 @@ impl RunnerClient {
     }
 
     /// 1回実行して最終テキストを返す。途中経過と途中の投稿は `on_update` に届く。起動中なら ready になるまで
-    /// （最長 ready_timeout）待ち、使えなければ `Err(Unavailable)`。`cancel(job_id)` されたら、終端イベントか
-    /// 接続断を確認してから `Err(Cancelled)`。
+    /// （最長 ready_timeout）待ち、使えなければ `Err(Unavailable)`。登録前に停止されたら送信せず `Err(Cancelled)`。
+    /// 実行中は終端イベントか接続断を確認してから `Err(Cancelled)`。
     pub async fn run(&self, job_id: &str, request: RunRequest, on_update: UpdateFn) -> Result<String, RunnerError> {
         run::run(&self.shared, job_id, run::Work::Run(&request), on_update).await
     }
@@ -85,7 +85,6 @@ impl RunnerClient {
         run::run(&self.shared, job_id, run::Work::Login(backend), Box::new(|_| {})).await.map(|_| ())
     }
 
-    /// 実行中のジョブを中断する（存在しなければ何もしない）。待たずに戻る
     pub async fn api_key(
         &self,
         id: &str,
@@ -127,6 +126,7 @@ impl RunnerClient {
         Ok(true)
     }
 
+    /// ジョブの中断を要求する。会話の実行は登録前の要求も受け付ける。
     pub async fn cancel(&self, job_id: &str) {
         if !self.shared.jobs.request_cancel(job_id) {
             return;

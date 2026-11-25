@@ -53,7 +53,7 @@ pub(crate) async fn run(
     on_update: UpdateFn,
 ) -> Result<String, RunnerError> {
     let connection = ready_connection(shared).await?;
-    let job = shared.jobs.register(job_id, on_update)?;
+    let job = shared.jobs.register(job_id, on_update, matches!(work, Work::Run(_)))?;
     let mut registration = Registration { jobs: &shared.jobs, id: job_id, sent_on: None };
     let (mut outcome, mut cancel) = (job.outcome, job.cancel);
     connection.send(&request(work, job_id)).await?;

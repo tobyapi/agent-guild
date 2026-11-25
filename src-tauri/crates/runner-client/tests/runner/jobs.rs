@@ -3,7 +3,7 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use runner_client::{ErrorCode, RunUpdate, RunUsage, RunnerClient, RunnerError};
+use runner_client::{BackgroundRequest, ErrorCode, RunUpdate, RunUsage, RunnerClient, RunnerError, RunnerStatus};
 
 use crate::support::{config, no_updates, ready_client, request, updates, wait_status, within, CANCEL_GRACE};
 
@@ -73,6 +73,43 @@ async fn start_waiting_job(
     });
     assert_eq!(within(updates.recv()).await, Some(RunUpdate::Activity("waiting".to_owned())));
     running
+}
+
+#[tokio::test]
+async fn cancel_before_registration_prevents_sending_the_run() {
+    let client = RunnerClient::new(config("ok.mjs"));
+    let running = client.run("early-stop", request("echo:unexpected"), no_updates());
+    tokio::pin!(running);
+    // ready を待つところまで進める。起動タスクに実行を譲る前に停止する。
+    tokio::select! {
+        biased;
+        result = &mut running => panic!("起動待ちになる前に終了した: {result:?}"),
+        () = std::future::ready(()) => {}
+    }
+    assert_eq!(client.status(), RunnerStatus::Starting);
+    client.cancel("early-stop").await;
+    let outcome = within(running).await;
+    assert!(matches!(outcome, Err(RunnerError::Cancelled)), "{outcome:?}");
+
+    let received = within(client.run("inspect", request("received-runs"), no_updates())).await.expect("run の受信履歴");
+    assert_eq!(received, "[]");
+    client.shutdown().await;
+}
+
+#[tokio::test]
+async fn earlier_cancels_do_not_stop_reused_theme_or_background_ids() {
+    let client = ready_client("ok.mjs").await;
+    for subject in ["first", "second"] {
+        client.cancel("theme-shared").await;
+        let theme = within(client.generate_theme("theme-shared", "fake", subject)).await.expect("theme");
+        assert_eq!(theme, subject);
+
+        client.cancel_background("background-shared").await;
+        let request = BackgroundRequest { backend: "fake".into(), prompt: subject.into() };
+        let background = within(client.generate_background("background-shared", request)).await.expect("background");
+        assert_eq!(background, subject);
+    }
+    client.shutdown().await;
 }
 
 #[tokio::test]
