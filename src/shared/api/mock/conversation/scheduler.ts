@@ -8,8 +8,6 @@ import type { JobOutcome } from './executor';
 import { pushJob } from './lanes';
 import type { MockJob } from './routing';
 
-export const MAX_CONCURRENT_JOBS = 3;
-
 export type JobFilter = (job: MockJob) => boolean;
 
 export interface SchedulerHooks {
@@ -26,6 +24,7 @@ export interface Scheduler {
   /** そのエージェントがどこかで待機・実行中か */
   isBusy: (agentId: string) => boolean;
   activityState: () => ActivityState;
+  pump: () => void;
 }
 
 interface Running {
@@ -92,15 +91,16 @@ export function createScheduler(core: MockCore, hooks: SchedulerHooks): Schedule
 
   /** レーンの先頭（レーンが空き、エージェントが他で動いていない）と割り振りの枠を、全体の上限まで始める */
   function pump(): void {
+    const limit = core.state.runLimits?.maxConcurrentJobs ?? Infinity;
     for (const [channelId, queue] of lanes) {
       const head = queue[0];
       if (!head || laneBusy(channelId) || isRunning(head.agentId)) continue;
-      if (running.size >= MAX_CONCURRENT_JOBS) break;
+      if (running.size >= limit) break;
       lanes.set(channelId, queue.slice(1));
       start(head, true);
     }
     for (const job of [...side]) {
-      if (running.size >= MAX_CONCURRENT_JOBS) break;
+      if (running.size >= limit) break;
       if (isRunning(job.agentId)) continue;
       side = side.filter((queued) => queued !== job);
       start(job, false);
@@ -133,5 +133,6 @@ export function createScheduler(core: MockCore, hooks: SchedulerHooks): Schedule
       side.some((job) => job.agentId === agentId) ||
       [...lanes.values()].some((queue) => queue.some((job) => job.agentId === agentId)),
     activityState,
+    pump,
   };
 }

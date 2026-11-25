@@ -8,6 +8,8 @@ mod executor;
 mod interrupted;
 pub(crate) mod posting;
 
+use std::sync::Arc;
+
 use guild_domain::activity::ActivityState;
 use guild_domain::attachment::{Attachment, NewAttachment};
 use guild_domain::author::Author;
@@ -17,15 +19,15 @@ use guild_domain::ids::{AgentId, AttachmentId, ChannelId, MessageId};
 use guild_domain::message::{normalize_human_content, Message, MessageKind};
 use guild_domain::operation_approval::{ApprovalDecision, OperationApproval};
 
+use guild_domain::run_limits::RunLimits;
+
 use crate::error::AppResult;
 use crate::maintenance::Maintenance;
-use crate::ports::MessageFilter;
+use crate::ports::{MessageFilter, SettingsStore};
 use crate::services::Ports;
 use dispatcher::DispatcherHandle;
 use posting::Origin;
 
-/// 全体の同時実行上限
-pub const MAX_CONCURRENT_JOBS: usize = 3;
 /// list_messages の既定件数と上限
 pub const MESSAGE_PAGE_DEFAULT: u32 = 50;
 pub const MESSAGE_PAGE_MAX: u32 = 200;
@@ -42,15 +44,24 @@ pub struct ConversationService {
 impl ConversationService {
     /// アクターを起動する（Spawner でタスクを作る）。前回の起動で終わらなかった割り振りは、進めるジョブが
     /// 残っていないので打ち切り、終了で中断された返答は会話ごとに知らせる
-    pub fn new(ports: Ports, maintenance: Maintenance) -> Self {
+    pub fn new(ports: Ports, maintenance: Maintenance, settings: Arc<dyn SettingsStore>) -> Self {
         match ports.delegations.cancel_unfinished(ports.clock.now_ms()) {
             Ok(0) => {}
             Ok(count) => log::info!("前回の起動で終わらなかった割り振りを{count}件打ち切りました"),
             Err(error) => log::warn!("終わらなかった割り振りを打ち切れませんでした: {error}"),
         }
         interrupted::announce(&ports);
-        let dispatcher = dispatcher::start(ports.clone());
+        let dispatcher = dispatcher::start(ports.clone(), settings);
         Self { ports, dispatcher, maintenance }
+    }
+
+    pub async fn run_limits(&self) -> AppResult<RunLimits> {
+        self.dispatcher.run_limits().await
+    }
+
+    pub async fn set_run_limits(&self, limits: RunLimits) -> AppResult<()> {
+        limits.validate()?;
+        self.dispatcher.set_run_limits(limits).await
     }
 
     /// 人間の発言（と添えた画像）を保存して message-created を出し、振り分けを始める

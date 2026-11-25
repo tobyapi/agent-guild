@@ -7,7 +7,7 @@ import { t } from './texts/index.ts';
 
 type Work = (signal: AbortSignal, isCurrent: () => boolean, budget?: JobTimeBudget) => Promise<string>;
 type Interruption = Extract<RunnerEvent, { type: 'error' }>;
-type JobOptions = { workspace: string; timeoutMinutes: number; prepareWorkspace?: boolean };
+type JobOptions = { workspace: string; timeoutMinutes?: number; prepareWorkspace?: boolean };
 type ActiveJob = {
   controller: AbortController;
   workspace?: string;
@@ -51,8 +51,8 @@ export class DispatcherJobs {
       }
     }
     this.#active.set(id, job);
-    if (options) {
-      const { timeoutMinutes } = options;
+    const timeoutMinutes = options?.timeoutMinutes;
+    if (timeoutMinutes !== undefined) {
       job.budget = new JobTimeBudget(timeoutMinutes, () => {
         this.#interrupt(id, job, 'timeout', t('runTimedOut', { minutes: timeoutMinutes }));
       });

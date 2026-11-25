@@ -14,17 +14,21 @@ pub(super) mod state;
 mod stopping;
 mod tracking;
 
+use std::sync::Arc;
 use std::time::Duration;
 
 use guild_domain::activity::ActivityState;
 use guild_domain::conversation::{JobSpec, Routing};
 use guild_domain::ids::{AgentId, ChannelId};
 use guild_domain::operation_approval::{ApprovalDecision, ApprovalRequest, ApprovalStatus, OperationApproval};
+use guild_domain::run_limits::RunLimits;
 use tokio::sync::{mpsc, oneshot, watch};
 
 use super::executor::RunOutcome;
 use super::posting::Origin;
+use crate::ports::SettingsStore;
 use crate::services::Ports;
+use crate::{AppError, AppResult};
 use actor::Actor;
 
 /// 停止の終端を待つ上限（ランナーが応答しなくてもコマンドが戻るように）
@@ -37,6 +41,13 @@ pub(super) enum Command {
         origin: Origin,
     },
     Enqueue(Vec<JobSpec>),
+    GetRunLimits {
+        reply: oneshot::Sender<RunLimits>,
+    },
+    SetRunLimits {
+        limits: RunLimits,
+        reply: oneshot::Sender<AppResult<()>>,
+    },
     /// そのエージェントがどこかで待機・実行中なら積まない
     EnqueueAutonomous {
         job: JobSpec,
@@ -104,10 +115,10 @@ pub(super) struct DispatcherHandle {
 }
 
 /// アクターを起動する
-pub(super) fn start(ports: Ports) -> DispatcherHandle {
+pub(super) fn start(ports: Ports, settings: Arc<dyn SettingsStore>) -> DispatcherHandle {
     let (sender, receiver) = mpsc::unbounded_channel();
     let (activity_tx, activity) = watch::channel(ActivityState::default());
-    let actor = Actor::new(ports.clone(), sender.clone(), activity_tx);
+    let actor = Actor::new(ports.clone(), settings, sender.clone(), activity_tx);
     ports.spawner.spawn(Box::pin(actor.run(receiver)));
     DispatcherHandle { sender, activity }
 }
@@ -121,6 +132,18 @@ impl DispatcherHandle {
         if !jobs.is_empty() {
             self.send(Command::Enqueue(jobs));
         }
+    }
+
+    pub async fn run_limits(&self) -> AppResult<RunLimits> {
+        let (reply, answer) = oneshot::channel();
+        self.send(Command::GetRunLimits { reply });
+        answer.await.map_err(|_| dispatcher_closed())
+    }
+
+    pub async fn set_run_limits(&self, limits: RunLimits) -> AppResult<()> {
+        let (reply, answer) = oneshot::channel();
+        self.send(Command::SetRunLimits { limits, reply });
+        answer.await.map_err(|_| dispatcher_closed())?
     }
 
     pub async fn enqueue_autonomous(&self, job: JobSpec) -> bool {
@@ -157,6 +180,10 @@ impl DispatcherHandle {
             log::error!("実行管理のタスクが止まっているため、依頼を処理できませんでした");
         }
     }
+}
+
+fn dispatcher_closed() -> AppError {
+    AppError::Internal("Conversation dispatcher is closed".to_owned())
 }
 
 async fn wait(finished: oneshot::Receiver<()>) {

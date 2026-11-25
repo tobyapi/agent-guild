@@ -16,6 +16,7 @@ import { channelStatisticsSchema } from '@/shared/types/schemas/statistics';
 import {
   activityStateSchema,
   bootStatusSchema,
+  runLimitsSchema,
   snapshotSchema,
   storageInfoSchema,
   updateStatusSchema,
@@ -37,6 +38,8 @@ const localImage = anyOf(
 export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   get_boot_status: objectOf(bootStatusSchema),
   get_snapshot: objectOf(snapshotSchema),
+  get_run_limits: objectOf(runLimitsSchema),
+  set_run_limits: nullValue,
   get_global_instructions: string,
   set_global_instructions: nullValue,
   get_desktop_notifications: boolean,

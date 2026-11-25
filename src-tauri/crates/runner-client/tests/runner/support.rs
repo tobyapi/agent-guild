@@ -32,6 +32,7 @@ pub fn request(prompt: &str) -> RunRequest {
     let mut options = serde_json::Map::new();
     options.insert("maxTurns".to_owned(), 3.into());
     RunRequest {
+        timeout_minutes: None,
         backend: "fake".to_owned(),
         workspace: r"C:\data\agents\a1\work".into(),
         state_dir: r"C:\data\agents\a1\state\fake".into(),

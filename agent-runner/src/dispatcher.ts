@@ -2,13 +2,7 @@ import { DispatcherJobs } from './dispatcher-jobs.ts';
 import { apiKeyWork } from './dispatcher-api-key.ts';
 import { applyBackendAuthMode } from './backends/auth-mode-request.ts';
 import type { BackendRegistry } from './backends/registry.ts';
-import {
-  DEFAULT_RUN_TIMEOUT_MINUTES,
-  usableRequest,
-  type BackendAdapter,
-  type ImageRequest,
-  type RunRequest,
-} from './backends/types.ts';
+import { usableRequest, type BackendAdapter, type ImageRequest, type RunRequest } from './backends/types.ts';
 import type { ParsedLine } from './line-parser.ts';
 import { setLanguage } from './i18n.ts';
 import { logError } from './log.ts';
@@ -136,7 +130,6 @@ export class Dispatcher {
     const { id } = request;
     const adapter = this.#claim(id, request.backend);
     if (!adapter) return;
-    const minutes = adapter.runTimeoutMinutes?.(request.options) ?? DEFAULT_RUN_TIMEOUT_MINUTES;
     this.#jobs.start(
       id,
       async (signal, isCurrent, budget) => {
@@ -151,7 +144,11 @@ export class Dispatcher {
           this.#approvals.cancelRun(id);
         }
       },
-      { workspace: request.workspace, timeoutMinutes: minutes, prepareWorkspace: request.prepareWorkspace },
+      {
+        workspace: request.workspace,
+        timeoutMinutes: request.timeoutMinutes,
+        prepareWorkspace: request.prepareWorkspace,
+      },
     );
   }
 

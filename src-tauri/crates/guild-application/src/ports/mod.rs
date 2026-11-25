@@ -19,7 +19,7 @@ pub use runtime::{
     AgentRuntime, ImagePayload, ImageRuntimeRequest, RunUpdate, RuntimeError, RuntimeRequest, SkillFilePayload,
     SkillPayload, UpdateSink,
 };
-pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsStore, TargetFolder};
+pub use storage::{DataExporter, FolderState, Folders, LaunchSettings, SettingsEdit, SettingsStore, TargetFolder};
 pub use system::{
     AppControl, BoxTask, Clock, DesktopNotifier, EventPublisher, IdGenerator, Spawner, Workspace, WorkspacePaths,
 };

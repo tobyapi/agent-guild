@@ -1,3 +1,4 @@
+import type { RunLimits } from '@/shared/types/domain';
 // React ⇄ Rust の IPC 契約の型表。docs/design.md §3（コマンド）・§4（イベント）の表と常に一致させる。
 // コマンドを足すときはここに1行足し、contractSchemas.ts に戻り値の検証を足し、使う feature の api.ts から呼ぶ。
 import type {
@@ -35,6 +36,8 @@ export type LocalImage =
 
 /** コマンド名 → 引数（JS 側は camelCase）と戻り値。失敗はすべて CommandError で reject される */
 export interface CommandMap {
+  get_run_limits: { args: NoArgs; result: RunLimits };
+  set_run_limits: { args: { limits: RunLimits }; result: null };
   get_global_instructions: { args: NoArgs; result: string };
   set_global_instructions: { args: { instructions: string }; result: null };
   get_boot_status: { args: NoArgs; result: BootStatus };

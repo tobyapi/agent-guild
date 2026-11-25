@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use guild_domain::locale::Language;
+use guild_domain::run_limits::RunLimits;
 
 use crate::error::AppResult;
 
@@ -51,6 +52,7 @@ pub trait DataExporter: Send + Sync {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct LaunchSettings {
     pub global_instructions: String,
+    pub run_limits: RunLimits,
     /// None なら既定のデータフォルダ
     pub data_dir: Option<PathBuf>,
     /// スキルライブラリのフォルダ（使用者が並べた順）
@@ -65,8 +67,16 @@ pub struct LaunchSettings {
     pub backend_auth_modes: BTreeMap<String, String>,
 }
 
+pub type SettingsEdit<'a> = Box<dyn FnOnce(&mut LaunchSettings) + 'a>;
+
 pub trait SettingsStore: Send + Sync {
     fn load(&self) -> AppResult<LaunchSettings>;
     /// version が新しすぎるファイルは書き換えずに Storage を返す
     fn save(&self, settings: &LaunchSettings) -> AppResult<()>;
+
+    fn update(&self, edit: SettingsEdit<'_>) -> AppResult<()> {
+        let mut settings = self.load()?;
+        edit(&mut settings);
+        self.save(&settings)
+    }
 }

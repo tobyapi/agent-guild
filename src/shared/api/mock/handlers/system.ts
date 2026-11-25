@@ -3,12 +3,16 @@ import { rolePermissions } from '@/shared/lib/permissionPolicy';
 // 起動状態・スナップショット・プロフィール・バックエンドの再確認・再起動・リンクを開く。
 import { isExternalUrl } from '@/shared/lib/links';
 import { checkMemberName } from '@/shared/lib/names';
+import { DEFAULT_RUN_LIMITS } from '@/shared/types/domain';
+import { runLimitsSchema } from '@/shared/types/schemas/system';
 import { activeAgents, emitStateChanged, fail } from '../runtime';
 import { RESTART_DELAY_MS } from './types';
 import { checkFrameId } from './frames';
 import type { HandlerGroup } from './types';
 
 type SystemCommands =
+  | 'get_run_limits'
+  | 'set_run_limits'
   | 'get_global_instructions'
   | 'set_global_instructions'
   | 'get_desktop_notifications'
@@ -35,6 +39,15 @@ const PROBE_MS = 800;
 const LOGIN_MS = 1500;
 
 export const systemHandlers: HandlerGroup<SystemCommands> = {
+  get_run_limits: (_args, runtime) => runtime.state.runLimits ?? DEFAULT_RUN_LIMITS,
+  set_run_limits({ limits }, runtime) {
+    for (const field of ['timeoutMinutes', 'maxConcurrentJobs'] as const) {
+      if (runLimitsSchema[field](limits[field], field).length) fail('validation', 'Invalid run limit', field);
+    }
+    runtime.state.runLimits = { ...limits };
+    runtime.conversation.refreshLimits();
+    return null;
+  },
   get_global_instructions: (_args, runtime) => runtime.state.globalInstructions ?? '',
   set_global_instructions({ instructions }, runtime) {
     if (instructions.length > GLOBAL_INSTRUCTIONS_LIMIT)

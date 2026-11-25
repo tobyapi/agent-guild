@@ -16,6 +16,7 @@ const MANAGER_GONE = 'マネージャーが外れました';
 
 export interface MockConversation {
   activityState: () => ActivityState;
+  refreshLimits: () => void;
   onHumanMessage: (message: Message, channel: Channel) => void;
   /** 自発活動を1回積む（そのエージェントがどこかで待機・実行中なら積まない） */
   queueAutonomous: (agentId: string, channelId: string) => void;
@@ -104,6 +105,7 @@ export function createConversation(core: MockCore): MockConversation {
 
   return {
     activityState: scheduler.activityState,
+    refreshLimits: scheduler.pump,
     onHumanMessage: (message, channel) => apply(routeHumanMessage(message, contextOf(channel)), channel, message.id),
     queueAutonomous(agentId, channelId) {
       if (scheduler.isBusy(agentId)) return;

@@ -31,9 +31,7 @@ impl NotificationService {
     }
     pub fn set_enabled(&self, enabled: bool) -> AppResult<()> {
         let _guard = self.gate.lock();
-        let mut settings = self.settings.load()?;
-        settings.desktop_notifications = Some(enabled);
-        self.settings.save(&settings)
+        self.settings.update(Box::new(|settings| settings.desktop_notifications = Some(enabled)))
     }
     /// The dispatcher submits once for each live approval. No notification receipt needs to survive an app restart.
     pub fn submit_ephemeral(&self, title: &str, body: &str) -> AppResult<()> {

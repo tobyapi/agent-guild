@@ -22,9 +22,7 @@ impl GlobalInstructionsService {
 
     pub fn set(&self, instructions: String) -> AppResult<()> {
         validate_global_instructions(&instructions)?;
-        let mut settings = self.settings.load()?;
-        settings.global_instructions = instructions;
-        self.settings.save(&settings)
+        self.settings.update(Box::new(move |settings| settings.global_instructions = instructions))
     }
 
     pub fn apply(&self, ctx: &PromptContext<'_>) -> String {

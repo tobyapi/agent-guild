@@ -34,9 +34,7 @@ impl LanguageService {
 
     /// 保存してから、いまの言語にしてランナーへ伝える。settings.json が新しい版のものなら書き換えずに Storage
     pub async fn set(&self, language: Language) -> AppResult<()> {
-        let mut settings = self.settings.load()?;
-        settings.language = Some(language);
-        self.settings.save(&settings)?;
+        self.settings.update(Box::new(|settings| settings.language = Some(language)))?;
         (self.apply)(language);
         if let Some(runtime) = &self.runtime {
             runtime.set_language(language).await;

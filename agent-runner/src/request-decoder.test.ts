@@ -66,6 +66,10 @@ describe('decodeRequest', () => {
     expect(decoded).toEqual({ ok: true, request: RUN });
   });
 
+  it.each([null, 0, 29, 31, '60', 121])('不正な run.timeoutMinutes %j を拒否する', (timeoutMinutes) => {
+    expect(decodeRequest({ ...RUN, timeoutMinutes })).toMatchObject({ ok: false, id: 'job-1' });
+  });
+
   it('文字列のフィールドが不正なら、どれかを返す', () => {
     const decoded = decodeRequest({ ...RUN, stateDir: 1, model: undefined });
     expect(decoded).toMatchObject({ ok: false, id: 'job-1' });

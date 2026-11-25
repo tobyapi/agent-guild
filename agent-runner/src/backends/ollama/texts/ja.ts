@@ -2,8 +2,6 @@
 // 日本語の表が正（キーの一覧）。モデルへの指示と道具の結果（actions.ts・tools.ts など）は訳さない。
 export const ja = {
   label: 'Ollama（この PC）',
-  timeoutMinutesLabel: '1回の実行の上限（分）',
-  timeoutMinutesDescription: '上限を設定する場合は1〜60分の整数を入力します。空欄なら既定の{minutes}分です。',
   enableToolsLabel: '道具の利用を有効にする',
   enableToolsDescription:
     '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',

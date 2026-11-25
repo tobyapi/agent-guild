@@ -87,16 +87,12 @@ impl StorageService {
 
     /// 初回起動の初期設定を終えた印を settings.json に書く（次の起動から初期設定のダイアログを出さない）
     pub fn complete_setup(&self) -> AppResult<()> {
-        let mut settings = self.ports.settings.load()?;
-        settings.setup_done = true;
-        self.ports.settings.save(&settings)
+        self.ports.settings.update(Box::new(|settings| settings.setup_done = true))
     }
 
     /// settings.json の保存先だけを書き換える（ほかの項目はそのまま）
     fn save_data_dir(&self, data_dir: Option<PathBuf>) -> AppResult<()> {
-        let mut settings = self.ports.settings.load()?;
-        settings.data_dir = data_dir;
-        self.ports.settings.save(&settings)
+        self.ports.settings.update(Box::new(move |settings| settings.data_dir = data_dir))
     }
 
     fn end_maintenance(&self) {

@@ -5,6 +5,8 @@ import type { RunContext } from './backends/types.ts';
 import { Dispatcher } from './dispatcher.ts';
 import type { RunnerEvent } from './protocol.ts';
 
+const backends = ['claude', 'codex', 'deepseek', 'gemini', 'grok', 'muse', 'ollama'];
+
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
@@ -29,41 +31,56 @@ function setup(backend: string) {
     send: (event) => events.push(event),
     exit: vi.fn(),
   });
-  const run = (id: string, workspace = '/work') =>
-    dispatcher.receive({ kind: 'message', value: { ...runRequest(backend), id, workspace } });
-  return { contexts, finish, events, dispatcher, run };
+  const run = (id: string, workspace = '/work', timeoutMinutes?: number) =>
+    dispatcher.receive({ kind: 'message', value: { ...runRequest(backend), id, workspace, timeoutMinutes } });
+  const cancel = (id: string) => dispatcher.receive({ kind: 'message', value: { type: 'cancel', id } });
+  return { contexts, finish, events, dispatcher, run, cancel };
 }
 
-it.each(['claude', 'codex', 'deepseek', 'gemini', 'grok', 'muse', 'ollama'])(
-  '%s は既定で30分後に中断され、遅れた通知や結果は捨てる',
-  async (backend) => {
-    const { contexts, finish, events, dispatcher, run } = setup(backend);
-    run('job');
-    const context = contexts.get('job')!;
-    await vi.advanceTimersByTimeAsync(30 * 60_000 - 1);
-    expect(context.signal.aborted).toBe(false);
-    expect(events).toEqual([]);
+it.each(backends)('%s は既定で24時間後も実行中で、手動停止を受け付ける', async (backend) => {
+  const { contexts, finish, events, run, cancel } = setup(backend);
+  run('job');
+  const context = contexts.get('job')!;
+  expect(vi.getTimerCount()).toBe(0);
+  await vi.advanceTimersByTimeAsync(24 * 60 * 60_000);
+  expect(context.signal.aborted).toBe(false);
+  expect(events).toEqual([]);
 
-    await vi.advanceTimersByTimeAsync(1);
-    expect(context.signal.aborted).toBe(true);
-    expect(events).toEqual([]);
-    dispatcher.cancel('job');
-    context.onPost('late');
-    context.onUsage({ model: 'late' });
-    context.onActivity('late');
-    context.onSkillRead?.('late');
-    finish.get('job')!('late');
-    await vi.advanceTimersByTimeAsync(0);
-    expect(events).toEqual([
-      { id: 'job', type: 'error', code: 'timeout', message: '時間切れで実行を中断しました（30分）' },
-    ]);
-  },
-);
+  cancel('job');
+  expect(context.signal.aborted).toBe(true);
+  context.onPost('late');
+  finish.get('job')!('late');
+  await vi.advanceTimersByTimeAsync(0);
+  expect(events).toMatchObject([{ id: 'job', type: 'error', code: 'cancelled' }]);
+});
+
+it.each([30, 60, 120])('%d 分を選ぶと時間切れで中断され、遅れた通知や結果は捨てる', async (minutes) => {
+  const { contexts, finish, events, run, cancel } = setup('codex');
+  run('job', '/work', minutes);
+  const context = contexts.get('job')!;
+  await vi.advanceTimersByTimeAsync(minutes * 60_000 - 1);
+  expect(context.signal.aborted).toBe(false);
+  expect(events).toEqual([]);
+
+  await vi.advanceTimersByTimeAsync(1);
+  expect(context.signal.aborted).toBe(true);
+  expect(events).toEqual([]);
+  cancel('job');
+  context.onPost('late');
+  context.onUsage({ model: 'late' });
+  context.onActivity('late');
+  context.onSkillRead?.('late');
+  finish.get('job')!('late');
+  await vi.advanceTimersByTimeAsync(0);
+  expect(events).toEqual([
+    { id: 'job', type: 'error', code: 'timeout', message: `時間切れで実行を中断しました（${minutes}分）` },
+  ]);
+});
 
 it('手動停止と正常完了は、期限のタイマーを解除する', async () => {
   const { contexts, finish, events, dispatcher, run } = setup('codex');
-  run('cancelled');
-  run('done', '/other-work');
+  run('cancelled', '/work', 30);
+  run('done', '/other-work', 60);
   const cancelled = contexts.get('cancelled')!;
   const done = contexts.get('done')!;
   await vi.advanceTimersByTimeAsync(60_000);
@@ -86,7 +103,7 @@ it('手動停止と正常完了は、期限のタイマーを解除する', asyn
 
 it('中断を無視するバックエンドにも5秒で終端を返し、別の作業場所では実行できる', async () => {
   const { contexts, finish, events, dispatcher, run } = setup('codex');
-  run('stuck');
+  run('stuck', '/work', 30);
   await vi.advanceTimersByTimeAsync(30 * 60_000 + 4_999);
   expect(contexts.get('stuck')?.signal.aborted).toBe(true);
   expect(events).toEqual([]);

@@ -13,6 +13,7 @@ import { AppearanceSection } from './AppearanceSection';
 import { BackendsSection } from './BackendsSection';
 import { GlobalInstructionsSection } from './GlobalInstructionsSection';
 import { LanguageSection } from './LanguageSection';
+import { RunLimitsSection } from './RunLimitsSection';
 import { SettingsSection as Section } from './SettingsSection';
 import { StorageSection } from './StorageSection';
 import styles from './SettingsDialog.module.css';
@@ -78,6 +79,9 @@ function SettingsContent({ focus }: { focus: 'skillLibrary' | 'update' | null })
             )}
             {group === 'ai' && (
               <>
+                <Section title={t('runLimitsTitle')}>
+                  <RunLimitsSection />
+                </Section>
                 <Section title={t('globalInstructionsTitle')}>
                   <GlobalInstructionsSection />
                 </Section>

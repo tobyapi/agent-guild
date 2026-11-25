@@ -89,7 +89,7 @@ impl AppServices {
     pub fn new(ports: Ports, storage: StoragePorts, exporter: Arc<dyn DataExporter>) -> Self {
         let started_at = ports.clock.now_ms();
         let maintenance = Maintenance::default();
-        let conversation = ConversationService::new(ports.clone(), maintenance.clone());
+        let conversation = ConversationService::new(ports.clone(), maintenance.clone(), storage.settings.clone());
         let copier = Copier { exporter, conversation: conversation.clone(), maintenance: maintenance.clone() };
         Self {
             global_instructions: ports.global_instructions.clone(),

@@ -93,17 +93,22 @@ export function runJob(core: MockCore, job: MockJob, agent: Agent, callbacks: Jo
         })
       : null;
   const details = plan?.steps ?? ['考え中…'];
-  const cancels = details.map((detail, index) =>
-    core.env.schedule(index * STEP_MS, () => callbacks.onActivity(detail)),
-  );
-  cancels.push(...scheduleProgress(core, job, plan, details.length * STEP_MS));
+  const minutes = core.state.runLimits?.timeoutMinutes;
+  const completeAt = details.length * STEP_MS;
+  const timeoutAt = minutes == null ? Infinity : minutes * 60_000;
+  const finishAt = Math.min(completeAt, timeoutAt);
+  const cancels = details
+    .slice(0, Math.ceil(finishAt / STEP_MS))
+    .map((detail, index) => core.env.schedule(index * STEP_MS, () => callbacks.onActivity(detail)));
+  cancels.push(...scheduleProgress(core, job, plan, finishAt));
   cancels.push(
-    core.env.schedule(details.length * STEP_MS, () => {
-      if (plan) {
+    core.env.schedule(finishAt, () => {
+      if (plan && completeAt < timeoutAt) {
         callbacks.onDone(finish(core, job, agent, plan));
         return;
       }
-      const message = post(core, job, reason ?? '', 'error');
+      const error = timeoutAt <= completeAt ? `時間切れで実行を中断しました（${minutes}分）` : (reason ?? '');
+      const message = post(core, job, error, 'error');
       callbacks.onDone({ type: 'failed', note: failed(agent.name), message });
     }),
   );

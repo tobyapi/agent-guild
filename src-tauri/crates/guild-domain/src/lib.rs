@@ -23,6 +23,7 @@ pub mod message;
 pub mod operation_approval;
 pub mod profile;
 pub mod prompt;
+pub mod run_limits;
 pub mod skill;
 pub mod skill_usage;
 pub mod snapshot;

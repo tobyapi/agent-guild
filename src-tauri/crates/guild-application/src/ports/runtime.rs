@@ -41,6 +41,7 @@ pub struct ImagePayload {
 /// 1回の実行の依頼（protocol.ts の run）
 #[derive(Debug, Clone, PartialEq)]
 pub struct RuntimeRequest {
+    pub timeout_minutes: Option<u16>,
     pub backend: String,
     /// 作業場所（cwd）。書き込みはここだけ
     pub workspace: PathBuf,

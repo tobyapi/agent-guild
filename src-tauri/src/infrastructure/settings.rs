@@ -8,13 +8,17 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
-use guild_application::ports::{LaunchSettings, SettingsStore};
+use guild_application::ports::{LaunchSettings, SettingsEdit, SettingsStore};
 use guild_application::{AppError, AppResult};
 use guild_domain::locale::{self, Language};
+use guild_domain::run_limits::{RunLimits, MAX_CONCURRENT_JOBS, RUN_TIMEOUT_MINUTES};
+use parking_lot::Mutex;
 use serde_json::{Map, Value};
 
 pub const SETTINGS_FILE: &str = "settings.json";
 const VERSION: u64 = 1;
+// Several services open the same machine settings file independently.
+static SETTINGS_WRITE: Mutex<()> = Mutex::new(());
 
 pub struct SettingsFile {
     path: PathBuf,
@@ -57,24 +61,38 @@ impl SettingsFile {
 
 impl SettingsStore for SettingsFile {
     fn load(&self) -> AppResult<LaunchSettings> {
-        let object = self.read().map_err(AppError::Storage)?;
-        Ok(LaunchSettings {
-            global_instructions: object
-                .get("globalInstructions")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_owned(),
-            data_dir: data_dir_of(&object),
-            skill_library_dirs: library_dirs_of(&object),
-            setup_done: object.get("setupDone").and_then(Value::as_bool).unwrap_or(false),
-            language: object.get("language").and_then(Value::as_str).and_then(Language::parse),
-            backend_auth_modes: auth_modes_of(&object),
-            desktop_notifications: object.get("desktopNotifications").and_then(Value::as_bool),
-        })
+        self.read().map(|object| settings_of(&object)).map_err(AppError::Storage)
     }
 
     fn save(&self, settings: &LaunchSettings) -> AppResult<()> {
-        let mut object = self.read().map_err(AppError::Storage)?;
+        let _guard = SETTINGS_WRITE.lock();
+        self.save_to(self.read().map_err(AppError::Storage)?, settings)
+    }
+
+    fn update(&self, edit: SettingsEdit<'_>) -> AppResult<()> {
+        let _guard = SETTINGS_WRITE.lock();
+        let object = self.read().map_err(AppError::Storage)?;
+        let mut settings = settings_of(&object);
+        edit(&mut settings);
+        self.save_to(object, &settings)
+    }
+}
+
+fn settings_of(object: &Map<String, Value>) -> LaunchSettings {
+    LaunchSettings {
+        run_limits: run_limits_of(object),
+        global_instructions: object.get("globalInstructions").and_then(Value::as_str).unwrap_or_default().to_owned(),
+        data_dir: data_dir_of(object),
+        skill_library_dirs: library_dirs_of(object),
+        setup_done: object.get("setupDone").and_then(Value::as_bool).unwrap_or(false),
+        language: object.get("language").and_then(Value::as_str).and_then(Language::parse),
+        backend_auth_modes: auth_modes_of(object),
+        desktop_notifications: object.get("desktopNotifications").and_then(Value::as_bool),
+    }
+}
+
+impl SettingsFile {
+    fn save_to(&self, mut object: Map<String, Value>, settings: &LaunchSettings) -> AppResult<()> {
         let version = object.get("version").and_then(Value::as_u64).unwrap_or(VERSION);
         if version > VERSION {
             return Err(AppError::Storage(
@@ -105,7 +123,32 @@ impl SettingsStore for SettingsFile {
             "backendAuthModes".to_owned(),
             serde_json::to_value(&settings.backend_auth_modes).map_err(|e| AppError::Storage(e.to_string()))?,
         );
+        set_limit(&mut object, "runTimeoutMinutes", settings.run_limits.timeout_minutes.map(Value::from));
+        set_limit(&mut object, "maxConcurrentJobs", settings.run_limits.max_concurrent_jobs.map(Value::from));
         self.write(&object).map_err(|e| AppError::Storage(not_saved(&e)))
+    }
+}
+
+fn run_limits_of(object: &Map<String, Value>) -> RunLimits {
+    let number = |key| object.get(key).and_then(Value::as_u64);
+    RunLimits {
+        timeout_minutes: number("runTimeoutMinutes")
+            .and_then(|value| u16::try_from(value).ok())
+            .filter(|minutes| RUN_TIMEOUT_MINUTES.contains(minutes)),
+        max_concurrent_jobs: number("maxConcurrentJobs")
+            .and_then(|value| u8::try_from(value).ok())
+            .filter(|count| (1..=MAX_CONCURRENT_JOBS).contains(count)),
+    }
+}
+
+fn set_limit(object: &mut Map<String, Value>, key: &str, value: Option<Value>) {
+    match value {
+        Some(value) => {
+            object.insert(key.to_owned(), value);
+        }
+        None => {
+            object.remove(key);
+        }
     }
 }
 

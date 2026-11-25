@@ -3,8 +3,6 @@ import type { ja } from './ja.ts';
 
 export const ko: Messages<typeof ja> = {
   label: 'Ollama(이 PC)',
-  timeoutMinutesLabel: '실행 시간 제한(분)',
-  timeoutMinutesDescription: '1~60 사이의 정수를 입력하세요. 비워 두면 기본값인 {minutes}분이 적용됩니다.',
   enableToolsLabel: '도구 사용 활성화',
   enableToolsDescription:
     '역할의 권한으로 도구(파일 읽기/쓰기, 스킬, 진행 상황 게시)를 실행합니다. DeepSeek 등은 JSON 작업을 사용합니다. 명령은 OS 격리 안에서만 실행합니다(macOS와 지원되는 Windows 11. 네트워크는 사용할 수 없습니다). 작업 폴더 밖에 쓰기는 macOS에서만 가능합니다.',

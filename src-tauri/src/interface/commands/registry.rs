@@ -1,7 +1,7 @@
 //! IPC のコマンド登録表。宣言の一覧とハンドラの構築を分ける。
 use super::{
     agents, approvals, backgrounds, boot, channels, frames, global_instructions, guild, language, links, local_files,
-    messages, notifications, profile, skills, snapshot, storage, themes, update,
+    messages, notifications, profile, run_limits, skills, snapshot, storage, themes, update,
 };
 
 macro_rules! commands {
@@ -9,6 +9,8 @@ macro_rules! commands {
         tauri::generate_handler![
             global_instructions::get_global_instructions,
             global_instructions::set_global_instructions,
+            run_limits::get_run_limits,
+            run_limits::set_run_limits,
             boot::get_boot_status,
             boot::restart_app,
             boot::complete_setup,

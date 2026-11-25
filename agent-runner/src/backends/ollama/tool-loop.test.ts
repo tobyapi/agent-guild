@@ -25,13 +25,8 @@ describe('Ollama tool loop', () => {
     reply({ models: [toolModel] });
     reply({ capabilities: toolModel.capabilities });
   }
-  it('設定項目から think と toolProtocol を除き、timeoutMinutes を残す', () => {
-    const keys = ollamaAdapter.info().options.map((option) => option.key);
-    expect(ollamaAdapter.info().options).toContainEqual(
-      expect.objectContaining({ key: 'timeoutMinutes', default: null }),
-    );
-    expect(keys).not.toContain('think');
-    expect(keys).not.toContain('toolProtocol');
+  it('エージェントの設定には道具に関する2項目を出す', () => {
+    expect(ollamaAdapter.info().options.map((option) => option.key)).toEqual(['enableTools', 'operationCheck']);
   });
   it('明示的に有効化しない既存エージェントには道具を渡さない', async () => {
     reply({ models: [{ model: 'thinking-chat:1b', capabilities: ['completion', 'thinking'] }] });

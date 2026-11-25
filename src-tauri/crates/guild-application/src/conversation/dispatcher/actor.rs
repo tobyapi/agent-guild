@@ -1,24 +1,30 @@
 //! アクター本体: コマンドを1つずつ処理し、そのたびに割り振りを見直し、始められるジョブを始めて、
 //! 実行状況が変わったら知らせる。
 
+use std::sync::Arc;
+
 use guild_domain::activity::{thinking, ActivityState};
 use guild_domain::conversation::JobSpec;
 use guild_domain::locale;
+use guild_domain::run_limits::RunLimits;
 use tokio::sync::{mpsc, watch};
 
 use super::approvals::Approvals;
 use super::state::{DispatchState, Pending, Running};
 use super::stopping::StopWaiter;
 use super::Command;
+use crate::conversation::activity;
 use crate::conversation::executor::{self, Committed, Ending, RunOutcome};
 use crate::conversation::posting::{self, Origin};
-use crate::conversation::{activity, MAX_CONCURRENT_JOBS};
+use crate::ports::SettingsStore;
 use crate::services::Ports;
 
 pub(super) struct Actor {
     pub(super) ports: Ports,
     pub(super) sender: mpsc::UnboundedSender<Command>,
     activity_tx: watch::Sender<ActivityState>,
+    settings: Arc<dyn SettingsStore>,
+    limits: RunLimits,
     pub(super) state: DispatchState,
     pub(super) approvals: Approvals,
     pub(super) waiters: Vec<StopWaiter>,
@@ -29,14 +35,21 @@ pub(super) struct Actor {
 impl Actor {
     pub fn new(
         ports: Ports,
+        settings: Arc<dyn SettingsStore>,
         sender: mpsc::UnboundedSender<Command>,
         activity_tx: watch::Sender<ActivityState>,
     ) -> Self {
         let recorded = Vec::new();
+        let limits = settings.load().map(|saved| saved.run_limits).unwrap_or_else(|error| {
+            log::warn!("実行上限の設定を読み込めませんでした: {error}");
+            RunLimits::default()
+        });
         Self {
             ports,
             sender,
             activity_tx,
+            settings,
+            limits,
             state: DispatchState::default(),
             approvals: Approvals::default(),
             waiters: Vec::new(),
@@ -61,6 +74,16 @@ impl Actor {
                 for job in jobs {
                     self.accept(job);
                 }
+            }
+            Command::GetRunLimits { reply } => {
+                let _ = reply.send(self.limits);
+            }
+            Command::SetRunLimits { limits, reply } => {
+                let result = self.settings.update(Box::new(|settings| settings.run_limits = limits));
+                if result.is_ok() {
+                    self.limits = limits;
+                }
+                let _ = reply.send(result);
             }
             Command::EnqueueAutonomous { job, reply } => {
                 let accepted = !self.state.has_work_for(&job.agent_id);
@@ -94,7 +117,7 @@ impl Actor {
 
     /// 全体の上限まで、始められるジョブを始める（選び方は pick.rs）
     fn pump(&mut self) {
-        while self.state.running.len() < MAX_CONCURRENT_JOBS {
+        while self.limits.max_concurrent_jobs.is_none_or(|limit| self.state.running.len() < usize::from(limit)) {
             let Some(pick) = self.state.next_startable() else {
                 break;
             };
@@ -117,7 +140,7 @@ impl Actor {
         };
         self.state.running.insert(job_id.clone(), running);
         self.subtask_started(&pending.job);
-        let task = executor::run(self.ports.clone(), job_id, pending.job, reporter);
+        let task = executor::run(self.ports.clone(), job_id, pending.job, self.limits.timeout_minutes, reporter);
         self.ports.spawner.spawn(Box::pin(task));
     }
 

@@ -13,6 +13,7 @@ use guild_domain::boot::BootStatus;
 use guild_domain::delegation::{Delegation, DelegationStatus, SubtaskStatus};
 use guild_domain::error::CommandError;
 use guild_domain::message::Message;
+use guild_domain::run_limits::RunLimits;
 use guild_domain::skill::{BuiltinSkill, LibraryAddMode, Skill, SkillInput, SkillLibrary, SkillSource, SkillsChanged};
 use guild_domain::snapshot::Snapshot;
 use guild_domain::statistics::ChannelStatistics;
@@ -41,6 +42,11 @@ fn snapshot() {
 #[test]
 fn global_instructions() {
     assert_round_trip::<String>("global-instructions.json");
+}
+
+#[test]
+fn run_limits() {
+    assert_round_trip::<RunLimits>("run-limits.json");
 }
 
 #[test]

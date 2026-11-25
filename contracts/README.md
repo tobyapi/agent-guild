@@ -27,6 +27,7 @@
 | ipc/boot-status-recovery.json | BootStatus |
 | ipc/command-error.json | CommandError（validation の例。field はどの入力のことか） |
 | ipc/theme-candidate.json | `generate_theme` が返す JSON 文字列の中身。guild-application とフロントエンドの候補検証で共用 |
+| ipc/run-limits.json | RunLimits（実行時間と同時実行数。null は制限なし） |
 | ipc/desktop-notifications.json | boolean（通知の有効／無効。Rust と TS の IPC 契約テスト） |
 | ipc/open-local-path.json | Markdown のローカルリンク、クリックで渡す `open_local_path` の引数、成功時の `null` |
 | runner/requests.jsonl | RunnerRequest（run / image / login / cancel / probe / setLanguage / shutdown / apiKey） |

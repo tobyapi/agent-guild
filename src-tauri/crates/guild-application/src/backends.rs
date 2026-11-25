@@ -35,9 +35,9 @@ impl BackendService {
         if !["claude", "codex"].contains(&backend) || !["desktop", "api"].contains(&mode) {
             return Err(AppError::Validation(ValidationError::new("Invalid backend authentication mode")));
         }
-        let mut settings = self.settings.load()?;
-        settings.backend_auth_modes.insert(backend.to_owned(), mode.to_owned());
-        self.settings.save(&settings)?;
+        self.settings.update(Box::new(|settings| {
+            settings.backend_auth_modes.insert(backend.to_owned(), mode.to_owned());
+        }))?;
         self.runtime
             .set_backend_auth_mode(backend, mode)
             .await

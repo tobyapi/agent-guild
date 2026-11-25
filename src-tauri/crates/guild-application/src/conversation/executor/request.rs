@@ -20,7 +20,7 @@ use crate::services::Ports;
 use crate::skills::sources;
 
 /// エージェントが削除・除外されているか、チャンネルがなければ None（実行しない）
-pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeRequest>> {
+pub(super) fn build(ports: &Ports, job: &JobSpec, timeout_minutes: Option<u16>) -> AppResult<Option<RuntimeRequest>> {
     let Some((agent, channel)) = participants(ports, job)? else {
         return Ok(None);
     };
@@ -63,6 +63,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec) -> AppResult<Option<RuntimeReq
         language: locale::current(),
     };
     Ok(Some(RuntimeRequest {
+        timeout_minutes,
         backend: agent.backend.clone(),
         workspace: paths.work,
         state_dir: paths.state,

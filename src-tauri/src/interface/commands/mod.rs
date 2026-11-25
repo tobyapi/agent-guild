@@ -15,6 +15,7 @@ pub mod local_files;
 pub mod messages;
 pub mod notifications;
 pub mod profile;
+pub mod run_limits;
 pub mod skills;
 pub mod snapshot;
 pub mod storage;

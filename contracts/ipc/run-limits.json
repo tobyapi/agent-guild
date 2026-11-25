@@ -1,0 +1,4 @@
+{
+  "timeoutMinutes": 60,
+  "maxConcurrentJobs": null
+}

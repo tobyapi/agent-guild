@@ -1,4 +1,5 @@
 // domain の実行環境・状態・保存先・起動・エラーのスキーマと、それらを束ねる Snapshot のスキーマ。
+import { MAX_CONCURRENT_JOBS, RUN_TIMEOUT_MINUTES } from '../domain';
 import type {
   ActivityState,
   AgentActivity,
@@ -16,6 +17,7 @@ import type {
   ModelSpec,
   OptionSpec,
   PermissionRule,
+  RunLimits,
   RuntimeState,
   RuntimeStatus,
   Snapshot,
@@ -35,6 +37,13 @@ import {
   profileSchema,
 } from './entities';
 import { customFrameSchema, guildProfileSchema } from './guild';
+
+export const runLimitsSchema = {
+  timeoutMinutes: nullable((value, path) => (RUN_TIMEOUT_MINUTES.some((minutes) => minutes === value) ? [] : [path])),
+  maxConcurrentJobs: nullable((value, path) =>
+    typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= MAX_CONCURRENT_JOBS ? [] : [path],
+  ),
+} satisfies Schema<RunLimits>;
 
 export const optionSpecSchema = {
   key: string,

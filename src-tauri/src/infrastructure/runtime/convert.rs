@@ -137,6 +137,7 @@ fn option(spec: runner::OptionSpec) -> OptionSpec {
 
 pub(super) fn request(request: RuntimeRequest) -> runner::RunRequest {
     runner::RunRequest {
+        timeout_minutes: request.timeout_minutes,
         backend: request.backend,
         workspace: request.workspace,
         state_dir: request.state_dir,

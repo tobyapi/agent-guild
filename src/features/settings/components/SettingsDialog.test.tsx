@@ -21,6 +21,7 @@ vi.mock('./GlobalInstructionsSection', () => ({
   GlobalInstructionsSection: () => <div>shared instructions form</div>,
 }));
 vi.mock('./LanguageSection', () => ({ LanguageSection: () => <div>language form</div> }));
+vi.mock('./RunLimitsSection', () => ({ RunLimitsSection: () => <div>run limits form</div> }));
 vi.mock('./StorageSection', () => ({ StorageSection: () => <div>storage form</div> }));
 
 beforeEach(() => {
@@ -44,7 +45,7 @@ it('4グループを切り替え、表示する区画を絞り、入力途中の
   fireEvent.change(screen.getByLabelText('guild draft'), { target: { value: 'draft' } });
   for (const [name, headings] of [
     ['表示と通知', ['言語', '外観', '通知']],
-    ['AI', ['全エージェント共通の指示', 'バックエンド', 'スキルのフォルダ']],
+    ['AI', ['実行の上限', '全エージェント共通の指示', 'バックエンド', 'スキルのフォルダ']],
     ['アプリ', ['データの保存先', 'アプリの更新']],
   ] as const) {
     fireEvent.click(screen.getByRole('tab', { name }));

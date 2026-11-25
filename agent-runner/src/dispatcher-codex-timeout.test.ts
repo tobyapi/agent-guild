@@ -81,6 +81,7 @@ it.each([
         workspace,
         stateDir,
         prepareWorkspace: true,
+        timeoutMinutes: code === 'timeout' ? 30 : undefined,
         skills: [{ name: 'review', description: 'Review', body: id, dir: null, files: [] }],
       },
     });

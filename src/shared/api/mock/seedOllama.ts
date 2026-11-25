@@ -38,14 +38,6 @@ export const MOCK_OLLAMA: BackendInfo = {
   statusMessage: 'この PC のモデルを使います。',
   options: [
     {
-      key: 'timeoutMinutes',
-      label: '1回の実行の上限（分）',
-      description: '上限を設定する場合は1〜60分の整数を入力します。空欄なら既定の30分です。',
-      type: 'number',
-      choices: [],
-      default: null,
-    },
-    {
       key: 'enableTools',
       label: '道具の利用を有効にする',
       description:

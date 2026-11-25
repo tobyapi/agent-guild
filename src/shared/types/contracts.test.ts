@@ -18,6 +18,7 @@ import {
   activityStateSchema,
   bootStatusSchema,
   commandErrorSchema,
+  runLimitsSchema,
   snapshotSchema,
   storageInfoSchema,
   updateStatusSchema,
@@ -34,6 +35,7 @@ const themeCandidate: Validator = (value) => {
 
 const CASES: Record<string, Validator> = {
   'global-instructions.json': string,
+  'run-limits.json': objectOf(runLimitsSchema),
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
   'theme-candidate.json': themeCandidate,

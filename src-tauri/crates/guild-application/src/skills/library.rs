@@ -39,11 +39,9 @@ impl SkillLibraryService {
     /// フォルダの指定を検証して settings.json に保存し、skill-library-changed を出す
     pub fn set_dirs(&self, dirs: &[String]) -> AppResult<SkillLibrary> {
         let dirs: Vec<PathBuf> = validate_library_dirs(dirs)?.into_iter().map(PathBuf::from).collect();
-        let mut settings = self.settings.load()?;
-        settings.skill_library_dirs = dirs;
-        self.settings.save(&settings)?;
+        self.settings.update(Box::new(|settings| settings.skill_library_dirs.clone_from(&dirs)))?;
         self.ports.events.skill_library_changed();
-        Ok(scan(self.ports.library.as_ref(), &settings.skill_library_dirs))
+        Ok(scan(self.ports.library.as_ref(), &dirs))
     }
 
     /// path（SKILL.md があるフォルダ）のスキルをエージェントに付ける。同じ name があれば Conflict

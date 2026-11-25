@@ -16,46 +16,44 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
-it.each([
-  [{}, 30],
-  [{ timeoutMinutes: 0 }, 30],
-  [{ timeoutMinutes: 61 }, 30],
-  [{ timeoutMinutes: 2.5 }, 30],
-  [{ timeoutMinutes: '5' }, 30],
-  [{ timeoutMinutes: 1 }, 1],
-  [{ timeoutMinutes: 5 }, 5],
-  [{ timeoutMinutes: 60 }, 60],
-])('Ollama の設定 %j では %d 分でチャット通信を中断する', async (options, minutes) => {
-  const abandoned = vi.fn();
-  http.mockImplementationOnce((_path, signal) => {
-    return new Promise((_resolve, reject) => {
-      signal.addEventListener(
-        'abort',
-        () => {
-          abandoned();
-          reject(new DOMException('Stopped', 'AbortError'));
-        },
-        { once: true },
-      );
+it.each([30, 60, 120, undefined])(
+  'Ollama のチャット通信を実行期限 %s 分または手動停止で中断する',
+  async (timeoutMinutes) => {
+    const abandoned = vi.fn();
+    http.mockImplementationOnce((_path, signal) => {
+      return new Promise((_resolve, reject) => {
+        signal.addEventListener(
+          'abort',
+          () => {
+            abandoned();
+            reject(new DOMException('Stopped', 'AbortError'));
+          },
+          { once: true },
+        );
+      });
     });
-  });
-  const events: RunnerEvent[] = [];
-  const dispatcher = new Dispatcher({
-    registry: new BackendRegistry([ollamaAdapter]),
-    runnerVersion: 'test',
-    send: (event) => events.push(event),
-    exit: vi.fn(),
-  });
-  dispatcher.receive({ kind: 'message', value: { ...runRequest('ollama'), options } });
+    const events: RunnerEvent[] = [];
+    const dispatcher = new Dispatcher({
+      registry: new BackendRegistry([ollamaAdapter]),
+      runnerVersion: 'test',
+      send: (event) => events.push(event),
+      exit: vi.fn(),
+    });
+    dispatcher.receive({
+      kind: 'message',
+      value: { ...runRequest('ollama'), timeoutMinutes, options: { timeoutMinutes: 1 } },
+    });
 
-  await vi.advanceTimersByTimeAsync(minutes * 60_000 - 1);
-  expect(http.mock.calls[1]?.[0]).toBe('/api/chat');
-  expect(abandoned).not.toHaveBeenCalled();
-  expect(events.some((event) => event.type === 'error')).toBe(false);
+    await vi.advanceTimersByTimeAsync((timeoutMinutes ?? 180) * 60_000 - 1);
+    expect(http.mock.calls[1]?.[0]).toBe('/api/chat');
+    expect(abandoned).not.toHaveBeenCalled();
+    expect(events.some((event) => event.type === 'error')).toBe(false);
 
-  await vi.advanceTimersByTimeAsync(1);
-  expect(abandoned).toHaveBeenCalledOnce();
-  expect(events.filter((event) => event.type === 'error')).toEqual([
-    { id: 'j', type: 'error', code: 'timeout', message: `時間切れで実行を中断しました（${minutes}分）` },
-  ]);
-});
+    if (timeoutMinutes === undefined) dispatcher.receive({ kind: 'message', value: { type: 'cancel', id: 'j' } });
+    await vi.advanceTimersByTimeAsync(1);
+    expect(abandoned).toHaveBeenCalledOnce();
+    expect(events.filter((event) => event.type === 'error')).toMatchObject([
+      { id: 'j', type: 'error', code: timeoutMinutes === undefined ? 'cancelled' : 'timeout' },
+    ]);
+  },
+);

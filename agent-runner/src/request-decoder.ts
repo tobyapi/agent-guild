@@ -7,6 +7,7 @@ import { decodeTheme } from './themes/decoder.ts';
 import { decodeImage } from './image-request-decoder.ts';
 import { LANGUAGES, parseLanguage } from './i18n.ts';
 import { isJsonObject, type JsonObject } from './line-parser.ts';
+import { RUN_TIMEOUT_MINUTES } from './protocol-requests.ts';
 import type { ImagePayload, PermissionKey, Permissions, RunnerRequest } from './protocol.ts';
 import { decodeSkills } from './skill-payload-decoder.ts';
 
@@ -26,6 +27,8 @@ const PERMISSION_KEYS = [
 const IMAGE_FIELDS = ['path', 'mediaType'] as const;
 
 const isString = (field: unknown): field is string => typeof field === 'string';
+const isRunTimeout = (value: unknown): value is RunRequest['timeoutMinutes'] =>
+  value === undefined || RUN_TIMEOUT_MINUTES.some((minutes) => minutes === value);
 const isBoolean = (field: unknown): field is boolean => typeof field === 'boolean';
 
 function hasFields<K extends string, V>(
@@ -123,6 +126,8 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     return reject(id, 'run の images は path・mediaType（文字列）を持つ要素の配列である必要があります');
   if (readableDirs === null) return reject(id, 'run の readableDirs は文字列の配列である必要があります');
   if (!isJsonObject(value.options)) return reject(id, 'run の options はオブジェクトである必要があります');
+  const timeoutMinutes = value.timeoutMinutes;
+  if (!isRunTimeout(timeoutMinutes)) return reject(id, 'Invalid run timeoutMinutes');
   const request: RunRequest = {
     type: 'run',
     id,
@@ -130,6 +135,7 @@ function decodeRun(value: JsonObject, id: string | null): DecodeResult {
     workspace: value.workspace,
     stateDir: value.stateDir,
     ...(value.prepareWorkspace === true && { prepareWorkspace: true }),
+    ...(timeoutMinutes !== undefined && { timeoutMinutes }),
     readableDirs,
     systemPrompt: value.systemPrompt,
     prompt: value.prompt,

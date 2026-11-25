@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use guild_application::ports::{LaunchSettings, SettingsStore, Workspace};
 use guild_domain::ids::AgentId;
 use guild_domain::locale::Language;
+use guild_domain::run_limits::RunLimits;
 use serde_json::{json, Value};
 
 use super::TempDir;
@@ -26,6 +27,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     fs::write(&path, r#"{ "version": 1, "dataDir": null, "theme": "dark" }"#).unwrap();
     let chosen = LaunchSettings {
         global_instructions: String::new(),
+        run_limits: Default::default(),
         data_dir: Some(PathBuf::from("D:\\GuildData")),
         skill_library_dirs: vec![PathBuf::from("D:\\skills"), PathBuf::from("E:\\shared-skills")],
         setup_done: true,
@@ -52,6 +54,34 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     assert_eq!(read_json(&path)["skillLibraryDirs"], json!([]));
     assert_eq!(read_json(&path)["setupDone"], json!(false));
     assert_eq!(read_json(&path)["language"], json!("zh-Hant"), "言語を持たない保存では書き換えない");
+}
+
+#[test]
+fn run_limits_are_optional_in_v1_and_survive_reopening_the_file() {
+    let config = TempDir::new("run-limits");
+    let path = config.0.join("settings.json");
+    fs::write(&path, r#"{"version":1,"theme":"dark"}"#).unwrap();
+    let settings = SettingsFile::in_dir(&config.0);
+    assert_eq!(settings.load().unwrap().run_limits, RunLimits::default());
+    let limits = RunLimits { timeout_minutes: Some(60), max_concurrent_jobs: Some(4) };
+    settings.update(Box::new(|saved| saved.run_limits = limits)).unwrap();
+    let reopened = SettingsFile::in_dir(&config.0);
+    assert_eq!(reopened.load().unwrap().run_limits, limits);
+    assert_eq!(
+        read_json(&path),
+        json!({
+            "version": 1, "theme": "dark", "runTimeoutMinutes": 60, "maxConcurrentJobs": 4,
+            "globalInstructions": "", "dataDir": null, "skillLibraryDirs": [], "setupDone": false, "backendAuthModes": {}
+        })
+    );
+
+    reopened.update(Box::new(|saved| saved.run_limits = RunLimits::default())).unwrap();
+    let saved = read_json(&path);
+    assert!(saved.get("runTimeoutMinutes").is_none());
+    assert!(saved.get("maxConcurrentJobs").is_none());
+
+    fs::write(&path, r#"{"version":1,"runTimeoutMinutes":"60","maxConcurrentJobs":4}"#).unwrap();
+    assert_eq!(reopened.load().unwrap().run_limits, RunLimits { timeout_minutes: None, max_concurrent_jobs: Some(4) });
 }
 
 #[test]

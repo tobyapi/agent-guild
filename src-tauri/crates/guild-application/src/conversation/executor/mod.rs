@@ -79,13 +79,25 @@ impl Drop for JobReporter {
 }
 
 /// 1ジョブを実行して結果を報告する（Spawner で別タスクとして動かす）
-pub(crate) async fn run(ports: Ports, job_id: String, job: JobSpec, reporter: JobReporter) {
-    let outcome = execute(&ports, &job_id, &job, Arc::clone(&reporter.update)).await;
+pub(crate) async fn run(
+    ports: Ports,
+    job_id: String,
+    job: JobSpec,
+    timeout_minutes: Option<u16>,
+    reporter: JobReporter,
+) {
+    let outcome = execute(&ports, &job_id, &job, timeout_minutes, Arc::clone(&reporter.update)).await;
     reporter.finish(outcome);
 }
 
-async fn execute(ports: &Ports, job_id: &str, job: &JobSpec, update: UpdateFn) -> RunOutcome {
-    let request = match request::build(ports, job) {
+async fn execute(
+    ports: &Ports,
+    job_id: &str,
+    job: &JobSpec,
+    timeout_minutes: Option<u16>,
+    update: UpdateFn,
+) -> RunOutcome {
+    let request = match request::build(ports, job, timeout_minutes) {
         Ok(Some(request)) => request,
         Ok(None) => return RunOutcome::Skipped,
         Err(error) => return RunOutcome::Failed(error.to_string()),

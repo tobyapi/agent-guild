@@ -33,7 +33,7 @@ pub use protocol::{
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
-pub const PROTOCOL_VERSION: u32 = 5;
+pub const PROTOCOL_VERSION: u32 = 6;
 
 /// ランナーの起動方法。開発中は Node でスクリプトを直接、配布時は Tauri sidecar として同梱した単一バイナリ。
 #[derive(Debug, Clone)]

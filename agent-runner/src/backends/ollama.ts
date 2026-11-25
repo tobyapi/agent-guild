@@ -3,9 +3,7 @@ import type { ImagePayload, ModelSpec, Permissions } from '../protocol.ts';
 import { localChatModels, OllamaStopped, type LocalModel } from './ollama/api.ts';
 import {
   BackendError,
-  DEFAULT_RUN_TIMEOUT_MINUTES,
   NO_SETUP,
-  optionPositiveInt,
   type BackendAdapter,
   type BackendProbe,
   type RunContext,
@@ -138,14 +136,6 @@ export const ollamaAdapter: BackendAdapter = {
     },
     options: [
       {
-        key: 'timeoutMinutes',
-        label: t('timeoutMinutesLabel'),
-        description: t('timeoutMinutesDescription', { minutes: DEFAULT_RUN_TIMEOUT_MINUTES }),
-        type: 'number',
-        choices: [],
-        default: null,
-      },
-      {
         key: 'enableTools',
         label: t('enableToolsLabel'),
         description: t('enableToolsDescription'),
@@ -173,9 +163,5 @@ export const ollamaAdapter: BackendAdapter = {
     setup: { ...NO_SETUP, start: process.platform === 'darwin' ? { macBundleId: 'com.electron.ollama' } : null },
   }),
   probe,
-  runTimeoutMinutes(options) {
-    const minutes = optionPositiveInt(options, 'timeoutMinutes');
-    return minutes !== undefined && minutes <= 60 ? minutes : undefined;
-  },
   run,
 };
