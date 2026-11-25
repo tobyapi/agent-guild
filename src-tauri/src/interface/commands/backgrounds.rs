@@ -41,6 +41,16 @@ pub async fn get_mascot_image(
 }
 
 #[tauri::command]
+pub async fn delete_mascot_image(
+    state: State<'_, AppState>,
+    store: State<'_, MascotLibrary>,
+    id: String,
+) -> CommandResult<()> {
+    state.services()?;
+    store.0.delete(&id).map_err(reject)
+}
+
+#[tauri::command]
 pub async fn generate_background_image(
     state: State<'_, AppState>,
     store: State<'_, BackgroundService>,

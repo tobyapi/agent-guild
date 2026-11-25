@@ -10,6 +10,7 @@ export const backgroundHandlers: HandlerGroup<
   | 'generate_mascot_image'
   | 'list_mascot_images'
   | 'get_mascot_image'
+  | 'delete_mascot_image'
   | 'generate_theme'
   | 'cancel_theme_generation'
   | 'cancel_background_generation'
@@ -22,6 +23,7 @@ export const backgroundHandlers: HandlerGroup<
   generate_mascot_image: desktopOnly,
   list_mascot_images: () => [],
   get_mascot_image: desktopOnly,
+  delete_mascot_image: desktopOnly,
   generate_theme: desktopOnly,
   cancel_theme_generation: () => null,
   cancel_background_generation: () => null,

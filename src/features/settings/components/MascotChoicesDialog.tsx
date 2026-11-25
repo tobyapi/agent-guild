@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useActiveAgents } from '@/features/agents';
-import { Avatar, Button, Dialog, FormAlert } from '@/shared/ui';
+import { Avatar, Button, ConfirmDialog, Dialog, FormAlert, Icon, IconButton } from '@/shared/ui';
 import { DEFAULT_MASCOT_AVATAR, type MascotSource } from '@/shared/theme/mascot';
-import { settingsApi } from '../api';
 import { setMascotSource, useAppearanceStore } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { useMascotImage } from '../useBackgroundImage';
+import { useMascotLibrary } from '../useMascotLibrary';
 import styles from './MascotControls.module.css';
 
 const PAGE_SIZE = 6;
@@ -53,22 +53,9 @@ export function MascotChoicesDialog({ onClose }: { onClose: () => void }) {
 }
 
 function GeneratedChoices({ selected, choose }: { selected: string | null; choose: (id: string) => void }) {
-  const [result, setResult] = useState<string[] | 'error' | null>(null);
-  const [page, setPage] = useState(0);
-  useEffect(() => {
-    let active = true;
-    void settingsApi.listMascots().then(
-      (ids) => {
-        if (active) setResult(ids);
-      },
-      () => {
-        if (active) setResult('error');
-      },
-    );
-    return () => {
-      active = false;
-    };
-  }, []);
+  const [requestedPage, setPage] = useState(0);
+  const { result, target, busy, failed, ask, cancel, remove } = useMascotLibrary();
+  const readOnly = useAppearanceStore((state) => state.readOnly);
   if (result === null)
     return (
       <p role="status" className={styles.note}>
@@ -77,6 +64,7 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
     );
   if (result === 'error') return <FormAlert>{t('mascotListFailed')}</FormAlert>;
   if (!result.length) return null;
+  const page = Math.min(requestedPage, Math.ceil(result.length / PAGE_SIZE) - 1);
   const offset = page * PAGE_SIZE;
   const ids = result.slice(offset, offset + PAGE_SIZE);
   return (
@@ -90,6 +78,7 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
             label={t('mascotGeneratedImage', { number: offset + index + 1 })}
             selected={selected === id}
             choose={() => choose(id)}
+            askToDelete={readOnly ? undefined : ask}
           />
         ))}
       </div>
@@ -103,6 +92,22 @@ function GeneratedChoices({ selected, choose }: { selected: string | null; choos
           </Button>
         </div>
       )}
+      {target && (
+        <ConfirmDialog
+          title={t('mascotDelete')}
+          message={
+            <>
+              {t('mascotDeleteConfirm', { label: target.label })}
+              {failed && <FormAlert>{t('mascotDeleteFailed')}</FormAlert>}
+            </>
+          }
+          confirmLabel={t('backgroundDelete')}
+          danger
+          busy={busy}
+          onConfirm={() => void remove()}
+          onCancel={cancel}
+        />
+      )}
     </div>
   );
 }
@@ -114,9 +119,25 @@ interface ChoiceProps {
   choose: () => void;
 }
 
-function GeneratedChoice({ id, ...props }: Omit<ChoiceProps, 'avatar'> & { id: string }) {
+function GeneratedChoice({
+  id,
+  askToDelete,
+  ...props
+}: Omit<ChoiceProps, 'avatar'> & { id: string; askToDelete?: (id: string, label: string) => void }) {
   const avatar = useMascotImage(id);
-  return <Choice {...props} avatar={avatar ?? ''} />;
+  return (
+    <div className={styles.generatedChoice}>
+      <Choice {...props} avatar={avatar ?? ''} />
+      {askToDelete && (
+        <IconButton
+          label={t('backgroundDeleteLabel', { label: props.label })}
+          onClick={() => askToDelete(id, props.label)}
+        >
+          <Icon name="trash" />
+        </IconButton>
+      )}
+    </div>
+  );
 }
 
 function Choice({ label, avatar, selected, choose }: ChoiceProps) {

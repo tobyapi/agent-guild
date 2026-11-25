@@ -128,6 +128,7 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `generate_mascot_image` | `{ requestId, backendId, description }` | `string`（保存したマスコットのUUID） | – | validation, runtime, storage |
 | `list_mascot_images` | `{}` | `string[]`（UUID、昇順） | – | storage |
 | `get_mascot_image` | `{ id }` | `string`（PNG data URL） | – | validation, not_found, storage |
+| `delete_mascot_image` | `{ id }` | `null`（存在しなくても成功） | – | validation, storage |
 | `generate_background_image` | `{ requestId, backendId, description }` | `string`（保存した背景のUUID） | – | validation, runtime, storage |
 | `cancel_background_generation` | `{ requestId }` | `null` | – | unavailable |
 | `import_background_image` | `{ data }`（raw base64。PNG/JPEG/WebP、5 MiBまで） | `string`（不透明なUUID。ファイル名・パスは返さない） | – | validation, storage |
@@ -529,7 +530,7 @@ OS一時領域のguild-background-<ランダム>/を毎回新規作成し、新�
 
 Rustで上限付きbase64解読後、既存のBackgroundService.import(bytes)へ渡す。import_background_imageと同じストアの形式・5 MiB・画素数・縮小・メタデータ除去・PNG化を必ず通す。ストアの仕様は変更しない。フロントへ返すのは保存済みUUIDだけで、URLや絶対パスは背景として受け取らない。
 
-マスコット生成は背景生成と同じランナー要求・排他・取消を使い、正方形と透過PNGを指定する。画像は `backgrounds/<UUID>.mascot.png` に保存し、通常の背景画像一覧とは分ける。透過の有無は生成結果による。
+マスコット生成は背景生成と同じランナー要求・排他・取消を使い、正方形と透過PNGを指定する。画像は `backgrounds/<UUID>.mascot.png` に保存し、通常の背景画像一覧とは分ける。透過の有無は生成結果による。設定から生成画像を削除できる。使用中の画像を削除すると、選択が解除され、マスコットの表示がオフになる。
 
 同時実行は1件、上限10分。背景専用watch通知で取消を伝え、開始前の取消は直近32件まで記憶する。保存開始と取消を同期区間で直列化し、取消が先なら保存しない。保存が先ならライブラリに残りうるが、UIは取消後の遅延応答を選択しない。ランナーのjobIdはbackground-接頭辞を付け、枠や会話の取消対象と分離する。取消・時間切れでbackgroundCancelを送り、汎用配送のfuture破棄時も背景ジョブを中断する。取消はプロバイダー側の課金取消を保証しない。
 

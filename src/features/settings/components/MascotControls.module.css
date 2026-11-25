@@ -62,3 +62,9 @@
 .choice[aria-pressed='true'] {
   border-color: var(--accent-text);
 }
+.generatedChoice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1);
+  align-items: center;
+}

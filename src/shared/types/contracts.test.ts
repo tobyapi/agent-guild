@@ -46,6 +46,7 @@ const CASES: Record<string, Validator> = {
     }),
     list: objectOf({ args: objectOf({}), result: arrayOf(string) }),
     get: objectOf({ args: objectOf({ id: string }), result: string }),
+    delete: objectOf({ args: objectOf({ id: string }), result: nullValue }),
   }),
   'open-local-path.json': objectOf({
     markdown: string,

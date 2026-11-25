@@ -30,6 +30,7 @@ export function Dialog({ title, onClose, children, footer, description, size = '
   useModal(ref);
 
   const handleCancel = (event: SyntheticEvent) => {
+    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     onClose?.();
   };

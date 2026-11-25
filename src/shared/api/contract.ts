@@ -103,6 +103,7 @@ export interface CommandMap {
   generate_mascot_image: { args: { requestId: string; backendId: string; description: string }; result: string };
   list_mascot_images: { args: NoArgs; result: string[] };
   get_mascot_image: { args: { id: string }; result: string };
+  delete_mascot_image: { args: { id: string }; result: null };
   cancel_background_generation: { args: { requestId: string }; result: null };
   generate_avatar_frame: { args: { backendId: string; description: string; name: string }; result: CustomFrame };
   /** 生成中の枠を取り消す（生成のコマンドは runtime で失敗する） */

@@ -11,6 +11,9 @@ it('has an empty mascot library and gates desktop generation', async () => {
   await expect(mock.transport.invoke('get_mascot_image', mascot.get.args)).rejects.toMatchObject({
     code: 'unavailable',
   });
+  await expect(mock.transport.invoke('delete_mascot_image', mascot.delete.args)).rejects.toMatchObject({
+    code: 'unavailable',
+  });
 });
 
 it('has an empty background library and explicitly rejects desktop-only operations', async () => {

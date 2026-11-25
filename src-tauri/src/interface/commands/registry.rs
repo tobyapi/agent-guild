@@ -66,6 +66,7 @@ macro_rules! commands {
             backgrounds::generate_mascot_image,
             backgrounds::list_mascot_images,
             backgrounds::get_mascot_image,
+            backgrounds::delete_mascot_image,
             themes::generate_theme,
             themes::cancel_theme_generation,
             backgrounds::cancel_background_generation,

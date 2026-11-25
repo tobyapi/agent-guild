@@ -55,6 +55,30 @@ fn separates_mascot_assets_and_preserves_transparency() {
 }
 
 #[test]
+fn mascot_deletion_is_idempotent_and_scoped_to_the_mascot_suffix() {
+    let dir = TempDir::new("mascot-deletion");
+    let backgrounds = FsBackgrounds::new(&dir.0);
+    let mascots = FsBackgrounds::mascots(&dir.0);
+    let bytes = image(ImageFormat::Png, 2, 2);
+    let id = mascots.import(&bytes).unwrap();
+    let survivor = mascots.import(&bytes).unwrap();
+    let root = dir.0.join("backgrounds");
+    let outside = dir.0.join("outside.mascot.png");
+    fs::write(root.join(format!("{id}.png")), &bytes).unwrap();
+    fs::write(&outside, &bytes).unwrap();
+    for unsafe_id in ["../outside", "..\\outside", "..", "a/b", "a\\b", "C:\\outside", &format!("{id}.png")] {
+        assert!(matches!(mascots.delete(unsafe_id), Err(AppError::Validation(_))));
+    }
+    assert!(root.join(format!("{id}.mascot.png")).is_file());
+    mascots.delete(&id).unwrap();
+    mascots.delete(&id).unwrap();
+    assert!(!root.join(format!("{id}.mascot.png")).exists());
+    assert_eq!(mascots.list().unwrap(), vec![survivor]);
+    assert_eq!(backgrounds.read(&id).unwrap(), bytes);
+    assert_eq!(fs::read(outside).unwrap(), bytes);
+}
+
+#[test]
 fn rejects_empty_oversized_unsupported_and_damaged_inputs_without_writes() {
     let dir = TempDir::new("background-invalid");
     let store = FsBackgrounds::new(&dir.0);

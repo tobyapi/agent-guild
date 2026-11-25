@@ -13,46 +13,42 @@ import styles from './MascotControls.module.css';
 
 export function MascotControls({ scheme }: { scheme: Scheme }) {
   const enabled = useAppearanceStore((state) => state.mascot.enabled);
-  return (
-    <div className={styles.group}>
-      <SwitchField label={t('mascotShow')} checked={enabled} onChange={setMascotEnabled} />
-      {enabled && <MascotOptions scheme={scheme} />}
-    </div>
-  );
-}
-
-function MascotOptions({ scheme }: { scheme: Scheme }) {
   const reason = useId();
   const [dialog, setDialog] = useState<'select' | 'generate' | null>(null);
   const [cancelled, setCancelled] = useState(false);
   const canGenerate = useBackends().some(canGenerateBackground);
   return (
     <div className={styles.group}>
+      <SwitchField label={t('mascotShow')} checked={enabled} onChange={setMascotEnabled} />
       <div className={styles.actions}>
         <Button size="sm" aria-haspopup="dialog" onClick={() => setDialog('select')}>
           {t('mascotChoose')}
         </Button>
-        <AvatarPresetPicker onChoose={(avatar) => setMascotSource({ kind: 'preset', avatar })} />
-        <Button
-          size="sm"
-          aria-haspopup="dialog"
-          disabled={!canGenerate}
-          aria-describedby={canGenerate ? undefined : reason}
-          onClick={() => {
-            setCancelled(false);
-            setDialog('generate');
-          }}
-        >
-          {t('mascotGenerateTitle')}
-        </Button>
+        {enabled && (
+          <>
+            <AvatarPresetPicker onChoose={(avatar) => setMascotSource({ kind: 'preset', avatar })} />
+            <Button
+              size="sm"
+              aria-haspopup="dialog"
+              disabled={!canGenerate}
+              aria-describedby={canGenerate ? undefined : reason}
+              onClick={() => {
+                setCancelled(false);
+                setDialog('generate');
+              }}
+            >
+              {t('mascotGenerateTitle')}
+            </Button>
+          </>
+        )}
       </div>
-      {!canGenerate && (
+      {enabled && !canGenerate && (
         <p id={reason} className={styles.note}>
           {t('mascotNoReady')}
         </p>
       )}
       {cancelled && <p role="status">{t('mascotCancelled')}</p>}
-      <MascotLayoutEditor scheme={scheme} />
+      {enabled && <MascotLayoutEditor scheme={scheme} />}
       {dialog === 'select' && <MascotChoicesDialog onClose={() => setDialog(null)} />}
       {dialog === 'generate' && (
         <GenerateBackgroundDialog

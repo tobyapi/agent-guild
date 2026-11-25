@@ -81,6 +81,7 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   generate_mascot_image: string,
   list_mascot_images: arrayOf(string),
   get_mascot_image: string,
+  delete_mascot_image: nullValue,
   generate_theme: string,
   cancel_theme_generation: nullValue,
   cancel_background_generation: nullValue,

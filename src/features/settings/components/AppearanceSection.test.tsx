@@ -48,7 +48,8 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
   const mascot = screen.getByRole('switch', { name: 'マスコットを表示する', checked: true });
   expect(screen.getByRole('button', { name: 'マスコットを選ぶ' })).toBeTruthy();
   fireEvent.click(mascot);
-  expect(screen.queryByRole('button', { name: 'マスコットを選ぶ' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'マスコットを選ぶ' })).toBeTruthy();
+  expect(screen.queryByRole('slider', { name: '横の位置' })).toBeNull();
   expect(screen.queryByRole('radiogroup', { name: /ガラス/ })).toBeNull();
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
   expect(screen.queryByRole('radiogroup', { name: '背景の動き' })).toBeNull();
