@@ -77,6 +77,38 @@ it.each([30, 60, 120])('%d 分を選ぶと時間切れで中断され、遅れ�
   ]);
 });
 
+it('pauses a configured run timeout while an operation approval is pending', async () => {
+  vi.useRealTimers();
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+  const { contexts, finish, events, dispatcher, run } = setup('ollama');
+  run('job', '/work', 30);
+  const context = contexts.get('job')!;
+  await vi.advanceTimersByTimeAsync(29 * 60_000);
+
+  const approval = context.askApproval!({
+    operation: 'run_command',
+    workspace: '/work',
+    detail: 'echo test',
+    reason: 'test approval',
+  });
+  const request = events.find((event) => event.type === 'approvalRequested')!;
+  await vi.advanceTimersByTimeAsync(2 * 60_000);
+  expect(context.signal.aborted).toBe(false);
+
+  dispatcher.receive({
+    kind: 'message',
+    value: { type: 'approvalResponse', id: 'job', requestId: request.requestId, decision: 'approved' },
+  });
+  await expect(approval).resolves.toBe('approved');
+  await vi.advanceTimersByTimeAsync(59_999);
+  expect(context.signal.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(context.signal.aborted).toBe(true);
+  finish.get('job')!('late');
+  await vi.advanceTimersByTimeAsync(0);
+  expect(events.at(-1)).toMatchObject({ id: 'job', type: 'error', code: 'timeout' });
+});
+
 it('手動停止と正常完了は、期限のタイマーを解除する', async () => {
   const { contexts, finish, events, dispatcher, run } = setup('codex');
   run('cancelled', '/work', 30);
