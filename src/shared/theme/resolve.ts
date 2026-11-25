@@ -17,6 +17,6 @@ export function resolveAppearance(
     scheme,
     accentOverride: selected.accentOverride,
     backgroundOverride: background,
-    glass: background.kind === 'none' ? 'none' : 'frosted',
+    glass: background.kind === 'image' ? 'frosted' : 'none',
   };
 }

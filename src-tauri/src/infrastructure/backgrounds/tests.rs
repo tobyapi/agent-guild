@@ -35,6 +35,26 @@ fn imports_all_three_formats_as_png_without_exposing_paths() {
 }
 
 #[test]
+fn separates_mascot_assets_and_preserves_transparency() {
+    let dir = TempDir::new("mascot-library");
+    let backgrounds = FsBackgrounds::new(&dir.0);
+    let mascots = FsBackgrounds::mascots(&dir.0);
+    let background = backgrounds.import(&image(ImageFormat::Png, 2, 2)).unwrap();
+    let mut source = Cursor::new(Vec::new());
+    DynamicImage::ImageRgba8(image::RgbaImage::from_pixel(2, 2, image::Rgba([20, 80, 120, 0])))
+        .write_to(&mut source, ImageFormat::Png)
+        .unwrap();
+    let mascot = mascots.import(source.get_ref()).unwrap();
+    assert_eq!(backgrounds.list().unwrap(), vec![background.clone()]);
+    assert_eq!(mascots.list().unwrap(), vec![mascot.clone()]);
+    assert!(matches!(backgrounds.read(&mascot), Err(AppError::NotFound(_))));
+    assert!(matches!(mascots.read(&background), Err(AppError::NotFound(_))));
+    backgrounds.delete(&mascot).unwrap();
+    let saved = image::load_from_memory(&mascots.read(&mascot).unwrap()).unwrap().to_rgba8();
+    assert_eq!(saved.get_pixel(0, 0).0, [20, 80, 120, 0]);
+}
+
+#[test]
 fn rejects_empty_oversized_unsupported_and_damaged_inputs_without_writes() {
     let dir = TempDir::new("background-invalid");
     let store = FsBackgrounds::new(&dir.0);

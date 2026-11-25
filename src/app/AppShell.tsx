@@ -16,6 +16,7 @@ import { t } from './i18n';
 import { Sidebar } from './Sidebar';
 import { useUpdateNotice } from './useUpdateNotice';
 import styles from './AppShell.module.css';
+import { ChannelMascot } from './ChannelMascot';
 import { AppearanceBackdrop } from './AppearanceBackdrop';
 
 /** 骨組み: ［ランナーの帯］の下に サイドバー | チャンネル | メンバー の3列（docs/ui-design.md §5.1） */
@@ -33,6 +34,7 @@ export function AppShell() {
           {channel ? (
             <>
               <ChannelHeader channel={channel} />
+              <ChannelMascot channel={channel} />
               <ChatView channel={channel} />
             </>
           ) : (

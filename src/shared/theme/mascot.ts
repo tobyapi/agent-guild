@@ -1,0 +1,87 @@
+import { isImageAvatar } from '@/shared/lib/avatar';
+import { isBackgroundAssetId } from './backgrounds';
+
+export type MascotSource =
+  | { kind: 'default' }
+  | { kind: 'agent'; id: string }
+  | { kind: 'preset'; avatar: string }
+  | { kind: 'generated'; id: string };
+
+export interface MascotPlacement {
+  /** 0–100 along the available travel within the scene. */
+  x: number;
+  y: number;
+  /** Percentage of the base size. */
+  size: number;
+}
+
+export interface MascotLayout {
+  mascot: MascotPlacement;
+  card: MascotPlacement;
+}
+
+export interface MascotSettings {
+  source: MascotSource;
+  layout: MascotLayout;
+}
+
+export const MASCOT_SIZE_MIN = 70;
+export const MASCOT_SIZE_MAX = 130;
+export const DEFAULT_MASCOT_AVATAR = '🦉';
+export const DEFAULT_MASCOT_LAYOUT: MascotLayout = {
+  mascot: { x: 85, y: 70, size: 100 },
+  card: { x: 12, y: 50, size: 100 },
+};
+
+export const DEFAULT_MASCOT_SETTINGS: MascotSettings = {
+  source: { kind: 'default' },
+  layout: DEFAULT_MASCOT_LAYOUT,
+};
+
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+export function mascotPercent(value: number): number {
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function bounded(value: unknown, fallback: number, min: number, max: number): number {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.min(max, Math.max(min, Math.round(value)))
+    : fallback;
+}
+
+function readPlacement(value: unknown, fallback: MascotPlacement): MascotPlacement {
+  const fields = record(value);
+  return {
+    x: bounded(fields.x, fallback.x, 0, 100),
+    y: bounded(fields.y, fallback.y, 0, 100),
+    size: bounded(fields.size, fallback.size, MASCOT_SIZE_MIN, MASCOT_SIZE_MAX),
+  };
+}
+
+function readSource(value: unknown): MascotSource {
+  const { kind, id, avatar } = record(value);
+  // Presets are stored as the existing 256px cropped raster, never as a remote URL.
+  if (kind === 'preset' && typeof avatar === 'string' && avatar.length <= 400_000 && isImageAvatar(avatar))
+    return { kind, avatar };
+  if (typeof id === 'string' && id && id.length <= 128) {
+    if (kind === 'agent') return { kind, id };
+    if (kind === 'generated' && isBackgroundAssetId(id)) return { kind, id };
+  }
+  return DEFAULT_MASCOT_SETTINGS.source;
+}
+
+export function readMascotSettings(value: unknown): MascotSettings {
+  if (value === undefined) return DEFAULT_MASCOT_SETTINGS;
+  const { source, layout } = record(value);
+  const placements = record(layout);
+  return {
+    source: readSource(source),
+    layout: {
+      mascot: readPlacement(placements.mascot, DEFAULT_MASCOT_LAYOUT.mascot),
+      card: readPlacement(placements.card, DEFAULT_MASCOT_LAYOUT.card),
+    },
+  };
+}

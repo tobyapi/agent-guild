@@ -96,9 +96,7 @@ pub fn ready(
     let services = AppServices::new(ports.clone(), storage, exporter);
     manage_local_files(app, paths);
     scheduler::start(services.autonomy.clone(), clock, spawner.as_ref());
-    app.manage(guild_application::backgrounds::BackgroundService::new(Arc::new(
-        crate::infrastructure::backgrounds::FsBackgrounds::new(&paths.data_dir),
-    )));
+    manage_image_libraries(app, &paths.data_dir);
     app.manage(runtime);
     app.manage(opened.lock);
     let boot = BootStatus::ok(display(&paths.data_dir), services.storage.needs_setup()).with_language(language);
@@ -124,6 +122,15 @@ fn storage_ports(app: &AppHandle, paths: &AppPaths) -> StoragePorts {
 
 fn display(path: &Path) -> String {
     path.display().to_string()
+}
+
+fn manage_image_libraries(app: &AppHandle, data_dir: &Path) {
+    use crate::infrastructure::backgrounds::FsBackgrounds;
+    use crate::interface::commands::backgrounds::MascotLibrary;
+    use guild_application::backgrounds::BackgroundService;
+
+    app.manage(BackgroundService::new(Arc::new(FsBackgrounds::new(data_dir))));
+    app.manage(MascotLibrary(BackgroundService::new(Arc::new(FsBackgrounds::mascots(data_dir)))));
 }
 
 fn manage_local_files(app: &AppHandle, paths: &AppPaths) {

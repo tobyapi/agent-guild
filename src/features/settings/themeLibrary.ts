@@ -3,6 +3,7 @@ import { checkTheme } from '@/shared/theme/checkTheme';
 import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import type { AppearancePersistence } from './appearancePersistence';
+import { DEFAULT_MASCOT_SETTINGS, readMascotSettings, type MascotSettings } from '@/shared/theme/mascot';
 import { parseAppearance } from './model/appearance';
 
 export const LIBRARY_KEY = 'agent-guild.appearance.v3';
@@ -10,9 +11,10 @@ export interface ThemeLibrary {
   themes: SavedTheme[];
   active: AppearancePreference;
   previous: AppearancePreference | null;
+  mascot: MascotSettings;
 }
 export function emptyLibrary(): ThemeLibrary {
-  return { themes: [], active: defaultAppearance(), previous: null };
+  return { themes: [], active: defaultAppearance(), previous: null, mascot: DEFAULT_MASCOT_SETTINGS };
 }
 
 export function libraryRegistry(base: ThemeRegistry, themes: SavedTheme[]): ThemeRegistry {
@@ -61,8 +63,19 @@ function decodeLibrary(raw: string, base: ThemeRegistry) {
   const registry = libraryRegistry(base, themes);
   const active = readPreference('active' in data ? data.active : null, registry, themes) ?? safeAppearance();
   const previous = readPreference('previous' in data ? data.previous : null, registry, themes);
-  return { library: { themes, active, previous }, readOnly: data.themes.some(isFuture) };
+  const mascot = readMascotSettings((data as { mascot?: unknown }).mascot);
+  return { library: { themes, active, previous, mascot }, readOnly: data.themes.some(isFuture) };
 }
+export function encodeLibrary({ themes, active, previous, mascot }: ThemeLibrary): string {
+  return JSON.stringify({
+    version: 3,
+    themes,
+    active,
+    previous,
+    mascot: mascot === DEFAULT_MASCOT_SETTINGS ? undefined : mascot,
+  });
+}
+
 export function loadLibrary(io: AppearancePersistence, base: ThemeRegistry) {
   const safe = { ...emptyLibrary(), active: safeAppearance() };
   try {
@@ -71,7 +84,7 @@ export function loadLibrary(io: AppearancePersistence, base: ThemeRegistry) {
     if (raw === null) {
       const library = emptyLibrary();
       try {
-        storage.setItem(LIBRARY_KEY, JSON.stringify({ version: 3, ...library }));
+        storage.setItem(LIBRARY_KEY, encodeLibrary(library));
       } catch {
         io.warn(LIBRARY_KEY + ' could not be saved');
       }

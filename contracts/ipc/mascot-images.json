@@ -1,0 +1,22 @@
+{
+  "generate": {
+    "args": {
+      "requestId": "mascot-example",
+      "backendId": "codex",
+      "description": "An owl with round glasses"
+    },
+    "result": "12345678-1234-1234-1234-123456789abc"
+  },
+  "list": {
+    "args": {},
+    "result": [
+      "12345678-1234-1234-1234-123456789abc"
+    ]
+  },
+  "get": {
+    "args": {
+      "id": "12345678-1234-1234-1234-123456789abc"
+    },
+    "result": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+  }
+}

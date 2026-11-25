@@ -1,5 +1,6 @@
 // channels: チャンネルの一覧・開いているチャンネル・ヘッダー・メンバーパネル・作成と編集。
 export { ChannelDialog } from './components/ChannelDialog';
+export { ChannelStatisticsButton } from './components/ChannelStatistics';
 export { ChannelHeader } from './components/ChannelHeader';
 export { ChannelList } from './components/ChannelList';
 export { MemberPanel } from './components/MemberPanel';

@@ -4,6 +4,7 @@ import { useStore } from 'zustand';
 import { resolveAppearance } from '@/shared/theme/resolve';
 import type { BackgroundSpec, SchemePreference } from '@/shared/theme/types';
 import { createAppearanceStore } from './appearanceStore';
+import type { MascotLayout, MascotSource } from '@/shared/theme/mascot';
 import type { Accent } from './model/accent';
 
 const controller = createAppearanceStore();
@@ -21,6 +22,14 @@ export function setSchemePreference(schemePreference: SchemePreference): void {
 
 export function setBackground(backgroundOverride: BackgroundSpec | null): void {
   controller.setPreference({ ...controller.store.getState().preference, backgroundOverride });
+}
+
+export function setMascotLayout(layout: MascotLayout): boolean {
+  return controller.setMascot({ ...controller.store.getState().mascot, layout });
+}
+
+export function setMascotSource(source: MascotSource): boolean {
+  return controller.setMascot({ ...controller.store.getState().mascot, source });
 }
 
 /** 初回描画前に保存値を反映する。返す関数は監視の解除用。 */

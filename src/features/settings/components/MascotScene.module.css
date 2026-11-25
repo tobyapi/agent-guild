@@ -1,0 +1,193 @@
+.scene {
+  position: relative;
+  contain: layout paint;
+  container-type: inline-size;
+  flex: none;
+  --scene-height: clamp(6rem, 15vh, 9rem);
+  block-size: var(--scene-height);
+  overflow: hidden;
+  isolation: isolate;
+  border-block-end: 1px solid var(--border-strong);
+  --mascot-sky: color-mix(in srgb, var(--accent-text) 15%, var(--bg-app));
+  --mascot-halo: color-mix(in srgb, var(--accent-text) 25%, transparent);
+  background:
+    radial-gradient(ellipse at 78% 100%, var(--mascot-halo), transparent 65%),
+    linear-gradient(115deg, var(--bg-app), var(--mascot-sky));
+  pointer-events: none;
+}
+.scene[data-scheme='light'] {
+  --mascot-sky: color-mix(in srgb, var(--accent-text) 9%, var(--bg-app));
+  --mascot-halo: color-mix(in srgb, var(--accent-text) 13%, transparent);
+}
+.scene::before {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--mascot-halo) 1px, transparent 1.5px) 0 0 / var(--space-4) var(--space-4);
+  mask-image: linear-gradient(100deg, transparent 30%, black);
+  content: '';
+}
+.scene[data-preview] {
+  --scene-height: 8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  pointer-events: auto;
+}
+.mascot,
+.cardSlot {
+  position: absolute;
+  left: calc((100% - var(--item-width)) * var(--item-x));
+  top: calc((100% - var(--item-height)) * var(--item-y));
+  inline-size: var(--item-width);
+  block-size: var(--item-height);
+}
+.mascot {
+  --item-width: min(calc(var(--item-scale) * 5.2rem), 34cqw, calc(var(--scene-height) - var(--space-2)));
+  --item-height: var(--item-width);
+  display: grid;
+  place-items: center;
+}
+.float {
+  display: grid;
+  inline-size: 92%;
+  block-size: 92%;
+  min-inline-size: 0;
+  min-block-size: 0;
+  place-items: center;
+  line-height: 1;
+  font-size: min(calc(var(--item-scale) * 4rem), 27cqw, calc(var(--scene-height) * 0.65));
+  filter: drop-shadow(0 var(--space-1) var(--space-2) var(--mascot-halo));
+  transform-origin: center 85%;
+  animation: mascot-idle 7s ease-in-out infinite;
+}
+.float img {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  border-radius: var(--radius-lg);
+  object-fit: contain;
+}
+.scene[data-mascot-state='working'] .float {
+  animation: mascot-working 1.15s ease-in-out infinite;
+}
+.cardSlot {
+  --item-width: min(100%, max(10.2rem, min(calc(var(--item-scale) * 15rem), 62cqw)));
+  --item-height: min(100%, max(4rem, calc(var(--item-scale) * 4.7rem)));
+  display: grid;
+  align-items: stretch;
+  padding: var(--space-1);
+}
+.card {
+  display: grid;
+  align-content: center;
+  min-inline-size: 0;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-xs);
+}
+.heading,
+.counts,
+.counts > div {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.heading strong {
+  overflow: hidden;
+  margin-inline-end: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.statistics {
+  pointer-events: auto;
+}
+.statistics > button {
+  inline-size: 1.5rem;
+  min-inline-size: 1.5rem;
+  block-size: 1.5rem;
+  min-block-size: 1.5rem;
+  padding: 0;
+}
+.lamp {
+  inline-size: 0.4rem;
+  block-size: 0.4rem;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+}
+.scene[data-mascot-state='working'] .lamp {
+  background: var(--accent-text);
+}
+.counts {
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0;
+}
+.counts > div {
+  min-inline-size: 0;
+}
+.counts dt {
+  overflow: hidden;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.counts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+}
+.scene[data-preview] :is(.mascot, .cardSlot) {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.scene[data-preview] :is(.mascot, .cardSlot):active {
+  cursor: grabbing;
+}
+@keyframes mascot-idle {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  28% {
+    transform: scale(1.02, 1.04);
+  }
+  49% {
+    transform: scale(1.02, 0.93);
+  }
+  52% {
+    transform: scale(1);
+  }
+  79% {
+    transform: translateY(-8%) rotate(-3deg);
+  }
+  87% {
+    transform: scale(1.03, 0.97);
+  }
+}
+@keyframes mascot-working {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-4%) rotate(4deg);
+  }
+}
+@media (max-height: 530px) {
+  .scene:not([data-preview]) {
+    --scene-height: 4.5rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene .float,
+  .scene[data-mascot-state='working'] .float {
+    animation: none;
+  }
+}
