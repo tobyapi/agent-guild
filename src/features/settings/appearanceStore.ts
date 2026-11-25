@@ -6,6 +6,7 @@ import { checkTheme, type ContrastIssue } from '@/shared/theme/checkTheme';
 import { isSavedTheme, type SavedTheme } from '@/shared/theme/candidate';
 import {
   emptyLibrary,
+  encodeLibrary,
   loadLibrary,
   libraryRegistry,
   LIBRARY_KEY,
@@ -14,6 +15,7 @@ import {
   type ThemeLibrary,
 } from './themeLibrary';
 import { paintTheme } from './themeDocument';
+import type { MascotSettings } from '@/shared/theme/mascot';
 import type { AppearancePersistence } from './appearancePersistence';
 
 const LIGHT_QUERY = '(prefers-color-scheme: light)';
@@ -38,13 +40,11 @@ export function applyAppearance(root: HTMLElement | undefined, appearance: Resol
   root.dataset.theme = appearance.scheme;
   root.dataset.glass = appearance.glass;
   root.dataset.themeId = appearance.themeId;
-  if (appearance.backgroundOverride.kind === 'none') {
-    delete root.dataset.background;
-    delete root.dataset.backgroundSource;
-  } else {
-    root.dataset.background = 'active';
-    root.dataset.backgroundSource = appearance.backgroundOverride.kind;
-  }
+  const kind = appearance.backgroundOverride.kind;
+  if (kind === 'image') root.dataset.background = 'active';
+  else delete root.dataset.background;
+  if (kind === 'none') delete root.dataset.backgroundSource;
+  else root.dataset.backgroundSource = kind;
   if (appearance.accentOverride === null) delete root.dataset.accent;
   else root.dataset.accent = appearance.accentOverride;
 }
@@ -64,13 +64,14 @@ function libraryWriter(
   apply: () => void,
 ) {
   function install(library: ThemeLibrary) {
-    const { themes, active, previous } = library;
+    const { themes, active, previous, mascot } = library;
     const registry = libraryRegistry(base, themes);
     const background = resolveAppearance(active, registry, 'dark').backgroundOverride;
     store.setState({
       themes,
       active,
       previous,
+      mascot,
       preference: active,
       registry,
       problem: null,
@@ -82,7 +83,7 @@ function libraryWriter(
   }
   function commit(library: ThemeLibrary) {
     if (store.getState().readOnly) return false;
-    const { themes, active, previous } = library;
+    const { themes, active } = library;
     const theme = themes.find((t) => t.id === active.themeId);
     const issues = theme ? checkTheme(theme, active.accentOverride) : [];
     if (issues.length) {
@@ -90,7 +91,7 @@ function libraryWriter(
       return false;
     }
     try {
-      environment.storage().setItem(LIBRARY_KEY, JSON.stringify({ version: 3, themes, active, previous }));
+      environment.storage().setItem(LIBRARY_KEY, encodeLibrary(library));
     } catch {
       environment.warn(LIBRARY_KEY + ' could not be saved');
       store.setState({ problem: 'save' });
@@ -158,6 +159,9 @@ export function createAppearanceStore(
     },
     setPreference(active: AppearancePreference) {
       return commit({ ...store.getState(), active });
+    },
+    setMascot(mascot: MascotSettings) {
+      return commit({ ...store.getState(), mascot });
     },
     select(id: string) {
       return commit(switchTheme(store.getState(), id));

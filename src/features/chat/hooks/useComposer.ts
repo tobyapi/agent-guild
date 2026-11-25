@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import { useStore } from 'zustand';
-import type { ChangeEvent, KeyboardEvent, RefObject, SyntheticEvent } from 'react';
+import type { ChangeEvent, FocusEvent, KeyboardEvent, RefObject, SyntheticEvent } from 'react';
 import { composerDrafts } from '../draftStore';
 import { completionAction, isImeComposing, shouldSubmit } from '../model/keys';
 import { insertMention } from '../model/mentionQuery';
@@ -8,6 +8,7 @@ import type { MentionOption } from '../model/mentionQuery';
 import { sendMessage } from '../store';
 import type { ComposerAttachments } from './useComposerAttachments';
 import { useMentionCompletion } from './useMentionCompletion';
+import { useSnippetInsertion } from './useSnippetInsertion';
 
 /**
  * 入力欄: Enter で送信・Shift+Enter で改行・IME 変換中の Enter は送信しない・@ でメンション補完。
@@ -45,6 +46,9 @@ export function useComposer(
     textarea.focus();
   };
 
+  /** 定型文の差し込み（IME 変換中は確定まで待つ）。insertSnippet の参照は描画をまたいで変わらない */
+  const snippets = useSnippetInsertion(channelId, textareaRef, pendingCaret);
+
   const submit = () => {
     const content = text.trim();
     const { attachments } = pending;
@@ -73,6 +77,8 @@ export function useComposer(
       isComposing: event.nativeEvent.isComposing,
       keyCode: event.nativeEvent.keyCode,
     };
+    // 変換中でないキー入力が来たら変換は終わっている（compositionend が届かなかったときの保険）
+    if (!isImeComposing(key)) snippets.settleComposition(event.currentTarget, true);
     if (!isImeComposing(key) && completion.open && handleCompletionKey(event)) return;
     if (!shouldSubmit(key)) return;
     event.preventDefault();
@@ -89,7 +95,13 @@ export function useComposer(
     completion.sync(event.currentTarget.value, event.currentTarget.selectionStart);
   };
 
-  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect };
+  /** フォーカスが外れたら候補を閉じ、変換中の印も下ろす（フォーカスは移った先に任せる） */
+  const onBlur = (event: FocusEvent<HTMLTextAreaElement>) => {
+    completion.close();
+    snippets.settleComposition(event.currentTarget, false);
+  };
+
+  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect, onBlur, ...snippets };
 }
 
 /**

@@ -1,0 +1,120 @@
+/* スタンプ付き定型文。ボタンは添付ボタンと同じ大きさ・静かな色。一覧はメンション候補と同じ浮いた面 */
+.root {
+  display: contents;
+}
+
+.trigger {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--control-md);
+  block-size: var(--control-md);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+}
+
+.trigger:hover,
+.trigger[aria-expanded='true'] {
+  --glass-ink-weight: 0%;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.glyph {
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+/* 入力欄（position: relative）の上 8px に出す */
+.popover {
+  --surface: var(--bg-elevated);
+  position: absolute;
+  inset-block-end: calc(100% + var(--space-2));
+  inset-inline-start: 0;
+  z-index: var(--z-popover);
+  inline-size: min(100%, var(--popover-width));
+  padding: var(--space-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  --glass-ink-weight: 0%;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-md);
+  animation: var(--animation-rise);
+}
+
+.heading {
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  max-block-size: calc(var(--control-lg) * 6);
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: calc(var(--control-md) + var(--space-1));
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-align: start;
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  --glass-ink-weight: 0%;
+  background: var(--bg-active);
+}
+
+.emoji {
+  flex: none;
+  inline-size: 1.5em;
+  text-align: center;
+}
+
+.text {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+:global(:root[data-background='active']) .popover {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  :global(:root[data-background='active'][data-glass='frosted']) .popover {
+    --glass-ink-weight: 100%;
+    background: var(--glass-veil);
+    backdrop-filter: var(--glass-card-filter);
+    border-color: transparent;
+    box-shadow: var(--glass-shadow);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  :global(:root[data-background='active'][data-glass='frosted']) .popover {
+    --glass-ink-weight: 0%;
+    background: var(--bg-elevated);
+    backdrop-filter: none;
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-md);
+  }
+}

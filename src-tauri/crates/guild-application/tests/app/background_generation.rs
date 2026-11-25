@@ -68,6 +68,27 @@ async fn background_generation_uses_its_own_runtime_and_existing_byte_store() {
 }
 
 #[tokio::test]
+async fn mascot_generation_uses_the_shared_queue_with_a_transparent_square_prompt() {
+    let (app, store, service) = setup();
+    let generator = &app.services.background_generation;
+    generator.cancel_generation("early-mascot").await;
+    assert!(generator.generate_mascot(&service, "early-mascot", "painter", "owl").await.is_err());
+    assert!(generator.generate_mascot(&service, "no-backend", "claude", "owl").await.is_err());
+    assert!(generator.generate_mascot(&service, "no-subject", "painter", " ").await.is_err());
+    assert_eq!(generator.generate_mascot(&service, "one", "painter", " blue owl ").await.unwrap(), "saved-background");
+    assert_eq!(store.imported.lock().as_slice(), &[vec![1, 2, 3]]);
+    let requests = app.runtime.backgrounds.requests.lock();
+    assert_eq!(requests.len(), 1);
+    let (id, backend, prompt) = &requests[0];
+    assert_eq!(id, "background-one");
+    assert_eq!(backend, "painter");
+    for instruction in ["1024 x 1024", "transparent", "PNG alpha", "background.png", "5 MiB", "\"blue owl\""] {
+        assert!(prompt.contains(instruction));
+    }
+    assert!(app.runtime.image_requests.lock().is_empty());
+}
+
+#[tokio::test]
 async fn background_generation_does_not_treat_frame_capability_as_background_capability() {
     let (app, store, service) = setup();
     app.runtime.backends.lock().push(BackendInfo { frame_generation: true, ..ready_backend("frame-only") });

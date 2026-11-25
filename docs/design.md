@@ -125,6 +125,10 @@ JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変�
 | `get_skill_record_truncated` | `{ messageId }` | `boolean`（ジョブの取消打切り。投稿の記録は不変） |
 | `list_messages` | `{ channelId, beforeSeq: number \| null, limit: number \| null }` | `Message[]`（seq の昇順。limit 既定 50・上限 200） | – | not_found |
 | `send_message` | `{ channelId, content, attachments: AttachmentInput[] }`（data は画像・ファイルの base64） | `Message` | message-created, activity-changed | not_found, validation（本文も添付もない・添付の種類・数・大きさ）, unavailable（保存先変更中） |
+| `generate_mascot_image` | `{ requestId, backendId, description }` | `string`（保存したマスコットのUUID） | – | validation, runtime, storage |
+| `list_mascot_images` | `{}` | `string[]`（UUID、昇順） | – | storage |
+| `get_mascot_image` | `{ id }` | `string`（PNG data URL） | – | validation, not_found, storage |
+| `delete_mascot_image` | `{ id }` | `null`（存在しなくても成功） | – | validation, storage |
 | `generate_background_image` | `{ requestId, backendId, description }` | `string`（保存した背景のUUID） | – | validation, runtime, storage |
 | `cancel_background_generation` | `{ requestId }` | `null` | – | unavailable |
 | `import_background_image` | `{ data }`（raw base64。PNG/JPEG/WebP、5 MiBまで） | `string`（不透明なUUID。ファイル名・パスは返さない） | – | validation, storage |
@@ -526,6 +530,8 @@ OS一時領域のguild-background-<ランダム>/を毎回新規作成し、新�
 
 Rustで上限付きbase64解読後、既存のBackgroundService.import(bytes)へ渡す。import_background_imageと同じストアの形式・5 MiB・画素数・縮小・メタデータ除去・PNG化を必ず通す。ストアの仕様は変更しない。フロントへ返すのは保存済みUUIDだけで、URLや絶対パスは背景として受け取らない。
 
+マスコット生成は背景生成と同じランナー要求・排他・取消を使い、正方形と透過PNGを指定する。画像は `backgrounds/<UUID>.mascot.png` に保存し、通常の背景画像一覧とは分ける。透過の有無は生成結果による。設定から生成画像を削除できる。使用中の画像を削除すると、選択が解除され、マスコットの表示がオフになる。
+
 同時実行は1件、上限10分。背景専用watch通知で取消を伝え、開始前の取消は直近32件まで記憶する。保存開始と取消を同期区間で直列化し、取消が先なら保存しない。保存が先ならライブラリに残りうるが、UIは取消後の遅延応答を選択しない。ランナーのjobIdはbackground-接頭辞を付け、枠や会話の取消対象と分離する。取消・時間切れでbackgroundCancelを送り、汎用配送のfuture破棄時も背景ジョブを中断する。取消はプロバイダー側の課金取消を保証しない。
 
 保存完了直後の取消では、保存済み画像を削除しない。UIは取消応答待ちに成功が届いても自動選択せず、ダイアログを閉じて「背景の生成を取り消しました」と表示する。外観設定を開き直すとライブラリに残った画像を選択・削除できる。
@@ -549,4 +555,4 @@ Rustで上限付きbase64解読後、既存のBackgroundService.import(bytes)へ
 
 「保存」で一覧に追加する。「保存して適用」または一覧での選択は直前の外観を1件控えてから切り替える。「元に戻す」で明暗、個別アクセントと背景を含む直前の設定を復元する。テーマの削除では共有画像を残す。
 
-テーマと設定は端末内の `agent-guild.appearance.v3` に `{version:3,themes,active,previous}` として一括保存する。v3 がない端末では既定値から開始する。保存済みのテーマは、罫線の指定がない schemaVersion 1 と、明暗の両方に罫線を指定した schemaVersion 2 を読み込む。schemaVersion 1 では組み込みの罫線を使う。対応範囲より新しい保存版やテーマの schemaVersion を検出したときは、データを保持して読み取り専用にし、外観設定に通知を表示する。書き込み失敗時は現在の表示と下書きを保つ。
+テーマと設定は端末内の `agent-guild.appearance.v3` に `{version:3,themes,active,previous,mascot?}` として一括保存する。マスコットの表示・アバターの選択・配置は共有の `mascot` に保存する。マスコットと作業カードはメッセージ一覧の背面に重ね、通常の画像背景と併用できる。従来のマスコット背景指定を読み込むと、マスコットの表示を有効にしてテーマ既定の背景に戻す。v3 がない端末では既定値から開始する。保存済みのテーマは、罫線の指定がない schemaVersion 1 と、明暗の両方に罫線を指定した schemaVersion 2 を読み込む。schemaVersion 1 では組み込みの罫線を使う。対応範囲より新しい保存版やテーマの schemaVersion を検出したときは、データを保持して読み取り専用にし、外観設定に通知を表示する。書き込み失敗時は現在の表示と下書きを保つ。

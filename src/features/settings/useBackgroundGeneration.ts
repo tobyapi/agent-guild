@@ -1,11 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
+import type { BackendInfo } from '@/shared/types/domain';
 import type { FormEvent } from 'react';
 import { useBackends } from '@/features/runtime';
 import { settingsApi } from './api';
 import { tAppearance as t } from './i18n/appearance';
 
-export function useBackgroundGeneration(onGenerated: (id: string) => void, onClose: (cancelled: boolean) => void) {
-  const backends = useBackends().filter((b) => b.backgroundGeneration && b.status === 'ready');
+export function canGenerateBackground(backend: BackendInfo): boolean {
+  return backend.backgroundGeneration === true && backend.status === 'ready';
+}
+
+const generation = {
+  background: {
+    submit: (id: string, backend: string, description: string) =>
+      settingsApi.generateBackground(id, backend, description),
+    invalid: 'backgroundSubjectInvalid',
+    failed: 'backgroundGenerationFailed',
+  },
+  mascot: {
+    submit: (id: string, backend: string, description: string) => settingsApi.generateMascot(id, backend, description),
+    invalid: 'mascotSubjectInvalid',
+    failed: 'mascotGenerationFailed',
+  },
+} as const;
+
+interface GenerationOptions {
+  onGenerated: (id: string) => void;
+  onClose: (cancelled: boolean) => void;
+  kind: keyof typeof generation;
+}
+
+export function useBackgroundGeneration({ onGenerated, onClose, kind }: GenerationOptions) {
+  const backends = useBackends().filter(canGenerateBackground);
+  const image = generation[kind];
   const [selected, setSelected] = useState('');
   const backendId = backends.some((b) => b.id === selected) ? selected : (backends[0]?.id ?? '');
   const [description, setDescription] = useState('');
@@ -13,7 +39,7 @@ export function useBackgroundGeneration(onGenerated: (id: string) => void, onClo
   const [stopping, setStopping] = useState(false);
   const [error, setError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
-  const request = useRef(crypto.randomUUID());
+  const request = useRef('');
   const active = useRef(true);
   const running = useRef(false);
   const cancelled = useRef(false);
@@ -30,8 +56,9 @@ export function useBackgroundGeneration(onGenerated: (id: string) => void, onClo
     event.preventDefault();
     event.stopPropagation();
     if (running.current || !backendId) return;
-    if (!description.trim() || Array.from(description.trim()).length > 200) {
-      setDescriptionError(t('backgroundSubjectInvalid'));
+    const subject = description.trim();
+    if (!subject || Array.from(subject).length > 200) {
+      setDescriptionError(t(image.invalid));
       return;
     }
     setDescriptionError('');
@@ -41,11 +68,11 @@ export function useBackgroundGeneration(onGenerated: (id: string) => void, onClo
     running.current = true;
     cancelled.current = false;
     try {
-      const id = await settingsApi.generateBackground(request.current, backendId, description.trim());
+      const id = await image.submit(request.current, backendId, subject);
       running.current = false;
       if (active.current && !cancelled.current) onGenerated(id);
     } catch {
-      if (active.current && !cancelled.current) setError(t('backgroundGenerationFailed'));
+      if (active.current && !cancelled.current) setError(t(image.failed));
     } finally {
       running.current = false;
       if (active.current) setPending(false);

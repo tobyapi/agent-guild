@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
 import { useProfile } from '@/features/profile';
 import { Icon } from '@/shared/ui';
 import type { Channel } from '@/shared/types/domain';
@@ -17,7 +17,7 @@ import { t } from '../i18n';
 import styles from './MessageList.module.css';
 
 /** メッセージ一覧（日付の区切り・システム発言・同じ人の連続投稿のまとまり） */
-export function MessageList({ channel }: { channel: Channel }) {
+export function MessageList({ channel, backdrop }: { channel: Channel; backdrop?: ReactNode }) {
   const log = useChannelLog(channel.id);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -44,6 +44,7 @@ export function MessageList({ channel }: { channel: Channel }) {
 
   return (
     <div className={styles.frame}>
+      {backdrop}
       <div ref={scrollerRef} className={styles.scroller} onScroll={scroll.onScroll}>
         <div
           ref={contentRef}

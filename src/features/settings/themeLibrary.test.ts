@@ -5,9 +5,36 @@ import type { SavedTheme } from '@/shared/theme/candidate';
 import { ColorEnvelope } from '@/shared/lib/themeBackdrop/envelope';
 import { rgb, worstRatio } from '@/shared/theme/themeColors';
 import { resolveAppearance } from '@/shared/theme/resolve';
+import { DEFAULT_MASCOT_LAYOUT } from '@/shared/theme/mascot';
 import { defaultAppearance } from '@/shared/theme/registry';
 import { appearanceHarness, storedLibrary } from './appearance.test-support';
 import { LIBRARY_KEY } from './themeLibrary';
+
+it('restores mascot mode, source and layout across restarts and theme undo', () => {
+  const active = { ...defaultAppearance(), backgroundOverride: { kind: 'mascot' } };
+  const h = appearanceHarness({ [LIBRARY_KEY]: storedLibrary(active) });
+  const c = h.controller;
+  c.init();
+  expect(c.store.getState()).toMatchObject({
+    active: { backgroundOverride: { kind: 'none' } },
+    mascot: { enabled: true, layout: DEFAULT_MASCOT_LAYOUT },
+  });
+  const mascot = {
+    enabled: true,
+    source: { kind: 'generated' as const, id: imageId },
+    layout: { ...DEFAULT_MASCOT_LAYOUT, mascot: { x: 12, y: 85, size: 120 } },
+  };
+  expect(c.setMascot(mascot)).toBe(true);
+  expect(h.root.dataset.background).toBeUndefined();
+  expect(c.saveTheme(savedTheme(), true)).toBe(true);
+  expect(h.root.dataset.backgroundSource).toBe('image');
+  c.dispose();
+  c.init();
+  expect(c.undo()).toBe(true);
+  expect(c.store.getState().active.backgroundOverride).toEqual({ kind: 'none' });
+  expect(c.store.getState().mascot).toEqual(mascot);
+  expect(h.root.dataset.glass).toBe('none');
+});
 
 const legacyTheme = {
   ...savedTheme(),

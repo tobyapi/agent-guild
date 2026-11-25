@@ -1,5 +1,20 @@
 import { expect, it } from 'vitest';
+import mascot from '../../../../contracts/ipc/mascot-images.json';
 import { createHarness } from './harness.test-support';
+
+it('has an empty mascot library and gates desktop generation', async () => {
+  const mock = await createHarness();
+  await expect(mock.transport.invoke('list_mascot_images', mascot.list.args)).resolves.toEqual([]);
+  await expect(mock.transport.invoke('generate_mascot_image', mascot.generate.args)).rejects.toMatchObject({
+    code: 'unavailable',
+  });
+  await expect(mock.transport.invoke('get_mascot_image', mascot.get.args)).rejects.toMatchObject({
+    code: 'unavailable',
+  });
+  await expect(mock.transport.invoke('delete_mascot_image', mascot.delete.args)).rejects.toMatchObject({
+    code: 'unavailable',
+  });
+});
 
 it('has an empty background library and explicitly rejects desktop-only operations', async () => {
   const mock = await createHarness();

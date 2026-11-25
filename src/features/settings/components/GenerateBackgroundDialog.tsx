@@ -7,15 +7,18 @@ const FORM_ID = 'generate-background';
 export function GenerateBackgroundDialog({
   onClose,
   onGenerated,
+  kind = 'background',
 }: {
   onClose: (cancelled: boolean) => void;
   onGenerated: (id: string) => void;
+  kind?: 'background' | 'mascot';
 }) {
-  const form = useBackgroundGeneration(onGenerated, onClose);
+  const form = useBackgroundGeneration({ onGenerated, onClose, kind });
+  const mascot = kind === 'mascot';
   return (
     <Dialog
-      title={t('backgroundGenerateTitle')}
-      description={t('backgroundGenerateHint')}
+      title={t(mascot ? 'mascotGenerateTitle' : 'backgroundGenerateTitle')}
+      description={t(mascot ? 'mascotGenerateHint' : 'backgroundGenerateHint')}
       onClose={() => void form.close()}
       size="sm"
       footer={
@@ -39,7 +42,7 @@ export function GenerateBackgroundDialog({
         {form.error && <FormAlert>{form.error}</FormAlert>}
         <TextAreaField
           label={t('backgroundSubject')}
-          hint={t('backgroundSubjectHint')}
+          hint={t(mascot ? 'mascotSubjectHint' : 'backgroundSubjectHint')}
           value={form.description}
           onChange={form.setDescription}
           error={form.descriptionError}
@@ -61,7 +64,7 @@ export function GenerateBackgroundDialog({
           ))}
         </SelectField>
         {!form.backendId && <FormAlert>{t('backgroundNoReady')}</FormAlert>}
-        {form.pending && <p role="status">{t('backgroundGenerating')}</p>}
+        {form.pending && <p role="status">{t(mascot ? 'mascotGenerating' : 'backgroundGenerating')}</p>}
       </form>
     </Dialog>
   );

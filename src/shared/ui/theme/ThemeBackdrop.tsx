@@ -10,7 +10,7 @@ interface Props {
 /** Decorative only. Assets use library UUIDs, never user-provided paths. */
 export function ThemeBackdrop({ background, imageUrl }: Props) {
   const resolved = resolveBackground(background);
-  if (resolved.kind === 'none' || !imageUrl) return null;
+  if (resolved.kind !== 'image' || !imageUrl) return null;
   return (
     <div
       style={{ backgroundImage: `url("${imageUrl}")` }}

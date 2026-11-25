@@ -32,10 +32,17 @@ export function BackgroundChoices({ ids, scheme, busy, setRemoving }: Props) {
     { id: 'none', label: t('backgroundNone'), image: null },
     ...ids.map((id, i) => ({ id, label: t('backgroundImage') + ' ' + (i + 1), image: i + 1 })),
   ];
-  const selected = custom && override === null ? 'default' : override?.kind === 'image' ? override.assetId : 'none';
+  const selected =
+    custom && override === null
+      ? 'default'
+      : override?.kind === 'image'
+        ? override.assetId
+        : (override?.kind ?? 'none');
   const firstTab = choices.some((item) => item.id === selected) ? selected : 'none';
   function select(id: string) {
-    setBackground(id === 'default' ? null : id === 'none' ? { kind: 'none' } : { kind: 'image', assetId: id });
+    if (id === 'default') setBackground(null);
+    else if (id === 'none') setBackground({ kind: 'none' });
+    else setBackground({ kind: 'image', assetId: id });
   }
   function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const steps: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };

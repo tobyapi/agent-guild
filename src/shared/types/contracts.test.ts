@@ -39,6 +39,15 @@ const CASES: Record<string, Validator> = {
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
   'theme-candidate.json': themeCandidate,
+  'mascot-images.json': objectOf({
+    generate: objectOf({
+      args: objectOf({ requestId: string, backendId: string, description: string }),
+      result: string,
+    }),
+    list: objectOf({ args: objectOf({}), result: arrayOf(string) }),
+    get: objectOf({ args: objectOf({ id: string }), result: string }),
+    delete: objectOf({ args: objectOf({ id: string }), result: nullValue }),
+  }),
   'open-local-path.json': objectOf({
     markdown: string,
     args: objectOf({ path: string, reveal: boolean }),

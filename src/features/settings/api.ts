@@ -12,6 +12,11 @@ export const settingsApi = {
   setGlobalInstructions: (instructions: string) => invoke('set_global_instructions', { instructions }),
   generateBackground: (requestId: string, backendId: string, description: string) =>
     invoke('generate_background_image', { requestId, backendId, description }),
+  generateMascot: (requestId: string, backendId: string, description: string) =>
+    invoke('generate_mascot_image', { requestId, backendId, description }),
+  listMascots: () => invoke('list_mascot_images'),
+  getMascot: (id: string) => invoke('get_mascot_image', { id }),
+  deleteMascot: (id: string) => invoke('delete_mascot_image', { id }),
   cancelBackgroundGeneration: (requestId: string) => invoke('cancel_background_generation', { requestId }),
   importBackground: (data: string) => invoke('import_background_image', { data }),
   listBackgrounds: () => invoke('list_background_images'),

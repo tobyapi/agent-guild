@@ -3,6 +3,7 @@ import { Segment } from '@/shared/ui';
 import { setSchemePreference, useAppearanceStore } from '../appearance';
 import { tAppearance as t } from '../i18n/appearance';
 import { BackgroundPicker } from './BackgroundPicker';
+import { MascotControls } from './MascotControls';
 import fields from './AccentPicker.module.css';
 
 function subscribeScheme(callback: () => void) {
@@ -38,6 +39,7 @@ export function ThemePicker({ backgroundRevision = 0 }: { backgroundRevision?: n
         />
       </div>
       <BackgroundPicker scheme={scheme} revision={backgroundRevision} />
+      <MascotControls scheme={scheme} />
     </div>
   );
 }

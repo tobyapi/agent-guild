@@ -12,16 +12,21 @@ use std::path::{Path, PathBuf};
 
 pub struct FsBackgrounds {
     root: PathBuf,
+    suffix: &'static str,
 }
 impl FsBackgrounds {
     pub fn new(data_dir: &Path) -> Self {
-        Self { root: data_dir.join(BACKGROUNDS_DIR) }
+        Self { root: data_dir.join(BACKGROUNDS_DIR), suffix: ".png" }
+    }
+
+    pub fn mascots(data_dir: &Path) -> Self {
+        Self { root: data_dir.join(BACKGROUNDS_DIR), suffix: ".mascot.png" }
     }
 
     fn path(&self, id: &str) -> AppResult<PathBuf> {
         validate_id(id)?;
         self.check_root()?;
-        let path = self.root.join(format!("{id}.png"));
+        let path = self.root.join(format!("{id}{}", self.suffix));
         match fs::symlink_metadata(&path) {
             Ok(meta) if !meta.is_file() || meta.file_type().is_symlink() => {
                 return Err(AppError::validation("Background image must be a regular file"))
@@ -75,7 +80,7 @@ impl BackgroundStore for FsBackgrounds {
         for entry in entries {
             let entry = entry.map_err(storage)?;
             let name = entry.file_name();
-            let Some(id) = name.to_str().and_then(|name| name.strip_suffix(".png")) else { continue };
+            let Some(id) = name.to_str().and_then(|name| name.strip_suffix(self.suffix)) else { continue };
             if validate_id(id).is_ok() && entry.file_type().map_err(storage)?.is_file() {
                 ids.push(id.to_owned());
             }

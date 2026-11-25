@@ -7,6 +7,49 @@ use guild_application::backgrounds::BackgroundService;
 use guild_application::AppError;
 use tauri::State;
 
+pub struct MascotLibrary(pub BackgroundService);
+
+#[tauri::command]
+pub async fn generate_mascot_image(
+    state: State<'_, AppState>,
+    store: State<'_, MascotLibrary>,
+    request_id: String,
+    backend_id: String,
+    description: String,
+) -> CommandResult<String> {
+    let generator = state.services()?.background_generation.clone();
+    generator.generate_mascot(&store.0, &request_id, &backend_id, &description).await.map_err(reject)
+}
+
+#[tauri::command]
+pub async fn list_mascot_images(
+    state: State<'_, AppState>,
+    store: State<'_, MascotLibrary>,
+) -> CommandResult<Vec<String>> {
+    state.services()?;
+    store.0.list().map_err(reject)
+}
+
+#[tauri::command]
+pub async fn get_mascot_image(
+    state: State<'_, AppState>,
+    store: State<'_, MascotLibrary>,
+    id: String,
+) -> CommandResult<String> {
+    state.services()?;
+    read_image(&store.0, &id)
+}
+
+#[tauri::command]
+pub async fn delete_mascot_image(
+    state: State<'_, AppState>,
+    store: State<'_, MascotLibrary>,
+    id: String,
+) -> CommandResult<()> {
+    state.services()?;
+    store.0.delete(&id).map_err(reject)
+}
+
 #[tauri::command]
 pub async fn generate_background_image(
     state: State<'_, AppState>,
@@ -52,7 +95,11 @@ pub async fn get_background_image(
     id: String,
 ) -> CommandResult<String> {
     state.services()?;
-    let bytes = store.read(&id).map_err(reject)?;
+    read_image(&store, &id)
+}
+
+fn read_image(store: &BackgroundService, id: &str) -> CommandResult<String> {
+    let bytes = store.read(id).map_err(reject)?;
     Ok(format!("data:image/png;base64,{}", STANDARD.encode(bytes)))
 }
 
