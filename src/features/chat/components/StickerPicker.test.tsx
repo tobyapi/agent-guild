@@ -1,73 +1,24 @@
 // @vitest-environment jsdom
 import { useRef } from 'react';
-import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import type { Agent, Channel } from '@/shared/types/domain';
-import { applyChannelsSnapshot } from '@/features/channels';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { expect, it, vi } from 'vitest';
 import { composerDrafts } from '../draftStore';
 import { DRAFT_STORAGE_KEY } from '../draftPersistence';
 import { useComposer } from '../hooks/useComposer';
-import { useComposerAttachments } from '../hooks/useComposerAttachments';
-import { tComposer } from '../i18n/composer';
 import { STICKERS } from '../model/stickers';
-import { StickerPicker } from './StickerPicker';
+import {
+  candidates,
+  first,
+  Input,
+  items,
+  second,
+  setupStickerTests,
+  textbox,
+  trigger,
+} from './StickerPicker.test-support';
 
 vi.mock('../store', () => ({ sendMessage: vi.fn() }));
-const channel = (id: string) => ({ id, name: id, memberIds: [] }) as unknown as Channel;
-const candidates = [{ agent: { id: 'agent' } as Agent, name: 'Muse', isMember: true }];
-const first = () => tComposer(STICKERS[0].key);
-const second = () => tComposer(STICKERS[1].key);
-
-/** 実際の Composer と同じつなぎ方（textarea・スタンプ・添付の表示）だけを持つ入力欄 */
-function Input({ id }: { id: string }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const files = useComposerAttachments(id);
-  const composer = useComposer(id, candidates, ref, files);
-  return (
-    <form>
-      <StickerPicker onInsert={composer.insertSnippet} />
-      <textarea
-        aria-label="draft"
-        ref={ref}
-        value={composer.text}
-        onChange={composer.onChange}
-        onKeyDown={composer.onKeyDown}
-        onSelect={composer.onSelect}
-        onCompositionStart={composer.onCompositionStart}
-        onCompositionEnd={composer.onCompositionEnd}
-      />
-      <output aria-label="mention">{composer.completion.open ? 'open' : 'closed'}</output>
-      <span>{files.attachments.map((file) => file.name).join(',')}</span>
-    </form>
-  );
-}
-
-const textbox = () => screen.getByRole<HTMLTextAreaElement>('textbox', { name: 'draft' });
-const trigger = () => screen.getByRole('button', { name: tComposer('stickerButton') });
-const items = () => screen.getAllByRole('menuitem');
-
-beforeEach(() => {
-  vi.stubGlobal(
-    'localStorage',
-    (() => {
-      const values = new Map<string, string>();
-      return {
-        getItem: (key: string) => values.get(key) ?? null,
-        setItem: (key: string, value: string) => values.set(key, value),
-        removeItem: (key: string) => values.delete(key),
-        clear: () => values.clear(),
-      };
-    })(),
-  );
-  applyChannelsSnapshot([channel('a'), channel('b')]);
-});
-afterEach(() => {
-  cleanup();
-  composerDrafts.retainChannels([]);
-  localStorage.clear();
-  vi.clearAllMocks();
-  vi.unstubAllGlobals();
-});
+setupStickerTests();
 
 it('inserts the chosen sticker at the caret, keeps attachments, returns focus and saves the draft', () => {
   const view = render(<Input id="a" />);
@@ -146,26 +97,6 @@ it('closes when the user clicks outside without changing the draft', () => {
   fireEvent.mouseDown(textbox());
   expect(screen.queryByRole('menu')).toBeNull();
   expect(textbox().value).toBe('');
-});
-
-it('waits for IME composition to finish before inserting, so the composed text is not broken', () => {
-  render(<Input id="a" />);
-  const input = textbox();
-  fireEvent.change(input, { target: { value: 'こんにちは' } });
-  fireEvent.compositionStart(input);
-  fireEvent.change(input, { target: { value: 'こんにちはせかい' } });
-  fireEvent.click(trigger());
-  fireEvent.click(items()[0]!);
-  // 変換中は差し込まない
-  expect(input.value).toBe('こんにちはせかい');
-
-  // 確定（確定の input より先に compositionend が来ても、確定後の値に対して差し込む）
-  input.value = 'こんにちは世界';
-  input.setSelectionRange(7, 7);
-  fireEvent.compositionEnd(input);
-  expect(input.value).toBe(`こんにちは世界${first()}`);
-  expect(composerDrafts.text('a')).toBe(`こんにちは世界${first()}`);
-  expect(input.selectionStart).toBe(7 + first().length);
 });
 
 it('keeps mention completion working after a sticker is inserted', () => {

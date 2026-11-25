@@ -66,7 +66,7 @@ export function Composer({ channel }: { channel: Channel }) {
         onCompositionStart={composer.onCompositionStart}
         onCompositionEnd={composer.onCompositionEnd}
         onPaste={files.onPaste}
-        onBlur={completion.close}
+        onBlur={composer.onBlur}
         placeholder={placeholder}
         rows={1}
         aria-label={tComposer('composerLabel', { channel: channel.name })}

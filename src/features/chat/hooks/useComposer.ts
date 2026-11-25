@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import { useStore } from 'zustand';
-import type { ChangeEvent, KeyboardEvent, RefObject, SyntheticEvent } from 'react';
+import type { ChangeEvent, FocusEvent, KeyboardEvent, RefObject, SyntheticEvent } from 'react';
 import { composerDrafts } from '../draftStore';
 import { completionAction, isImeComposing, shouldSubmit } from '../model/keys';
 import { insertMention } from '../model/mentionQuery';
@@ -77,6 +77,8 @@ export function useComposer(
       isComposing: event.nativeEvent.isComposing,
       keyCode: event.nativeEvent.keyCode,
     };
+    // 変換中でないキー入力が来たら変換は終わっている（compositionend が届かなかったときの保険）
+    if (!isImeComposing(key)) snippets.settleComposition(event.currentTarget, true);
     if (!isImeComposing(key) && completion.open && handleCompletionKey(event)) return;
     if (!shouldSubmit(key)) return;
     event.preventDefault();
@@ -93,7 +95,13 @@ export function useComposer(
     completion.sync(event.currentTarget.value, event.currentTarget.selectionStart);
   };
 
-  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect, ...snippets };
+  /** フォーカスが外れたら候補を閉じ、変換中の印も下ろす（フォーカスは移った先に任せる） */
+  const onBlur = (event: FocusEvent<HTMLTextAreaElement>) => {
+    completion.close();
+    snippets.settleComposition(event.currentTarget, false);
+  };
+
+  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect, onBlur, ...snippets };
 }
 
 /**
