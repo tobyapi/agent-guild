@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { checkOperation } from './operation-check.ts';
 import { localHttp } from './http.ts';
-import { runContext, runRequest } from '../run.test-support.ts';
+import { pretendMacOS, runContext, runRequest } from '../run.test-support.ts';
 
 vi.mock('./http.ts', () => ({ localHttp: vi.fn() }));
 const http = vi.mocked(localHttp);
@@ -20,6 +20,8 @@ function answer(content: string, done_reason = 'stop') {
 beforeEach(() => http.mockReset());
 
 describe('Ollama の操作確認', () => {
+  pretendMacOS();
+
   it.each([
     'ALLOW',
     'allow.',
