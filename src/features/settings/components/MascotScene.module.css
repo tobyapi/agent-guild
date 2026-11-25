@@ -5,6 +5,7 @@
   container-type: size;
   overflow: hidden;
   pointer-events: none;
+  user-select: none;
   --mascot-opacity: 0.14;
   --mascot-size: 10rem;
 }
@@ -70,7 +71,12 @@
   padding: var(--space-1);
 }
 .scene:not([data-preview]) .cardSlot {
-  opacity: 0.48;
+  opacity: 0.3;
+}
+@container (max-width: 40rem) {
+  .scene:not([data-preview]) .cardSlot {
+    display: none;
+  }
 }
 .card {
   display: grid;

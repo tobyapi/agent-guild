@@ -46,7 +46,7 @@ export function MascotScene({ avatar, layout, scheme, running, pending, dragHand
         </span>
       </div>
       <div className={styles.cardSlot} style={placementStyle(layout.card)} {...dragHandlers?.('card')}>
-        <section className={styles.card} aria-label={t('mascotChannel')}>
+        <section className={styles.card} aria-label={t('mascotChannel')} aria-hidden={dragHandlers ? undefined : true}>
           <div className={styles.heading}>
             <span className={styles.lamp} aria-hidden="true" />
             <strong>{t('mascotChannel')}</strong>

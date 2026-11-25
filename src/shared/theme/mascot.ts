@@ -35,7 +35,7 @@ export const DEFAULT_MASCOT_LAYOUT: MascotLayout = {
 };
 
 export const DEFAULT_MASCOT_SETTINGS: MascotSettings = {
-  enabled: false,
+  enabled: true,
   source: { kind: 'default' },
   layout: DEFAULT_MASCOT_LAYOUT,
 };
@@ -75,12 +75,12 @@ function readSource(value: unknown): MascotSource {
   return DEFAULT_MASCOT_SETTINGS.source;
 }
 
-export function readMascotSettings(value: unknown, legacyEnabled = false): MascotSettings {
-  if (value === undefined && !legacyEnabled) return DEFAULT_MASCOT_SETTINGS;
+export function readMascotSettings(value: unknown): MascotSettings {
+  if (value === undefined) return DEFAULT_MASCOT_SETTINGS;
   const { enabled, source, layout } = record(value);
   const placements = record(layout);
   return {
-    enabled: typeof enabled === 'boolean' ? enabled : legacyEnabled,
+    enabled: typeof enabled === 'boolean' ? enabled : DEFAULT_MASCOT_SETTINGS.enabled,
     source: readSource(source),
     layout: {
       mascot: readPlacement(placements.mascot, DEFAULT_MASCOT_LAYOUT.mascot),

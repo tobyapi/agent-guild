@@ -11,10 +11,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function usesLegacyMascot(value: unknown): boolean {
-  return isRecord(value) && isRecord(value.backgroundOverride) && value.backgroundOverride.kind === 'mascot';
-}
-
 export function parseAppearance(stored: string, registry: ThemeRegistry): AppearancePreference {
   const value: unknown = JSON.parse(stored);
   if (!isRecord(value) || value.version !== 2) throw new AppearanceValidationError('unsupported appearance version');

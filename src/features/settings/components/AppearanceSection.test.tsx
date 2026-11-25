@@ -45,9 +45,10 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
   render(<AppearanceSection />);
   const group = screen.getByRole('radiogroup', { name: '背景' });
   expect([...group.querySelectorAll('[role="radio"]')].map((button) => button.textContent)).toEqual(['なし']);
-  const mascot = screen.getByRole('switch', { name: 'マスコットを表示しない', checked: true });
-  fireEvent.click(mascot);
+  const mascot = screen.getByRole('switch', { name: 'マスコットを表示する', checked: true });
   expect(screen.getByRole('button', { name: 'マスコットを選ぶ' })).toBeTruthy();
+  fireEvent.click(mascot);
+  expect(screen.queryByRole('button', { name: 'マスコットを選ぶ' })).toBeNull();
   expect(screen.queryByRole('radiogroup', { name: /ガラス/ })).toBeNull();
   fireEvent.click(screen.getByRole('radio', { name: '空' }));
   expect(screen.queryByRole('radiogroup', { name: '背景の動き' })).toBeNull();
@@ -60,9 +61,9 @@ it('明るさ・背景を保存し、ガラス設定を表示せず再起動後�
   stopAppearance = initAppearance();
   render(<AppearanceSection />);
   expect(screen.getByRole('radio', { name: 'なし' }).getAttribute('aria-checked')).toBe('true');
-  const restoredMascot = screen.getByRole('switch', { name: 'マスコットを表示しない', checked: false });
+  const restoredMascot = screen.getByRole('switch', { name: 'マスコットを表示する', checked: false });
   fireEvent.click(restoredMascot);
-  expect(screen.queryByRole('button', { name: 'マスコットを選ぶ' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'マスコットを選ぶ' })).toBeTruthy();
   expect(document.documentElement.dataset.glass).toBe('none');
   expect(storedActive(values.get(LIBRARY_KEY)!)).not.toHaveProperty('glass');
   expect(storedActive(values.get(LIBRARY_KEY)!)).toMatchObject({

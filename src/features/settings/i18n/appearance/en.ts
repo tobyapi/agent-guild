@@ -44,7 +44,7 @@ export const en: Messages<typeof ja> = {
   accentViolet: 'Wisteria',
   accentSilver: 'Silver',
   backgroundMascot: 'Mascot',
-  mascotHidden: 'Hide mascot',
+  mascotShow: 'Show mascot',
   mascotChoose: 'Choose a mascot',
   mascotAgents: 'Default and agent avatars',
   mascotDefault: 'Default owl',

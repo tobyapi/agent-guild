@@ -4,7 +4,7 @@ import { defaultAppearance, safeAppearance } from '@/shared/theme/registry';
 import type { AppearancePreference, ThemeRegistry } from '@/shared/theme/types';
 import type { AppearancePersistence } from './appearancePersistence';
 import { DEFAULT_MASCOT_SETTINGS, readMascotSettings, type MascotSettings } from '@/shared/theme/mascot';
-import { parseAppearance, usesLegacyMascot } from './model/appearance';
+import { parseAppearance } from './model/appearance';
 
 export const LIBRARY_KEY = 'agent-guild.appearance.v3';
 export interface ThemeLibrary {
@@ -72,7 +72,7 @@ function decodeLibrary(raw: string, base: ThemeRegistry) {
   };
   const active = readPreference(rawActive, registry, themes);
   const previous = readPreference(rawPrevious, registry, themes);
-  const mascot = readMascotSettings(rawMascot, !!active && usesLegacyMascot(rawActive));
+  const mascot = readMascotSettings(rawMascot);
   return {
     library: { themes, active: active ?? safeAppearance(), previous, mascot },
     readOnly: data.themes.some(isFuture),

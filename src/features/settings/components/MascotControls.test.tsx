@@ -45,7 +45,7 @@ it('shows a disabled generation button and the reason without a ready backend', 
   const button = screen.getByRole<HTMLButtonElement>('button', { name: t('mascotGenerateTitle') });
   expect(button.disabled).toBe(true);
   expect(document.getElementById(button.getAttribute('aria-describedby')!)?.textContent).toBe(t('mascotNoReady'));
-  expect(screen.getByRole('switch', { name: t('mascotHidden'), checked: false })).toBeTruthy();
+  expect(screen.getByRole('switch', { name: t('mascotShow'), checked: true })).toBeTruthy();
 });
 
 it('selects existing agent avatars and reuses the preset picker in Appearance', async () => {
@@ -65,8 +65,21 @@ it('exposes independent position and size controls and resets both items', () =>
   render(<MascotControls scheme="dark" />);
   const mascot = within(screen.getByRole('group', { name: t('backgroundMascot') }));
   const card = within(screen.getByRole('group', { name: t('mascotCard') }));
-  fireEvent.change(mascot.getByRole('slider', { name: t('mascotHorizontal') }), { target: { value: '24' } });
-  fireEvent.change(card.getByRole('slider', { name: t('mascotSize') }), { target: { value: '120' } });
+  const position = mascot.getByRole('slider', { name: t('mascotHorizontal') });
+  const size = card.getByRole('slider', { name: t('mascotSize') });
+  const preview = screen.getByRole('region', { name: t('mascotChannel') }).closest('[data-preview]')!;
+  const writes = vi.spyOn(Storage.prototype, 'setItem');
+  fireEvent.change(position, { target: { value: '30' } });
+  fireEvent.change(position, { target: { value: '24' } });
+  expect((preview.firstElementChild as HTMLElement).style.getPropertyValue('--item-x')).toBe('0.24');
+  expect(writes).not.toHaveBeenCalled();
+  fireEvent.pointerUp(position);
+  fireEvent.blur(position);
+  expect(writes).toHaveBeenCalledOnce();
+  fireEvent.change(size, { target: { value: '120' } });
+  expect(writes).toHaveBeenCalledOnce();
+  fireEvent.keyUp(size, { key: 'ArrowRight' });
+  expect(writes).toHaveBeenCalledTimes(2);
   expect(stored().mascot.layout).toMatchObject({ mascot: { x: 24 }, card: { size: 120 } });
   fireEvent.click(screen.getByRole('button', { name: t('mascotResetLayout') }));
   expect(stored().mascot.layout).toEqual(DEFAULT_MASCOT_LAYOUT);

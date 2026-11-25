@@ -42,7 +42,7 @@ export const ja = {
   accentViolet: '藤',
   accentSilver: '銀',
   backgroundMascot: 'マスコット',
-  mascotHidden: 'マスコットを表示しない',
+  mascotShow: 'マスコットを表示する',
   mascotChoose: 'マスコットを選ぶ',
   mascotAgents: '既定とエージェントのアバター',
   mascotDefault: '既定のフクロウ',

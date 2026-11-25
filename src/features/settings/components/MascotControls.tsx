@@ -15,7 +15,7 @@ export function MascotControls({ scheme }: { scheme: Scheme }) {
   const enabled = useAppearanceStore((state) => state.mascot.enabled);
   return (
     <div className={styles.group}>
-      <SwitchField label={t('mascotHidden')} checked={!enabled} onChange={(hidden) => setMascotEnabled(!hidden)} />
+      <SwitchField label={t('mascotShow')} checked={enabled} onChange={setMascotEnabled} />
       {enabled && <MascotOptions scheme={scheme} />}
     </div>
   );

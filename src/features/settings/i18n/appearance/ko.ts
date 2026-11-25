@@ -44,7 +44,7 @@ export const ko: Messages<typeof ja> = {
   accentViolet: '등나무',
   accentSilver: '은색',
   backgroundMascot: '마스코트',
-  mascotHidden: '마스코트 숨기기',
+  mascotShow: '마스코트 표시',
   mascotChoose: '마스코트 선택',
   mascotAgents: '기본 및 에이전트 아바타',
   mascotDefault: '기본 올빼미',

@@ -20,10 +20,11 @@ it('tracks working and pending jobs only for the open channel and follows indepe
   const view = render(<ChannelMascot channel={channel} />);
   const scene = () => view.container.querySelector('[data-mascot-state]');
   const counts = () =>
-    within(screen.getByRole('region'))
-      .getAllByRole('definition')
+    within(screen.getByRole('region', { hidden: true }))
+      .getAllByRole('definition', { hidden: true })
       .map((node) => node.textContent);
   expect(scene()?.getAttribute('data-mascot-state')).toBe('idle');
+  expect(screen.queryByRole('region')).toBeNull();
   expect(counts()).toEqual(['0', '0']);
   act(() =>
     setActivity({
