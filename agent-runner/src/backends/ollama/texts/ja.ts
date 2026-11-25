@@ -8,7 +8,10 @@ export const ja = {
   enableToolsDescription:
     '役割の権限で道具（ファイルの読み書き・スキル・途中の投稿）を実行します。DeepSeek などは JSON 操作を使います。コマンドは OS の隔離の中でだけ動かします（macOS と、対応する Windows 11。通信はできません）。作業フォルダの外への書き込みは macOS だけです。',
   operationCheckLabel: '操作を実行前に確認する',
-  operationCheckDescription: 'コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。',
+  operationCheckDescription:
+    'コマンドと、PC 全体への書き込み権限があるときのファイル書き込みを、Ollama のモデルが依頼に沿うか判定します。モデルが止めた操作はチャットで一回だけ許可するか、拒否できます。',
+  operationApprovalTimedOut: '承認待ちが時間切れになりました。判定理由：{reason}',
+  operationApprovalDenied: 'チャットでこの操作は拒否されました。判定理由：{reason}',
   noModels: 'Ollama に会話用のローカルモデルを追加して「再確認」を押してください。',
   ready: 'この PC のモデルを使います。',
   stopped: '起動すると、この Mac に入っているモデルを読み込みます。',
@@ -31,7 +34,18 @@ export const ja = {
   outputTruncated: 'Ollama の出力が上限で途切れました（eval_count: {count}）。先頭: {head} / 末尾: {tail}',
   invalidToolCall: '道具の呼び出しが不正です',
   toolNotAllowed: '{name} は許可されていません',
-  operationDenied: '操作の確認で拒否されました（道具: {name}、引数: {args}、確認の応答: {answer}）',
+  operationCommand: 'コマンドの実行',
+  operationWrite: 'ファイルへの書き込み',
+  operationBlockedNotice: '🛡️ 操作の確認で止めました（{label}）: {reason}',
+  operationNextSteps:
+    '依頼に必要な操作なら、依頼文に操作の目的と対象を明記して再依頼してください。この自動判定は、エージェント設定の「{setting}」でオフにできます。',
+  operationDenied:
+    '操作の確認で止めました（{label}）: {reason}\n同じ操作を繰り返さず、別の方法で進めるか、できなかったことを報告してください。',
+  operationNoReason: 'モデルは拒否の理由を返しませんでした。',
+  operationVerdictUnreadable: 'モデルの判定を読み取れませんでした。',
+  operationMissingIntent: '判定に使える依頼の情報がありませんでした。',
+  operationCheckTimeout: '操作の確認が時間切れになりました。',
+  operationCheckFailed: '操作を確認できませんでした（{reason}）。',
   conversationTooLarge: '会話と道具の結果が4MiBを超えました',
   invalidResponse: 'Ollama の応答が不正です',
   toolsNotAllowed: 'このモデルには道具を許可していません',

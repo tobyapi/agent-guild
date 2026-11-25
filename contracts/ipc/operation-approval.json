@@ -1,0 +1,12 @@
+{
+  "runId": "approval-run-1",
+  "channelId": "channel-1",
+  "agentName": "ハル",
+  "requestId": "f516906a-5742-4420-9be2-b675953cf6fa",
+  "operation": "run_command",
+  "workspace": "/guild/work",
+  "detail": "printf \"%s\\n\" \"hello\"\n",
+  "reason": "判定役はコマンドを使う理由を特定できませんでした。",
+  "timeoutMs": 600000,
+  "status": "pending"
+}

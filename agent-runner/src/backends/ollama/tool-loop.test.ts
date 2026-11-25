@@ -2,9 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ollamaAdapter } from '../ollama.ts';
 import { localHttp } from './http.ts';
 import { sandbox, executeTool } from './tools.ts';
+import { runLocalCommand } from './command.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { pretendMacOS, runContext, runRequest } from '../run.test-support.ts';
 vi.mock('./http.ts', () => ({ localHttp: vi.fn() }));
+vi.mock('./command.ts', () => ({ runLocalCommand: vi.fn() }));
 vi.mock('./tools.ts', async (original) => ({
   ...(await original<typeof import('./tools.ts')>()),
   sandbox: vi.fn(() => Promise.resolve({ profile: 'mock', workspace: '/work' })),
@@ -156,7 +158,7 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
     await expect(ollamaAdapter.run(request(), runContext(controller.signal))).rejects.toThrow();
     expect(http).not.toHaveBeenCalled();
   });
-  it('操作確認の拒否ではコマンドを動かさない', async () => {
+  it('JSON 操作は拒否を投稿し、コマンドを実行せず最終回答まで進む', async () => {
     const thinkingModel = { model: 'tools:1b', capabilities: ['completion', 'tools', 'thinking'] };
     reply({ models: [thinkingModel] });
     reply({ capabilities: thinkingModel.capabilities });
@@ -173,12 +175,17 @@ describe('Ollama enabled tools (HTTP と OS 実行をモック)', () => {
         }),
       },
     });
-    reply({ message: { content: 'DENY' } });
+    reply({ message: { content: 'DENY: 依頼の範囲外です' } });
+    reply({ message: { content: '回答' } });
     const req = request();
     req.options.operationCheck = true;
-    await expect(ollamaAdapter.run(req, runContext())).rejects.toThrow('確認');
-    expect(executeTool).not.toHaveBeenCalled();
+    req.intent = 'ファイルを読むだけにしてください。';
+    const context = { ...runContext(), askApproval: vi.fn(() => Promise.resolve('timedOut' as const)) };
+    await expect(ollamaAdapter.run(req, context)).resolves.toBe('回答');
+    expect(runLocalCommand).not.toHaveBeenCalled();
+    expect(context.onPost).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('依頼の範囲外です'));
     expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toHaveProperty('think', false);
+    expect(http.mock.calls[4]?.[2]).toContain('承認待ちが時間切れになりました');
   });
 });
 

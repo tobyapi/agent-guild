@@ -10,6 +10,7 @@ export * from './voice';
 export * from './skill';
 export * from './conversation';
 export * from './delegation';
+export * from './operationApproval';
 export * from './backend';
 export * from './activity';
 export * from './statistics';

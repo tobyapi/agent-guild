@@ -79,6 +79,10 @@ impl Jobs {
         true
     }
 
+    pub(crate) fn is_active(&self, id: &str) -> bool {
+        self.waiters.lock().get(id).is_some_and(|waiter| !*waiter.cancel.borrow())
+    }
+
     /// cancel の合図を出す。待ち手がいなければ false。
     pub(crate) fn request_cancel(&self, id: &str) -> bool {
         let waiters = self.waiters.lock();

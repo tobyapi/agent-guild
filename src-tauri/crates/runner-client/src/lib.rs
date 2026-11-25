@@ -13,6 +13,7 @@ mod job_object;
 mod jobs;
 mod launch;
 mod protocol;
+pub use protocol::approval::{ApprovalDecision, ApprovalOutcome, ApprovalRequest};
 mod reader;
 mod run;
 mod shared;
@@ -32,7 +33,7 @@ pub use protocol::{
 };
 
 /// プロトコルの版。ランナーの `ready.protocolVersion` と完全に一致しなければ、そのランナーは使わない。
-pub const PROTOCOL_VERSION: u32 = 4;
+pub const PROTOCOL_VERSION: u32 = 5;
 
 /// ランナーの起動方法。開発中は Node でスクリプトを直接、配布時は Tauri sidecar として同梱した単一バイナリ。
 #[derive(Debug, Clone)]
@@ -74,6 +75,8 @@ pub enum RunnerStatus {
 /// 実行中（終端イベントより前）に届く知らせ
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunUpdate {
+    ApprovalRequested(ApprovalRequest),
+    ApprovalResolved(String, ApprovalOutcome),
     /// 途中経過（「Web検索: …」など）
     Activity(String),
     /// 作業の途中の投稿（チャットに出す文章）

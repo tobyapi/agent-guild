@@ -20,6 +20,7 @@ pub mod link;
 pub mod local_image;
 pub mod locale;
 pub mod message;
+pub mod operation_approval;
 pub mod profile;
 pub mod prompt;
 pub mod skill;

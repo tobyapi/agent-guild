@@ -2,7 +2,7 @@
 use guild_application::{ports::DesktopNotifier, AppError, AppResult};
 
 /// アプリのインストーラーが登録する識別子だけを受け取る。
-pub struct TauriNotifier(pub String);
+pub struct TauriNotifier(#[cfg_attr(not(windows), allow(dead_code))] pub String);
 impl DesktopNotifier for TauriNotifier {
     fn submit(&self, title: &str, body: &str) -> AppResult<()> {
         let mut notification = notify_rust::Notification::new();

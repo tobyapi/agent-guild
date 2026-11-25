@@ -9,7 +9,10 @@ export const en: Messages<typeof ja> = {
   enableToolsDescription:
     "Runs tools (reading and writing files, skills, progress updates) within the role's permissions. Models such as DeepSeek use JSON actions. Commands run only inside OS isolation (macOS and supported Windows 11; no network access). Writing outside the workspace is available only on macOS.",
   operationCheckLabel: 'Check operations before running',
-  operationCheckDescription: 'Uses the model to check that commands and writes anywhere on the PC match the request.',
+  operationCheckDescription:
+    'Ollama checks whether commands and file writes with PC-wide write access match the request. If the model blocks an operation, you can allow it once or deny it in chat.',
+  operationApprovalTimedOut: 'The approval request timed out. Model’s reason: {reason}',
+  operationApprovalDenied: 'The operation was denied in chat. Model’s reason: {reason}',
   noModels: 'Add a local chat model to Ollama and press "Recheck".',
   ready: 'Uses the models on this PC.',
   stopped: 'When started, it loads the models installed on this Mac.',
@@ -32,8 +35,18 @@ export const en: Messages<typeof ja> = {
   outputTruncated: 'Ollama output was truncated at the limit (eval_count: {count}). Start: {head} / End: {tail}',
   invalidToolCall: 'Invalid tool call',
   toolNotAllowed: '{name} is not allowed',
+  operationCommand: 'Run a command',
+  operationWrite: 'Write a file',
+  operationBlockedNotice: '🛡️ Operation blocked by the pre-run check ({label}): {reason}',
+  operationNextSteps:
+    'If this operation is needed, specify its purpose and target in your request and try again. You can turn this automatic check off in the agent settings under “{setting}”.',
   operationDenied:
-    'The operation was rejected by the operation check (tool: {name}, arguments: {args}, check reply: {answer})',
+    'The pre-run check blocked this operation ({label}): {reason}\nContinue another way or report what you could not do. Do not repeat the same operation.',
+  operationNoReason: 'The model did not give a reason for denying the operation.',
+  operationVerdictUnreadable: 'Could not read the model’s verdict.',
+  operationMissingIntent: 'There was no task information to use for the check.',
+  operationCheckTimeout: 'The operation check timed out.',
+  operationCheckFailed: 'Could not check the operation ({reason}).',
   conversationTooLarge: 'The conversation and tool results exceeded 4MiB',
   invalidResponse: 'Invalid response from Ollama',
   toolsNotAllowed: 'Tools are not allowed for this model',

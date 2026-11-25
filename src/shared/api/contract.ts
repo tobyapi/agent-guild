@@ -2,6 +2,8 @@
 // コマンドを足すときはここに1行足し、contractSchemas.ts に戻り値の検証を足し、使う feature の api.ts から呼ぶ。
 import type {
   ActivityState,
+  ApprovalDecision,
+  OperationApproval,
   Agent,
   AgentInput,
   AttachmentInput,
@@ -81,6 +83,11 @@ export interface CommandMap {
   /** 実行中の割り振りも打ち切る */
   stop_channel: { args: { channelId: string }; result: null };
   /** そのチャンネルの割り振り（createdAt の昇順、新しい方から最大200件） */
+  list_operation_approvals: { args: { channelId: string }; result: OperationApproval[] };
+  respond_to_operation_approval: {
+    args: { channelId: string; requestId: string; decision: ApprovalDecision };
+    result: boolean;
+  };
   list_delegations: { args: { channelId: string }; result: Delegation[] };
   update_profile: { args: { profile: Profile }; result: Profile };
   /**
@@ -174,6 +181,7 @@ export interface EventMap {
   'skill-library-changed': null;
   /** 割り振りが作られた・サブタスクや全体の状態が変わった（全体の最新の値。React は id で置き換える） */
   'delegation-changed': Delegation;
+  'operation-approval-changed': OperationApproval;
 }
 
 export type EventName = keyof EventMap;
@@ -187,4 +195,5 @@ export const EVENT_NAMES = [
   'skills-changed',
   'skill-library-changed',
   'delegation-changed',
+  'operation-approval-changed',
 ] as const satisfies readonly EventName[];

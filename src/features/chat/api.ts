@@ -1,9 +1,12 @@
 import { invoke } from '@/shared/api';
-import type { AttachmentInput } from '@/shared/types/domain';
+import type { ApprovalDecision, AttachmentInput } from '@/shared/types/domain';
 
 export type { LocalImage } from '@/shared/api/contract';
 
 export const chatApi = {
+  operationApprovals: (channelId: string) => invoke('list_operation_approvals', { channelId }),
+  respondToApproval: (channelId: string, requestId: string, decision: ApprovalDecision) =>
+    invoke('respond_to_operation_approval', { channelId, requestId, decision }),
   skillRecordTruncated: (messageId: string) => invoke('get_skill_record_truncated', { messageId }),
   /** beforeSeq より前の発言を新しいほうから limit 件（seq の昇順で返る） */
   list: (channelId: string, beforeSeq: number | null, limit: number) =>

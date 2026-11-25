@@ -1,5 +1,6 @@
 //! プロトコルでやりとりする値の型（`agent-runner/src/protocol.ts` と同じ JSON。camelCase）。
 
+pub(crate) mod approval;
 mod background;
 mod image;
 mod setup;

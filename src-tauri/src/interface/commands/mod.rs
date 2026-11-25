@@ -2,6 +2,7 @@
 //! JS の引数は camelCase、Rust の引数は snake_case（Tauri 2 が自動変換）。
 
 pub mod agents;
+mod approvals;
 pub mod backgrounds;
 pub mod boot;
 pub mod channels;

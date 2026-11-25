@@ -35,6 +35,14 @@ impl NotificationService {
         settings.desktop_notifications = Some(enabled);
         self.settings.save(&settings)
     }
+    /// The dispatcher submits once for each live approval. No notification receipt needs to survive an app restart.
+    pub fn submit_ephemeral(&self, title: &str, body: &str) -> AppResult<()> {
+        if self.enabled()? {
+            self.notifier.submit(title, body)?;
+        }
+        Ok(())
+    }
+
     /// 送信より先に記録する。クラッシュやOSの成否不明でも同じ発言の通知は再送しない。
     pub fn submit_once(&self, message_id: &str, title: &str, body: &str) -> AppResult<NotificationOutcome> {
         let _guard = self.gate.lock();

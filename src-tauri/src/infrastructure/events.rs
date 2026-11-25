@@ -53,6 +53,10 @@ impl EventPublisher for TauriEventPublisher {
         self.emit(SKILL_LIBRARY_CHANGED, ());
     }
 
+    fn operation_approval_changed(&self, approval: &guild_domain::operation_approval::OperationApproval) {
+        self.emit("operation-approval-changed", approval);
+    }
+
     fn delegation_changed(&self, delegation: &Delegation) {
         self.emit(DELEGATION_CHANGED, delegation);
     }

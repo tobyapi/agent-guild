@@ -3,7 +3,6 @@
 use std::collections::{HashMap, VecDeque};
 use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Arc;
 
 use async_trait::async_trait;
 use guild_application::ports::{
@@ -11,7 +10,7 @@ use guild_application::ports::{
 };
 use guild_domain::backend::{BackendInfo, InstallGuide, RuntimeState, RuntimeStatus, StartSpec};
 use guild_domain::locale::Language;
-use guild_domain::statistics::RunUsage;
+use guild_domain::operation_approval::ApprovalDecision;
 use parking_lot::Mutex;
 use tokio::sync::Notify;
 
@@ -20,28 +19,8 @@ use super::frames::ImageScript;
 
 pub const THEME_CANDIDATE: &str = include_str!("../../../../../../contracts/ipc/theme-candidate.json");
 
-/// 1回分の返し方
-pub enum Script {
-    Reply(String),
-    Fail(String),
-    Measured(Vec<RunUsage>, Result<String, RuntimeError>),
-    /// 中断されるまで返さない
-    Hang,
-    /// gate が開くまで待ってから返す（中断されたら Cancelled）
-    Gate(Arc<Notify>, String),
-    /// 中断を無視して、gate が開いたら返す（中断が間に合わなかった実行）
-    Stubborn(Arc<Notify>, String),
-    /// 作業の途中の投稿を順に送ってから返す
-    Posts(Vec<String>, String),
-    Updates(Vec<RunUpdate>, String),
-    PhasedUpdates(Vec<RunUpdate>, Arc<Notify>, Vec<RunUpdate>),
-    /// 中断を無視して、gate が開いたら途中の投稿を送り、[PASS] を返す
-    LatePost(Arc<Notify>, String),
-}
-
-pub fn reply(text: &str) -> Script {
-    Script::Reply(text.to_owned())
-}
+mod script;
+pub use script::{reply, Script};
 
 #[derive(Default)]
 pub struct FakeRuntime {
@@ -51,6 +30,7 @@ pub struct FakeRuntime {
     scripts: Mutex<HashMap<String, VecDeque<Script>>>,
     /// (ジョブ ID, エージェント ID, 依頼)
     pub requests: Mutex<Vec<(String, String, RuntimeRequest)>>,
+    pub decisions: Mutex<Vec<(String, String, ApprovalDecision)>>,
     pub cancelled: Mutex<Vec<String>>,
     pub backends: Mutex<Vec<BackendInfo>>,
     pub probes: AtomicUsize,
@@ -133,6 +113,10 @@ impl AgentRuntime for FakeRuntime {
                 result
             }
             Script::Hang => self.wait_cancel(job_id).await,
+            Script::UpdatesThenCancel(events) => {
+                events.into_iter().for_each(on_update);
+                self.wait_cancel(job_id).await
+            }
             Script::Gate(gate, text) => tokio::select! {
                 () = gate.notified() => Ok(text),
                 cancelled = self.wait_cancel(job_id) => cancelled,
@@ -186,6 +170,16 @@ impl AgentRuntime for FakeRuntime {
             ImageScript::Fail(message) => Err(RuntimeError::Failed(message)),
             ImageScript::Hang => self.wait_cancel(job_id).await.map(|_| ()),
         }
+    }
+
+    async fn respond_to_approval(
+        &self,
+        job_id: &str,
+        request_id: &str,
+        decision: ApprovalDecision,
+    ) -> Result<bool, RuntimeError> {
+        self.decisions.lock().push((job_id.into(), request_id.into(), decision));
+        Ok(true)
     }
 
     async fn cancel(&self, job_id: &str) {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { applyAgentsSnapshot } from '@/features/agents';
 import { applyChannelsSnapshot } from '@/features/channels';
-import { receiveDelegation, receiveMessage } from '@/features/chat';
+import { receiveDelegation, receiveMessage, receiveOperationApproval } from '@/features/chat';
 import { applyFramesSnapshot } from '@/features/frames';
 import { applyGuildSnapshot } from '@/features/guild';
 import { applyProfileSnapshot, currentProfile } from '@/features/profile';
@@ -58,6 +58,7 @@ export function useBootstrap() {
       'skills-changed': ({ agentId }) => reloadSkillsIfLoaded(agentId),
       'skill-library-changed': reloadSkillLibraryIfLoaded,
       'delegation-changed': receiveDelegation,
+      'operation-approval-changed': receiveOperationApproval,
     });
     const start = async (): Promise<BootState> => {
       await events.ready;

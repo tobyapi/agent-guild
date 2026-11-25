@@ -19,6 +19,8 @@ impl Actor {
                     RunUpdate::RecordedPost(text, skills) => Command::Post { job_id, text, skills: Some(skills) },
                     RunUpdate::SkillObservation(_) | RunUpdate::SkillRead(..) => return,
                     RunUpdate::Usage(_) => return,
+                    RunUpdate::ApprovalRequested(request) => Command::ApprovalRequested { job_id, request },
+                    RunUpdate::ApprovalResolved(id, status) => Command::ApprovalResolved { job_id, id, status },
                 };
                 let _ = updates.send(command);
             },

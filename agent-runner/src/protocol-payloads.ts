@@ -1,4 +1,4 @@
-// run に添える中身（スキルと画像）の形。protocol.ts の一部（同じ内部契約）で、protocol.ts から再輸出する。
+// run に添えるスキル・画像と、実行中に計測する使用量の形。protocol.ts の一部（同じ内部契約）で、protocol.ts から再輸出する。
 
 export interface SkillPayload {
   name: string;
@@ -26,4 +26,12 @@ export interface ImagePayload {
   path: string;
   /** image/png・image/jpeg・image/gif・image/webp のどれか */
   mediaType: string;
+}
+
+/** 取得できた使用量の増分。model は主モデル名。費用の単位は 10 億分の 1 米ドル。 */
+export interface RunUsage {
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  estimatedCostNanoUsd?: number;
 }

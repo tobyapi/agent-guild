@@ -1,5 +1,9 @@
 //! runner-client の型と、ドメイン・ポートの型の変換。
 
+mod approval;
+
+pub(super) use approval::approval_decision;
+use approval::{approval_request, approval_status};
 use guild_application::ports::{ImagePayload, ImageRuntimeRequest, RunUpdate, RuntimeRequest, SkillPayload};
 use guild_domain::agent::{PermissionKey, Permissions};
 use guild_domain::backend::{
@@ -83,6 +87,8 @@ fn mid_run_post(method: runner::MidRunPost) -> MidRunPost {
 /// 実行中の知らせ（途中経過・途中の投稿）
 pub(super) fn update(update: runner::RunUpdate) -> RunUpdate {
     match update {
+        runner::RunUpdate::ApprovalRequested(request) => RunUpdate::ApprovalRequested(approval_request(request)),
+        runner::RunUpdate::ApprovalResolved(id, outcome) => RunUpdate::ApprovalResolved(id, approval_status(outcome)),
         runner::RunUpdate::Activity(detail) => RunUpdate::Activity(detail),
         runner::RunUpdate::Post(text) => RunUpdate::Post(text),
         runner::RunUpdate::SkillObservation(name) => RunUpdate::SkillObservation(name),

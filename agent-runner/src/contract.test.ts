@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { createBuiltinRegistry } from './backends/registry.ts';
 import { EMPTY_CATALOG } from './backends/types.ts';
 import { parseLine, serializeEvent, type JsonObject } from './line-parser.ts';
-import type { RunnerEvent } from './protocol.ts';
+import { PROTOCOL_VERSION, type RunnerEvent } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
 
 function fixture(name: string): JsonObject[] {
@@ -18,7 +18,18 @@ function fixture(name: string): JsonObject[] {
   });
 }
 
-const EVENT_TYPES = ['ready', 'backends', 'activity', 'post', 'skillObservation', 'usage', 'result', 'error'];
+const EVENT_TYPES = [
+  'ready',
+  'backends',
+  'activity',
+  'post',
+  'approvalRequested',
+  'approvalResolved',
+  'skillObservation',
+  'usage',
+  'result',
+  'error',
+];
 const sortedKeys = (value: object): string[] => Object.keys(value).sort();
 
 describe('contracts/runner', () => {
@@ -36,6 +47,7 @@ describe('contracts/runner', () => {
       'background',
       'backgroundCancel',
       'theme',
+      'approvalResponse',
     ]);
     for (const expected of requests) {
       const decoded = decodeRequest(expected);
@@ -54,6 +66,7 @@ describe('contracts/runner', () => {
   it('アダプタが申告する BackendInfo は実例と同じフィールドを持つ', () => {
     const ready = fixture('events.jsonl').find((event) => event.type === 'ready') as unknown as
       Extract<RunnerEvent, { type: 'ready' }> | undefined;
+    expect(ready?.protocolVersion).toBe(PROTOCOL_VERSION);
     const example = ready?.backends[0];
     expect(example).toBeDefined();
     if (!example) return;

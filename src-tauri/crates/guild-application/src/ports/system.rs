@@ -18,6 +18,7 @@ pub trait EventPublisher: Send + Sync {
     fn state_changed(&self);
     fn skills_changed(&self, agent: &AgentId);
     fn skill_library_changed(&self);
+    fn operation_approval_changed(&self, _approval: &guild_domain::operation_approval::OperationApproval) {}
     /// 割り振りが作られた・サブタスクや全体の状態が変わった（全体の最新の値）
     fn delegation_changed(&self, delegation: &Delegation);
 }

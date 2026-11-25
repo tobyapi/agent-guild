@@ -18,13 +18,14 @@
 //   例外: 作業場所の MEMORY.md は writeFiles に関係なくいつでも読み書きさせる。1ファイルに絞れないプラットフォームでは
 //   作業場所への書き込みを許し、MEMORY.md 以外を書かないことはエージェントがルール（プロンプト）を守ることに任せる。
 
-export const PROTOCOL_VERSION = 4;
+export const PROTOCOL_VERSION = 5;
 
+import type { ApprovalEvent, ApprovalResponse } from './protocol-approval.ts';
 import type { BackendSetup } from './protocol-backend.ts';
-import type { ImagePayload, SkillPayload } from './protocol-payloads.ts';
+import type { ImagePayload, RunUsage, SkillPayload } from './protocol-payloads.ts';
 
 export type { ApiKeySpec, BackendSetup, InstallGuide, LoginSpec, StartSpec } from './protocol-backend.ts';
-export type { ImagePayload, SkillFilePayload, SkillPayload } from './protocol-payloads.ts';
+export type { ImagePayload, RunUsage, SkillFilePayload, SkillPayload } from './protocol-payloads.ts';
 
 export type PermissionKey =
   'webSearch' | 'webFetch' | 'readFiles' | 'readAnywhere' | 'writeFiles' | 'writeAnywhere' | 'runCommands' | 'skills';
@@ -132,6 +133,7 @@ export type ErrorCode =
 
 /** Rust → runner */
 export type RunnerRequest =
+  | ApprovalResponse
   | { type: 'theme'; id: string; backend: string; subject: string }
   | { type: 'background'; id: string; backend: string; prompt: string }
   | { type: 'backgroundCancel'; id: string }
@@ -195,16 +197,9 @@ export type RunnerRequest =
   | { type: 'setLanguage'; language: Language }
   | { type: 'shutdown' };
 
-/** 取得できた使用量の増分。model は主モデル名。費用の単位は 10 億分の 1 米ドル。 */
-export interface RunUsage {
-  model?: string;
-  inputTokens?: number;
-  outputTokens?: number;
-  estimatedCostNanoUsd?: number;
-}
-
 /** runner → Rust */
 export type RunnerEvent =
+  | ApprovalEvent
   | { type: 'ready'; protocolVersion: number; runnerVersion: string; backends: BackendInfo[] }
   | { type: 'backends'; backends: BackendInfo[] }
   | { type: 'activity'; id: string; detail: string }

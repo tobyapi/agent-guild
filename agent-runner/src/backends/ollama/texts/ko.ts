@@ -9,7 +9,10 @@ export const ko: Messages<typeof ja> = {
   enableToolsDescription:
     '역할의 권한으로 도구(파일 읽기/쓰기, 스킬, 진행 상황 게시)를 실행합니다. DeepSeek 등은 JSON 작업을 사용합니다. 명령은 OS 격리 안에서만 실행합니다(macOS와 지원되는 Windows 11. 네트워크는 사용할 수 없습니다). 작업 폴더 밖에 쓰기는 macOS에서만 가능합니다.',
   operationCheckLabel: '실행 전에 작업 확인',
-  operationCheckDescription: '명령과 PC 전체에 대한 쓰기가 요청에 맞는지 모델로 확인합니다.',
+  operationCheckDescription:
+    'Ollama는 명령과 PC 전체에 쓰기 권한이 있을 때의 파일 쓰기가 요청에 맞는지 확인합니다. 모델이 중지한 작업은 채팅에서 한 번만 허용하거나 거부할 수 있습니다.',
+  operationApprovalTimedOut: '승인 대기 시간이 초과되었습니다. 모델의 판정 이유: {reason}',
+  operationApprovalDenied: '채팅에서 작업이 거부되었습니다. 모델의 판정 이유: {reason}',
   noModels: 'Ollama에 대화용 로컬 모델을 추가하고 "다시 확인"을 누르십시오.',
   ready: '이 PC의 모델을 사용합니다.',
   stopped: '시작하면 이 Mac에 설치된 모델을 불러옵니다.',
@@ -32,7 +35,18 @@ export const ko: Messages<typeof ja> = {
   outputTruncated: 'Ollama 출력이 한도에서 잘렸습니다(eval_count: {count}). 처음: {head} / 끝: {tail}',
   invalidToolCall: '도구 호출이 올바르지 않습니다',
   toolNotAllowed: '{name}은(는) 허용되지 않습니다',
-  operationDenied: '작업 확인에서 거부되었습니다 (도구: {name}, 인수: {args}, 확인 응답: {answer})',
+  operationCommand: '명령 실행',
+  operationWrite: '파일 쓰기',
+  operationBlockedNotice: '🛡️ 실행 전 확인에서 작업을 차단했습니다 ({label}): {reason}',
+  operationNextSteps:
+    '요청에 필요한 작업이라면 목적과 대상을 명시해 다시 요청하세요. 에이전트 설정의 「{setting}」에서 자동 확인을 끌 수 있습니다.',
+  operationDenied:
+    '실행 전 확인에서 작업을 차단했습니다 ({label}): {reason}\n같은 작업을 반복하지 말고 다른 방법으로 진행하거나 완료하지 못한 내용을 보고하세요.',
+  operationNoReason: '모델이 작업을 거부한 이유를 응답하지 않았습니다.',
+  operationVerdictUnreadable: '모델의 판정을 읽을 수 없습니다.',
+  operationMissingIntent: '판정에 사용할 요청 정보가 없습니다.',
+  operationCheckTimeout: '작업 확인 시간이 초과되었습니다.',
+  operationCheckFailed: '작업을 확인할 수 없습니다 ({reason}).',
   conversationTooLarge: '대화와 도구 결과가 4MiB를 초과했습니다',
   invalidResponse: 'Ollama의 응답이 올바르지 않습니다',
   toolsNotAllowed: '이 모델에는 도구를 허용하지 않았습니다',

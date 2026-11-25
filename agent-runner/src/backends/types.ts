@@ -32,7 +32,10 @@ export const NO_SETUP: BackendSetup = { install: null, start: null, login: null,
 /** モデルの一覧が分からないとき（モデルは自由入力、深さは選べない） */
 export const EMPTY_CATALOG: ModelCatalog = { models: [], defaultModel: '' };
 
+import type { ApprovalOutcome, OperationApproval } from '../protocol-approval.ts';
+
 export interface RunContext {
+  askApproval?: (operation: OperationApproval) => Promise<ApprovalOutcome>;
   /** 時間切れ・cancel・shutdown で中断される */
   signal: AbortSignal;
   /** 途中経過（「Web検索: …」など）を Rust へ送る */

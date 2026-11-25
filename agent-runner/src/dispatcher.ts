@@ -12,10 +12,12 @@ import {
 import type { ParsedLine } from './line-parser.ts';
 import { setLanguage } from './i18n.ts';
 import { logError } from './log.ts';
+import { OperationApprovals } from './operation-approvals.ts';
+import type { ApprovalResponse } from './protocol-approval.ts';
 import { PROTOCOL_VERSION, type ErrorCode, type RunnerEvent, type RunnerRequest } from './protocol.ts';
 import { decodeRequest } from './request-decoder.ts';
 import { t } from './texts/index.ts';
-import { currentEvents, skillEvents } from './dispatcher-skill-events.ts';
+import { runContext } from './dispatcher-run-context.ts';
 import { prepareRunWorkspace } from './dispatcher-workspace.ts';
 import { BackgroundJobs } from './backgrounds/jobs.ts';
 import { themeWork } from './themes/codex.ts';
@@ -31,10 +33,12 @@ export interface DispatcherOptions {
 export class Dispatcher {
   readonly #options: DispatcherOptions;
   readonly #jobs: DispatcherJobs;
+  readonly #approvals: OperationApprovals;
   #closed = false;
   readonly #backgrounds: BackgroundJobs;
   constructor(options: DispatcherOptions) {
     this.#options = options;
+    this.#approvals = new OperationApprovals(options.send);
     this.#jobs = new DispatcherJobs(options.send);
     this.#backgrounds = new BackgroundJobs(options.registry, options.send);
   }
@@ -53,8 +57,10 @@ export class Dispatcher {
       return;
     }
     const decoded = decodeRequest(line.value);
-    if (decoded.ok) this.#handle(decoded.request);
-    else if (decoded.id !== null) this.#fail(decoded.id, 'bad_request', decoded.message);
+    if (decoded.ok) {
+      if (decoded.request.type === 'approvalResponse') this.#approvals.respond(decoded.request);
+      else this.#handle(decoded.request);
+    } else if (decoded.id !== null) this.#fail(decoded.id, 'bad_request', decoded.message);
     else logError(`不正な要求を無視しました: ${decoded.message}`);
   }
 
@@ -73,7 +79,7 @@ export class Dispatcher {
     this.#options.exit();
   }
 
-  #handle(request: RunnerRequest): void {
+  #handle(request: Exclude<RunnerRequest, ApprovalResponse>): void {
     if (request.type === 'theme') this.#jobs.start(request.id, themeWork(this.#options.registry, request));
     else if (request.type === 'background') this.#backgrounds.start(request);
     else if (request.type === 'backgroundCancel') this.#backgrounds.cancel(request.id);
@@ -133,19 +139,17 @@ export class Dispatcher {
     const minutes = adapter.runTimeoutMinutes?.(request.options) ?? DEFAULT_RUN_TIMEOUT_MINUTES;
     this.#jobs.start(
       id,
-      async (signal, isCurrent) => {
+      async (signal, isCurrent, budget) => {
         if (request.prepareWorkspace) {
           await prepareRunWorkspace(request, signal);
           signal.throwIfAborted();
         }
-        const send = currentEvents(isCurrent, this.#options.send);
-        return adapter.run(usableRequest(request, adapter.info()), {
-          signal,
-          onActivity: (detail) => send({ type: 'activity', id, detail }),
-          onPost: (text) => send({ type: 'post', id, text }),
-          onUsage: (usage) => send({ type: 'usage', id, usage }),
-          onSkillRead: skillEvents(id, send),
-        });
+        const context = runContext(id, signal, isCurrent, this.#options.send, this.#approvals, budget);
+        try {
+          return await adapter.run(usableRequest(request, adapter.info()), context);
+        } finally {
+          this.#approvals.cancelRun(id);
+        }
       },
       { workspace: request.workspace, timeoutMinutes: minutes, prepareWorkspace: request.prepareWorkspace },
     );

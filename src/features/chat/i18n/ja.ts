@@ -1,5 +1,22 @@
 // chat の文言（発言の一覧・割り振りのカード・本文の埋め込み。日本語。キーの正）
 export const ja = {
+  approvalPanel: '操作の承認',
+  approvalTitle: '{name} · {operation}',
+  approvalCommand: 'コマンドの実行',
+  approvalWrite: 'ファイルへの書き込み',
+  approvalPending: 'この操作を許可しますか？',
+  approvalSubmitting: '回答を送信しています…',
+  approvalApproved: '許可しました',
+  approvalDenied: '拒否しました',
+  approvalTimedOut: '時間切れ',
+  approvalCancelled: '取り消されました',
+  approvalReason: 'モデルが止めた理由',
+  approvalWorkspace: '作業フォルダ',
+  approvalDetails: '操作の全文を表示',
+  approvalReview: '操作と判定理由を見る',
+  approvalAllow: '今回だけ許可',
+  approvalReject: '拒否',
+  approvalSendFailed: '回答を送れませんでした。まだ承認待ちなら、もう一度お試しください。',
   skillUsageCutoffScope:
     '打切り記録は、停止・全停止・エージェント除外などの明示取消が対象です。内部中断・時間切れ・異常終了は対象外です。保存に失敗しても記録は残りません。記録なしは完全性を保証せず、最終投稿がないだけでは終了理由を判断できません。',
   skillUsageTruncated: '取消により、この実行の以降の観測は打切りです。保存済みの投稿区間は変更していません。',

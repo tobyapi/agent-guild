@@ -15,6 +15,7 @@ use guild_domain::conversation::{parse_mentions, route_human_message, JobSpec, R
 use guild_domain::delegation::Delegation;
 use guild_domain::ids::{AgentId, AttachmentId, ChannelId, MessageId};
 use guild_domain::message::{normalize_human_content, Message, MessageKind};
+use guild_domain::operation_approval::{ApprovalDecision, OperationApproval};
 
 use crate::error::AppResult;
 use crate::maintenance::Maintenance;
@@ -108,6 +109,20 @@ impl ConversationService {
     pub fn list_delegations(&self, channel_id: &ChannelId) -> AppResult<Vec<Delegation>> {
         posting::require_channel(&self.ports, channel_id)?;
         self.ports.delegations.list(channel_id, DELEGATION_LIST_MAX)
+    }
+
+    pub async fn list_operation_approvals(&self, channel: ChannelId) -> Vec<OperationApproval> {
+        self.dispatcher.list_approvals(channel).await
+    }
+
+    pub async fn respond_to_operation_approval(
+        &self,
+        channel: ChannelId,
+        request_id: String,
+        decision: ApprovalDecision,
+    ) -> AppResult<bool> {
+        self.maintenance.ensure_available()?;
+        Ok(self.dispatcher.decide_approval(channel, request_id, decision).await)
     }
 
     /// 単独のシステム発言を出す（初期データの歓迎など）

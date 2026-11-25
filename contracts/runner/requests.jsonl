@@ -9,3 +9,4 @@
 {"type":"background","id":"background-0001","backend":"codex","prompt":"Create a quiet landscape background. Save as background.png."}
 {"type":"backgroundCancel","id":"background-0001"}
 {"type":"theme","id":"theme-0001","backend":"codex","subject":"A moonlit library"}
+{"type":"approvalResponse","id":"approval-run-1","requestId":"f516906a-5742-4420-9be2-b675953cf6fa","decision":"approved"}

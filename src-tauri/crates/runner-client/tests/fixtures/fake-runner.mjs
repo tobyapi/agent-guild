@@ -43,6 +43,15 @@ function startJob(request, waiting) {
       send({ type: 'post', id: request.id, text: `posted:${argument}` });
       send({ type: 'usage', id: request.id, usage: { model: 'fixture-model', inputTokens: 8, outputTokens: 0 } });
       return reply(argument);
+    case 'approvals':
+      waiting.set(request.id, command);
+      for (const requestId of ['first', 'second']) {
+        send({
+          type: 'approvalRequested', id: request.id, requestId, operation: 'run_command',
+          workspace: request.workspace, detail: 'echo ' + requestId, reason: 'check', timeoutMs: 600_000,
+        });
+      }
+      return;
     case 'pid':
       return reply(String(process.pid));
     case 'inspect':
@@ -70,13 +79,20 @@ function cancelJob(id, waiting) {
   const mode = waiting.get(id);
   if (mode === 'probe' || mode === 'stubborn') return;
   waiting.delete(id);
-  if (mode === 'hang') send({ type: 'error', id, code: 'cancelled', message: '実行を中断しました' });
+  if (mode === 'hang' || mode === 'approvals') send({ type: 'error', id, code: 'cancelled', message: '実行を中断しました' });
   if (mode === 'late') setTimeout(() => send({ type: 'result', id, text: 'too late' }), 100);
 }
 
-export function startFakeRunner({ protocolVersion = 4, sendReady = true, probeMode = 'reply' } = {}) {
+export function startFakeRunner({ protocolVersion = 5, sendReady = true, probeMode = 'reply' } = {}) {
   const waiting = new Map();
   const handlers = {
+    approvalResponse: ({ id, requestId, decision }) => {
+      if (waiting.get(id) !== 'approvals') return;
+      send({ type: 'approvalResolved', id, requestId, outcome: decision });
+      if (requestId !== 'second') return;
+      waiting.delete(id);
+      send({ type: 'result', id, text: decision });
+    },
     run: (request) => {
       if (request.prompt === 'release-stubborn') {
         for (const [id, mode] of waiting) {

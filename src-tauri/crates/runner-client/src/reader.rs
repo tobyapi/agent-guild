@@ -62,6 +62,10 @@ fn route(shared: &Shared, line: &str, ready: &mut Option<oneshot::Sender<wire::R
             shared.backends.send_replace(backends);
         }
         Ok(Event::Activity { id, detail }) => shared.jobs.update(&id, RunUpdate::Activity(detail)),
+        Ok(Event::ApprovalRequested { id, request }) => shared.jobs.update(&id, RunUpdate::ApprovalRequested(request)),
+        Ok(Event::ApprovalResolved { id, request_id, outcome }) => {
+            shared.jobs.update(&id, RunUpdate::ApprovalResolved(request_id, outcome));
+        }
         Ok(Event::Post { id, text }) => shared.jobs.update(&id, RunUpdate::Post(text)),
         Ok(Event::SkillObservation { id, name, sequence, tool_call_id }) => {
             let update = match (name, tool_call_id, sequence) {

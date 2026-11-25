@@ -4,7 +4,7 @@ import { localRef, ollamaRequest, type LocalModel } from './api.ts';
 import { BackendError, type RunContext, type RunRequest } from '../types.ts';
 import { executeAction, OUTPUT_FORMAT, parseAction, toolInstructions } from './actions.ts';
 import { logAction, recordAction, recordPermissionStop } from './json-chat-log.ts';
-import { checkOperation } from './chat.ts';
+import { checkOperation } from './operation-check.ts';
 import { t } from './texts/index.ts';
 import { NUM_PREDICT } from './limits.ts';
 import { replyMetrics, throwIfTruncated } from './response.ts';
@@ -33,7 +33,8 @@ async function runTool(
 ): Promise<string> {
   if (typeof action.tool !== 'string' || !TOOL_NAMES.has(action.tool)) return INVALID_TOOL_RESULT;
   try {
-    await checkOperation(request, model, action.tool, action, context.signal);
+    const denial = await checkOperation(request, model, action.tool, action, context);
+    if (denial !== null) return denial;
     const key = readKey(action);
     const previousTurn = key ? successfulReads.get(key) : undefined;
     if (previousTurn !== undefined)

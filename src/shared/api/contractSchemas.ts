@@ -2,6 +2,7 @@
 // 型は { [C in CommandName]: Validator } なので、コマンドを足して検証を書き忘れるとコンパイルエラーになる。
 import { anyOf, arrayOf, boolean, nullable, nullValue, objectOf, recordOf, oneOf, string } from '@/shared/types/schema';
 import type { Validator } from '@/shared/types/schema';
+import { operationApprovalSchema } from '@/shared/types/schemas/operationApproval';
 import { delegationSchema } from '@/shared/types/schemas/delegation';
 import { customFrameSchema, guildProfileSchema } from '@/shared/types/schemas/guild';
 import { agentSchema, channelSchema, messageSchema, profileSchema } from '@/shared/types/schemas/entities';
@@ -68,6 +69,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   reveal_local_file: nullValue,
   read_local_image: localImage,
   stop_channel: nullValue,
+  list_operation_approvals: arrayOf(operationApprovalSchema),
+  respond_to_operation_approval: boolean,
   list_delegations: arrayOf(delegation),
   update_profile: objectOf(profileSchema),
   update_guild: objectOf(guildProfileSchema),
@@ -110,6 +113,7 @@ export const EVENT_VALIDATORS: { readonly [E in EventName]: Validator } = {
   'skills-changed': objectOf(skillsChangedSchema),
   'skill-library-changed': nullValue,
   'delegation-changed': delegation,
+  'operation-approval-changed': operationApprovalSchema,
 };
 
 /** 契約に合わない値を受け取ったら開発者向けに警告する（動作は止めない） */

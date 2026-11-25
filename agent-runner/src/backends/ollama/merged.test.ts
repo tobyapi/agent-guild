@@ -43,10 +43,12 @@ describe('コマンドの操作確認', () => {
   it('JSONコマンドでも既定の操作確認が拒否したら実行しない', async () => {
     response({ models: [{ model: 'deepseek', capabilities: ['completion', 'thinking'] }] });
     action({ type: 'tool', tool: 'run_command', command: 'printf bad > bad' });
-    response({ message: { content: 'DENY' } });
-    await expect(ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext())).rejects.toThrow(
-      '確認',
-    );
+    response({ message: { content: 'DENY: 依頼に含まれない書き込みです' } });
+    action({ type: 'final', text: '書き込みは行いませんでした' });
+    const context = runContext();
+    const req = { ...request(), intent: '書き込まずに調べてください。', options: { enableTools: true } };
+    await expect(ollamaAdapter.run(req, context)).resolves.toBe('書き込みは行いませんでした');
+    expect(context.onPost).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('依頼に含まれない書き込みです'));
     expect(await readdir(join(root, 'work'))).toEqual([]);
     expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
   });
@@ -55,11 +57,13 @@ describe('コマンドの操作確認', () => {
 it.skipIf(!REAL_MACOS)('JSON作業では think 設定を反映し、判定役は常に think:false', async () => {
   response({ models: [{ model: 'deepseek', capabilities: ['completion', 'thinking'] }] });
   action({ type: 'tool', tool: 'run_command', command: 'echo ok' });
-  response({ message: { content: 'ALLOW' } });
+  response({ message: { content: '**Allow**. 依頼されたコマンドです。' } });
   action({ type: 'final', text: '完了' });
-  await ollamaAdapter.run({ ...request(), options: { enableTools: true } }, runContext());
+  const req = { ...request(), intent: 'echo ok を実行してください。', options: { enableTools: true } };
+  await expect(ollamaAdapter.run(req, runContext())).resolves.toBe('完了');
   expect(JSON.parse(http.mock.calls[2]?.[2] ?? '{}')).toHaveProperty('think', false);
   expect(JSON.parse(http.mock.calls[3]?.[2] ?? '{}')).toHaveProperty('think', false);
+  expect(http.mock.calls[3]?.[2]).toContain('exitCode');
 });
 
 it('MEMORY例外をリンク先の別ファイルの書き換えに使えない', async () => {

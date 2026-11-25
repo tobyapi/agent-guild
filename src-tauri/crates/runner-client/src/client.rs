@@ -113,6 +113,20 @@ impl RunnerClient {
         }
     }
 
+    /// Forward the user's decision. The runner is authoritative about expiry and consumes the ID once.
+    pub async fn respond_to_approval(
+        &self,
+        id: &str,
+        request_id: &str,
+        decision: crate::ApprovalDecision,
+    ) -> Result<bool, RunnerError> {
+        let Some(connection) = self.shared.current().filter(|_| self.shared.jobs.is_active(id)) else {
+            return Ok(false);
+        };
+        connection.send(&Request::ApprovalResponse { id, request_id, decision }).await?;
+        Ok(true)
+    }
+
     pub async fn cancel(&self, job_id: &str) {
         if !self.shared.jobs.request_cancel(job_id) {
             return;

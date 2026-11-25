@@ -24,6 +24,7 @@ export function subscribeBackendEvents(handlers: BackendEventHandlers): Subscrip
     listen('state-changed', (payload) => handlers['state-changed'](payload)).then(keep),
     listen('skills-changed', (payload) => handlers['skills-changed'](payload)).then(keep),
     listen('skill-library-changed', (payload) => handlers['skill-library-changed'](payload)).then(keep),
+    listen('operation-approval-changed', (payload) => handlers['operation-approval-changed'](payload)).then(keep),
     listen('delegation-changed', (payload) => handlers['delegation-changed'](payload)).then(keep),
   ]).then(() => undefined);
   return {

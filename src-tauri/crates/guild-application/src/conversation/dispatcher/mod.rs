@@ -3,6 +3,7 @@
 //! mpsc のコマンドだけで動く（共有ロックなし）。
 
 mod actor;
+mod approvals;
 mod delegation;
 mod inflight;
 mod intake;
@@ -18,6 +19,7 @@ use std::time::Duration;
 use guild_domain::activity::ActivityState;
 use guild_domain::conversation::{JobSpec, Routing};
 use guild_domain::ids::{AgentId, ChannelId};
+use guild_domain::operation_approval::{ApprovalDecision, ApprovalRequest, ApprovalStatus, OperationApproval};
 use tokio::sync::{mpsc, oneshot, watch};
 
 use super::executor::RunOutcome;
@@ -49,6 +51,29 @@ pub(super) enum Command {
         job_id: String,
         text: String,
         skills: Option<guild_domain::skill_usage::SkillUsage>,
+    },
+    ApprovalRequested {
+        job_id: String,
+        request: ApprovalRequest,
+    },
+    ApprovalResolved {
+        job_id: String,
+        id: String,
+        status: ApprovalStatus,
+    },
+    ListApprovals {
+        channel: ChannelId,
+        reply: oneshot::Sender<Vec<OperationApproval>>,
+    },
+    DecideApproval {
+        channel: ChannelId,
+        id: String,
+        decision: ApprovalDecision,
+        reply: oneshot::Sender<bool>,
+    },
+    ApprovalSendFailed {
+        run_id: String,
+        id: String,
     },
     Finished {
         job_id: String,

@@ -2,6 +2,23 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const ko: Messages<typeof ja> = {
+  approvalTitle: '{name} · {operation}',
+  approvalPanel: '작업 승인',
+  approvalCommand: '명령 실행',
+  approvalWrite: '파일 쓰기',
+  approvalPending: '이 작업을 허용하시겠습니까?',
+  approvalSubmitting: '응답을 보내는 중…',
+  approvalApproved: '허용됨',
+  approvalDenied: '거부됨',
+  approvalTimedOut: '시간 초과',
+  approvalCancelled: '취소됨',
+  approvalReason: '모델이 중지한 이유',
+  approvalWorkspace: '작업 폴더',
+  approvalDetails: '작업 전체 보기',
+  approvalReview: '작업과 판정 이유 보기',
+  approvalAllow: '이번만 허용',
+  approvalReject: '거부',
+  approvalSendFailed: '아직 승인 대기 중이라면 다시 시도해 주세요.',
   skillUsageCutoffScope:
     '중단 기록은 중지·전체 중지·에이전트 제외 등의 명시적 취소만 대상입니다. 내부 취소·시간 초과·비정상 종료는 대상이 아니며 저장 실패 시에도 기록이 남지 않습니다. 기록 없음은 완전성을 보장하지 않으며, 최종 게시가 없다는 사실만으로 종료 원인을 판단할 수 없습니다.',
   skillUsageTruncated: '취소로 이 실행의 이후 관측이 중단되었습니다. 저장된 게시 구간은 유지됩니다.',

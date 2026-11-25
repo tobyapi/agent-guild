@@ -2152,6 +2152,16 @@
       "expression": "background: var(--bg-elevated);"
     },
     {
+      "file": "src/features/chat/components/OperationApprovals.module.css",
+      "line": 6,
+      "expression": "background: var(--bg-panel);"
+    },
+    {
+      "file": "src/features/chat/components/OperationApprovals.module.css",
+      "line": 35,
+      "expression": "background: var(--bg-active);"
+    },
+    {
       "file": "src/features/chat/components/PendingAttachments.module.css",
       "line": 23,
       "expression": "--glass-ink-weight: 0%;"

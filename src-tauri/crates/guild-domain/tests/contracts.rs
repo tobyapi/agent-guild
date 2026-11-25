@@ -97,6 +97,7 @@ fn delegation() {
 fn event_payloads() {
     assert_round_trip::<ActivityState>("activity-state.json");
     assert_round_trip::<SkillsChanged>("skills-changed.json");
+    assert_round_trip::<guild_domain::operation_approval::OperationApproval>("operation-approval.json");
 }
 
 #[test]

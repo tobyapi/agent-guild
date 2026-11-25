@@ -1,5 +1,6 @@
 //! guild-application のユースケースのテスト（ポートはインメモリのフェイク）。
 
+mod approvals;
 mod attachments;
 mod autonomy;
 mod background_generation;

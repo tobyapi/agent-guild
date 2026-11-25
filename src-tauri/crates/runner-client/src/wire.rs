@@ -9,6 +9,12 @@ use crate::{BackendInfo, ErrorCode, ImageRequest, RunRequest, RunUsage, RunnerEr
 #[derive(Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub(crate) enum Request<'a> {
+    ApprovalResponse {
+        id: &'a str,
+        #[serde(rename = "requestId")]
+        request_id: &'a str,
+        decision: crate::ApprovalDecision,
+    },
     Theme {
         id: &'a str,
         backend: &'a str,
@@ -76,6 +82,17 @@ impl Request<'_> {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub(crate) enum Event {
+    ApprovalRequested {
+        id: String,
+        #[serde(flatten)]
+        request: crate::ApprovalRequest,
+    },
+    ApprovalResolved {
+        id: String,
+        #[serde(rename = "requestId")]
+        request_id: String,
+        outcome: crate::ApprovalOutcome,
+    },
     Ready(Ready),
     Backends {
         backends: Vec<BackendInfo>,

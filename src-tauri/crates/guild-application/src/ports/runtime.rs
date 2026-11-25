@@ -83,6 +83,8 @@ pub struct ImageRuntimeRequest {
 /// 実行中（終わる前）に届く知らせ
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunUpdate {
+    ApprovalRequested(guild_domain::operation_approval::ApprovalRequest),
+    ApprovalResolved(String, guild_domain::operation_approval::ApprovalStatus),
     /// 途中経過（「Web検索: …」など）
     Activity(String),
     /// 作業の途中の投稿（チャットに出す文章）
@@ -109,6 +111,15 @@ pub enum RuntimeError {
 
 #[async_trait]
 pub trait AgentRuntime: Send + Sync {
+    async fn respond_to_approval(
+        &self,
+        _job_id: &str,
+        _request_id: &str,
+        _decision: guild_domain::operation_approval::ApprovalDecision,
+    ) -> Result<bool, RuntimeError> {
+        Ok(false)
+    }
+
     /// Dedicated background request; returned bytes must still pass the background store.
     async fn generate_background(&self, _id: &str, _backend: &str, _prompt: &str) -> Result<Vec<u8>, RuntimeError> {
         Err(RuntimeError::Failed("Background generation is unavailable".into()))

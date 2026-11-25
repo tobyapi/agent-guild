@@ -57,7 +57,8 @@ export const MOCK_OLLAMA: BackendInfo = {
     {
       key: 'operationCheck',
       label: '操作を実行前に確認する',
-      description: 'コマンドと PC 全体への書き込みを、依頼に沿うかモデルで確認します。',
+      description:
+        'コマンドと、PC 全体への書き込み権限があるときのファイル書き込みを、Ollama のモデルが依頼に沿うか判定します。モデルが止めた操作はチャットで一回だけ許可するか、拒否できます。',
       type: 'boolean',
       choices: [],
       default: true,

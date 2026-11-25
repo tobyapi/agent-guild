@@ -54,6 +54,11 @@ fn requests_fixture_round_trips() {
                 action: expected["action"].as_str().unwrap_or_default(),
                 key: None,
             }),
+            Some("approvalResponse") => serde_json::to_value(Request::ApprovalResponse {
+                id,
+                request_id: expected["requestId"].as_str().unwrap(),
+                decision: crate::ApprovalDecision::Approved,
+            }),
             Some("cancel") => serde_json::to_value(Request::Cancel { id }),
             Some("probe") => serde_json::to_value(Request::Probe { id }),
             Some("setLanguage") => {
@@ -73,6 +78,7 @@ fn events_fixture_round_trips() {
         let event: Event = serde_json::from_value(expected.clone()).expect("イベントとして読めない");
         assert!(!matches!(event, Event::Unknown), "未知のイベント扱いになった: {expected}");
         if let Event::Ready(ready) = &event {
+            assert_eq!(ready.protocol_version, crate::PROTOCOL_VERSION);
             let backends: Vec<BackendInfo> = serde_json::from_value(ready.backends.clone()).expect("ready の backends");
             assert_eq!(serde_json::to_value(&backends).expect("JSON にできない"), ready.backends);
         }

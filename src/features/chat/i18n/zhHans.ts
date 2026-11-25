@@ -2,6 +2,23 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHans: Messages<typeof ja> = {
+  approvalTitle: '{name} · {operation}',
+  approvalPanel: '操作审批',
+  approvalCommand: '执行命令',
+  approvalWrite: '写入文件',
+  approvalPending: '是否允许此操作？',
+  approvalSubmitting: '正在发送你的决定…',
+  approvalApproved: '已允许',
+  approvalDenied: '已拒绝',
+  approvalTimedOut: '已超时',
+  approvalCancelled: '已取消',
+  approvalReason: '模型阻止操作的原因',
+  approvalWorkspace: '工作文件夹',
+  approvalDetails: '查看完整操作',
+  approvalReview: '查看操作及判定原因',
+  approvalAllow: '仅允许本次',
+  approvalReject: '拒绝',
+  approvalSendFailed: '未能发送你的决定。如果操作仍在等待审批，请重试。',
   skillUsageCutoffScope:
     '截断记录仅涵盖停止、全部停止或移除代理等明确取消。内部取消、超时和异常退出不在范围内；保存失败也不会留下记录。无记录不保证完整性，仅凭缺少最终发布无法判断结束原因。',
   skillUsageTruncated: '取消已截断此运行之后的观测。已保存的发布区间保持不变。',

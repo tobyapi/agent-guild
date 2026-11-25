@@ -191,6 +191,12 @@ function decodeApiKey(value: JsonObject, id: string | null): DecodeResult {
 }
 
 function decodeSpecial(value: JsonObject, id: string | null): DecodeResult | undefined {
+  if (value.type === 'approvalResponse') {
+    const { requestId, decision } = value;
+    if (!id || typeof requestId !== 'string' || !requestId || (decision !== 'approved' && decision !== 'denied'))
+      return reject(null, 'Invalid approval response');
+    return { ok: true, request: { type: 'approvalResponse', id, requestId, decision } };
+  }
   if (value.type === 'backendAuthMode') return decodeBackendAuthMode(value, id);
   if (value.type === 'theme') return decodeTheme(value, id);
   if (value.type === 'background' || value.type === 'backgroundCancel') return decodeBackground(value, id);

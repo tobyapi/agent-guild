@@ -1,16 +1,18 @@
+import { JobTimeBudget } from './job-time-budget.ts';
 import { resolve } from 'node:path';
 import { toErrorEvent } from './dispatcher-errors.ts';
 import { logError } from './log.ts';
 import type { RunnerEvent } from './protocol.ts';
 import { t } from './texts/index.ts';
 
-type Work = (signal: AbortSignal, isCurrent: () => boolean) => Promise<string>;
+type Work = (signal: AbortSignal, isCurrent: () => boolean, budget?: JobTimeBudget) => Promise<string>;
 type Interruption = Extract<RunnerEvent, { type: 'error' }>;
 type JobOptions = { workspace: string; timeoutMinutes: number; prepareWorkspace?: boolean };
 type ActiveJob = {
   controller: AbortController;
   workspace?: string;
   preparesWorkspace?: boolean;
+  budget?: JobTimeBudget;
   timer?: ReturnType<typeof setTimeout>;
   interruption?: Interruption;
   notified?: boolean;
@@ -51,9 +53,9 @@ export class DispatcherJobs {
     this.#active.set(id, job);
     if (options) {
       const { timeoutMinutes } = options;
-      job.timer = setTimeout(() => {
+      job.budget = new JobTimeBudget(timeoutMinutes, () => {
         this.#interrupt(id, job, 'timeout', t('runTimedOut', { minutes: timeoutMinutes }));
-      }, timeoutMinutes * 60_000).unref();
+      });
     }
     this.#settle(id, job, work).catch((error: unknown) => {
       logError(`ジョブ ${id} の応答を送れませんでした`, error);
@@ -77,7 +79,7 @@ export class DispatcherJobs {
     if (job.interruption) return job.interruption;
     const event = { type: 'error', id, code, message } as const;
     job.interruption = event;
-    clearTimeout(job.timer);
+    job.budget?.stop();
     if (job.workspace !== undefined) {
       // 終端を先に送っても、後処理が終わるまで作業場所の予約を残す。
       job.timer = setTimeout(() => this.#notify(job, event), CLEANUP_GRACE_MS).unref();
@@ -90,7 +92,7 @@ export class DispatcherJobs {
     const isCurrent = (): boolean => this.#active.get(id) === job && job.interruption === undefined;
     let event: RunnerEvent;
     try {
-      event = { type: 'result', id, text: await work(job.controller.signal, isCurrent) };
+      event = { type: 'result', id, text: await work(job.controller.signal, isCurrent, job.budget) };
     } catch (error) {
       event = job.interruption ?? toErrorEvent(id, error);
     }
@@ -107,6 +109,7 @@ export class DispatcherJobs {
   #finish(id: string, job: ActiveJob): boolean {
     if (this.#active.get(id) !== job) return false;
     this.#active.delete(id);
+    job.budget?.stop();
     clearTimeout(job.timer);
     return true;
   }

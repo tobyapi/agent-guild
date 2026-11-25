@@ -6,6 +6,7 @@ use guild_domain::conversation::JobSpec;
 use guild_domain::locale;
 use tokio::sync::{mpsc, watch};
 
+use super::approvals::Approvals;
 use super::state::{DispatchState, Pending, Running};
 use super::stopping::StopWaiter;
 use super::Command;
@@ -19,6 +20,7 @@ pub(super) struct Actor {
     pub(super) sender: mpsc::UnboundedSender<Command>,
     activity_tx: watch::Sender<ActivityState>,
     pub(super) state: DispatchState,
+    pub(super) approvals: Approvals,
     pub(super) waiters: Vec<StopWaiter>,
     /// 最後に保存した、待機・実行中のジョブの要約（inflight.rs）
     pub(super) recorded: Vec<crate::ports::InterruptedJob>,
@@ -31,7 +33,15 @@ impl Actor {
         activity_tx: watch::Sender<ActivityState>,
     ) -> Self {
         let recorded = Vec::new();
-        Self { ports, sender, activity_tx, state: DispatchState::default(), waiters: Vec::new(), recorded }
+        Self {
+            ports,
+            sender,
+            activity_tx,
+            state: DispatchState::default(),
+            approvals: Approvals::default(),
+            waiters: Vec::new(),
+            recorded,
+        }
     }
 
     pub async fn run(mut self, mut receiver: mpsc::UnboundedReceiver<Command>) {
@@ -65,6 +75,13 @@ impl Actor {
                 }
             }
             Command::Post { job_id, text, skills } => self.post_progress(&job_id, &text, skills),
+            Command::ApprovalRequested { job_id, request } => self.request_approval(&job_id, request),
+            Command::ApprovalResolved { job_id, id, status } => self.resolve_approval(&job_id, &id, status),
+            Command::ListApprovals { channel, reply } => self.list_approvals(&channel, reply),
+            Command::DecideApproval { channel, id, decision, reply } => {
+                self.decide_approval(&channel, id, decision, reply)
+            }
+            Command::ApprovalSendFailed { run_id, id } => self.approval_send_failed(&run_id, &id),
             Command::Finished { job_id, outcome } => self.finish(&job_id, outcome),
             Command::Stop { channel, announce, done } => self.stop(channel, announce, done),
             Command::StopAll { done } => self.stop_all(done),
@@ -106,6 +123,7 @@ impl Actor {
 
     /// 実行が終わった: 世代が変わらず取り消されてもいなければ、結果を保存して振り分ける
     fn finish(&mut self, job_id: &str, outcome: RunOutcome) {
+        self.cancel_approvals(job_id);
         let Some(running) = self.state.running.remove(job_id) else {
             return;
         };

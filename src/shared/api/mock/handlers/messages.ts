@@ -14,9 +14,13 @@ type MessageCommands =
   | 'reveal_local_file'
   | 'read_local_image'
   | 'stop_channel'
+  | 'list_operation_approvals'
+  | 'respond_to_operation_approval'
   | 'list_delegations';
 
 export const messageHandlers: HandlerGroup<MessageCommands> = {
+  list_operation_approvals: () => [],
+  respond_to_operation_approval: () => false,
   get_skill_record_truncated: () => false,
   /** beforeSeq より前の発言を新しいほうから limit 件、seq の昇順で返す */
   list_messages({ channelId, beforeSeq, limit }, runtime) {

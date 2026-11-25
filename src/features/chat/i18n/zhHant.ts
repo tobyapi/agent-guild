@@ -2,6 +2,23 @@ import type { Messages } from '@/shared/i18n';
 import type { ja } from './ja';
 
 export const zhHant: Messages<typeof ja> = {
+  approvalTitle: '{name} · {operation}',
+  approvalPanel: '操作核准',
+  approvalCommand: '執行命令',
+  approvalWrite: '寫入檔案',
+  approvalPending: '是否允許這項操作？',
+  approvalSubmitting: '正在傳送你的決定…',
+  approvalApproved: '已允許',
+  approvalDenied: '已拒絕',
+  approvalTimedOut: '已逾時',
+  approvalCancelled: '已取消',
+  approvalReason: '模型阻止操作的原因',
+  approvalWorkspace: '工作資料夾',
+  approvalDetails: '查看完整操作',
+  approvalReview: '查看操作及判定原因',
+  approvalAllow: '僅允許這次',
+  approvalReject: '拒絕',
+  approvalSendFailed: '無法傳送你的決定。如果操作仍在等待核准，請重試。',
   skillUsageCutoffScope:
     '截斷記錄僅涵蓋停止、全部停止或移除代理等明確取消。內部取消、逾時和異常退出不在範圍內；儲存失敗也不會留下記錄。無記錄不保證完整性，僅憑缺少最終發布無法判斷結束原因。',
   skillUsageTruncated: '取消已截斷此執行之後的觀測。已儲存的發布區間維持不變。',

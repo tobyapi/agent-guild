@@ -7,10 +7,12 @@ use guild_domain::activity::ActivityState;
 use guild_domain::delegation::Delegation;
 use guild_domain::ids::AgentId;
 use guild_domain::message::Message;
+use guild_domain::operation_approval::OperationApproval;
 use parking_lot::Mutex;
 
 #[derive(Default)]
 pub struct FakeEvents {
+    pub approvals: Mutex<Vec<OperationApproval>>,
     pub messages: Mutex<Vec<Message>>,
     pub activities: Mutex<Vec<ActivityState>>,
     pub state_changes: AtomicUsize,
@@ -21,6 +23,10 @@ pub struct FakeEvents {
 }
 
 impl EventPublisher for FakeEvents {
+    fn operation_approval_changed(&self, card: &OperationApproval) {
+        self.approvals.lock().push(card.clone());
+    }
+
     fn message_created(&self, message: &Message) {
         self.messages.lock().push(message.clone());
     }

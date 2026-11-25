@@ -23,6 +23,8 @@ import {
   updateStatusSchema,
 } from './schemas/system';
 
+import { operationApprovalSchema } from './schemas/operationApproval';
+
 const fixtures = import.meta.glob<unknown>('/contracts/ipc/*.json', { eager: true, import: 'default' });
 
 const themeCandidate: Validator = (value) => {
@@ -49,6 +51,7 @@ const CASES: Record<string, Validator> = {
   'skill-builtin.json': objectOf(skillSchema),
   'builtin-skills.json': arrayOf(objectOf(builtinSkillSchema)),
   'skill-library.json': objectOf(skillLibrarySchema),
+  'operation-approval.json': operationApprovalSchema,
   'delegation.json': objectOf(delegationSchema),
   'skill-input.json': objectOf(skillInputSchema),
   'activity-state.json': objectOf(activityStateSchema),

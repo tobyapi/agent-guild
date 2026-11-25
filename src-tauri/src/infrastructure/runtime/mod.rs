@@ -113,6 +113,18 @@ impl AgentRuntime for RunnerRuntime {
         self.client.generate_image(job_id, request, on_update).await.map_err(failure::error)
     }
 
+    async fn respond_to_approval(
+        &self,
+        job_id: &str,
+        request_id: &str,
+        decision: guild_domain::operation_approval::ApprovalDecision,
+    ) -> Result<bool, RuntimeError> {
+        self.client
+            .respond_to_approval(job_id, request_id, convert::approval_decision(decision))
+            .await
+            .map_err(failure::error)
+    }
+
     async fn cancel(&self, job_id: &str) {
         self.client.cancel(job_id).await;
     }

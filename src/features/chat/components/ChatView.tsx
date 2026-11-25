@@ -1,6 +1,7 @@
 import type { Channel } from '@/shared/types/domain';
 import { ActivityBar } from './ActivityBar';
 import { Composer } from './Composer';
+import { OperationApprovals } from './OperationApprovals';
 import { MessageList } from './MessageList';
 import styles from './ChatView.module.css';
 
@@ -9,6 +10,7 @@ export function ChatView({ channel }: { channel: Channel }) {
   return (
     <div className={styles.chat}>
       <MessageList channel={channel} />
+      <OperationApprovals channelId={channel.id} />
       <ActivityBar channelId={channel.id} />
       <Composer key={channel.id} channel={channel} />
     </div>
