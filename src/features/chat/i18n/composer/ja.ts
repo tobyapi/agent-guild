@@ -28,4 +28,15 @@ export const ja = {
   activityOthers: 'ほか {count} 人が作業中',
   /** 日本語以外の動作中の表示（名前のあとに続ける）。日本語は activity.ts で「が …中」の形にする */
   activityDetail: 'が{detail}',
+  /** 入力欄のスタンプ付き定型文（model/stickers.ts の一覧と同じキー） */
+  stickerButton: 'スタンプで定型文を入れる',
+  stickerHeading: '定型文',
+  stickerContinue: '続きをお願いします。',
+  stickerPlanFirst: 'まず方針だけ教えてください。',
+  stickerRunTests: 'テストを実行して、結果を教えてください。',
+  stickerSummarize: '要点だけまとめてください。',
+  stickerShowEvidence: '根拠にしたファイルや URL も見せてください。',
+  stickerMoreIdeas: 'ほかの案もいくつか出してください。',
+  stickerProceed: 'その方針で進めてください。',
+  stickerPauseReport: 'いったん止めて、今の状況を報告してください。',
 };

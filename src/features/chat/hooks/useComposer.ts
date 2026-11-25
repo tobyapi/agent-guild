@@ -8,6 +8,7 @@ import type { MentionOption } from '../model/mentionQuery';
 import { sendMessage } from '../store';
 import type { ComposerAttachments } from './useComposerAttachments';
 import { useMentionCompletion } from './useMentionCompletion';
+import { useSnippetInsertion } from './useSnippetInsertion';
 
 /**
  * 入力欄: Enter で送信・Shift+Enter で改行・IME 変換中の Enter は送信しない・@ でメンション補完。
@@ -44,6 +45,9 @@ export function useComposer(
     completion.close();
     textarea.focus();
   };
+
+  /** 定型文の差し込み（IME 変換中は確定まで待つ）。insertSnippet の参照は描画をまたいで変わらない */
+  const snippets = useSnippetInsertion(channelId, textareaRef, pendingCaret);
 
   const submit = () => {
     const content = text.trim();
@@ -89,7 +93,7 @@ export function useComposer(
     completion.sync(event.currentTarget.value, event.currentTarget.selectionStart);
   };
 
-  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect };
+  return { text, completion, listId, pick, submit, onKeyDown, onChange, onSelect, ...snippets };
 }
 
 /**

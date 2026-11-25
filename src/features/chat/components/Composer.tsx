@@ -9,6 +9,7 @@ import { useComposerAttachments } from '../hooks/useComposerAttachments';
 import { buildMentionOptions } from '../model/mentionQuery';
 import { MentionSuggestions } from './MentionSuggestions';
 import { PendingAttachments } from './PendingAttachments';
+import { StickerPicker } from './StickerPicker';
 import { tComposer } from '../i18n/composer';
 import styles from './Composer.module.css';
 
@@ -54,6 +55,7 @@ export function Composer({ channel }: { channel: Channel }) {
       )}
       <PendingAttachments attachments={files.attachments} onRemove={files.remove} />
       <AttachButton onFiles={files.add} />
+      <StickerPicker onInsert={composer.insertSnippet} />
       <textarea
         ref={textareaRef}
         className={styles.input}
@@ -61,6 +63,8 @@ export function Composer({ channel }: { channel: Channel }) {
         onChange={composer.onChange}
         onKeyDown={composer.onKeyDown}
         onSelect={composer.onSelect}
+        onCompositionStart={composer.onCompositionStart}
+        onCompositionEnd={composer.onCompositionEnd}
         onPaste={files.onPaste}
         onBlur={completion.close}
         placeholder={placeholder}
