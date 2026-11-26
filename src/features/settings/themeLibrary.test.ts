@@ -5,12 +5,18 @@ import type { SavedTheme } from '@/shared/theme/candidate';
 import { ColorEnvelope } from '@/shared/lib/themeBackdrop/envelope';
 import { rgb, worstRatio } from '@/shared/theme/themeColors';
 import { resolveAppearance } from '@/shared/theme/resolve';
-import { DEFAULT_MASCOT_LAYOUT } from '@/shared/theme/mascot';
+import { DEFAULT_MASCOT_LAYOUT, type MascotSource } from '@/shared/theme/mascot';
 import { defaultAppearance } from '@/shared/theme/registry';
 import { appearanceHarness, storedLibrary } from './appearance.test-support';
 import { LIBRARY_KEY } from './themeLibrary';
 
-it('restores mascot mode, source and layout across restarts and theme undo', () => {
+const mascotSources = [
+  { kind: 'generated', id: imageId },
+  { kind: 'preset', avatar: 'data:image/webp;base64,AA==' },
+  { kind: 'preset', avatar: 'data:image/png;base64,AA==', fullBody: true },
+] satisfies MascotSource[];
+
+it.each(mascotSources)('restores mascot mode, source %j and layout across restarts and theme undo', (source) => {
   const active = { ...defaultAppearance(), backgroundOverride: { kind: 'mascot' } };
   const h = appearanceHarness({ [LIBRARY_KEY]: storedLibrary(active) });
   const c = h.controller;
@@ -21,7 +27,7 @@ it('restores mascot mode, source and layout across restarts and theme undo', () 
   });
   const mascot = {
     enabled: true,
-    source: { kind: 'generated' as const, id: imageId },
+    source,
     layout: { ...DEFAULT_MASCOT_LAYOUT, mascot: { x: 12, y: 85, size: 120 } },
   };
   expect(c.setMascot(mascot)).toBe(true);

@@ -4,7 +4,7 @@ import { isBackgroundAssetId } from './backgrounds';
 export type MascotSource =
   | { kind: 'default' }
   | { kind: 'agent'; id: string }
-  | { kind: 'preset'; avatar: string }
+  | { kind: 'preset'; avatar: string; fullBody?: true }
   | { kind: 'generated'; id: string };
 
 export interface MascotPlacement {
@@ -28,6 +28,7 @@ export interface MascotSettings {
 
 export const MASCOT_SIZE_MIN = 70;
 export const MASCOT_SIZE_MAX = 130;
+export const MASCOT_PRESET_MAX_LENGTH = 400_000;
 export const DEFAULT_MASCOT_AVATAR = '🦉';
 export const DEFAULT_MASCOT_LAYOUT: MascotLayout = {
   mascot: { x: 98, y: 97, size: 100 },
@@ -64,10 +65,14 @@ function readPlacement(value: unknown, fallback: MascotPlacement): MascotPlaceme
 }
 
 function readSource(value: unknown): MascotSource {
-  const { kind, id, avatar } = record(value);
-  // Presets are stored as the existing 256px cropped raster, never as a remote URL.
-  if (kind === 'preset' && typeof avatar === 'string' && avatar.length <= 400_000 && isImageAvatar(avatar))
-    return { kind, avatar };
+  const { kind, id, avatar, fullBody } = record(value);
+  if (
+    kind === 'preset' &&
+    typeof avatar === 'string' &&
+    avatar.length <= MASCOT_PRESET_MAX_LENGTH &&
+    isImageAvatar(avatar)
+  )
+    return fullBody === true ? { kind, avatar, fullBody } : { kind, avatar };
   if (typeof id === 'string' && id && id.length <= 128) {
     if (kind === 'agent') return { kind, id };
     if (kind === 'generated' && isBackgroundAssetId(id)) return { kind, id };

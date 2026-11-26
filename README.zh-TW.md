@@ -117,4 +117,6 @@ Windows 安裝程式的程式碼簽署，正在申請 [SignPath Foundation](http
 
 代理人的「角色圖鑑」參考了 Gender Swap AI 的角色圖鑑。感謝公開角色插畫的 ZipZipPipe，以及創作 DeepSeek 原角色的上善无形。[AI 擬人化角色圖鑑](https://genderswapai.com/zh-TW/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-圖鑑的圖片會在開啟選擇畫面時取得，並將所選圖片中的臉部裁切成正方形儲存在本機。圖片的作者、出處與使用條件記載於圖鑑中的各個作品。[DeepSeek 的出處](https://genderswapai.com/zh-TW/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant)
+應用程式從[角色圖鑑](https://genderswapai.com/zh-TW/ai-gijinka)取得圖片。代理人頭像裁切為正方形，圖鑑吉祥物在本機移除全身圖片的背景，JEV 保留原有透明背景。所選圖片儲存在本機。
+
+圖鑑角色圖片不適用應用程式的 MIT 授權，不得商用。[ZipZipPipe 的使用條件](https://www.pixiv.net/artworks/148186519)要求標明作者。DeepSeek 標示上善无形與 ZipZipPipe，適用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。JEV 的授權條款及使用許可尚未確認。作者、原始貼文及修改內容見**設定 → 應用程式 → 授權聲明**。

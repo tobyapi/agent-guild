@@ -11,6 +11,7 @@ import { tAppearance } from '../i18n/appearance';
 import { closeSettings, useSettingsStore } from '../store';
 import { AppearanceSection } from './AppearanceSection';
 import { BackendsSection } from './BackendsSection';
+import { GalleryLicensesSection } from './GalleryLicensesSection';
 import { GlobalInstructionsSection } from './GlobalInstructionsSection';
 import { LanguageSection } from './LanguageSection';
 import { RunLimitsSection } from './RunLimitsSection';
@@ -101,6 +102,7 @@ function SettingsContent({ focus }: { focus: 'skillLibrary' | 'update' | null })
                 <Section title={t('sectionUpdate')} id="update" focus={selected === group ? focus : null}>
                   <UpdateSection />
                 </Section>
+                <GalleryLicensesSection />
               </>
             )}
           </div>

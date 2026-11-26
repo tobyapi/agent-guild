@@ -13,8 +13,10 @@ const runtime = vi.hoisted(() => ({ backends: [] as ReturnType<typeof backendInf
 vi.mock('@/features/runtime', () => ({ useBackends: () => runtime.backends }));
 vi.mock('@/features/agents', () => ({
   useActiveAgents: () => [{ id: 'agent-sample', name: 'Sample agent', avatar: '🐈' }],
-  AvatarPresetPicker: ({ onChoose }: { onChoose: (value: string) => void }) => (
-    <button onClick={() => onChoose('data:image/webp;base64,cGl4ZWw=')}>Test preset</button>
+  AvatarPresetPicker: ({ onChoose, fullBody }: { onChoose: (value: string) => void; fullBody: boolean }) => (
+    <button disabled={!fullBody} onClick={() => onChoose('data:image/webp;base64,cGl4ZWw=')}>
+      Test preset
+    </button>
   ),
 }));
 
@@ -57,7 +59,8 @@ it('selects existing agent avatars and reuses the preset picker in Appearance', 
   expect(stored().mascot.source).toEqual({ kind: 'agent', id: 'agent-sample' });
   fireEvent.click(screen.getByRole('button', { name: 'Test preset' }));
   expect(preview.querySelector('img')?.getAttribute('src')).toBe('data:image/webp;base64,cGl4ZWw=');
-  expect(stored().mascot.source.kind).toBe('preset');
+  expect(preview.querySelector('[data-full-body] img')).toBeTruthy();
+  expect(stored().mascot.source).toEqual({ kind: 'preset', avatar: 'data:image/webp;base64,cGl4ZWw=', fullBody: true });
   await waitFor(() => expect(settingsApi.listMascots).toHaveBeenCalledOnce());
 });
 

@@ -1,12 +1,17 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { applyLanguage } from '@/shared/i18n';
+import { settingsApi } from '../api';
 import { closeSettings, openSettings } from '../store';
 import { SettingsDialog } from './SettingsDialog';
 
 const scrollIntoView = vi.fn();
 
-vi.mock('@/features/agents', () => ({ useActiveAgents: () => [] }));
+vi.mock('@/features/agents', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/features/agents')>()),
+  useActiveAgents: () => [],
+}));
 vi.mock('@/features/guild', () => ({
   GuildForm: () => <input aria-label="guild draft" />,
   guildSectionTitle: () => 'ギルド',
@@ -34,6 +39,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   closeSettings();
+  applyLanguage('ja');
   vi.restoreAllMocks();
 });
 
@@ -46,7 +52,7 @@ it('4グループを切り替え、表示する区画を絞り、入力途中の
   for (const [name, headings] of [
     ['表示と通知', ['言語', '外観', '通知']],
     ['AI', ['実行の上限', '全エージェント共通の指示', 'バックエンド', 'スキルのフォルダ']],
-    ['アプリ', ['データの保存先', 'アプリの更新']],
+    ['アプリ', ['データの保存先', 'アプリの更新', 'ライセンス表記']],
   ] as const) {
     fireEvent.click(screen.getByRole('tab', { name }));
     const panel = screen.getByRole('tabpanel');
@@ -59,6 +65,31 @@ it('4グループを切り替え、表示する区画を絞り、入力途中の
   }
   fireEvent.click(screen.getByRole('tab', { name: 'ギルドとあなた' }));
   expect(screen.getByRole<HTMLInputElement>('textbox', { name: 'guild draft' }).value).toBe('draft');
+});
+
+it('lists attribution and changes for all 15 characters with original and license links', () => {
+  const openUrl = vi.spyOn(settingsApi, 'openUrl').mockResolvedValue(null);
+  openSettings();
+  render(<SettingsDialog />);
+  fireEvent.click(screen.getByRole('tab', { name: 'アプリ' }));
+  const notices = within(screen.getByRole('region', { name: 'ライセンス表記' }));
+  expect(notices.getAllByRole('listitem')).toHaveLength(15);
+  expect(notices.getAllByText(/全身画像の背景を除去/)).toHaveLength(14);
+  expect(notices.getByText(/元の透過を維持/)).toBeTruthy();
+  expect(notices.getByText(/利用許諾は未確認/)).toBeTruthy();
+  fireEvent.click(notices.getByRole('button', { name: 'JEV · 元の投稿' }));
+  expect(openUrl).toHaveBeenLastCalledWith('https://www.bilibili.com/opus/1253808555541135367');
+  fireEvent.click(notices.getByRole('button', { name: /^CC BY-NC-SA 4.0/ }));
+  expect(openUrl).toHaveBeenLastCalledWith('https://creativecommons.org/licenses/by-nc-sa/4.0/');
+});
+
+it('shows the license notice in English', () => {
+  applyLanguage('en');
+  openSettings();
+  render(<SettingsDialog />);
+  fireEvent.click(screen.getByRole('tab', { name: 'App' }));
+  const notices = within(screen.getByRole('region', { name: 'License notices' }));
+  expect(notices.getByText(/MIT license. Commercial use is prohibited/)).toBeTruthy();
 });
 
 it('矢印キー・Home・Endで選択とフォーカスが移る', () => {

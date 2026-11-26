@@ -51,6 +51,9 @@ export const ko: Messages<typeof ja> = {
   avatarDialogDescription:
     '도감에서 이미지를 불러옵니다. 마음에 드는 얼굴을 고르고 에이전트를 저장하면 이 기기에 저장됩니다.',
   avatarLoading: '도감 이미지를 불러오는 중…',
+  mascotGalleryTitle: '도감 마스코트',
+  mascotGalleryDescription: '배경이 투명한 도감의 전신 일러스트를 선택합니다. 선택한 마스코트는 이 기기에 저장됩니다.',
+  mascotGalleryLoadFailed: '표시할 수 없는 이미지가 있습니다. 연결을 확인하거나 다시 불러오십시오.',
   avatarLoadFailed: '불러오지 못한 이미지가 있습니다. 연결을 확인하고 다시 시도하십시오.',
   avatarReload: '다시 불러오기',
   avatarCredit: '캐릭터 일러스트: ZipZipPipe. DeepSeek 원작 캐릭터: 上善无形.',

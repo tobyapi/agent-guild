@@ -117,4 +117,6 @@ Windows 설치 프로그램의 코드 서명을 위해 [SignPath Foundation](htt
 
 에이전트의 "캐릭터 도감"은 Gender Swap AI의 캐릭터 도감을 참고했습니다. 캐릭터 일러스트를 공개하신 ZipZipPipe 님, DeepSeek 원작 캐릭터를 만드신 上善无形 님께 감사드립니다. [AI 의인화 캐릭터 도감](https://genderswapai.com/ko/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-도감 이미지는 선택 화면을 열 때 가져오며, 고른 이미지의 얼굴을 정사각형으로 잘라 이 기기에 저장합니다. 각 이미지의 작가, 출처, 이용 조건은 도감의 각 작품에 적혀 있습니다. [DeepSeek 출처](https://genderswapai.com/ko/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko)
+앱은 [캐릭터 도감](https://genderswapai.com/ko/ai-gijinka)에서 이미지를 불러옵니다. 에이전트 아바타는 얼굴을 정사각형으로 자릅니다. 도감 마스코트는 기기에서 전신 이미지의 배경을 제거하며 JEV는 원본 투명도를 유지합니다. 선택한 이미지는 이 기기에 저장됩니다.
+
+도감 캐릭터 이미지는 앱의 MIT 라이선스 적용 대상에서 제외되며 상업적으로 사용할 수 없습니다. [ZipZipPipe의 이용 조건](https://www.pixiv.net/artworks/148186519)에 따라 작가를 표기해야 합니다. DeepSeek는 上善无形과 ZipZipPipe를 표기하며 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)이 적용됩니다. JEV의 라이선스 및 사용 허가는 미확인 상태입니다. 작가, 원본 게시물, 변경 사항은 **설정 → 앱 → 라이선스 고지**를 참조하십시오.

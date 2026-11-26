@@ -117,4 +117,6 @@ The software is [MIT](LICENSE). When participating, please follow the [Code of C
 
 The agents' "Character gallery" references the character gallery of Gender Swap AI. Thanks to ZipZipPipe, who publishes the character illustrations, and to 上善无形, who created the original DeepSeek character. [AI personification character gallery](https://genderswapai.com/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-The app fetches gallery images when you open the picker. It crops the face from the image you choose and saves the square crop on your device. Each work in the gallery lists the author, source, and terms of use. [DeepSeek source](https://genderswapai.com/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)
+The app fetches illustrations from the [character gallery](https://genderswapai.com/ja/ai-gijinka). Agent avatars use square face crops. Gallery mascots use full-body images with the background removed locally. JEV keeps its original transparency. The chosen image is saved on your device.
+
+Gallery character images are excluded from the app’s MIT license. Commercial use is prohibited. [ZipZipPipe’s terms](https://www.pixiv.net/artworks/148186519) require attribution. The DeepSeek illustration credits 上善无形 and ZipZipPipe and uses [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). JEV’s license and permission to use are unconfirmed. See **Settings → App → License notices** for credits, original posts, and changes.

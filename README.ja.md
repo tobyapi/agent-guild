@@ -117,4 +117,6 @@ Windows のインストーラーへのコード署名は、[SignPath Foundation]
 
 エージェントの「キャラ図鑑」は Gender Swap AI のキャラクター図鑑を参照しています。キャラクターイラストを公開している ZipZipPipe さんと、DeepSeek の原キャラクターを制作した上善无形さんに感謝します。[AI 擬人化キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-図鑑の画像は選択画面を開いたときに取得し、選んだ画像の顔を正方形に切り抜いて端末に保存します。画像の作者・出典・利用条件は図鑑の各作品に記載されています。[DeepSeek の出典](https://genderswapai.com/ja/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja)
+[キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka)から画像を取得します。エージェントのアバターは顔を正方形に切り抜きます。図鑑から選ぶマスコットは全身画像の背景を端末内で除去します。JEV は元の透過を維持します。選んだ画像は端末に保存します。
+
+図鑑のキャラクター画像はアプリの MIT ライセンスの対象外です。商用利用はできません。[ZipZipPipe の利用条件](https://www.pixiv.net/artworks/148186519)では作者名の表示が必要です。DeepSeek は上善无形と ZipZipPipe の作品で、[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) が適用されます。JEV のライセンスと利用許諾は未確認です。作者、元の投稿、変更点は **設定 → アプリ → ライセンス表記** に記載しています。

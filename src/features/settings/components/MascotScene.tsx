@@ -15,6 +15,7 @@ export type MascotDragHandlers = Pick<
 
 interface Props {
   avatar: string;
+  fullBody?: boolean;
   layout: MascotLayout;
   scheme: Scheme;
   running: number;
@@ -26,7 +27,7 @@ function placementStyle({ x, y, size }: MascotPlacement): CSSProperties {
   return { '--item-x': x / 100, '--item-y': y / 100, '--item-scale': size / 100 } as CSSProperties;
 }
 
-export function MascotScene({ avatar, layout, scheme, running, pending, dragHandlers }: Props) {
+export function MascotScene({ avatar, fullBody, layout, scheme, running, pending, dragHandlers }: Props) {
   const numbers = new Intl.NumberFormat(currentLanguage());
   return (
     <div
@@ -37,6 +38,7 @@ export function MascotScene({ avatar, layout, scheme, running, pending, dragHand
     >
       <div
         className={styles.mascot}
+        data-full-body={fullBody ? '' : undefined}
         style={placementStyle(layout.mascot)}
         aria-hidden="true"
         {...dragHandlers?.('mascot')}
