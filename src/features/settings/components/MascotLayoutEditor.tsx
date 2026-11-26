@@ -48,6 +48,7 @@ export function MascotLayoutEditor({ scheme }: { scheme: Scheme }) {
     <div className={styles.group}>
       <MascotScene
         avatar={avatar}
+        fullBody={source.kind === 'preset' && source.fullBody}
         layout={drag.layout}
         scheme={scheme}
         running={0}

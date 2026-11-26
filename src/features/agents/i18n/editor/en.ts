@@ -51,10 +51,15 @@ export const en: Messages<typeof ja> = {
   avatarDialogDescription:
     'Loads images from the gallery. Pick a face you like; it is stored on this device when you save the agent.',
   avatarLoading: 'Loading gallery images…',
+  mascotGalleryTitle: 'Gallery mascots',
+  mascotGalleryDescription:
+    'Choose a full-body illustration with a transparent background. It is saved on this device.',
+  mascotGalleryLoadFailed: 'Some images could not be prepared. Check your connection or try loading them again.',
   avatarLoadFailed: 'Some images could not be loaded. Check your connection and try again.',
   avatarReload: 'Reload',
   avatarCredit: 'Character illustrations by ZipZipPipe. Original DeepSeek character by 上善无形.',
-  avatarOpenGallery: 'Open gallery and terms of use',
+  avatarOpenGallery: 'Open gallery',
+  avatarGalleryTerms: 'Terms of use in Settings → App → License notices',
   behaviorSection: 'Behavior',
   unmentionedLegend: 'For messages without a mention',
   leadLabel: 'Take it first',

@@ -55,10 +55,14 @@ export const ja = {
   avatarDialogDescription:
     '図鑑から画像を読み込みます。好きな顔を選び、エージェントを保存すると、この端末に保存されます。',
   avatarLoading: '図鑑の画像を読み込んでいます…',
+  mascotGalleryTitle: '図鑑のマスコット',
+  mascotGalleryDescription: '図鑑の全身イラストを背景透過で表示します。選んだマスコットはこの端末に保存されます。',
+  mascotGalleryLoadFailed: '表示できない画像があります。接続を確認するか、画像を読み込み直してください。',
   avatarLoadFailed: '読み込めない画像があります。接続を確認して、もう一度お試しください。',
   avatarReload: '再読み込み',
   avatarCredit: 'キャラクターイラストは ZipZipPipe。DeepSeek の原キャラクターは上善无形。',
-  avatarOpenGallery: '図鑑・利用条件を開く',
+  avatarOpenGallery: '図鑑を開く',
+  avatarGalleryTerms: '利用条件は 設定 → アプリ → ライセンス表記',
   // 振る舞い
   behaviorSection: '振る舞い',
   unmentionedLegend: 'メンションのない発言には',

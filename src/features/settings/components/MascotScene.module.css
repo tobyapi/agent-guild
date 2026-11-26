@@ -23,6 +23,11 @@
   --mascot-opacity: 1;
   --mascot-size: 5rem;
 }
+
+.scene[data-preview]:has(.mascot[data-full-body]) {
+  block-size: 14rem;
+}
+
 .mascot,
 .cardSlot {
   position: absolute;
@@ -38,6 +43,15 @@
   place-items: center;
   opacity: var(--mascot-opacity);
   font-size: var(--item-width);
+}
+
+.mascot[data-full-body] {
+  --item-height: min(calc(var(--item-scale) * var(--mascot-size) * 1.6), 72cqw, 82cqh);
+  --item-width: calc(var(--item-height) * 0.57);
+}
+
+.mascot[data-full-body] img {
+  border-radius: 0;
 }
 .float {
   display: grid;

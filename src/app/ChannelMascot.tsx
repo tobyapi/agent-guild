@@ -17,6 +17,7 @@ function ChannelMascotScene({ channel }: { channel: Channel }) {
   return (
     <MascotScene
       avatar={avatar}
+      fullBody={source.kind === 'preset' && source.fullBody}
       layout={layout}
       scheme={scheme}
       running={queue?.running ?? activities.length}

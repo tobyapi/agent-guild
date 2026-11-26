@@ -9,7 +9,7 @@
 >
 > 從 v0.1.28 更新時，首次啟動會先備份資料庫再進行轉換。使用更早版本的使用者，請先用 v0.1.28 開啟一次同一個資料資料夾。[更新步驟與備份位置](docs/releases/v1.0.0.md)（日文）
 
-![AI 公會的畫面。左側是頻道與代理人的清單，中間是 #agent-guild開発 中白竜2的進度回報，右側是 7 位成員的清單](docs/images/screenshot.png)
+圖鑑頭像使用的 ZipZipPipe 插畫不適用 MIT 授權。
 
 ## 功能
 
@@ -117,4 +117,6 @@ Windows 安裝程式的程式碼簽署，正在申請 [SignPath Foundation](http
 
 代理人的「角色圖鑑」參考了 Gender Swap AI 的角色圖鑑。感謝公開角色插畫的 ZipZipPipe，以及創作 DeepSeek 原角色的上善无形。[AI 擬人化角色圖鑑](https://genderswapai.com/zh-TW/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-圖鑑的圖片會在開啟選擇畫面時取得，並將所選圖片中的臉部裁切成正方形儲存在本機。圖片的作者、出處與使用條件記載於圖鑑中的各個作品。[DeepSeek 的出處](https://genderswapai.com/zh-TW/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant)
+應用程式從[角色圖鑑](https://genderswapai.com/zh-TW/ai-gijinka)取得圖片。代理人頭像裁切為正方形，圖鑑吉祥物在本機移除全身圖片的背景，JEV 保留原有透明背景。所選圖片儲存在本機。
+
+圖鑑角色圖片不適用應用程式的 MIT 授權，不得商用。[ZipZipPipe 的使用條件](https://www.pixiv.net/artworks/148186519)要求標明作者。DeepSeek 標示上善无形與 ZipZipPipe，適用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。未找到 JEV 的使用條件說明。本應用程式對其採用與其他角色相同的規則：須標明作者，不得商用。作者、原始貼文及修改內容見**設定 → 應用程式 → 授權聲明**。

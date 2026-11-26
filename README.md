@@ -9,7 +9,7 @@ Add models such as Claude, Codex, Ollama, DeepSeek, and Gemini as teammates. In 
 >
 > On the first launch after an update from v0.1.28, the app backs up your database and converts it. If you use an older version, open the same data folder once with v0.1.28 before updating. [Update steps and backup location](docs/releases/v1.0.0.md) (Japanese)
 
-![The AI Guild window. On the left, the list of channels and agents; in the center, a progress report from 白竜2 in #agent-guild開発; on the right, a list of seven members](docs/images/screenshot.png)
+Avatar illustrations from the AI Gijinka character gallery are by ZipZipPipe and are excluded from the MIT license.
 
 ## Features
 
@@ -115,6 +115,8 @@ The software is [MIT](LICENSE). When participating, please follow the [Code of C
 
 ## Acknowledgments
 
-The agents' "Character gallery" references the character gallery of Gender Swap AI. Thanks to ZipZipPipe, who publishes the character illustrations, and to 上善无形, who created the original DeepSeek character. [AI personification character gallery](https://genderswapai.com/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
+The agents' "Character gallery" references the character gallery of Gender Swap AI. Thanks to ZipZipPipe, who publishes the character illustrations, and to 上善无形, who created the original DeepSeek character. [AI Gijinka character gallery](https://genderswapai.com/ai-gijinka) · [ZipZipPipe](https://space.bilibili.com/4168597/dynamic)
 
-The app fetches gallery images when you open the picker. It crops the face from the image you choose and saves the square crop on your device. Each work in the gallery lists the author, source, and terms of use. [DeepSeek source](https://genderswapai.com/ai-gijinka/deepseek) · [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)
+The app fetches illustrations from the [AI Gijinka character gallery](https://genderswapai.com/ai-gijinka). Agent avatars use square face crops. Gallery mascots use full-body images with the background removed locally. JEV keeps its original transparency. The chosen image is saved on your device.
+
+Gallery character images are excluded from the app’s MIT license. Commercial use is prohibited. [ZipZipPipe’s terms](https://www.pixiv.net/artworks/148186519) require attribution. The DeepSeek illustration is by 上善无形 (original character) and ZipZipPipe (adaptation), licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). No terms of use found for JEV. This app treats it like the other characters: attribution required, no commercial use. See **Settings → App → License notices** for credits, original posts, and changes.

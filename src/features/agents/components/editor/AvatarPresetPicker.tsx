@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { Avatar, Button, Dialog, Icon, reportError } from '@/shared/ui';
 import { agentsApi } from '../../api';
 import { tEditor } from '../../i18n/editor';
-import { AVATAR_GALLERY, AVATAR_PRESETS, loadPresetAvatar } from '../../model/avatarPresets';
+import { AVATAR_PRESETS, avatarGalleryUrl, loadPresetAvatar, loadPresetMascot } from '../../model/avatarPresets';
 import styles from './AvatarPresetPicker.module.css';
 
 const LOAD_TIMEOUT_MS = 20_000;
 
-export function AvatarPresetPicker({ onChoose }: { onChoose: (avatar: string) => void }) {
+type PickerProps = { onChoose: (avatar: string) => void; fullBody?: boolean };
+
+export function AvatarPresetPicker({ onChoose, fullBody = false }: PickerProps) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   return (
@@ -19,6 +21,7 @@ export function AvatarPresetPicker({ onChoose }: { onChoose: (avatar: string) =>
       {open && (
         <AvatarPresetDialog
           onClose={close}
+          fullBody={fullBody}
           onChoose={(avatar) => {
             onChoose(avatar);
             close();
@@ -29,32 +32,31 @@ export function AvatarPresetPicker({ onChoose }: { onChoose: (avatar: string) =>
   );
 }
 
-function AvatarPresetDialog({ onClose, onChoose }: { onClose: () => void; onChoose: (avatar: string) => void }) {
+function AvatarPresetDialog({ onClose, onChoose, fullBody }: PickerProps & { onClose: () => void }) {
   const [avatars, setAvatars] = useState<(string | null)[] | null>(null);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), LOAD_TIMEOUT_MS);
     let mounted = true;
-    void Promise.allSettled(AVATAR_PRESETS.map((preset) => loadPresetAvatar(preset, controller.signal))).then(
-      (results) => {
-        clearTimeout(timer);
-        if (mounted) setAvatars(results.map((result) => (result.status === 'fulfilled' ? result.value : null)));
-      },
-    );
+    const load = fullBody ? loadPresetMascot : loadPresetAvatar;
+    void Promise.allSettled(AVATAR_PRESETS.map((preset) => load(preset, controller.signal))).then((results) => {
+      clearTimeout(timer);
+      if (mounted) setAvatars(results.map((result) => (result.status === 'fulfilled' ? result.value : null)));
+    });
     return () => {
       mounted = false;
       clearTimeout(timer);
       controller.abort();
     };
-  }, [attempt]);
+  }, [attempt, fullBody]);
 
   return (
     <Dialog
-      title={tEditor('avatarDialogTitle')}
+      title={tEditor(fullBody ? 'mascotGalleryTitle' : 'avatarDialogTitle')}
       size="lg"
       onClose={onClose}
-      description={tEditor('avatarDialogDescription')}
+      description={tEditor(fullBody ? 'mascotGalleryDescription' : 'avatarDialogDescription')}
       footer={<Button onClick={onClose}>{tEditor('cancel')}</Button>}
     >
       {avatars === null && (
@@ -64,7 +66,7 @@ function AvatarPresetDialog({ onClose, onChoose }: { onClose: () => void; onChoo
       )}
       {avatars?.includes(null) && (
         <div className={styles.problem}>
-          <p role="status">{tEditor('avatarLoadFailed')}</p>
+          <p role="status">{tEditor(fullBody ? 'mascotGalleryLoadFailed' : 'avatarLoadFailed')}</p>
           <Button
             size="sm"
             onClick={() => {
@@ -88,7 +90,11 @@ function AvatarPresetDialog({ onClose, onChoose }: { onClose: () => void; onChoo
                   if (avatar) onChoose(avatar);
                 }}
               >
-                <Avatar avatar={avatar ?? ''} name={preset.name} size="lg" />
+                {fullBody && avatar ? (
+                  <img className={styles.portrait} src={avatar} alt="" />
+                ) : (
+                  <Avatar avatar={avatar ?? ''} name={preset.name} size="lg" />
+                )}
                 <span>{preset.name}</span>
               </Button>
             </li>
@@ -97,9 +103,10 @@ function AvatarPresetDialog({ onClose, onChoose }: { onClose: () => void; onChoo
       </ul>
       <p className={styles.note}>
         {tEditor('avatarCredit')}
-        <Button variant="link" onClick={() => void agentsApi.openUrl(AVATAR_GALLERY).catch(reportError)}>
+        <Button variant="link" onClick={() => void agentsApi.openUrl(avatarGalleryUrl()).catch(reportError)}>
           {tEditor('avatarOpenGallery')}
-        </Button>
+        </Button>{' '}
+        <span>{tEditor('avatarGalleryTerms')}</span>
       </p>
     </Dialog>
   );

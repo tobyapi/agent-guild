@@ -26,7 +26,10 @@ export function MascotControls({ scheme }: { scheme: Scheme }) {
         </Button>
         {enabled && (
           <>
-            <AvatarPresetPicker onChoose={(avatar) => setMascotSource({ kind: 'preset', avatar })} />
+            <AvatarPresetPicker
+              fullBody
+              onChoose={(avatar) => setMascotSource({ kind: 'preset', avatar, fullBody: true })}
+            />
             <Button
               size="sm"
               aria-haspopup="dialog"
