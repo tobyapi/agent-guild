@@ -4,7 +4,7 @@ export { AgentEditorDialog } from './components/AgentEditorDialog';
 export { AgentSections } from './components/AgentSections';
 export { PrimaryTagBadge, TagBadge } from './components/TagBadge';
 export { AvatarPresetPicker } from './components/editor/AvatarPresetPicker';
-export { AVATAR_GALLERY, AVATAR_PRESETS, type AvatarPresetId } from './model/avatarPresets';
+export { AVATAR_PRESETS, avatarGalleryUrl, type AvatarPresetId } from './model/avatarPresets';
 export { useActiveAgents, useAllAgents, useTemplates } from './hooks/useAgents';
 export { agentAccent, HUMAN_ACCENT, primaryTag } from './model/accent';
 export type { MemberAccent } from './model/accent';

@@ -61,7 +61,8 @@ export const ja = {
   avatarLoadFailed: '読み込めない画像があります。接続を確認して、もう一度お試しください。',
   avatarReload: '再読み込み',
   avatarCredit: 'キャラクターイラストは ZipZipPipe。DeepSeek の原キャラクターは上善无形。',
-  avatarOpenGallery: '図鑑・利用条件を開く',
+  avatarOpenGallery: '図鑑を開く',
+  avatarGalleryTerms: '利用条件は 設定 → アプリ → ライセンス表記',
   // 振る舞い
   behaviorSection: '振る舞い',
   unmentionedLegend: 'メンションのない発言には',

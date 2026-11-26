@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Avatar, Button, Dialog, Icon, reportError } from '@/shared/ui';
 import { agentsApi } from '../../api';
 import { tEditor } from '../../i18n/editor';
-import { AVATAR_GALLERY, AVATAR_PRESETS, loadPresetAvatar, loadPresetMascot } from '../../model/avatarPresets';
+import { AVATAR_PRESETS, avatarGalleryUrl, loadPresetAvatar, loadPresetMascot } from '../../model/avatarPresets';
 import styles from './AvatarPresetPicker.module.css';
 
 const LOAD_TIMEOUT_MS = 20_000;
@@ -103,9 +103,10 @@ function AvatarPresetDialog({ onClose, onChoose, fullBody }: PickerProps & { onC
       </ul>
       <p className={styles.note}>
         {tEditor('avatarCredit')}
-        <Button variant="link" onClick={() => void agentsApi.openUrl(AVATAR_GALLERY).catch(reportError)}>
+        <Button variant="link" onClick={() => void agentsApi.openUrl(avatarGalleryUrl()).catch(reportError)}>
           {tEditor('avatarOpenGallery')}
-        </Button>
+        </Button>{' '}
+        <span>{tEditor('avatarGalleryTerms')}</span>
       </p>
     </Dialog>
   );

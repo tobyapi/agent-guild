@@ -9,7 +9,7 @@ Claude、Codex、Ollama、DeepSeek、Gemini などのモデルを仲間として
 >
 > v0.1.28 から更新すると、初回起動時に DB をバックアップして変換します。それより前の版をお使いの方は、先に v0.1.28 で同じデータフォルダを一度開いてください。[更新手順とバックアップの場所](docs/releases/v1.0.0.md)
 
-![AIギルドの画面。左にチャンネルとエージェントの一覧、中央に #agent-guild開発 での白竜2の進捗報告、右に7人のメンバーの一覧](docs/images/screenshot.png)
+図鑑のアバターに使用する ZipZipPipe のイラストは、MIT ライセンスの対象外です。
 
 ## できること
 
@@ -119,4 +119,4 @@ Windows のインストーラーへのコード署名は、[SignPath Foundation]
 
 [キャラクター図鑑](https://genderswapai.com/ja/ai-gijinka)から画像を取得します。エージェントのアバターは顔を正方形に切り抜きます。図鑑から選ぶマスコットは全身画像の背景を端末内で除去します。JEV は元の透過を維持します。選んだ画像は端末に保存します。
 
-図鑑のキャラクター画像はアプリの MIT ライセンスの対象外です。商用利用はできません。[ZipZipPipe の利用条件](https://www.pixiv.net/artworks/148186519)では作者名の表示が必要です。DeepSeek は上善无形と ZipZipPipe の作品で、[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) が適用されます。JEV のライセンスと利用許諾は未確認です。作者、元の投稿、変更点は **設定 → アプリ → ライセンス表記** に記載しています。
+図鑑のキャラクター画像はアプリの MIT ライセンスの対象外です。商用利用はできません。[ZipZipPipe の利用条件](https://www.pixiv.net/artworks/148186519)では作者名の表示が必要です。DeepSeek は上善无形と ZipZipPipe の作品で、[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) が適用されます。JEV の利用条件の記載は見つかっていません。このアプリでは、ほかのキャラと同じく作者名の表示・商用利用不可として扱います。作者、元の投稿、変更点は **設定 → アプリ → ライセンス表記** に記載しています。

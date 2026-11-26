@@ -1,11 +1,23 @@
+import { currentLanguage } from '@/shared/i18n';
 import type { SourceRect } from '@/shared/lib/crop';
 import { loadAvatarImage, renderAvatarImage } from '@/shared/lib/image';
+import type { Language } from '@/shared/types/domain';
 import { renderGalleryMascot } from './galleryMascot';
 
-export const AVATAR_GALLERY = 'https://genderswapai.com/ja/ai-gijinka';
+const GALLERY_LOCALE_PATHS: Record<Language, string> = {
+  ja: '/ja',
+  en: '',
+  'zh-Hans': '/zh-CN',
+  'zh-Hant': '/zh-TW',
+  ko: '/ko',
+};
 const IMAGE_DIRECTORY = 'https://genderswapai.com/images/ai-gijinka';
 const SOURCE_HEIGHT = 1600;
 const MAX_SOURCE_BYTES = 2 * 1024 * 1024;
+
+export function avatarGalleryUrl(): string {
+  return `https://genderswapai.com${GALLERY_LOCALE_PATHS[currentLanguage()]}/ai-gijinka`;
+}
 
 export interface AvatarPreset {
   id: string;

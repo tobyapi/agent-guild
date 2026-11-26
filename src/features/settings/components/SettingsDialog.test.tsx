@@ -75,21 +75,31 @@ it('lists attribution and changes for all 15 characters with original and licens
   const notices = within(screen.getByRole('region', { name: 'ライセンス表記' }));
   expect(notices.getAllByRole('listitem')).toHaveLength(15);
   expect(notices.getAllByText(/全身画像の背景を除去/)).toHaveLength(14);
-  expect(notices.getByText(/元の透過を維持/)).toBeTruthy();
-  expect(notices.getByText(/利用許諾は未確認/)).toBeTruthy();
+  expect(notices.getAllByText('作者 ZipZipPipe')).toHaveLength(14);
+  const jev = within(notices.getByText('JEV').closest('li')!);
+  expect(jev.getByText(/全身画像は加工なし/)).toBeTruthy();
+  expect(jev.getByText(/利用条件の記載は見つかっていません。.*作者名の表示・商用利用不可/)).toBeTruthy();
+  fireEvent.click(notices.getByRole('button', { name: 'AI 擬人化キャラクター図鑑' }));
+  expect(openUrl).toHaveBeenLastCalledWith('https://genderswapai.com/ja/ai-gijinka');
   fireEvent.click(notices.getByRole('button', { name: 'JEV · 元の投稿' }));
   expect(openUrl).toHaveBeenLastCalledWith('https://www.bilibili.com/opus/1253808555541135367');
   fireEvent.click(notices.getByRole('button', { name: /^CC BY-NC-SA 4.0/ }));
   expect(openUrl).toHaveBeenLastCalledWith('https://creativecommons.org/licenses/by-nc-sa/4.0/');
 });
 
-it('shows the license notice in English', () => {
+it('shows the license notice in English and opens the English gallery', () => {
+  const openUrl = vi.spyOn(settingsApi, 'openUrl').mockResolvedValue(null);
   applyLanguage('en');
   openSettings();
   render(<SettingsDialog />);
   fireEvent.click(screen.getByRole('tab', { name: 'App' }));
   const notices = within(screen.getByRole('region', { name: 'License notices' }));
   expect(notices.getByText(/MIT license. Commercial use is prohibited/)).toBeTruthy();
+  expect(notices.getAllByText('By ZipZipPipe')).toHaveLength(14);
+  expect(notices.getByText(/Full-body image unmodified/)).toBeTruthy();
+  expect(notices.getByText(/No terms of use found\..*attribution required, no commercial use\./)).toBeTruthy();
+  fireEvent.click(notices.getByRole('button', { name: 'AI Gijinka character gallery' }));
+  expect(openUrl).toHaveBeenLastCalledWith('https://genderswapai.com/ai-gijinka');
 });
 
 it('矢印キー・Home・Endで選択とフォーカスが移る', () => {

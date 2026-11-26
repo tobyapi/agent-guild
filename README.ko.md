@@ -9,7 +9,7 @@ Claude, Codex, Ollama, DeepSeek, Gemini 같은 모델을 "동료"로 등록하�
 >
 > v0.1.28에서 업데이트하면 첫 실행 때 DB를 백업한 뒤 변환합니다. 그보다 이전 버전을 쓰고 있다면 먼저 v0.1.28로 같은 데이터 폴더를 한 번 여십시오. [업데이트 절차와 백업 위치](docs/releases/v1.0.0.md) (일본어)
 
-![AI 길드 화면. 왼쪽에 채널과 에이전트 목록, 가운데에 #agent-guild開発에서 白竜2가 올린 진행 보고, 오른쪽에 멤버 7명의 목록](docs/images/screenshot.png)
+도감 아바타에 쓰이는 ZipZipPipe의 일러스트는 MIT 라이선스 적용 대상에서 제외됩니다.
 
 ## 특징
 
@@ -119,4 +119,4 @@ Windows 설치 프로그램의 코드 서명을 위해 [SignPath Foundation](htt
 
 앱은 [캐릭터 도감](https://genderswapai.com/ko/ai-gijinka)에서 이미지를 불러옵니다. 에이전트 아바타는 얼굴을 정사각형으로 자릅니다. 도감 마스코트는 기기에서 전신 이미지의 배경을 제거하며 JEV는 원본 투명도를 유지합니다. 선택한 이미지는 이 기기에 저장됩니다.
 
-도감 캐릭터 이미지는 앱의 MIT 라이선스 적용 대상에서 제외되며 상업적으로 사용할 수 없습니다. [ZipZipPipe의 이용 조건](https://www.pixiv.net/artworks/148186519)에 따라 작가를 표기해야 합니다. DeepSeek는 上善无形과 ZipZipPipe를 표기하며 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)이 적용됩니다. JEV의 라이선스 및 사용 허가는 미확인 상태입니다. 작가, 원본 게시물, 변경 사항은 **설정 → 앱 → 라이선스 고지**를 참조하십시오.
+도감 캐릭터 이미지는 앱의 MIT 라이선스 적용 대상에서 제외되며 상업적으로 사용할 수 없습니다. [ZipZipPipe의 이용 조건](https://www.pixiv.net/artworks/148186519)에 따라 작가를 표기해야 합니다. DeepSeek는 上善无形과 ZipZipPipe를 표기하며 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)이 적용됩니다. JEV의 이용 조건에 관한 안내를 찾지 못했습니다. 이 앱에서는 다른 캐릭터와 마찬가지로 작가 표기가 필요하며 상업적 이용은 금지됩니다. 작가, 원본 게시물, 변경 사항은 **설정 → 앱 → 라이선스 고지**를 참조하십시오.

@@ -50,6 +50,8 @@ it('キャラ図鑑から全15種の顔を読み込み、選んだ顔をアバ�
     fireEvent.click(within(openDialog()).getByRole('button', { name: 'キャラ図鑑' }));
     await advance(100);
     const gallery = within(screen.getByRole('dialog', { name: 'キャラクターアイコン' }));
+    expect(gallery.getByRole('button', { name: '図鑑を開く' })).toBeTruthy();
+    expect(gallery.getByText('利用条件は 設定 → アプリ → ライセンス表記')).toBeTruthy();
     expect(gallery.getAllByRole('listitem')).toHaveLength(15);
     expect(new Set(fetchImage.mock.calls.map(([url]) => url)).size).toBe(15);
     fireEvent.click(gallery.getByRole('button', { name: 'JEV' }));

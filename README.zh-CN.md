@@ -9,7 +9,7 @@
 >
 > 从 v0.1.28 更新时，首次启动会先备份数据库再进行转换。使用更早版本的用户，请先用 v0.1.28 打开一次同一个数据文件夹。[更新步骤与备份位置](docs/releases/v1.0.0.md)（日语）
 
-![AI 公会的界面。左侧是频道和智能体列表，中间是 #agent-guild開発 中白竜2的进度报告，右侧是 7 位成员的列表](docs/images/screenshot.png)
+图鉴头像使用的 ZipZipPipe 插画不适用 MIT 许可证。
 
 ## 功能
 
@@ -119,4 +119,4 @@ Windows 安装程序的代码签名正在申请 [SignPath Foundation](https://si
 
 应用从[角色图鉴](https://genderswapai.com/zh-CN/ai-gijinka)获取图片。智能体头像裁剪为正方形，图鉴吉祥物在本机移除全身图片的背景，JEV 保留原有透明背景。所选图片保存在本机。
 
-图鉴角色图片不适用应用的 MIT 许可证，不得商用。[ZipZipPipe 的使用条件](https://www.pixiv.net/artworks/148186519)要求注明作者。DeepSeek 署名上善无形和 ZipZipPipe，适用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。JEV 的许可协议及使用授权尚未确认。作者、原帖及修改内容见**设置 → 应用 → 许可声明**。
+图鉴角色图片不适用应用的 MIT 许可证，不得商用。[ZipZipPipe 的使用条件](https://www.pixiv.net/artworks/148186519)要求注明作者。DeepSeek 署名上善无形和 ZipZipPipe，适用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)。未找到 JEV 的使用条件说明。本应用对其采用与其他角色相同的规则：须注明作者，不可商用。作者、原帖及修改内容见**设置 → 应用 → 许可声明**。
