@@ -8,7 +8,7 @@ use guild_domain::ids::{AgentId, AttachmentId, DelegationId, MessageId};
 use guild_domain::locale::Language;
 use guild_domain::message::Message;
 
-use super::prompt_size::{build, delegation, history, report_job, task_job};
+use super::prompt_fixture::{build, delegation, history, report_job, task_job};
 use super::support::{by, message};
 
 const PENDING_REF: &str = "（下の「あなた宛ての未対応の発言」に全文）";
