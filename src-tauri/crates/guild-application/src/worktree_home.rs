@@ -19,9 +19,11 @@ impl WorktreeHomeService {
         Self { settings, default_path: data_dir.join(DEFAULT_WORKTREE_DIR) }
     }
 
+    /// 画面に出す置き場。手で書いた値が絶対パスでなければ None（既定）にして、プロンプトに入る effective() と揃える
     pub fn get(&self) -> AppResult<WorktreeHome> {
+        let saved = self.settings.load()?.worktree_home;
         Ok(WorktreeHome {
-            path: self.settings.load()?.worktree_home,
+            path: normalize_worktree_home(saved.as_deref()).unwrap_or(None),
             default_path: self.default_path.display().to_string(),
         })
     }

@@ -1,4 +1,4 @@
-//! git worktree の置き場のルール: 作業場所の外にも書けるかで置き場を出し分け、書けない・コマンドを使えないなら出さない。
+//! git worktree の置き場のルール: 作業場所の外にも書け、コマンドを使える AI にだけ置き場を伝える。それ以外には出さない。
 
 use std::path::Path;
 
@@ -92,17 +92,11 @@ fn a_changed_home_replaces_the_default() {
 }
 
 #[test]
-fn agents_that_write_only_in_their_workspace_keep_worktrees_inside_it() {
+fn agents_that_write_only_in_their_workspace_get_no_rule() {
+    // コマンドは作業場所の外に書けず、git worktree add は元のリポジトリの .git にも書くので成り立たない。伝えない
     let prompt = system_prompt(WORKER, r"E:\wt");
-    let line = rule_line(&prompt);
-    assert!(
-        line.starts_with(&format!("{RULE} 自分の作業場所の中の <リポジトリ名>-<作業名> に作ってください。")),
-        "{line}"
-    );
+    assert!(!prompt.contains("git worktree"), "{prompt}");
     assert!(!prompt.contains(r"E:\wt"), "書けない置き場は伝えない");
-    for part in COMMON {
-        assert!(line.contains(part), "{part} がありません: {line}");
-    }
 }
 
 #[test]

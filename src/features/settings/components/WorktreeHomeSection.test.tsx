@@ -28,6 +28,7 @@ it('shows the default, saves an absolute folder and clears back to the default',
   expect(field().placeholder).toBe(DEFAULT);
   expect(screen.getByText(DEFAULT)).toBeTruthy();
   expect(screen.getByText(/worktrees フォルダ）を外してかまいません/)).toBeTruthy();
+  expect(screen.getByText(/worktrees フォルダは写しません/)).toBeTruthy();
   expect(screen.getByText(/git worktree repair が必要です/)).toBeTruthy();
   const save = screen.getByRole<HTMLButtonElement>('button', { name: '置き場を保存' });
   expect(save.disabled).toBe(true);

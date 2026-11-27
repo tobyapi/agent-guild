@@ -1,6 +1,6 @@
 //! 操作の確認に渡す、信頼できる依頼の情報（run の intent）。ランナーのアダプタが、外に影響する操作の前に小さいモデルで
 //! 「依頼に沿っているか」を確かめるときの基準になる。入れるのは、この会話の人間の発言（起点と、人間からのきっかけ）と、
-//! エージェントの役割・できることだけ。資料や仲間（エージェント）の発言は入れない（資料に紛れた指示が確かめる側に届かないように）。
+//! エージェントの役割・できること、git worktree の置き場（利用者の設定。伝える相手のときだけ）だけ。資料や仲間（エージェント）の発言は入れない（資料に紛れた指示が確かめる側に届かないように）。
 
 use super::conversation::{quote, truncate};
 use super::{capabilities, PromptContext};
@@ -41,7 +41,7 @@ fn human_requests<'a>(history: &'a [Message], job: &'a JobSpec) -> Vec<&'a Messa
     messages.into_iter().skip(skip).collect()
 }
 
-/// 名前・役割・得意分野（空の項目は書かない）と、実効権限でできること
+/// 名前・役割・得意分野（空の項目は書かない）と、実効権限でできること。置き場に書ける AI なら git worktree の置き場
 fn agent_lines(ctx: &PromptContext<'_>) -> String {
     let agent = ctx.agent;
     let fields = [("役割", agent.role.trim()), ("得意分野", agent.expertise.trim())];
@@ -49,5 +49,6 @@ fn agent_lines(ctx: &PromptContext<'_>) -> String {
     lines
         .extend(fields.iter().filter(|(_, value)| !value.is_empty()).map(|(label, value)| format!("{label}: {value}")));
     lines.push(capabilities::describe(&ctx.permissions));
+    lines.extend(super::worktree::intent_line(&ctx.permissions, ctx.worktree_home));
     lines.join("\n")
 }

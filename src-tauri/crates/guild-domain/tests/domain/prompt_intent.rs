@@ -1,6 +1,6 @@
-//! 操作の確認に渡す依頼の情報: この会話の人間の発言と、エージェントの役割・できることだけを入れる。
+//! 操作の確認に渡す依頼の情報: この会話の人間の発言と、エージェントの役割・できること（置き場に書ける AI なら git worktree の置き場）だけを入れる。
 
-use guild_domain::agent::{effective_permissions, Agent};
+use guild_domain::agent::{effective_permissions, Agent, Permissions};
 use guild_domain::author::Author;
 use guild_domain::conversation::{JobMode, JobSpec};
 use guild_domain::ids::{AgentId, MessageId};
@@ -17,6 +17,11 @@ fn in_conversation(seq: i64, author: Author, content: &str) -> Message {
 }
 
 fn intent(history: &[Message], job: &JobSpec) -> String {
+    intent_with(history, job, None)
+}
+
+/// permissions が None なら役割の表どおり（作業者なので作業場所の外にも書ける）
+fn intent_with(history: &[Message], job: &JobSpec, permissions: Option<Permissions>) -> String {
     let mut haru: Agent = agent("haru", "worker", "ハル");
     haru.role = "調べものの担当".to_owned();
     let agents = vec![haru];
@@ -24,7 +29,7 @@ fn intent(history: &[Message], job: &JobSpec) -> String {
     let me = Profile::default();
     let ctx = PromptContext {
         agent: &agents[0],
-        permissions: effective_permissions(&agents[0], None),
+        permissions: permissions.unwrap_or_else(|| effective_permissions(&agents[0], None)),
         channel: &lobby,
         agents: &agents,
         backends: &[],
@@ -75,4 +80,31 @@ fn keeps_only_the_latest_human_messages() {
         !text.contains(&format!("依頼{}", first_kept - 1)) && text.contains(&format!("依頼{first_kept}")),
         "{text}"
     );
+}
+
+const WORKTREE_LINE: &str =
+    "git worktree の置き場（利用者が設定で決めた場所）: /guild/worktrees。作業用フォルダはここに作り、終わったら片付けるようアプリが指示している";
+
+#[test]
+fn agents_that_write_anywhere_carry_the_worktree_home() {
+    let history = vec![in_conversation(1, Author::Human, "リポジトリのバグを直して")];
+    let job = JobSpec::respond(AgentId::new("haru"), &history[0], JobMode::Reply, Vec::new());
+    let text = intent(&history, &job);
+    assert!(effective_permissions(&agent("haru", "worker", "ハル"), None).write_anywhere, "前提: 作業者は外にも書ける");
+    assert!(text.ends_with(&format!("ができます。\n{WORKTREE_LINE}\n")), "できることの次に置き場: {text}");
+}
+
+#[test]
+fn agents_that_cannot_use_the_worktree_home_do_not_carry_it() {
+    let history = vec![in_conversation(1, Author::Human, "リポジトリのバグを直して")];
+    let job = JobSpec::respond(AgentId::new("haru"), &history[0], JobMode::Reply, Vec::new());
+    let base = effective_permissions(&agent("haru", "worker", "ハル"), None);
+    for permissions in [
+        Permissions { write_anywhere: false, ..base },
+        Permissions { run_commands: false, ..base },
+        Permissions { write_files: false, write_anywhere: false, ..base },
+    ] {
+        let text = intent_with(&history, &job, Some(permissions));
+        assert!(!text.contains("git worktree") && !text.contains("/guild/worktrees"), "{permissions:?}: {text}");
+    }
 }

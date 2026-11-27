@@ -76,3 +76,18 @@ async fn hand_edited_or_unreadable_settings_fall_back_to_the_default() {
         assert_eq!(app.services.worktree_home.effective(), default_home(), "{mode}");
     }
 }
+
+#[tokio::test]
+async fn the_screen_shows_the_same_home_as_the_prompt() {
+    for (saved, shown) in
+        [(Some("relative"), None), (Some("   "), None), (Some(r"  E:\wt  "), Some(r"E:\wt")), (None, None)]
+    {
+        let app = TestApp::new();
+        let mut settings = app.settings.load().unwrap();
+        settings.worktree_home = saved.map(str::to_owned);
+        app.settings.save(&settings).unwrap();
+        let home = app.services.worktree_home.get().unwrap();
+        assert_eq!(home.path.as_deref(), shown, "{saved:?}");
+        assert_eq!(home.effective(), app.services.worktree_home.effective(), "画面とプロンプトが同じ置き場: {saved:?}");
+    }
+}
