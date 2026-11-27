@@ -83,7 +83,8 @@ fn in_root(mut message: Message) -> Message {
 
 /// 人間の起点 → マネージャーの割り振り（長い）→ 途中経過 → 担当者2人の結果
 pub fn history() -> Vec<Message> {
-    let mut assign = in_root(message(3, by("kaname"), &format!("調べた結果をまとめます。{}", "割り振りの本文。".repeat(290))));
+    let mut assign =
+        in_root(message(3, by("kaname"), &format!("調べた結果をまとめます。{}", "割り振りの本文。".repeat(290))));
     assign.delegation_id = Some(DelegationId::new("d1"));
     let mut progress = in_root(message(4, by("haru"), "調査を始めます"));
     progress.kind = MessageKind::Progress;
@@ -207,5 +208,17 @@ fn prompt_size_report() {
             size.voice, size.system, size.system_utf16, size.history, size.pending, size.conversation
         );
         assert!(size.voice > 0 && size.history > 0 && size.pending > 0, "{name}: 節が見つからない");
+    }
+}
+
+/// Codex のランナーが実行前に拒否する systemPrompt の長さ（UTF-16 単位。agent-runner/src/backends/codex-runtime/options.ts）
+const CODEX_SYSTEM_PROMPT_LIMIT: usize = 24_000;
+
+/// 文体の節は3,000文字以内。メモ4,000文字を入れても、システム側は Codex の上限の半分ほどに収まる
+#[test]
+fn prompt_size_voice_section_and_system_prompt_stay_small() {
+    for (name, size) in scenarios() {
+        assert!(size.voice <= 3000, "{name}: 文体 {}", size.voice);
+        assert!(size.system_utf16 <= CODEX_SYSTEM_PROMPT_LIMIT / 2, "{name}: システム {}", size.system_utf16);
     }
 }

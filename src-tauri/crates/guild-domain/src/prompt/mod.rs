@@ -22,6 +22,7 @@ mod rules;
 mod safeguards;
 mod skills;
 mod voice;
+pub use voice::{voice_section, VoiceGuide, VOICE_GUIDE};
 
 pub use conversation::{
     build_conversation_prompt, ConsultSource, HISTORY_LIMIT, MESSAGE_CHAR_LIMIT, PROGRESS_LIMIT, RECENT_CHANNEL_LIMIT,

@@ -1,7 +1,7 @@
 use guild_domain::agent::{normalize_agent_input, AgentInput};
 use guild_domain::locale::Language;
 use guild_domain::profile::Profile;
-use guild_domain::prompt::{build_system_prompt, PromptContext};
+use guild_domain::prompt::{build_system_prompt, voice_section, PromptContext, VoiceGuide, VOICE_GUIDE};
 use guild_domain::voice::{
     appearance_guide, migrate_stored_voice, mode_card, normalize_voice, voice_modes, VoiceIntensity, VoiceSettings,
 };
@@ -88,21 +88,107 @@ fn voice_off_uses_persona_without_style_cards() {
     assert!(!off.contains("### 文体の候補と操作"));
 }
 
+fn person(mode: &str) -> guild_domain::agent::Agent {
+    let mut person = agent("a1", "worker", "ミナ");
+    person.voice = VoiceSettings { mode: mode.to_owned(), intensity: VoiceIntensity::Medium };
+    person
+}
+
+/// 毎回送るのは短いガイド。表示構文の要点と禁止事項は残し、全文のカードは送らない
 #[test]
-fn voice_appearance_policy_reaches_every_mode_without_skill_assignment() {
+fn voice_auto_sends_the_compact_guide_with_the_display_syntax() {
+    assert_eq!(VOICE_GUIDE, VoiceGuide::Compact);
+    let text = prompt("auto");
+    assert!(text.contains("表示先: agent-guild のチャット"));
+    for syntax in [
+        ":t[",
+        ":chars[",
+        ":path[",
+        ":::layout{rotate=0}",
+        ":::layout{vertical}",
+        "
+- 禁止: ",
+    ] {
+        assert!(text.contains(syntax), "{syntax}");
+    }
+    assert!(text.contains("コードフェンスやバッククォートで囲む") && text.contains("メンションを入れる"));
+    assert!(text.contains("ユーザーの台詞・行動・内心を代筆しない"));
+    assert!(text.contains("作業の報告・調査結果・レビューや判定"));
+    assert!(!text.contains(&appearance_guide()) && !text.contains("表示の使い分け:"));
+    for heading in ["## メンションのルール", "## スキル使用の申告", "## 出力のルール"] {
+        assert!(text.contains(heading), "{heading}");
+    }
+}
+
+/// 候補の一覧は同梱スキルのカタログと1対1（カタログが変わったら一覧も直す）
+#[test]
+fn voice_compact_guide_lists_each_catalog_mode_once_in_one_line() {
+    let section = voice_section(&person("auto"), VoiceGuide::Compact);
+    let list = section
+        .split(
+            "### 文体の候補
+",
+        )
+        .nth(1)
+        .unwrap()
+        .split(
+            "
+
+",
+        )
+        .next()
+        .unwrap();
+    let lines: Vec<&str> = list.lines().collect();
+    assert_eq!(lines.len(), voice_modes().len());
+    for mode in voice_modes() {
+        let prefix = format!("- {}: ", mode.title);
+        assert_eq!(lines.iter().filter(|line| line.starts_with(&prefix)).count(), 1, "{}", mode.title);
+    }
+    assert!(section.contains("保存された強度: 中"));
+}
+
+#[test]
+fn voice_compact_section_stays_within_3000_chars_and_off_is_unchanged() {
+    for intensity in [VoiceIntensity::Weak, VoiceIntensity::Medium, VoiceIntensity::Strong] {
+        let mut subject = person("auto");
+        subject.voice.intensity = intensity;
+        let chars = voice_section(&subject, VoiceGuide::Compact).chars().count();
+        assert!(chars <= 3000, "{chars}");
+    }
+    let off = "## 会話の表現
+保存設定は「いつもの口調」です。基本の性格・口調で応答してください。
+";
+    assert_eq!(voice_section(&person("off"), VoiceGuide::Compact), off);
+    assert_eq!(voice_section(&person("off"), VoiceGuide::Full), off);
+}
+
+/// 全文に戻したときは、以前と同じく選び方・見た目の判断・全候補の操作と表示を送る
+#[test]
+fn voice_full_guide_still_reaches_every_mode_without_skill_assignment() {
     let guide = appearance_guide();
     assert!(!guide.is_empty());
-    for saved in ["auto"] {
-        let text = prompt(saved);
-        assert!(text.contains("表示先: agent-guild のチャット"));
-        assert!(text.contains(&guide));
-        for mode in voice_modes() {
-            let card = mode_card(&mode);
-            let visual = card.split("## 見た目の使い分け").nth(1).unwrap().split("\n## ").next().unwrap().trim();
-            assert!(!visual.is_empty());
-            assert!(text.contains(visual), "{saved}: {}", mode.id);
-        }
+    let text = voice_section(&person("auto"), VoiceGuide::Full);
+    assert!(text.contains("表示先: agent-guild のチャット"));
+    assert!(text.contains(&guide));
+    assert!(text.contains("普段の口調のまま答えてよい"));
+    for mode in voice_modes() {
+        let card = mode_card(&mode);
+        let visual = card
+            .split("## 見た目の使い分け")
+            .nth(1)
+            .unwrap()
+            .split(
+                "
+## ",
+            )
+            .next()
+            .unwrap()
+            .trim();
+        assert!(!visual.is_empty());
+        assert!(text.contains(visual), "{}", mode.id);
+        assert!(text.contains(&format!("- {}（別名: ", mode.title)));
     }
+    assert!(text.chars().count() > 10_000);
     assert!(!prompt("off").contains(&guide));
 }
 
