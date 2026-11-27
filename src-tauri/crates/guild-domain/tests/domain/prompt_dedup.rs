@@ -78,6 +78,28 @@ fn a_report_job_references_the_results_and_keeps_other_messages() {
     assert!(prompt.contains(&history[5].content));
 }
 
+/// まとめで、失敗・取り消しでも結果の発言があれば、理由のあとに本文を載せて履歴は参照にする
+#[test]
+fn a_report_job_keeps_the_reason_and_body_for_failed_or_cancelled_results() {
+    let history = history();
+    let job = report_job(&history);
+    let mut ended = delegation([SubtaskStatus::Failed, SubtaskStatus::Cancelled]);
+    ended.status = DelegationStatus::Reporting;
+    ended.subtasks[0].result_message_id = Some(MessageId::new("m6"));
+    ended.subtasks[0].note = Some("時間切れで止まった".to_owned());
+    let (_, prompt) = build("kaname", "auto", Language::Ja, &history, &job, Some(&ended));
+    let haru = &history[5].content;
+    assert_eq!(prompt.matches(haru.as_str()).count(), 1, "失敗の結果も結果の節にだけ");
+    assert!(prompt.contains(&format!(
+        "理由: 時間切れで止まった
+{haru}"
+    )));
+    assert!(prompt.contains("## 2. @ソラ（取り消し）") && prompt.contains("理由: （理由は記録されていません）"));
+    let past = history_part(&prompt);
+    assert_eq!(past.matches(RESULT_REF).count(), 1);
+    assert!(past.contains(&history[6].content), "結果として引かない発言は履歴に全文");
+}
+
 /// 人間の発言に応えるジョブ: ルートが違う複数のきっかけ、添付のある発言
 #[test]
 fn several_triggers_across_roots_keep_their_order_speakers_and_attachments() {
