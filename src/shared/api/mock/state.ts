@@ -19,6 +19,8 @@ import type {
 /** 偽バックエンドが持つ全データ（Rust の DB とランナーの代わり）。配列は古い順に並べる */
 export interface MockState {
   globalInstructions?: string;
+  /** git worktree の置き場（Rust では settings.json の worktreeHome。なければ既定） */
+  worktreeHome?: string | null;
   runLimits?: RunLimits;
   boot: BootStatus;
   /** ギルドの名前と紋（Rust では guild_profile 表） */

@@ -22,6 +22,7 @@ pub mod skills;
 pub mod snapshot;
 pub mod storage;
 pub mod theme_generation;
+pub mod worktree_home;
 
 pub use error::{AppError, AppResult};
 pub use services::{AppServices, Ports, StoragePorts};

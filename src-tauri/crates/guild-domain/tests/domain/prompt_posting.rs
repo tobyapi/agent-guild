@@ -48,6 +48,7 @@ fn prompts(mid_run_post: Option<MidRunPost>, history: &[Message]) -> (String, St
         attachment_path: &|_, _| String::new(),
         delegation: None,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     };
     let conversation = match history.last() {
         Some(trigger) => {

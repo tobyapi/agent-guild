@@ -24,6 +24,7 @@ mod prompt_posting;
 mod prompt_safeguards;
 mod prompt_size;
 mod prompt_system;
+mod prompt_worktree;
 mod reply;
 mod routing_human;
 mod routing_reply;

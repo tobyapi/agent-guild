@@ -26,6 +26,7 @@ import type {
   Snapshot,
   StorageInfo,
   UpdateStatus,
+  WorktreeHome,
 } from '@/shared/types/domain';
 
 /** 引数を取らないコマンド */
@@ -40,6 +41,8 @@ export interface CommandMap {
   set_run_limits: { args: { limits: RunLimits }; result: null };
   get_global_instructions: { args: NoArgs; result: string };
   set_global_instructions: { args: { instructions: string }; result: null };
+  get_worktree_home: { args: NoArgs; result: WorktreeHome };
+  set_worktree_home: { args: { path: string | null }; result: null };
   get_boot_status: { args: NoArgs; result: BootStatus };
   /** 初回起動の初期設定を終えた（名前・スキルのフォルダ・保存先はそれぞれのコマンドで保存する） */
   complete_setup: { args: NoArgs; result: null };

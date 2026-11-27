@@ -14,6 +14,7 @@ import {
   skillsChangedSchema,
 } from './schemas/skills';
 import { channelStatisticsSchema } from './schemas/statistics';
+import { worktreeHomeSchema } from './schemas/worktreeHome';
 import {
   activityStateSchema,
   bootStatusSchema,
@@ -36,6 +37,7 @@ const themeCandidate: Validator = (value) => {
 const CASES: Record<string, Validator> = {
   'global-instructions.json': string,
   'run-limits.json': objectOf(runLimitsSchema),
+  'worktree-home.json': objectOf(worktreeHomeSchema),
   'skill-record-truncated.json': boolean,
   'desktop-notifications.json': boolean,
   'theme-candidate.json': themeCandidate,

@@ -1,6 +1,7 @@
 //! マシンごとの設定ファイル <app_config_dir>/settings.json
 //! （{ "version": 1, "dataDir": string | null, "skillLibraryDirs": string[], "setupDone": boolean, "language"?: string }）。
 //! language は言語を選んでから書く（ない・知らない値なら None。日本語として扱う）。足しただけなので version は 1 のまま。
+//! worktreeHome（git worktree の置き場。絶対パス）も同じく足しただけ。既定（<データフォルダ>/worktrees）のときは書かない。
 //! データフォルダの外に置くので、どの保存先でも見つけられる。未知のフィールドは保持して書き戻し、
 //! version が新しすぎるファイルは読むだけで書き換えない。
 
@@ -88,6 +89,7 @@ fn settings_of(object: &Map<String, Value>) -> LaunchSettings {
         language: object.get("language").and_then(Value::as_str).and_then(Language::parse),
         backend_auth_modes: auth_modes_of(object),
         desktop_notifications: object.get("desktopNotifications").and_then(Value::as_bool),
+        worktree_home: object.get("worktreeHome").and_then(Value::as_str).filter(|p| !p.is_empty()).map(str::to_owned),
     }
 }
 
@@ -125,6 +127,7 @@ impl SettingsFile {
         );
         set_limit(&mut object, "runTimeoutMinutes", settings.run_limits.timeout_minutes.map(Value::from));
         set_limit(&mut object, "maxConcurrentJobs", settings.run_limits.max_concurrent_jobs.map(Value::from));
+        set_limit(&mut object, "worktreeHome", settings.worktree_home.clone().map(Value::String));
         self.write(&object).map_err(|e| AppError::Storage(not_saved(&e)))
     }
 }

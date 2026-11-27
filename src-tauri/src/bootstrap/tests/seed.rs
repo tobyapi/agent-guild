@@ -40,6 +40,10 @@ fn services(dir: &TempDir) -> (AppServices, Arc<SqliteGuildStateRepository>) {
         global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(Arc::new(
             SettingsFile::in_dir(&dir.0),
         )),
+        worktree_home: guild_application::worktree_home::WorktreeHomeService::new(
+            Arc::new(SettingsFile::in_dir(&dir.0)),
+            &dir.0,
+        ),
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),
         messages: Arc::new(SqliteMessageRepository::new(db.clone())),

@@ -50,6 +50,11 @@ fn run_limits() {
 }
 
 #[test]
+fn worktree_home() {
+    assert_round_trip::<guild_domain::worktree_home::WorktreeHome>("worktree-home.json");
+}
+
+#[test]
 fn channel_statistics() {
     assert_round_trip::<ChannelStatistics>("channel-statistics.json");
 }

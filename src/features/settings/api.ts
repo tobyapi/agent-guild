@@ -10,6 +10,8 @@ export const settingsApi = {
   setRunLimits: (limits: RunLimits) => invoke('set_run_limits', { limits }),
   getGlobalInstructions: () => invoke('get_global_instructions'),
   setGlobalInstructions: (instructions: string) => invoke('set_global_instructions', { instructions }),
+  getWorktreeHome: () => invoke('get_worktree_home'),
+  setWorktreeHome: (path: string | null) => invoke('set_worktree_home', { path }),
   generateBackground: (requestId: string, backendId: string, description: string) =>
     invoke('generate_background_image', { requestId, backendId, description }),
   generateMascot: (requestId: string, backendId: string, description: string) =>

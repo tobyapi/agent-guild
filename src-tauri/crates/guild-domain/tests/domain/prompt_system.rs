@@ -72,6 +72,7 @@ fn system_prompt_with_agents(
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation: None,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     };
     let original = build_system_prompt(&ctx);
     assert_eq!(original.as_bytes(), guild_domain::prompt::build_system_prompt_with_global(&ctx, "").as_bytes());

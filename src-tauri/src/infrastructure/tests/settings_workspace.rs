@@ -34,6 +34,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         language: Some(Language::ZhHant),
         desktop_notifications: None,
         backend_auth_modes: [("claude".to_owned(), "api".to_owned())].into_iter().collect(),
+        worktree_home: Some("E:\\worktrees".to_owned()),
     };
     settings.save(&chosen).unwrap();
     let expected = json!({
@@ -44,6 +45,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
         "setupDone": true,
         "language": "zh-Hant",
         "backendAuthModes": {"claude": "api"},
+        "worktreeHome": "E:\\worktrees",
         "theme": "dark"
     });
     assert_eq!(read_json(&path), expected);
@@ -53,6 +55,7 @@ fn settings_keep_unknown_fields_and_write_null_for_the_default() {
     assert_eq!(read_json(&path)["dataDir"], Value::Null);
     assert_eq!(read_json(&path)["skillLibraryDirs"], json!([]));
     assert_eq!(read_json(&path)["setupDone"], json!(false));
+    assert_eq!(read_json(&path).get("worktreeHome"), None, "既定の置き場は書かない");
     assert_eq!(read_json(&path)["language"], json!("zh-Hant"), "言語を持たない保存では書き換えない");
 }
 

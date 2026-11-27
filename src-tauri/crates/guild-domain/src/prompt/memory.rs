@@ -1,6 +1,6 @@
 //! 作業場所と MEMORY.md（次回以降の自分へのメモ）。書き込めるバックエンドでは、ファイルの書き込みを許していなくても
 //! 作業場所の MEMORY.md は読み書きしてよい。書き込めないバックエンドには、メモの内容だけを渡す。
-//! 作業場所の外にも書ける（writeAnywhere）なら、外のファイルの扱い方も添える。
+//! 作業場所の外にも書ける（writeAnywhere）なら、外のファイルの扱い方も添える。git worktree の置き場は worktree.rs。
 
 use super::PromptContext;
 use crate::agent::Permissions;
@@ -25,7 +25,7 @@ pub(super) fn section(ctx: &PromptContext<'_>) -> String {
         .find(|backend| backend.id == ctx.agent.backend)
         .is_none_or(|backend| backend.capabilities.write_files);
     let mut text = if permissions.write_files {
-        workspace_note(permissions)
+        workspace_note(permissions) + &super::worktree::note(permissions, ctx.worktree_home)
     } else if can_write {
         MEMORY_ONLY.to_owned()
     } else {

@@ -30,6 +30,7 @@ mod storage;
 mod support;
 mod theme_generation;
 mod use_cases;
+mod worktree_home;
 
 mod role_permissions;
 mod role_skills;

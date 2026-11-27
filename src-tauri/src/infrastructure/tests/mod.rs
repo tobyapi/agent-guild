@@ -11,6 +11,7 @@ mod notification_settings;
 mod path_components;
 mod settings_workspace;
 mod skill_library;
+mod worktree_home;
 
 use std::fs;
 use std::path::PathBuf;

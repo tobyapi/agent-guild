@@ -18,6 +18,11 @@ export function isInsidePath(child: string, parent: string): boolean {
   return target.startsWith(`${base}${separator}`);
 }
 
+/** 絶対パスに見えるか（ドライブ文字と区切り・UNC・"/" から始まる）。事前の確認用で、正はサーバの検証 */
+export function isAbsolutePath(path: string): boolean {
+  return /^(?:[a-z]:[\\/]|\\\\[^\\]|\/)/i.test(path.trim());
+}
+
 /** 末尾のフォルダ名（表示用） */
 export function folderName(path: string): string {
   const trimmed = path.trim().replace(/[\\/]+$/, '');

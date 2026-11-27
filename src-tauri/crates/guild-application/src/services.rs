@@ -28,6 +28,7 @@ use crate::storage::{Copier, StorageService};
 #[derive(Clone)]
 pub struct Ports {
     pub global_instructions: crate::global_instructions::GlobalInstructionsService,
+    pub worktree_home: crate::worktree_home::WorktreeHomeService,
     pub agents: Arc<dyn AgentRepository>,
     pub channels: Arc<dyn ChannelRepository>,
     pub messages: Arc<dyn MessageRepository>,
@@ -68,6 +69,7 @@ pub struct StoragePorts {
 #[derive(Clone)]
 pub struct AppServices {
     pub global_instructions: crate::global_instructions::GlobalInstructionsService,
+    pub worktree_home: crate::worktree_home::WorktreeHomeService,
     pub agents: AgentService,
     pub channels: ChannelService,
     pub skills: SkillService,
@@ -93,6 +95,7 @@ impl AppServices {
         let copier = Copier { exporter, conversation: conversation.clone(), maintenance: maintenance.clone() };
         Self {
             global_instructions: ports.global_instructions.clone(),
+            worktree_home: ports.worktree_home.clone(),
             agents: AgentService::new(ports.clone(), conversation.clone()),
             channels: ChannelService::new(ports.clone(), conversation.clone()),
             skills: SkillService::new(ports.clone()),

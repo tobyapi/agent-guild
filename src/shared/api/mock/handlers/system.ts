@@ -2,6 +2,7 @@ import { GLOBAL_INSTRUCTIONS_LIMIT } from '@/shared/lib/globalInstructions';
 import { rolePermissions } from '@/shared/lib/permissionPolicy';
 // 起動状態・スナップショット・プロフィール・バックエンドの再確認・再起動・リンクを開く。
 import { isExternalUrl } from '@/shared/lib/links';
+import { isAbsolutePath } from '@/shared/lib/paths';
 import { checkMemberName } from '@/shared/lib/names';
 import { DEFAULT_RUN_LIMITS } from '@/shared/types/domain';
 import { runLimitsSchema } from '@/shared/types/schemas/system';
@@ -15,6 +16,8 @@ type SystemCommands =
   | 'set_run_limits'
   | 'get_global_instructions'
   | 'set_global_instructions'
+  | 'get_worktree_home'
+  | 'set_worktree_home'
   | 'get_desktop_notifications'
   | 'set_desktop_notifications'
   | 'get_boot_status'
@@ -53,6 +56,16 @@ export const systemHandlers: HandlerGroup<SystemCommands> = {
     if (instructions.length > GLOBAL_INSTRUCTIONS_LIMIT)
       fail('validation', 'Instructions are too long', 'instructions');
     runtime.state.globalInstructions = instructions;
+    return null;
+  },
+  get_worktree_home: (_args, runtime) => ({
+    path: runtime.state.worktreeHome ?? null,
+    defaultPath: `${runtime.state.storage.dataDir}\\worktrees`,
+  }),
+  set_worktree_home({ path }, runtime) {
+    const trimmed = path?.trim() ?? '';
+    if (trimmed && !isAbsolutePath(trimmed)) fail('validation', 'Use an absolute path', 'path');
+    runtime.state.worktreeHome = trimmed || null;
     return null;
   },
   get_desktop_notifications: () => false,

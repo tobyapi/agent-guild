@@ -42,6 +42,7 @@ fn system_prompt(permissions: Permissions, can_delegate: bool) -> String {
         attachment_path: &|_, _| String::new(),
         delegation: None,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     };
     build_system_prompt(&ctx)
 }

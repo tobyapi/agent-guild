@@ -73,6 +73,7 @@ fn prompts(subject: &str, job: &JobSpec, delegation: Option<&Delegation>) -> (St
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     };
     (build_system_prompt(&ctx), build_conversation_prompt(&ctx, &[], job, &[]))
 }

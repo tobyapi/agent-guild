@@ -64,6 +64,7 @@ fn prompt(mode: &str) -> String {
         attachment_path: &|_, _| String::new(),
         delegation: None,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     })
 }
 

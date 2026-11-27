@@ -13,6 +13,7 @@ import {
   skillsChangedSchema,
 } from '@/shared/types/schemas/skills';
 import { channelStatisticsSchema } from '@/shared/types/schemas/statistics';
+import { worktreeHomeSchema } from '@/shared/types/schemas/worktreeHome';
 import {
   activityStateSchema,
   bootStatusSchema,
@@ -42,6 +43,8 @@ export const RESULT_VALIDATORS: { readonly [C in CommandName]: Validator } = {
   set_run_limits: nullValue,
   get_global_instructions: string,
   set_global_instructions: nullValue,
+  get_worktree_home: objectOf(worktreeHomeSchema),
+  set_worktree_home: nullValue,
   get_desktop_notifications: boolean,
   set_desktop_notifications: nullValue,
   create_agent: agent,

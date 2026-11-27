@@ -140,6 +140,7 @@ pub fn build(
         attachment_path: &|_, attachment| format!("/guild/attachments/c1/{}", attachment.file_name()),
         delegation,
         language,
+        worktree_home: "/guild/worktrees",
     };
     (build_system_prompt(&ctx), build_conversation_prompt(&ctx, history, job, &[]))
 }

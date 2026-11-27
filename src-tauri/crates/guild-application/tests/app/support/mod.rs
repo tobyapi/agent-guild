@@ -12,9 +12,12 @@ pub mod runtime;
 pub mod store;
 pub mod system;
 
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
+use guild_application::global_instructions::GlobalInstructionsService;
+use guild_application::worktree_home::WorktreeHomeService;
 use guild_application::{AppServices, Ports, StoragePorts};
 use guild_domain::agent::{find_template, Agent, AgentInput};
 use guild_domain::author::{Author, MemberId};
@@ -31,6 +34,8 @@ use store::MemoryStore;
 use system::{FakeClock, FakeControl, FakeExporter, FakeFolders, FakeIds, FakeSettings, FakeWorkspace, TokioSpawner};
 
 pub const STARTED_AT: i64 = 1_000_000;
+/// 作業用フォルダの既定の置き場を決めるデータフォルダ
+pub const DATA_DIR: &str = "D:\\guild-data";
 
 pub struct TestApp {
     pub services: AppServices,
@@ -79,9 +84,8 @@ impl TestApp {
             notifier.clone(),
         ));
         let ports = Ports {
-            global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(
-                settings.clone(),
-            ),
+            global_instructions: GlobalInstructionsService::new(settings.clone()),
+            worktree_home: WorktreeHomeService::new(settings.clone(), Path::new(DATA_DIR)),
             agents: store.clone(),
             channels: store.clone(),
             messages: store.clone(),

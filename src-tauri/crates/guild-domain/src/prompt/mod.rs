@@ -22,6 +22,7 @@ mod rules;
 mod safeguards;
 mod skills;
 mod voice;
+mod worktree;
 pub use voice::{voice_section, VoiceGuide, VOICE_GUIDE};
 
 pub use conversation::{
@@ -68,6 +69,8 @@ pub struct PromptContext<'a> {
     pub delegation: Option<&'a Delegation>,
     /// 会話の言語（日本語以外なら「この言語で書く」指示を入れる。呼び出し側がジョブの時点の言語を渡す）
     pub language: Language,
+    /// git worktree の実際の置き場（絶対パス。設定がなければ <データフォルダ>/worktrees）
+    pub worktree_home: &'a str,
 }
 
 /// システムプロンプト: 会話の言語（日本語以外のとき）→ 人格 → 仕事 → ユーザーへの話し方 → 相談・レビューへの答え方 → 割り振りのしかた → 相談のしかた → スキル →

@@ -30,6 +30,7 @@ fn prompts(language: Language) -> (String, String) {
         attachment_path: &|_, attachment| attachment.file_name(),
         delegation: None,
         language,
+        worktree_home: "/guild/worktrees",
     };
     let human = message(1, Author::Human, "調べて");
     let job = JobSpec::respond(AgentId::new("haru"), &human, JobMode::Reply, Vec::new());

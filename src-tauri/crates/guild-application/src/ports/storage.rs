@@ -65,6 +65,8 @@ pub struct LaunchSettings {
     pub desktop_notifications: Option<bool>,
     /// Claude / Codex の認証モード。未指定の backend は desktop。
     pub backend_auth_modes: BTreeMap<String, String>,
+    /// git worktree の置き場（絶対パス。None なら <データフォルダ>/worktrees）
+    pub worktree_home: Option<String>,
 }
 
 pub type SettingsEdit<'a> = Box<dyn FnOnce(&mut LaunchSettings) + 'a>;

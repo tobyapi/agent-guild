@@ -5,9 +5,11 @@ use std::error::Error;
 use std::path::Path;
 use std::sync::Arc;
 
+use guild_application::global_instructions::GlobalInstructionsService;
 use guild_application::language::LanguageService;
 use guild_application::ports::{AgentRuntime, Clock, EventPublisher, SettingsStore, Spawner};
 use guild_application::storage::StorageService;
+use guild_application::worktree_home::WorktreeHomeService;
 use guild_application::{AppServices, Ports, StoragePorts};
 use guild_domain::boot::BootStatus;
 use guild_domain::locale::{self, Language};
@@ -60,9 +62,8 @@ pub fn ready(
         auth_modes,
     );
     let ports = Ports {
-        global_instructions: guild_application::global_instructions::GlobalInstructionsService::new(Arc::new(
-            SettingsFile::in_dir(&paths.config_dir),
-        )),
+        global_instructions: GlobalInstructionsService::new(Arc::new(SettingsFile::in_dir(&paths.config_dir))),
+        worktree_home: WorktreeHomeService::new(Arc::new(SettingsFile::in_dir(&paths.config_dir)), &paths.data_dir),
         agents: Arc::new(SqliteAgentRepository::new(db.clone())),
         channels: Arc::new(SqliteChannelRepository::new(db.clone())),
         messages: Arc::new(SqliteMessageRepository::new(db.clone())),

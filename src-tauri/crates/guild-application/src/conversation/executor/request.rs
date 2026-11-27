@@ -42,6 +42,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec, timeout_minutes: Option<u16>) 
     }
     let delegation = delegation_of(ports, job)?;
     let now_label = ports.clock.local_label(ports.clock.now_ms());
+    let worktree_home = ports.worktree_home.effective();
     let clock = ports.clock.clone();
     let time_label = move |ms: i64| clock.local_label(ms);
     let attachment_path = |message: &Message, attachment: &Attachment| {
@@ -61,6 +62,7 @@ pub(super) fn build(ports: &Ports, job: &JobSpec, timeout_minutes: Option<u16>) 
         attachment_path: &attachment_path,
         delegation: delegation.as_ref(),
         language: locale::current(),
+        worktree_home: &worktree_home,
     };
     Ok(Some(RuntimeRequest {
         timeout_minutes,

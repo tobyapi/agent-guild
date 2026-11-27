@@ -8,6 +8,7 @@ import { UpdateSection } from '@/features/update';
 import { Button, Dialog } from '@/shared/ui';
 import { t } from '../i18n';
 import { tAppearance } from '../i18n/appearance';
+import { tWorktreeHome } from '../i18n/worktreeHome';
 import { closeSettings, useSettingsStore } from '../store';
 import { AppearanceSection } from './AppearanceSection';
 import { BackendsSection } from './BackendsSection';
@@ -17,13 +18,14 @@ import { LanguageSection } from './LanguageSection';
 import { RunLimitsSection } from './RunLimitsSection';
 import { SettingsSection as Section } from './SettingsSection';
 import { StorageSection } from './StorageSection';
+import { WorktreeHomeSection } from './WorktreeHomeSection';
 import styles from './SettingsDialog.module.css';
 
 const groups = ['personal', 'display', 'ai', 'app'] as const;
 type Group = (typeof groups)[number];
 const groupLabels = { personal: 'groupPersonal', display: 'groupDisplay', ai: 'groupAi', app: 'groupApp' } as const;
 
-/** 設定ダイアログ: ギルド・プロフィール・言語・外観・通知・バックエンド・スキルのフォルダ・データの保存先・アプリの更新 */
+/** 設定ダイアログ: ギルド・プロフィール・言語・外観・通知・バックエンド・スキルのフォルダ・データの保存先・作業用フォルダの置き場・アプリの更新 */
 export function SettingsDialog() {
   const open = useSettingsStore((state) => state.open);
   const focus = useSettingsStore((state) => state.focus);
@@ -94,21 +96,29 @@ function SettingsContent({ focus }: { focus: 'skillLibrary' | 'update' | null })
                 </Section>
               </>
             )}
-            {group === 'app' && (
-              <>
-                <Section title={t('sectionStorage')}>
-                  <StorageSection />
-                </Section>
-                <Section title={t('sectionUpdate')} id="update" focus={selected === group ? focus : null}>
-                  <UpdateSection />
-                </Section>
-                <GalleryLicensesSection />
-              </>
-            )}
+            {group === 'app' && <AppSettings focus={selected === group ? focus : null} />}
           </div>
         ))}
       </div>
     </Dialog>
+  );
+}
+
+/** アプリ: データの保存先・作業用フォルダの置き場・アプリの更新・ライセンス表記 */
+function AppSettings({ focus }: { focus: 'skillLibrary' | 'update' | null }) {
+  return (
+    <>
+      <Section title={t('sectionStorage')}>
+        <StorageSection />
+      </Section>
+      <Section title={tWorktreeHome('title')}>
+        <WorktreeHomeSection />
+      </Section>
+      <Section title={t('sectionUpdate')} id="update" focus={focus}>
+        <UpdateSection />
+      </Section>
+      <GalleryLicensesSection />
+    </>
   );
 }
 

@@ -21,6 +21,7 @@ pub mod snapshot;
 pub mod storage;
 pub mod themes;
 pub mod update;
+pub mod worktree_home;
 
 use guild_application::AppError;
 use guild_domain::error::CommandError;

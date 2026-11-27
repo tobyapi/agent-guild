@@ -36,6 +36,7 @@ fn intent(history: &[Message], job: &JobSpec) -> String {
         attachment_path: &|_, _| String::new(),
         delegation: None,
         language: Language::Ja,
+        worktree_home: "/guild/worktrees",
     };
     build_intent(&ctx, history, job)
 }

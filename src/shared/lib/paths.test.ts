@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { folderName, isInsidePath, isSamePath } from './paths';
+import { folderName, isAbsolutePath, isInsidePath, isSamePath } from './paths';
 
 describe('isSamePath', () => {
   it('Windows のパスは大文字小文字・末尾の区切り・区切り文字の違いを無視する', () => {
@@ -27,5 +27,14 @@ describe('folderName', () => {
     expect(folderName('D:\\skills\\unity-performance\\')).toBe('unity-performance');
     expect(folderName('/home/me/skills')).toBe('skills');
     expect(folderName('D:\\')).toBe('D:');
+  });
+});
+
+describe('isAbsolutePath', () => {
+  it('ドライブ文字と区切り・UNC・/ から始まるものだけを絶対パスとみなす', () => {
+    for (const path of ['D:\\wt', ' e:/wt ', '\\\\server\\share', '/home/me/wt']) {
+      expect(isAbsolutePath(path)).toBe(true);
+    }
+    for (const path of ['', 'wt', '.\\wt', '..\\wt', 'D:wt', '\\wt']) expect(isAbsolutePath(path)).toBe(false);
   });
 });
