@@ -20,6 +20,7 @@ mod prompt_intent;
 mod prompt_language;
 mod prompt_posting;
 mod prompt_safeguards;
+mod prompt_size;
 mod prompt_system;
 mod reply;
 mod routing_human;
