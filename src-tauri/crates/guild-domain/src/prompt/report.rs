@@ -6,6 +6,7 @@ use super::members::name_of;
 use super::PromptContext;
 use crate::conversation::JobSpec;
 use crate::delegation::{Subtask, SubtaskStatus};
+use crate::ids::MessageId;
 
 /// サブタスクごとの「担当者・指示・状態・結果（全文、1件8000文字まで）か理由」
 pub(super) fn results(ctx: &PromptContext<'_>, job: &JobSpec) -> String {
@@ -15,6 +16,20 @@ pub(super) fn results(ctx: &PromptContext<'_>, job: &JobSpec) -> String {
     let entries: Vec<String> =
         delegation.subtasks.iter().enumerate().map(|(index, subtask)| entry(ctx, job, index + 1, subtask)).collect();
     format!("# 割り振ったタスクの結果がそろいました\n{}\n\n", entries.join("\n\n"))
+}
+
+/// results に本文を載せる発言（きっかけのうち、サブタスクの結果として引くもの）
+pub(super) fn shown_results<'a>(ctx: &PromptContext<'_>, job: &'a JobSpec) -> Vec<&'a MessageId> {
+    let Some(delegation) = ctx.delegation.filter(|delegation| job.report.as_ref() == Some(&delegation.id)) else {
+        return Vec::new();
+    };
+    job.triggers
+        .iter()
+        .filter(|message| {
+            delegation.subtasks.iter().any(|subtask| subtask.result_message_id.as_ref() == Some(&message.id))
+        })
+        .map(|message| &message.id)
+        .collect()
 }
 
 fn entry(ctx: &PromptContext<'_>, job: &JobSpec, number: usize, subtask: &Subtask) -> String {

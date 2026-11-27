@@ -101,11 +101,15 @@ fn labels_each_speaker_with_the_time() {
 #[test]
 fn quotes_the_triggers_in_full_up_to_8000_chars() {
     let long = "あ".repeat(TRIGGER_CHAR_LIMIT - 1);
-    let trigger = message(1, Author::Human, &long);
-    let prompt = prompt_for("haru", std::slice::from_ref(&trigger), &reply_job("haru", &trigger, &[]), &[]);
+    let earlier = message(1, by("logica"), &"い".repeat(TRIGGER_CHAR_LIMIT - 1));
+    let trigger = message(2, Author::Human, &long);
+    let history = vec![earlier, trigger.clone()];
+    let prompt = prompt_for("haru", &history, &reply_job("haru", &trigger, &[]), &[]);
     let pending = format!("# あなた宛ての未対応の発言\n[t0] ユーザー（人間）:\n{long}\n");
     assert!(prompt.contains(&pending), "未対応の発言は全文");
-    assert!(prompt.contains(&format!("{}\n…（長いので省略）", "あ".repeat(MESSAGE_CHAR_LIMIT))), "履歴は3000字まで");
+    assert_eq!(prompt.matches(long.as_str()).count(), 1, "履歴では全文を繰り返さない");
+    assert!(prompt.contains("[t0] ユーザー（人間）:\n（下の「あなた宛ての未対応の発言」に全文）\n\n# あなた宛ての"));
+    assert!(prompt.contains(&format!("{}\n…（長いので省略）", "い".repeat(MESSAGE_CHAR_LIMIT))), "履歴は3000字まで");
     assert!(prompt.ends_with("上の「あなた宛ての未対応の発言」に、ハル として返答してください。"));
     assert!(!prompt.contains("最後の発言"));
 }

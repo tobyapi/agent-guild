@@ -15,6 +15,7 @@ mod job_merge;
 mod mentions;
 mod permission_policy;
 mod prompt_conversation;
+mod prompt_dedup;
 mod prompt_delegation;
 mod prompt_intent;
 mod prompt_language;

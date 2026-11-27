@@ -2,6 +2,7 @@
 //! あなた宛ての未対応の発言（全文引用）→ 注記 → モード別の指示。それ以外の別の会話の発言は入れない
 //! （関係のない話に引きずられないように）。
 //! まとめ（report）のジョブでは、未対応の発言の代わりにサブタスクごとの結果を並べる。
+//! 下の節に全文を載せる発言（未対応の発言・まとめる結果）は、履歴では発言者・時刻・順序だけを残して全文を繰り返さない。
 //! 「最後の発言」という指し方はしない（あとから他の発言が続いても取り違えないように）。
 //! 日本語以外の言語では、最後にその言語で書く念押しを1行足す（language.rs）。
 //! 添付は「# 添付画像」（どの発言の画像か）と「# 添付ファイル」（読めるパス）で伝える（attachments.rs）。
@@ -10,6 +11,7 @@ use super::members::display_name;
 use super::{attachments, language, modes, report, PromptContext};
 use crate::author::Author;
 use crate::conversation::{file_attachments, image_messages, JobMode, JobSpec};
+use crate::ids::MessageId;
 use crate::message::{Message, MessageKind};
 
 /// プロンプトに入れる、この会話の発言の件数（新しい方から。会話の起点の発言はこれとは別に必ず入れる）
@@ -40,7 +42,8 @@ pub fn build_conversation_prompt(
     let transcript = if history.is_empty() {
         "（まだ会話はありません）".to_owned()
     } else {
-        entries(ctx, history, MESSAGE_CHAR_LIMIT)
+        let (shown, reference) = shown_below(ctx, job);
+        history_entries(ctx, history, &shown, reference)
     };
     let heading = if job.conversations().next().is_none() {
         format!("# チャンネル #{} の最近の発言", ctx.channel.name)
@@ -80,21 +83,45 @@ pub fn build_conversation_prompt(
     prompt
 }
 
-fn entries(ctx: &PromptContext<'_>, messages: &[Message], limit: usize) -> String {
+/// 履歴の代わりに下の節へ全文を載せる発言と、履歴に置く参照の文
+fn shown_below<'a>(ctx: &PromptContext<'_>, job: &'a JobSpec) -> (Vec<&'a MessageId>, &'static str) {
+    if job.mode == JobMode::Report {
+        return (report::shown_results(ctx, job), "（下の「割り振ったタスクの結果がそろいました」に全文）");
+    }
+    (job.triggers.iter().map(|message| &message.id).collect(), "（下の「あなた宛ての未対応の発言」に全文）")
+}
+
+fn history_entries(ctx: &PromptContext<'_>, messages: &[Message], shown: &[&MessageId], reference: &str) -> String {
     messages
         .iter()
         .map(|message| {
-            format!(
-                "[{}] {}{}{}:\n{}",
-                (ctx.time_label)(message.created_at),
-                display_name(&message.author_id, ctx),
-                progress_note(message),
-                attachments::note(message),
-                truncate(&message.content, limit)
-            )
+            let body = if shown.contains(&&message.id) {
+                reference.to_owned()
+            } else {
+                truncate(&message.content, MESSAGE_CHAR_LIMIT)
+            };
+            entry(ctx, message, &body)
         })
         .collect::<Vec<_>>()
         .join("\n\n")
+}
+
+fn entries(ctx: &PromptContext<'_>, messages: &[Message], limit: usize) -> String {
+    messages
+        .iter()
+        .map(|message| entry(ctx, message, &truncate(&message.content, limit)))
+        .collect::<Vec<_>>()
+        .join("\n\n")
+}
+
+fn entry(ctx: &PromptContext<'_>, message: &Message, body: &str) -> String {
+    format!(
+        "[{}] {}{}{}:\n{body}",
+        (ctx.time_label)(message.created_at),
+        display_name(&message.author_id, ctx),
+        progress_note(message),
+        attachments::note(message),
+    )
 }
 
 /// 作業の途中の投稿なら、最後の返答と取り違えないように印をつける
