@@ -101,6 +101,14 @@ pub fn report_job(history: &[Message]) -> JobSpec {
     }
 }
 
+/// 固定入力のエージェント（文体の設定込み）
+pub fn member(subject: &str, voice: &str) -> Agent {
+    let Some(person) = agents(voice).into_iter().find(|a| a.id.as_str() == subject) else {
+        panic!("{subject} がいません");
+    };
+    person
+}
+
 /// subject の視点で (システム, 会話) を作る
 pub fn build(
     subject: &str,

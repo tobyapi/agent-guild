@@ -1,6 +1,7 @@
 //! 道具の有無に依存しない会話文体の指示。性格・口調と同じ実行プロンプトへ渡す。
 //! auto では毎回送る量を抑えるため、選び方・表示構文・候補ごとに1行の短いガイド（voice_compact.md）を使う。
-//! 同梱スキル character-voice の全文ガイド（選び方・見た目の判断・全候補のカード）へ戻すときは VOICE_GUIDE を Full にする。
+//! 同梱スキル character-voice の全文ガイド（選び方・見た目の判断・全候補のカード）へ戻すときは、VOICE_GUIDE を Full にし、
+//! tests/domain/voice_compact.rs の voice_default_guide_is_compact の期待値も Full にする（落ちるテストはこの1つだけ）。
 
 use crate::agent::Agent;
 use crate::voice::{appearance_guide, mode_card, selection_guide, voice_modes};
@@ -14,7 +15,7 @@ pub enum VoiceGuide {
     Full,
 }
 
-/// システムプロンプトで使う文体ガイド。全文に戻すときはここを VoiceGuide::Full にする
+/// システムプロンプトで使う文体ガイド。全文に戻すときはここを VoiceGuide::Full にする（上の説明のとおりテストも1か所直す）
 pub const VOICE_GUIDE: VoiceGuide = VoiceGuide::Compact;
 
 const COMPACT: &str = include_str!("voice_compact.md");

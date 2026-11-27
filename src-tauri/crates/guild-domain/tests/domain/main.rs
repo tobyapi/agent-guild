@@ -35,3 +35,4 @@ mod tasks;
 mod values;
 
 mod voice;
+mod voice_compact;
