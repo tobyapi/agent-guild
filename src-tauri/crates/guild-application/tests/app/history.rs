@@ -104,8 +104,13 @@ async fn the_first_message_of_a_long_conversation_is_always_sent() {
     app.settle().await;
     let history = history_sent_to(&app, &haru);
     assert!(history.contains("最初の依頼"), "起点の発言は必ず入れる");
-    assert!(history.contains(&format!("返事{total}番")) && history.contains("返事6番"), "ほかは新しい方から30件");
+    assert!(history.contains(&format!("返事{}番", total - 1)) && history.contains("返事6番"), "ほかは新しい方から30件");
     assert!(!history.contains("返事5番"));
+    assert!(
+        !history.contains(&format!("返事{total}番"))
+            && history.ends_with("（下の「あなた宛ての未対応の発言」に全文）\n\n"),
+        "きっかけの発言は30件に数え、本文は下の節にだけ載せる"
+    );
 }
 
 #[tokio::test]
