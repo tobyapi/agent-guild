@@ -3,6 +3,7 @@
 import { HUMAN_ID } from '@/shared/types/domain';
 import type { Channel, Message } from '@/shared/types/domain';
 import { findA2uiBlock, removeA2uiBlock } from '@/shared/lib/a2uiBlock';
+import { removeTasksBlock } from '@/shared/lib/tasksBlock';
 import type { AuthorView } from './authors';
 import { A2UI_MAX_LENGTH, CHOICE_COUNT, readChoiceSurface, readJson } from './a2uiChoices';
 
@@ -84,18 +85,51 @@ export function readChoiceView(message: Message, content: string = message.conte
   };
 }
 
+/** 選択肢を読む本文: 割り振りのある発言は tasks ブロックを外したもの（画面の表示と同じ） */
+export const choiceSource = (message: Message) =>
+  message.delegationId === null ? message.content : removeTasksBlock(message.content);
+
 /**
- * 押せる提案: 直近の人間の発言より新しく、ボタンにできる提案のうち最新の1件の id。なければ null。
- * システムのお知らせ・エラー・ほかの AI の発言は飛ばす（messages は seq の昇順）
+ * 押せる提案: 直近の人間の発言より新しく、a2ui ブロックがある最新の発言の id。
+ * その発言がボタンにできないとき（壊れている・2つある）は null（古い提案は押せるまま残さない）。
+ * システムのお知らせ・エラー・ブロックのない発言は飛ばす（messages は seq の昇順）
  */
 export function findActiveProposal(messages: readonly Message[]): string | null {
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index];
     if (!message) continue;
     if (message.authorId === HUMAN_ID) return null;
-    if (readChoiceView(message).read?.kind === 'buttons') return message.id;
+    const read = readChoiceView(message, choiceSource(message)).read;
+    if (read) return read.kind === 'buttons' ? message.id : null;
   }
   return null;
+}
+
+/**
+ * 回答済みの印: ボタンにできた提案のうち、後に人間の発言があるものの id → 選んだ番号。
+ * 直後の人間の発言が `@{今の名前} {ラベル}` と一致すればその番号、一致しなければ null
+ */
+export function findAnswers(
+  messages: readonly Message[],
+  nameOf: (authorId: string) => string,
+): Map<string, number | null> {
+  const answers = new Map<string, number | null>();
+  let nextHuman: Message | null = null;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (!message) continue;
+    if (message.authorId === HUMAN_ID) {
+      nextHuman = message;
+      continue;
+    }
+    if (!nextHuman) continue;
+    const read = readChoiceView(message, choiceSource(message)).read;
+    if (read?.kind !== 'buttons') continue;
+    const reply = nextHuman.content;
+    const picked = read.labels.findIndex((label) => reply === `@${nameOf(message.authorId)} ${label}`);
+    answers.set(message.id, picked >= 0 ? picked : null);
+  }
+  return answers;
 }
 
 /** 押せるかどうか。open だけが押せる */

@@ -18,6 +18,8 @@ fn choices_rule_has_one_sample_block_in_the_output_rules() {
         let rules = &system[system.find("## 出力のルール").unwrap()..];
         assert!(rules.contains("人間に3択を尋ねる最終返答"), "{subject}");
         assert!(rules.contains("notify と skill-usage はこのブロックの後"), "{subject}");
+        assert!(rules.contains("30字以内の1行"), "{subject}");
+        assert!(rules.contains("3択以外では付けません"), "{subject}");
         assert!(rules.contains("\"catalogId\":\"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json\""));
     }
 }

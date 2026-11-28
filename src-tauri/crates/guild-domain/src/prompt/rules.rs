@@ -4,7 +4,7 @@ use super::{members, PromptContext};
 use crate::backend::MidRunPost;
 
 /// 人間に3択を尋ねるときの選択肢ボタン（A2UI v1.0 の createSurface。画面側の検証は src/features/chat/model/a2uiChoices.ts）
-const CHOICES: &str = r#"- 人間に3択を尋ねる最終返答では、本文に質問を書き、次の a2ui ブロックを1つ付けるとボタンになります。変えるのは dataModel.o の3つの t だけ。ラベルは A.／B.／C. で始まる1行で、メンション・リンク・HTML は書きません。tasks は質問の後、notify と skill-usage はこのブロックの後に置きます。
+const CHOICES: &str = r#"- 人間に3択を尋ねる最終返答では、本文に質問を書き、次の a2ui ブロックを1つ付けるとボタンになります。変えるのは dataModel.o の3つの t だけ。ラベルは A.／B.／C. で始まる30字以内の1行で、メンション・リンク・HTML は書きません。3択以外では付けません。tasks は質問の後、notify と skill-usage はこのブロックの後に置きます。
 ```a2ui
 {"version":"1.0","createSurface":{"surfaceId":"s","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","dataModel":{"o":[{"t":"A. 調査だけ進める"},{"t":"B. 設計案まで作る"},{"t":"C. ここで止める"}]},"components":[{"id":"root","component":"Row","children":{"componentId":"b","path":"/o"}},{"id":"b","component":"Button","child":"t","action":{"event":{"name":"pick"}}},{"id":"t","component":"Text","text":{"@path":"t"}}]}}
 ```"#;

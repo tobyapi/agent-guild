@@ -13,6 +13,29 @@
   gap: var(--space-2);
 }
 
+.buttons > .choice {
+  /* 共通の Button は1行・高さ固定。選択肢は押すと人間の発言になる文なので、全部見えるよう折り返す */
+  flex: 0 1 auto;
+  block-size: auto;
+  min-block-size: var(--button-height);
+  max-inline-size: 100%;
+  padding-block: var(--space-1);
+  line-height: var(--leading-tight);
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.buttons > .choice[aria-pressed='true'] {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.picked {
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+}
+
 .note {
   margin: 0;
   color: var(--text-muted);

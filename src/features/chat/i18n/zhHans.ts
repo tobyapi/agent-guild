@@ -92,6 +92,7 @@ export const zhHans: Messages<typeof ja> = {
   deletedAgent: '已删除的智能体',
   notLoaded: '该消息尚未加载。请向上滚动以加载更早的消息。',
   choiceGroup: '选项',
+  choiceAnswered: '已回答',
   choiceClosed: '已有新的消息，无法再选择这些选项',
   choiceDeleted: '提出问题的智能体已被删除，无法选择',
   choiceOutside: '提出问题的智能体不在此频道，无法选择',

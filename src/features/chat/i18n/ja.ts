@@ -92,6 +92,7 @@ export const ja = {
   deletedAgent: '削除済みのエージェント',
   notLoaded: 'その発言はまだ読み込まれていません。上にスクロールして、以前のメッセージを読み込んでください。',
   choiceGroup: '選択肢',
+  choiceAnswered: '回答済み',
   choiceClosed: '新しい発言があるため、この選択肢は押せません',
   choiceDeleted: '提案したエージェントが削除されたため、押せません',
   choiceOutside: '提案したエージェントがこのチャンネルにいないため、押せません',

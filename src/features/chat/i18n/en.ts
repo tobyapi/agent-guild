@@ -95,6 +95,7 @@ export const en: Messages<typeof ja> = {
   deletedAgent: 'Deleted agent',
   notLoaded: 'That message is not loaded yet. Scroll up to load earlier messages.',
   choiceGroup: 'Choices',
+  choiceAnswered: 'Answered',
   choiceClosed: 'Newer messages arrived, so these choices can no longer be selected',
   choiceDeleted: 'The agent who asked was deleted, so these choices cannot be selected',
   choiceOutside: 'The agent who asked is not in this channel, so these choices cannot be selected',

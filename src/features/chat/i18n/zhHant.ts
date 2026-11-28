@@ -92,6 +92,7 @@ export const zhHant: Messages<typeof ja> = {
   deletedAgent: '已刪除的代理人',
   notLoaded: '該訊息尚未載入。請向上捲動以載入較早的訊息。',
   choiceGroup: '選項',
+  choiceAnswered: '已回答',
   choiceClosed: '已有新的訊息，無法再選擇這些選項',
   choiceDeleted: '提出問題的代理人已被刪除，無法選擇',
   choiceOutside: '提出問題的代理人不在此頻道，無法選擇',

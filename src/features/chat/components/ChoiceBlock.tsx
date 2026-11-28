@@ -17,6 +17,8 @@ export interface ChoiceBlockProps {
   channelId: string;
   messageId: string;
   authorId: string;
+  /** 回答済みなら選んだ番号（一致しなければ null）。未回答なら undefined */
+  answer?: number | null;
 }
 
 /** 本文の下の選択肢: 見本どおりならボタン、そうでなければ読める文章（docs/design.md §7.2） */
@@ -31,9 +33,17 @@ function ChoiceButtons({
   channelId,
   messageId,
   authorId,
+  answer,
 }: Omit<ChoiceBlockProps, 'read'> & { labels: string[] }) {
   const sending = useChoiceSending(channelId);
-  const note = gate !== 'open' ? t(GATE_NOTES[gate]) : sending ? t('choiceSending') : null;
+  const answered = answer !== undefined && gate === 'closed';
+  const note = answered
+    ? t('choiceAnswered')
+    : gate !== 'open'
+      ? t(GATE_NOTES[gate])
+      : sending
+        ? t('choiceSending')
+        : null;
   return (
     <div className={styles.choices}>
       <div role="group" aria-label={t('choiceGroup')} className={styles.buttons}>
@@ -41,9 +51,16 @@ function ChoiceButtons({
           <Button
             key={index}
             size="sm"
+            className={styles.choice}
             disabled={gate !== 'open' || sending}
+            aria-pressed={answered ? answer === index : undefined}
             onClick={() => void sendChoice({ channelId, messageId, authorId, label, index })}
           >
+            {answered && answer === index && (
+              <span className={styles.picked} aria-hidden="true">
+                ✓
+              </span>
+            )}
             {label}
           </Button>
         ))}

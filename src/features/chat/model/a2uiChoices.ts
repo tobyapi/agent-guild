@@ -31,8 +31,9 @@ export function labelProblem(label: string, index: number): string | null {
   if (Array.from(label).length > CHOICE_LABEL_MAX) return 'long';
   if (!normalized.startsWith(PREFIXES[index] ?? '\u0000')) return 'prefix';
   if (normalized.includes('@')) return 'mention';
-  if (/[<>`]/.test(normalized) || /https?:|www\./i.test(normalized)) return 'markup';
-  if (/\p{Cc}|\p{Cf}|\p{Zl}|\p{Zp}/u.test(label)) return 'control';
+  // Markdown のリンク・画像（`](`）は、押したあとの人間の発言でローカルリンクになるので弾く。`[推奨]` だけなら通す
+  if (/[<>`]/.test(normalized) || /https?:|www\.|\]\s*\(/i.test(normalized)) return 'markup';
+  if (/\p{Cc}|\p{Cf}|\p{Zl}|\p{Zp}|\p{Cs}/u.test(label)) return 'control';
   return null;
 }
 

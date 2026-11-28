@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import { HUMAN_ID, SYSTEM_ID } from '@/shared/types/domain';
-import { findActiveProposal, readChoiceView, salvageLabels } from './choiceRead';
+import { labelProblem } from './a2uiChoices';
+import { findActiveProposal, findAnswers, readChoiceView, salvageLabels } from './choiceRead';
 import {
   fence,
   humanMessage,
@@ -39,6 +40,10 @@ it.each([
   ['a mention', (s: Surface) => void (s.createSurface.dataModel.o[1] = { t: 'B. @白竜 に頼む' })],
   ['a full-width mention', (s: Surface) => void (s.createSurface.dataModel.o[1] = { t: 'B. ＠白竜 に頼む' })],
   ['a link', (s: Surface) => void (s.createSurface.dataModel.o[0] = { t: 'A. https://example.com を見る' })],
+  ['a Markdown link', (s: Surface) => void (s.createSurface.dataModel.o[0] = { t: 'A. [手順書](D:/tools/setup.ps1)' })],
+  ['a Markdown image', (s: Surface) => void (s.createSurface.dataModel.o[0] = { t: 'A. ![図](D:/a.png)' })],
+  ['a duplicated ID', (s: Surface) => void (s.createSurface.components[2]!.id = 'b')],
+  ['a root with another name', (s: Surface) => void (s.createSurface.components[0]!.id = 'top')],
   ['HTML', (s: Surface) => void (s.createSurface.dataModel.o[0] = { t: 'A. <b>太字</b>' })],
   ['a newline', (s: Surface) => void (s.createSurface.dataModel.o[2] = { t: 'C. 止める\n本当に' })],
   ['the wrong order', (s: Surface) => void s.createSurface.dataModel.o.reverse()],
@@ -115,6 +120,77 @@ it('makes only the newest proposal after the latest human message clickable', ()
   expect(findActiveProposal([old, latest, other, notice, progress])).toBe(latest.id);
   expect(findActiveProposal([old, latest, humanMessage()])).toBeNull();
   expect(findActiveProposal([humanMessage(), old])).toBe(old.id);
+});
+
+it('does not leave an older proposal clickable when the newest block cannot become buttons', () => {
+  const old = message();
   const broken = message({ content: proposal('{oops') });
-  expect(findActiveProposal([old, broken])).toBe(old.id);
+  const many = message({ content: proposal(PROMPT_SAMPLE, fence(PROMPT_SAMPLE)) });
+  expect(findActiveProposal([old, broken])).toBeNull();
+  expect(findActiveProposal([old, many])).toBeNull();
+  expect(findActiveProposal([old, broken, message({ content: 'ふつうの発言' })])).toBeNull();
+  expect(findActiveProposal([broken, old])).toBe(old.id);
+});
+
+it('reads the block after removing the tasks block, the same as the screen', () => {
+  const tasks = ['```tasks', '@白竜: 調べて', '```'].join('\n');
+  const both = message({
+    delegationId: 'd',
+    content: ['どこまで進める？', '', tasks, '', fence(PROMPT_SAMPLE)].join('\n'),
+  });
+  expect(findActiveProposal([both])).toBe(both.id);
+  expect(readChoiceView(both).read?.kind).toBe('buttons');
+  // tasks が閉じていないと、表示では a2ui ごと外れる → 押せる提案にもしない
+  const unclosed = ['どこまで進める？', '', '```tasks', '@白竜: 調べて', '', fence(PROMPT_SAMPLE)].join('\n');
+  expect(findActiveProposal([message({ delegationId: 'd', content: unclosed })])).toBeNull();
+});
+
+it('marks the choice that the next human message sent and leaves other answers unmarked', () => {
+  const first = message();
+  const second = message();
+  const third = message();
+  const log = [
+    first,
+    humanMessage(`@白竜2 ${SAMPLE_LABELS[1]}`),
+    second,
+    humanMessage('別の答え'),
+    message({ content: proposal('{oops') }),
+    humanMessage(`@白竜2 ${SAMPLE_LABELS[0]}`),
+    third,
+  ];
+  const answers = findAnswers(log, () => '白竜2');
+  expect(answers.get(first.id)).toBe(1);
+  expect(answers.get(second.id)).toBeNull();
+  expect(answers.has(third.id)).toBe(false);
+  expect(answers.size).toBe(2);
+  // 今の名前で送られていなければ一致しない
+  expect(findAnswers(log, () => '白竜').get(first.id)).toBeNull();
+});
+
+const LONE_SURROGATE = String.fromCharCode(0xd800);
+
+it.each([
+  ['60 characters', `A. ${'あ'.repeat(57)}`, null],
+  ['61 characters', `A. ${'あ'.repeat(58)}`, 'long'],
+  ['a leading space', ' A. 調べる', 'blank'],
+  ['a trailing space', 'A. 調べる ', 'blank'],
+  ['a right-to-left override', 'A. 調べる\u202e', 'control'],
+  ['a lone surrogate', `A. 調べる${LONE_SURROGATE}`, 'control'],
+  ['www.', 'A. www.example.com', 'markup'],
+  ['a Markdown link', 'A. [手順書](D:/tools/setup.ps1) を開く', 'markup'],
+  ['a full-width Markdown link', 'A. ［手順書］（D:/a.md）', 'markup'],
+  ['a Markdown image', 'A. ![図](D:/a.png)', 'markup'],
+  ['brackets only', 'A. [推奨] 調査だけ', null],
+  ['a full-width prefix', 'Ａ． 調べる', null],
+])('checks a label with %s', (_name, label, problem) => {
+  expect(labelProblem(label, 0)).toBe(problem);
+});
+
+it('accepts pretty-printed JSON', () => {
+  expect(read(proposal(JSON.stringify(sampleSurface(), null, 2)))?.kind).toBe('buttons');
+});
+
+it('shows only three labels as text when there are four choices', () => {
+  const four = edited((s) => void s.createSurface.dataModel.o.push({ t: 'D. 別の案' }));
+  expect(read(four)).toMatchObject({ kind: 'fallback', labels: SAMPLE_LABELS });
 });

@@ -94,6 +94,7 @@ export const ko: Messages<typeof ja> = {
   deletedAgent: '삭제된 에이전트',
   notLoaded: '그 메시지는 아직 불러오지 않았습니다. 위로 스크롤해서 이전 메시지를 불러오세요.',
   choiceGroup: '선택지',
+  choiceAnswered: '답변함',
   choiceClosed: '새 메시지가 있어서 이 선택지는 누를 수 없습니다',
   choiceDeleted: '제안한 에이전트가 삭제되어 누를 수 없습니다',
   choiceOutside: '제안한 에이전트가 이 채널에 없어서 누를 수 없습니다',

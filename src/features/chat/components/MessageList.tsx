@@ -9,7 +9,7 @@ import { useMessageRenderer } from '../hooks/useMessageRenderer';
 import { useMessageScroll } from '../hooks/useMessageScroll';
 import { useToday } from '../hooks/useToday';
 import { useJumpStore } from '../jump';
-import { choiceGate, findActiveProposal } from '../model/choiceRead';
+import { choiceGate, findActiveProposal, findAnswers } from '../model/choiceRead';
 import { mentionsHuman } from '../model/messages';
 import { buildTimeline } from '../model/timeline';
 import { MessageItem } from './MessageItem';
@@ -40,6 +40,11 @@ export function MessageList({ channel, backdrop }: { channel: Channel; backdrop?
   const today = useToday();
   const renderBody = useMessageRenderer();
   const resolveAuthor = useAuthorResolver();
+  // 回答済みの印: 直後の人間の発言が「@今の名前 ラベル」と一致した選択肢（履歴だけで決まる）
+  const answers = useMemo(
+    () => findAnswers(log.messages, (authorId) => resolveAuthor(authorId).name),
+    [log.messages, resolveAuthor],
+  );
   const names = useKnownNames();
   const me = useProfile();
   const highlight = useJumpStore((state) => state.highlight);
@@ -78,6 +83,7 @@ export function MessageList({ channel, backdrop }: { channel: Channel; backdrop?
                 taskLink={delegations.links.get(message.id)}
                 highlight={highlight?.messageId === message.id ? highlight.phase : undefined}
                 choiceGate={choiceGate(message, author, channel, activeProposal)}
+                choiceAnswer={answers.get(message.id)}
               />
             ));
           })}

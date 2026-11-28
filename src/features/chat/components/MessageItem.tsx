@@ -2,7 +2,6 @@ import { memo, useMemo } from 'react';
 import { TagBadge } from '@/features/agents';
 import { MemberAvatar } from '@/features/frames';
 import { BackendTag } from '@/features/runtime';
-import { removeTasksBlock } from '@/shared/lib/tasksBlock';
 import { formatDateTime, formatTime, isoTime } from '@/shared/lib/time';
 import { Badge, Icon } from '@/shared/ui';
 import type { Delegation, Message } from '@/shared/types/domain';
@@ -11,7 +10,7 @@ import { jumpToMessage, messageElementId } from '../jump';
 import type { HighlightPhase } from '../jump';
 import type { AuthorView } from '../model/authors';
 import type { TaskLink } from '../model/delegations';
-import { readChoiceView, type ChoiceGate } from '../model/choiceRead';
+import { choiceSource, readChoiceView, type ChoiceGate } from '../model/choiceRead';
 import { ChoiceBlock } from './ChoiceBlock';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageBody } from './MessageBody';
@@ -40,6 +39,8 @@ export interface MessageItemProps {
   highlight: HighlightPhase | undefined;
   /** a2ui ブロックの選択肢を押せるか（ボタンにできる発言だけが使う） */
   choiceGate: ChoiceGate;
+  /** 回答済みの提案なら選んだ番号（一致しなければ null）。未回答なら undefined */
+  choiceAnswer?: number | null;
 }
 
 /** 1件の発言。先頭ならアバターと見出し、続きなら左の列に時刻（ホバーで見える） */
@@ -80,10 +81,9 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
 });
 
 /** 見出しの下: 本文（エラー発言は理由）と、選択肢（a2ui ブロックの代わり）と、割り振りのカード（tasks ブロックの代わり） */
-function MessageContent({ message, author, renderBody, delegation, choiceGate }: MessageItemProps) {
+function MessageContent({ message, author, renderBody, delegation, choiceGate, choiceAnswer }: MessageItemProps) {
   const eligible = !author.human && ['chat', 'autonomous', 'progress'].includes(message.kind);
-  const base = message.delegationId === null ? message.content : removeTasksBlock(message.content);
-  const { content, read } = useMemo(() => readChoiceView(message, base), [message, base]);
+  const { content, read } = useMemo(() => readChoiceView(message, choiceSource(message)), [message]);
   return (
     <>
       {message.kind === 'error' && <ErrorBody content={message.content} />}
@@ -94,6 +94,7 @@ function MessageContent({ message, author, renderBody, delegation, choiceGate }:
         <ChoiceBlock
           read={read}
           gate={choiceGate}
+          answer={choiceAnswer}
           channelId={message.channelId}
           messageId={message.id}
           authorId={message.authorId}
