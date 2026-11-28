@@ -75,7 +75,7 @@ export async function sendChoice(request: ChoiceRequest): Promise<boolean> {
   try {
     receiveMessage(message);
   } catch (error) {
-    // 送信は済んでいる（保存済み）ので再送はしない。取り込みの失敗は記録だけ残す（届いた発言は通知でも取り込まれる）
+    // 送信は済んでいる（保存済み）ので再送はしない。取り込みの失敗は記録だけ残す
     console.warn('The sent choice could not be added to the log', error);
   } finally {
     setSending(request.channelId, false);
