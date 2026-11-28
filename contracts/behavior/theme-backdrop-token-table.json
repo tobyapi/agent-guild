@@ -1342,6 +1342,16 @@
       "expression": "--surface: var(--bg-app);"
     },
     {
+      "file": "src/features/chat/components/ChoiceBlock.module.css",
+      "line": 18,
+      "expression": "color: var(--text-muted);"
+    },
+    {
+      "file": "src/features/chat/components/ChoiceBlock.module.css",
+      "line": 30,
+      "expression": "color: var(--text-muted);"
+    },
+    {
       "file": "src/features/chat/components/Composer.module.css",
       "line": 13,
       "expression": "--glass-ink-weight: 0%;"
@@ -2038,7 +2048,7 @@
     },
     {
       "file": "src/features/chat/components/MessageItem.tsx",
-      "line": 61,
+      "line": 65,
       "expression": "color={author.color}"
     },
     {
@@ -18076,6 +18086,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -18841,7 +18885,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -18851,7 +18895,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
@@ -34099,6 +34143,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -34864,7 +34942,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -34874,7 +34952,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
@@ -48722,6 +48800,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -49487,7 +49599,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -49497,7 +49609,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
@@ -63345,6 +63457,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -64110,7 +64256,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -64120,7 +64266,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
@@ -79368,6 +79514,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -80133,7 +80313,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -80143,7 +80323,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
@@ -93991,6 +94171,40 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:18",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 18,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
+          "name": "src/features/chat/components/ChoiceBlock.module.css:30",
+          "state": "source-cascade",
+          "accent": "all",
+          "status": "unresolved",
+          "text": null,
+          "overlays": [],
+          "background": null,
+          "sources": [
+            {
+              "file": "src/features/chat/components/ChoiceBlock.module.css",
+              "line": 30,
+              "expression": "color: var(--text-muted);"
+            }
+          ],
+          "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
+        },
+        {
           "name": "src/features/chat/components/Composer.module.css:39",
           "state": "source-cascade",
           "accent": "all",
@@ -94756,7 +94970,7 @@
           "reason": "Inherited foreground/background, ancestor opacity and selector applicability require cascade verification."
         },
         {
-          "name": "src/features/chat/components/MessageItem.tsx:61",
+          "name": "src/features/chat/components/MessageItem.tsx:65",
           "state": "source-cascade",
           "accent": "all",
           "status": "dynamic",
@@ -94766,7 +94980,7 @@
           "sources": [
             {
               "file": "src/features/chat/components/MessageItem.tsx",
-              "line": 61,
+              "line": 65,
               "expression": "color={author.color}"
             }
           ],
