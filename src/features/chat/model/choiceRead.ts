@@ -106,8 +106,9 @@ export function findActiveProposal(messages: readonly Message[]): string | null 
 }
 
 /**
- * 回答済みの印: ボタンにできた提案のうち、後に人間の発言があるものの id → 選んだ番号。
- * 直後の人間の発言が `@{今の名前} {ラベル}` と一致すればその番号、一致しなければ null
+ * 回答済みの印: 人間の発言の直前にある提案（a2ui ブロックのある最新の発言）1件の id → 選んだ番号。
+ * その提案がボタンにできないときは印なし。それより古い提案にも印は付けない。
+ * 人間の発言が `@{今の名前} {ラベル}` と一致すればその番号、一致しなければ null
  */
 export function findAnswers(
   messages: readonly Message[],
@@ -124,8 +125,11 @@ export function findAnswers(
     }
     if (!nextHuman) continue;
     const read = readChoiceView(message, choiceSource(message)).read;
-    if (read?.kind !== 'buttons') continue;
+    if (!read) continue;
+    // 人間の発言に対応するのは直前の提案1件だけ（壊れていても数える。findActiveProposal と同じ数え方）
     const reply = nextHuman.content;
+    nextHuman = null;
+    if (read.kind !== 'buttons') continue;
     const picked = read.labels.findIndex((label) => reply === `@${nameOf(message.authorId)} ${label}`);
     answers.set(message.id, picked >= 0 ? picked : null);
   }

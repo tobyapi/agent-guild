@@ -102,6 +102,29 @@ it('closes every proposal after a human message and marks the sent choice as ans
   expect(screen.queryByText(/新しい発言があるため/)).toBeNull();
 });
 
+it('marks only the newer of two identical proposals answered by the following human message', () => {
+  const old = message();
+  const latest = message();
+  show([old, latest, humanMessage(`@白竜2 ${SAMPLE_LABELS[2]}`)]);
+  expect(buttonsOf(latest).map((button) => button.getAttribute('aria-pressed'))).toEqual(['false', 'false', 'true']);
+  expect(buttonsOf(latest)[2]?.textContent).toContain('✓');
+  expect(buttonsOf(old).some((button) => button.getAttribute('aria-pressed') === 'true')).toBe(false);
+  expect(buttonsOf(old).some((button) => button.textContent?.includes('✓'))).toBe(false);
+  expect(screen.getAllByText('回答済み')).toHaveLength(1);
+  const oldArticle = document.getElementById(messageElementId(old.id));
+  expect(within(oldArticle as HTMLElement).queryByText('回答済み')).toBeNull();
+  expect(within(oldArticle as HTMLElement).getByText(/新しい発言があるため/)).toBeDefined();
+});
+
+it('marks neither proposal answered when the newest proposal before the human message is broken', () => {
+  const old = message();
+  const broken = message({ content: proposal('{oops') });
+  show([old, broken, humanMessage(`@白竜2 ${SAMPLE_LABELS[2]}`)]);
+  expect(buttonsOf(old).some((button) => button.getAttribute('aria-pressed') === 'true')).toBe(false);
+  expect(screen.queryByText('回答済み')).toBeNull();
+  expect(document.body.textContent).not.toContain('✓');
+});
+
 it('does not leave the older proposal clickable when the newest one is broken', () => {
   const old = message();
   const broken = message({ content: proposal('{oops') });

@@ -167,6 +167,16 @@ it('marks the choice that the next human message sent and leaves other answers u
   expect(findAnswers(log, () => '白竜').get(first.id)).toBeNull();
 });
 
+it('pairs a human message only with the proposal right before it, even when that one is broken', () => {
+  const old = message();
+  const latest = message();
+  const reply = humanMessage(`@白竜2 ${SAMPLE_LABELS[2]}`);
+  expect([...findAnswers([old, latest, reply], () => '白竜2')]).toEqual([[latest.id, 2]]);
+  const broken = message({ content: proposal('{oops') });
+  expect(findAnswers([old, broken, reply], () => '白竜2').size).toBe(0);
+  expect([...findAnswers([old, reply], () => '白竜2')]).toEqual([[old.id, 2]]);
+});
+
 const LONE_SURROGATE = String.fromCharCode(0xd800);
 
 it.each([

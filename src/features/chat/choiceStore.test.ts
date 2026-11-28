@@ -4,7 +4,7 @@ import { HUMAN_ID } from '@/shared/types/domain';
 import type { Agent, Channel, Message } from '@/shared/types/domain';
 import { chatApi } from './api';
 import { sendChoice, useChoiceStore, type ChoiceRequest } from './choiceStore';
-import { humanMessage, message, SAMPLE_LABELS } from './model/choiceFixtures.test-support';
+import { humanMessage, message, proposal, SAMPLE_LABELS } from './model/choiceFixtures.test-support';
 import { useChatStore } from './store';
 
 const agents = vi.hoisted(() => ({ list: [] as Agent[] }));
@@ -119,4 +119,13 @@ it('rejects a label with a mention even if it reaches the sender', async () => {
   const send = vi.spyOn(chatApi, 'send');
   expect(await sendChoice({ ...request(1), label: 'B. ＠Claude に頼む' })).toBe(false);
   expect(send).not.toHaveBeenCalled();
+});
+
+it('does not send when a newer broken proposal arrived before the click', async () => {
+  setLog([proposalMessage, message({ id: 'broken', content: proposal('{oops') })]);
+  const send = vi.spyOn(chatApi, 'send');
+  expect(await sendChoice(request(0))).toBe(false);
+  expect(send).not.toHaveBeenCalled();
+  expect(toast.notifyError).toHaveBeenCalledTimes(1);
+  expect(useChoiceStore.getState().sending.c).toBeUndefined();
 });
