@@ -10,4 +10,4 @@ export { agentAccent, HUMAN_ACCENT, primaryTag } from './model/accent';
 export type { MemberAccent } from './model/accent';
 export { groupByPrimaryTag } from './model/groups';
 export type { TagGroup } from './model/groups';
-export { applyAgentsSnapshot, openAgentEditor } from './store';
+export { applyAgentsSnapshot, getAllAgents, openAgentEditor } from './store';

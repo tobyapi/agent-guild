@@ -9,6 +9,7 @@ import { useMessageRenderer } from '../hooks/useMessageRenderer';
 import { useMessageScroll } from '../hooks/useMessageScroll';
 import { useToday } from '../hooks/useToday';
 import { useJumpStore } from '../jump';
+import { choiceGate, findActiveProposal } from '../model/choiceRead';
 import { mentionsHuman } from '../model/messages';
 import { buildTimeline } from '../model/timeline';
 import { MessageItem } from './MessageItem';
@@ -35,6 +36,7 @@ export function MessageList({ channel, backdrop }: { channel: Channel; backdrop?
     () => buildTimeline(log.messages, (message) => delegations.links.has(message.id)),
     [log.messages, delegations.links],
   );
+  const activeProposal = useMemo(() => findActiveProposal(log.messages), [log.messages]);
   const today = useToday();
   const renderBody = useMessageRenderer();
   const resolveAuthor = useAuthorResolver();
@@ -75,6 +77,7 @@ export function MessageList({ channel, backdrop }: { channel: Channel; backdrop?
                 delegation={message.delegationId === null ? undefined : delegations.byId[message.delegationId]}
                 taskLink={delegations.links.get(message.id)}
                 highlight={highlight?.messageId === message.id ? highlight.phase : undefined}
+                choiceGate={choiceGate(message, author, channel, activeProposal)}
               />
             ));
           })}

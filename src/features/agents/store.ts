@@ -16,6 +16,11 @@ interface AgentsStoreState {
 
 export const useAgentsStore = create<AgentsStoreState>()(() => ({ agents: [], templates: [], editor: null }));
 
+/** 削除済みも含む全員をいま読む（フックの外で、押した時点の状態を確かめるとき） */
+export function getAllAgents(): Agent[] {
+  return useAgentsStore.getState().agents;
+}
+
 function isEditable(editor: EditorTarget | null, agents: readonly Agent[]): boolean {
   if (editor?.mode !== 'edit') return true;
   return agents.some((agent) => agent.id === editor.agentId && agent.deletedAt === null);

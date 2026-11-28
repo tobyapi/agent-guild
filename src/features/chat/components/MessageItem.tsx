@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { TagBadge } from '@/features/agents';
 import { MemberAvatar } from '@/features/frames';
 import { BackendTag } from '@/features/runtime';
@@ -11,6 +11,8 @@ import { jumpToMessage, messageElementId } from '../jump';
 import type { HighlightPhase } from '../jump';
 import type { AuthorView } from '../model/authors';
 import type { TaskLink } from '../model/delegations';
+import { readChoiceView, type ChoiceGate } from '../model/choiceRead';
+import { ChoiceBlock } from './ChoiceBlock';
 import { MessageAttachments } from './MessageAttachments';
 import { MessageBody } from './MessageBody';
 import { TaskCard } from './TaskCard';
@@ -36,6 +38,8 @@ export interface MessageItemProps {
   taskLink: TaskLink | undefined;
   /** 「結果を見る」などで移ってきた発言の光らせ方 */
   highlight: HighlightPhase | undefined;
+  /** a2ui ブロックの選択肢を押せるか（ボタンにできる発言だけが使う） */
+  choiceGate: ChoiceGate;
 }
 
 /** 1件の発言。先頭ならアバターと見出し、続きなら左の列に時刻（ホバーで見える） */
@@ -75,15 +79,25 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
   );
 });
 
-/** 見出しの下: 本文（エラー発言は理由）と、割り振りのカード（tasks ブロックの代わり） */
-function MessageContent({ message, author, renderBody, delegation }: MessageItemProps) {
+/** 見出しの下: 本文（エラー発言は理由）と、選択肢（a2ui ブロックの代わり）と、割り振りのカード（tasks ブロックの代わり） */
+function MessageContent({ message, author, renderBody, delegation, choiceGate }: MessageItemProps) {
   const eligible = !author.human && ['chat', 'autonomous', 'progress'].includes(message.kind);
-  const content = message.delegationId === null ? message.content : removeTasksBlock(message.content);
+  const base = message.delegationId === null ? message.content : removeTasksBlock(message.content);
+  const { content, read } = useMemo(() => readChoiceView(message, base), [message, base]);
   return (
     <>
       {message.kind === 'error' && <ErrorBody content={message.content} />}
       {message.kind !== 'error' && content !== '' && (
         <MessageBody content={content} render={renderBody} agentId={author.human ? null : message.authorId} />
+      )}
+      {read && (
+        <ChoiceBlock
+          read={read}
+          gate={choiceGate}
+          channelId={message.channelId}
+          messageId={message.id}
+          authorId={message.authorId}
+        />
       )}
       <MessageAttachments message={message} />
       {eligible && <SkillUsageLabels usage={message.skillUsage} messageId={message.id} />}

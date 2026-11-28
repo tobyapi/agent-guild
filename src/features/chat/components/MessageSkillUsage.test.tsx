@@ -52,6 +52,7 @@ function show(overrides: Partial<Message> = {}, human = false) {
       delegation={undefined}
       taskLink={undefined}
       highlight={undefined}
+      choiceGate="closed"
     />,
   );
 }

@@ -24,6 +24,14 @@
     }
   },
   {
+    "name": "a2ui coexist",
+    "content": "どこまで進める？\n\n```a2ui\n{\"version\":\"1.0\",\"createSurface\":{\"surfaceId\":\"s\"}}\n```\n\n```notify\n選んでください\n```",
+    "request": {
+      "body": "選んでください",
+      "text": "どこまで進める？\n\n```a2ui\n{\"version\":\"1.0\",\"createSurface\":{\"surfaceId\":\"s\"}}\n```"
+    }
+  },
+  {
     "name": "literal mention stays display only",
     "content": "結果です。\n\n```notify\n@作業者 確認してください\n```",
     "request": {

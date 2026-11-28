@@ -3,6 +3,12 @@
 use super::{members, PromptContext};
 use crate::backend::MidRunPost;
 
+/// 人間に3択を尋ねるときの選択肢ボタン（A2UI v1.0 の createSurface。画面側の検証は src/features/chat/model/a2uiChoices.ts）
+const CHOICES: &str = r#"- 人間に3択を尋ねる最終返答では、本文に質問を書き、次の a2ui ブロックを1つ付けるとボタンになります。変えるのは dataModel.o の3つの t だけ。ラベルは A.／B.／C. で始まる1行で、メンション・リンク・HTML は書きません。tasks は質問の後、notify と skill-usage はこのブロックの後に置きます。
+```a2ui
+{"version":"1.0","createSurface":{"surfaceId":"s","catalogId":"https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json","dataModel":{"o":[{"t":"A. 調査だけ進める"},{"t":"B. 設計案まで作る"},{"t":"C. ここで止める"}]},"components":[{"id":"root","component":"Row","children":{"componentId":"b","path":"/o"}},{"id":"b","component":"Button","child":"t","action":{"event":{"name":"pick"}}},{"id":"t","component":"Text","text":{"@path":"t"}}]}}
+```"#;
+
 pub(super) fn section(ctx: &PromptContext<'_>) -> String {
     let topic = ctx.channel.topic.trim();
     let topic = if topic.is_empty() { String::new() } else { format!("\nチャンネルの話題: {topic}") };
@@ -32,6 +38,7 @@ pub(super) fn section(ctx: &PromptContext<'_>) -> String {
 - 出力した文章はそのままチャットに投稿されます。名前の接頭辞（「{name}:」など）はつけないでください。
 - チャットらしく、要点から簡潔に。長い成果物は見出しや箇条書きで読みやすく。Markdown が使えます。
 - 表現用の書式も使えます。`:t[文字]{{color=red size=2.5 rotate=180}}`、`:chars[文字]{{bend=6 drift=0.3}}`、`:path[文字]{{d=M0,80C100,20,200,20,300,80}}`、`:::layout{{vertical rotate=-8}}` ～ `:::` は必要なときだけ使ってください。
+{choices}
 - 返答する必要がない、他のメンバーがすでに十分答えている、などの場合は [PASS] とだけ出力してください（何も投稿されません）。
 {posting}",
         channel = ctx.channel.name,
@@ -39,6 +46,7 @@ pub(super) fn section(ctx: &PromptContext<'_>) -> String {
         members = members::member_list(ctx),
         me = ctx.me.name,
         name = ctx.agent.name,
+        choices = CHOICES,
         posting = posting(ctx),
     )
 }
